@@ -1,0 +1,16 @@
+.str-chat__message-replies-count-button {
+  display: block;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 700;
+  color: #006cff;
+  cursor: pointer;
+
+  svg {
+    margin-right: 5px;
+  }
+}

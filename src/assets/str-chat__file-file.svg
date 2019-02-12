@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="25px" height="30px" viewBox="0 0 25 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>file icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Team-Chat" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="LIGHT_02-Team-Chat" transform="translate(-399.000000, -2328.000000)">
+            <g id="Channel-Conversations" transform="translate(300.000000, 0.000000)">
+                <g id="ConversationMessageView" transform="translate(40.000000, 2239.000000)">
+                    <g id="MessageContent_file" transform="translate(49.000000, 83.000000)">
+                        <g id="file-icon" transform="translate(10.000000, 6.000000)">
+                            <path d="M0,1.99161703 C0,0.891677316 0.889763236,0 2.00359486,0 L22.9964051,0 C24.10296,0 25,0.89784041 25,1.99161703 L25,28.008383 C25,29.1083227 24.1102368,30 22.9964051,30 L2.00359486,30 C0.897039974,30 0,29.1021596 0,28.008383 L0,1.99161703 Z" id="placeholder" fill="#D1D1D1"></path>
+                            <path d="M5,5 L20,5 L20,7 L5,7 L5,5 Z M5,9 L20,9 L20,11 L5,11 L5,9 Z M5,13 L20,13 L20,15 L5,15 L5,13 Z M5,17 L12,17 L12,19 L5,19 L5,17 Z" id="lines" fill="#FFFFFF"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

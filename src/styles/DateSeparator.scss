@@ -1,0 +1,20 @@
+.str-chat__date-separator {
+  display: flex;
+  margin: 40px;
+  align-items: center;
+
+  &-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.7);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  &-line {
+    margin-right: 20px;
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+    height: 1px;
+    border: none;
+  }
+}

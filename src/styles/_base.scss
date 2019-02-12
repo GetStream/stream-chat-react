@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,700,700i');
+
+.str-chat {
+  box-sizing: border-box;
+
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+    font-family: $second-font;
+  }
+}
+
+// .team-chat {
+//   &.str-chat {
+//     height: 100vh;
+//     background: $white;
+//     font-family: $main-font;
+//     display: flex;
+//     align-items: flex-start;
+//     justify-content: flex-start;
+//     margin: 0;
+//     flex: 1 0 100%;
+
+//     .str-chat {
+//       &__container {
+//         background: $white; /* variables */
+
+//         /* flex: 1 0 100%; */
+//         flex: 1;
+//         height: 100%;
+//         display: flex;
+//         flex-direction: row;
+//       }
+
+//       &__main-panel {
+//         width: 100%;
+//         flex: 1;
+//         height: 100%;
+//         display: flex;
+//         flex-direction: column;
+//       }
+//     }
+//   }
+// }
+
+.clearfix {
+  clear: both;
+}
+
+.messenger-chat {
+  &.str-chat {
+    height: 100vh;
+    font-family: $second-font;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0;
+    flex: 1 0 100%;
+
+    .str-chat {
+      &__container {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+
+      &__main-panel {
+        width: 100%;
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 20px 0 10px;
+      }
+    }
+  }
+}
+
+.str-chat {
+  height: 100vh;
+  font-family: $second-font;
+  &.messaging {
+    background-color: #f1f1f3;
+  }
+}
+
+.str-chat-channel-list {
+  float: left;
+}
+
+.str-chat-channel {
+  max-height: 100vh;
+  .str-chat__container {
+    height: 100%;
+    display: flex;
+    .str-chat__main-panel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+  }
+  &.messaging {
+    .str-chat__container {
+    }
+    .str-chat__main-panel {
+      padding: 20px 10px 0 0px;
+    }
+  }
+  &.team {
+    .str-chat {
+      &__container {
+        display: flex;
+      }
+    }
+  }
+}

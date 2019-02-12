@@ -1,0 +1,91 @@
+.str-chat__thread {
+  background: #f1f1f3;
+  flex: 1 0 300px;
+  min-width: 300px;
+  max-width: 300px;
+  overflow-y: hidden;
+  padding-top: 70px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  &-header {
+    position: relative;
+    width: 100%;
+    background: #f1f1f3;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    height: 70px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+
+    &-details {
+      font-size: 14px;
+
+      small {
+        display: block;
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-start {
+    border-radius: 4px;
+    margin: 10px;
+    padding: 8px;
+    background: rgba(153, 196, 255, 0.1);
+    text-align: center;
+    font-size: 12px;
+  }
+
+  &-list {
+    height: 100%;
+    overflow-y: scroll;
+  }
+}
+
+.messaging {
+  &.str-chat {
+    .str-chat {
+      &__thread {
+        margin-right: 10px;
+        margin-top: 20px;
+        border-radius: 8px 8px 0 0;
+        background: white;
+      }
+      &__thread-list {
+        padding: 0 10px;
+
+        > .str-chat__list {
+          background: transparent;
+          overflow-y: hidden;
+          padding: 0;
+          .str-chat__list--thread {
+            padding: 0;
+            overflow-y: hidden;
+          }
+        }
+      }
+      &__thread-header {
+        border: none;
+        box-shadow: none;
+        background: white;
+      }
+    }
+  }
+}
+
+.team {
+  &.str-chat {
+    .str-chat {
+      &__thread-list {
+        > .str-chat__list {
+          overflow-y: hidden;
+          .str-chat__list--thread {
+            overflow-y: hidden;
+          }
+        }
+      }
+    }
+  }
+}

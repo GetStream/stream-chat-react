@@ -1,0 +1,64 @@
+.str-chat__small-message-input {
+  margin: 10px;
+  position: relative;
+  z-index: 1000;
+
+  &-emojiselect {
+    right: 6px;
+  }
+  &-emojiselect {
+    right: 26px;
+  }
+
+  &-emojiselect,
+  &-fileupload {
+    position: absolute;
+    cursor: pointer;
+    top: 8px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-size: 44px 44px;
+    fill: rgba(0, 0, 0, 0.6);
+
+    &:hover {
+      fill: rgba(0, 0, 0, 1);
+    }
+  }
+
+  &-emojipicker {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    transform: scale(0.8);
+    transform-origin: 100% 100%;
+  }
+
+  textarea {
+    background: transparent;
+    min-height: 36px;
+    font-size: 13px;
+    padding: 8px 44px 8px 8px;
+
+    &:focus {
+      height: 36px;
+    }
+  }
+
+  .str-chat__emojisearch {
+    bottom: 100%;
+  }
+
+  .str-chat__user-item {
+    font-size: 14px;
+  }
+
+  .rfu-file-upload-button {
+    position: absolute;
+    cursor: pointer;
+    top: 0px;
+    right: 28px;
+  }
+}
