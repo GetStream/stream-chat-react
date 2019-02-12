@@ -75,13 +75,13 @@ module.exports = {
 			usageMode: 'expand',
 		},
 	],
-	require: [path.join(path.resolve(path.dirname('')), 'dist/index.css')],
+	require: [path.join(path.resolve(path.dirname('')), 'dist/css/index.css')],
 	template: {
 		favicon: 'https://getstream.imgix.net/images/favicons/favicon-96x96.png',
 		link: {
 			rel: 'stylesheet',
 			type: 'text/css',
-			href: './dist/index.css',
+			href: './dist/css/index.css',
 		},
 	},
 };
