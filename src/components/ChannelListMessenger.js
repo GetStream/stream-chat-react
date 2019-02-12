@@ -12,59 +12,59 @@ import { withChatContext } from '../context';
  * @example ./examples/ChannelList.md
  */
 class ChannelListMessenger extends PureComponent {
-	static propTypes = {
-		/** Channels can be either an array of channels or a promise which resolves to an array of channels */
-		channels: PropTypes.oneOfType([
-			PropTypes.array,
-			PropTypes.objectOf({
-				then: PropTypes.func,
-			}),
-			PropTypes.object,
-		]).isRequired,
-		/** The Preview to use, defaults to ChannelPreviewMessenger */
-		Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  static propTypes = {
+    /** Channels can be either an array of channels or a promise which resolves to an array of channels */
+    channels: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.objectOf({
+        then: PropTypes.func,
+      }),
+      PropTypes.object,
+    ]).isRequired,
+    /** The Preview to use, defaults to ChannelPreviewMessenger */
+    Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
-		/** The loading indicator to use */
-		LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-	};
+    /** The loading indicator to use */
+    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  };
 
-	static defaultProps = {
-		Preview: ChannelPreviewMessenger,
-		LoadingIndicator: LoadingChannels,
-	};
+  static defaultProps = {
+    Preview: ChannelPreviewMessenger,
+    LoadingIndicator: LoadingChannels,
+  };
 
-	renderLoading = () => {
-		const Loader = this.props.LoadingIndicator;
-		return <Loader isLoading={true} />;
-	};
+  renderLoading = () => {
+    const Loader = this.props.LoadingIndicator;
+    return <Loader isLoading={true} />;
+  };
 
-	renderChannels = () =>
-		this.props.channels.map(c => (
-			<ChannelPreview
-				{...this.props}
-				activeChannel={this.props.channel}
-				key={c.cid}
-				channel={c}
-				Preview={this.props.Preview}
-			/>
-		));
+  renderChannels = () =>
+    this.props.channels.map((c) => (
+      <ChannelPreview
+        {...this.props}
+        activeChannel={this.props.channel}
+        key={c.cid}
+        channel={c}
+        Preview={this.props.Preview}
+      />
+    ));
 
-	render() {
-		if (this.props.error) {
-			return <ChatDown type="Connection Error" />;
-		} else if (this.props.loading) {
-			return <LoadingChannels />;
-		} else {
-			return (
-				<div className="str-chat__channel-list-messenger">
-					<div className="str-chat__channel-list-messenger__main">
-						<ChannelSearch />
-						{this.renderChannels()}
-					</div>
-				</div>
-			);
-		}
-	}
+  render() {
+    if (this.props.error) {
+      return <ChatDown type="Connection Error" />;
+    } else if (this.props.loading) {
+      return <LoadingChannels />;
+    } else {
+      return (
+        <div className="str-chat__channel-list-messenger">
+          <div className="str-chat__channel-list-messenger__main">
+            <ChannelSearch />
+            {this.renderChannels()}
+          </div>
+        </div>
+      );
+    }
+  }
 }
 
 ChannelListMessenger = withChatContext(ChannelListMessenger);

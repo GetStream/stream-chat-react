@@ -13,7 +13,8 @@ chatClient.setUser(
 );
 
 const channel = chatClient.channel('team', 'docs', {
-  image: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
+  image:
+    'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
   name: 'Talk about the documentation',
 });
 
@@ -50,7 +51,9 @@ class MyContextAwareComponent extends React.PureComponent {
   }
 }
 
-MyContextAwareComponent = ChatComponents.withChatContext(MyContextAwareComponent);
+MyContextAwareComponent = ChatComponents.withChatContext(
+  MyContextAwareComponent,
+);
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client} Message={MessageTeam}>

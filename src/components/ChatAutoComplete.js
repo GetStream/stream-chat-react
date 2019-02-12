@@ -14,123 +14,122 @@ import { CommandItem } from './CommandItem';
  * @example ./docs/ChatAutoComplete.md
  */
 export class ChatAutoComplete extends PureComponent {
-	static propTypes = {
-		/** The number of rows you want the textarea to have */
-		rows: PropTypes.number,
-		/** Grow the number of rows of the textarea while you're typing */
-		grow: PropTypes.bool,
-		/** The value of the textarea */
-		value: PropTypes.string,
-		/** Function to run on pasting within the textarea */
-		onPaste: PropTypes.func,
-		/** Function that runs on submit */
-		handleSubmit: PropTypes.func,
-		/** Function that runs on change */
-		onChange: PropTypes.func,
-		/** Placeholder for the textare */
-		placeholder: PropTypes.string,
-		/** What loading component to use for the auto complete when loading results. */
-		LoadingIndicator: PropTypes.node,
-		/** function to set up your triggers for autocomplete(eg. '@' for mentions, '/' for commands) */
-		trigger: PropTypes.func,
-		/** Minimum number of Character */
-		minChar: PropTypes.number,
-	};
+  static propTypes = {
+    /** The number of rows you want the textarea to have */
+    rows: PropTypes.number,
+    /** Grow the number of rows of the textarea while you're typing */
+    grow: PropTypes.bool,
+    /** The value of the textarea */
+    value: PropTypes.string,
+    /** Function to run on pasting within the textarea */
+    onPaste: PropTypes.func,
+    /** Function that runs on submit */
+    handleSubmit: PropTypes.func,
+    /** Function that runs on change */
+    onChange: PropTypes.func,
+    /** Placeholder for the textare */
+    placeholder: PropTypes.string,
+    /** What loading component to use for the auto complete when loading results. */
+    LoadingIndicator: PropTypes.node,
+    /** function to set up your triggers for autocomplete(eg. '@' for mentions, '/' for commands) */
+    trigger: PropTypes.func,
+    /** Minimum number of Character */
+    minChar: PropTypes.number,
+  };
 
-	static defaultProps = {
-		rows: 3,
-	};
+  static defaultProps = {
+    rows: 3,
+  };
 
-	getTriggers() {
-		return {
-			':': {
-				dataProvider: q => {
-					if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
-						return [];
-					}
-					const emojis = emojiIndex.search(q) || [];
-					return emojis.slice(0, 10);
-				},
-				component: EmoticonItem,
-				output: entity => ({
-					key: entity.id,
-					text: `${entity.native}`,
-					caretPosition: 'next',
-				}),
-			},
-			'@': {
-				dataProvider: q => {
-					const matchingUsers = this.props.users.filter(
-						user =>
-							user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1 ||
-							(user &&
-								user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1),
-					);
-					return matchingUsers.slice(0, 10);
-				},
-				component: UserItem,
-				output: entity => ({
-					key: entity.id,
-					text: `@${entity.id}`,
-					caretPosition: 'next',
-				}),
-			},
-			'/': {
-				dataProvider: (q, text) => {
-					if (text.indexOf('/') !== 0) {
-						return [];
-					}
-					const selectedCommands = this.props.commands.filter(
-						c => c.name.indexOf(q) !== -1,
-					);
-					return selectedCommands.slice(0, 10);
-				},
-				component: CommandItem,
-				output: entity => ({
-					key: entity.id,
-					text: `/${entity.name}`,
-					caretPosition: 'next',
-				}),
-			},
-		};
-	}
+  getTriggers() {
+    return {
+      ':': {
+        dataProvider: (q) => {
+          if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
+            return [];
+          }
+          const emojis = emojiIndex.search(q) || [];
+          return emojis.slice(0, 10);
+        },
+        component: EmoticonItem,
+        output: (entity) => ({
+          key: entity.id,
+          text: `${entity.native}`,
+          caretPosition: 'next',
+        }),
+      },
+      '@': {
+        dataProvider: (q) => {
+          const matchingUsers = this.props.users.filter(
+            (user) =>
+              user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1 ||
+              (user && user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1),
+          );
+          return matchingUsers.slice(0, 10);
+        },
+        component: UserItem,
+        output: (entity) => ({
+          key: entity.id,
+          text: `@${entity.id}`,
+          caretPosition: 'next',
+        }),
+      },
+      '/': {
+        dataProvider: (q, text) => {
+          if (text.indexOf('/') !== 0) {
+            return [];
+          }
+          const selectedCommands = this.props.commands.filter(
+            (c) => c.name.indexOf(q) !== -1,
+          );
+          return selectedCommands.slice(0, 10);
+        },
+        component: CommandItem,
+        output: (entity) => ({
+          key: entity.id,
+          text: `/${entity.name}`,
+          caretPosition: 'next',
+        }),
+      },
+    };
+  }
 
-	emojiReplace(word) {
-		const found = emojiIndex.search(word) || [];
-		for (const emoji of found.slice(0, 10)) {
-			if (emoji.emoticons.includes(word)) {
-				return emoji.native;
-			}
-		}
-	}
+  emojiReplace(word) {
+    const found = emojiIndex.search(word) || [];
+    for (const emoji of found.slice(0, 10)) {
+      if (emoji.emoticons.includes(word)) {
+        return emoji.native;
+      }
+    }
+  }
 
-	render() {
-		const { innerRef } = this.props;
-		return (
-			<AutoCompleteTextarea
-				loadingComponent={LoadingIndicator}
-				trigger={this.getTriggers()}
-				replaceWord={this.emojiReplace}
-				minChar={0}
-				innerRef={
-					innerRef &&
-					(ref => {
-						innerRef.current = ref;
-					})
-				}
-				rows={this.props.rows}
-				className="str-chat__textarea__textarea"
-				containerClassName="str-chat__textarea"
-				dropdownClassName="str-chat__emojisearch"
-				listClassName="str-chat__emojisearch__list"
-				itemClassName="str-chat__emojisearch__item"
-				placeholder={this.props.placeholder}
-				onChange={this.props.onChange}
-				handleSubmit={this.props.handleSubmit}
-				onPaste={this.props.onPaste}
-				value={this.props.value}
-				grow={this.props.grow}
-			/>
-		);
-	}
+  render() {
+    const { innerRef } = this.props;
+    return (
+      <AutoCompleteTextarea
+        loadingComponent={LoadingIndicator}
+        trigger={this.getTriggers()}
+        replaceWord={this.emojiReplace}
+        minChar={0}
+        innerRef={
+          innerRef &&
+          ((ref) => {
+            innerRef.current = ref;
+          })
+        }
+        rows={this.props.rows}
+        className="str-chat__textarea__textarea"
+        containerClassName="str-chat__textarea"
+        dropdownClassName="str-chat__emojisearch"
+        listClassName="str-chat__emojisearch__list"
+        itemClassName="str-chat__emojisearch__item"
+        placeholder={this.props.placeholder}
+        onChange={this.props.onChange}
+        handleSubmit={this.props.handleSubmit}
+        onPaste={this.props.onPaste}
+        value={this.props.value}
+        grow={this.props.grow}
+      />
+    );
+  }
 }

@@ -7,12 +7,12 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
  * @extends PureComponent
  */
 export class SafeAnchor extends React.PureComponent {
-	render() {
-		const href = sanitizeUrl(this.props.href);
-		return (
-			<a {...this.props} href={href}>
-				{this.props.children}
-			</a>
-		);
-	}
+  render() {
+    const href = sanitizeUrl(this.props.href);
+    return (
+      <a {...this.props} href={href}>
+        {this.props.children}
+      </a>
+    );
+  }
 }

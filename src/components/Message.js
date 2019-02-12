@@ -14,184 +14,187 @@ import deepequal from 'deep-equal';
  * @extends Component
  */
 export class Message extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			loading: false,
-		};
-	}
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+    };
+  }
 
-	static propTypes = {
-		/** The message object */
-		message: PropTypes.object.isRequired,
-		/** The client connection object for connecting to Stream */
-		client: PropTypes.object.isRequired,
-		/** The current channel this message is displayed in */
-		channel: PropTypes.object.isRequired,
-		/** A list of users that have seen this message **/
-		seenBy: PropTypes.array,
-		/** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-		groupStyles: PropTypes.array,
-		/** Editing, if the message is currently being edited */
-		editing: PropTypes.bool,
-		/** The message rendering component, the Message component delegates its rendering logic to this component */
-		Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-		/** Allows you to overwrite the attachment component */
-		Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-	};
+  static propTypes = {
+    /** The message object */
+    message: PropTypes.object.isRequired,
+    /** The client connection object for connecting to Stream */
+    client: PropTypes.object.isRequired,
+    /** The current channel this message is displayed in */
+    channel: PropTypes.object.isRequired,
+    /** A list of users that have seen this message **/
+    seenBy: PropTypes.array,
+    /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
+    groupStyles: PropTypes.array,
+    /** Editing, if the message is currently being edited */
+    editing: PropTypes.bool,
+    /** The message rendering component, the Message component delegates its rendering logic to this component */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Allows you to overwrite the attachment component */
+    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  };
 
-	static defaultProps = {
-		Message: MessageSimple,
-		seenBy: [],
-		groupStyles: [],
-		Attachment,
-		editing: false,
-	};
+  static defaultProps = {
+    Message: MessageSimple,
+    seenBy: [],
+    groupStyles: [],
+    Attachment,
+    editing: false,
+  };
 
-	shouldComponentUpdate(nextProps) {
-		// since there are many messages its important to only rerender messages when needed.
-		let shouldUpdate = nextProps.message !== this.props.message;
-		let reason = '';
-		if (shouldUpdate) {
-			reason = 'message';
-		}
-		// seen state is the next most likely thing to change..
+  shouldComponentUpdate(nextProps) {
+    // since there are many messages its important to only rerender messages when needed.
+    let shouldUpdate = nextProps.message !== this.props.message;
+    let reason = '';
+    if (shouldUpdate) {
+      reason = 'message';
+    }
+    // seen state is the next most likely thing to change..
 
-		if (!shouldUpdate && !deepequal(nextProps.seenBy, this.props.seenBy)) {
-			shouldUpdate = true;
-			reason = 'seenBy';
-		}
-		// group style often changes for the last 3 messages...
-		if (!shouldUpdate && !deepequal(nextProps.groupStyles, this.props.groupStyles)) {
-			shouldUpdate = true;
-			reason = 'groupStyles';
-		}
-		// editing is the last one which can trigger a change..
-		if (!shouldUpdate && nextProps.editing !== this.props.editing) {
-			shouldUpdate = true;
-			reason = 'editing';
-		}
+    if (!shouldUpdate && !deepequal(nextProps.seenBy, this.props.seenBy)) {
+      shouldUpdate = true;
+      reason = 'seenBy';
+    }
+    // group style often changes for the last 3 messages...
+    if (
+      !shouldUpdate &&
+      !deepequal(nextProps.groupStyles, this.props.groupStyles)
+    ) {
+      shouldUpdate = true;
+      reason = 'groupStyles';
+    }
+    // editing is the last one which can trigger a change..
+    if (!shouldUpdate && nextProps.editing !== this.props.editing) {
+      shouldUpdate = true;
+      reason = 'editing';
+    }
 
-		if (shouldUpdate && reason) {
-			// console.log(
-			// 	'message',
-			// 	nextProps.message.id,
-			// 	'shouldUpdate',
-			// 	shouldUpdate,
-			// 	reason,
-			// );
-		}
+    if (shouldUpdate && reason) {
+      // console.log(
+      // 	'message',
+      // 	nextProps.message.id,
+      // 	'shouldUpdate',
+      // 	shouldUpdate,
+      // 	reason,
+      // );
+    }
 
-		return shouldUpdate;
-	}
+    return shouldUpdate;
+  }
 
-	handleFlag = async event => {
-		event.preventDefault();
+  handleFlag = async (event) => {
+    event.preventDefault();
 
-		const message = this.props.message;
-		await this.props.client.flagMessage(message.id);
-	};
+    const message = this.props.message;
+    await this.props.client.flagMessage(message.id);
+  };
 
-	handleMute = async event => {
-		event.preventDefault();
+  handleMute = async (event) => {
+    event.preventDefault();
 
-		const message = this.props.message;
-		await this.props.client.flagMessage(message.user.id);
-	};
+    const message = this.props.message;
+    await this.props.client.flagMessage(message.user.id);
+  };
 
-	handleEdit = () => {
-		this.props.setEditingState(this.props.message);
-		//this.editMessageFormRef.current.editFieldRef.current.focus();
-	};
+  handleEdit = () => {
+    this.props.setEditingState(this.props.message);
+    //this.editMessageFormRef.current.editFieldRef.current.focus();
+  };
 
-	handleDelete = async event => {
-		event.preventDefault();
-		const message = this.props.message;
-		const data = await this.props.client.deleteMessage(message.id);
-		this.props.updateMessage(data.message);
-	};
+  handleDelete = async (event) => {
+    event.preventDefault();
+    const message = this.props.message;
+    const data = await this.props.client.deleteMessage(message.id);
+    this.props.updateMessage(data.message);
+  };
 
-	handleReaction = async (reactionType, event) => {
-		if (event !== undefined && event.preventDefault) {
-			event.preventDefault();
-		}
+  handleReaction = async (reactionType, event) => {
+    if (event !== undefined && event.preventDefault) {
+      event.preventDefault();
+    }
 
-		let userExistingReaction = null;
-		let data;
+    let userExistingReaction = null;
+    let data;
 
-		const currentUser = this.props.client.userID;
+    const currentUser = this.props.client.userID;
 
-		for (const reaction of this.props.message.own_reactions) {
-			// own user should only ever contain the current user id
-			// just in case we check to prevent bugs with message updates from breaking reactions
-			if (currentUser === reaction.user.id && reaction.type === reactionType) {
-				userExistingReaction = reaction;
-			} else if (currentUser !== reaction.user.id) {
-				console.warn(
-					`message.own_reactions contained reactions from a different user, this indicates a bug`,
-				);
-			}
-		}
+    for (const reaction of this.props.message.own_reactions) {
+      // own user should only ever contain the current user id
+      // just in case we check to prevent bugs with message updates from breaking reactions
+      if (currentUser === reaction.user.id && reaction.type === reactionType) {
+        userExistingReaction = reaction;
+      } else if (currentUser !== reaction.user.id) {
+        console.warn(
+          `message.own_reactions contained reactions from a different user, this indicates a bug`,
+        );
+      }
+    }
 
-		if (userExistingReaction) {
-			// remove the reaction..
-			data = await this.props.channel.deleteReaction(userExistingReaction.id);
-		} else {
-			const messageID = this.props.message.id;
+    if (userExistingReaction) {
+      // remove the reaction..
+      data = await this.props.channel.deleteReaction(userExistingReaction.id);
+    } else {
+      const messageID = this.props.message.id;
 
-			data = await this.props.channel.sendReaction(messageID, {
-				type: reactionType,
-			});
-		}
+      data = await this.props.channel.sendReaction(messageID, {
+        type: reactionType,
+      });
+    }
 
-		this.props.updateMessage(data.message);
-	};
+    this.props.updateMessage(data.message);
+  };
 
-	handleAction = async (name, value, event) => {
-		event.preventDefault();
-		const messageID = this.props.message.id;
-		const formData = {};
-		formData[name] = value;
+  handleAction = async (name, value, event) => {
+    event.preventDefault();
+    const messageID = this.props.message.id;
+    const formData = {};
+    formData[name] = value;
 
-		const data = await this.props.channel.sendAction(messageID, formData);
+    const data = await this.props.channel.sendAction(messageID, formData);
 
-		if (data && data.message) {
-			this.props.updateMessage(data.message);
-		} else {
-			this.props.removeMessage(this.props.message);
-		}
-	};
+    if (data && data.message) {
+      this.props.updateMessage(data.message);
+    } else {
+      this.props.removeMessage(this.props.message);
+    }
+  };
 
-	handleRetry = async message => {
-		await this.props.retrySendMessage(message);
-	};
+  handleRetry = async (message) => {
+    await this.props.retrySendMessage(message);
+  };
 
-	render() {
-		const message = this.props.message;
-		const mine = true;
+  render() {
+    const message = this.props.message;
+    const mine = true;
 
-		const actionsEnabled =
-			message.type === 'regular' && message.status === 'received';
+    const actionsEnabled =
+      message.type === 'regular' && message.status === 'received';
 
-		// if (message.type === 'error') {
-		// 	return <ErrorMessage message={message} />;
-		// }
-		const Component = this.props.Message;
-		return (
-			<Component
-				{...this.props}
-				actionsEnabled={actionsEnabled}
-				mine={mine}
-				messageBase={this}
-				handleReaction={this.handleReaction}
-				handleFlag={this.handleFlag}
-				handleMute={this.handleMute}
-				handleAction={this.handleAction}
-				handleReply={this.handleReply}
-				handleRetry={this.handleRetry}
-				// TODO: don't use anon functions
-				openThread={e => this.props.openThread(e, message)}
-			/>
-		);
-	}
+    // if (message.type === 'error') {
+    // 	return <ErrorMessage message={message} />;
+    // }
+    const Component = this.props.Message;
+    return (
+      <Component
+        {...this.props}
+        actionsEnabled={actionsEnabled}
+        mine={mine}
+        messageBase={this}
+        handleReaction={this.handleReaction}
+        handleFlag={this.handleFlag}
+        handleMute={this.handleMute}
+        handleAction={this.handleAction}
+        handleReply={this.handleReply}
+        handleRetry={this.handleRetry}
+        // TODO: don't use anon functions
+        openThread={(e) => this.props.openThread(e, message)}
+      />
+    );
+  }
 }

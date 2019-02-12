@@ -44,7 +44,12 @@ connection to Stream and configure the message component.
 
 ```jsx
 import React from 'react';
-import { StreamChat, Channel, MessageList, RichTextInput } from 'stream-chat-react';
+import {
+  StreamChat,
+  Channel,
+  MessageList,
+  RichTextInput,
+} from 'stream-chat-react';
 
 const chatClient = new StreamChat('app_id__key');
 chatClient.setUser(
@@ -59,7 +64,8 @@ chatClient.setUser(
 );
 const channel = chatClient.channel('test', 'random', {
   // add as many custom fields as you'd like
-  image: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
+  image:
+    'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
   name: 'The random channel',
 });
 

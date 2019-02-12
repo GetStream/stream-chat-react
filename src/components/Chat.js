@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext } from '../context';
 
-
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
@@ -25,60 +24,59 @@ const baseUseCases = ['messaging', 'team', 'commerce', 'gaming', 'livestream'];
 const themes = [];
 
 for (const color of colors) {
-	for (const useCase of baseUseCases) {
-		themes.push(`${useCase} ${color}`);
-	}
+  for (const useCase of baseUseCases) {
+    themes.push(`${useCase} ${color}`);
+  }
 }
 
 export class Chat extends PureComponent {
-	static propTypes = {
-		/** The StreamChat client object */
-		client: PropTypes.object.isRequired,
-		/** The theme 'messaging', 'team', 'commerce', 'gaming', 'livestream' plus either 'light' or 'dark' */
-		theme: PropTypes.oneOf(themes),
-	};
+  static propTypes = {
+    /** The StreamChat client object */
+    client: PropTypes.object.isRequired,
+    /** The theme 'messaging', 'team', 'commerce', 'gaming', 'livestream' plus either 'light' or 'dark' */
+    theme: PropTypes.oneOf(themes),
+  };
 
-	static defaultProps = {
-		theme: 'messaging light',
-	};
+  static defaultProps = {
+    theme: 'messaging light',
+  };
 
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.state = {
-			// currently active channel
-			channel: {},
-			// list of channels
-			channels: [],
-			// create new Channel state
-			channelStart: false, // false
-		};
-	}
+    this.state = {
+      // currently active channel
+      channel: {},
+      // list of channels
+      channels: [],
+      // create new Channel state
+      channelStart: false, // false
+    };
+  }
 
-	setActiveChannel = (channel, e) => {
-		if (e !== undefined && e.preventDefault) {
-			e.preventDefault();
-		}
+  setActiveChannel = (channel, e) => {
+    if (e !== undefined && e.preventDefault) {
+      e.preventDefault();
+    }
 
-		this.setState(() => ({
-			channel,
-		}));
-	};
+    this.setState(() => ({
+      channel,
+    }));
+  };
 
-	getContext = () => ({
-		client: this.props.client,
-		channels: this.state.channels,
-		channel: this.state.channel,
-		setActiveChannel: this.setActiveChannel,
-		theme: this.props.theme,
-	});
+  getContext = () => ({
+    client: this.props.client,
+    channels: this.state.channels,
+    channel: this.state.channel,
+    setActiveChannel: this.setActiveChannel,
+    theme: this.props.theme,
+  });
 
-	render() {
-		return (
-			<ChatContext.Provider value={this.getContext()}>
-				{this.props.children}
-			</ChatContext.Provider>
-		);
-	}
+  render() {
+    return (
+      <ChatContext.Provider value={this.getContext()}>
+        {this.props.children}
+      </ChatContext.Provider>
+    );
+  }
 }
-

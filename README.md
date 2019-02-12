@@ -27,13 +27,13 @@ You can read about that in the Chat API docs.
 
 ### Component Reusability
 
-1. If a component implements a ton of logic it's nice if you split it out into 2 Components
-   The top level component which handles all the logic, and a lower level component which just handles rendering.
-   This makes it easy to change the rendering without having to touch the other stuff.
-   Have a look at Message and MessageTeam to see how this approach works.
+1.  If a component implements a ton of logic it's nice if you split it out into 2 Components
+    The top level component which handles all the logic, and a lower level component which just handles rendering.
+    This makes it easy to change the rendering without having to touch the other stuff.
+    Have a look at Message and MessageTeam to see how this approach works.
 
-2. Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children approach.
-   Have a look at how flexible the channel layout is due to this approach:
+2.  Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children approach.
+    Have a look at how flexible the channel layout is due to this approach:
 
 ```js
 <Channel>
