@@ -45,6 +45,9 @@
   &-list {
     height: 100%;
     overflow-y: scroll;
+    .str-chat__list {
+      overflow-y: hidden;
+    }
   }
 }
 
