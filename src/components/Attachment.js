@@ -3,7 +3,7 @@ import ReactPlayer from 'react-player';
 import { Card } from './Card';
 import { Image } from './Image';
 import { AttachmentActions } from './AttachmentActions';
-import { FileIcon } from './FileIcon';
+import { FileIcon } from 'react-file-utils';
 import prettybytes from 'pretty-bytes';
 import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
@@ -36,6 +36,8 @@ export class Attachment extends PureComponent {
 			extra = 'actions';
 		}
 		if (a.type === 'giphy' || a.type === 'imgur') {
+			type = 'card';
+		} else if (a.type === 'image' && a.title_link) {
 			type = 'card';
 		} else if (a.type === 'image') {
 			type = 'image';
@@ -88,7 +90,7 @@ export class Attachment extends PureComponent {
 					className="str-chat__message-attachment-file--item"
 					key={`key-file-${a.id}`}
 				>
-					<FileIcon {...a} />
+					<FileIcon mimeType={a.mime_type} filename={a.title} big size={30} />
 					<div className="str-chat__message-attachment-file--item-text">
 						<SafeAnchor href={a.asset_url} download>
 							{a.title}

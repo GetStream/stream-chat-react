@@ -149,23 +149,25 @@
   display: flex;
 }
 
-.rfu-dropzone .rfu-dropzone__notifier {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  padding: 5px;
-  z-index: 100;
-  display: none;
-}
+.str-chat {
+  .rfu-dropzone .rfu-dropzone__notifier {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+    z-index: 100;
+    display: none;
+  }
 
-.rfu-dropzone--accept .rfu-dropzone__notifier {
-  background: rgba(#006cff, 0.7);
-  display: block;
-}
+  .rfu-dropzone--accept .rfu-dropzone__notifier {
+    background: rgba(#006cff, 0.7);
+    display: block;
+  }
 
-.rfu-dropzone--reject .rfu-dropzone__notifier {
-  background: rgba(red, 0.7);
-  display: block;
+  .rfu-dropzone--reject .rfu-dropzone__notifier {
+    background: rgba(red, 0.7);
+    display: block;
+  }
 }
 
 .rfu-dropzone__inner {
@@ -188,7 +190,8 @@
   display: none;
 }
 
-.team.str-chat {
+.team.str-chat,
+.livestream.str-chat {
   .str-chat {
     &__input {
       padding: 10px 40px;
@@ -235,5 +238,5 @@
 }
 
 .rfu-file-upload-button svg {
-  fill: rgba(0, 0, 0, 0.6);
+  fill: rgba(0, 0, 0, 0.6) !important;
 }

@@ -153,24 +153,6 @@
           }
         }
 
-        blockquote {
-          margin: 0 0 0 5px;
-          font-style: italic;
-          padding-left: 20px;
-          position: relative;
-
-          &::before {
-            font-size: 25px;
-            content: '\201C';
-            font-style: italic;
-            position: absolute;
-            opacity: 0.5;
-            top: 2px;
-            left: -5px;
-            // background-color: #006cff;
-          }
-        }
-
         pre,
         code {
           font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
@@ -452,6 +434,26 @@
         bottom: initial;
         bottom: -10px;
       }
+    }
+  }
+}
+
+.str-chat {
+  blockquote {
+    margin: 0 0 0 5px;
+    font-style: italic;
+    padding-left: 20px;
+    position: relative;
+
+    &::before {
+      font-size: 25px;
+      content: '\201C';
+      font-style: italic;
+      position: absolute;
+      opacity: 0.5;
+      top: 2px;
+      left: -5px;
+      // background-color: #006cff;
     }
   }
 }

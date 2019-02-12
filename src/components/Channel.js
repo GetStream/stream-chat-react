@@ -331,7 +331,8 @@ class ChannelInner extends PureComponent {
 		await this._sendMessage(message);
 	};
 
-	handleEvent = (channel, e) => {
+	handleEvent = e => {
+		const channel = this.props.channel;
 		let threadMessages = [];
 		const threadState = {};
 		if (this.state.thread) {
@@ -383,10 +384,11 @@ class ChannelInner extends PureComponent {
 	};
 
 	listenToChanges() {
-		const channel = this.props.channel;
 		// The more complex sync logic is done in chat.js
-		this.boundHandler = this.handleEvent.bind(this, channel);
-		channel.on(this.boundHandler);
+		// listen to client.connection.recovered and all channel events
+		this.props.client.on('connection.recovered', this.handleEvent);
+		const channel = this.props.channel;
+		channel.on(this.handleEvent);
 		this.boundMarkSeen = this.markSeen.bind(this, channel);
 		this.visibilityListener = Visibility.change((e, state) => {
 			if (state === 'visible') {

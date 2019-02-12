@@ -35,6 +35,27 @@
 
     p {
       margin: 0;
+      /* Make sure really long urls and words don't break out.
+        ** https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/ */
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      -ms-word-break: break-all;
+      /* This is the dangerous one in WebKit, as it breaks things wherever */
+      word-break: break-all;
+      /* Instead use this non-standard one: */
+      word-break: break-word;
+
+      /* Adds a hyphen where the word breaks, if supported (No Blink) */
+      -ms-hyphens: auto;
+      -moz-hyphens: auto;
+      -webkit-hyphens: auto;
+      hyphens: auto;
+
+      a {
+        color: $secondary-color;
+        font-weight: bold;
+        text-decoration: none;
+      }
     }
 
     &:hover {
@@ -127,6 +148,9 @@
   &-author {
     margin-bottom: 8px;
     text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   &:hover {
@@ -145,11 +169,11 @@
   .str-chat__message-attachment-card {
     margin: 0;
     border-radius: 0;
-    background: #fff;
+    background: rgba(white, 0.2);
     border: 1px solid rgba(0, 0, 0, 0.08);
 
     &--content {
-      background: #fff;
+      background: rgba(white, 0.2);
     }
 
     &--text {
@@ -169,5 +193,46 @@
     background: rgba(0, 108, 255, 0.1);
     border-radius: 2px;
     color: #404040;
+  }
+
+  &--error {
+    .str-chat__message-livestream {
+      &-content {
+        border-color: rgba(red, 0.4);
+        border-radius: 6px;
+        background: rgba(red, 0.1);
+      }
+    }
+    &:hover {
+      .str-chat__message-livestream {
+        &-content {
+          border-color: rgba(red, 0.4);
+          background: rgba(red, 0.1);
+        }
+      }
+    }
+  }
+  &--initial-message {
+    margin-top: 20px;
+  }
+}
+
+.str-chat__list--thread {
+  .str-chat__message-livestream__actions {
+    min-width: 30px;
+  }
+  .str-chat__message-livestream {
+    // padding: 5px 10px;
+
+    &-actions {
+      width: 110px;
+      min-width: unset;
+
+      .str-chat__message-actions-box {
+        top: initial;
+        bottom: initial;
+        bottom: -10px;
+      }
+    }
   }
 }

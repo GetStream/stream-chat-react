@@ -80,9 +80,8 @@
         background: #f7f7f7;
       }
 
-      img {
-        height: 30px;
-        width: 30px;
+      img,
+      svg {
         margin-right: 10px;
       }
 
@@ -174,6 +173,22 @@
         &.str-chat__message-attachment--image--actions {
           .str-chat__message-attachment--img {
             max-height: 254px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.livestream.str-chat {
+  .str-chat {
+    &__message-attachment {
+      &.str-chat__message-attachment--file {
+        max-width: 100%;
+        .str-chat__message-attachment-file--item {
+          border-left: none;
+          &:hover {
+            background: rgba(255, 255, 255, 0.29);
           }
         }
       }

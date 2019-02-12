@@ -20,5 +20,6 @@ export { MessageTeam } from './MessageTeam';
 export { MessageSimple } from './MessageSimple';
 export { Thread } from './Thread';
 export { TypingIndicator } from './TypingIndicator';
+export { Window } from './Window';
 
 export * from '../utils';

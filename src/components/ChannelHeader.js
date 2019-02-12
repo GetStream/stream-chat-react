@@ -31,7 +31,9 @@ class ChannelHeader extends PureComponent {
 						)}
 					</p>
 					<p className="str-chat__header-livestream-left--members">
-						{this.props.channel.data.member_count} members,{' '}
+						{!this.props.live && (
+							<>{this.props.channel.data.member_count} members, </>
+						)}
 						{this.props.online} online
 					</p>
 				</div>

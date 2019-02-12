@@ -13,11 +13,11 @@ import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import { isOnlyEmojis, renderText } from '../utils';
 
-const svg1 =
-	'<svg width="20" height="18" viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 4.5H15a.5.5 0 1 1 0-1h1.5V2a.5.5 0 1 1 1 0v1.5H19a.5.5 0 1 1 0 1h-1.5V6a.5.5 0 1 1-1 0V4.5zM9 13c-1.773 0-3.297-.82-4-2h8c-.703 1.18-2.227 2-4 2zm4.057-11.468a.5.5 0 1 1-.479.878A7.45 7.45 0 0 0 9 1.5C4.865 1.5 1.5 4.865 1.5 9s3.365 7.5 7.5 7.5 7.5-3.365 7.5-7.5c0-.315-.02-.628-.058-.937a.5.5 0 1 1 .992-.124c.044.35.066.704.066 1.06 0 4.688-3.813 8.501-8.5 8.501C4.313 17.5.5 13.687.5 9 .5 4.312 4.313.5 9 .5a8.45 8.45 0 0 1 4.057 1.032zM7.561 5.44a1.5 1.5 0 1 1-2.123 2.122 1.5 1.5 0 0 1 2.123-2.122zm5 0a1.5 1.5 0 1 1-2.122 2.122 1.5 1.5 0 0 1 2.122-2.122z" fillRule="evenodd" /></svg>';
-const svg2 =
-	'<svg width="18" height="17" xmlns="http://www.w3.org/2000/svg"><path d="M9.854 12.103a.5.5 0 0 1 .306-.105h1.759c2.79 0 5.018-2.398 5.018-5.5s-2.228-5.5-5.018-5.5H6.334C3.6.998 1.45 3.463 1.45 6.625c0 2.887 1.656 5.083 4.267 5.537a.5.5 0 0 1 .414.492v2.327l3.723-2.878zM.45 6.625C.45 2.94 3.015-.002 6.334-.002h5.585c3.36 0 6.018 2.861 6.018 6.5s-2.659 6.5-6.018 6.5H10.33l-4.394 3.398A.5.5 0 0 1 5.13 16v-2.939C2.257 12.367.45 9.826.45 6.625zm4.691.373a.5.5 0 0 1 0-1h7.84a.5.5 0 1 1 0 1h-7.84zm0-2a.5.5 0 0 1 0-1h7.84a.5.5 0 1 1 0 1h-7.84zm0 4a.5.5 0 0 1 0-1h3.92a.5.5 0 0 1 0 1h-3.92z" fillRule="nonzero" /></svg>';
-const svg3 =
+const reactionSvg =
+	'<svg width="14" height="14" xmlns="http://www.w3.org/2000/svg"><path d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z" fillRule="evenodd"/></svg>';
+const threadSvg =
+	'<svg width="14" height="10" xmlns="http://www.w3.org/2000/svg"><path d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z" fillRule="evenodd" /></svg>';
+const optionsSvg =
 	'<svg width="11" height="3" viewBox="0 0 11 3" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fillRule="nonzero" /></svg>';
 
 /**
@@ -148,23 +148,29 @@ export class MessageLivestream extends React.PureComponent {
 				<div
 					className={`str-chat__message-livestream str-chat__message-livestream--${
 						groupStyles[0]
+					} str-chat__message-livestream--${message.type} ${
+						this.props.initialMessage
+							? 'str-chat__message-livestream--initial-message'
+							: ''
 					}`}
 					onMouseLeave={this.onMouseLeaveMessage}
 				>
 					<div className={`str-chat__message-livestream-left`}>
-						{groupStyles[0] === 'top' || groupStyles[0] === 'single' ? (
+						{groupStyles[0] === 'top' ||
+						groupStyles[0] === 'single' ||
+						this.props.initialMessage ? (
 							<Avatar
 								source={message.user.image}
 								name={message.user.name || message.user.id}
 								size={30}
 							/>
 						) : (
-							<div style={{ width: 30, marginRight: 10 }} />
+							<div style={{ width: 44 }} />
 						)}
 					</div>
 					<div className={`str-chat__message-livestream-right`}>
 						<div className={`str-chat__message-livestream-content`}>
-							{!this.props.initialMessage && (
+							{!this.props.initialMessage && message.type !== 'error' && (
 								<div className={`str-chat__message-livestream-actions`}>
 									<span className={`str-chat__message-livestream-time`}>
 										{moment(message.created_at).format('h:mmA')}
@@ -183,12 +189,16 @@ export class MessageLivestream extends React.PureComponent {
 											/>
 										)}
 										<span
-											dangerouslySetInnerHTML={{ __html: svg1 }}
+											dangerouslySetInnerHTML={{
+												__html: reactionSvg,
+											}}
 										/>
 									</span>
-									{!this.props.thread && (
+									{!this.props.threadList && (
 										<span
-											dangerouslySetInnerHTML={{ __html: svg2 }}
+											dangerouslySetInnerHTML={{
+												__html: threadSvg,
+											}}
 											onClick={e =>
 												this.props.openThread(e, message)
 											}
@@ -196,7 +206,9 @@ export class MessageLivestream extends React.PureComponent {
 									)}
 									<span onClick={this.onClickOptionsAction}>
 										<span
-											dangerouslySetInnerHTML={{ __html: svg3 }}
+											dangerouslySetInnerHTML={{
+												__html: optionsSvg,
+											}}
 										/>
 										<MessageActionsBox
 											Message={this.props.messageBase}
@@ -208,11 +220,17 @@ export class MessageLivestream extends React.PureComponent {
 							)}
 
 							{(groupStyles[0] === 'top' ||
-								groupStyles[0] === 'single') && (
+								groupStyles[0] === 'single' ||
+								this.props.initialMessage) && (
 								<div className="str-chat__message-livestream-author">
 									<strong>
 										{message.user.name || message.user.id}
 									</strong>
+									{message.type === 'error' && (
+										<div className="str-chat__message-team-error-header">
+											Only visible to you
+										</div>
+									)}
 								</div>
 							)}
 
@@ -254,11 +272,6 @@ export class MessageLivestream extends React.PureComponent {
 						</div>
 					</div>
 				</div>
-				{this.props.initialMessage && (
-					<div className="str-chat__message-livestream__thread-banner">
-						Start of new Thread
-					</div>
-				)}
 			</React.Fragment>
 		);
 	}

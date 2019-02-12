@@ -35,11 +35,14 @@ class Thread extends React.PureComponent {
 		threadHasMore: PropTypes.bool,
 		/** If the thread is currently loading more messages */
 		threadLoadingMore: PropTypes.bool,
+		/** Display the thread on 100% width of it's container. Useful for mobile style view */
+		fullWidth: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		threadHasMore: true,
 		threadLoadingMore: true,
+		fullWidth: false,
 	};
 
 	render() {
@@ -109,7 +112,11 @@ class ThreadInner extends React.PureComponent {
 
 		const seen = {};
 		return (
-			<div className="str-chat__thread">
+			<div
+				className={`str-chat__thread ${
+					this.props.fullWidth ? 'str-chat__thread--full' : ''
+				}`}
+			>
 				<div className="str-chat__thread-header">
 					<div className="str-chat__thread-header-details">
 						<strong>Thread</strong>

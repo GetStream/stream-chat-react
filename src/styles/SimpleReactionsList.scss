@@ -17,15 +17,15 @@
     transform: translate(-50%, 0);
     background: rgba(0, 0, 0, 0.81);
     border-radius: 5px;
-    background-image:
-      linear-gradient(
-        -180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.5) 100%
-      );
-    min-width: 85px;
+    background-image: linear-gradient(
+      -180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+    // min-width: 85px;
     min-height: 24px;
-    width: 100%;
+    width: auto;
+    max-width: 275px;
     padding: 4px 8px;
     font-size: 13px;
     color: white;

@@ -7,6 +7,10 @@
   padding-top: 70px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
+  &--full {
+    max-width: 100%;
+  }
+
   &-header {
     position: relative;
     width: 100%;
@@ -86,6 +90,15 @@
           }
         }
       }
+    }
+  }
+}
+
+.livestream.str-chat {
+  .str-chat__thread {
+    background: rgba(0, 0, 0, 0.02);
+    &-header {
+      background: rgba(255, 255, 255, 0.29);
     }
   }
 }

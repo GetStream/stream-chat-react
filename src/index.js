@@ -3,6 +3,10 @@ import './styles/_variables.scss';
 import './styles/_base.scss';
 
 // Components
+
+import './styles/vendor/react-file-utils.scss';
+import './styles/vendor/emoji-mart.scss';
+
 import './styles/ActionsBox.scss';
 import './styles/AttachmentActions.scss';
 import './styles/Attachment.scss';
@@ -39,8 +43,6 @@ import './styles/SmallMessageInput.scss';
 import './styles/Thread.scss';
 import './styles/TypingIndicator.scss';
 import './styles/Tooltip.scss';
-import './styles/vendor/react-file-utils.scss';
-import './styles/vendor/emoji-mart.scss';
 
 //
 export * from './components';
