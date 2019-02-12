@@ -9,11 +9,8 @@ import {
   MessageInputLarge,
   MessageLivestream,
   ChannelHeader,
-  // ChannelPreviewMessenger,
-  // ChannelListMessenger,
-  // ChannelList,
-  // Thread,
-  // TypingIndicator,
+  Thread,
+  Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -66,11 +63,12 @@ class App extends Component {
         <div style={{ width: 500 }}>
           <Chat client={this.chatClient} theme="livestream light">
             <Channel channel={this.channel}>
-              <Window>
+              <Window hideOnThread>
                 <ChannelHeader live />
                 <MessageList Message={MessageLivestream} />
                 <MessageInput Input={MessageInputLarge} focus />
               </Window>
+              <Thread Message={MessageLivestream} fullWidth />
             </Channel>
           </Chat>
         </div>
@@ -80,7 +78,3 @@ class App extends Component {
 }
 
 export default App;
-
-const Window = ({ children }) => (
-  <div className="str-chat__main-panel">{children}</div>
-);

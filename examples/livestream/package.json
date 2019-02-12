@@ -6,7 +6,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.2",
-    "stream-chat-client": "link:../../../client",
+    "stream-chat": "^0.1.28",
     "stream-chat-react": "link:../.."
   },
   "scripts": {
