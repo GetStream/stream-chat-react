@@ -210,10 +210,19 @@ class MessageInput extends PureComponent {
   handleSubmit = (event) => {
     event.preventDefault();
     const editing = !!this.props.message;
-
+    const trimmedMessage = this.state.text.trim();
+    const isEmptyMessage =
+      trimmedMessage === '' ||
+      trimmedMessage === '>' ||
+      trimmedMessage === '``````' ||
+      trimmedMessage === '``' ||
+      trimmedMessage === '**' ||
+      trimmedMessage === '____' ||
+      trimmedMessage === '__' ||
+      trimmedMessage === '****';
     const hasFiles =
       this.state.imageOrder.length > 0 || this.state.fileOrder.length > 0;
-    if (this.state.text.trim() === '' && !hasFiles) {
+    if (isEmptyMessage && !hasFiles) {
       return;
     }
     const text = this.state.text;
