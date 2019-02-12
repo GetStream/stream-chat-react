@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { withChannelContext } from './Channel';
+import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
 import { MessageInputLarge } from './MessageInputLarge';
 import Immutable from 'seamless-immutable';

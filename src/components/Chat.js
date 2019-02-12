@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { ChatContext } from '../context';
 
-export const ChatContext = React.createContext({ client: null });
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
@@ -82,23 +82,3 @@ export class Chat extends PureComponent {
 	}
 }
 
-export function withChatContext(OriginalComponent) {
-	const ContextAwareComponent = function ContextComponent(props) {
-		return (
-			<ChatContext.Consumer>
-				{context => {
-					const mergedProps = { ...context, ...props };
-					return <OriginalComponent {...mergedProps} />;
-				}}
-			</ChatContext.Consumer>
-		);
-	};
-	ContextAwareComponent.displayName =
-		OriginalComponent.displayName || OriginalComponent.name || 'Component';
-	ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
-		'Base',
-		'',
-	);
-
-	return ContextAwareComponent;
-}

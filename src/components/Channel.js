@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { withChatContext } from './Chat';
+import { withChatContext, ChannelContext } from '../context';
 
 import { LoadingIndicator } from './LoadingIndicator';
 
@@ -11,27 +11,6 @@ import { logChatPromiseExecution } from 'stream-chat';
 import { MessageSimple } from './MessageSimple';
 import { Attachment } from './Attachment';
 import debounce from 'lodash/debounce';
-
-export const ChannelContext = React.createContext({});
-
-export function withChannelContext(OriginalComponent) {
-	const ContextAwareComponent = function ContextComponent(props) {
-		return (
-			<ChannelContext.Consumer>
-				{channelContext => <OriginalComponent {...channelContext} {...props} />}
-			</ChannelContext.Consumer>
-		);
-	};
-	ContextAwareComponent.displayName =
-		OriginalComponent.displayName || OriginalComponent.name || 'Component';
-	ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
-		'Base',
-		'',
-	);
-
-	return ContextAwareComponent;
-}
-
 /**
  * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.
  * ChannelHeader, MessageList, Thread and MessageInput should be used as children of the Channel component.

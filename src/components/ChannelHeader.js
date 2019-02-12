@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withChannelContext } from './Channel';
+import { withChannelContext } from '../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel

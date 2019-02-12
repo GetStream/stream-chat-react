@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { LoadingIndicator } from './LoadingIndicator';
-import { withChatContext } from './Chat';
+import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
 import { isPromise } from '../utils';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { withChannelContext } from './Channel';
+import { withChannelContext } from '../context';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';

@@ -5,7 +5,7 @@ import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { ChannelSearch } from './ChannelSearch';
 import { LoadingChannels } from './LoadingChannels';
 import { ChatDown } from './ChatDown';
-import { withChatContext } from './Chat';
+import { withChatContext } from '../context';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open

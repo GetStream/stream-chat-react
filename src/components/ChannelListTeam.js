@@ -5,7 +5,7 @@ import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { LoadingChannels } from './LoadingChannels';
 import { Avatar } from './Avatar';
 import { ChatDown } from './ChatDown';
-import { withChatContext } from './Chat';
+import { withChatContext } from '../context';
 
 import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
 

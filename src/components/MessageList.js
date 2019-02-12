@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Message } from './Message';
-import { withChannelContext } from './Channel';
+import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
 import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
 import { MessageNotification } from './MessageNotification';

@@ -1,6 +1,6 @@
 export { MessageList } from './MessageList';
-export { Chat, ChatContext, withChatContext } from './Chat';
-export { Channel, ChannelContext, withChannelContext } from './Channel';
+export { Chat } from './Chat';
+export { Channel } from './Channel';
 export { ChannelHeader } from './ChannelHeader';
 export { MessageInput } from './MessageInput';
 export { MessageInputLarge } from './MessageInputLarge';
@@ -23,3 +23,4 @@ export { TypingIndicator } from './TypingIndicator';
 export { Window } from './Window';
 
 export * from '../utils';
+export * from '../context';

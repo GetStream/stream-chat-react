@@ -2,7 +2,7 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
-import { withChannelContext } from './Channel';
+import { withChannelContext } from '../context';
 
 class Window extends React.PureComponent {
 	static propTypes = {
