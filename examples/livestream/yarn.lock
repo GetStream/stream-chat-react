@@ -8116,6 +8116,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+"stream-chat-client@link:../../../client":
+  version "0.0.0"
+  uid ""
+
 "stream-chat-react@link:../..":
   version "0.0.0"
   uid ""

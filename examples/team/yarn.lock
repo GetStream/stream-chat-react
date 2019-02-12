@@ -783,7 +783,6 @@
 "@braintree/sanitize-url@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-3.0.0.tgz#a0ce629d18d4d435f23a0b880098cff7d99e8bb3"
-  integrity sha512-ymeXC1qObTag/hhEG7BoTMdIzuhKekTxNJTIfiVXsoP1fUXHKBpr0EfCsSA06BuP5gxTPs2vDKjtmYbgvEfY+g==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -792,26 +791,22 @@
 "@fortawesome/fontawesome-common-types@^0.2.13":
   version "0.2.13"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.13.tgz#17f3d30c53732f07a765199c3cf93b4834e8cfde"
-  integrity sha512-Qy1eMKylnbsCRXod8C4CfwqlNtLU7OkJiLsFJZlHY4rY9ky2VYUKNnRj0b+3lnGwA1dWNY+pI0XWbP/mrLCohw==
 
 "@fortawesome/fontawesome-svg-core@^1.2.13":
   version "1.2.13"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.13.tgz#1d0923b9692fc10b9a4fa047d504da5d9941639e"
-  integrity sha512-1Q0grmELVTBDbk/Jo4dRCptkYMQjikPEcoPo+eZS+oLVowv1afP4177m4gvqMwdk3l+9KYoiMBJzfY2qDbs+Dg==
   dependencies:
     "@fortawesome/fontawesome-common-types" "^0.2.13"
 
 "@fortawesome/free-regular-svg-icons@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-5.7.0.tgz#b0127111924a2506cb6313dfcb140f0cbc9e35b1"
-  integrity sha512-q6u0JTCr8T8RDRYytVcPg/RvPXv67fVcxSa/pdF59OAF5scM03QakX+W+x0vuaWvrpUwU0VK2AXJzSYnBUNpJA==
   dependencies:
     "@fortawesome/fontawesome-common-types" "^0.2.13"
 
 "@fortawesome/react-fontawesome@^0.1.4":
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.1.4.tgz#18d61d9b583ca289a61aa7dccc05bd164d6bc9ad"
-  integrity sha512-GwmxQ+TK7PEdfSwvxtGnMCqrfEm0/HbRHArbUudsYiy9KzVCwndxa2KMcfyTQ8El0vROrq8gOOff09RF1oQe8g==
   dependencies:
     humps "^2.0.1"
     prop-types "^15.5.10"
@@ -1293,7 +1288,6 @@ atob@^2.1.1:
 attr-accept@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/attr-accept/-/attr-accept-1.1.3.tgz#48230c79f93790ef2775fcec4f0db0f5db41ca52"
-  integrity sha512-iT40nudw8zmCweivz6j58g+RT33I4KbaIvRUhjNmDwO2WmsQUxFEZZYZ5w3vXe5x5MX9D7mfvA/XaLOZYFR9EQ==
   dependencies:
     core-js "^2.5.0"
 
@@ -4140,7 +4134,6 @@ https-browserify@^1.0.0:
 humps@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/humps/-/humps-2.0.1.tgz#dd02ea6081bd0568dc5d073184463957ba9ef9aa"
-  integrity sha1-3QLqYIG9BWjcXQcxhEY5V7qe+ao=
 
 hyphenate-style-name@^1.0.1:
   version "1.0.3"
@@ -5054,7 +5047,6 @@ js-levenshtein@^1.1.3:
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
-  integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
 js-tokens@^3.0.2:
   version "3.0.2"
@@ -5999,7 +5991,6 @@ oauth-sign@~0.9.0:
 object-assign@4.1.1, object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
-  integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
 
 object-copy@^0.1.0:
   version "0.1.0"
@@ -6993,6 +6984,10 @@ prettier@^1.14.2:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.16.1.tgz#534c2c9d7853f8845e5e078384e71973bd74089f"
 
+prettier@^1.16.4:
+  version "1.16.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.16.4.tgz#73e37e73e018ad2db9c76742e2647e21790c9717"
+
 pretty-bytes@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-4.0.2.tgz#b2bf82e7350d65c6c33aa95aaa5a4f6327f61cd9"
@@ -7000,7 +6995,6 @@ pretty-bytes@^4.0.2:
 pretty-bytes@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-5.1.0.tgz#6237ecfbdc6525beaef4de722cc60a58ae0e6c6d"
-  integrity sha512-wa5+qGVg9Yt7PB6rYm3kXlKzgzgivYTLRandezh43jjRqgyDyP+9YxfJpJiLs9yKD1WeU8/OvtToWpW7255FtA==
 
 pretty-error@^2.0.2:
   version "2.1.1"
@@ -7052,7 +7046,6 @@ prompts@^0.1.9:
 prop-types@^15.5.10, prop-types@^15.5.6, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.2.tgz#05d5ca77b4453e985d60fc7ff8c859094a497102"
-  integrity sha512-3pboPvLiWD7dkI3qf3KbUe6hKFKa52w+AE0VCqECtf+QHAKgOL37tTaNCnuX1nAAQ4ZhyP+kYVKf8rLmJ/feDQ==
   dependencies:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
@@ -7245,7 +7238,6 @@ react-dom@^16.7.0:
 react-dropzone@5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-5.1.1.tgz#b05613ea22f1ab71aa1f7cf5367df7b19468a2f3"
-  integrity sha512-C9kXI3D95rVXbLLg9DvzCnmjplKwpfj/2F/MwvGVM05kDwWMzKVKZnmgZHZUebmiVj4mFOmBs2ObLiKvAxunGw==
   dependencies:
     attr-accept "^1.1.3"
     prop-types "^15.6.2"
@@ -7257,7 +7249,6 @@ react-error-overlay@^5.1.2:
 react-file-utils@0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.2.1.tgz#99010e46d27d3e72c61b26d596a184ace23edbdd"
-  integrity sha512-u3tOuiph9IamyXdj2nGC2cCE3RZdLoyzGR5UbQx35/LFnr3qLC7gjA6C8Ca/xFTYsr7t28dMOT8SRqDiK6khBA==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.13"
     "@fortawesome/free-regular-svg-icons" "^5.7.0"
@@ -8308,10 +8299,9 @@ stream-browserify@^2.0.1:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.1.10:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.1.11.tgz#a0d710981998f739824eee4433c4250bc64d6e72"
-  integrity sha512-zUfePUkDB3QJaGIcoNaV9qQevPJAlfZCJQOwWPM52+RCEgrrnhY3V8T3QNODDE7v//PqCmI99mCiGhD0GdAtpA==
+stream-chat@^0.1.28:
+  version "0.1.29"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.1.29.tgz#4f469fe1cf7e09e60cc3fac7b25f57c6edbe948c"
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
