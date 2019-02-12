@@ -106,7 +106,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "cd .. && dotgit/hooks/pre-commit-format.sh && dotgit/hooks/pre-commit-reject-binaries.py"
+      "pre-commit": "dotgit/hooks/pre-commit-format.sh && dotgit/hooks/pre-commit-reject-binaries.py"
     }
   },
   "scripts": {
