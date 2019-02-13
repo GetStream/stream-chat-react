@@ -12,7 +12,10 @@ LIB_SOURCES = $(wildcard *.js) $(wildcard */*.js) $(wildcard */*.scss) $(wildcar
 
 CHAT_DEPS = ../client/package.json
 
-$(EXAMPLES_APPS_DEPS): %/node_modules/installed_dependencies: %/yarn.lock %/package.json $(SOURCES) yarn.lock
+example-deps: $(EXAMPLES_APPS_DEPS)
+example-build: $(EXAMPLES_APPS_INDEX)
+
+$(EXAMPLES_APPS_DEPS): %/node_modules/installed_dependencies: %/yarn.lock %/package.json $(SOURCES) node_modules/installed_dependencies
 	cd $* && yarn install
 	touch $@
 
@@ -21,15 +24,8 @@ $(EXAMPLES_APPS_INDEX): %/build/index.html: dist/built $(EXAMPLES_APPS_DEPS) %/p
 	export SKIP_PREFLIGHT_CHECK=true && cd $* && yarn build
 	touch $@
 
-node_modules/installed: ../client/yarn.lock
-	touch node_modules/installed
-
-../client/node_modules/installed: ../client/yarn.lock
-	touch ../client/node_modules/installed
-
-../client/yarn.lock: $(CHAT_DEPS)
-	cd ../client && yarn install && yarn link
-	yarn link stream-chat-client
+node_modules/installed_dependencies: yarn.lock
+	yarn install
 	touch $@
 
 yarn.lock: package.json
@@ -41,10 +37,7 @@ dist/built: $(LIB_SOURCES) yarn.lock
 	touch $@ q
 
 clean:
-	cd ../client && yarn unlink && rm -rf node_modules
-	yarn unlink stream-chat-client
+	rm -rf $(addsuffix /node_modules,$(EXAMPLES_APPS))
 	rm -rf build
 	rm -rf node_modules
 
-example-build: $(EXAMPLES_APPS_INDEX)
-example-deps: yarn.lock $(EXAMPLES_APPS_DEPS)

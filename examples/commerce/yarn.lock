@@ -772,6 +772,11 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@braintree/sanitize-url@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-3.0.0.tgz#a0ce629d18d4d435f23a0b880098cff7d99e8bb3"
+  integrity sha512-ymeXC1qObTag/hhEG7BoTMdIzuhKekTxNJTIfiVXsoP1fUXHKBpr0EfCsSA06BuP5gxTPs2vDKjtmYbgvEfY+g==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -6922,6 +6927,11 @@ prettier@^1.14.2:
   version "1.15.3"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.15.3.tgz#1feaac5bdd181237b54dbe65d874e02a1472786a"
 
+prettier@^1.16.4:
+  version "1.16.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.16.4.tgz#73e37e73e018ad2db9c76742e2647e21790c9717"
+  integrity sha512-ZzWuos7TI5CKUeQAtFd6Zhm2s6EpAD/ZLApIhsF9pRvRtM1RFo61dM/4MSRUA0SuLugA/zgrZD8m0BaY46Og7g==
+
 pretty-bytes@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-4.0.2.tgz#b2bf82e7350d65c6c33aa95aaa5a4f6327f61cd9"
@@ -8143,18 +8153,14 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-"stream-chat-client@link:../../../client":
-  version "0.0.0"
-  uid ""
-
 "stream-chat-react@link:../..":
   version "0.0.0"
   uid ""
 
-stream-chat@^0.1.10:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.1.11.tgz#a0d710981998f739824eee4433c4250bc64d6e72"
-  integrity sha512-zUfePUkDB3QJaGIcoNaV9qQevPJAlfZCJQOwWPM52+RCEgrrnhY3V8T3QNODDE7v//PqCmI99mCiGhD0GdAtpA==
+stream-chat@^0.1.28:
+  version "0.1.29"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.1.29.tgz#4f469fe1cf7e09e60cc3fac7b25f57c6edbe948c"
+  integrity sha512-x4co81lNBMpzxiJPgw9vGlVSvYchBrSOC1mWJF18bNPmDvi2gg0jUZoesnpuDoCROG4cMh2Qgt5q++zWvl8pBg==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"

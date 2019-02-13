@@ -1,6 +1,6 @@
 /* globals process */
 import React, { Component } from 'react';
-import { StreamChat } from 'stream-chat-client';
+import { StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
