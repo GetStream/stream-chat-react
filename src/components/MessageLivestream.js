@@ -37,7 +37,7 @@ export class MessageLivestream extends React.PureComponent {
   editMessageFormRef = React.createRef();
 
   isMine() {
-    return this.props.message.user.id === this.props.client.user.id;
+    return this.props.Message.isMyMessage(this.props.message);
   }
 
   onClickReactionsAction = () => {
@@ -214,9 +214,9 @@ export class MessageLivestream extends React.PureComponent {
                       }}
                     />
                     <MessageActionsBox
-                      Message={this.props.messageBase}
+                      Message={this.props.Message}
                       open={this.state.actionsBoxOpen}
-                      mine={this.props.mine}
+                      message={this.props.message}
                     />
                   </span>
                 </div>

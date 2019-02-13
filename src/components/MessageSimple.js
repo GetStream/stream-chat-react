@@ -104,7 +104,7 @@ export class MessageSimple extends PureComponent {
   }
 
   isMine() {
-    return this.props.message.user.id === this.props.client.user.id;
+    return this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
@@ -197,9 +197,9 @@ export class MessageSimple extends PureComponent {
             className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
           >
             <MessageActionsBox
-              Message={this.props.messageBase}
+              Message={this.props.Message}
               open={this.state.actionsBoxOpen}
-              mine={this.props.mine}
+              message={this.props.message}
             />
             <svg
               width="11"
