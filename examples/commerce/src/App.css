@@ -6,15 +6,24 @@ body {
 
 #root {
   width: 100%;
+  height: 100vh;
   display: flex;
   justify-content: flex-end;
   background: url('./assets/bg.png') top left no-repeat;
   background-size: cover;
 }
 
-.str-chat__container {
+.str-chat-channel .str-chat__container {
+  height: calc(100vh - 150px);
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 25px;
+  right: 25px;
   background: white;
+  border-radius: 10px;
+  border-bottom-right-radius: 0;
+  overflow: hidden;
+}
+
+.str-chat-channel {
+  max-height: calc(100vh - 50px);
 }
