@@ -114,6 +114,7 @@ const normalBundle = {
     json(),
   ],
 };
+
 const fullBrowserBundle = {
   ...baseConfig,
   output: [
