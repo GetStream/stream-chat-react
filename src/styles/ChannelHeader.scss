@@ -52,7 +52,7 @@
         text-transform: uppercase;
         color: red;
         display: inline-block;
-        animation: pulse 2s alternate infinite;
+        animation: pulse 2s infinite;
 
         &::before {
           content: '';
@@ -71,8 +71,12 @@
             opacity: 0.5;
           }
 
-          100% {
+          50% {
             opacity: 1;
+          }
+
+          100% {
+            opacity: 0.5;
           }
         }
       }
@@ -141,7 +145,8 @@
         border-radius: 10px 10px 0 0;
         background: rgba(255, 255, 255, 0.9);
         box-shadow: none;
-        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
+        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+          0 1px 0 0 rgba(0, 0, 0, 0.03);
       }
     }
   }

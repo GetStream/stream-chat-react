@@ -40,18 +40,16 @@ export const REACTIONS = [
  */
 export class ReactionSelector extends PureComponent {
   static propTypes = {
-    /** The message object */
-    message: PropTypes.object.isRequired,
-
+    /** Object containgin latest reactions */
+    latest_reactions: PropTypes.array.isRequired,
+    /** Object containing the reaction counts */
+    reaction_counts: PropTypes.object,
     /** Callback to handle the reaction */
     handleReaction: PropTypes.func.isRequired,
-
     /** Set the direction to either left or right */
     direction: PropTypes.oneOf(['left', 'right']),
-
     /** Enable the avatar display */
     detailedView: PropTypes.bool,
-
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
   };
@@ -155,16 +153,12 @@ export class ReactionSelector extends PureComponent {
   };
 
   renderReactionItems = () => {
-    const { message } = this.props;
+    const { reaction_counts, latest_reactions } = this.props;
     const lis = this.props.reactionOptions.map((reaction) => {
-      const users = this.getUserNames(message.latest_reactions, reaction.name);
-      const latestUser = this.getLatestUser(
-        message.latest_reactions,
-        reaction.name,
-      );
+      const users = this.getUserNames(latest_reactions, reaction.name);
+      const latestUser = this.getLatestUser(latest_reactions, reaction.name);
 
-      const count =
-        message.reaction_counts && message.reaction_counts[reaction.name];
+      const count = reaction_counts && reaction_counts[reaction.name];
       return (
         <li
           key={`item-${reaction.name}`}
@@ -172,7 +166,7 @@ export class ReactionSelector extends PureComponent {
           data-text={reaction.name}
           onClick={this.props.handleReaction.bind(this, reaction.name)}
         >
-          {this.props.message && count && this.props.detailedView && (
+          {count && this.props.detailedView && (
             <React.Fragment>
               <div
                 className="latest-user"
@@ -194,7 +188,7 @@ export class ReactionSelector extends PureComponent {
           )}
           <Emoji emoji={reaction.emoji} set="apple" size={20} />
 
-          {message && count && this.props.detailedView && (
+          {count && this.props.detailedView && (
             <span className="str-chat__message-reactions-list-item__count">
               {count || ''}
             </span>

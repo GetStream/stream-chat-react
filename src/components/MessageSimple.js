@@ -363,7 +363,8 @@ export class MessageSimple extends PureComponent {
                     handleReaction={this.props.handleReaction}
                     actionsEnabled={this.props.actionsEnabled}
                     detailedView
-                    message={this.props.message}
+                    reaction_counts={message.reaction_counts}
+                    latest_reactions={message.latest_reactions}
                     messageList={this.props.messageListRect}
                     ref={this.reactionSelectorRef}
                   />
@@ -423,7 +424,8 @@ export class MessageSimple extends PureComponent {
                       handleReaction={this.props.handleReaction}
                       actionsEnabled={this.props.actionsEnabled}
                       detailedView
-                      message={this.props.message}
+                      reaction_counts={message.reaction_counts}
+                      latest_reactions={message.latest_reactions}
                       messageList={this.props.messageListRect}
                       ref={this.reactionSelectorRef}
                     />

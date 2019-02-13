@@ -294,7 +294,8 @@ export class MessageTeam extends PureComponent {
                     {this.state.reactionSelectorOpen && (
                       <ReactionSelector
                         handleReaction={this.props.handleReaction}
-                        message={this.props.message}
+                        latest_reactions={message.latest_reactions}
+                        reaction_counts={message.reaction_counts}
                         detailedView={true}
                         direction={reactionDirection}
                         ref={this.reactionSelectorRef}

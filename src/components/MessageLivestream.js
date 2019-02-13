@@ -187,7 +187,8 @@ export class MessageLivestream extends React.PureComponent {
                         handleReaction={this.props.handleReaction}
                         actionsEnabled={this.props.actionsEnabled}
                         detailedView
-                        message={this.props.message}
+                        latest_reactions={message.latest_reactions}
+                        reaction_counts={message.reaction_counts}
                         messageList={this.props.messageListRect}
                         ref={this.reactionSelectorRef}
                       />
