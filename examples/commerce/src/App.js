@@ -6,17 +6,20 @@ import {
   Channel,
   MessageList,
   MessageInput,
+  MessageInputFlat,
+  MessageSimple,
   ChannelHeader,
-  // ChannelList,
-  LoadingIndicator,
-  MessageLivestream,
+  Thread,
+  TypingIndicator,
+  Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
-import './styles.css';
+import './App.css';
 
 const urlParams = new URLSearchParams(window.location.search);
 const user =
   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
+const channelName = urlParams.get('channel') || 'demo';
 const userToken =
   urlParams.get('user_token') ||
   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
@@ -24,48 +27,48 @@ const userToken =
 class App extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      error: false,
-      loading: true,
-    };
-
     this.chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
     this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
     this.chatClient.setUser(
       {
         id: user,
-        name: user,
-        status: 'available',
-        image:
-          'https://www.elastic.co/assets/bltada7771f270d08f6/enhanced-buzz-1492-1379411828-15.jpg',
       },
       userToken,
     );
+    this.channel = this.chatClient.channel('livestream', channelName, {
+      image:
+        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
+      name: 'The water cooler',
+      example: 1,
+    });
+
+    this.channel.watch();
+
+    const filters = { type: 'team', example: 1 };
+    const sort = { last_message_at: -1 };
+    this.channels = this.chatClient.queryChannels(filters, sort, {
+      subscribe: true,
+    });
   }
 
   render() {
-    if (this.state.error) {
-      return <div>Error: {this.state.error.message}</div>;
-    } else if (this.state.loading) {
-      return <LoadingIndicator isLoading={true} />;
-    } else {
-      return (
-        <div className="App">
-          <div className="str-chat__commerce">
-            <Chat client={this.chatClient} Message={MessageLivestream}>
-              {/* <ChannelList /> */}
-              <Channel>
-                <ChannelHeader type="Livestream" />
-
-                <MessageList />
-                <MessageInput focus />
-              </Channel>
-            </Chat>
-          </div>
-        </div>
-      );
-    }
+    return (
+      <>
+        <Chat client={this.chatClient} theme="commerce light">
+          <Channel channel={this.channel}>
+            <Window hideOnThread>
+              <ChannelHeader live />
+              <MessageList
+                typingIndicator={TypingIndicator}
+                Message={MessageSimple}
+              />
+              <MessageInput Input={MessageInputFlat} focus />
+            </Window>
+            <Thread Message={MessageSimple} fullWidth />
+          </Channel>
+        </Chat>
+      </>
+    );
   }
 }
 

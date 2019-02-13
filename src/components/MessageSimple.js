@@ -265,9 +265,6 @@ export class MessageSimple extends PureComponent {
     const Attachment = this.props.Attachment;
     const when = moment(message.created_at).calendar();
 
-    // check if either min or userId === 'thierry' for testing purpose
-    // as the mine props doesn't work yet.
-
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
       : 'str-chat__message str-chat__message-simple';
@@ -374,7 +371,6 @@ export class MessageSimple extends PureComponent {
 
             {hasAttachment &&
               images.length <= 1 &&
-              // message.text &&
               message.attachments.map((attachment, index) => (
                 <Attachment
                   key={`${message.id}-${index}`}
@@ -387,7 +383,6 @@ export class MessageSimple extends PureComponent {
             {message.text && (
               <div className="str-chat__message-text">
                 <div
-                  // set a bunch of classes
                   className={`
 									str-chat__message-text-inner str-chat__message-simple-text-inner
 									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
@@ -398,7 +393,6 @@ export class MessageSimple extends PureComponent {
                       : ''
                   }
 								`.trim()}
-                  // onClick={this._focusMessage}
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">
@@ -432,9 +426,7 @@ export class MessageSimple extends PureComponent {
                   )}
                 </div>
 
-                {message.text &&
-                  // !this.props.threadList &&
-                  this.renderOptions()}
+                {message.text && this.renderOptions()}
               </div>
             )}
             {!this.props.threadList && (

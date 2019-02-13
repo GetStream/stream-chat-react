@@ -1,0 +1,20 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  background: url('./assets/bg.png') top left no-repeat;
+  background-size: cover;
+}
+
+.str-chat__container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: white;
+}

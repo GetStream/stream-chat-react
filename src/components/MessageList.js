@@ -40,7 +40,7 @@ class MessageList extends PureComponent {
     /** Via Context: The function is called when the list scrolls */
     listenToScroll: PropTypes.func,
     /** Typing indicator component to render  */
-    typingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Date separator component to render  */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };

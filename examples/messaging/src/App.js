@@ -12,6 +12,7 @@ import {
   ChannelPreviewMessenger,
   ChannelListMessenger,
   ChannelList,
+  Window,
   Thread,
   TypingIndicator,
 } from 'stream-chat-react';
@@ -90,7 +91,3 @@ class App extends Component {
 }
 
 export default App;
-
-const Window = ({ children }) => (
-  <div className="str-chat__main-panel">{children}</div>
-);
