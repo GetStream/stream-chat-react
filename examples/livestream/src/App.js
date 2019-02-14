@@ -60,12 +60,12 @@ class App extends Component {
             <img src={video} alt="fake video" />
           </div>
         </div>
-        <div style={{ width: 500 }}>
+        <div style={{ width: 360 }}>
           <Chat client={this.chatClient} theme="livestream light">
             <Channel channel={this.channel}>
               <Window hideOnThread>
                 <ChannelHeader live />
-                <MessageList Message={MessageLivestream} />
+                <MessageList grouping={false} Message={MessageLivestream} />
                 <MessageInput Input={MessageInputLarge} focus />
               </Window>
               <Thread Message={MessageLivestream} fullWidth />

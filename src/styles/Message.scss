@@ -759,3 +759,13 @@
     }
   }
 }
+
+.livestream.str-chat {
+  .str-chat {
+    &__li {
+      &--single {
+        margin: 0px 0;
+      }
+    }
+  }
+}

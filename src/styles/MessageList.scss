@@ -56,3 +56,16 @@
     }
   }
 }
+
+.livestream {
+  &.str-chat {
+    .str-chat {
+      &__list {
+        padding: 55px 10px;
+
+        &-notifications {
+        }
+      }
+    }
+  }
+}

@@ -366,7 +366,10 @@ export class MessageTeam extends PureComponent {
               {message.status === 'failed' && (
                 <button
                   className="str-chat__message-team-failed"
-                  onClick={() => this.props.handleRetry(this.props.message)}
+                  onClick={this.props.handleRetry.bind(
+                    this,
+                    this.props.message,
+                  )}
                 >
                   <svg
                     width="14"

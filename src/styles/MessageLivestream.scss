@@ -3,9 +3,15 @@
   display: flex;
   width: 100%;
   margin: 0 0;
-  padding: 0 10px;
+  padding: 4px 10px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  position: relative;
 
   &-left {
+    width: 30px;
+    .str-chat__avatar {
+      margin-right: 0;
+    }
   }
 
   &-right {
@@ -88,25 +94,25 @@
       width: inherit;
       word-break: break-all;
     }
-
-    &:hover {
-      .str-chat__message-livestream-actions {
-        display: flex;
-      }
+  }
+  &:hover {
+    .str-chat__message-livestream-actions {
+      display: flex;
     }
   }
 
   &-actions {
-    background: rgba(255, 255, 255, 0.99);
-    border: 1px solid #e0e0e0;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.23);
     box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+
     width: 141px;
     height: 24px;
     padding: 0 4px;
     position: absolute;
     top: -12px;
     right: 0;
-    border-radius: 8px;
+    border-radius: 24px;
     display: none; /* FFS display: none */
     align-items: center;
     justify-content: space-between;
@@ -181,15 +187,18 @@
     text-transform: capitalize;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    strong {
+      margin-right: 8px;
+    }
   }
 
   &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
     .str-chat__message-livestream-content {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
-      border-radius: 6px;
     }
   }
 
@@ -226,19 +235,32 @@
     color: #404040;
   }
 
-  &--error {
+  &--error,
+  &--failed {
     .str-chat__message-livestream {
       &-content {
-        border-color: rgba(red, 0.4);
-        border-radius: 6px;
-        background: rgba(red, 0.1);
+        p {
+          svg {
+            position: relative;
+            top: 2px;
+            margin-right: 4px;
+          }
+          color: red;
+        }
       }
     }
     &:hover {
       .str-chat__message-livestream {
         &-content {
-          border-color: rgba(red, 0.4);
-          background: rgba(red, 0.1);
+        }
+      }
+    }
+  }
+  &--failed {
+    .str-chat__message-livestream {
+      &-content {
+        p {
+          cursor: pointer;
         }
       }
     }
@@ -253,8 +275,6 @@
     min-width: 30px;
   }
   .str-chat__message-livestream {
-    // padding: 5px 10px;
-
     &-actions {
       width: 110px;
       min-width: unset;

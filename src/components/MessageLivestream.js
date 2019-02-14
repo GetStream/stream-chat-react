@@ -147,93 +147,86 @@ export class MessageLivestream extends React.PureComponent {
         </div>
       );
     }
+
     return (
       <React.Fragment>
         <div
           className={`str-chat__message-livestream str-chat__message-livestream--${
             groupStyles[0]
-          } str-chat__message-livestream--${message.type} ${
+          } str-chat__message-livestream--${
+            message.type
+          } str-chat__message-livestream--${message.status} ${
             this.props.initialMessage
               ? 'str-chat__message-livestream--initial-message'
               : ''
           }`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
+          {!this.props.initialMessage && message.type !== 'error' && (
+            <div className={`str-chat__message-livestream-actions`}>
+              <span className={`str-chat__message-livestream-time`}>
+                {moment(message.created_at).format('h:mmA')}
+              </span>
+              <span onClick={this.onClickReactionsAction}>
+                {this.state.reactionSelectorOpen && (
+                  <ReactionSelector
+                    mine={this.props.mine}
+                    reverse={false}
+                    handleReaction={this.props.handleReaction}
+                    actionsEnabled={this.props.actionsEnabled}
+                    detailedView
+                    latest_reactions={message.latest_reactions}
+                    reaction_counts={message.reaction_counts}
+                    messageList={this.props.messageListRect}
+                    ref={this.reactionSelectorRef}
+                  />
+                )}
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: reactionSvg,
+                  }}
+                />
+              </span>
+              {!this.props.threadList && (
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: threadSvg,
+                  }}
+                  onClick={(e) => this.props.openThread(e, message)}
+                />
+              )}
+              <span onClick={this.onClickOptionsAction}>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: optionsSvg,
+                  }}
+                />
+                <MessageActionsBox
+                  Message={this.props.messageBase}
+                  open={this.state.actionsBoxOpen}
+                  mine={this.props.mine}
+                />
+              </span>
+            </div>
+          )}
+
           <div className={`str-chat__message-livestream-left`}>
-            {groupStyles[0] === 'top' ||
-            groupStyles[0] === 'single' ||
-            this.props.initialMessage ? (
-              <Avatar
-                source={message.user.image}
-                name={message.user.name || message.user.id}
-                size={30}
-              />
-            ) : (
-              <div style={{ width: 44 }} />
-            )}
+            <Avatar
+              source={message.user.image}
+              name={message.user.name || message.user.id}
+              size={30}
+            />
           </div>
           <div className={`str-chat__message-livestream-right`}>
             <div className={`str-chat__message-livestream-content`}>
-              {!this.props.initialMessage && message.type !== 'error' && (
-                <div className={`str-chat__message-livestream-actions`}>
-                  <span className={`str-chat__message-livestream-time`}>
-                    {moment(message.created_at).format('h:mmA')}
-                  </span>
-                  <span onClick={this.onClickReactionsAction}>
-                    {this.state.reactionSelectorOpen && (
-                      <ReactionSelector
-                        mine={this.props.mine}
-                        reverse={false}
-                        handleReaction={this.props.handleReaction}
-                        actionsEnabled={this.props.actionsEnabled}
-                        detailedView
-                        latest_reactions={message.latest_reactions}
-                        reaction_counts={message.reaction_counts}
-                        messageList={this.props.messageListRect}
-                        ref={this.reactionSelectorRef}
-                      />
-                    )}
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: reactionSvg,
-                      }}
-                    />
-                  </span>
-                  {!this.props.threadList && (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: threadSvg,
-                      }}
-                      onClick={(e) => this.props.openThread(e, message)}
-                    />
-                  )}
-                  <span onClick={this.onClickOptionsAction}>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: optionsSvg,
-                      }}
-                    />
-                    <MessageActionsBox
-                      Message={this.props.messageBase}
-                      open={this.state.actionsBoxOpen}
-                      mine={this.props.mine}
-                    />
-                  </span>
-                </div>
-              )}
-
-              {(groupStyles[0] === 'top' ||
-                groupStyles[0] === 'single' ||
-                this.props.initialMessage) && (
-                <div className="str-chat__message-livestream-author">
-                  <strong>{message.user.name || message.user.id}</strong>
-                  {message.type === 'error' && (
-                    <div className="str-chat__message-team-error-header">
-                      Only visible to you
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="str-chat__message-livestream-author">
+                <strong>{message.user.name || message.user.id}</strong>
+                {message.type === 'error' && (
+                  <div className="str-chat__message-team-error-header">
+                    Only visible to you
+                  </div>
+                )}
+              </div>
 
               <div
                 className={
@@ -242,7 +235,47 @@ export class MessageLivestream extends React.PureComponent {
                     : ''
                 }
               >
-                {renderText(message.text)}
+                {message.type !== 'error' &&
+                  message.status !== 'failed' &&
+                  renderText(message.text)}
+
+                {message.type === 'error' && message.command && (
+                  <p>
+                    <svg
+                      width="14"
+                      height="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 0a7 7 0 1 0 0 14A7 7 0 0 0 7 0zm.875 10.938a.438.438 0 0 1-.438.437h-.875a.438.438 0 0 1-.437-.438v-.874c0-.242.196-.438.438-.438h.875c.241 0 .437.196.437.438v.874zm0-2.626a.438.438 0 0 1-.438.438h-.875a.438.438 0 0 1-.437-.438v-5.25c0-.241.196-.437.438-.437h.875c.241 0 .437.196.437.438v5.25z"
+                        fill="#EA152F"
+                        fillRule="evenodd"
+                      />
+                    </svg>
+                    <strong>/{message.command}</strong> is not a valid command
+                  </p>
+                )}
+                {message.status === 'failed' && (
+                  <p
+                    onClick={this.props.handleRetry.bind(
+                      this,
+                      this.props.message,
+                    )}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 0a7 7 0 1 0 0 14A7 7 0 0 0 7 0zm.875 10.938a.438.438 0 0 1-.438.437h-.875a.438.438 0 0 1-.437-.438v-.874c0-.242.196-.438.438-.438h.875c.241 0 .437.196.437.438v.874zm0-2.626a.438.438 0 0 1-.438.438h-.875a.438.438 0 0 1-.437-.438v-5.25c0-.241.196-.437.438-.437h.875c.241 0 .437.196.437.438v5.25z"
+                        fill="#EA152F"
+                        fillRule="evenodd"
+                      />
+                    </svg>
+                    Message failed. Click to try again.
+                  </p>
+                )}
               </div>
 
               {hasAttachment &&
