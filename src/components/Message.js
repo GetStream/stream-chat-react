@@ -88,6 +88,13 @@ export class Message extends Component {
     return shouldUpdate;
   }
 
+  isMyMessage = (message) => this.props.client.user.id === message.user.id;
+  isAdmin = () => this.props.client.user.role === 'admin';
+
+  canEditMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+
+  canDeleteMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+
   handleFlag = async (event) => {
     event.preventDefault();
 
@@ -171,7 +178,6 @@ export class Message extends Component {
 
   render() {
     const message = this.props.message;
-    const mine = true;
 
     const actionsEnabled =
       message.type === 'regular' && message.status === 'received';
@@ -184,8 +190,7 @@ export class Message extends Component {
       <Component
         {...this.props}
         actionsEnabled={actionsEnabled}
-        mine={mine}
-        messageBase={this}
+        Message={this}
         handleReaction={this.handleReaction}
         handleFlag={this.handleFlag}
         handleMute={this.handleMute}

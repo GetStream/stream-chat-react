@@ -76,11 +76,7 @@ export class MessageActions extends PureComponent {
           </svg>
         </div>
         {/* ActionsBox */}
-        <MessageActionsBox
-          {...this.props}
-          mine={this.props.mine}
-          open={this.state.actionBox}
-        />
+        <MessageActionsBox {...this.props} open={this.state.actionBox} />
       </div>
     );
   }

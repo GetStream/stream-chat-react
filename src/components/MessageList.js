@@ -394,7 +394,7 @@ class MessageList extends PureComponent {
             <DateSeparator date={message.date} />
           </li>,
         );
-      } else {
+      } else if (message.type !== 'message.seen') {
         let groupStyles = messageGroupStyles[message.id || message.tmp_id];
         if (!groupStyles) {
           groupStyles = [];

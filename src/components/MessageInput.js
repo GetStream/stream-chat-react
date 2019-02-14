@@ -266,11 +266,15 @@ class MessageInput extends PureComponent {
       const updatedMessage = { id, tmp_id };
       updatedMessage.text = text;
       updatedMessage.attachments = attachments;
+      // TODO: Remove this line and show an error when submit fails
       this.props.clearEditingState();
 
-      this.props.client.updateMessage(updatedMessage).then(() => {
-        this.props.clearEditingState();
-      });
+      const updateMessagePromise = this.props.client
+        .updateMessage(updatedMessage)
+        .then(() => {
+          this.props.clearEditingState();
+        });
+      logChatPromiseExecution(updateMessagePromise, 'update message');
     } else {
       const sendMessagePromise = this.props.sendMessage({
         text,

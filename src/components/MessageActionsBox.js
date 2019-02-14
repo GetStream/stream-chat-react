@@ -17,7 +17,9 @@ export class MessageActionsBox extends React.Component {
       PropTypes.node,
       PropTypes.func,
       PropTypes.object,
-    ]),
+    ]).isRequired,
+    /** The message for which the action box is displayed */
+    message: PropTypes.object.isRequired,
   };
 
   static defaultProp = {
@@ -25,7 +27,7 @@ export class MessageActionsBox extends React.Component {
   };
 
   render() {
-    const { mine } = this.props;
+    const { Message, message } = this.props;
     return (
       <div
         className={`str-chat__message-actions-box ${
@@ -33,25 +35,25 @@ export class MessageActionsBox extends React.Component {
         }`}
       >
         <ul className="str-chat__message-actions-list">
-          {!mine && (
-            <button onClick={this.props.Message.handleFlag}>
+          {!Message.isMyMessage(message) && (
+            <button onClick={Message.handleFlag}>
               <li className="str-chat__message-actions-list-item">Flag</li>
             </button>
           )}
-          {!mine && (
-            <button onClick={this.props.Message.handleMute}>
+          {!Message.isMyMessage(message) && (
+            <button onClick={Message.handleMute}>
               <li className="str-chat__message-actions-list-item">Mute</li>
             </button>
           )}
-          {mine && (
-            <button onClick={this.props.Message.handleEdit}>
+          {Message.canEditMessage(message) && (
+            <button onClick={Message.handleEdit}>
               <li className="str-chat__message-actions-list-item">
                 Edit Message
               </li>
             </button>
           )}
-          {mine && (
-            <button onClick={this.props.Message.handleDelete}>
+          {Message.canDeleteMessage(message) && (
+            <button onClick={Message.handleDelete}>
               <li className="str-chat__message-actions-list-item">Delete</li>
             </button>
           )}
