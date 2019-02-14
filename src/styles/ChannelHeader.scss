@@ -164,3 +164,29 @@
     }
   }
 }
+
+.commerce {
+  &.str-chat {
+    .str-chat {
+      &__header-livestream {
+        height: 112px;
+        &-left {
+          &--title {
+            font-size: 25px;
+            font-weight: 400;
+          }
+          &--members {
+            display: none;
+          }
+        }
+        &-right {
+          &-button {
+            &--info {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+}

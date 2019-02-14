@@ -18,12 +18,12 @@ import moment from 'moment';
 import { isOnlyEmojis, renderText } from '../utils';
 
 /**
- * MessageSimple - Render component, should be used together with the Message component
+ * MessageCommerce - Render component, should be used together with the Message component
  *
  * @example ./docs/MessageSimple.md
  * @extends PureComponent
  */
-export class MessageSimple extends PureComponent {
+export class MessageCommerce extends PureComponent {
   static propTypes = {
     /** The message object */
     message: PropTypes.object,
@@ -138,7 +138,7 @@ export class MessageSimple extends PureComponent {
       message.seenBy[0].id === this.props.client.user.id;
     if (this.props.message.status === 'sending') {
       return (
-        <span className="str-chat__message-simple-status">
+        <span className="str-chat__message-commerce-status">
           <Tooltip>Sending...</Tooltip>
           <LoadingIndicator isLoading />
         </span>
@@ -149,7 +149,7 @@ export class MessageSimple extends PureComponent {
       !justSeenByMe
     ) {
       return (
-        <span className="str-chat__message-simple-status">
+        <span className="str-chat__message-commerce-status">
           <Tooltip>{this.formatArray(message.seenBy)}</Tooltip>
           <Avatar
             name={this.props.seenBy[0].id}
@@ -157,7 +157,7 @@ export class MessageSimple extends PureComponent {
             size={15}
           />
           {message.seenBy.length > 1 && (
-            <span className="str-chat__message-simple-status-number">
+            <span className="str-chat__message-commerce-status-number">
               {message.seenBy.length}
             </span>
           )}
@@ -169,7 +169,7 @@ export class MessageSimple extends PureComponent {
       !this.props.threadList
     ) {
       return (
-        <span className="str-chat__message-simple-status">
+        <span className="str-chat__message-commerce-status">
           <Tooltip>Delivered</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -191,10 +191,10 @@ export class MessageSimple extends PureComponent {
     }
     if (this.isMine()) {
       return (
-        <div className="str-chat__message-simple__actions">
+        <div className="str-chat__message-commerce__actions">
           <div
             onClick={this._onClickOptionsAction}
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+            className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--options"
           >
             <MessageActionsBox
               Message={this.props.messageBase}
@@ -214,7 +214,7 @@ export class MessageSimple extends PureComponent {
             </svg>
           </div>
           <div
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+            className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
             onClick={this._clickReactionList}
           >
             <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
@@ -228,9 +228,9 @@ export class MessageSimple extends PureComponent {
       );
     } else {
       return (
-        <div className="str-chat__message-simple__actions">
+        <div className="str-chat__message-commerce__actions">
           <div
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+            className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
             onClick={this._clickReactionList}
           >
             <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
@@ -243,7 +243,7 @@ export class MessageSimple extends PureComponent {
           {!this.props.threadList && (
             <div
               onClick={this.props.openThread}
-              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+              className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--thread"
             >
               <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -266,8 +266,8 @@ export class MessageSimple extends PureComponent {
     const when = moment(message.created_at).calendar();
 
     const messageClasses = this.isMine()
-      ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
-      : 'str-chat__message str-chat__message-simple';
+      ? 'str-chat__message str-chat__message--me str-chat__message-commerce str-chat__message-commerce--me'
+      : 'str-chat__message str-chat__message-commerce';
 
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -384,18 +384,18 @@ export class MessageSimple extends PureComponent {
               <div className="str-chat__message-text">
                 <div
                   className={`
-									str-chat__message-text-inner str-chat__message-simple-text-inner
+									str-chat__message-text-inner str-chat__message-commerce-text-inner
 									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
 									${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
 									${
                     isOnlyEmojis(message.text)
-                      ? 'str-chat__message-simple-text-inner--is-emoji'
+                      ? 'str-chat__message-commerce-text-inner--is-emoji'
                       : ''
                   }
 								`.trim()}
                 >
                   {message.type === 'error' && (
-                    <div className="str-chat__simple-message--error-message">
+                    <div className="str-chat__commerce-message--error-message">
                       Error · Unsent
                     </div>
                   )}
@@ -430,7 +430,7 @@ export class MessageSimple extends PureComponent {
               </div>
             )}
             {!this.props.threadList && (
-              <div className="str-chat__message-simple-reply-button">
+              <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
                   onClick={this.props.openThread}
                   reply_count={message.reply_count}

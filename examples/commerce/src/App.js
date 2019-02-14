@@ -7,7 +7,7 @@ import {
   MessageList,
   MessageInput,
   MessageInputFlat,
-  MessageSimple,
+  MessageCommerce,
   ChannelHeader,
   Thread,
   TypingIndicator,
@@ -57,14 +57,14 @@ class App extends Component {
         <Chat client={this.chatClient} theme="commerce light">
           <Channel channel={this.channel}>
             <Window hideOnThread>
-              <ChannelHeader live />
+              <ChannelHeader />
               <MessageList
                 typingIndicator={TypingIndicator}
-                Message={MessageSimple}
+                Message={MessageCommerce}
               />
               <MessageInput Input={MessageInputFlat} focus />
             </Window>
-            <Thread Message={MessageSimple} fullWidth />
+            <Thread Message={MessageCommerce} fullWidth />
           </Channel>
         </Chat>
       </>

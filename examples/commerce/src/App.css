@@ -22,6 +22,7 @@ body {
   border-radius: 10px;
   border-bottom-right-radius: 0;
   overflow: hidden;
+  max-width: 400px;
 }
 
 .str-chat-channel {

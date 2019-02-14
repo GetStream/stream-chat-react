@@ -26,6 +26,7 @@ import './styles/LoadingChannels.scss';
 import './styles/LoadingIndicator.scss';
 import './styles/Message.scss';
 import './styles/MessageActions.scss';
+import './styles/MessageCommerce.scss';
 import './styles/MessageInput.scss';
 import './styles/MessageInputFlat.scss';
 import './styles/MessageNotification.scss';

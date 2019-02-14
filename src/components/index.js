@@ -15,6 +15,7 @@ export { ChannelListTeam } from './ChannelListTeam';
 export { ChannelPreviewCompact } from './ChannelPreviewCompact';
 export { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 export { LoadingIndicator } from './LoadingIndicator';
+export { MessageCommerce } from './MessageCommerce';
 export { MessageLivestream } from './MessageLivestream';
 export { MessageTeam } from './MessageTeam';
 export { MessageSimple } from './MessageSimple';
