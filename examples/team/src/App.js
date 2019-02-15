@@ -9,7 +9,6 @@ import {
   ChannelHeader,
   ChannelListTeam,
   ChannelList,
-  ChannelPreviewCompact,
   MessageTeam,
   Thread,
 } from 'stream-chat-react';
@@ -72,7 +71,6 @@ class App extends Component {
           channels={this.channels}
           List={ChannelListTeam}
           showSidebar
-          Preview={ChannelPreviewCompact}
         />
         <Channel>
           <Window>
