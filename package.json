@@ -120,7 +120,10 @@
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
     "lint": "prettier --list-different '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc && eslint '**/*.{js,md}' --max-warnings 0 && stylelint '**/*.{css,scss}'",
     "lint-fix": "prettier --write '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc && eslint --fix '**/*.{js,md}' --max-warnings 0 && stylelint --fix '**/*.{css,scss}'",
-    "prepare": "yarn run build"
+    "prepare": "yarn run build",
+    "preversion": "make example-deps && git add yarn.lock && git add examples/*/yarn.lock",
+    "version": "yarn docs && git add docs && git add yarn.lock examples/*/yarn.lock",
+    "postversion": "git push && git push --tags && npm publish"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended-scss",
