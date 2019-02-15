@@ -138,6 +138,16 @@
 
         p {
           margin: 0;
+          /* Make sure really long urls and words don't break out.
+            ** https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/ */
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+
+          /* Adds a hyphen where the word breaks, if supported (No Blink) */
+          -ms-hyphens: auto;
+          -moz-hyphens: auto;
+          -webkit-hyphens: auto;
+          hyphens: auto;
 
           a {
             color: $secondary-color;

@@ -386,11 +386,11 @@ class ChannelInner extends PureComponent {
     this.setState({ loadingMore: true });
 
     const oldestID = this.state.messages[0] ? this.state.messages[0].id : null;
-    const perPage = 30;
+    const perPage = 100;
     let queryResponse;
     try {
       queryResponse = await this.props.channel.query({
-        messages: { limit: perPage, id_lte: oldestID },
+        messages: { limit: perPage, id_lt: oldestID },
       });
     } catch (e) {
       console.warn('message pagination request failed with error', e);
