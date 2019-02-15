@@ -104,7 +104,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return this.props.message.user.id === this.props.client.user.id;
+    return this.props.message.user.id !== this.props.client.user.id;
   }
 
   formatArray = (arr) => {
@@ -268,7 +268,7 @@ export class MessageCommerce extends PureComponent {
 
     const messageClasses = this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
-      : 'str-chat__message-commerce';
+      : 'str-chat__message-commerce str-chat__message-commerce--right';
 
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -348,7 +348,7 @@ export class MessageCommerce extends PureComponent {
                 )}
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
-                    reverse={!this.isMine()}
+                    reverse={false}
                     handleReaction={this.props.handleReaction}
                     actionsEnabled={this.props.actionsEnabled}
                     detailedView
@@ -405,7 +405,7 @@ export class MessageCommerce extends PureComponent {
                   )}
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
-                      reverse={!this.isMine()}
+                      reverse={false}
                       handleReaction={this.props.handleReaction}
                       actionsEnabled={this.props.actionsEnabled}
                       detailedView
@@ -429,9 +429,9 @@ export class MessageCommerce extends PureComponent {
               </div>
             )}
             <div className={`str-chat__message-commerce-data`}>
-              {!this.isMine() ? (
+              {this.isMine() ? (
                 <span className="str-chat__message-commerce-name">
-                  {message.user.id}
+                  {message.user.name || message.user.id}
                 </span>
               ) : null}
               <span className="str-chat__message-commerce-timestamp">

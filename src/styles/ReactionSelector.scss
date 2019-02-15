@@ -242,7 +242,8 @@
     }
   }
 
-  &--me {
+  &--me,
+  &--right {
     .str-chat__reaction-selector {
       top: -70px;
       left: 15px;

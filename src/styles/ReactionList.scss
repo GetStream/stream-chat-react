@@ -100,7 +100,8 @@
     }
   }
 
-  &--me {
+  &--me,
+  &--right {
     .str-chat__reaction-list {
       right: initial;
       left: 16px;

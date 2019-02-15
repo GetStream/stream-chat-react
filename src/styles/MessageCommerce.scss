@@ -19,6 +19,15 @@
     margin-right: 8px;
   }
 
+  .str-chat__message-attachment {
+    &-card {
+      &--content {
+        margin: 0;
+        padding: 6px 8px;
+      }
+    }
+  }
+
   &--top,
   &--middle {
     margin-left: 40px;
@@ -96,8 +105,7 @@
         overflow-wrap: break-word;
         word-wrap: break-word;
         -ms-word-break: break-all;
-        /* This is the dangerous one in WebKit, as it breaks things wherever */
-        word-break: break-all;
+
         /* Instead use this non-standard one: */
         word-break: break-word;
 
@@ -161,80 +169,11 @@
     line-height: 20px;
   }
 
-  /* me */
-  &--me {
-    display: flex;
-    margin: 4px 0;
-    margin-left: 100px;
-    justify-content: flex-end;
-
-    .str-chat__message {
-      &-text {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      &-inner {
-        justify-content: flex-end;
-        align-items: flex-end;
-        > .str-chat__message-commerce__actions {
-          position: absolute;
-          top: 5px;
-          left: unset;
-          right: 100%;
-        }
-      }
-
-      &-text-inner {
-        flex: initial;
-        background: #ebebeb;
-        border-color: transparent;
-        text-align: right;
-        border-radius: $border-radius $border-radius 2px $border-radius;
-        margin-right: 0; /* set spacing when unfocused */
-        &--focused {
-          background: $secondary-faded;
-          border: 1px solid $secondary-color;
-          margin-left: 0;
-          margin-right: 0; /* set spacing when focused */
-        }
-
-        &--has-attachment {
-          border-radius: $border-radius 2px 2px $border-radius;
-        }
-
-        &--is-emoji {
-          background: transparent;
-          border: 1px solid transparent;
-          font-size: 32px;
-          padding-left: 0;
-          padding-right: 0;
-
-          p {
-            line-height: 48px;
-          }
-        }
-      }
-
-      &-attachment {
-        &--img {
-          width: 100%;
-          max-width: 480px;
-          display: block;
-          height: inherit;
-          object-fit: cover;
-          border: none;
-        }
-      }
-
-      &-data {
-        text-align: right;
-      }
-    }
-  }
-
   &--with-reactions {
     margin-top: 30px;
+    .str-chat__message-commerce__actions__action--reactions {
+      display: flex;
+    }
   }
 
   &-link {
@@ -276,14 +215,6 @@
     margin: 0 0 0 42px;
   }
 
-  &--me {
-    &.str-chat__message--deleted {
-      float: right;
-      background-color: $grey;
-      margin: 0 42px 0 0;
-    }
-  }
-
   /* error messages */
   &--error {
     margin: 0 0 32px 0;
@@ -295,10 +226,59 @@
     }
   }
 
-  &--me {
-    &.str-chat__message--error {
-      border-left: initial;
-      margin-right: 42px;
+  &--right {
+    &.str-chat__message-commerce {
+      justify-content: flex-end;
+      margin-left: 0;
+      text-align: right;
+      .str-chat__message-commerce__actions {
+        justify-content: flex-end;
+      }
+      .str-chat__message-commerce-text-inner {
+        background: #ebebeb;
+        border-width: 0px;
+        margin-top: 2px;
+        border-color: transparent;
+        p {
+          text-align: right;
+        }
+      }
+      .str-chat__avatar {
+        display: none;
+      }
+
+      .str-chat__message-attachment-card {
+        border-radius: 16px 16px 4px 16px;
+      }
+
+      &--bottom,
+      &--single {
+        margin-right: 0;
+      }
+      &--single {
+        .str-chat__message-commerce {
+          &-text {
+            &-inner {
+              border-radius: 16px 16px 4px 16px;
+            }
+          }
+        }
+      }
+      &--bottom {
+        .str-chat__message-commerce {
+          &-text {
+            &-inner {
+              border-radius: 4px 4px 4px 16px;
+            }
+          }
+        }
+      }
+      .str-chat__avatar {
+        order: 1;
+      }
+      .str-chat__message-commerce-text {
+        flex-direction: row-reverse;
+      }
     }
   }
 }
