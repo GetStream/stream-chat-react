@@ -306,6 +306,7 @@ class MessageList extends PureComponent {
         previousMessage.type === 'message.date' ||
         previousMessage.attachments.length !== 0 ||
         userId !== previousMessage.user.id ||
+        previousMessage.type === 'error' ||
         previousMessage.deleted_at;
 
       const isBottomMessage =
@@ -313,6 +314,7 @@ class MessageList extends PureComponent {
         nextMessage.type === 'message.date' ||
         nextMessage.attachments.length !== 0 ||
         userId !== nextMessage.user.id ||
+        nextMessage.type === 'error' ||
         nextMessage.deleted_at;
 
       if (isTopMessage) {

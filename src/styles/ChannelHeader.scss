@@ -169,7 +169,11 @@
   &.str-chat {
     .str-chat {
       &__header-livestream {
-        height: 112px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.81);
+        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+          0 1px 0 0 rgba(0, 0, 0, 0.03);
+        border-radius: 10px 10px 0 0;
         &-left {
           &--title {
             font-size: 25px;

@@ -14,7 +14,7 @@ body {
 }
 
 .str-chat-channel .str-chat__container {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 50px);
   position: absolute;
   top: 25px;
   right: 25px;
@@ -26,5 +26,5 @@ body {
 }
 
 .str-chat-channel {
-  max-height: calc(100vh - 50px);
+  max-height: calc(100vh - 25px);
 }

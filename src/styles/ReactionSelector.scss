@@ -183,7 +183,8 @@
 
 .str-chat__message,
 .str-chat__message-team,
-.str-cha__message-simple,
+.str-chat__message-simple,
+.str-chat__message-commerce,
 .str-chat__message-livestream {
   .str-chat__reaction-selector {
     position: absolute;
@@ -293,22 +294,22 @@
   }
 }
 
-// .str-chat__message-livestream {
-//   .str-chat__reaction-selector {
-//     top: initial;
-//     bottom: calc(100% - 25px);
-//     right: calc(100% + 22px);
-//     z-index: 10;
-//     font-size: 20px;
+.str-chat__message-livestream {
+  .str-chat__reaction-selector {
+    top: initial;
+    bottom: calc(100% - 25px);
+    right: calc(100% + 22px);
+    z-index: 10;
+    font-size: 20px;
 
-//     &::after {
-//       top: 0;
-//       right: -80px;
-//       width: 80px;
-//       background-position: -40px 0;
-//     }
-//   }
-// }
+    &::after {
+      top: 0;
+      right: -80px;
+      width: 80px;
+      background-position: -40px 0;
+    }
+  }
+}
 
 .str-chat__message-team {
   .str-chat__reaction-selector {

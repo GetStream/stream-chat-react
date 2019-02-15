@@ -9,8 +9,8 @@ import {
   MessageInputFlat,
   MessageCommerce,
   ChannelHeader,
-  Thread,
   TypingIndicator,
+  // Thread,
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -35,7 +35,7 @@ class App extends Component {
       },
       userToken,
     );
-    this.channel = this.chatClient.channel('livestream', channelName, {
+    this.channel = this.chatClient.channel('messaging', channelName, {
       image:
         'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
       name: 'The water cooler',
@@ -44,7 +44,7 @@ class App extends Component {
 
     this.channel.watch();
 
-    const filters = { type: 'team', example: 1 };
+    const filters = { type: 'messaging', example: 1 };
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       subscribe: true,
@@ -56,7 +56,7 @@ class App extends Component {
       <>
         <Chat client={this.chatClient} theme="commerce light">
           <Channel channel={this.channel}>
-            <Window hideOnThread>
+            <Window>
               <ChannelHeader />
               <MessageList
                 typingIndicator={TypingIndicator}
@@ -64,7 +64,6 @@ class App extends Component {
               />
               <MessageInput Input={MessageInputFlat} focus />
             </Window>
-            <Thread Message={MessageCommerce} fullWidth />
           </Channel>
         </Chat>
       </>

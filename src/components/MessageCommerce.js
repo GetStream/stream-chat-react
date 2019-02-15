@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Attachment } from './Attachment';
-import { MessageActionsBox } from './MessageActionsBox';
+// import { MessageActionsBox } from './MessageActionsBox';
 import { ReactionsList } from './ReactionsList';
 import { Avatar } from './Avatar';
 import { Tooltip } from './Tooltip';
@@ -8,9 +8,9 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { Gallery } from './Gallery';
 import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { Modal } from './Modal';
-import { MessageInput } from './MessageInput';
-import { EditMessageForm } from './EditMessageForm';
+// import { Modal } from './Modal';
+// import { MessageInput } from './MessageInput';
+// import { EditMessageForm } from './EditMessageForm';
 
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -192,12 +192,13 @@ export class MessageCommerce extends PureComponent {
     if (this.isMine()) {
       return (
         <div className="str-chat__message-commerce__actions">
-          <div
+          {/* <div
             onClick={this._onClickOptionsAction}
             className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--options"
           >
             <MessageActionsBox
-              Message={this.props.messageBase}
+              Message={this.props.Message}
+              message={this.props.message}
               open={this.state.actionsBoxOpen}
               mine={this.props.mine}
             />
@@ -212,7 +213,7 @@ export class MessageCommerce extends PureComponent {
                 fillRule="nonzero"
               />
             </svg>
-          </div>
+          </div> */}
           <div
             className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
             onClick={this._clickReactionList}
@@ -240,7 +241,7 @@ export class MessageCommerce extends PureComponent {
               />
             </svg>
           </div>
-          {!this.props.threadList && (
+          {/* {!this.props.threadList && (
             <div
               onClick={this.props.openThread}
               className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--thread"
@@ -254,20 +255,20 @@ export class MessageCommerce extends PureComponent {
                 />
               </svg>
             </div>
-          )}
+          )} */}
         </div>
       );
     }
   }
 
   render() {
-    const { message } = this.props;
+    const { message, groupStyles } = this.props;
     const Attachment = this.props.Attachment;
-    const when = moment(message.created_at).calendar();
+    const when = moment(message.created_at).format('LT');
 
     const messageClasses = this.isMine()
-      ? 'str-chat__message str-chat__message--me str-chat__message-commerce str-chat__message-commerce--me'
-      : 'str-chat__message str-chat__message-commerce';
+      ? 'str-chat__message-commerce str-chat__message-commerce--left'
+      : 'str-chat__message-commerce';
 
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -279,11 +280,11 @@ export class MessageCommerce extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (message.type === 'message.seen') {
-      return null;
-    }
-
-    if (message.type === 'message.date') {
+    if (
+      message.type === 'message.seen' ||
+      message.deleted_at ||
+      message.type === 'message.date'
+    ) {
       return null;
     }
 
@@ -308,38 +309,29 @@ export class MessageCommerce extends PureComponent {
 
     return (
       <React.Fragment>
-        {this.props.editing && (
-          <Modal
-            open={this.props.editing}
-            onClose={this.props.clearEditingState}
-          >
-            <MessageInput
-              Input={EditMessageForm}
-              message={this.props.message}
-              clearEditingState={this.props.clearEditingState}
-              updateMessage={this.props.updateMessage}
-            />
-          </Modal>
-        )}
         <div
           key={message.id}
           className={`
 						${messageClasses}
-						str-chat__message--${message.type}
-						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
-						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
-						${hasReactions ? 'str-chat__message--with-reactions' : ''}
+						str-chat__message-commerce--${message.type}
+						${message.text ? 'str-chat__message-commerce--has-text' : 'has-no-text'}
+						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
+						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
+						${`str-chat__message-commerce--${groupStyles[0]}`}
 					`.trim()}
           onMouseLeave={this._hideOptions}
           ref={this.messageRef}
         >
-          {this.renderStatus()}
+          {/* {this.renderStatus()} */}
 
-          <Avatar
-            source={message.user.image}
-            name={message.user.name || message.user.id}
-          />
-          <div className="str-chat__message-inner">
+          {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
+            <Avatar
+              source={message.user.image}
+              size={32}
+              name={message.user.name || message.user.id}
+            />
+          )}
+          <div className="str-chat__message-commerce-inner">
             {!message.text && (
               <React.Fragment>
                 {this.renderOptions()}
@@ -356,7 +348,7 @@ export class MessageCommerce extends PureComponent {
                 )}
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
-                    reverse={this.isMine()}
+                    reverse={!this.isMine()}
                     handleReaction={this.props.handleReaction}
                     actionsEnabled={this.props.actionsEnabled}
                     detailedView
@@ -381,12 +373,11 @@ export class MessageCommerce extends PureComponent {
             {images.length > 1 && <Gallery images={images} />}
 
             {message.text && (
-              <div className="str-chat__message-text">
+              <div className="str-chat__message-commerce-text">
                 <div
-                  className={`
-									str-chat__message-text-inner str-chat__message-commerce-text-inner
-									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
-									${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
+                  className={`str-chat__message-commerce-text-inner
+									${this.state.isFocused ? 'str-chat__message-commerce-text-inner--focused' : ''}
+									${hasAttachment ? 'str-chat__message-commerce-text-inner--has-attachment' : ''}
 									${
                     isOnlyEmojis(message.text)
                       ? 'str-chat__message-commerce-text-inner--is-emoji'
@@ -414,7 +405,7 @@ export class MessageCommerce extends PureComponent {
                   )}
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
-                      reverse={this.isMine()}
+                      reverse={!this.isMine()}
                       handleReaction={this.props.handleReaction}
                       actionsEnabled={this.props.actionsEnabled}
                       detailedView
@@ -437,13 +428,15 @@ export class MessageCommerce extends PureComponent {
                 />
               </div>
             )}
-            <div className={`str-chat__message-data`}>
+            <div className={`str-chat__message-commerce-data`}>
               {!this.isMine() ? (
-                <span className="str-chat__message-name">
+                <span className="str-chat__message-commerce-name">
                   {message.user.id}
                 </span>
               ) : null}
-              <span className="str-chat__message-timestamp">{when}</span>
+              <span className="str-chat__message-commerce-timestamp">
+                {when}
+              </span>
             </div>
           </div>
         </div>
