@@ -417,7 +417,9 @@ class MessageList extends PureComponent {
               message={message}
               groupStyles={groupStyles}
               seenBy={seenBy}
-              lastReceivedId={lastReceivedId}
+              lastReceivedId={
+                lastReceivedId === message.id ? lastReceivedId : null
+              }
               editing={
                 !!(this.state.editing && this.state.editing === message.id)
               }

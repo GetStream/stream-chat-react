@@ -69,6 +69,16 @@ export class Message extends Component {
       shouldUpdate = true;
       reason = 'groupStyles';
     }
+
+    // if lastreceivedId changesm, message should update.
+    if (
+      !shouldUpdate &&
+      !deepequal(nextProps.lastReceivedId, this.props.lastReceivedId)
+    ) {
+      shouldUpdate = true;
+      reason = 'lastReceivedId';
+    }
+
     // editing is the last one which can trigger a change..
     if (!shouldUpdate && nextProps.editing !== this.props.editing) {
       shouldUpdate = true;
