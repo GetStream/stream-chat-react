@@ -87,11 +87,11 @@ export class Message extends Component {
 
     if (shouldUpdate && reason) {
       // console.log(
-      // 	'message',
-      // 	nextProps.message.id,
-      // 	'shouldUpdate',
-      // 	shouldUpdate,
-      // 	reason,
+      //   'message',
+      //   nextProps.message.id,
+      //   'shouldUpdate',
+      //   shouldUpdate,
+      //   reason,
       // );
     }
 
