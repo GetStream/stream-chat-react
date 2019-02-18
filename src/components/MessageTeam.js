@@ -192,18 +192,20 @@ export class MessageTeam extends PureComponent {
     if (message.type === 'message.seen') {
       return null;
     }
-    const hasAttachment = Boolean(message.attachments.length);
+    const hasAttachment = Boolean(
+      message.attachments && message.attachments.length,
+    );
     const Attachment = this.props.Attachment;
 
     if (message.deleted_at) {
       return null;
     }
 
-    let galleryImages = message.attachments.filter(
-      (item) => item.type === 'image',
-    );
+    let galleryImages =
+      message.attachments &&
+      message.attachments.filter((item) => item.type === 'image');
     let attachments = message.attachments;
-    if (galleryImages.length > 1) {
+    if (galleryImages && galleryImages.length > 1) {
       attachments = message.attachments.filter((item) => item.type !== 'image');
     } else {
       galleryImages = [];

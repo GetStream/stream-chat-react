@@ -51,6 +51,9 @@ export const formatArray = (arr) => {
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
+  if (!message) {
+    return;
+  }
   const allowed = [
     'root',
     'text',

@@ -270,7 +270,7 @@ export class MessageSimple extends PureComponent {
       : 'str-chat__message str-chat__message-simple';
 
     const hasAttachment = Boolean(
-      message.attachments && message.attachments.length,
+      message && message.attachments && message.attachments.length,
     );
     const images =
       hasAttachment &&
@@ -279,11 +279,11 @@ export class MessageSimple extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (message.type === 'message.seen') {
-      return null;
-    }
-
-    if (message.type === 'message.date') {
+    if (
+      message.type === 'message.seen' ||
+      message.type === 'message.date' ||
+      message.deleted_at
+    ) {
       return null;
     }
 

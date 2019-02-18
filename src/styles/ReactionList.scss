@@ -102,6 +102,11 @@
 
   &--me,
   &--right {
+    .str-chat__message-commerce-inner {
+      > .str-chat__reaction-list {
+        left: 66px;
+      }
+    }
     .str-chat__reaction-list {
       right: initial;
       left: 16px;

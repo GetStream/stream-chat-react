@@ -369,6 +369,7 @@ class MessageList extends PureComponent {
     for (const seenData of Object.values(this.props.seen)) {
       const seenMessage = { ...seenData };
       seenMessage.created_at = new Date(seenMessage.created_at);
+      seenMessage.type = 'message.seen';
       allMessages.push(seenMessage);
     }
 

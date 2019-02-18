@@ -8,10 +8,13 @@
   &-inner {
     position: relative;
     flex: 1; /* -- */
-    > .str-chat__message-commerce__actions {
-      position: absolute;
-      top: 5px;
-      left: 100%;
+    .str-chat__message-commerce__actions {
+      min-height: 10px;
+      min-width: 50px;
+      float: left;
+      .str-chat__message-commerce--right .str-chat__reaction-list {
+        left: 66px;
+      }
     }
   }
 
@@ -234,6 +237,17 @@
       .str-chat__message-commerce__actions {
         justify-content: flex-end;
       }
+      .str-chat__message-commerce {
+        &-inner {
+          > .str-chat__message-commerce__actions {
+            .str-chat__reaction-list {
+              left: 66px;
+              border: 1px solid magenta;
+            }
+          }
+        }
+      }
+
       .str-chat__message-commerce-text-inner {
         background: #ebebeb;
         border-width: 0px;
