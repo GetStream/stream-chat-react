@@ -134,7 +134,7 @@ class ChannelInner extends PureComponent {
     return <Loader isLoading={true} />;
   };
 
-  openThread = (e, message) => {
+  openThread = (message, e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }

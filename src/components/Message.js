@@ -210,8 +210,7 @@ export class Message extends Component {
         handleAction={this.handleAction}
         handleReply={this.handleReply}
         handleRetry={this.handleRetry}
-        // TODO: don't use anon functions
-        openThread={(e) => this.props.openThread(e, message)}
+        openThread={this.props.openThread.bind(this, message)}
       />
     );
   }
