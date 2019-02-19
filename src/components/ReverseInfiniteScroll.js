@@ -43,10 +43,6 @@ export class ReverseInfiniteScroll extends Component {
     this.attachScrollListener();
   }
 
-  componentDidUpdate() {
-    this.attachScrollListener();
-  }
-
   componentWillUnmount() {
     this.detachScrollListener();
     this.detachMousewheelListener();

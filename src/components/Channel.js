@@ -11,6 +11,7 @@ import { logChatPromiseExecution } from 'stream-chat';
 import { MessageSimple } from './MessageSimple';
 import { Attachment } from './Attachment';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 /**
  * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.
  * ChannelHeader, MessageList, Thread and MessageInput should be used as children of the Channel component.
@@ -90,6 +91,15 @@ class ChannelInner extends PureComponent {
         trailing: true,
       },
     );
+
+    this._markSeenThrottled = throttle(this.markSeen, 500, {
+      leading: true,
+      trailing: true,
+    });
+    this._setStateThrottled = throttle(this.setState, 500, {
+      leading: true,
+      trailing: true,
+    });
   }
 
   static propTypes = {
@@ -311,7 +321,7 @@ class ChannelInner extends PureComponent {
   };
 
   handleEvent = (e) => {
-    const channel = this.props.channel;
+    const { channel } = this.props;
     let threadMessages = [];
     const threadState = {};
     if (this.state.thread) {
@@ -335,15 +345,14 @@ class ChannelInner extends PureComponent {
 
       if (mainChannelUpdated) {
         if (Visibility.state() === 'visible') {
-          this.markSeen(channel);
+          this._markSeenThrottled(channel);
         } else {
-          const unread = this.props.channel.countUnread(this.lastSeen);
+          const unread = channel.countUnread(this.lastSeen);
           document.title = `(${unread}) ${this.originalTitle}`;
         }
       }
     }
-
-    this.setState({
+    this._setStateThrottled({
       messages: channel.state.messages,
       watchers: channel.state.watchers,
       seen: channel.state.seen,

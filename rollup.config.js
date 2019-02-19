@@ -47,6 +47,7 @@ const normalBundle = {
     'stream-chat-client',
     'react-images',
     'lodash/debounce',
+    'lodash/throttle',
     'lodash/truncate',
     'emoji-mart',
     'emoji-regex',
