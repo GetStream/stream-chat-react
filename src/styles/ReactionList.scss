@@ -150,3 +150,22 @@
     }
   }
 }
+
+.str-chat__message-commerce {
+  &-inner {
+    > .str-chat__reaction-list {
+      left: unset;
+      right: 66px;
+    }
+  }
+  &--right {
+    .str-chat__message-commerce {
+      &-inner {
+        > .str-chat__reaction-list {
+          right: unset;
+          left: 66px;
+        }
+      }
+    }
+  }
+}

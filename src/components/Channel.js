@@ -159,7 +159,7 @@ class ChannelInner extends PureComponent {
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
     const limit = 50;
-    const queryResponse = await channel.queryReplies(parentID, {
+    const queryResponse = await channel.getReplies(parentID, {
       limit,
       id_lt: oldestMessageID,
     });

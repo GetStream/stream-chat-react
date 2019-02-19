@@ -104,7 +104,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return this.props.message.user.id !== this.props.client.user.id;
+    return this.props.message.user.id === this.props.client.user.id;
   }
 
   formatArray = (arr) => {
@@ -314,7 +314,11 @@ export class MessageCommerce extends PureComponent {
           className={`
 						${messageClasses}
 						str-chat__message-commerce--${message.type}
-						${message.text ? 'str-chat__message-commerce--has-text' : 'has-no-text'}
+						${
+              message.text
+                ? 'str-chat__message-commerce--has-text'
+                : 'str-chat__message-commerce--has-no-text'
+            }
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
 						${`str-chat__message-commerce--${groupStyles[0]}`}

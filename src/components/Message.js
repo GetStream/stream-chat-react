@@ -155,7 +155,10 @@ export class Message extends Component {
 
     if (userExistingReaction) {
       // remove the reaction..
-      data = await this.props.channel.deleteReaction(userExistingReaction.id);
+      data = await this.props.channel.deleteReaction(
+        this.props.message.id,
+        userExistingReaction.id,
+      );
     } else {
       const messageID = this.props.message.id;
 

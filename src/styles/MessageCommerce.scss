@@ -1,5 +1,5 @@
 .str-chat__message-commerce {
-  display: flex; /* inline-flex */
+  display: flex; /* inline-flex if you don't want the  */
   justify-content: flex-start;
   align-items: flex-end;
   padding: 0 0 0 0;
@@ -7,13 +7,14 @@
   margin: 1px 0;
   &-inner {
     position: relative;
-    flex: 1; /* -- */
-    .str-chat__message-commerce__actions {
+    /* flex: 1 if you want the messagebubbles to be the same width- */
+    > .str-chat__message-commerce__actions {
       min-height: 10px;
       min-width: 50px;
-      float: left;
-      .str-chat__message-commerce--right .str-chat__reaction-list {
-        left: 66px;
+      float: right;
+      .str-chat__reaction-list {
+        left: unset;
+        right: 66px;
       }
     }
   }
@@ -67,6 +68,9 @@
       &-text {
         &-inner {
           border-radius: 16px 16px 16px 0;
+          &--has-attachment {
+            border-radius: 4px 4px 16px 0;
+          }
         }
       }
     }
@@ -233,16 +237,15 @@
     &.str-chat__message-commerce {
       justify-content: flex-end;
       margin-left: 0;
-      text-align: right;
       .str-chat__message-commerce__actions {
         justify-content: flex-end;
       }
       .str-chat__message-commerce {
         &-inner {
           > .str-chat__message-commerce__actions {
+            float: left;
             .str-chat__reaction-list {
               left: 66px;
-              border: 1px solid magenta;
             }
           }
         }
@@ -292,6 +295,9 @@
       }
       .str-chat__message-commerce-text {
         flex-direction: row-reverse;
+      }
+      .str-chat__message-commerce-data {
+        text-align: right;
       }
     }
   }

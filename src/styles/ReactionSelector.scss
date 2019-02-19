@@ -295,6 +295,25 @@
   }
 }
 
+.str-chat__message-commerce {
+  &-inner {
+    > .str-chat__reaction-selector {
+      left: unset;
+      right: 66px;
+    }
+  }
+  &--right {
+    .str-chat__message-commerce {
+      &-inner {
+        > .str-chat__reaction-selector {
+          right: unset;
+          left: 66px;
+        }
+      }
+    }
+  }
+}
+
 .str-chat__message-livestream {
   .str-chat__reaction-selector {
     top: initial;

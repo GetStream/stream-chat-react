@@ -10,6 +10,7 @@ import {
   ChannelListTeam,
   ChannelList,
   MessageTeam,
+  Window,
   Thread,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -61,6 +62,7 @@ class App extends Component {
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       subscribe: true,
+      state: true,
     });
   }
 
@@ -86,7 +88,3 @@ class App extends Component {
 }
 
 export default App;
-
-const Window = ({ children }) => (
-  <div className="str-chat__main-panel">{children}</div>
-);
