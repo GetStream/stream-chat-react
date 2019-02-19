@@ -195,9 +195,6 @@ export class Message extends Component {
     const actionsEnabled =
       message.type === 'regular' && message.status === 'received';
 
-    // if (message.type === 'error') {
-    // 	return <ErrorMessage message={message} />;
-    // }
     const Component = this.props.Message;
     return (
       <Component
