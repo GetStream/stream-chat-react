@@ -67,7 +67,7 @@ export class MessageLivestream extends React.PureComponent {
 
   hideReactions = (e) => {
     if (
-      !this.reactionSelectorRef.current.reactionSelectorInner.current.contains(
+      !this.reactionSelectorRef.current.reactionSelector.current.contains(
         e.target,
       )
     ) {
@@ -162,25 +162,25 @@ export class MessageLivestream extends React.PureComponent {
           }`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
+          {this.state.reactionSelectorOpen && (
+            <ReactionSelector
+              mine={this.props.mine}
+              reverse={false}
+              handleReaction={this.props.handleReaction}
+              actionsEnabled={this.props.actionsEnabled}
+              detailedView
+              latest_reactions={message.latest_reactions}
+              reaction_counts={message.reaction_counts}
+              messageList={this.props.messageListRect}
+              ref={this.reactionSelectorRef}
+            />
+          )}
           {!this.props.initialMessage && message.type !== 'error' && (
             <div className={`str-chat__message-livestream-actions`}>
               <span className={`str-chat__message-livestream-time`}>
                 {moment(message.created_at).format('h:mmA')}
               </span>
               <span onClick={this.onClickReactionsAction}>
-                {this.state.reactionSelectorOpen && (
-                  <ReactionSelector
-                    mine={this.props.mine}
-                    reverse={false}
-                    handleReaction={this.props.handleReaction}
-                    actionsEnabled={this.props.actionsEnabled}
-                    detailedView
-                    latest_reactions={message.latest_reactions}
-                    reaction_counts={message.reaction_counts}
-                    messageList={this.props.messageListRect}
-                    ref={this.reactionSelectorRef}
-                  />
-                )}
                 <span
                   dangerouslySetInnerHTML={{
                     __html: reactionSvg,

@@ -98,46 +98,22 @@
   }
 }
 
-%background-include {
-  background: url('../assets/str-chat__reactions-sprite@1x.png') no-repeat;
-  background-size: 121px 368px;
-
-  @media only screen and (-webkit-min-device-pixel-ratio: 2),
-    only screen and (min-resolution: 2dppx) {
-    background-image: url('../assets/str-chat__reactions-sprite@2x.png');
-  }
-
-  @media only screen and (-webkit-min-device-pixel-ratio: 3),
-    only screen and (min-resolution: 3dppx) {
-    background-image: url('../assets/str-chat__reactions-sprite@3x.png');
-  }
-}
-
 .str-chat__reaction-selector {
-  &::before,
-  &::after {
-    width: 37px;
-    height: 92px;
-    position: absolute;
-    content: '';
-
-    @extend %background-include;
-  }
-
-  &::before,
-  &::after {
-    z-index: 888;
-  }
-
   z-index: 999;
-  height: 92px;
+  height: 60px;
   position: absolute;
   width: initial;
-
-  @extend %background-include;
-
-  background-position: 0 -184px;
-  background-repeat: repeat-x;
+  background: rgba(24, 25, 28, 0.98);
+  background-image: linear-gradient(
+    -180deg,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  border: 1px solid rgba(224, 224, 224, 0.03);
+  box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
 
   ul {
     position: relative;
@@ -187,162 +163,41 @@
 .str-chat__message-commerce,
 .str-chat__message-livestream {
   .str-chat__reaction-selector {
-    position: absolute;
-    top: -70px;
-    right: 15px;
-
-    &::before {
-      top: 0;
-      left: -41px;
-      width: 41px;
-      background-position: 0 -92px;
-    }
-
-    &::after {
-      top: 0;
-      right: -80px;
-      width: 80px;
-      background-position: -41px -92px;
-    }
-
-    &-inner {
-      position: relative;
-      top: 4px;
-      left: 10px;
-      display: flex;
-      align-items: center;
-      height: 60px;
-      min-width: 205px;
-      margin-right: -62px;
-      margin-left: -42px;
-    }
-
-    &--reverse {
-      right: initial;
-      left: calc(100% + 30px);
-
-      .str-chat__reaction-selector-inner {
-        margin-right: -18px;
-        margin-left: -85px;
-      }
-
-      &::before {
-        top: 0;
-        left: -84px;
-        width: 84px;
-        background-position: 0 -92px;
-      }
-
-      &::after {
-        top: 0;
-        right: -38px;
-        width: 38px;
-        background-position: -84px -92px;
-      }
-    }
-  }
-
-  &--me,
-  &--right {
-    .str-chat__reaction-selector {
-      top: -70px;
-      left: 15px;
-      right: initial;
-
-      &::before {
-        top: 0;
-        left: -85px;
-        width: 85px;
-        background-position: 0 0;
-      }
-
-      &::after {
-        top: 0;
-        right: -39px;
-        width: 39px;
-        background-position: -84px 0;
-      }
-
-      &-inner {
-        margin-right: -18px;
-        margin-left: -86px;
-      }
-
-      &--reverse {
-        right: calc(100% + 30px);
-        left: initial;
-
-        .str-chat__reaction-selector-inner {
-          margin-right: -57px;
-          margin-left: -39px;
-        }
-
-        &::before {
-          top: 0;
-          left: -38px;
-          width: 38px;
-          background-position: 0 0;
-        }
-
-        &::after {
-          top: 0;
-          right: -75px;
-          width: 75px;
-          background-position: -43px -0;
-        }
-      }
-    }
+    top: -65px;
+    left: 0;
   }
 }
 
 .str-chat__message-commerce {
-  &-inner {
-    > .str-chat__reaction-selector {
-      left: unset;
-      right: 66px;
-    }
-  }
   &--right {
-    .str-chat__message-commerce {
-      &-inner {
-        > .str-chat__reaction-selector {
-          right: unset;
-          left: 66px;
-        }
-      }
+    .str-chat__reaction-selector {
+      left: unset;
+      right: 0;
     }
   }
 }
 
 .str-chat__message-livestream {
   .str-chat__reaction-selector {
-    top: initial;
-    bottom: calc(100% - 25px);
-    right: calc(100% + 22px);
-    z-index: 10;
-    font-size: 20px;
-
-    &::after {
-      top: 0;
-      right: -80px;
-      width: 80px;
-      background-position: -40px 0;
-    }
+    left: unset;
+    top: -70px;
+    right: 0;
   }
 }
 
 .str-chat__message-team {
   .str-chat__reaction-selector {
-    top: initial;
-    bottom: calc(100% - 25px);
-    right: calc(100% + 29px);
-    z-index: 11;
+    left: unset;
+    top: -60px;
+    right: 0;
+  }
+}
 
-    &::after {
-      top: 0;
-      right: -80px;
-      width: 80px;
-      background-position: -40px 0;
+.str-chat__message-simple {
+  &--me {
+    .str-chat__reaction-selector {
+      left: unset;
+      right: 0;
     }
   }
 }

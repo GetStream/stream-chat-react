@@ -73,7 +73,7 @@ export class MessageCommerce extends PureComponent {
 
   _closeDetailedReactions = (e) => {
     if (
-      !this.reactionSelectorRef.current.reactionSelectorInner.current.contains(
+      !this.reactionSelectorRef.current.reactionSelector.current.contains(
         e.target,
       )
     ) {
@@ -104,7 +104,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return this.props.message.user.id === this.props.client.user.id;
+    return this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
