@@ -79,7 +79,7 @@ export class MessageTeam extends PureComponent {
 
   hideReactions = (e) => {
     if (
-      !this.reactionSelectorRef.current.reactionSelectorInner.current.contains(
+      !this.reactionSelectorRef.current.reactionSelector.current.contains(
         e.target,
       )
     ) {

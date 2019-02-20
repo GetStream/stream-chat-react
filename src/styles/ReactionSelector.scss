@@ -196,16 +196,8 @@
 
 .str-chat__message-team {
   .str-chat__reaction-selector {
-    top: initial;
-    bottom: calc(100% - 25px);
-    right: calc(100% + 29px);
-    z-index: 11;
-
-    &::after {
-      top: 0;
-      right: -80px;
-      width: 80px;
-      background-position: -40px 0;
-    }
+    left: unset;
+    top: -60px;
+    right: 0;
   }
 }
