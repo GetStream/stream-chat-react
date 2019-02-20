@@ -201,3 +201,12 @@
     right: 0;
   }
 }
+
+.str-chat__message-simple {
+  &--me {
+    .str-chat__reaction-selector {
+      left: unset;
+      right: 0;
+    }
+  }
+}

@@ -73,7 +73,7 @@ export class MessageSimple extends PureComponent {
 
   _closeDetailedReactions = (e) => {
     if (
-      !this.reactionSelectorRef.current.reactionSelectorInner.current.contains(
+      !this.reactionSelectorRef.current.reactionSelector.current.contains(
         e.target,
       )
     ) {
