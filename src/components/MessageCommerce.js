@@ -104,7 +104,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return this.props.message.user.id !== this.props.client.user.id;
+    return this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
