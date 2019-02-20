@@ -9,7 +9,7 @@ import Form from 'react-bootstrap/lib/Form';
 import Button from 'react-bootstrap/lib/Button';
 import './App.css';
 import jwt from 'jsonwebtoken';
-import { StreamChat } from 'stream-chat-client';
+import { StreamChat } from 'stream-chat';
 
 const localStorageKey = 'stream-chat-demo-v2';
 

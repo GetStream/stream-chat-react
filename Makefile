@@ -20,19 +20,15 @@ $(EXAMPLES_APPS_DEPS): %/node_modules/installed_dependencies: %/yarn.lock %/pack
 	touch $@
 
 .SECONDEXPANSION:
-$(EXAMPLES_APPS_INDEX): %/build/index.html: dist/built $(EXAMPLES_APPS_DEPS) %/package.json %/node_modules/installed_dependencies $$(wildcard %/*.js) $$(wildcard %/*/*.js) $$(wildcard %/public/*) $(SOURCES)
+$(EXAMPLES_APPS_INDEX): %/build/index.html: dist/built %/package.json %/node_modules/installed_dependencies $$(wildcard %/*.js) $$(wildcard %/*/*.js) $$(wildcard %/public/*) $(SOURCES)
 	export SKIP_PREFLIGHT_CHECK=true && cd $* && yarn build
 	touch $@
 
-node_modules/installed_dependencies: yarn.lock
+node_modules/installed_dependencies: yarn.lock package.json
 	yarn install
 	touch $@
 
-yarn.lock: package.json
-	yarn install
-	touch $@
-
-dist/built: $(LIB_SOURCES) yarn.lock
+dist/built: $(LIB_SOURCES) node_modules/installed_dependencies
 	yarn build
 	touch $@ q
 
