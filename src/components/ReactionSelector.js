@@ -121,7 +121,7 @@ export class ReactionSelector extends PureComponent {
   };
 
   getContainerDimensions = () =>
-    this.reactionSelectorInner.current.getBoundingClientRect();
+    this.reactionSelector.current.getBoundingClientRect();
   getToolTipDimensions = () =>
     this.reactionSelectorTooltip.current.getBoundingClientRect();
 
@@ -220,35 +220,27 @@ export class ReactionSelector extends PureComponent {
         }`}
         ref={this.reactionSelector}
       >
-        <div
-          className={`str-chat__reaction-selector-inner`}
-          ref={this.reactionSelectorInner}
-        >
-          {this.props.detailedView && (
-            <div
-              className="str-chat__reaction-selector-tooltip"
-              ref={this.reactionSelectorTooltip}
-              style={{
-                visibility: this.state.showTooltip ? 'visible' : 'hidden',
-                left: this.state.position,
-                opacity:
-                  this.state.showTooltip && this.state.positionCaculated
-                    ? 1
-                    : 0.01,
-              }}
-            >
-              <div
-                className="arrow"
-                style={{ left: this.state.arrowPosition }}
-              />
-              {this.renderUsers(this.state.users)}
-            </div>
-          )}
+        {this.props.detailedView && (
+          <div
+            className="str-chat__reaction-selector-tooltip"
+            ref={this.reactionSelectorTooltip}
+            style={{
+              visibility: this.state.showTooltip ? 'visible' : 'hidden',
+              left: this.state.position,
+              opacity:
+                this.state.showTooltip && this.state.positionCaculated
+                  ? 1
+                  : 0.01,
+            }}
+          >
+            <div className="arrow" style={{ left: this.state.arrowPosition }} />
+            {this.renderUsers(this.state.users)}
+          </div>
+        )}
 
-          <ul className="str-chat__message-reactions-list">
-            {this.renderReactionItems()}
-          </ul>
-        </div>
+        <ul className="str-chat__message-reactions-list">
+          {this.renderReactionItems()}
+        </ul>
       </div>
     );
   }
