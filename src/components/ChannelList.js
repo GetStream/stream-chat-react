@@ -71,13 +71,14 @@ class ChannelList extends PureComponent {
     e.target.blur();
   };
 
-  closeMobileChannelList = () => {
+  closeMenu = () => {
     this.menuButton.current.checked = false;
   };
 
   render() {
     const context = {
       clickCreateChannel: this.clickCreateChannel,
+      closeMenu: this.closeMenu,
     };
     const List = this.props.List;
     return (
@@ -98,13 +99,9 @@ class ChannelList extends PureComponent {
           className={`str-chat str-chat-channel-list ${this.props.theme} ${
             this.props.open ? 'str-chat-channel-list--open' : ''
           }`}
+          ref={this.channelList}
         >
-          <List
-            closeMenu={this.closeMobileChannelList}
-            {...this.props}
-            {...this.state}
-            {...context}
-          />
+          <List {...this.props} {...this.state} {...context} />
         </div>
       </React.Fragment>
     );
