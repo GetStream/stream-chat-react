@@ -103,10 +103,13 @@
     }
   }
   &.messaging {
-    .str-chat__container {
-    }
     .str-chat__main-panel {
       padding: 20px 10px 0 0px;
+    }
+    @media screen and (max-width: 960px) {
+      .str-chat__main-panel {
+        padding: 5px 5px 0;
+      }
     }
   }
   &.team {

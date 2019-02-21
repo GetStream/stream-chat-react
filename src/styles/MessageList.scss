@@ -54,6 +54,16 @@
         }
       }
     }
+    @media screen and (max-width: 960px) {
+      .str-chat {
+        &__list {
+          padding: 55px 10px;
+          &-notifications {
+            padding: 0 10px;
+          }
+        }
+      }
+    }
   }
 }
 

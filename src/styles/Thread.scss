@@ -78,6 +78,21 @@
         box-shadow: none;
         background: white;
       }
+      @media screen and (max-width: 960px) {
+        &__thread {
+          position: fixed;
+          top: 0;
+          right: 0;
+          height: 100vh;
+          background: white;
+          z-index: 1001;
+          margin: 0;
+          width: 100vw;
+          max-width: 100%;
+        }
+        &__thread-header {
+        }
+      }
     }
   }
 }

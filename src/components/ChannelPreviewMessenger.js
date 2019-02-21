@@ -9,6 +9,7 @@ export class ChannelPreviewMessenger extends PureComponent {
   onSelectChannel = () => {
     this.props.setActiveChannel(this.props.channel);
     this.channelPreviewButton.current.blur();
+    this.props.closeMenu();
   };
   render() {
     const unreadClass =

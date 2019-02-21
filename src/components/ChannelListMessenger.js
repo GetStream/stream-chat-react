@@ -45,6 +45,7 @@ class ChannelListMessenger extends PureComponent {
         activeChannel={this.props.channel}
         key={c.cid}
         channel={c}
+        closeMenu={this.props.closeMenu}
         Preview={this.props.Preview}
       />
     ));

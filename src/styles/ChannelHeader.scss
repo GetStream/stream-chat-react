@@ -148,6 +148,12 @@
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
           0 1px 0 0 rgba(0, 0, 0, 0.03);
       }
+      @media screen and (max-width: 960px) {
+        &__header-livestream {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
     }
   }
 }

@@ -39,6 +39,8 @@ class ChannelList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { error: false, loading: true, channels: [] };
+
+    this.menuButton = React.createRef();
   }
 
   async componentDidMount() {
@@ -69,15 +71,42 @@ class ChannelList extends PureComponent {
     e.target.blur();
   };
 
+  closeMobileChannelList = () => {
+    this.menuButton.current.checked = false;
+  };
+
   render() {
     const context = {
       clickCreateChannel: this.clickCreateChannel,
     };
     const List = this.props.List;
     return (
-      <div className={`str-chat str-chat-channel-list ${this.props.theme}`}>
-        <List {...this.props} {...this.state} {...context} />
-      </div>
+      <React.Fragment>
+        <input
+          type="checkbox"
+          id="str-chat-channel-checkbox"
+          ref={this.menuButton}
+          className="str-chat-channel-checkbox"
+        />
+        <label
+          htmlFor="str-chat-channel-checkbox"
+          className="str-chat-channel-list-burger"
+        >
+          <div />
+        </label>
+        <div
+          className={`str-chat str-chat-channel-list ${this.props.theme} ${
+            this.props.open ? 'str-chat-channel-list--open' : ''
+          }`}
+        >
+          <List
+            closeMenu={this.closeMobileChannelList}
+            {...this.props}
+            {...this.state}
+            {...context}
+          />
+        </div>
+      </React.Fragment>
     );
   }
 }

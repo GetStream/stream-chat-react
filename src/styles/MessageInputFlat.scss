@@ -74,3 +74,11 @@
     background: transparent;
   }
 }
+
+@media screen and (max-width: 960px) {
+  .str-chat.messaging {
+    .str-chat__input-flat {
+      padding: 10px 10px;
+    }
+  }
+}

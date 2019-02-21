@@ -60,7 +60,7 @@ class App extends Component {
             <img src={video} alt="fake video" />
           </div>
         </div>
-        <div style={{ width: 360 }}>
+        <div>
           <Chat client={this.chatClient} theme="livestream light">
             <Channel channel={this.channel}>
               <Window hideOnThread>

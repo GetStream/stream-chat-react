@@ -764,3 +764,14 @@
     }
   }
 }
+
+@media screen and (max-width: 960px) {
+  .str-chat__message-simple-text-inner {
+    max-width: 218px;
+  }
+  .str-chat__message-simple-status {
+    left: unset;
+    right: 8px;
+    bottom: 30px;
+  }
+}
