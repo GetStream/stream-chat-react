@@ -2,7 +2,7 @@
 .PHONY: deploy example-build example-deps
 
 EXAMPLES_PATH = examples
-EXAMPLES = messaging team livestream
+EXAMPLES = messaging team livestream commerce
 EXAMPLES_APPS = $(addprefix $(EXAMPLES_PATH)/,$(EXAMPLES))
 EXAMPLES_APPS_DEPS = $(addsuffix /node_modules/installed_dependencies,$(EXAMPLES_APPS))
 EXAMPLES_APPS_INDEX = $(addsuffix /build/index.html,$(EXAMPLES_APPS))
