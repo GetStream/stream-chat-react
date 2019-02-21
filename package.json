@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -80,6 +80,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-styleguidist": "8.0.6",
+    "readable-stream": "^3.1.1",
     "rollup": "^0.68.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.8",
