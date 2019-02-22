@@ -43,13 +43,13 @@ class MessageList extends PureComponent {
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Date separator component to render  */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Turn off grouping */
-    grouping: PropTypes.bool,
+    /** Turn off grouping of messages by user */
+    noGroupByUser: PropTypes.bool,
   };
 
   static defaultProps = {
     dateSeparator: DateSeparator,
-    grouping: true,
+    noGroupByUser: false,
   };
 
   connectionChanged = (event) => {
@@ -345,7 +345,7 @@ class MessageList extends PureComponent {
         groupStyles.push('single');
       }
 
-      if (!this.props.grouping) {
+      if (this.props.noGroupByUser) {
         groupStyles.splice(0, groupStyles.length);
         groupStyles.push('single');
       }
