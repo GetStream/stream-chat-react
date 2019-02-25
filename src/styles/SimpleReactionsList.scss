@@ -67,3 +67,15 @@
     }
   }
 }
+
+.dark.str-chat {
+  .str-chat__simple-reactions-list {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    &-item {
+      &--last-number {
+        color: #fff;
+      }
+    }
+  }
+}

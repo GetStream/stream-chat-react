@@ -59,3 +59,9 @@
     border-radius: $border-radius $border-radius 0 $border-radius;
   }
 }
+
+.dark.str-chat {
+  .str-chat__message-attachment-card__giphy-logo {
+    filter: invert(100%);
+  }
+}

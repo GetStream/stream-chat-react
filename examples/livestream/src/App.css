@@ -38,11 +38,12 @@ body {
 
 .str-chat__container {
   min-width: 375px;
+  max-width: 500px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.02);
+  background: #1a1a1a;
 }
 
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 500px) {
   #root {
     flex-direction: column;
   }

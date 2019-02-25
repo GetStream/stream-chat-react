@@ -61,7 +61,7 @@ class App extends Component {
           </div>
         </div>
         <div>
-          <Chat client={this.chatClient} theme="livestream light">
+          <Chat client={this.chatClient} theme="livestream dark">
             <Channel channel={this.channel}>
               <Window hideOnThread>
                 <ChannelHeader live />

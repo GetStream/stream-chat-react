@@ -261,5 +261,31 @@
 }
 
 .rfu-file-upload-button svg {
-  fill: rgba(0, 0, 0, 0.6) !important;
+  fill: rgba(0, 0, 0, 0.6);
+}
+
+.dark.str-chat {
+  .str-chat__input {
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.34);
+    &-footer {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    textarea {
+      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      border-radius: 2px;
+      color: white;
+    }
+    .str-chat__input-emojiselect {
+      svg {
+        fill: white;
+      }
+    }
+    .rfu-file-upload-button {
+      svg {
+        fill: white;
+      }
+    }
+  }
 }
