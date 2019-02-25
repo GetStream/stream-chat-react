@@ -367,15 +367,17 @@ export class MessageSimple extends PureComponent {
               </React.Fragment>
             )}
 
-            {hasAttachment &&
-              images.length <= 1 &&
-              message.attachments.map((attachment, index) => (
-                <Attachment
-                  key={`${message.id}-${index}`}
-                  attachment={attachment}
-                  actionHandler={this.props.handleAction}
-                />
-              ))}
+            <div>
+              {hasAttachment &&
+                images.length <= 1 &&
+                message.attachments.map((attachment, index) => (
+                  <Attachment
+                    key={`${message.id}-${index}`}
+                    attachment={attachment}
+                    actionHandler={this.props.handleAction}
+                  />
+                ))}
+            </div>
             {images.length > 1 && <Gallery images={images} />}
 
             {message.text && (
@@ -427,7 +429,7 @@ export class MessageSimple extends PureComponent {
                 {message.text && this.renderOptions()}
               </div>
             )}
-            {!this.props.threadList && (
+            {!this.props.threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
                   onClick={this.props.openThread}
