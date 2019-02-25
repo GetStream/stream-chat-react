@@ -49,8 +49,11 @@ body {
   }
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 640px) {
   #root {
     flex-direction: column;
+  }
+  .str-chat__container {
+    max-width: 640px;
   }
 }
