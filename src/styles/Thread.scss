@@ -90,7 +90,19 @@
           width: 100vw;
           max-width: 100%;
         }
-        &__thread-header {
+      }
+    }
+    &.dark {
+      .str-chat__thread {
+        background: rgba(white, 0.04);
+        &-header {
+          background: rgba(46, 48, 51, 0.98);
+          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+            0 1px 0 0 rgba(0, 0, 0, 0.03);
+          color: white;
+        }
+        &-start {
+          color: white;
         }
       }
     }

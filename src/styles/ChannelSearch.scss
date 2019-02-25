@@ -56,3 +56,18 @@
     }
   }
 }
+
+.dark.str-chat {
+  .str-chat__channel-search {
+    input {
+      background: rgba(255, 255, 255, 0.04);
+      color: white;
+    }
+    button {
+      background: $secondary-color;
+      svg {
+        fill: white;
+      }
+    }
+  }
+}

@@ -28,6 +28,13 @@
     position: absolute;
     top: calc(100% - 45px);
     left: 25px;
+    svg {
+      fill: #000;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 
   &--emojipicker {
@@ -39,6 +46,13 @@
     position: absolute;
     top: calc(100% - 40px);
     right: 25px;
+    svg {
+      fill: #000;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 }
 
@@ -72,6 +86,23 @@
   .str-chat__input-flat {
     padding: 10px 22px;
     background: transparent;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__input-flat {
+    background: rgba(white, 0.04);
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      color: white;
+    }
+    &-emojiselect,
+    .rfu-file-upload-button {
+      svg {
+        fill: #fff;
+      }
+    }
   }
 }
 

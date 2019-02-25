@@ -83,6 +83,9 @@
   font-family: $second-font;
   &.messaging {
     background-color: #f1f1f3;
+    &.dark {
+      background-color: #212326;
+    }
   }
 }
 

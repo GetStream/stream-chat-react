@@ -775,3 +775,44 @@
     bottom: 30px;
   }
 }
+
+.dark.str-chat {
+  .str-chat__message-simple {
+    &-text-inner {
+      background: rgba(white, 0.05);
+      color: white;
+    }
+    &__actions {
+      svg {
+        fill: white;
+      }
+    }
+    &-data {
+      color: white;
+      opacity: 0.5;
+    }
+
+    .str-chat__message-attachment-card {
+      background: transparent;
+      &--content {
+        background: rgba(white, 0.05);
+      }
+      &--url {
+        color: rgba(white, 0.5);
+      }
+    }
+
+    &--me {
+      .str-chat__message-simple {
+        &-text-inner {
+          background: rgba(black, 0.2);
+        }
+        .str-chat__message-attachment-card {
+          &--content {
+            background: rgba(black, 0.2);
+          }
+        }
+      }
+    }
+  }
+}
