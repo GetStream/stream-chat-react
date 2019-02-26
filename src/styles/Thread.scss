@@ -51,8 +51,7 @@
   }
 }
 
-.messaging,
-.team {
+.messaging {
   &.str-chat {
     .str-chat {
       &__thread {
@@ -113,6 +112,19 @@
 .team {
   &.str-chat {
     .str-chat {
+      @media screen and (max-width: 960px) {
+        &__thread {
+          position: fixed;
+          top: 0;
+          right: 0;
+          height: 100vh;
+          background: white;
+          z-index: 1000;
+          margin: 0;
+          width: 100vw;
+          max-width: 100%;
+        }
+      }
       &__thread-list {
         > .str-chat__list {
           overflow-y: hidden;
