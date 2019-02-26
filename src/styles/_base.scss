@@ -87,6 +87,11 @@
       background-color: #212326;
     }
   }
+  &.team {
+    &.dark {
+      background: #212326;
+    }
+  }
 }
 
 .str-chat-channel-list {

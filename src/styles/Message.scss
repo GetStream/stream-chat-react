@@ -843,6 +843,12 @@
       }
     }
 
+    .str-chat__message-simple-status {
+      &-number {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
     &--me {
       .str-chat__message-simple {
         &-text-inner {

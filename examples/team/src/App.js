@@ -68,7 +68,7 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient} theme="team light">
+      <Chat client={this.chatClient} theme="team dark">
         <ChannelList
           channels={this.channels}
           List={ChannelListTeam}

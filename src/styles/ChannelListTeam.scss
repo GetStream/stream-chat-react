@@ -121,3 +121,13 @@
     }
   }
 }
+
+.dark.str-chat {
+  .str-chat__channel-list-team {
+    &__header {
+      &--title {
+        color: white;
+      }
+    }
+  }
+}

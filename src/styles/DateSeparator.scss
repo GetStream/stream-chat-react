@@ -34,4 +34,11 @@
       color: rgba(255, 255, 255, 0.7);
     }
   }
+  &.team {
+    .str-chat__date-separator {
+      &-line {
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
 }

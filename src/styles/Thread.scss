@@ -121,10 +121,16 @@
         }
       }
     }
+    &.dark {
+      .str-chat__thread {
+        background: rgba(0, 0, 0, 0.1);
+      }
+    }
   }
 }
 
-.livestream.str-chat {
+.livestream.str-chat,
+.team.str-chat {
   .str-chat__thread {
     background: rgba(0, 0, 0, 0.02);
     &-header {

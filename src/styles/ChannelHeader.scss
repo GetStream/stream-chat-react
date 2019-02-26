@@ -237,3 +237,23 @@
     }
   }
 }
+
+.team {
+  &.str-chat {
+    &.dark {
+      .str-chat__header-livestream {
+        background: rgba(38, 40, 43, 0.9);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.26);
+        &-left {
+          color: white;
+          &--title {
+            font-size: 18px;
+          }
+          &--members {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+  }
+}
