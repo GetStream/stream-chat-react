@@ -51,7 +51,8 @@
   }
 }
 
-.messaging {
+.messaging,
+.team {
   &.str-chat {
     .str-chat {
       &__thread {
@@ -123,7 +124,7 @@
     }
     &.dark {
       .str-chat__thread {
-        background: rgba(0, 0, 0, 0.1);
+        background: #1d1f22;
       }
     }
   }

@@ -84,20 +84,26 @@
     display: flex;
   }
 
-  .str-chat-channel-list.messaging {
-    position: fixed;
-    left: -300px;
-    top: 0;
-    z-index: 1001;
-    min-height: 100vh;
-    overflow-y: auto;
-    box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
-    transition: left 200ms ease-in-out;
+  .str-chat-channel-list {
+    &.messaging,
+    &.team {
+      position: fixed;
+      left: -300px;
+      top: 0;
+      z-index: 1001;
+      min-height: 100vh;
+      overflow-y: auto;
+      box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
+      transition: left 200ms ease-in-out;
+    }
   }
 
   .str-chat-channel-checkbox:checked {
-    & ~ .str-chat-channel-list.messaging {
-      left: 0px;
+    & ~ .str-chat-channel-list {
+      &.messaging,
+      &.team {
+        left: 0px;
+      }
     }
   }
 }
