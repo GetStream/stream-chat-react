@@ -469,6 +469,10 @@
 }
 
 .str-chat.dark {
+  .str-chat__message-team-error-header {
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+  }
   .str-chat__message-team {
     $borderColor: rgba(0, 0, 0, 0.4);
     $fontColor: white;
@@ -480,7 +484,8 @@
         color: rgba($fontColor, 0.3);
       }
     }
-    &-content {
+    &-content,
+    .str-chat__message-attachment {
       border-color: $borderColor;
       color: $fontColor;
       &--top,
@@ -508,6 +513,13 @@
       }
       .str-chat__message-attachment-file--item {
         border-color: rgba(black, 0.4);
+        a,
+        span {
+          color: white;
+        }
+        span {
+          opacity: 0.4;
+        }
         &:hover {
           background: transparent;
         }
@@ -555,6 +567,34 @@
           fill: #fff;
         }
       }
+    }
+    &--error {
+      .str-chat__message-team {
+        &-content {
+          border-color: red;
+          border-width: 1px;
+          p {
+            color: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+          }
+          &--top,
+          &--single {
+            &:not(.str-chat__message-team-content--image) {
+              &::before {
+                background-color: red;
+                height: 1px;
+              }
+            }
+          }
+        }
+      }
+    }
+    &--editing {
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 0 rgba(#006cff, 0.1), inset 0 -1px 0 0 rgba(#006cff, 0.1);
+      z-index: 1;
     }
   }
 }

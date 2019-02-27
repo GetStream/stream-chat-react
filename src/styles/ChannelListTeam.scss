@@ -124,10 +124,18 @@
 
 .dark.str-chat {
   .str-chat__channel-list-team {
+    background: #1d1f22;
+
     &__header {
       &--title {
         color: white;
       }
+    }
+    &__sidebar {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    &__main {
+      background: none;
     }
   }
 }
