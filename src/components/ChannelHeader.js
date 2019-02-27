@@ -13,7 +13,7 @@ class ChannelHeader extends PureComponent {
     /** Via Context: the channel to render */
     channel: PropTypes.object.isRequired,
     /** Via Context: the number of online users */
-    online: PropTypes.number.isRequired,
+    online: PropTypes.number,
     /** Show a little indicator that the channel is live right now */
     live: PropTypes.bool,
   };

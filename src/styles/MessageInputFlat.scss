@@ -104,6 +104,11 @@
       }
     }
   }
+  &.commerce {
+    .str-chat__input-flat {
+      background: none;
+    }
+  }
 }
 
 @media screen and (max-width: 960px) {

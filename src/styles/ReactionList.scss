@@ -104,7 +104,7 @@
   &--right {
     .str-chat__message-commerce-inner {
       > .str-chat__reaction-list {
-        left: 66px;
+        left: 46px;
       }
     }
     .str-chat__reaction-list {
@@ -155,7 +155,7 @@
   &-inner {
     > .str-chat__reaction-list {
       left: unset;
-      right: 66px;
+      right: 46px;
     }
   }
   &--right {
@@ -163,7 +163,7 @@
       &-inner {
         > .str-chat__reaction-list {
           right: unset;
-          left: 66px;
+          left: 46px;
         }
       }
     }

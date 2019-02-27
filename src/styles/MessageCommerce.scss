@@ -10,11 +10,11 @@
     /* flex: 1 if you want the messagebubbles to be the same width- */
     > .str-chat__message-commerce__actions {
       min-height: 10px;
-      min-width: 50px;
+      min-width: 30px;
       float: right;
       .str-chat__reaction-list {
         left: unset;
-        right: 66px;
+        right: 46px;
       }
     }
   }
@@ -245,7 +245,7 @@
           > .str-chat__message-commerce__actions {
             float: left;
             .str-chat__reaction-list {
-              left: 66px;
+              left: 46px;
             }
           }
         }
@@ -264,6 +264,12 @@
         display: none;
       }
 
+      .str-chat__message-attachment {
+        margin: 0 auto 0 30px;
+        &--img {
+          border-radius: $border-radius $border-radius 2px $border-radius;
+        }
+      }
       .str-chat__message-attachment-card {
         border-radius: 16px 16px 4px 16px;
       }
@@ -298,6 +304,17 @@
       }
       .str-chat__message-commerce-data {
         text-align: right;
+      }
+    }
+  }
+
+  &--has-text {
+    .str-chat__message-commerce {
+      &-inner {
+        .str-chat__message-attachment {
+          width: 100%;
+          margin: 4px auto;
+        }
       }
     }
   }
@@ -508,6 +525,12 @@
 }
 
 .str-chat__message-commerce {
+  .str-chat__message-attachment {
+    width: calc(100% - 30px);
+    max-width: unset;
+    border-radius: unset;
+    margin: 0 auto 0 0;
+  }
   .str-chat__message-attachment-card {
     margin: 0;
     border-radius: 4px $border-radius 4px 4px;
@@ -541,6 +564,24 @@
         right: unset;
         left: 100%;
         border-radius: $border-radius $border-radius $border-radius 2px;
+      }
+    }
+  }
+}
+
+.str-chat.dark {
+  .str-chat__message-commerce {
+    &-data {
+      color: white;
+      opacity: 0.5;
+    }
+    &-text-inner {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+    &__actions {
+      svg {
+        fill: white;
       }
     }
   }

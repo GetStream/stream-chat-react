@@ -38,7 +38,8 @@ class App extends Component {
     this.channel = this.chatClient.channel('messaging', channelName, {
       image:
         'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-      name: 'The water cooler',
+      name: 'Hello',
+      subtitle: 'Chat with us about NASA stuff!',
       example: 1,
     });
 
@@ -54,7 +55,7 @@ class App extends Component {
   render() {
     return (
       <>
-        <Chat client={this.chatClient} theme="commerce light">
+        <Chat client={this.chatClient} theme="commerce dark">
           <Channel channel={this.channel}>
             <Window>
               <ChannelHeader />
