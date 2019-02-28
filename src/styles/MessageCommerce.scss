@@ -267,6 +267,9 @@
           &-text {
             &-inner {
               border-radius: 16px 16px 4px 16px;
+              &--has-attachment {
+                border-radius: 16px 4px 4px 16px;
+              }
             }
           }
         }
@@ -524,6 +527,33 @@
     &__actions {
       svg {
         fill: white;
+      }
+    }
+
+    .str-chat__message-attachment-card {
+      background: rgba(0, 0, 0, 0.2);
+      &--content {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      &--title {
+        color: white;
+      }
+      &--url {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    &--right {
+      .str-chat__message-commerce {
+        &-text-inner {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .str-chat__message-attachment-card {
+          background: rgba(0, 0, 0, 0.2);
+          &--content {
+            background: rgba(0, 0, 0, 0.2);
+          }
+        }
       }
     }
   }

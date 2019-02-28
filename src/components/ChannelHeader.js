@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Avatar } from './Avatar';
 import { withChannelContext } from '../context';
 
 /**
@@ -19,8 +20,16 @@ class ChannelHeader extends PureComponent {
   };
 
   render() {
+    console.log(this.props.channel);
     return (
       <div className="str-chat__header-livestream">
+        {this.props.channel.data.image && (
+          <Avatar
+            source={this.props.channel.data.image}
+            shape="rounded"
+            size={60}
+          />
+        )}
         <div className="str-chat__header-livestream-left">
           <p className="str-chat__header-livestream-left--title">
             {this.props.channel.data.name}{' '}
@@ -29,6 +38,9 @@ class ChannelHeader extends PureComponent {
                 live
               </span>
             )}
+          </p>
+          <p className="str-chat__header-livestream-left--subtitle">
+            {this.props.channel.data.subtitle}
           </p>
           <p className="str-chat__header-livestream-left--members">
             {!this.props.live && (

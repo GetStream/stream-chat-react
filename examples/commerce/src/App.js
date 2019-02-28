@@ -36,9 +36,8 @@ class App extends Component {
       userToken,
     );
     this.channel = this.chatClient.channel('messaging', channelName, {
-      image:
-        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-      name: 'Hello',
+      image: 'https://i.stack.imgur.com/e7G42m.jpg',
+      name: 'Hello 👋',
       subtitle: 'Chat with us about NASA stuff!',
       example: 1,
     });
