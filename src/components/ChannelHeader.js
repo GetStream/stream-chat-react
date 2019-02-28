@@ -20,14 +20,13 @@ class ChannelHeader extends PureComponent {
   };
 
   render() {
-    console.log(this.props.channel);
     return (
       <div className="str-chat__header-livestream">
         {this.props.channel.data.image && (
           <Avatar
             source={this.props.channel.data.image}
             shape="rounded"
-            size={60}
+            size={this.props.channel.type === 'commerce' ? 60 : 40}
           />
         )}
         <div className="str-chat__header-livestream-left">
@@ -39,9 +38,11 @@ class ChannelHeader extends PureComponent {
               </span>
             )}
           </p>
-          <p className="str-chat__header-livestream-left--subtitle">
-            {this.props.channel.data.subtitle}
-          </p>
+          {this.props.channel.data.subtitle && (
+            <p className="str-chat__header-livestream-left--subtitle">
+              {this.props.channel.data.subtitle}
+            </p>
+          )}
           <p className="str-chat__header-livestream-left--members">
             {!this.props.live && (
               <>{this.props.channel.data.member_count} members, </>

@@ -54,7 +54,7 @@ class App extends Component {
   render() {
     return (
       <>
-        <Chat client={this.chatClient} theme="commerce dark">
+        <Chat client={this.chatClient} theme="commerce light">
           <Channel channel={this.channel}>
             <Window>
               <ChannelHeader />
