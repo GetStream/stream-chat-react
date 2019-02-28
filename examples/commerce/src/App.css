@@ -15,7 +15,7 @@ body {
 
 .str-chat-channel .str-chat__container {
   height: calc(100vh - 50px);
-  position: absolute;
+  position: fixed;
   top: 25px;
   right: 25px;
   background: white;

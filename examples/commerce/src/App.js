@@ -10,7 +10,6 @@ import {
   MessageCommerce,
   ChannelHeader,
   TypingIndicator,
-  // Thread,
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
