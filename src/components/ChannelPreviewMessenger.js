@@ -19,7 +19,9 @@ export class ChannelPreviewMessenger extends PureComponent {
     const activeClass = this.props.active
       ? 'str-chat__channel-preview-messenger--active'
       : '';
-    const name = this.props.channel.data.name || this.props.channel.cid;
+    const members = this.props.channel.data.members.map((v) => v.user).filter(v => this.props.client.user.id !== v.id);
+    const name = members.map(v => v.name).slice(0, 5).join(', ');
+    const avatar = <Avatar source={members[0].image} size={40} />;
     return (
       <button
         onClick={this.onSelectChannel}
@@ -27,7 +29,7 @@ export class ChannelPreviewMessenger extends PureComponent {
         className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-messenger--left">
-          {true && <Avatar source={this.props.channel.data.image} size={40} />}
+          { avatar }
         </div>
         <div className="str-chat__channel-preview-messenger--right">
           <div className="str-chat__channel-preview-messenger--name">
