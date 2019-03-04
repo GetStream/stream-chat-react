@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { StreamChat } from 'stream-chat';
 import {
+  Avatar,
   Chat,
   Channel,
   MessageList,
@@ -19,13 +20,65 @@ import {
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 
+import { PureComponent } from 'react';
+
+import truncate from 'lodash/truncate';
+
 const urlParams = new URLSearchParams(window.location.search);
 const user =
   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
-const channelName = urlParams.get('channel') || 'demo';
+
 const userToken =
   urlParams.get('user_token') ||
   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
+
+export class HiChannelPreviewMessenger extends PureComponent {
+  channelPreviewButton = React.createRef();
+
+  onSelectChannel = () => {
+    this.props.setActiveChannel(this.props.channel);
+    this.channelPreviewButton.current.blur();
+    this.props.closeMenu();
+  };
+  render() {
+    const unreadClass =
+      this.props.unread >= 1
+        ? 'str-chat__channel-preview-messenger--unread'
+        : '';
+    const activeClass = this.props.active
+      ? 'str-chat__channel-preview-messenger--active'
+      : '';
+    const members = this.props.channel.data.members.map((v) => v.user).filter(v => this.props.client.user.id !== v.id);
+    const name = members.map(v => v.name).slice(0, 5).join(', ');
+    const avatar = <Avatar source={members[0].image} size={40} />;
+    return (
+      <button
+        onClick={this.onSelectChannel}
+        ref={this.channelPreviewButton}
+        className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
+      >
+        <div className="str-chat__channel-preview-messenger--left">
+          { avatar }
+        </div>
+        <div className="str-chat__channel-preview-messenger--right">
+          <div className="str-chat__channel-preview-messenger--name">
+            {name}
+          </div>
+          <div className="str-chat__channel-preview-messenger--last-message">
+            {!this.props.channel.state.messages[0]
+              ? 'Nothing yet...'
+              : truncate(
+                this.props.channel.state.messages[
+                this.props.channel.state.messages.length - 1
+                  ].text,
+                14,
+              )}
+          </div>
+        </div>
+      </button>
+    );
+  }
+}
 
 class App extends Component {
   constructor(props) {
@@ -38,31 +91,7 @@ class App extends Component {
       },
       userToken,
     );
-    this.channel = this.chatClient.channel('messaging', channelName, {
-      image:
-        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-      name: 'The water cooler',
-      example: 1,
-    });
-    const exampleVersion = 1;
-    this.chatClient
-      .channel('messaging', 'aww', {
-        image:
-          'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
-        name: 'Aww',
-        example: exampleVersion,
-      })
-      .watch();
-    this.channel.update({
-      image:
-        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-      name: 'The water cooler',
-      example: exampleVersion,
-    });
-
-    this.channel.watch();
-
-    const filters = { type: 'messaging', example: 1 };
+    const filters = { type: 'messaging',members:{$in:[user]}};
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       subscribe: true,
@@ -80,7 +109,7 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList typingIndicator={TypingIndicator} />
+            <MessageList typingIndicator={TypingIndicator} Preview={HiChannelPreviewMessenger} />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
