@@ -96,7 +96,7 @@ class App extends Component {
       },
       userToken,
     );
-    const filters = { type: 'messaging',members:{$in:[user]}};
+    const filters = { type: 'messaging', members: { $in: [user] } };
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       subscribe: true,
