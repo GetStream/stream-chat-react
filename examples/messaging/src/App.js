@@ -48,8 +48,13 @@ export class HiChannelPreviewMessenger extends PureComponent {
     const activeClass = this.props.active
       ? 'str-chat__channel-preview-messenger--active'
       : '';
-    const members = this.props.channel.data.members.map((v) => v.user).filter(v => this.props.client.user.id !== v.id);
-    const name = members.map(v => v.name).slice(0, 5).join(', ');
+    const members = this.props.channel.data.members
+      .map((v) => v.user)
+      .filter((v) => this.props.client.user.id !== v.id);
+    const name = members
+      .map((v) => v.name)
+      .slice(0, 5)
+      .join(', ');
     const avatar = <Avatar source={members[0].image} size={40} />;
     return (
       <button
@@ -58,7 +63,7 @@ export class HiChannelPreviewMessenger extends PureComponent {
         className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-messenger--left">
-          { avatar }
+          {avatar}
         </div>
         <div className="str-chat__channel-preview-messenger--right">
           <div className="str-chat__channel-preview-messenger--name">
@@ -68,11 +73,11 @@ export class HiChannelPreviewMessenger extends PureComponent {
             {!this.props.channel.state.messages[0]
               ? 'Nothing yet...'
               : truncate(
-                this.props.channel.state.messages[
-                this.props.channel.state.messages.length - 1
+                  this.props.channel.state.messages[
+                    this.props.channel.state.messages.length - 1
                   ].text,
-                14,
-              )}
+                  14,
+                )}
           </div>
         </div>
       </button>
@@ -109,7 +114,10 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList typingIndicator={TypingIndicator} Preview={HiChannelPreviewMessenger} />
+            <MessageList
+              typingIndicator={TypingIndicator}
+              Preview={HiChannelPreviewMessenger}
+            />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
