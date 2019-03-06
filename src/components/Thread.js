@@ -110,7 +110,7 @@ class ThreadInner extends React.PureComponent {
       return null;
     }
 
-    const seen = {};
+    const read = {};
     return (
       <div
         className={`str-chat__thread ${
@@ -145,7 +145,7 @@ class ThreadInner extends React.PureComponent {
           <div className="str-chat__thread-start">Start of a new thread</div>
           <MessageList
             messages={this.props.threadMessages}
-            seen={seen}
+            read={read}
             threadList
             loadMore={this.props.loadMoreThread}
             hasMore={this.props.threadHasMore}

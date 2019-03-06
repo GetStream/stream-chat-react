@@ -131,9 +131,9 @@ export class MessageTeam extends PureComponent {
     if (!this.isMine() || message.type === 'error') {
       return null;
     }
-    const justSeenByMe =
-      message.seenBy.length === 1 &&
-      message.seenBy[0].id === this.props.client.user.id;
+    const justReadByMe =
+      message.readBy.length === 1 &&
+      message.readBy[0].id === this.props.client.user.id;
     if (this.props.message.status === 'sending') {
       return (
         <span className="str-chat__message-team-status">
@@ -142,21 +142,21 @@ export class MessageTeam extends PureComponent {
         </span>
       );
     } else if (
-      message.seenBy.length !== 0 &&
+      message.readBy.length !== 0 &&
       !this.props.threadList &&
-      !justSeenByMe
+      !justReadByMe
     ) {
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>{this.formatArray(message.seenBy)}</Tooltip>
+          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={this.props.seenBy[0].id}
-            source={this.props.seenBy[0].image}
+            name={this.props.readBy[0].id}
+            source={this.props.readBy[0].image}
             size={15}
           />
-          {message.seenBy.length > 1 && (
+          {message.readBy.length > 1 && (
             <span className="str-chat__message-team-status-number">
-              {message.seenBy.length}
+              {message.readBy.length}
             </span>
           )}
         </span>
@@ -189,7 +189,7 @@ export class MessageTeam extends PureComponent {
 
   render() {
     const { message, groupStyles } = this.props;
-    if (message.type === 'message.seen') {
+    if (message.type === 'message.read') {
       return null;
     }
     const hasAttachment = Boolean(

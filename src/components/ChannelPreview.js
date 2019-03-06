@@ -10,7 +10,7 @@ export class ChannelPreview extends PureComponent {
     this.state = {
       unread: 0,
       lastMessage: {},
-      lastSeen: new Date(),
+      lastRead: new Date(),
     };
   }
 
@@ -32,7 +32,7 @@ export class ChannelPreview extends PureComponent {
     c.on('message.new', (event) => {
       const isActive = this.props.activeChannel.cid === this.props.channel.cid;
       if (!isActive) {
-        const unread = c.countUnread(this.state.lastSeen);
+        const unread = c.countUnread(this.state.lastRead);
         this.setState({ lastMessage: event.message, unread });
       }
     });
@@ -42,7 +42,7 @@ export class ChannelPreview extends PureComponent {
     if (this.props.activeChannel.cid !== prevProps.activeChannel.cid) {
       const isActive = this.props.activeChannel.cid === this.props.channel.cid;
       if (isActive) {
-        this.setState({ unread: 0, lastSeen: new Date() });
+        this.setState({ unread: 0, lastRead: new Date() });
       }
     }
   }

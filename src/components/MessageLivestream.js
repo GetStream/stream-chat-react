@@ -108,7 +108,7 @@ export class MessageLivestream extends React.PureComponent {
       galleryImages = [];
     }
 
-    if (message.type === 'message.seen') {
+    if (message.type === 'message.read') {
       return null;
     }
 

@@ -7,7 +7,7 @@ The channel context provides the following properties:
 - typing: who is currently typing
 - watchers: who is currently online
 - members: members of this channel (members are permanent, watchers are users who are online right now)
-- seen: the seen state for each user
+- read: the read state for each user
 - error: bool indicating if there was an issue loading the channel
 - loading: if the channel is currently loading
 - loadingMore: if the channel is loading pagination

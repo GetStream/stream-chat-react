@@ -38,7 +38,7 @@ import './styles/Modal.scss';
 import './styles/NewChannel.scss';
 import './styles/ReactionList.scss';
 import './styles/ReactionSelector.scss';
-import './styles/SeenState.scss';
+import './styles/ReadState.scss';
 import './styles/SimpleReactionsList.scss';
 import './styles/SmallMessageInput.scss';
 import './styles/Thread.scss';
