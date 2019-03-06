@@ -68,7 +68,7 @@ class ChannelInner extends PureComponent {
       typing: Immutable({}),
       watchers: Immutable({}),
       members: Immutable({}),
-      seen: Immutable({}),
+      read: Immutable({}),
 
       thread: false,
       threadMessages: [],
@@ -92,7 +92,7 @@ class ChannelInner extends PureComponent {
       },
     );
 
-    this._markSeenThrottled = throttle(this.markSeen, 500, {
+    this._markReadThrottled = throttle(this.markRead, 500, {
       leading: true,
       trailing: true,
     });
@@ -125,7 +125,7 @@ class ChannelInner extends PureComponent {
       }
     }
     this.originalTitle = document.title;
-    this.lastSeen = new Date();
+    this.lastRead = new Date();
     if (!errored) {
       this.copyChannelState();
       this.listenToChanges();
@@ -205,7 +205,7 @@ class ChannelInner extends PureComponent {
 
     this.setState({
       messages: channel.state.messages,
-      seen: channel.state.seen,
+      read: channel.state.read,
       watchers: channel.state.watchers,
       members: channel.state.members,
       online: channel.state.online,
@@ -213,7 +213,7 @@ class ChannelInner extends PureComponent {
       typing: {},
     });
 
-    channel.markSeen();
+    channel.markRead();
   }
 
   updateMessage = (updatedMessage, extraState) => {
@@ -345,9 +345,9 @@ class ChannelInner extends PureComponent {
 
       if (mainChannelUpdated) {
         if (Visibility.state() === 'visible') {
-          this._markSeenThrottled(channel);
+          this._markReadThrottled(channel);
         } else {
-          const unread = channel.countUnread(this.lastSeen);
+          const unread = channel.countUnread(this.lastRead);
           document.title = `(${unread}) ${this.originalTitle}`;
         }
       }
@@ -355,20 +355,20 @@ class ChannelInner extends PureComponent {
     this._setStateThrottled({
       messages: channel.state.messages,
       watchers: channel.state.watchers,
-      seen: channel.state.seen,
+      read: channel.state.read,
       typing: channel.state.typing,
       online: channel.state.online,
       ...threadState,
     });
   };
 
-  markSeen = (channel) => {
-    if (!channel.getConfig().seen_events) {
+  markRead = (channel) => {
+    if (!channel.getConfig().read_events) {
       return;
     }
-    this.lastSeen = new Date();
+    this.lastRead = new Date();
 
-    logChatPromiseExecution(channel.markSeen(), 'mark seen');
+    logChatPromiseExecution(channel.markRead(), 'mark read');
 
     if (this.originalTitle) {
       document.title = this.originalTitle;
@@ -381,10 +381,10 @@ class ChannelInner extends PureComponent {
     this.props.client.on('connection.recovered', this.handleEvent);
     const channel = this.props.channel;
     channel.on(this.handleEvent);
-    this.boundMarkSeen = this.markSeen.bind(this, channel);
+    this.boundMarkRead = this.markRead.bind(this, channel);
     this.visibilityListener = Visibility.change((e, state) => {
       if (state === 'visible') {
-        this.boundMarkSeen();
+        this.boundMarkRead();
       }
     });
   }

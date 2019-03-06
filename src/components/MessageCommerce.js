@@ -126,9 +126,9 @@ export class MessageCommerce extends PureComponent {
     if (!this.isMine() || this.props.message.type === 'error') {
       return null;
     }
-    const justSeenByMe =
-      message.seenBy.length === 1 &&
-      message.seenBy[0].id === this.props.client.user.id;
+    const justReadByMe =
+      message.readBy.length === 1 &&
+      message.readBy[0].id === this.props.client.user.id;
     if (this.props.message.status === 'sending') {
       return (
         <span className="str-chat__message-commerce-status">
@@ -137,21 +137,21 @@ export class MessageCommerce extends PureComponent {
         </span>
       );
     } else if (
-      message.seenBy.length !== 0 &&
+      message.readBy.length !== 0 &&
       !this.props.threadList &&
-      !justSeenByMe
+      !justReadByMe
     ) {
       return (
         <span className="str-chat__message-commerce-status">
-          <Tooltip>{this.formatArray(message.seenBy)}</Tooltip>
+          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={this.props.seenBy[0].id}
-            source={this.props.seenBy[0].image}
+            name={this.props.readBy[0].id}
+            source={this.props.readBy[0].image}
             size={15}
           />
-          {message.seenBy.length > 1 && (
+          {message.readBy.length > 1 && (
             <span className="str-chat__message-commerce-status-number">
-              {message.seenBy.length}
+              {message.readBy.length}
             </span>
           )}
         </span>
@@ -237,7 +237,7 @@ export class MessageCommerce extends PureComponent {
     );
 
     if (
-      message.type === 'message.seen' ||
+      message.type === 'message.read' ||
       message.deleted_at ||
       message.type === 'message.date'
     ) {

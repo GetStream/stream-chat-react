@@ -11080,10 +11080,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.3.2.tgz#5d58ba7b490df6bba58cc87760c69756ea4de4e3"
-  integrity sha512-zWjVWuhFFSpFBHDeAPveXcnTQwOEH5KwnEn5I+2xcL6OvSLhfguHA/cBISfeNCmXVc7zWEd+NUlsvfPtlL889w==
+stream-chat@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.4.0.tgz#0fdef78125f143f8519202f7ba66ac5482324a72"
+  integrity sha512-GlwqjrRLtVaqUZNlCB9oGm5d2CQN2dqZYwDDmtJmiYFCqeZ0Or7nYukojz58QSfiK+5lC/ge6G/S4+P9AbeMqQ==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"

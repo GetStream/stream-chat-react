@@ -3,7 +3,7 @@ MessageTeam handles the rendering of a message and depends on the Message compon
 ```js
 const data = require('./data');
 
-const seenBy = [
+const readBy = [
   {
     created_at: '2019-01-22T16:35:18.417456Z',
     id: 'thierry',
@@ -15,7 +15,7 @@ const seenBy = [
 <Message
   message={data.message}
   Message={MessageTeam}
-  seenBy={seenBy}
+  readBy={readBy}
   groupStyles={['bottom']}
   editing={false}
   {...data.channelContext}

@@ -28,8 +28,8 @@ export class Message extends Component {
     client: PropTypes.object.isRequired,
     /** The current channel this message is displayed in */
     channel: PropTypes.object.isRequired,
-    /** A list of users that have seen this message **/
-    seenBy: PropTypes.array,
+    /** A list of users that have read this message **/
+    readBy: PropTypes.array,
     /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
     groupStyles: PropTypes.array,
     /** Editing, if the message is currently being edited */
@@ -42,7 +42,7 @@ export class Message extends Component {
 
   static defaultProps = {
     Message: MessageSimple,
-    seenBy: [],
+    readBy: [],
     groupStyles: [],
     Attachment,
     editing: false,
@@ -55,11 +55,11 @@ export class Message extends Component {
     if (shouldUpdate) {
       reason = 'message';
     }
-    // seen state is the next most likely thing to change..
+    // read state is the next most likely thing to change..
 
-    if (!shouldUpdate && !deepequal(nextProps.seenBy, this.props.seenBy)) {
+    if (!shouldUpdate && !deepequal(nextProps.readBy, this.props.readBy)) {
       shouldUpdate = true;
-      reason = 'seenBy';
+      reason = 'readBy';
     }
     // group style often changes for the last 3 messages...
     if (
