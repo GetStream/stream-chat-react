@@ -117,6 +117,7 @@ export class ChatAutoComplete extends PureComponent {
             innerRef.current = ref;
           })
         }
+        disabled={this.props.disabled}
         rows={this.props.rows}
         className="str-chat__textarea__textarea"
         containerClassName="str-chat__textarea"
