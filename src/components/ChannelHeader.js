@@ -20,6 +20,7 @@ class ChannelHeader extends PureComponent {
   };
 
   render() {
+    console.log(this.props);
     return (
       <div className="str-chat__header-livestream">
         {this.props.channel.data.image && (

@@ -90,15 +90,8 @@ export class MessageSimple extends PureComponent {
     }
   };
 
-  componentDidUpdate() {
-    if (this.props.message.deleted_at || this.props.message.type === 'error') {
-      document.removeEventListener('click', this._unfocusMessage);
-    }
-  }
-
   componentWillUnmount() {
     if (!this.props.message.deleted_at) {
-      document.removeEventListener('click', this._unfocusMessage);
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }

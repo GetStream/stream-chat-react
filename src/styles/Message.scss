@@ -817,6 +817,9 @@
     &-text-inner {
       background: rgba(white, 0.05);
       color: white;
+      &--is-emoji {
+        background: transparent;
+      }
     }
     &__actions {
       svg {
@@ -861,6 +864,9 @@
       .str-chat__message-simple {
         &-text-inner {
           background: rgba(black, 0.2);
+          &--is-emoji {
+            background: transparent;
+          }
         }
         .str-chat__message-attachment-card {
           &--content {
