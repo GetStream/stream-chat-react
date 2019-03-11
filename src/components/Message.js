@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { Attachment } from './Attachment';
 
 import deepequal from 'deep-equal';
+import diff from 'shallow-diff';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -55,6 +56,7 @@ export class Message extends Component {
     if (shouldUpdate) {
       reason = 'message';
     }
+
     // seen state is the next most likely thing to change..
 
     if (!shouldUpdate && !deepequal(nextProps.seenBy, this.props.seenBy)) {
@@ -93,6 +95,7 @@ export class Message extends Component {
       //   shouldUpdate,
       //   reason,
       // );
+      console.log(reason, diff(this.props, nextProps));
     }
 
     return shouldUpdate;
@@ -157,7 +160,7 @@ export class Message extends Component {
       // remove the reaction..
       data = await this.props.channel.deleteReaction(
         this.props.message.id,
-        userExistingReaction.id,
+        userExistingReaction.type,
       );
     } else {
       const messageID = this.props.message.id;
