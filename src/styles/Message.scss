@@ -883,12 +883,12 @@
 
 .dark.str-chat {
   .str-chat__message-simple__actions__action--options .str-chat__actions-box {
-    background: rgba(255, 255, 255, 0.3);
-    background-image: linear-gradient(
-      -180deg,
-      rgba(255, 255, 255, 0.02) 0%,
-      rgba(0, 0, 0, 0.02) 100%
-    );
+    background: #67686a;
+    // background-image: linear-gradient(
+    //   -180deg,
+    //   rgba(255, 255, 255, 0.02) 0%,
+    //   rgba(0, 0, 0, 0.02) 100%
+    // );
     box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.22), 0 1px 0 0 rgba(0, 0, 0, 0.08),
       0 1px 8px 0 rgba(0, 0, 0, 0.05);
   }
