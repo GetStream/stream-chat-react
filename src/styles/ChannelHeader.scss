@@ -130,9 +130,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
+  svg {
+    fill: rgba(0, 0, 0, 0.8);
+  }
   &:active {
     background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.dark.str-chat {
+  .str-chat__square-button {
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.69);
+    border-radius: 3px;
+    svg {
+      fill: rgba(255, 255, 255, 0.7);
+    }
   }
 }
 
@@ -155,6 +168,15 @@
         }
       }
     }
+    &.dark {
+      .str-chat__header-livestream {
+        background: rgba(46, 48, 51, 0.98);
+        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+          0 1px 0 0 rgba(0, 0, 0, 0.03);
+        border-radius: 10px 10px 0 0;
+        color: white;
+      }
+    }
   }
 }
 
@@ -168,6 +190,21 @@
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
       }
     }
+    &.dark {
+      .str-chat__header-livestream {
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
+        &-left {
+          &--title,
+          &--members {
+            color: white;
+          }
+          &--title {
+            font-size: 15px;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -175,15 +212,22 @@
   &.str-chat {
     .str-chat {
       &__header-livestream {
-        height: 80px;
+        // height: 80px;
         background: rgba(255, 255, 255, 0.81);
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
           0 1px 0 0 rgba(0, 0, 0, 0.03);
         border-radius: 10px 10px 0 0;
+        padding: 25px;
         &-left {
           &--title {
             font-size: 25px;
+            margin: 0;
+            line-height: 1;
             font-weight: 400;
+          }
+          &--subtitle {
+            margin: 8px 0;
+            font-size: 15px;
           }
           &--members {
             display: none;
@@ -194,6 +238,35 @@
             &--info {
               display: none;
             }
+          }
+        }
+      }
+    }
+    &.dark {
+      .str-chat__header-livestream {
+        background: rgba(44, 47, 51, 0.81);
+        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+          0 1px 0 0 rgba(0, 0, 0, 0.03);
+        border-radius: 10px 10px 0 0;
+        color: rgba(#ffffff, 1);
+      }
+    }
+  }
+}
+
+.team {
+  &.str-chat {
+    &.dark {
+      .str-chat__header-livestream {
+        background: rgba(38, 40, 43, 0.9);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.26);
+        &-left {
+          color: white;
+          &--title {
+            font-size: 18px;
+          }
+          &--members {
+            font-size: 13px;
           }
         }
       }

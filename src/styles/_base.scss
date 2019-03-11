@@ -11,39 +11,6 @@
   }
 }
 
-// .team-chat {
-//   &.str-chat {
-//     height: 100vh;
-//     background: $white;
-//     font-family: $main-font;
-//     display: flex;
-//     align-items: flex-start;
-//     justify-content: flex-start;
-//     margin: 0;
-//     flex: 1 0 100%;
-
-//     .str-chat {
-//       &__container {
-//         background: $white; /* variables */
-
-//         /* flex: 1 0 100%; */
-//         flex: 1;
-//         height: 100%;
-//         display: flex;
-//         flex-direction: row;
-//       }
-
-//       &__main-panel {
-//         width: 100%;
-//         flex: 1;
-//         height: 100%;
-//         display: flex;
-//         flex-direction: column;
-//       }
-//     }
-//   }
-// }
-
 .clearfix {
   clear: both;
 }
@@ -83,6 +50,14 @@
   font-family: $second-font;
   &.messaging {
     background-color: #f1f1f3;
+    &.dark {
+      background-color: #212326;
+    }
+  }
+  &.team {
+    &.dark {
+      background: #212326;
+    }
   }
 }
 
@@ -123,6 +98,12 @@
     .str-chat {
       &__container {
         background: rgba(255, 255, 255, 0.97);
+      }
+    }
+    &.dark {
+      .str-chat__container {
+        background: rgba(29, 32, 36, 0.9);
+        box-shadow: 0 10px 31px 0 rgba(0, 0, 0, 0.5);
       }
     }
   }

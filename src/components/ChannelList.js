@@ -54,6 +54,7 @@ class ChannelList extends PureComponent {
       }
       this.setState({ loading: false, channels: channelQueryResponse });
     } catch (e) {
+      console.log(e);
       this.setState({ error: true });
     }
   }

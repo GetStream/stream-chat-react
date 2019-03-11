@@ -64,7 +64,7 @@ export class Avatar extends React.PureComponent {
           width: size,
           height: size,
           flexBasis: size,
-          borderRadius: size * 2,
+          // borderRadius: size * 2,
           lineHeight: size + 'px',
           fontSize: size / 2,
         }}
@@ -82,7 +82,7 @@ export class Avatar extends React.PureComponent {
               width: size,
               height: size,
               flexBasis: size,
-              borderRadius: size * 2,
+              objectFit: 'cover',
             }}
             onLoad={this.onLoad}
             onError={this.onError}

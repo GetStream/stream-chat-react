@@ -39,6 +39,19 @@
   }
 }
 
+.dark.str-chat {
+  .str-chat__typing-indicator {
+    &__avatars {
+      .str-chat__avatar {
+        border-color: #282a2d;
+      }
+    }
+    &__dots {
+      background: rgba(white, 0.05);
+    }
+  }
+}
+
 @keyframes wave {
   0%,
   60%,

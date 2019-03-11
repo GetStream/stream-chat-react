@@ -79,7 +79,7 @@
 }
 
 .str-chat__emojisearch {
-  bottom: calc(100% + 10px);
+  bottom: calc(100%);
   left: 0;
   width: calc(100% - 20px);
   position: absolute;
@@ -94,6 +94,23 @@
     padding: 0;
     list-style-type: none;
     border-radius: 4px 4px 0 0;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__emojisearch {
+    background: #35373a;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
+    border-radius: 4px 4px 0 0;
+    .rta__list-header {
+      background: #1b1d20;
+      border: 1px solid rgba(224, 224, 224, 0.03);
+      box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+      color: white;
+    }
+    .rta__entity {
+      color: white;
+    }
   }
 }
 
@@ -123,7 +140,7 @@
 
   span {
     display: block;
-    margin: 0 8px;
+    // margin: 0 8px;
   }
 
   &--entity {
@@ -261,5 +278,31 @@
 }
 
 .rfu-file-upload-button svg {
-  fill: rgba(0, 0, 0, 0.6) !important;
+  fill: rgba(0, 0, 0, 0.6);
+}
+
+.dark.str-chat {
+  .str-chat__input {
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.34);
+    &-footer {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    textarea {
+      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      border-radius: 2px;
+      color: white;
+    }
+    .str-chat__input-emojiselect {
+      svg {
+        fill: white;
+      }
+    }
+    .rfu-file-upload-button {
+      svg {
+        fill: white;
+      }
+    }
+  }
 }

@@ -61,11 +61,11 @@ class App extends Component {
           </div>
         </div>
         <div>
-          <Chat client={this.chatClient} theme="livestream light">
+          <Chat client={this.chatClient} theme="livestream dark">
             <Channel channel={this.channel}>
               <Window hideOnThread>
                 <ChannelHeader live />
-                <MessageList grouping={false} Message={MessageLivestream} />
+                <MessageList noGroupByUser Message={MessageLivestream} />
                 <MessageInput Input={MessageInputLarge} focus />
               </Window>
               <Thread Message={MessageLivestream} fullWidth />

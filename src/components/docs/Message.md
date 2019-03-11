@@ -7,7 +7,7 @@ const data = require('./data');
   <Message
     message={data.message}
     Message={MessageSimple}
-    seenBy={[]}
+    readBy={[]}
     groupStyles={['top']}
     editing={false}
     {...data.channelContext}
@@ -15,12 +15,12 @@ const data = require('./data');
 </div>;
 ```
 
-Use the team messaging render component and set seenBy
+Use the team messaging render component and set readBy
 
 ```js
 const data = require('./data');
 
-const seenBy = [
+const readBy = [
   {
     created_at: '2019-01-22T16:35:18.417456Z',
     id: 'thierry',
@@ -33,7 +33,7 @@ const seenBy = [
 <Message
   message={data.message}
   Message={MessageTeam}
-  seenBy={seenBy}
+  readBy={readBy}
   groupStyles={['bottom']}
   editing={false}
   {...data.channelContext}

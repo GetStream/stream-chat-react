@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.1.34",
+  "version": "0.1.39",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -30,7 +30,7 @@
     "prettier": "^1.16.4",
     "pretty-bytes": "^5.1.0",
     "prop-types": "^15.6.2",
-    "react-file-utils": "0.2.1",
+    "react-file-utils": "0.3.2",
     "react-images": "^0.5.19",
     "react-markdown": "^4.0.6",
     "react-player": "^1.8.0",
@@ -38,7 +38,7 @@
     "react-textarea-autosize": "^7.1.0",
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
-    "stream-chat": "^0.3.1",
+    "stream-chat": "^0.4.0",
     "uuid": "^3.3.2",
     "visibilityjs": "^2.0.2",
     "ws": "^6.1.3"

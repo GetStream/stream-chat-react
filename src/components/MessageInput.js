@@ -82,6 +82,9 @@ class MessageInput extends PureComponent {
     /** Via Context: the users currently typing, passed from the Channel component */
     typing: PropTypes.object.isRequired,
 
+    /** Set textarea to be disabled */
+    disabled: PropTypes.bool,
+
     /** The parent message object when replying on a thread */
     parent: PropTypes.object,
 

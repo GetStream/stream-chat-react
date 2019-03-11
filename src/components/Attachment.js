@@ -90,7 +90,12 @@ export class Attachment extends PureComponent {
           className="str-chat__message-attachment-file--item"
           key={`key-file-${a.id}`}
         >
-          <FileIcon mimeType={a.mime_type} filename={a.title} big size={30} />
+          <FileIcon
+            mimeType={a.mime_type}
+            filename={a.title}
+            big={true}
+            size={30}
+          />
           <div className="str-chat__message-attachment-file--item-text">
             <SafeAnchor href={a.asset_url} download>
               {a.title}

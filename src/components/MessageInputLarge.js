@@ -22,6 +22,8 @@ export class MessageInputLarge extends PureComponent {
     focus: PropTypes.bool.isRequired,
     /** Grow the textarea while you're typing */
     grow: PropTypes.bool.isRequired,
+    /** Make the textarea disabled */
+    disabled: PropTypes.bool,
   };
 
   renderUploads = () => (
@@ -84,6 +86,7 @@ export class MessageInputLarge extends PureComponent {
               placeholder="Type your message"
               onPaste={this.props.onPaste}
               grow={this.props.grow}
+              disabled={this.props.disabled}
             />
 
             <span

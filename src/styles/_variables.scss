@@ -1,6 +1,9 @@
 /* fonts */
 $main-font: 'IBM Plex Sans', sans-serif;
 $second-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$mono-font: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
+  'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
+  'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
 
 $base-font-weight: 400;
 $heavy-font-weight: 700;
@@ -9,6 +12,8 @@ $heavy-font-weight: 700;
 $primary-color: magenta;
 $secondary-color: #006cff;
 $secondary-faded: #bcd8ff;
+
+$dt-bg-team: #1d1f22;
 
 $border-color: rgba(0, 0, 0, 0.08);
 

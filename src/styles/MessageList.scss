@@ -64,6 +64,14 @@
         }
       }
     }
+    &.dark {
+      .str-chat__list {
+        background: rgba(white, 0.04);
+        &-notifications {
+          background: rgba(white, 0.04);
+        }
+      }
+    }
   }
 }
 

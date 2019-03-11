@@ -38,6 +38,7 @@ class App extends Component {
       },
       userToken,
     );
+
     this.channel = this.chatClient.channel('messaging', channelName, {
       image:
         'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
@@ -71,7 +72,7 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient}>
+      <Chat client={this.chatClient} theme="messaging dark">
         <ChannelList
           channels={this.channels}
           List={ChannelListMessenger}

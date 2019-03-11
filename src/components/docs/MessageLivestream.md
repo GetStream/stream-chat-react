@@ -3,7 +3,7 @@ MessageLivestream handles the rendering of a message and depends on the Message 
 ```js
 const data = require('./data');
 
-const seenBy = [
+const readBy = [
   {
     created_at: '2019-01-22T16:35:18.417456Z',
     id: 'thierry',
@@ -16,7 +16,7 @@ const seenBy = [
 <Message
   message={data.message}
   Message={MessageLivestream}
-  seenBy={seenBy}
+  readBy={readBy}
   groupStyles={['bottom']}
   editing={false}
   {...data.channelContext}

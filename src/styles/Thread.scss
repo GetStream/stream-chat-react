@@ -90,7 +90,19 @@
           width: 100vw;
           max-width: 100%;
         }
-        &__thread-header {
+      }
+    }
+    &.dark {
+      .str-chat__thread {
+        background: rgba(white, 0.04);
+        &-header {
+          background: rgba(46, 48, 51, 0.98);
+          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+            0 1px 0 0 rgba(0, 0, 0, 0.03);
+          color: white;
+        }
+        &-start {
+          color: white;
         }
       }
     }
@@ -100,6 +112,19 @@
 .team {
   &.str-chat {
     .str-chat {
+      @media screen and (max-width: 960px) {
+        &__thread {
+          position: fixed;
+          top: 0;
+          right: 0;
+          height: 100vh;
+          background: white;
+          z-index: 1000;
+          margin: 0;
+          width: 100vw;
+          max-width: 100%;
+        }
+      }
       &__thread-list {
         > .str-chat__list {
           overflow-y: hidden;
@@ -109,14 +134,34 @@
         }
       }
     }
+    &.dark {
+      .str-chat__thread {
+        background: $dt-bg-team;
+      }
+    }
   }
 }
 
-.livestream.str-chat {
+.livestream.str-chat,
+.team.str-chat {
   .str-chat__thread {
     background: rgba(0, 0, 0, 0.02);
     &-header {
       background: rgba(255, 255, 255, 0.29);
+    }
+  }
+  &.dark {
+    .str-chat__thread {
+      &-header {
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
+        color: white;
+      }
+      &-start {
+        background: rgba(153, 196, 255, 0.1);
+        border-radius: 4px;
+        color: white;
+      }
     }
   }
 }

@@ -111,7 +111,7 @@ Setup a fully functional chat UI. Out of the box you'll notice that the followin
 - Automatic AI powered spam & profanity protection
 - Moderators and user roles
 - Emoticons
-- Seen indicators
+- Read indicators
 
 ## B. Channel List
 
@@ -209,7 +209,7 @@ export default App;
 There are a few differences when building chat for a livestream:
 
 - The user interface is typically more compact
-- Typing and message seen states get too noisy
+- Typing and message read states get too noisy
 
 Have a look at the example below for building a livestream chat:
 
@@ -236,7 +236,7 @@ export default App;
 
 Note a few differences with the first example:
 
-- We're using the `livestream` config group. This config group disables typing and seen states.
+- We're using the `livestream` config group. This config group disables typing and read states.
 - The `<CompactRichTextInput />` takes up less space. You can still use :emoticons: and other rich text input features
 - We create a guest user with the name George `chatClient.setGuestUser({name: "george"})`
 

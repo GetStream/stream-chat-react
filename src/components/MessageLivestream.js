@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment';
 
-import { Attachment } from './Attachment';
 import { Avatar } from './Avatar';
 import { MessageActionsBox } from './MessageActionsBox';
 import { ReactionSelector } from './ReactionSelector';
@@ -94,7 +93,7 @@ export class MessageLivestream extends React.PureComponent {
   }
 
   render() {
-    const { message, groupStyles } = this.props;
+    const { Attachment, message, groupStyles } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
     );
@@ -109,7 +108,7 @@ export class MessageLivestream extends React.PureComponent {
       galleryImages = [];
     }
 
-    if (message.type === 'message.seen') {
+    if (message.type === 'message.read') {
       return null;
     }
 

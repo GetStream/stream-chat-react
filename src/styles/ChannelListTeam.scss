@@ -121,3 +121,21 @@
     }
   }
 }
+
+.dark.str-chat {
+  .str-chat__channel-list-team {
+    background: $dt-bg-team;
+
+    &__header {
+      &--title {
+        color: white;
+      }
+    }
+    &__sidebar {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    &__main {
+      background: none;
+    }
+  }
+}

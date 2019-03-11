@@ -10,11 +10,11 @@
     /* flex: 1 if you want the messagebubbles to be the same width- */
     > .str-chat__message-commerce__actions {
       min-height: 10px;
-      min-width: 50px;
+      min-width: 30px;
       float: right;
       .str-chat__reaction-list {
         left: unset;
-        right: 66px;
+        right: 46px;
       }
     }
   }
@@ -87,14 +87,13 @@
   }
 
   &-text {
-    display: inline-flex;
-    justify-content: flex-start;
+    display: flex;
+
     padding: 0 0 0 0;
     position: relative;
 
     &-inner {
       position: relative;
-      flex: 1;
       display: block;
       min-height: 32px;
       padding: 5px 10px;
@@ -104,7 +103,7 @@
       background: #fff;
       border: 1px solid $border-color;
 
-      margin-left: 0; /* set spacing when unfocused */
+      margin-left: 0;
 
       p {
         /* Make sure really long urls and words don't break out.
@@ -123,19 +122,10 @@
         hyphens: auto;
       }
 
-      /* if text consists is focused */
-      &--focused {
-        background: $secondary-faded;
-        border: 1px solid $secondary-color;
-        margin-right: 0;
-        margin-left: 0; /* set spacing when focused */
-      }
-
       &--has-attachment {
         border-radius: 2px $border-radius $border-radius 2px;
       }
 
-      /* if text consists of just one emoji */
       &--is-emoji {
         background: transparent;
         border: 1px solid transparent;
@@ -205,12 +195,6 @@
     align-items: flex-start;
   }
 
-  /* set attachment padding based on you or me */
-
-  /* .str-chat__message-attachment {padding-right:64px; padding-left: 0px;} */
-
-  /* &--me { .str-chat__message-attachment {padding-right:0px; padding-left:54px;} } */
-
   /* deleted messages */
   &--deleted {
     background: $grey;
@@ -245,7 +229,7 @@
           > .str-chat__message-commerce__actions {
             float: left;
             .str-chat__reaction-list {
-              left: 66px;
+              left: 46px;
             }
           }
         }
@@ -264,6 +248,12 @@
         display: none;
       }
 
+      .str-chat__message-attachment {
+        margin: 0 auto 0 30px;
+        &--img {
+          border-radius: $border-radius $border-radius 2px $border-radius;
+        }
+      }
       .str-chat__message-attachment-card {
         border-radius: 16px 16px 4px 16px;
       }
@@ -277,6 +267,9 @@
           &-text {
             &-inner {
               border-radius: 16px 16px 4px 16px;
+              &--has-attachment {
+                border-radius: 16px 4px 4px 16px;
+              }
             }
           }
         }
@@ -295,9 +288,24 @@
       }
       .str-chat__message-commerce-text {
         flex-direction: row-reverse;
+        justify-content: flex-start;
+        &-inner {
+          flex: unset;
+        }
       }
       .str-chat__message-commerce-data {
         text-align: right;
+      }
+    }
+  }
+
+  &--has-text {
+    .str-chat__message-commerce {
+      &-inner {
+        .str-chat__message-attachment {
+          width: 100%;
+          margin: 4px auto;
+        }
       }
     }
   }
@@ -311,7 +319,7 @@
       margin-top: 5px;
       align-items: flex-start;
       justify-content: flex-start;
-      min-width: 120px;
+      min-width: 30px;
 
       &__action {
         margin: 5px;
@@ -361,7 +369,6 @@
 
     &-text {
       display: flex;
-      justify-content: flex-end;
       padding: 0 0 0 0;
       position: relative;
     }
@@ -401,44 +408,6 @@
       }
     }
 
-    &--me {
-      .str-chat__message-commerce-reply-button {
-        display: flex;
-        justify-content: flex-end;
-        // flex-direction: row-faller;
-        .str-chat__message-replies-count-button {
-          display: flex;
-          flex-direction: row-reverse;
-          svg {
-            transform: scaleX(-1);
-            margin-left: 5px;
-            margin-bottom: 4px;
-            margin-right: 0;
-          }
-        }
-      }
-
-      .str-chat__message-commerce__actions {
-        justify-content: flex-end;
-      }
-
-      .str-chat__message-attachment--image {
-        max-width: 460px;
-      }
-
-      &-text-inner {
-        // margin-right: 5px;
-        // margin-left: 5px;
-
-        &--is-emoji {
-          background-color: transparent;
-          line-height: 32px;
-        }
-      }
-      .str-chat__message-commerce__actions {
-        order: -1;
-      }
-    }
     &:hover {
       .str-chat__message-commerce__actions__action--options {
         display: flex;
@@ -508,6 +477,12 @@
 }
 
 .str-chat__message-commerce {
+  .str-chat__message-attachment {
+    width: calc(100% - 30px);
+    max-width: unset;
+    border-radius: unset;
+    margin: 0 auto 0 0;
+  }
   .str-chat__message-attachment-card {
     margin: 0;
     border-radius: 4px $border-radius 4px 4px;
@@ -516,17 +491,10 @@
 
     &--content {
       background: #ebebeb;
-
-      /* border: 1px solid rgba(0,0,0,0.08); */
     }
 
     &--text {
       display: none;
-    }
-  }
-  &--me {
-    .str-chat__message-attachment-card {
-      border-radius: $border-radius 4px 4px 4px;
     }
   }
 }
@@ -541,6 +509,51 @@
         right: unset;
         left: 100%;
         border-radius: $border-radius $border-radius $border-radius 2px;
+      }
+    }
+  }
+}
+
+.str-chat.dark {
+  .str-chat__message-commerce {
+    &-data {
+      color: white;
+      opacity: 0.5;
+    }
+    &-text-inner {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+    &__actions {
+      svg {
+        fill: white;
+      }
+    }
+
+    .str-chat__message-attachment-card {
+      background: rgba(0, 0, 0, 0.2);
+      &--content {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      &--title {
+        color: white;
+      }
+      &--url {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    &--right {
+      .str-chat__message-commerce {
+        &-text-inner {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .str-chat__message-attachment-card {
+          background: rgba(0, 0, 0, 0.2);
+          &--content {
+            background: rgba(0, 0, 0, 0.2);
+          }
+        }
       }
     }
   }

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Avatar } from './Avatar';
 import { withChannelContext } from '../context';
 
 /**
@@ -13,7 +14,7 @@ class ChannelHeader extends PureComponent {
     /** Via Context: the channel to render */
     channel: PropTypes.object.isRequired,
     /** Via Context: the number of online users */
-    online: PropTypes.number.isRequired,
+    online: PropTypes.number,
     /** Show a little indicator that the channel is live right now */
     live: PropTypes.bool,
   };
@@ -21,6 +22,13 @@ class ChannelHeader extends PureComponent {
   render() {
     return (
       <div className="str-chat__header-livestream">
+        {this.props.channel.data.image && (
+          <Avatar
+            source={this.props.channel.data.image}
+            shape="rounded"
+            size={this.props.channel.type === 'commerce' ? 60 : 40}
+          />
+        )}
         <div className="str-chat__header-livestream-left">
           <p className="str-chat__header-livestream-left--title">
             {this.props.channel.data.name}{' '}
@@ -30,6 +38,11 @@ class ChannelHeader extends PureComponent {
               </span>
             )}
           </p>
+          {this.props.channel.data.subtitle && (
+            <p className="str-chat__header-livestream-left--subtitle">
+              {this.props.channel.data.subtitle}
+            </p>
+          )}
           <p className="str-chat__header-livestream-left--members">
             {!this.props.live && (
               <>{this.props.channel.data.member_count} members, </>
@@ -48,7 +61,6 @@ class ChannelHeader extends PureComponent {
               <svg width="4" height="14" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M3 13h1v.5H0V13h1V5.5H0V5h3v8zM1.994 3.516A1.507 1.507 0 1 1 1.995.502a1.507 1.507 0 0 1-.001 3.014z"
-                  fill="#000"
                   fillRule="evenodd"
                 />
               </svg>

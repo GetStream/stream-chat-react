@@ -5,7 +5,7 @@
       $fontSize: 15px;
       $borderColor: rgba(0, 0, 0, 0.1);
 
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-family: $second-font;
       position: relative;
       display: flex;
       padding: 5px 40px;
@@ -165,11 +165,9 @@
 
         pre,
         code {
-          font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
-            'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
-            'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
+          font-family: $mono-font;
           line-height: inherit;
-          padding: 10px;
+          // padding: 10px;
           font-size: 12px;
           font-weight: 700;
         }
@@ -179,10 +177,12 @@
           border-radius: 4px;
           background-color: #f8f8f8;
           border: 1px solid #d3d3d3;
+          padding: 10px;
         }
 
         code {
           width: inherit;
+          white-space: pre-wrap;
           word-break: break-all;
         }
 
@@ -464,6 +464,137 @@
       top: 2px;
       left: -5px;
       // background-color: #006cff;
+    }
+  }
+}
+
+.str-chat.dark {
+  .str-chat__message-team-error-header {
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+  }
+  .str-chat__message-team {
+    $borderColor: rgba(0, 0, 0, 0.4);
+    $fontColor: white;
+    &-author {
+      color: $fontColor;
+    }
+    &-meta {
+      time {
+        color: rgba($fontColor, 0.3);
+      }
+    }
+    &-content,
+    .str-chat__message-attachment {
+      border-color: $borderColor;
+      color: $fontColor;
+      &--top,
+      &--single {
+        &:not(.str-chat__message-team-content--image) {
+          &::before {
+            background-color: $borderColor;
+          }
+        }
+      }
+      &--image {
+        border-color: transparent;
+      }
+
+      p {
+        code {
+          background-color: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      pre {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .str-chat__message-attachment-file--item {
+        border-color: rgba(black, 0.4);
+        a,
+        span {
+          color: white;
+        }
+        span {
+          opacity: 0.4;
+        }
+        &:hover {
+          background: transparent;
+        }
+      }
+      .str-chat__message-attachment--file {
+        a,
+        span {
+          color: white;
+        }
+        span {
+          opacity: 0.4;
+        }
+      }
+    }
+    &-content,
+    .str-chat__message-attachment {
+      .str-chat__message-attachment-card {
+        background: transparent;
+        &--content {
+          background: rgba(0, 0, 0, 0.1);
+          min-height: 58px;
+          margin: 0;
+          padding: 0px 16px;
+        }
+        &--title {
+          color: $fontColor;
+        }
+        &--url {
+          color: rgba($fontColor, 0.4);
+        }
+      }
+    }
+    &-actions {
+      background: #1b1d20;
+
+      border: 1px solid rgba(224, 224, 224, 0.03);
+      box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+      border-radius: 12px;
+      .str-chat__message-actions-box {
+        background: #6a6b6d;
+      }
+      > span {
+        border-color: rgba(0, 0, 0, 0.04);
+        svg {
+          fill: #fff;
+        }
+      }
+    }
+    &--error {
+      .str-chat__message-team {
+        &-content {
+          border-color: red;
+          border-width: 1px;
+          p {
+            color: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+          }
+          &--top,
+          &--single {
+            &:not(.str-chat__message-team-content--image) {
+              &::before {
+                background-color: red;
+                height: 1px;
+              }
+            }
+          }
+        }
+      }
+    }
+    &--editing {
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 0 rgba(#006cff, 0.1), inset 0 -1px 0 0 rgba(#006cff, 0.1);
+      z-index: 1;
     }
   }
 }

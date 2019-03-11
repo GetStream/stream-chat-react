@@ -90,15 +90,8 @@ export class MessageCommerce extends PureComponent {
     }
   };
 
-  componentDidUpdate() {
-    if (this.props.message.deleted_at || this.props.message.type === 'error') {
-      document.removeEventListener('click', this._unfocusMessage);
-    }
-  }
-
   componentWillUnmount() {
     if (!this.props.message.deleted_at) {
-      document.removeEventListener('click', this._unfocusMessage);
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }
@@ -133,9 +126,9 @@ export class MessageCommerce extends PureComponent {
     if (!this.isMine() || this.props.message.type === 'error') {
       return null;
     }
-    const justSeenByMe =
-      message.seenBy.length === 1 &&
-      message.seenBy[0].id === this.props.client.user.id;
+    const justReadByMe =
+      message.readBy.length === 1 &&
+      message.readBy[0].id === this.props.client.user.id;
     if (this.props.message.status === 'sending') {
       return (
         <span className="str-chat__message-commerce-status">
@@ -144,21 +137,21 @@ export class MessageCommerce extends PureComponent {
         </span>
       );
     } else if (
-      message.seenBy.length !== 0 &&
+      message.readBy.length !== 0 &&
       !this.props.threadList &&
-      !justSeenByMe
+      !justReadByMe
     ) {
       return (
         <span className="str-chat__message-commerce-status">
-          <Tooltip>{this.formatArray(message.seenBy)}</Tooltip>
+          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={this.props.seenBy[0].id}
-            source={this.props.seenBy[0].image}
+            name={this.props.readBy[0].id}
+            source={this.props.readBy[0].image}
             size={15}
           />
-          {message.seenBy.length > 1 && (
+          {message.readBy.length > 1 && (
             <span className="str-chat__message-commerce-status-number">
-              {message.seenBy.length}
+              {message.readBy.length}
             </span>
           )}
         </span>
@@ -192,28 +185,6 @@ export class MessageCommerce extends PureComponent {
     if (this.isMine()) {
       return (
         <div className="str-chat__message-commerce__actions">
-          {/* <div
-            onClick={this._onClickOptionsAction}
-            className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--options"
-          >
-            <MessageActionsBox
-              Message={this.props.Message}
-              message={this.props.message}
-              open={this.state.actionsBoxOpen}
-              mine={this.props.mine}
-            />
-            <svg
-              width="11"
-              height="3"
-              viewBox="0 0 11 3"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                fillRule="nonzero"
-              />
-            </svg>
-          </div> */}
           <div
             className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
             onClick={this._clickReactionList}
@@ -241,21 +212,6 @@ export class MessageCommerce extends PureComponent {
               />
             </svg>
           </div>
-          {/* {!this.props.threadList && (
-            <div
-              onClick={this.props.openThread}
-              className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--thread"
-            >
-              <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                  fill="#000"
-                  fillRule="evenodd"
-                  opacity=".5"
-                />
-              </svg>
-            </div>
-          )} */}
         </div>
       );
     }
@@ -281,7 +237,7 @@ export class MessageCommerce extends PureComponent {
     );
 
     if (
-      message.type === 'message.seen' ||
+      message.type === 'message.read' ||
       message.deleted_at ||
       message.type === 'message.date'
     ) {
@@ -326,8 +282,6 @@ export class MessageCommerce extends PureComponent {
           onMouseLeave={this._hideOptions}
           ref={this.messageRef}
         >
-          {/* {this.renderStatus()} */}
-
           {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
             <Avatar
               source={message.user.image}

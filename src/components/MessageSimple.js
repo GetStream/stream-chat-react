@@ -90,15 +90,8 @@ export class MessageSimple extends PureComponent {
     }
   };
 
-  componentDidUpdate() {
-    if (this.props.message.deleted_at || this.props.message.type === 'error') {
-      document.removeEventListener('click', this._unfocusMessage);
-    }
-  }
-
   componentWillUnmount() {
     if (!this.props.message.deleted_at) {
-      document.removeEventListener('click', this._unfocusMessage);
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }
@@ -133,9 +126,9 @@ export class MessageSimple extends PureComponent {
     if (!this.isMine() || this.props.message.type === 'error') {
       return null;
     }
-    const justSeenByMe =
-      message.seenBy.length === 1 &&
-      message.seenBy[0].id === this.props.client.user.id;
+    const justReadByMe =
+      message.readBy.length === 1 &&
+      message.readBy[0].id === this.props.client.user.id;
     if (this.props.message.status === 'sending') {
       return (
         <span className="str-chat__message-simple-status">
@@ -144,21 +137,21 @@ export class MessageSimple extends PureComponent {
         </span>
       );
     } else if (
-      message.seenBy.length !== 0 &&
+      message.readBy.length !== 0 &&
       !this.props.threadList &&
-      !justSeenByMe
+      !justReadByMe
     ) {
       return (
         <span className="str-chat__message-simple-status">
-          <Tooltip>{this.formatArray(message.seenBy)}</Tooltip>
+          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={this.props.seenBy[0].id}
-            source={this.props.seenBy[0].image}
+            name={this.props.readBy[0].id}
+            source={this.props.readBy[0].image}
             size={15}
           />
-          {message.seenBy.length > 1 && (
+          {message.readBy.length > 1 && (
             <span className="str-chat__message-simple-status-number">
-              {message.seenBy.length}
+              {message.readBy.length}
             </span>
           )}
         </span>
@@ -248,9 +241,7 @@ export class MessageSimple extends PureComponent {
               <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                  fill="#000"
                   fillRule="evenodd"
-                  opacity=".5"
                 />
               </svg>
             </div>
@@ -279,29 +270,34 @@ export class MessageSimple extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.seen' ||
-      message.type === 'message.date' ||
-      message.deleted_at
-    ) {
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
     if (message.deleted_at) {
       return (
         <React.Fragment>
-          <span
+          <div
             key={message.id}
             className={`${messageClasses} str-chat__message--deleted ${
               message.type
             } `}
           >
-            {message.user.id === this.props.client.user.id
-              ? 'You'
-              : message.user.name || message.user.id}{' '}
-            deleted this message...
-          </span>
-          <div className="clearfix" />
+            <div className="str-chat__message--deleted-inner">
+              {message.user.id === this.props.client.user.id
+                ? 'You'
+                : message.user.name || message.user.id}{' '}
+              deleted this message...
+            </div>
+            {!this.props.threadList && message.reply_count !== 0 && (
+              <div className="str-chat__message-simple-reply-button">
+                <MessageRepliesCountButton
+                  onClick={this.props.openThread}
+                  reply_count={message.reply_count}
+                />
+              </div>
+            )}
+          </div>
         </React.Fragment>
       );
     }
@@ -369,15 +365,17 @@ export class MessageSimple extends PureComponent {
               </React.Fragment>
             )}
 
-            {hasAttachment &&
-              images.length <= 1 &&
-              message.attachments.map((attachment, index) => (
-                <Attachment
-                  key={`${message.id}-${index}`}
-                  attachment={attachment}
-                  actionHandler={this.props.handleAction}
-                />
-              ))}
+            <div>
+              {hasAttachment &&
+                images.length <= 1 &&
+                message.attachments.map((attachment, index) => (
+                  <Attachment
+                    key={`${message.id}-${index}`}
+                    attachment={attachment}
+                    actionHandler={this.props.handleAction}
+                  />
+                ))}
+            </div>
             {images.length > 1 && <Gallery images={images} />}
 
             {message.text && (
@@ -429,7 +427,7 @@ export class MessageSimple extends PureComponent {
                 {message.text && this.renderOptions()}
               </div>
             )}
-            {!this.props.threadList && (
+            {!this.props.threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
                   onClick={this.props.openThread}
@@ -437,13 +435,15 @@ export class MessageSimple extends PureComponent {
                 />
               </div>
             )}
-            <div className={`str-chat__message-data`}>
+            <div
+              className={`str-chat__message-data str-chat__message-simple-data`}
+            >
               {!this.isMine() ? (
-                <span className="str-chat__message-name">
+                <span className="str-chat__message-simple-name">
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <span className="str-chat__message-timestamp">{when}</span>
+              <span className="str-chat__message-simple-timestamp">{when}</span>
             </div>
           </div>
         </div>

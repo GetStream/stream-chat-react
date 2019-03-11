@@ -43,13 +43,13 @@ class MessageList extends PureComponent {
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Date separator component to render  */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Turn off grouping */
-    grouping: PropTypes.bool,
+    /** Turn off grouping of messages by user */
+    noGroupByUser: PropTypes.bool,
   };
 
   static defaultProps = {
     dateSeparator: DateSeparator,
-    grouping: true,
+    noGroupByUser: false,
   };
 
   connectionChanged = (event) => {
@@ -200,7 +200,7 @@ class MessageList extends PureComponent {
   insertDates = (messages) => {
     const newMessages = [];
     for (const [i, message] of messages.entries()) {
-      if (message.type === 'message.seen' || message.deleted_at) {
+      if (message.type === 'message.read' || message.deleted_at) {
         newMessages.push(message);
         continue;
       }
@@ -234,27 +234,27 @@ class MessageList extends PureComponent {
     });
   };
 
-  getSeenStates = (messages) => {
-    const seenData = {};
+  getReadStates = (messages) => {
+    const readData = {};
     const l = messages.length;
 
     for (let i = 0; i < l; i++) {
       const message = messages[i];
       const nextMessage = messages[i + 1];
 
-      if (nextMessage && nextMessage.type === 'message.seen') {
-        const seenBy = [];
+      if (nextMessage && nextMessage.type === 'message.read') {
+        const readBy = [];
         for (let inner = i + 1; inner < l; inner++) {
-          if (messages[inner].type === 'message.seen') {
-            seenBy.push(messages[inner].user);
+          if (messages[inner].type === 'message.read') {
+            readBy.push(messages[inner].user);
           } else {
             break;
           }
         }
-        seenData[message.id] = seenBy;
+        readData[message.id] = readBy;
       }
     }
-    return seenData;
+    return readData;
   };
 
   userScrolledUp = () => this.scrollOffset > 310;
@@ -345,7 +345,7 @@ class MessageList extends PureComponent {
         groupStyles.push('single');
       }
 
-      if (!this.props.grouping) {
+      if (this.props.noGroupByUser) {
         groupStyles.splice(0, groupStyles.length);
         groupStyles.push('single');
       }
@@ -366,11 +366,11 @@ class MessageList extends PureComponent {
     const TypingIndicator = this.props.typingIndicator;
     const DateSeparator = this.props.dateSeparator;
 
-    for (const seenData of Object.values(this.props.seen)) {
-      const seenMessage = { ...seenData };
-      seenMessage.created_at = new Date(seenMessage.created_at);
-      seenMessage.type = 'message.seen';
-      allMessages.push(seenMessage);
+    for (const readData of Object.values(this.props.read)) {
+      const readMessage = { ...readData };
+      readMessage.created_at = new Date(readMessage.created_at);
+      readMessage.type = 'message.read';
+      allMessages.push(readMessage);
     }
 
     // sort by date
@@ -378,7 +378,7 @@ class MessageList extends PureComponent {
       return a.created_at - b.created_at;
     });
 
-    const seenData = this.getSeenStates(allMessages);
+    const readData = this.getReadStates(allMessages);
 
     const lastReceivedId = this.getLastReceived(allMessages);
     const elements = [];
@@ -397,12 +397,12 @@ class MessageList extends PureComponent {
             <DateSeparator date={message.date} />
           </li>,
         );
-      } else if (message.type !== 'message.seen') {
+      } else if (message.type !== 'message.read') {
         let groupStyles = messageGroupStyles[message.id || message.tmp_id];
         if (!groupStyles) {
           groupStyles = [];
         }
-        const seenBy = seenData[message.id] || [];
+        const readBy = readData[message.id] || [];
         elements.push(
           <li
             className={`str-chat__li str-chat__li--${groupStyles}`}
@@ -416,7 +416,7 @@ class MessageList extends PureComponent {
               watchers={this.props.watchers}
               message={message}
               groupStyles={groupStyles}
-              seenBy={seenBy}
+              readBy={readBy}
               lastReceivedId={
                 lastReceivedId === message.id ? lastReceivedId : null
               }

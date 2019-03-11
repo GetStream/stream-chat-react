@@ -30,3 +30,14 @@
     }
   }
 }
+
+.dark.str-chat {
+  .str-chat__message-attachment-actions {
+    &-button {
+      color: white;
+      &--default {
+        border-color: rgba(white, 0.1);
+      }
+    }
+  }
+}

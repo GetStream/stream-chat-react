@@ -62,3 +62,20 @@
     right: 28px;
   }
 }
+
+.dark.str-chat {
+  .str-chat__small-message-input {
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.21);
+      border-radius: 6px;
+      color: white;
+    }
+    .rfu-file-upload-button,
+    .str-chat__small-message-input-emojiselect {
+      svg {
+        fill: white;
+      }
+    }
+  }
+}
