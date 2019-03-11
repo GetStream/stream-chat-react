@@ -277,29 +277,34 @@ export class MessageSimple extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.read' ||
-      message.type === 'message.date' ||
-      message.deleted_at
-    ) {
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
     if (message.deleted_at) {
       return (
         <React.Fragment>
-          <span
+          <div
             key={message.id}
             className={`${messageClasses} str-chat__message--deleted ${
               message.type
             } `}
           >
-            {message.user.id === this.props.client.user.id
-              ? 'You'
-              : message.user.name || message.user.id}{' '}
-            deleted this message...
-          </span>
-          <div className="clearfix" />
+            <div className="str-chat__message--deleted-inner">
+              {message.user.id === this.props.client.user.id
+                ? 'You'
+                : message.user.name || message.user.id}{' '}
+              deleted this message...
+            </div>
+            {!this.props.threadList && message.reply_count !== 0 && (
+              <div className="str-chat__message-simple-reply-button">
+                <MessageRepliesCountButton
+                  onClick={this.props.openThread}
+                  reply_count={message.reply_count}
+                />
+              </div>
+            )}
+          </div>
         </React.Fragment>
       );
     }

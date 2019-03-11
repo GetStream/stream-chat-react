@@ -411,20 +411,29 @@
 
   /* deleted messages */
   &--deleted {
-    background: $grey;
-    float: left;
-    padding: 8px 16px;
-    border-radius: $border-radius;
-    font-size: 12px;
-    color: darken($grey, 30%);
     margin: 0 0 0 42px;
+    flex-direction: column;
+    align-items: flex-start;
+    &-inner {
+      background: rgba(#fff, 0.1);
+      padding: 8px 16px;
+      border-radius: $border-radius;
+      font-size: 12px;
+      color: darken($grey, 30%);
+    }
   }
 
   &--me {
     &.str-chat__message--deleted {
-      float: right;
-      background-color: $grey;
       margin: 0 42px 0 0;
+      align-items: flex-end;
+      &-inner {
+        background: rgba(#fff, 0.1);
+        padding: 8px 16px;
+        border-radius: $border-radius;
+        font-size: 12px;
+        color: darken($grey, 30%);
+      }
     }
   }
 
@@ -614,7 +623,6 @@
       .str-chat__message-simple-reply-button {
         display: flex;
         justify-content: flex-end;
-        // flex-direction: row-faller;
         .str-chat__message-replies-count-button {
           display: flex;
           flex-direction: row-reverse;
