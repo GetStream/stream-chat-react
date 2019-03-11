@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChannelPreview } from './ChannelPreview';
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
-import { ChannelSearch } from './ChannelSearch';
 import { LoadingChannels } from './LoadingChannels';
 import { ChatDown } from './ChatDown';
 import { withChatContext } from '../context';
@@ -59,7 +58,6 @@ class ChannelListMessenger extends PureComponent {
       return (
         <div className="str-chat__channel-list-messenger">
           <div className="str-chat__channel-list-messenger__main">
-            <ChannelSearch />
             {this.renderChannels()}
           </div>
         </div>
