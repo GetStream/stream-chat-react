@@ -83,7 +83,7 @@ export const renderText = (message) => {
     message = message.replace(urlInfo.raw, mkdown);
   }
 
-  message = message.replace(/\n/g, '\n\n');
+  message = message.replace(/\n/g, '\\');
 
   return (
     <ReactMarkdown
