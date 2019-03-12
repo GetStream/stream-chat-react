@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Attachment } from './Attachment';
 
 import deepequal from 'deep-equal';
-import diff from 'shallow-diff';
+// import diff from 'shallow-diff';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -86,14 +86,14 @@ export class Message extends Component {
     }
 
     if (shouldUpdate && reason) {
-      // console.log(
-      //   'message',
-      //   nextProps.message.id,
-      //   'shouldUpdate',
-      //   shouldUpdate,
-      //   reason,
-      // );
-      console.log(reason, diff(this.props, nextProps));
+      console.log(
+        'message',
+        nextProps.message.id,
+        'shouldUpdate',
+        shouldUpdate,
+        reason,
+      );
+      // console.log(reason, diff(this.props, nextProps));
     }
 
     return shouldUpdate;

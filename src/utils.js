@@ -159,13 +159,12 @@ export const renderText = (message) => {
     message = message.replace(urlInfo.raw, mkdown);
   }
 
-  message = message.replace(/\n/g, '\n\n');
-
   return (
     <ReactMarkdown
       allowedTypes={allowed}
       source={message}
       linkTarget="_blank"
+      plugins={[]}
       skipHtml={true}
     />
   );

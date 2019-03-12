@@ -28,15 +28,25 @@ export class ChannelPreview extends PureComponent {
 
   componentDidMount() {
     // listen to change...
-    const c = this.props.channel;
-    c.on('message.new', (event) => {
-      const isActive = this.props.activeChannel.cid === this.props.channel.cid;
-      if (!isActive) {
-        const unread = c.countUnread(this.state.lastRead);
-        this.setState({ lastMessage: event.message, unread });
-      }
-    });
+    const channel = this.props.channel;
+    channel.on('message.new', this.handleEvent);
   }
+
+  componentWillUnmount() {
+    const channel = this.props.channel;
+    channel.off('message.new', this.handleEvent);
+  }
+
+  handleEvent = (event) => {
+    const channel = this.props.channel;
+    const isActive = this.props.activeChannel.cid === channel.cid;
+    if (!isActive) {
+      const unread = channel.countUnread(this.state.lastRead);
+      this.setState({ lastMessage: event.message, unread });
+    } else {
+      this.setState({ lastMessage: event.message, unread: 0 });
+    }
+  };
 
   componentDidUpdate(prevProps) {
     if (this.props.activeChannel.cid !== prevProps.activeChannel.cid) {
