@@ -1,13 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Emoji } from 'emoji-mart';
+import { NimbleEmoji } from 'emoji-mart';
 
-import { REACTIONS } from '../utils';
+import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 
 export class ReactionsList extends React.Component {
   static propTypes = {
     reactions: PropTypes.array,
+    /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+    reactionOptions: PropTypes.array,
+  };
+
+  static defaultProps = {
+    reactionOptions: defaultMinimalEmojis,
+    emojiSetDef,
   };
 
   constructor(props) {
@@ -55,11 +62,24 @@ export class ReactionsList extends React.Component {
       }
     });
 
-    return Object.keys(reactionsByType).map((type) => (
-      <li key={reactionsByType[type][0].id}>
-        <Emoji emoji={REACTIONS[type]} set="apple" size={16} /> &nbsp;
-      </li>
-    ));
+    const reactionsEmojis = this.props.reactionOptions.reduce(
+      (acc, cur) => ({ ...acc, [cur.id]: cur }),
+      {},
+    );
+
+    return Object.keys(reactionsByType).map((type) =>
+      reactionsEmojis[type] ? (
+        <li key={reactionsEmojis[type].id}>
+          <NimbleEmoji
+            emoji={reactionsEmojis[type]}
+            {...emojiSetDef}
+            size={16}
+            data={emojiData}
+          />{' '}
+          &nbsp;
+        </li>
+      ) : null,
+    );
   };
 
   _getReactionCount = () => {
