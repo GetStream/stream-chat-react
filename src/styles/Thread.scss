@@ -105,6 +105,11 @@
           color: white;
         }
       }
+      @media screen and (max-width: 960px) {
+        .str-chat__thread {
+          background: #282a2d;
+        }
+      }
     }
   }
 }
