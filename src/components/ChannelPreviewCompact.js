@@ -22,7 +22,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
         className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-compact--left">
-          {true && <Avatar source={this.props.channel.data.image} size={20} />}
+          {true && <Avatar image={this.props.channel.data.image} size={20} />}
         </div>
         <div className="str-chat__channel-preview-compact--right">{name}</div>
       </button>

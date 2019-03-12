@@ -153,7 +153,7 @@ export class MessageSimple extends PureComponent {
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
             name={this.props.readBy[0].id}
-            source={this.props.readBy[0].image}
+            image={this.props.readBy[0].image}
             size={15}
           />
           {message.readBy.length > 1 && (
@@ -334,7 +334,7 @@ export class MessageSimple extends PureComponent {
           {this.renderStatus()}
 
           <Avatar
-            source={message.user.image}
+            image={message.user.image}
             name={message.user.name || message.user.id}
           />
           <div className="str-chat__message-inner">

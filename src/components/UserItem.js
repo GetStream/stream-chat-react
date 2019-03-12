@@ -6,7 +6,7 @@ export class UserItem extends PureComponent {
     const u = this.props.entity;
     return (
       <div className="str-chat__user-item">
-        <Avatar size={20} source={u.image} />
+        <Avatar size={20} image={u.image} />
         <div>
           <strong>{u.name}</strong> {u.id}
         </div>

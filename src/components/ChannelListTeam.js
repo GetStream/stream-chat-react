@@ -64,7 +64,7 @@ class ChannelListTeam extends PureComponent {
             <div className="str-chat__channel-list-team__sidebar">
               <div className="str-chat__channel-list-team__sidebar--top">
                 <Avatar
-                  source="https://cdn.dribbble.com/users/610788/screenshots/5157282/spacex.png"
+                  image="https://cdn.dribbble.com/users/610788/screenshots/5157282/spacex.png"
                   size={50}
                 />
               </div>

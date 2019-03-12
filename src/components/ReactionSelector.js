@@ -175,11 +175,11 @@ export class ReactionSelector extends PureComponent {
               >
                 {latestUser !== 'NotFound' ? (
                   <Avatar
-                    source={latestUser.image}
+                    image={latestUser.image}
                     alt={latestUser.id}
                     size={20}
                     name={latestUser.id}
-                  /> // todo: add avatar component
+                  />
                 ) : (
                   <div className="latest-user-not-found" />
                 )}

@@ -131,7 +131,7 @@ export class MessageLivestream extends React.PureComponent {
           {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (
             <div className="str-chat__message-team-meta">
               <Avatar
-                source={message.user.image}
+                image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
               />
@@ -211,7 +211,7 @@ export class MessageLivestream extends React.PureComponent {
 
           <div className={`str-chat__message-livestream-left`}>
             <Avatar
-              source={message.user.image}
+              image={message.user.image}
               name={message.user.name || message.user.id}
               size={30}
             />

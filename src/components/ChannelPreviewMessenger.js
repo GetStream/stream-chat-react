@@ -29,7 +29,7 @@ export class ChannelPreviewMessenger extends PureComponent {
         className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-messenger--left">
-          {<Avatar source={channel.data.image} size={40} />}
+          {<Avatar image={channel.data.image} size={40} />}
         </div>
         <div className="str-chat__channel-preview-messenger--right">
           <div className="str-chat__channel-preview-messenger--name">

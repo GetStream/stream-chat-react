@@ -15,7 +15,7 @@ export class TypingIndicator extends React.PureComponent {
         <div className="str-chat__typing-indicator__avatars">
           {typing.map((user) => (
             <Avatar
-              source={user.image}
+              imaage={user.image}
               size={32}
               name={user.name || user.id}
               key={user.id}
