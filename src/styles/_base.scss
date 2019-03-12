@@ -96,6 +96,9 @@
   }
   &.commerce {
     .str-chat {
+      &__main-panel {
+        width: 100%;
+      }
       &__container {
         background: rgba(255, 255, 255, 0.97);
       }
