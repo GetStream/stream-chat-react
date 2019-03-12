@@ -59,6 +59,11 @@
       background: #212326;
     }
   }
+  &.livestream {
+    &.dark {
+      background: #1a1a1a;
+    }
+  }
 }
 
 .str-chat-channel-list {
