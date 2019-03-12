@@ -34,7 +34,6 @@ export const formatArray = (dict) => {
   const arr2 = Object.keys(dict);
   const arr3 = [];
   arr2.forEach((item, i) => arr3.push(dict[arr2[i]].name || dict[arr2[i]].id));
-  console.log(arr3);
   let outStr = '';
   if (arr3.length === 1) {
     outStr = arr3[0] + ' is typing...';
