@@ -64,7 +64,6 @@ class ChannelHeader extends PureComponent {
                   fillRule="evenodd"
                 />
               </svg>
-              {/* channel info: ChannelInfo */}
             </a>
           </div>
         </div>

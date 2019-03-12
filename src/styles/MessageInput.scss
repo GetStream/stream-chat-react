@@ -191,7 +191,7 @@
   width: 100%;
   height: 100%;
   padding: 0 30px;
-  border: 1px dashed white;
+  border: 1px dashed transparent;
   box-sizing: border-box;
   display: flex;
   text-align: center;
@@ -201,6 +201,9 @@
   color: white;
   font-weight: 800;
   font-size: 12px;
+  svg {
+    display: none;
+  }
 }
 
 .rfu-dropzone--reject .rfu-dropzone__inner {

@@ -32,6 +32,7 @@ class App extends Component {
     this.chatClient.setUser(
       {
         id: user,
+        name: 'Kohnny',
       },
       userToken,
     );
