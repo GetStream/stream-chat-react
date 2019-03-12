@@ -23,6 +23,7 @@ export class Avatar extends React.PureComponent {
     size: 32,
     shape: 'circle',
   };
+
   state = {
     errored: false,
     loaded: false,
@@ -43,6 +44,7 @@ export class Avatar extends React.PureComponent {
   onError = () => {
     this.setState({ errored: true });
   };
+
   componentDidUpdate(prevProps) {
     if (prevProps.image !== this.props.image) {
       this.setState({ loaded: false, errored: false });
@@ -50,11 +52,7 @@ export class Avatar extends React.PureComponent {
   }
 
   render() {
-    const { size, name, shape, source } = this.props;
-    let { image } = this.props;
-    if (source && !image) {
-      image = source;
-    }
+    const { size, name, shape, image } = this.props;
     const initials = this.getInitials(name);
     return (
       <div
@@ -64,7 +62,6 @@ export class Avatar extends React.PureComponent {
           width: size,
           height: size,
           flexBasis: size,
-          // borderRadius: size * 2,
           lineHeight: size + 'px',
           fontSize: size / 2,
         }}

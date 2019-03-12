@@ -24,7 +24,7 @@ class ChannelHeader extends PureComponent {
       <div className="str-chat__header-livestream">
         {this.props.channel.data.image && (
           <Avatar
-            source={this.props.channel.data.image}
+            image={this.props.channel.data.image}
             shape="rounded"
             size={this.props.channel.type === 'commerce' ? 60 : 40}
           />
@@ -64,7 +64,6 @@ class ChannelHeader extends PureComponent {
                   fillRule="evenodd"
                 />
               </svg>
-              {/* channel info: ChannelInfo */}
             </a>
           </div>
         </div>

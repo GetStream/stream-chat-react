@@ -5,30 +5,69 @@ import { Emoji } from 'emoji-mart';
 
 import { Avatar } from './Avatar';
 
-export const REACTIONS = [
+const emojiSetDef = {
+  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
+  size: 20,
+  sheetColumns: 2,
+  sheetRows: 3,
+};
+
+const commonEmoji = {
+  emoticons: [],
+  short_names: [],
+  custom: true,
+};
+
+const defaultMinimalEmojis = [
   {
     name: 'like',
-    emoji: 'thumbsup',
+    short_names: ['a'],
+    colons: ':+1:',
+    sheet_x: 0,
+    sheet_y: 0,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
   {
     name: 'love',
-    emoji: 'heart',
+    colons: ':heart:',
+    keywords: ['love'],
+    sheet_x: 1,
+    sheet_y: 2,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
   {
     name: 'haha',
-    emoji: 'joy',
+    colons: ':joy:',
+    sheet_x: 1,
+    sheet_y: 0,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
   {
     name: 'wow',
-    emoji: 'astonished',
+    colons: ':astonished:',
+    sheet_x: 0,
+    sheet_y: 2,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
   {
     name: 'sad',
-    emoji: 'pensive',
+    colons: ':pensive:',
+    sheet_x: 0,
+    sheet_y: 1,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
   {
     name: 'angry',
-    emoji: 'angry',
+    colons: ':angry:',
+    sheet_x: 1,
+    sheet_y: 1,
+    ...commonEmoji,
+    ...emojiSetDef,
   },
 ];
 
@@ -57,7 +96,8 @@ export class ReactionSelector extends PureComponent {
   static defaultProps = {
     direction: 'left',
     detailedView: true,
-    reactionOptions: REACTIONS,
+    reactionOptions: defaultMinimalEmojis,
+    emojiSetDef,
   };
 
   constructor(props) {
@@ -175,18 +215,18 @@ export class ReactionSelector extends PureComponent {
               >
                 {latestUser !== 'NotFound' ? (
                   <Avatar
-                    source={latestUser.image}
+                    image={latestUser.image}
                     alt={latestUser.id}
                     size={20}
                     name={latestUser.id}
-                  /> // todo: add avatar component
+                  />
                 ) : (
                   <div className="latest-user-not-found" />
                 )}
               </div>
             </React.Fragment>
           )}
-          <Emoji emoji={reaction.emoji} set="apple" size={20} />
+          <Emoji emoji={reaction} {...emojiSetDef} />
 
           {count && this.props.detailedView && (
             <span className="str-chat__message-reactions-list-item__count">

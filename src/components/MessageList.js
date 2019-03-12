@@ -459,15 +459,14 @@ class MessageList extends PureComponent {
             }
           >
             <ul className="str-chat__ul">{elements}</ul>
+            {this.props.typingIndicator && (
+              <TypingIndicator typing={this.props.typing} />
+            )}
             <div key="bottom" ref={this.bottomRef} />
           </ReverseInfiniteScroll>
         </div>
 
         <div className="str-chat__list-notifications">
-          {this.props.typingIndicator && (
-            <TypingIndicator typing={this.props.typing} />
-          )}
-
           <Notification active={!this.state.online}>
             Connection failure, reconnecting now...
           </Notification>

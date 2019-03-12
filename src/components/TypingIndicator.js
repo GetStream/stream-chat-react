@@ -4,18 +4,24 @@ import { Avatar } from './Avatar';
 
 export class TypingIndicator extends React.PureComponent {
   render() {
-    if (Object.keys(this.props.typing).length <= 0) {
-      return null;
-    }
+    // if (Object.keys(this.props.typing).length <= 0) {
+    //   return null;
+    // }
 
     const typing = Object.values(this.props.typing);
 
     return (
-      <div className="str-chat__typing-indicator">
+      <div
+        className={`str-chat__typing-indicator ${
+          Object.keys(this.props.typing).length > 0
+            ? 'str-chat__typing-indicator--typing'
+            : ''
+        }`}
+      >
         <div className="str-chat__typing-indicator__avatars">
           {typing.map((user) => (
             <Avatar
-              source={user.image}
+              imaage={user.image}
               size={32}
               name={user.name || user.id}
               key={user.id}

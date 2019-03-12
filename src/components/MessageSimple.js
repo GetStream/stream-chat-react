@@ -97,7 +97,7 @@ export class MessageSimple extends PureComponent {
   }
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return !this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
@@ -146,7 +146,7 @@ export class MessageSimple extends PureComponent {
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
             name={this.props.readBy[0].id}
-            source={this.props.readBy[0].image}
+            image={this.props.readBy[0].image}
             size={15}
           />
           {message.readBy.length > 1 && (
@@ -322,6 +322,7 @@ export class MessageSimple extends PureComponent {
           className={`
 						${messageClasses}
 						str-chat__message--${message.type}
+						str-chat__message--${message.status}
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message--with-reactions' : ''}
@@ -332,10 +333,17 @@ export class MessageSimple extends PureComponent {
           {this.renderStatus()}
 
           <Avatar
-            source={message.user.image}
+            image={message.user.image}
             name={message.user.name || message.user.id}
           />
-          <div className="str-chat__message-inner">
+          <div
+            className="str-chat__message-inner"
+            onClick={
+              message.status === 'failed'
+                ? this.props.retrySendMessage.bind(this, message)
+                : null
+            }
+          >
             {!message.text && (
               <React.Fragment>
                 {this.renderOptions()}
@@ -395,6 +403,11 @@ export class MessageSimple extends PureComponent {
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">
                       Error · Unsent
+                    </div>
+                  )}
+                  {message.status === 'failed' && (
+                    <div className="str-chat__simple-message--error-message">
+                      Message Failed · Click to try again
                     </div>
                   )}
                   {renderText(message.text)}

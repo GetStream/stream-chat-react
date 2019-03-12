@@ -24,7 +24,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
           {this.props.unread >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
-          <Avatar source={this.props.channel.data.image} />
+          <Avatar image={this.props.channel.data.image} />
           <div className="str-chat__channel-preview-info">
             <span className="str-chat__channel-preview-title">{name}</span>
             <span className="str-chat__channel-preview-last-message">

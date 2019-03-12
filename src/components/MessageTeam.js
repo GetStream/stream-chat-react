@@ -151,7 +151,7 @@ export class MessageTeam extends PureComponent {
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
             name={this.props.readBy[0].id}
-            source={this.props.readBy[0].image}
+            image={this.props.readBy[0].image}
             size={15}
           />
           {message.readBy.length > 1 && (
@@ -225,7 +225,7 @@ export class MessageTeam extends PureComponent {
           {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (
             <div className="str-chat__message-team-meta">
               <Avatar
-                source={message.user.image}
+                image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
               />
@@ -255,7 +255,7 @@ export class MessageTeam extends PureComponent {
             groupStyles[0] === 'single' ||
             this.props.initialMessage ? (
               <Avatar
-                source={message.user.image}
+                image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
               />

@@ -20,6 +20,7 @@ import video from './assets/video.png';
 const urlParams = new URLSearchParams(window.location.search);
 const user =
   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
+const theme = urlParams.get('theme') || 'light';
 const channelName = urlParams.get('channel') || 'demo';
 const userToken =
   urlParams.get('user_token') ||
@@ -61,7 +62,7 @@ class App extends Component {
           </div>
         </div>
         <div>
-          <Chat client={this.chatClient} theme="livestream dark">
+          <Chat client={this.chatClient} theme={`livestream ${theme}`}>
             <Channel channel={this.channel}>
               <Window hideOnThread>
                 <ChannelHeader live />

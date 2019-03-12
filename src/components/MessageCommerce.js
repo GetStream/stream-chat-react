@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Attachment } from './Attachment';
-// import { MessageActionsBox } from './MessageActionsBox';
 import { ReactionsList } from './ReactionsList';
 import { Avatar } from './Avatar';
 import { Tooltip } from './Tooltip';
@@ -8,9 +7,6 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { Gallery } from './Gallery';
 import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-// import { Modal } from './Modal';
-// import { MessageInput } from './MessageInput';
-// import { EditMessageForm } from './EditMessageForm';
 
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -146,7 +142,7 @@ export class MessageCommerce extends PureComponent {
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
             name={this.props.readBy[0].id}
-            source={this.props.readBy[0].image}
+            image={this.props.readBy[0].image}
             size={15}
           />
           {message.readBy.length > 1 && (
@@ -284,7 +280,7 @@ export class MessageCommerce extends PureComponent {
         >
           {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
             <Avatar
-              source={message.user.image}
+              image={message.user.image}
               size={32}
               name={message.user.name || message.user.id}
             />
