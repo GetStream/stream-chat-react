@@ -82,6 +82,27 @@ export class ChatAutoComplete extends PureComponent {
           const selectedCommands = this.props.commands.filter(
             (c) => c.name.indexOf(q) !== -1,
           );
+
+          // sort alphabetically unless the you're matching the first char
+          selectedCommands.sort((a, b) => {
+            let nameA = a.name.toLowerCase();
+            let nameB = b.name.toLowerCase();
+            if (nameA.indexOf(q) === 0) {
+              nameA = `0${nameA}`;
+            }
+            if (nameB.indexOf(q) === 0) {
+              nameB = `0${nameB}`;
+            }
+            if (nameA < nameB) {
+              return -1;
+            }
+            if (nameA > nameB) {
+              return 1;
+            }
+
+            return 0;
+          });
+
           return selectedCommands.slice(0, 10);
         },
         component: CommandItem,

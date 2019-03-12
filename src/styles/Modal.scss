@@ -54,3 +54,12 @@
     right: unset;
   }
 }
+
+.str-chat.dark.messaging {
+  .str-chat__modal {
+    &__inner {
+      border: 2px solid white;
+      background: black;
+    }
+  }
+}

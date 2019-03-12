@@ -90,21 +90,14 @@ export class MessageSimple extends PureComponent {
     }
   };
 
-  componentDidUpdate() {
-    if (this.props.message.deleted_at || this.props.message.type === 'error') {
-      document.removeEventListener('click', this._unfocusMessage);
-    }
-  }
-
   componentWillUnmount() {
     if (!this.props.message.deleted_at) {
-      document.removeEventListener('click', this._unfocusMessage);
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return !this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
@@ -277,29 +270,34 @@ export class MessageSimple extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.read' ||
-      message.type === 'message.date' ||
-      message.deleted_at
-    ) {
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
     if (message.deleted_at) {
       return (
         <React.Fragment>
-          <span
+          <div
             key={message.id}
             className={`${messageClasses} str-chat__message--deleted ${
               message.type
             } `}
           >
-            {message.user.id === this.props.client.user.id
-              ? 'You'
-              : message.user.name || message.user.id}{' '}
-            deleted this message...
-          </span>
-          <div className="clearfix" />
+            <div className="str-chat__message--deleted-inner">
+              {message.user.id === this.props.client.user.id
+                ? 'You'
+                : message.user.name || message.user.id}{' '}
+              deleted this message...
+            </div>
+            {!this.props.threadList && message.reply_count !== 0 && (
+              <div className="str-chat__message-simple-reply-button">
+                <MessageRepliesCountButton
+                  onClick={this.props.openThread}
+                  reply_count={message.reply_count}
+                />
+              </div>
+            )}
+          </div>
         </React.Fragment>
       );
     }
@@ -324,6 +322,7 @@ export class MessageSimple extends PureComponent {
           className={`
 						${messageClasses}
 						str-chat__message--${message.type}
+						str-chat__message--${message.status}
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message--with-reactions' : ''}
@@ -337,7 +336,14 @@ export class MessageSimple extends PureComponent {
             image={message.user.image}
             name={message.user.name || message.user.id}
           />
-          <div className="str-chat__message-inner">
+          <div
+            className="str-chat__message-inner"
+            onClick={
+              message.status === 'failed'
+                ? this.props.retrySendMessage.bind(this, message)
+                : null
+            }
+          >
             {!message.text && (
               <React.Fragment>
                 {this.renderOptions()}
@@ -397,6 +403,11 @@ export class MessageSimple extends PureComponent {
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">
                       Error · Unsent
+                    </div>
+                  )}
+                  {message.status === 'failed' && (
+                    <div className="str-chat__simple-message--error-message">
+                      Message Failed · Click to try again
                     </div>
                   )}
                   {renderText(message.text)}
