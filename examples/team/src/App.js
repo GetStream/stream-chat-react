@@ -19,6 +19,7 @@ import './App.css';
 const urlParams = new URLSearchParams(window.location.search);
 const user =
   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
+const theme = urlParams.get('theme') || 'light';
 const userToken =
   urlParams.get('user_token') ||
   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
@@ -68,7 +69,7 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient} theme="team dark">
+      <Chat client={this.chatClient} theme={`team ${theme}`}>
         <ChannelList
           channels={this.channels}
           List={ChannelListTeam}
