@@ -217,6 +217,19 @@ export class MessageSimple extends PureComponent {
               />
             </svg>
           </div>
+          {!this.props.threadList && (
+            <div
+              onClick={this.props.openThread}
+              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+            >
+              <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </div>
+          )}
         </div>
       );
     } else {
