@@ -303,7 +303,11 @@
 
   p {
     margin: 0;
+    white-space: pre-line;
     line-height: 20px;
+    &:not(:first-of-type) {
+      margin: 16px 0 0;
+    }
   }
 
   /* me */
