@@ -41,6 +41,10 @@
 
     p {
       margin: 0;
+      white-space: pre-line;
+      &:not(:first-of-type) {
+        margin: 16px 0 0;
+      }
       /* Make sure really long urls and words don't break out.
         ** https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/ */
       overflow-wrap: break-word;
