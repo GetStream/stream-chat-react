@@ -91,7 +91,7 @@ export class MessageInputFlat extends PureComponent {
               placeholder="Type your message"
               onPaste={this.props.onPaste}
               grow={this.props.grow}
-              disabled={this.props.disabled}
+              onFocus={this.props.onFocus}
             />
 
             <span

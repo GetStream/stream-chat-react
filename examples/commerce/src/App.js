@@ -78,7 +78,7 @@ class App extends Component {
                   />
                 )}
                 <MessageInput
-                  disabled={!this.state.open}
+                  onFocus={!this.state.open ? this.toggleDemo : null}
                   Input={MessageInputFlat}
                   focus
                 />

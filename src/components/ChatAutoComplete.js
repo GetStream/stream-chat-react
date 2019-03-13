@@ -138,7 +138,7 @@ export class ChatAutoComplete extends PureComponent {
             innerRef.current = ref;
           })
         }
-        disabled={this.props.disabled}
+        onFocus={this.props.onFocus}
         rows={this.props.rows}
         className="str-chat__textarea__textarea"
         containerClassName="str-chat__textarea"

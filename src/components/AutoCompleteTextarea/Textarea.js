@@ -745,6 +745,7 @@ class ReactTextareaAutocomplete extends React.Component {
             this._onClickAndBlurHandler
           }
           onBlur={this._onClickAndBlurHandler}
+          onFocus={this.props.onFocus}
           value={value}
           style={style}
         />
