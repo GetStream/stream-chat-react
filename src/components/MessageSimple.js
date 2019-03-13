@@ -29,6 +29,12 @@ export class MessageSimple extends PureComponent {
     message: PropTypes.object,
     /** The attachment component */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** The message component, most logic is delegated to this component */
+    Message: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+      PropTypes.object,
+    ]).isRequired,
   };
 
   static defaultProps = {
@@ -182,6 +188,9 @@ export class MessageSimple extends PureComponent {
     if (this.props.message.type === 'error' || this.props.initialMessage) {
       return;
     }
+
+    const { message, Message } = this.props;
+
     if (this.isMine()) {
       return (
         <div className="str-chat__message-simple__actions">
@@ -235,6 +244,30 @@ export class MessageSimple extends PureComponent {
     } else {
       return (
         <div className="str-chat__message-simple__actions">
+          {(Message.canEditMessage(message) ||
+            Message.canDeleteMessage(message)) && (
+            <div
+              onClick={this._onClickOptionsAction}
+              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+            >
+              <MessageActionsBox
+                Message={Message}
+                open={this.state.actionsBoxOpen}
+                message={message}
+              />
+              <svg
+                width="11"
+                height="3"
+                viewBox="0 0 11 3"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+                  fillRule="nonzero"
+                />
+              </svg>
+            </div>
+          )}
           <div
             className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
             onClick={this._clickReactionList}
