@@ -2,17 +2,85 @@ import anchorme from 'anchorme';
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown';
 import truncate from 'lodash/truncate';
-
+import data from 'emoji-mart/data/all.json';
 import React from 'react';
 
-export const REACTIONS = {
-  love: 'heart',
-  sad: 'pensive',
-  angry: 'angry',
-  haha: 'joy',
-  like: 'thumbsup',
-  wow: 'astonished',
+export const emojiSetDef = {
+  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
+  size: 20,
+  sheetColumns: 2,
+  sheetRows: 3,
+  sheetSize: 64,
 };
+
+export const commonEmoji = {
+  emoticons: [],
+  short_names: [],
+  custom: true,
+};
+
+export const defaultMinimalEmojis = [
+  {
+    id: 'like',
+    name: 'like',
+    colons: ':+1:',
+    sheet_x: 0,
+    sheet_y: 0,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+  {
+    id: 'love',
+    name: 'love',
+    colons: ':heart:',
+    sheet_x: 1,
+    sheet_y: 2,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+  {
+    id: 'haha',
+    name: 'haha',
+    colons: ':joy:',
+    sheet_x: 1,
+    sheet_y: 0,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+  {
+    id: 'wow',
+    name: 'wow',
+    colons: ':astonished:',
+    sheet_x: 0,
+    sheet_y: 2,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+  {
+    id: 'sad',
+    name: 'sad',
+    colons: ':pensive:',
+    sheet_x: 0,
+    sheet_y: 1,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+  {
+    id: 'angry',
+    name: 'angry',
+    colons: ':angry:',
+    sheet_x: 1,
+    sheet_y: 1,
+    ...commonEmoji,
+    ...emojiSetDef,
+  },
+];
+
+const d = Object.assign({}, data);
+d.emojis = {};
+
+// use this only for small lists like in ReactionSelector
+export const emojiData = d;
 
 export const isOnlyEmojis = (text) => {
   if (!text) return false;
@@ -34,6 +102,7 @@ export const formatArray = (dict) => {
   const arr2 = Object.keys(dict);
   const arr3 = [];
   arr2.forEach((item, i) => arr3.push(dict[arr2[i]].name || dict[arr2[i]].id));
+
   let outStr = '';
   if (arr3.length === 1) {
     outStr = arr3[0] + ' is typing...';
@@ -90,13 +159,12 @@ export const renderText = (message) => {
     message = message.replace(urlInfo.raw, mkdown);
   }
 
-  message = message.replace(/\n/g, '\n\n');
-
   return (
     <ReactMarkdown
       allowedTypes={allowed}
       source={message}
       linkTarget="_blank"
+      plugins={[]}
       skipHtml={true}
     />
   );

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Emoji } from 'emoji-mart';
+import { NimbleEmoji } from 'emoji-mart';
 
-import { REACTIONS } from '../utils';
+import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 
 export class SimpleReactionsList extends React.PureComponent {
   static propTypes = {
@@ -11,10 +11,14 @@ export class SimpleReactionsList extends React.PureComponent {
     reaction_coutns: PropTypes.object,
     renderReactions: PropTypes.func,
     showTooltip: PropTypes.bool,
+    /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+    reactionOptions: PropTypes.array,
   };
 
   static defaultProps = {
     showTooltip: true,
+    reactionOptions: defaultMinimalEmojis,
+    emojiSetDef,
   };
 
   state = {
@@ -88,6 +92,10 @@ export class SimpleReactionsList extends React.PureComponent {
 
   renderReactions = (reactions) => {
     const reactionsByType = this.getReactionsByType(reactions);
+    const reactionsEmojis = this.props.reactionOptions.reduce(
+      (acc, cur) => ({ ...acc, [cur.id]: cur }),
+      {},
+    );
     return Object.keys(reactionsByType).map((type) => (
       <li
         className="str-chat__simple-reactions-list-item"
@@ -95,7 +103,12 @@ export class SimpleReactionsList extends React.PureComponent {
         onClick={(e) => this.handleReaction(e, type)}
       >
         <span onMouseEnter={() => this.setUsernames(type)}>
-          <Emoji emoji={REACTIONS[type]} set="apple" size={13} />
+          <NimbleEmoji
+            emoji={reactionsEmojis[type]}
+            {...emojiSetDef}
+            size={13}
+            data={emojiData}
+          />
           &nbsp;
         </span>
       </li>

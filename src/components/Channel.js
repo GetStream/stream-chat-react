@@ -133,7 +133,7 @@ class ChannelInner extends PureComponent {
   }
 
   componentWillUnmount() {
-    this.props.channel.off(this.boundHandler);
+    this.props.channel.off(this.handleEvent);
     if (this.visibilityListener) {
       Visibility.unbind(this.visibilityListener);
     }
@@ -334,7 +334,13 @@ class ChannelInner extends PureComponent {
       e.message &&
       e.message.id === this.state.thread.id
     ) {
-      threadState['thread'] = e.message;
+      threadState['thread'] = channel.state.messageToImmutable(e.message);
+    }
+
+    if (Object.keys(threadState).length > 0) {
+      // TODO: in theory we should do 1 setState call not 2,
+      // However the setStateThrottled doesn't support this
+      this.setState(threadState);
     }
 
     if (e.type === 'message.new') {
@@ -358,7 +364,6 @@ class ChannelInner extends PureComponent {
       read: channel.state.read,
       typing: channel.state.typing,
       online: channel.state.online,
-      ...threadState,
     });
   };
 

@@ -1,75 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { Emoji } from 'emoji-mart';
+import { NimbleEmoji } from 'emoji-mart';
 
 import { Avatar } from './Avatar';
 
-const emojiSetDef = {
-  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
-  size: 20,
-  sheetColumns: 2,
-  sheetRows: 3,
-};
-
-const commonEmoji = {
-  emoticons: [],
-  short_names: [],
-  custom: true,
-};
-
-const defaultMinimalEmojis = [
-  {
-    name: 'like',
-    short_names: ['a'],
-    colons: ':+1:',
-    sheet_x: 0,
-    sheet_y: 0,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-  {
-    name: 'love',
-    colons: ':heart:',
-    keywords: ['love'],
-    sheet_x: 1,
-    sheet_y: 2,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-  {
-    name: 'haha',
-    colons: ':joy:',
-    sheet_x: 1,
-    sheet_y: 0,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-  {
-    name: 'wow',
-    colons: ':astonished:',
-    sheet_x: 0,
-    sheet_y: 2,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-  {
-    name: 'sad',
-    colons: ':pensive:',
-    sheet_x: 0,
-    sheet_y: 1,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-  {
-    name: 'angry',
-    colons: ':angry:',
-    sheet_x: 1,
-    sheet_y: 1,
-    ...commonEmoji,
-    ...emojiSetDef,
-  },
-];
+import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 
 /**
  * ReactionSelector - A component for selecting a reaction. Examples are love, wow, like etc.
@@ -195,16 +131,17 @@ export class ReactionSelector extends PureComponent {
   renderReactionItems = () => {
     const { reaction_counts, latest_reactions } = this.props;
     const lis = this.props.reactionOptions.map((reaction) => {
-      const users = this.getUserNames(latest_reactions, reaction.name);
-      const latestUser = this.getLatestUser(latest_reactions, reaction.name);
+      const users = this.getUserNames(latest_reactions, reaction.id);
+      const latestUser = this.getLatestUser(latest_reactions, reaction.id);
 
-      const count = reaction_counts && reaction_counts[reaction.name];
+      const count = reaction_counts && reaction_counts[reaction.id];
+
       return (
         <li
-          key={`item-${reaction.name}`}
+          key={`item-${reaction.id}`}
           className="str-chat__message-reactions-list-item"
-          data-text={reaction.name}
-          onClick={this.props.handleReaction.bind(this, reaction.name)}
+          data-text={reaction.id}
+          onClick={this.props.handleReaction.bind(this, reaction.id)}
         >
           {count && this.props.detailedView && (
             <React.Fragment>
@@ -226,7 +163,7 @@ export class ReactionSelector extends PureComponent {
               </div>
             </React.Fragment>
           )}
-          <Emoji emoji={reaction} {...emojiSetDef} />
+          <NimbleEmoji emoji={reaction} {...emojiSetDef} data={emojiData} />
 
           {count && this.props.detailedView && (
             <span className="str-chat__message-reactions-list-item__count">
