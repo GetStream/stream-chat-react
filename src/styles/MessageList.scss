@@ -23,6 +23,10 @@
   margin: 0;
 }
 
+.str-chat__reverse-infinite-scroll {
+  will-change: transform;
+}
+
 .str-chat__connection-issue {
   // margin: 40px;
   background: rgba(208, 2, 27, 0.1);

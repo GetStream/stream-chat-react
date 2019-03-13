@@ -16,6 +16,7 @@ export class ReverseInfiniteScroll extends Component {
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
     useWindow: PropTypes.bool,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -29,6 +30,7 @@ export class ReverseInfiniteScroll extends Component {
     isReverse: true,
     useCapture: false,
     loader: null,
+    className: 'str-chat__reverse-infinite-scroll',
   };
 
   constructor(props) {
