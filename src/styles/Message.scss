@@ -407,12 +407,6 @@
     align-items: flex-start;
   }
 
-  /* set attachment padding based on you or me */
-
-  /* .str-chat__message-attachment {padding-right:64px; padding-left: 0px;} */
-
-  /* &--me { .str-chat__message-attachment {padding-right:0px; padding-left:54px;} } */
-
   /* deleted messages */
   &--deleted {
     margin: 0 0 0 42px;
@@ -459,8 +453,6 @@
     &.str-chat__message--failed {
       border-left: initial;
       margin-right: 42px;
-      .str-chat__message-text-inner {
-      }
     }
   }
 }
@@ -475,10 +467,6 @@
           margin-top: 30px;
         }
       }
-      &__message {
-        &-me {
-        }
-      }
 
       &__message-attachment--image {
         margin: 1px 0;
@@ -490,7 +478,6 @@
         line-height: normal;
       }
       &__message-attachment-card {
-        // height: auto;
         margin: 1px auto;
         line-height: normal;
         &--title {
@@ -513,8 +500,6 @@
             .str-chat__message-attachment--card,
             .str-chat__message-attachment--image {
               border-top-left-radius: 2px;
-            }
-            &--me {
             }
           }
         }
@@ -649,9 +634,6 @@
       }
 
       &-text-inner {
-        // margin-right: 5px;
-        // margin-left: 5px;
-
         &--is-emoji {
           background-color: transparent;
           line-height: 32px;
@@ -738,8 +720,6 @@
 
     &--content {
       background: #ebebeb;
-
-      /* border: 1px solid rgba(0,0,0,0.08); */
     }
 
     &--text {
@@ -889,11 +869,6 @@
 .dark.str-chat {
   .str-chat__message-simple__actions__action--options .str-chat__actions-box {
     background: #67686a;
-    // background-image: linear-gradient(
-    //   -180deg,
-    //   rgba(255, 255, 255, 0.02) 0%,
-    //   rgba(0, 0, 0, 0.02) 100%
-    // );
     box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.22), 0 1px 0 0 rgba(0, 0, 0, 0.08),
       0 1px 8px 0 rgba(0, 0, 0, 0.05);
   }
