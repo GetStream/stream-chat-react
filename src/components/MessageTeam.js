@@ -103,7 +103,7 @@ export class MessageTeam extends PureComponent {
   // https://stackoverflow.com/a/29234240/7625485
   formatArray = (arr) => {
     let outStr = '';
-    const slicedArr = arr.map((item) => item.id).slice(0, 5);
+    const slicedArr = arr.map((item) => item.name || item.id).slice(0, 5);
     const restLength = arr.length - slicedArr.length;
     const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
 
