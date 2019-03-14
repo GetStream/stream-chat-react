@@ -2,8 +2,6 @@ import React, { PureComponent } from 'react';
 import { Attachment } from './Attachment';
 import { ReactionsList } from './ReactionsList';
 import { Avatar } from './Avatar';
-import { Tooltip } from './Tooltip';
-import { LoadingIndicator } from './LoadingIndicator';
 import { Gallery } from './Gallery';
 import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
@@ -95,84 +93,6 @@ export class MessageCommerce extends PureComponent {
   isMine() {
     return this.props.Message.isMyMessage(this.props.message);
   }
-
-  formatArray = (arr) => {
-    let outStr = '';
-    const slicedArr = arr.map((item) => item.id).slice(0, 5);
-    const restLength = arr.length - slicedArr.length;
-    const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = slicedArr.join(' and ') + ' ';
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, and sam"
-      outStr = slicedArr.join(', ') + lastStr;
-    }
-
-    return outStr;
-  };
-
-  renderStatus = () => {
-    const message = this.props;
-    if (!this.isMine() || this.props.message.type === 'error') {
-      return null;
-    }
-    const justReadByMe =
-      message.readBy.length === 1 &&
-      message.readBy[0].id === this.props.client.user.id;
-    if (this.props.message.status === 'sending') {
-      return (
-        <span className="str-chat__message-commerce-status">
-          <Tooltip>Sending...</Tooltip>
-          <LoadingIndicator isLoading />
-        </span>
-      );
-    } else if (
-      message.readBy.length !== 0 &&
-      !this.props.threadList &&
-      !justReadByMe
-    ) {
-      return (
-        <span className="str-chat__message-commerce-status">
-          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
-          <Avatar
-            name={this.props.readBy[0].id}
-            image={this.props.readBy[0].image}
-            size={15}
-          />
-          {message.readBy.length > 1 && (
-            <span className="str-chat__message-commerce-status-number">
-              {message.readBy.length}
-            </span>
-          )}
-        </span>
-      );
-    } else if (
-      this.props.message.status === 'received' &&
-      this.props.message.id === this.props.lastReceivedId &&
-      !this.props.threadList
-    ) {
-      return (
-        <span className="str-chat__message-commerce-status">
-          <Tooltip>Delivered</Tooltip>
-          <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.72 6.633a.955.955 0 1 0-1.352-1.352L6.986 8.663 5.633 7.31A.956.956 0 1 0 4.28 8.663l2.029 2.028a.956.956 0 0 0 1.353 0l4.058-4.058z"
-              fill="#006CFF"
-              fillRule="evenodd"
-            />
-          </svg>
-        </span>
-      );
-    } else {
-      return null;
-    }
-  };
 
   renderOptions() {
     if (this.props.message.type === 'error' || this.props.initialMessage) {
