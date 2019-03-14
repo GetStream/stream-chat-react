@@ -57,6 +57,23 @@ export class ChannelPreview extends PureComponent {
     }
   }
 
+  getLatestMessage = () => {
+    const { channel } = this.props;
+    const latestMessage =
+      channel.state.messages[channel.state.messages.length - 1];
+    if (!latestMessage) {
+      return 'Nothing yet...';
+    }
+    if (latestMessage.text) {
+      return latestMessage.text;
+    } else {
+      if (latestMessage.command) {
+        return '/' + latestMessage.command;
+      }
+      return 'Empty message...';
+    }
+  };
+
   render() {
     const props = { ...this.state, ...this.props };
 
@@ -65,6 +82,7 @@ export class ChannelPreview extends PureComponent {
     return (
       <Preview
         {...props}
+        latestMessage={this.getLatestMessage()}
         active={this.props.activeChannel.cid === this.props.channel.cid}
       />
     );

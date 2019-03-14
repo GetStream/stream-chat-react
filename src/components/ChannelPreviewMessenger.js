@@ -38,11 +38,7 @@ export class ChannelPreviewMessenger extends PureComponent {
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
               ? 'Nothing yet...'
-              : truncate(
-                  channel.state.messages[channel.state.messages.length - 1]
-                    .text,
-                  14,
-                )}
+              : truncate(this.props.latestMessage, 14)}
           </div>
         </div>
       </button>

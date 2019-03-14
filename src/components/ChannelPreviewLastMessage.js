@@ -30,9 +30,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
             <span className="str-chat__channel-preview-last-message">
               {!this.props.channel.state.messages[0]
                 ? 'Nothing yet...'
-                : this.props.channel.state.messages[
-                    this.props.channel.state.messages.length - 1
-                  ].text}
+                : this.props.latestMessage}
             </span>
             {this.props.unread >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
