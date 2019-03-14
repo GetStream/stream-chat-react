@@ -2,7 +2,7 @@
   font-family: $second-font;
   display: flex;
   height: 100%;
-
+  overflow-y: auto;
   &__sidebar {
     display: flex;
     flex-direction: column;

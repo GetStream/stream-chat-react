@@ -1,7 +1,7 @@
 .str-chat__channel-list {
   /* min-height: 667px; */
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   max-width: 300px;
   background: #f2f3f5;
   box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.07);
