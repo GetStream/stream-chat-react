@@ -61,18 +61,10 @@ class MessageList extends PureComponent {
   componentDidMount() {
     // start at the bottom
     this.scrollToBottom();
-    const {
-      left,
-      right,
-      width,
-    } = this.messageList.current.getBoundingClientRect();
+    const messageListRect = this.messageList.current.getBoundingClientRect();
 
     this.setState({
-      messageListRect: {
-        left,
-        right,
-        width,
-      },
+      messageListRect,
     });
 
     this.props.client.on('connection.changed', this.connectionChanged);

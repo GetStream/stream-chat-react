@@ -29,7 +29,7 @@ export class ReactionsList extends React.Component {
     if (this.props.mine && this.reactionList && this.props.messageList) {
       this.setState({
         reverse:
-          this.reactionList.current.getBoundingClientRect().right >
+          this.reactionList.current.getBoundingClientRect().right + 100 >
           this.props.messageList.right
             ? true
             : false,
@@ -41,12 +41,13 @@ export class ReactionsList extends React.Component {
     ) {
       this.setState({
         reverse:
-          this.reactionList.current.getBoundingClientRect().left <
+          this.reactionList.current.getBoundingClientRect().left + 100 <
           this.props.messageList.left
             ? true
             : false,
       });
     }
+    console.log(this.props.messageList);
   }
 
   _renderReactions = (reactions) => {
