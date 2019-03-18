@@ -9,24 +9,32 @@ export class TypingIndicator extends React.PureComponent {
     // }
 
     const typing = Object.values(this.props.typing);
-
+    let show;
+    if (
+      typing.length === 0 ||
+      (typing.length === 1 && typing[0].user.id === this.props.client.user.id)
+    ) {
+      show = false;
+    } else {
+      show = true;
+    }
     return (
       <div
         className={`str-chat__typing-indicator ${
-          Object.keys(this.props.typing).length > 0
-            ? 'str-chat__typing-indicator--typing'
-            : ''
+          show ? 'str-chat__typing-indicator--typing' : ''
         }`}
       >
         <div className="str-chat__typing-indicator__avatars">
-          {typing.map(({ user }) => (
-            <Avatar
-              image={user.image}
-              size={32}
-              name={user.name || user.id}
-              key={user.id}
-            />
-          ))}
+          {typing
+            .filter(({ user }) => user.id !== this.props.client.user.id)
+            .map(({ user }) => (
+              <Avatar
+                image={user.image}
+                size={32}
+                name={user.name || user.id}
+                key={user.id}
+              />
+            ))}
         </div>
         <div className="str-chat__typing-indicator__dots">
           <span className="str-chat__typing-indicator__dot" />

@@ -452,7 +452,10 @@ class MessageList extends PureComponent {
           >
             <ul className="str-chat__ul">{elements}</ul>
             {this.props.typingIndicator && (
-              <TypingIndicator typing={this.props.typing} />
+              <TypingIndicator
+                typing={this.props.typing}
+                client={this.props.client}
+              />
             )}
             <div key="bottom" ref={this.bottomRef} />
           </ReverseInfiniteScroll>
