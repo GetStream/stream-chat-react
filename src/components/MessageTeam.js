@@ -57,9 +57,6 @@ export class MessageTeam extends PureComponent {
       () => document.addEventListener('click', this.hideReactions, false),
     );
   };
-  onClickThreadAction = () => {
-    console.log('onClickThreadAction');
-  };
 
   onClickOptionsAction = () => {
     this.setState(

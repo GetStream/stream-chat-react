@@ -12,9 +12,7 @@ export class Modal extends React.PureComponent {
   }
 
   handleEscKey(e) {
-    console.log('keypress');
     if (e.keyCode === 27) {
-      console.log('escapekeypressed');
       this.props.onClose();
       document.removeEventListener('keyPress', this.handleEscKey, false);
     }

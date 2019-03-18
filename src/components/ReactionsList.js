@@ -47,7 +47,6 @@ export class ReactionsList extends React.Component {
             : false,
       });
     }
-    console.log(this.props.messageList);
   }
 
   _renderReactions = (reactions) => {
