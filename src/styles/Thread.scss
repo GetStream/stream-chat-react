@@ -59,6 +59,9 @@
         margin-top: 20px;
         border-radius: 8px 8px 0 0;
         background: white;
+        &.str-chat__thread--full {
+          margin: 0;
+        }
       }
       &__thread-list {
         padding: 0 10px;
