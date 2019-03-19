@@ -26,13 +26,46 @@ export class MessageActionsBox extends React.Component {
     open: false,
   };
 
+  actionsBoxRef = React.createRef();
+
+  state = {
+    reverse: false,
+    rect: null,
+  };
+
+  componentDidMount() {}
+
+  async componentDidUpdate(prevProps) {
+    if (!prevProps.open && this.props.open) {
+      if (this.state.rect === null) {
+        await this.setState({
+          rect: this.actionsBoxRef.current.getBoundingClientRect(),
+        });
+      }
+      const ml = this.props.messageListRect;
+
+      if (this.props.mine) {
+        this.setState({
+          reverse: this.state.rect.left < ml.left ? true : false,
+        });
+      } else if (!this.props.mine) {
+        this.setState({
+          reverse: this.state.rect.right + 5 > ml.right ? true : false,
+        });
+      }
+    }
+  }
+
   render() {
     const { Message, message } = this.props;
     return (
       <div
-        className={`str-chat__message-actions-box ${
-          this.props.open ? 'str-chat__message-actions-box--open' : ''
-        }`}
+        className={`str-chat__message-actions-box
+          ${this.props.open ? 'str-chat__message-actions-box--open' : ''}
+          ${this.props.mine ? 'str-chat__message-actions-box--mine' : ''}
+          ${this.state.reverse ? 'str-chat__message-actions-box--reverse' : ''}
+        `}
+        ref={this.actionsBoxRef}
       >
         <ul className="str-chat__message-actions-list">
           {!Message.isMyMessage(message) && (

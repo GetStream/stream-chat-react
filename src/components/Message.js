@@ -85,14 +85,23 @@ export class Message extends Component {
       reason = 'editing';
     }
 
+    // editing is the last one which can trigger a change..
+    if (
+      !shouldUpdate &&
+      nextProps.messageListRect !== this.props.messageListRect
+    ) {
+      shouldUpdate = true;
+      reason = 'messageListRect';
+    }
+
     if (shouldUpdate && reason) {
-      console.log(
-        'message',
-        nextProps.message.id,
-        'shouldUpdate',
-        shouldUpdate,
-        reason,
-      );
+      // console.log(
+      //   'message',
+      //   nextProps.message.id,
+      //   'shouldUpdate',
+      //   shouldUpdate,
+      //   reason,
+      // );
       // console.log(reason, diff(this.props, nextProps));
     }
 

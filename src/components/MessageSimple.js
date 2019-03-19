@@ -202,6 +202,8 @@ export class MessageSimple extends PureComponent {
               Message={this.props.Message}
               open={this.state.actionsBoxOpen}
               message={this.props.message}
+              messageListRect={this.props.messageListRect}
+              mine={this.isMine()}
             />
             <svg
               width="11"
@@ -259,6 +261,8 @@ export class MessageSimple extends PureComponent {
                 Message={Message}
                 open={this.state.actionsBoxOpen}
                 message={message}
+                messageListRect={this.props.messageListRect}
+                mine={this.isMine()}
               />
               <svg
                 width="11"

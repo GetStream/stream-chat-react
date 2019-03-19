@@ -540,13 +540,6 @@
         &--options {
           position: relative;
           display: none;
-          .str-chat__message-actions-box {
-            bottom: 10px;
-            left: unset;
-            right: 100%;
-            width: 120px;
-            border-radius: 16px 16px 2px 16px;
-          }
         }
       }
     }
@@ -883,22 +876,25 @@
   }
 }
 
-@media screen and (max-width: 470px) {
-  .str-chat__message-simple {
-    .str-chat__message-simple__actions__action--options {
-      .str-chat__message-actions-box {
-        left: unset;
+.str-chat__message {
+  .str-chat__message-simple__actions__action--options {
+    .str-chat__message-actions-box {
+      left: 100%;
+      right: unset;
+      &--reverse {
         right: 100%;
-        border-radius: $border-radius $border-radius $border-radius 0;
+        left: unset;
+        border-radius: $border-radius $border-radius 2px $border-radius;
       }
     }
-    &--me {
-      .str-chat__message-simple__actions__action--options {
-        .str-chat__message-actions-box {
-          left: 100%;
-          right: unset;
-          border-radius: $border-radius $border-radius $border-radius 0;
-        }
+    .str-chat__message-actions-box--mine {
+      right: 100%;
+      left: unset;
+      border-radius: $border-radius $border-radius 2px $border-radius;
+      &.str-chat__message-actions-box--reverse {
+        left: 100%;
+        right: unset;
+        border-radius: $border-radius $border-radius $border-radius 2px;
       }
     }
   }
