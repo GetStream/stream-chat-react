@@ -26,7 +26,7 @@
     min-width: 0px;
     &,
     & > * {
-      white-space: nowrap;
+      // white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
