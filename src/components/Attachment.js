@@ -37,7 +37,7 @@ export class Attachment extends PureComponent {
     }
     if (a.type === 'giphy' || a.type === 'imgur') {
       type = 'card';
-    } else if (a.type === 'image' && a.title_link) {
+    } else if (a.type === 'image' && (a.title_link || a.og_scrape_url)) {
       type = 'card';
     } else if (a.type === 'image') {
       type = 'image';
@@ -50,7 +50,7 @@ export class Attachment extends PureComponent {
       extra = 'no-image';
     }
 
-    if (type === 'card' && !a.title_link) {
+    if (type === 'card' && !a.title_link && !a.og_scrape_url) {
       return null;
     }
     const results = [];

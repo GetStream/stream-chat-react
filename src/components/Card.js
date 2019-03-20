@@ -12,7 +12,8 @@ import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
 export class Card extends React.PureComponent {
   static propTypes = {
     title: PropTypes.string.isRequired,
-    title_link: PropTypes.string.isRequired,
+    title_link: PropTypes.string,
+    og_scrape_url: PropTypes.string,
     /** The full size image url */
     image_url: PropTypes.string,
     /** The thumb url */
@@ -54,9 +55,10 @@ export class Card extends React.PureComponent {
       );
     }
 
-    if (!title_link) {
+    if (!title_link && !og_scrape_url) {
       return null;
     }
+
     return (
       <div className="str-chat__message-attachment-card">
         {image && (
