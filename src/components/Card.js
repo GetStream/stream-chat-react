@@ -67,7 +67,7 @@ export class Card extends React.PureComponent {
           </div>
         )}
         <div className="str-chat__message-attachment-card--content">
-          <div>
+          <div className="str-chat__message-attachment-card--flex">
             {title && (
               <div className="str-chat__message-attachment-card--title">
                 {title}

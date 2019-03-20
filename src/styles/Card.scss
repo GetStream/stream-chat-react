@@ -6,8 +6,6 @@
   font-size: 13px;
   border: 1px solid $border-color;
   margin: 32px 0 0 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   &--header {
     width: 100%;
     height: 175px;
@@ -21,6 +19,17 @@
 
   &--title {
     font-weight: 700;
+    flex: 1;
+  }
+
+  &--flex {
+    min-width: 0px;
+    &,
+    & > * {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &--content {
@@ -54,11 +63,9 @@
 }
 
 .str-chat.commerce {
-  .str-chat__message-attachment-card--title {
+  .str-chat__message-attachment-card {
+    max-width: 375px;
     width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 
