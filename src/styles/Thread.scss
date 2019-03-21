@@ -45,8 +45,10 @@
   &-list {
     height: 100%;
     overflow-y: auto;
+
     .str-chat__list {
       overflow-y: hidden;
+      padding: 40px 0;
     }
   }
 }
@@ -69,7 +71,7 @@
         > .str-chat__list {
           background: transparent;
           overflow-y: hidden;
-          padding: 0;
+          padding: 40px 0 0;
           .str-chat__list--thread {
             padding: 0;
             overflow-y: hidden;
