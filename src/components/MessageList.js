@@ -237,13 +237,19 @@ class MessageList extends PureComponent {
 
       if (nextMessage && nextMessage.type === 'message.read') {
         const readBy = [];
+
         for (let inner = i + 1; inner < l; inner++) {
-          if (messages[inner].type === 'message.read') {
+          if (
+            messages[inner].type === 'message.read' &&
+            messages[inner].lastMessageID &&
+            messages[inner].lastMessageID === message.id
+          ) {
             readBy.push(messages[inner].user);
           } else {
             break;
           }
         }
+
         readData[message.id] = readBy;
       }
     }
@@ -361,7 +367,6 @@ class MessageList extends PureComponent {
 
     for (const readData of Object.values(this.props.read)) {
       const readMessage = { ...readData };
-      readMessage.created_at = new Date(readMessage.created_at);
       readMessage.type = 'message.read';
       allMessages.push(readMessage);
     }
@@ -375,6 +380,7 @@ class MessageList extends PureComponent {
 
     const lastReceivedId = this.getLastReceived(allMessages);
     const elements = [];
+
     // loop over the messages
     for (const message of allMessages) {
       if (message.id) {
@@ -396,6 +402,7 @@ class MessageList extends PureComponent {
           groupStyles = [];
         }
         const readBy = readData[message.id] || [];
+
         elements.push(
           <li
             className={`str-chat__li str-chat__li--${groupStyles}`}
