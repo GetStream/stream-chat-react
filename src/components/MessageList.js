@@ -228,31 +228,25 @@ class MessageList extends PureComponent {
   };
 
   getReadStates = (messages) => {
+    // create object with empty array for each message id
     const readData = {};
-    const l = messages.length;
+    for (const message of messages) {
+      readData[message.id] = [];
+    }
 
-    for (let i = 0; i < l; i++) {
-      const message = messages[i];
-      const nextMessage = messages[i + 1];
+    // get all the read events
+    const readEvents = Object.values(this.props.read);
 
-      if (nextMessage && nextMessage.type === 'message.read') {
-        const readBy = [];
-
-        for (let inner = i + 1; inner < l; inner++) {
-          if (
-            messages[inner].type === 'message.read' &&
-            messages[inner].lastMessageID &&
-            messages[inner].lastMessageID === message.id
-          ) {
-            readBy.push(messages[inner].user);
-          } else {
-            break;
-          }
-        }
-
-        readData[message.id] = readBy;
+    // match readevents with lastMessageId with the correct id
+    for (const event of readEvents) {
+      if (event.lastMessageID) {
+        readData[event.lastMessageID] = [
+          ...readData[event.lastMessageID],
+          event.user,
+        ];
       }
     }
+
     return readData;
   };
 
@@ -365,17 +359,12 @@ class MessageList extends PureComponent {
     const TypingIndicator = this.props.typingIndicator;
     const DateSeparator = this.props.dateSeparator;
 
-    for (const readData of Object.values(this.props.read)) {
-      const readMessage = { ...readData };
-      readMessage.type = 'message.read';
-      allMessages.push(readMessage);
-    }
-
     // sort by date
     allMessages.sort(function(a, b) {
       return a.created_at - b.created_at;
     });
 
+    // get the readData
     const readData = this.getReadStates(allMessages);
 
     const lastReceivedId = this.getLastReceived(allMessages);
