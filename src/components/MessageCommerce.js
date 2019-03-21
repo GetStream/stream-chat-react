@@ -178,7 +178,6 @@ export class MessageCommerce extends PureComponent {
         </React.Fragment>
       );
     }
-
     return (
       <React.Fragment>
         <div
@@ -212,9 +211,8 @@ export class MessageCommerce extends PureComponent {
                 {/* if reactions show them */}
                 {hasReactions > 0 && !this.state.showDetailedReactions && (
                   <ReactionsList
-                    mine={this.isMine()}
+                    mine={!this.isMine()}
                     messageList={this.props.messageListRect}
-                    position={this.isMine() ? 'right' : 'left'}
                     reactions={message.latest_reactions}
                     reaction_counts={message.reaction_counts}
                     onClick={this._clickReactionList}
@@ -269,9 +267,8 @@ export class MessageCommerce extends PureComponent {
                   {/* if reactions show them */}
                   {hasReactions > 0 && !this.state.showDetailedReactions && (
                     <ReactionsList
-                      mine={this.isMine()}
+                      mine={!this.isMine()}
                       messageList={this.props.messageListRect}
-                      position={this.isMine() ? 'right' : 'left'}
                       reactions={message.latest_reactions}
                       reaction_counts={message.reaction_counts}
                       onClick={this._clickReactionList}

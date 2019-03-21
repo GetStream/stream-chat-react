@@ -41,7 +41,7 @@ export class ReactionsList extends React.Component {
     ) {
       this.setState({
         reverse:
-          this.reactionList.current.getBoundingClientRect().left + 100 <
+          this.reactionList.current.getBoundingClientRect().left - 45 <
           this.props.messageList.left
             ? true
             : false,
