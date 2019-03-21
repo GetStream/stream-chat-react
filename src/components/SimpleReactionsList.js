@@ -96,10 +96,10 @@ export class SimpleReactionsList extends React.PureComponent {
       (acc, cur) => ({ ...acc, [cur.id]: cur }),
       {},
     );
-    return Object.keys(reactionsByType).map((type) => (
+    return Object.keys(reactionsByType).map((type, i) => (
       <li
         className="str-chat__simple-reactions-list-item"
-        key={reactionsByType[type][0].id}
+        key={`${reactionsByType[type][0].id}-${i}`}
         onClick={(e) => this.handleReaction(e, type)}
       >
         <span onMouseEnter={() => this.setUsernames(type)}>
@@ -160,8 +160,8 @@ export class SimpleReactionsList extends React.PureComponent {
             {this.renderUsernames(this.state.users)}
           </div>
         )}
-        {this.renderReactions(this.props.reactions)}
-        {this.props.reactions.length !== 0 && (
+        {this.renderReactions(reactions)}
+        {reactions.length !== 0 && (
           <li className="str-chat__simple-reactions-list-item--last-number">
             {this.getReactionCount()}
           </li>
