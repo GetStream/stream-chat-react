@@ -70,6 +70,9 @@ export class ChannelPreview extends PureComponent {
       if (latestMessage.command) {
         return '/' + latestMessage.command;
       }
+      if (latestMessage.attachments.length) {
+        return 'attachment';
+      }
       return 'Empty message...';
     }
   };
