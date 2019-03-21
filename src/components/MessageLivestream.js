@@ -204,6 +204,8 @@ export class MessageLivestream extends React.PureComponent {
                   open={this.state.actionsBoxOpen}
                   Message={this.props.Message}
                   message={this.props.message}
+                  messageListRect={this.props.messageListRect}
+                  mine={this.props.Message.isMyMessage(this.props.message)}
                 />
               </span>
             </div>

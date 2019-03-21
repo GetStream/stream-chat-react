@@ -328,6 +328,10 @@ export class MessageTeam extends PureComponent {
                         Message={this.props.Message}
                         open={this.state.actionsBoxOpen}
                         message={this.props.message}
+                        messageListRect={this.props.messageListRect}
+                        mine={this.props.Message.isMyMessage(
+                          this.props.message,
+                        )}
                       />
                     </span>
                   </div>
