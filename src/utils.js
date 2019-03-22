@@ -104,7 +104,6 @@ export const formatArray = (dict) => {
   arr2.forEach((item, i) =>
     arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id),
   );
-  console.log(dict);
   let outStr = '';
   if (arr3.length === 1) {
     outStr = arr3[0] + ' is typing...';
