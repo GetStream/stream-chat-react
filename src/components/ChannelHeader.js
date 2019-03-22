@@ -13,6 +13,8 @@ class ChannelHeader extends PureComponent {
   static propTypes = {
     /** Via Context: the channel to render */
     channel: PropTypes.object.isRequired,
+    /** Set title manually */
+    title: PropTypes.string,
     /** Via Context: the number of online users */
     online: PropTypes.number,
     /** Show a little indicator that the channel is live right now */
@@ -31,7 +33,7 @@ class ChannelHeader extends PureComponent {
         )}
         <div className="str-chat__header-livestream-left">
           <p className="str-chat__header-livestream-left--title">
-            {this.props.channel.data.name}{' '}
+            {this.props.title || this.props.channel.data.name}{' '}
             {this.props.live && (
               <span className="str-chat__header-livestream-left--livelabel">
                 live
