@@ -73,6 +73,7 @@ export class MessageSimple extends PureComponent {
       }),
       () => {
         document.addEventListener('click', this._closeDetailedReactions);
+        document.addEventListener('touchend', this._closeDetailedReactions);
       },
     );
   };
@@ -89,6 +90,10 @@ export class MessageSimple extends PureComponent {
         }),
         () => {
           document.removeEventListener('click', this._closeDetailedReactions);
+          document.removeEventListener(
+            'touchend',
+            this._closeDetailedReactions,
+          );
         },
       );
     } else {
@@ -99,6 +104,7 @@ export class MessageSimple extends PureComponent {
   componentWillUnmount() {
     if (!this.props.message.deleted_at) {
       document.removeEventListener('click', this._closeDetailedReactions);
+      document.removeEventListener('touchend', this._closeDetailedReactions);
     }
   }
 

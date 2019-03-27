@@ -8,7 +8,7 @@
     flex-direction: column;
     width: 70px;
     padding: 45px 10px 10px;
-    background: rgba(93, 97, 110, 0.2);
+    background: #dedfe2;
 
     &--top {
       display: flex;
@@ -39,7 +39,7 @@
 
   &__main {
     min-width: 230px;
-    background: rgba(117, 121, 136, 0.1);
+    background: #f1f1f3;
   }
 
   &__header {
