@@ -42,6 +42,7 @@
           align-items: center;
           height: 100%;
           text-align: center;
+          cursor: pointer;
 
           > span {
             position: relative;
@@ -52,8 +53,6 @@
             height: 100%;
             text-align: center;
           }
-
-          cursor: pointer;
 
           > &:not(:last-of-type) {
             border-right: 1px solid $actionsBorderColor;
@@ -89,7 +88,6 @@
       }
 
       &-meta {
-        /* padding-right: 5px; */
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -102,15 +100,12 @@
           color: rgba(0, 0, 0, 0.5);
           font-size: 10px;
           margin-bottom: 5px;
-
-          /* margin-right: 15px; */
           text-align: right;
           visibility: hidden;
         }
       }
 
       &-author {
-        /* margin-top: 8px; */
         font-size: $fontSize;
         text-transform: capitalize;
         line-height: 40px;
@@ -191,8 +186,6 @@
 
         ul {
           margin: 0;
-
-          /* padding-left: 20px; */
         }
 
         &--top,
@@ -385,7 +378,6 @@
       &--failed {
         .str-chat__message-team-content--text {
           border-color: #d0021b;
-
           p {
             opacity: 0.5;
           }
@@ -406,8 +398,6 @@
 
         &--content {
           background: #ebebeb;
-
-          /* border: 1px solid rgba(0,0,0,0.08); */
         }
 
         &--text {
@@ -441,7 +431,6 @@
     &-actions {
       width: 60px;
       min-width: unset;
-
       .str-chat__message-actions-box {
         top: initial;
         bottom: initial;
