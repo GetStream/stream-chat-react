@@ -71,10 +71,12 @@ class App extends Component {
             <Channel channel={this.channel}>
               <Window>
                 <ChannelHeader />
-                <MessageList
-                  typingIndicator={TypingIndicator}
-                  Message={MessageCommerce}
-                />
+                {this.state.open && (
+                  <MessageList
+                    typingIndicator={TypingIndicator}
+                    Message={MessageCommerce}
+                  />
+                )}
                 <MessageInput
                   onFocus={!this.state.open ? this.toggleDemo : null}
                   Input={MessageInputFlat}
