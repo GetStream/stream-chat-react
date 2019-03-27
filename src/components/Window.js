@@ -8,6 +8,8 @@ class Window extends React.PureComponent {
   static propTypes = {
     /** show or hide the window when a thread is active */
     hideOnThread: PropTypes.bool,
+    /** Flag if thread is open or not */
+    thread: PropTypes.bool,
   };
 
   static defaultProps = {

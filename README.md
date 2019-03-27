@@ -37,9 +37,11 @@ You can read about that in the Chat API docs.
 
 ```js
 <Channel>
-  <ChannelHeader type="Team" />
-  <MessageList />
-  <MessageInput focus />
+  <Window>
+    <ChannelHeader type="Team" />
+    <MessageList />
+    <MessageInput focus />
+  </Window>
   <Thread />
 </Channel>
 ```
