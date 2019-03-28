@@ -177,6 +177,7 @@
   }
   &.dark {
     .str-chat__thread {
+      background: #1a1a1a;
       &-header {
         background: rgba(255, 255, 255, 0.03);
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
