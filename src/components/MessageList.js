@@ -105,7 +105,7 @@ class MessageList extends PureComponent {
       };
       scrollDown();
       // scroll down after images load again
-      setTimeout(scrollDown, 100);
+      // setTimeout(scrollDown, 100);
     }
 
     // handle new messages being sent/received
@@ -157,22 +157,45 @@ class MessageList extends PureComponent {
   };
 
   scrollToBottom = () => {
-    this._scrollToRef(this.bottomRef);
+    this._scrollToRef(this.bottomRef, this.messageList);
   };
 
-  _scrollToRef = (ref) => {
+  _scrollToRef = (el, parent) => {
     function scrollDown() {
-      if (ref && ref.current) {
-        ref.current.scrollIntoView({
-          behavior: 'instant',
-          block: 'start',
-          inline: 'nearest',
-        });
+      if (el && el.current && parent && parent.current) {
+        // el.current.scrollIntoView({
+        //   behavior: 'instant',
+        //   block: 'start',
+        //   inline: 'nearest',
+        // });
+        this.scrollToTarget(el.current, parent.current);
       }
     }
-    scrollDown();
+    scrollDown.call(this);
     // scroll down after images load again
-    setTimeout(scrollDown, 100);
+    setTimeout(scrollDown.call(this), 100);
+  };
+
+  /**
+   * target - target to scroll to (DOM element, scrollTop Number, 'top', or 'bottom'
+   * containerEl - DOM element for the container with scrollbars
+   * source: https://stackoverflow.com/a/48429314
+   */
+  scrollToTarget = (target, containerEl) => {
+    // Moved up here for readability:
+    const isElement = target && target.nodeType === 1,
+      isNumber = Object.prototype.toString.call(target) === '[object Number]';
+
+    if (isElement) {
+      containerEl.scrollTop = target.offsetTop;
+    } else if (isNumber) {
+      containerEl.scrollTop = target;
+    } else if (target === 'bottom') {
+      containerEl.scrollTop =
+        containerEl.scrollHeight - containerEl.offsetHeight;
+    } else if (target === 'top') {
+      containerEl.scrollTop = 0;
+    }
   };
 
   setEditingState = (message) => {
