@@ -68,24 +68,24 @@ export class MessageActionsBox extends React.Component {
         ref={this.actionsBoxRef}
       >
         <ul className="str-chat__message-actions-list">
-          {!Message.isMyMessage(message) && (
+          {Message.isMyMessage && !Message.isMyMessage(message) && (
             <button onClick={Message.handleFlag}>
               <li className="str-chat__message-actions-list-item">Flag</li>
             </button>
           )}
-          {!Message.isMyMessage(message) && (
+          {Message.isMyMessage && !Message.isMyMessage(message) && (
             <button onClick={Message.handleMute}>
               <li className="str-chat__message-actions-list-item">Mute</li>
             </button>
           )}
-          {Message.canEditMessage(message) && (
+          {Message.canEditMessage && Message.canEditMessage(message) && (
             <button onClick={Message.handleEdit}>
               <li className="str-chat__message-actions-list-item">
                 Edit Message
               </li>
             </button>
           )}
-          {Message.canDeleteMessage(message) && (
+          {Message.canDeleteMessage && Message.canDeleteMessage(message) && (
             <button onClick={Message.handleDelete}>
               <li className="str-chat__message-actions-list-item">Delete</li>
             </button>

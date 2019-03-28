@@ -10,3 +10,12 @@ const data = require('./data');
   </Chat>
 </div>;
 ```
+
+### Overriding Upload Logic
+
+If you want to upload files and images to your own server you can override our upload logic with two props on MessageInput:
+
+- onFileUploadRequest(file, channel)
+- onImageUploadRequest(file, channel)
+
+Both functions get the file and the channel and expect an object to be returned `{file: url}`

@@ -254,7 +254,9 @@ export class Message extends Component {
         handleAction={this.handleAction}
         handleReply={this.handleReply}
         handleRetry={this.handleRetry}
-        openThread={this.props.openThread.bind(this, message)}
+        openThread={
+          this.props.openThread && this.props.openThread.bind(this, message)
+        }
       />
     );
   }

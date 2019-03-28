@@ -90,6 +90,12 @@ class MessageInput extends PureComponent {
 
     /** The component handling how the input is rendered */
     Input: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+
+    /** Override image upload request */
+    doImageUploadRequest: PropTypes.func,
+
+    /** Override file upload request */
+    doFileUploadRequest: PropTypes.func,
   };
 
   static defaultProps = {
@@ -364,7 +370,14 @@ class MessageInput extends PureComponent {
     let response = {};
     response = {};
     try {
-      response = await this.props.channel.sendImage(file);
+      if (this.props.doImageUploadRequest) {
+        response = await this.props.doImageUploadRequest(
+          file,
+          this.props.channel,
+        );
+      } else {
+        response = await this.props.channel.sendImage(file);
+      }
     } catch (e) {
       console.warn(e);
       let alreadyRemoved = false;
@@ -407,7 +420,14 @@ class MessageInput extends PureComponent {
     let response = {};
     response = {};
     try {
-      response = await this.props.channel.sendFile(file);
+      if (this.props.doFileUploadRequest) {
+        response = await this.props.doFileUploadRequest(
+          file,
+          this.props.channel,
+        );
+      } else {
+        response = await this.props.channel.sendFile(file);
+      }
     } catch (e) {
       console.warn(e);
       let alreadyRemoved = false;

@@ -77,13 +77,14 @@ export class ReactionSelector extends PureComponent {
   };
 
   getUsersPerReaction = (reactions, type) => {
-    const filtered = reactions.filter((item) => item.type === type);
+    const filtered =
+      reactions && reactions.filter((item) => item.type === type);
     return filtered;
   };
 
   getLatestUser = (reactions, type) => {
     const filtered = this.getUsersPerReaction(reactions, type);
-    if (filtered[0] && filtered[0].user) {
+    if (filtered && filtered[0] && filtered[0].user) {
       return filtered[0].user;
     } else {
       return 'NotFound';
@@ -92,7 +93,7 @@ export class ReactionSelector extends PureComponent {
 
   getUserNames = (reactions, type) => {
     const filtered = this.getUsersPerReaction(reactions, type);
-    const users = filtered.map((item) => item.user || 'NotFound');
+    const users = filtered && filtered.map((item) => item.user || 'NotFound');
     return users;
   };
 
