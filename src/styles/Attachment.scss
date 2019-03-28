@@ -92,7 +92,9 @@
 
       a {
         font-weight: 700;
-        color: rgba(0, 0, 0, 0.8);
+        color: rgb(0, 0, 0);
+        opacity: 0.8;
+
         text-decoration: none;
         white-space: nowrap;
         overflow: hidden;
@@ -115,7 +117,8 @@
         font-weight: bold;
         text-transform: uppercase;
         display: block;
-        color: rgba(0, 0, 0, 0.5);
+        color: rgb(0, 0, 0);
+        opacity: 0.5;
       }
     }
   }
@@ -190,6 +193,19 @@
           &:hover {
             background: rgba(255, 255, 255, 0.29);
           }
+        }
+      }
+    }
+  }
+  &.dark {
+    .str-chat {
+      &__message-attachment-file--item {
+        a,
+        span {
+          color: white;
+        }
+        &:hover {
+          background: transparent;
         }
       }
     }

@@ -113,6 +113,17 @@
       color: white;
     }
   }
+  .rfu-file-previewer__file {
+    a {
+      color: white;
+    }
+    &:hover {
+      background: transparent;
+    }
+  }
+  .rfu-file-previewer__close-button {
+    color: white;
+  }
 }
 
 .rta {
