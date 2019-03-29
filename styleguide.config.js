@@ -70,6 +70,7 @@ module.exports = {
         'src/components/LoadingIndicator.js',
         'src/components/Image.js',
         'src/components/DateSeparator.js',
+        'src/components/Window.js',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
