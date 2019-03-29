@@ -271,8 +271,8 @@ class MessageInput extends PureComponent {
     }
 
     if (editing) {
-      const { id, tmp_id } = this.props.message;
-      const updatedMessage = { id, tmp_id };
+      const { id } = this.props.message;
+      const updatedMessage = { id };
       updatedMessage.text = text;
       updatedMessage.attachments = attachments;
       // TODO: Remove this line and show an error when submit fails

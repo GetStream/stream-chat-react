@@ -366,7 +366,7 @@ class MessageList extends PureComponent {
         groupStyles.push('single');
       }
 
-      messageGroupStyles[message.id || message.tmp_id] = groupStyles;
+      messageGroupStyles[message.id] = groupStyles;
     }
 
     return messageGroupStyles;
@@ -409,7 +409,7 @@ class MessageList extends PureComponent {
           </li>,
         );
       } else if (message.type !== 'message.read') {
-        let groupStyles = messageGroupStyles[message.id || message.tmp_id];
+        let groupStyles = messageGroupStyles[message.id];
         if (!groupStyles) {
           groupStyles = [];
         }
@@ -418,7 +418,7 @@ class MessageList extends PureComponent {
         elements.push(
           <li
             className={`str-chat__li str-chat__li--${groupStyles}`}
-            key={message.id || message.tmp_id || message.created_at}
+            key={message.id || message.created_at}
             ref={this.messageRefs[message.id]}
           >
             <Message

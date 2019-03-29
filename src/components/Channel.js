@@ -247,13 +247,13 @@ class ChannelInner extends PureComponent {
 
   createMessagePreview = (text, attachments, parent) => {
     // create a preview of the message
-    const tmpID = `${this.props.client.userID}-` + uuidv4();
+    const clientSideID = `${this.props.client.userID}-` + uuidv4();
     const message = {
       text,
       html: text,
       __html: text,
       //id: tmpID,
-      tmp_id: tmpID,
+      id: clientSideID,
       type: 'regular',
       status: 'sending',
       user: {
@@ -272,11 +272,11 @@ class ChannelInner extends PureComponent {
   };
 
   _sendMessage = async (message) => {
-    const { text, attachments, tmp_id, parent_id } = message;
+    const { text, attachments, id, parent_id } = message;
     const messageData = {
       text,
       attachments,
-      tmp_id,
+      id,
       parent_id,
     };
 
