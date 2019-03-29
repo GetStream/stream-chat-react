@@ -105,10 +105,11 @@ class MessageList extends PureComponent {
       };
       scrollDown();
       // scroll down after images load again
-      setTimeout(
-        this.scrollToTarget(this.bottomRef.current, this.messageList.current),
-        500,
-      );
+
+      const scrollDownAgain = () => {
+        this.scrollToTarget(this.bottomRef.current, this.messageList.current);
+      };
+      setTimeout(scrollDownAgain, 1000);
     }
 
     // handle new messages being sent/received
@@ -166,11 +167,6 @@ class MessageList extends PureComponent {
   _scrollToRef = (el, parent) => {
     function scrollDown() {
       if (el && el.current && parent && parent.current) {
-        // el.current.scrollIntoView({
-        //   behavior: 'instant',
-        //   block: 'start',
-        //   inline: 'nearest',
-        // });
         this.scrollToTarget(el.current, parent.current);
       }
     }
