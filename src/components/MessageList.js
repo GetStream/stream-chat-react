@@ -105,7 +105,10 @@ class MessageList extends PureComponent {
       };
       scrollDown();
       // scroll down after images load again
-      // setTimeout(scrollDown, 100);
+      setTimeout(
+        this.scrollToTarget(this.bottomRef.current, this.messageList.current),
+        500,
+      );
     }
 
     // handle new messages being sent/received

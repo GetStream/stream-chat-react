@@ -15,7 +15,7 @@ const data = require('./data');
 
 If you want to upload files and images to your own server you can override our upload logic with two props on MessageInput:
 
-- onFileUploadRequest(file, channel)
-- onImageUploadRequest(file, channel)
+- `onFileUploadRequest(file, channel)`
+- `onImageUploadRequest(file, channel)`
 
-Both functions get the file and the channel and expect an object to be returned `{file: url}`
+Both functions have access to the selected file and the channel object and expect an object to be returned `{file: url}`.
