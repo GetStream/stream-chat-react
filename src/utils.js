@@ -1,6 +1,6 @@
 import anchorme from 'anchorme';
 import emojiRegex from 'emoji-regex';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown/with-html';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
@@ -132,6 +132,7 @@ export const renderText = (message) => {
     return;
   }
   const allowed = [
+    'html',
     'root',
     'text',
     'break',
@@ -153,7 +154,7 @@ export const renderText = (message) => {
   });
   for (const urlInfo of urls) {
     const displayLink = truncate(urlInfo.encoded.replace(/^(www\.)/, ''), {
-      length: 30,
+      length: 20,
       omission: '...',
     });
     const mkdown = `[${displayLink}](${urlInfo.raw})`;
@@ -166,7 +167,8 @@ export const renderText = (message) => {
       source={message}
       linkTarget="_blank"
       plugins={[]}
-      skipHtml={true}
+      escapeHtml={true}
+      skipHtml={false}
     />
   );
 };
