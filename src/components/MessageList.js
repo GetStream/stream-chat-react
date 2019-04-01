@@ -109,7 +109,7 @@ class MessageList extends PureComponent {
       const scrollDownAgain = () => {
         this.scrollToTarget(this.bottomRef.current, this.messageList.current);
       };
-      setTimeout(scrollDownAgain, 1000);
+      setTimeout(scrollDownAgain, 500);
     }
 
     // handle new messages being sent/received
