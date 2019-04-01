@@ -31,8 +31,16 @@ const optionsSvg =
  */
 export class MessageTeam extends PureComponent {
   static propTypes = {
+    /** The message object */
     message: PropTypes.object,
+    /** The attachment component */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** The message component, most logic is delegated to this component */
+    Message: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+      PropTypes.object,
+    ]).isRequired,
     groupStyles: PropTypes.array,
   };
 
@@ -237,6 +245,7 @@ export class MessageTeam extends PureComponent {
         </div>
       );
     }
+
     return (
       <React.Fragment>
         <div

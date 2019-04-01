@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
 import { Avatar } from './Avatar';
+import { Attachment } from './Attachment';
 import { MessageActionsBox } from './MessageActionsBox';
 import { ReactionSelector } from './ReactionSelector';
 import { SimpleReactionsList } from './SimpleReactionsList';
@@ -27,6 +29,23 @@ const optionsSvg =
  * @extends PureComponent
  */
 export class MessageLivestream extends React.PureComponent {
+  static propTypes = {
+    /** The message object */
+    message: PropTypes.object,
+    /** The attachment component */
+    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** The message component, most logic is delegated to this component */
+    Message: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+      PropTypes.object,
+    ]).isRequired,
+  };
+
+  static defaultProps = {
+    Attachment,
+  };
+
   state = {
     actionsBoxOpen: false,
     reactionSelectorOpen: false,
