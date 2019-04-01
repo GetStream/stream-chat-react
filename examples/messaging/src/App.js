@@ -84,7 +84,7 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList typingIndicator={TypingIndicator} />
+            <MessageList TypingIndicator={TypingIndicator} />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
