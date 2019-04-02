@@ -64,7 +64,7 @@ class ChannelInner extends PureComponent {
       loadingMore: false,
       hasMore: true,
       messages: Immutable([]),
-      online: 0,
+      online: true,
       typing: Immutable({}),
       watchers: Immutable({}),
       members: Immutable({}),
@@ -203,12 +203,14 @@ class ChannelInner extends PureComponent {
   copyChannelState() {
     const channel = this.props.channel;
 
+    console.log('channel.state', channel.state);
+
     this.setState({
       messages: channel.state.messages,
       read: channel.state.read,
       watchers: channel.state.watchers,
       members: channel.state.members,
-      online: channel.state.watcher_count,
+      watcher_count: channel.state.watcher_count,
       loading: false,
       typing: {},
     });
@@ -363,7 +365,7 @@ class ChannelInner extends PureComponent {
       watchers: channel.state.watchers,
       read: channel.state.read,
       typing: channel.state.typing,
-      online: channel.state.watcher_count,
+      watcher_count: channel.state.watcher_count,
     });
   };
 
