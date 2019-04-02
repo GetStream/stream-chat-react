@@ -9,11 +9,19 @@ const image =
 const text =
   'Unfortunately the network is down. Check your wifi and try again later';
 
-<ChatDown image={image} type={'Network Error'} text={text} />;
+<div className="str-chat">
+  <Chat>
+    <ChatDown image={image} type={'Network Error'} text={text} />
+  </Chat>
+</div>;
 ```
 
 And here's a version using defaults:
 
 ```js
-<ChatDown />
+<div className="str-chat">
+  <Chat>
+    <ChatDown />
+  </Chat>
+</div>
 ```
