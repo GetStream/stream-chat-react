@@ -11,13 +11,17 @@ import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
  */
 export class Card extends React.PureComponent {
   static propTypes = {
+    /** Title retured by the OG scraper */
     title: PropTypes.string.isRequired,
+    /** Link retured by the OG scraper */
     title_link: PropTypes.string,
+    /** The scraped url, used as a fallback if the OG-data doesnt include a link */
     og_scrape_url: PropTypes.string,
-    /** The full size image url */
+    /** The url of the full sized image */
     image_url: PropTypes.string,
-    /** The thumb url */
+    /** The url for thumbnail sized image*/
     thumb_url: PropTypes.string,
+    /** Description retured by the OG scraper */
     text: PropTypes.string,
   };
 
