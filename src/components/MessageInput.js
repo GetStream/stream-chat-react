@@ -75,6 +75,8 @@ class MessageInput extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool.isRequired,
+    /** Disable input */
+    disabled: PropTypes.bool.isRequired,
     /** Grow the textarea while you're typing */
     grow: PropTypes.bool.isRequired,
     /** Via Context: the channel that we're sending the message to */
@@ -100,6 +102,7 @@ class MessageInput extends PureComponent {
 
   static defaultProps = {
     focus: false,
+    disabled: false,
     grow: true,
     Input: MessageInputLarge,
   };

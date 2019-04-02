@@ -151,6 +151,7 @@ export class ChatAutoComplete extends PureComponent {
         onPaste={this.props.onPaste}
         value={this.props.value}
         grow={this.props.grow}
+        disabled={this.props.disabled}
       />
     );
   }
