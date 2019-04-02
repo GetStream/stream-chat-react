@@ -24,9 +24,9 @@ const channel = chatClient.channel('team', 'docs', {
       <div className="str-chat__main-panel">
         <ChannelHeader type="Team" />
         <MessageList />
-        <MessageInput focus />
+        <MessageInput />
       </div>
-      <Thread />
+      <Thread autoFocus={false} />
     </Channel>
   </Chat>
 </div>;

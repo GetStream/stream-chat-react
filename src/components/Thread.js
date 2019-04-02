@@ -37,12 +37,15 @@ class Thread extends React.PureComponent {
     threadLoadingMore: PropTypes.bool,
     /** Display the thread on 100% width of it's container. Useful for mobile style view */
     fullWidth: PropTypes.bool,
+    /** Make input focus on mounting thread */
+    autoFocus: PropTypes.bool,
   };
 
   static defaultProps = {
     threadHasMore: true,
     threadLoadingMore: true,
     fullWidth: false,
+    autoFocus: true,
   };
 
   render() {
@@ -155,7 +158,7 @@ class ThreadInner extends React.PureComponent {
           <MessageInput
             Input={MessageInputSmall}
             parent={this.props.thread}
-            focus
+            focus={this.props.autoFocus}
           />
         </div>
       </div>

@@ -37,7 +37,7 @@ const data = require('./data');
     <Channel channel={data.channel}>
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <MessageList />
-        <MessageInput focus />
+        <MessageInput />
       </div>
     </Channel>
   </Chat>
@@ -57,7 +57,7 @@ const data = require('./data');
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <ChannelHeader />
         <MessageList />
-        <MessageInput focus />
+        <MessageInput />
       </div>
       <Thread />
     </Channel>
@@ -77,7 +77,7 @@ const data = require('./data');
     <Channel>
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <MessageList />
-        <MessageInput focus />
+        <MessageInput />
       </div>
     </Channel>
   </Chat>
@@ -114,7 +114,7 @@ CustomChannelHeader = ChatComponents.withChannelContext(CustomChannelHeader);
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <CustomChannelHeader />
         <MessageList />
-        <MessageInput focus />
+        <MessageInput />
       </div>
     </Channel>
   </Chat>

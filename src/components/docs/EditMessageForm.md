@@ -18,7 +18,7 @@ const channel = chatClient.channel('team', 'docs', {
 
 <Chat client={chatClient} Message={MessageTeam}>
   <Channel channel={channel}>
-    <MessageInput focus Input={EditMessageForm} />
+    <MessageInput Input={EditMessageForm} />
   </Channel>
 </Chat>;
 ```
