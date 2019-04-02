@@ -113,7 +113,7 @@ export class MessageInputLarge extends PureComponent {
           </div>
           <div>
             <div className="str-chat__input-footer">
-              <span>{this.props.online} online</span>
+              <span>{this.props.watcher_count} online</span>
               <span className="str-chat__input-footer--typing">
                 {formatArray(this.props.typing)}
               </span>

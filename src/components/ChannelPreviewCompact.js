@@ -10,7 +10,9 @@ export class ChannelPreviewCompact extends React.PureComponent {
   };
   render() {
     const unreadClass =
-      this.props.unread >= 1 ? 'str-chat__channel-preview-compact--unread' : '';
+      this.props.unread_count >= 1
+        ? 'str-chat__channel-preview-compact--unread'
+        : '';
     const activeClass = this.props.active
       ? 'str-chat__channel-preview-compact--active'
       : '';

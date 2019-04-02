@@ -13,7 +13,7 @@ export class ChannelPreviewMessenger extends PureComponent {
   };
   render() {
     const unreadClass =
-      this.props.unread >= 1
+      this.props.unread_count >= 1
         ? 'str-chat__channel-preview-messenger--unread'
         : '';
     const activeClass = this.props.active

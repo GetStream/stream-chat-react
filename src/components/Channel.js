@@ -208,7 +208,7 @@ class ChannelInner extends PureComponent {
       read: channel.state.read,
       watchers: channel.state.watchers,
       members: channel.state.members,
-      online: channel.state.online,
+      online: channel.state.watcher_count,
       loading: false,
       typing: {},
     });
@@ -363,7 +363,7 @@ class ChannelInner extends PureComponent {
       watchers: channel.state.watchers,
       read: channel.state.read,
       typing: channel.state.typing,
-      online: channel.state.online,
+      online: channel.state.watcher_count,
     });
   };
 

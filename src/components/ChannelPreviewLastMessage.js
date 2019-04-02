@@ -11,7 +11,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
 
   render() {
     const unreadClass =
-      this.props.unread >= 1 ? 'str-chat__channel-preview--unread' : '';
+      this.props.unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
     const activeClass = this.props.active
       ? 'str-chat__channel-preview--active'
       : '';
@@ -21,7 +21,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
       >
         <button onClick={this.onSelectChannel} ref={this.channelPreviewButton}>
-          {this.props.unread >= 1 && (
+          {this.props.unread_count >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
           <Avatar image={this.props.channel.data.image} />
@@ -32,9 +32,9 @@ export class ChannelPreviewLastMessage extends PureComponent {
                 ? 'Nothing yet...'
                 : this.props.latestMessage}
             </span>
-            {this.props.unread >= 1 && (
+            {this.props.unread_count >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
-                {this.props.unread}
+                {this.props.unread_count}
               </span>
             )}
           </div>

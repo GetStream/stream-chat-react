@@ -53,8 +53,8 @@ class MessageList extends PureComponent {
   };
 
   connectionChanged = (event) => {
-    if (this.state.online !== event.online) {
-      this.setState({ online: event.online });
+    if (this.state.watcher_count !== event.watcher_count) {
+      this.setState({ online: event.watcher_count });
     }
   };
 
@@ -481,7 +481,7 @@ class MessageList extends PureComponent {
         </div>
 
         <div className="str-chat__list-notifications">
-          <Notification active={!this.state.online}>
+          <Notification active={!this.state.watcher_count}>
             Connection failure, reconnecting now...
           </Notification>
 

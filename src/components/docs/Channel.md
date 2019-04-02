@@ -96,7 +96,7 @@ class CustomChannelHeader extends React.PureComponent {
   render() {
     return (
       <div>
-        There are currently {this.props.online} people online in channel
+        There are currently {this.props.watcher_count} people online in channel
         {this.props.channel.cid}. These users are typing:
         <span className="str-chat__input-footer--typing">
           {ChatComponents.formatArray(Object.keys(this.props.typing))}
