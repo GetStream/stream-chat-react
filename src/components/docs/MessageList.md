@@ -11,11 +11,9 @@ Here's an example of how to render a list of messages:
 ```js
 const data = require('./data');
 
-<div className="str-chat" style={{ height: 'unset' }}>
-  <Chat client={data.client}>
-    <Channel channel={data.channel}>
-      <MessageList />
-    </Channel>
-  </Chat>
-</div>;
+<Chat client={data.client}>
+  <Channel channel={data.channel}>
+    <MessageList />
+  </Channel>
+</Chat>;
 ```
