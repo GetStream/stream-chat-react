@@ -109,7 +109,7 @@ class MessageList extends PureComponent {
       const scrollDownAgain = () => {
         this.scrollToTarget(this.bottomRef.current, this.messageList.current);
       };
-      setTimeout(scrollDownAgain, 1000);
+      setTimeout(scrollDownAgain, 500);
     }
 
     // handle new messages being sent/received
@@ -378,7 +378,7 @@ class MessageList extends PureComponent {
 
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
-    const TypingIndicator = this.props.typingIndicator;
+    const TypingIndicator = this.props.TypingIndicator;
     const DateSeparator = this.props.dateSeparator;
 
     // sort by date
@@ -470,7 +470,7 @@ class MessageList extends PureComponent {
             }
           >
             <ul className="str-chat__ul">{elements}</ul>
-            {this.props.typingIndicator && (
+            {this.props.TypingIndicator && (
               <TypingIndicator
                 typing={this.props.typing}
                 client={this.props.client}

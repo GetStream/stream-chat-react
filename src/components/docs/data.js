@@ -293,3 +293,12 @@ export const users = [
     updated_at: '2019-01-28T22:07:32.297119Z',
   },
 ];
+
+export const MessageMock = {
+  handleFlag: console.log,
+  handleMute: console.log,
+  handleEdit: console.log,
+  handleDelete: console.log,
+  canDeleteMessage: () => true,
+  canEditMessage: () => true,
+};

@@ -19,6 +19,8 @@ export class ChatAutoComplete extends PureComponent {
     rows: PropTypes.number,
     /** Grow the number of rows of the textarea while you're typing */
     grow: PropTypes.bool,
+    /** Make the textarea disabled */
+    disabled: PropTypes.bool,
     /** The value of the textarea */
     value: PropTypes.string,
     /** Function to run on pasting within the textarea */
@@ -151,6 +153,7 @@ export class ChatAutoComplete extends PureComponent {
         onPaste={this.props.onPaste}
         value={this.props.value}
         grow={this.props.grow}
+        disabled={this.props.disabled}
       />
     );
   }

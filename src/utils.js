@@ -1,6 +1,6 @@
 import anchorme from 'anchorme';
 import emojiRegex from 'emoji-regex';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown/with-html';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
@@ -132,6 +132,7 @@ export const renderText = (message) => {
     return;
   }
   const allowed = [
+    'html',
     'root',
     'text',
     'break',
@@ -153,7 +154,7 @@ export const renderText = (message) => {
   });
   for (const urlInfo of urls) {
     const displayLink = truncate(urlInfo.encoded.replace(/^(www\.)/, ''), {
-      length: 30,
+      length: 20,
       omission: '...',
     });
     const mkdown = `[${displayLink}](${urlInfo.raw})`;
@@ -166,7 +167,8 @@ export const renderText = (message) => {
       source={message}
       linkTarget="_blank"
       plugins={[]}
-      skipHtml={true}
+      escapeHtml={true}
+      skipHtml={false}
     />
   );
 };
@@ -179,4 +181,17 @@ export function generateRandomId() {
 
 function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+}
+
+/**
+    Strip HTML from string
+    https://stackoverflow.com/a/43104417
+   */
+export function stripHtmlToText(html) {
+  const tmp = document.createElement('DIV');
+  tmp.innerHTML = html;
+  let res = tmp.textContent || tmp.innerText || '';
+  res.replace('\u200B', ''); // zero width space
+  res = res.trim();
+  return res;
 }

@@ -6,7 +6,7 @@
     <defs>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
             <stop stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
-            <stop stop-color="#006CFF" offset="100%"></stop>
+            <stop stop-color="#000000" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Messenger-Chat" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

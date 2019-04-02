@@ -12,6 +12,8 @@ const data = require('./data');
       Message={MessageTeam}
       threadMessages={data.threadMessages}
       threadHasMore={false}
+      fullWidth
+      autoFocus={false}
     />
   </Channel>
 </Chat>;

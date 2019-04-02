@@ -1,6 +1,21 @@
 The Message component is the high level component that deals with all the message logic.
 It doesn't implement any rendering, but delegates that to the Message prop.
 
+The Message component provides the following functions to the rendered component:
+
+- isMyMessage
+- isAdmin
+- canEditMessage
+- canDeleteMessage
+- handleFlag
+- handleMute
+- handleEdit
+- handleDelete
+- handleReaction
+- handleAction
+- handleRetry
+- openThread
+
 ```js
 const data = require('./data');
 <div className="str-chat" style={{ height: 'unset' }}>
@@ -22,11 +37,14 @@ const data = require('./data');
 
 const readBy = [
   {
-    created_at: '2019-01-22T16:35:18.417456Z',
-    id: 'thierry',
+    created_at: '2019-03-11T15:13:05.441436Z',
+    id: 'Jaapusenameinsteadplz',
+    image:
+      'https://www.gettyimages.com/gi-resources/images/CreativeLandingPage/HP_Sept_24_2018/CR3_GettyImages-159018836.jpg',
+    last_active: '2019-04-02T11:11:13.188618462Z',
+    name: 'Jaap',
     online: true,
-    role: 'user',
-    updated_at: '2019-01-25T18:07:04.20131Z',
+    updated_at: '2019-04-02T11:11:09.36867Z',
   },
 ];
 

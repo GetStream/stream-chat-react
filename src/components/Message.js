@@ -131,7 +131,6 @@ export class Message extends Component {
 
   handleEdit = () => {
     this.props.setEditingState(this.props.message);
-    //this.editMessageFormRef.current.editFieldRef.current.focus();
   };
 
   handleDelete = async (event) => {

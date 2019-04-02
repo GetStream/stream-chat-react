@@ -76,7 +76,10 @@ module.exports = {
       usageMode: 'expand',
     },
   ],
-  require: [path.join(path.resolve(path.dirname('')), 'dist/css/index.css')],
+  require: [
+    path.join(path.resolve(path.dirname('')), 'dist/css/index.css'),
+    path.join(path.resolve(path.dirname('')), 'styleguidist.css'),
+  ],
   template: {
     favicon: 'https://getstream.imgix.net/images/favicons/favicon-96x96.png',
     link: {

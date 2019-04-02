@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+import { stripHtmlToText } from '../utils';
+
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
 
 export class ChannelPreview extends PureComponent {
@@ -59,8 +61,10 @@ export class ChannelPreview extends PureComponent {
 
   getLatestMessage = () => {
     const { channel } = this.props;
+
     const latestMessage =
       channel.state.messages[channel.state.messages.length - 1];
+
     if (!latestMessage) {
       return 'Nothing yet...';
     }
@@ -68,13 +72,13 @@ export class ChannelPreview extends PureComponent {
       return 'Message deleted';
     }
     if (latestMessage.text) {
-      return latestMessage.text;
+      return stripHtmlToText(latestMessage.text); // strip html from latestMessage.text
     } else {
       if (latestMessage.command) {
         return '/' + latestMessage.command;
       }
       if (latestMessage.attachments.length) {
-        return 'attachment';
+        return '🏙 Attachment...';
       }
       return 'Empty message...';
     }

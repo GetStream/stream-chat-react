@@ -73,7 +73,7 @@ class App extends Component {
                 <ChannelHeader />
                 {this.state.open && (
                   <MessageList
-                    typingIndicator={TypingIndicator}
+                    TypingIndicator={TypingIndicator}
                     Message={MessageCommerce}
                   />
                 )}

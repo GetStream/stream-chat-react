@@ -92,6 +92,7 @@ export class MessageInputFlat extends PureComponent {
               onPaste={this.props.onPaste}
               grow={this.props.grow}
               onFocus={this.props.onFocus}
+              disabled={this.props.disabled}
             />
 
             <span

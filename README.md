@@ -40,7 +40,7 @@ You can read about that in the Chat API docs.
   <Window>
     <ChannelHeader type="Team" />
     <MessageList />
-    <MessageInput focus />
+    <MessageInput />
   </Window>
   <Thread />
 </Channel>

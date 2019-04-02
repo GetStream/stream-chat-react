@@ -9879,7 +9879,7 @@ readable-stream@^1.0.26-4:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@^3.0.6, readable-stream@^3.1.1:
+readable-stream@^3.0.6:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.1.1.tgz#ed6bbc6c5ba58b090039ff18ce670515795aeb06"
   dependencies:
@@ -11073,16 +11073,16 @@ stealthy-require@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
 
-stream-browserify@^2.0.1:
+stream-browserify@^2.0.1, stream-browserify@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/stream-browserify/-/stream-browserify-2.0.2.tgz#87521d38a44aa7ee91ce1cd2a47df0cb49dd660b"
   dependencies:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.4.3.tgz#3003ca2f0727bc5ec0272d67cab105d6f6432503"
+stream-chat@^0.4.7:
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.4.7.tgz#b1f26b96fd41a0f9793f82c6f7f1b7cc148103e2"
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"

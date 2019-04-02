@@ -73,7 +73,7 @@ const normalBundle = {
     'react-textarea-autosize',
     'prop-types',
     'react-player',
-    'react-markdown',
+    'react-markdown/with-html',
     'react-file-utils',
     'react-file-utils/dist/index.css',
     'uuid/v4',
