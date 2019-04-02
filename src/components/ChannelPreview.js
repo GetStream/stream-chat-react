@@ -57,10 +57,21 @@ export class ChannelPreview extends PureComponent {
     }
   }
 
+  stripHtmlToText(html) {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    let res = tmp.textContent || tmp.innerText || '';
+    res.replace('\u200B', ''); // zero width space
+    res = res.trim();
+    return res;
+  }
+
   getLatestMessage = () => {
     const { channel } = this.props;
+
     const latestMessage =
       channel.state.messages[channel.state.messages.length - 1];
+
     if (!latestMessage) {
       return 'Nothing yet...';
     }
@@ -68,13 +79,13 @@ export class ChannelPreview extends PureComponent {
       return 'Message deleted';
     }
     if (latestMessage.text) {
-      return latestMessage.text;
+      return this.stripHtmlToText(latestMessage.text); // strip html from latestMessage.text
     } else {
       if (latestMessage.command) {
         return '/' + latestMessage.command;
       }
       if (latestMessage.attachments.length) {
-        return 'attachment';
+        return '🏙 Attachment...';
       }
       return 'Empty message...';
     }
