@@ -11,11 +11,15 @@
   }
 
   &-line {
-    margin-right: 20px;
     flex: 1;
     background-color: rgba(0, 0, 0, 0.1);
     height: 1px;
     border: none;
+  }
+  > * {
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
   }
 }
 
