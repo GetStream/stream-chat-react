@@ -145,7 +145,7 @@ export class MessageSimple extends PureComponent {
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>Sending...</Tooltip>
-          <LoadingIndicator isLoading />
+          <LoadingIndicator />
         </span>
       );
     } else if (
