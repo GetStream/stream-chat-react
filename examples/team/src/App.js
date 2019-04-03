@@ -62,7 +62,7 @@ class App extends Component {
     const filters = { type: 'team', example: 1 };
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
-      subscribe: true,
+      watch: true,
       state: true,
     });
   }
