@@ -197,6 +197,7 @@ export class ReactionSelector extends PureComponent {
     );
     if (
       this.props.mine &&
+      this.props.messageList &&
       this.props.messageList.right <=
         this.reactionSelector.current.getBoundingClientRect().right
     ) {
@@ -207,6 +208,7 @@ export class ReactionSelector extends PureComponent {
 
     if (
       !this.props.mine &&
+      this.props.messageList &&
       this.props.messageList.left >=
         this.reactionSelector.current.getBoundingClientRect().left
     ) {
