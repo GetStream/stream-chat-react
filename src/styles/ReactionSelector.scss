@@ -197,10 +197,22 @@
 }
 
 .str-chat__message-simple {
+  .str-chat__reaction-selector {
+    right: 0;
+    left: unset;
+    &--reverse {
+      right: unset;
+      left: 0;
+    }
+  }
   &--me {
     .str-chat__reaction-selector {
-      left: unset;
-      right: 0;
+      left: 0;
+      right: unset;
+      &--reverse {
+        right: 0;
+        left: unset;
+      }
     }
   }
 }

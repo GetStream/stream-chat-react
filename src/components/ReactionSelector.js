@@ -39,7 +39,7 @@ export class ReactionSelector extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      reverse: true,
+      reverse: false,
       elRect: null,
       showTooltip: false,
       users: [],
@@ -190,11 +190,37 @@ export class ReactionSelector extends PureComponent {
       );
     });
 
+  componentDidMount() {
+    console.log(
+      this.props.messageList,
+      this.reactionSelector.current.getBoundingClientRect(),
+    );
+    if (
+      this.props.mine &&
+      this.props.messageList.right <=
+        this.reactionSelector.current.getBoundingClientRect().right
+    ) {
+      this.setState({
+        reverse: true,
+      });
+    }
+
+    if (
+      !this.props.mine &&
+      this.props.messageList.left >=
+        this.reactionSelector.current.getBoundingClientRect().left
+    ) {
+      this.setState({
+        reverse: true,
+      });
+    }
+  }
+
   render() {
     return (
       <div
         className={`str-chat__reaction-selector ${
-          this.props.reverse ? 'str-chat__reaction-selector--reverse' : ''
+          this.state.reverse ? 'str-chat__reaction-selector--reverse' : ''
         }`}
         ref={this.reactionSelector}
       >

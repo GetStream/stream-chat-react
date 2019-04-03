@@ -109,7 +109,7 @@ export class MessageSimple extends PureComponent {
   }
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return !this.props.Message.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
@@ -421,7 +421,7 @@ export class MessageSimple extends PureComponent {
                 )}
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
-                    reverse={this.isMine()}
+                    mine={this.isMine()}
                     handleReaction={this.props.handleReaction}
                     actionsEnabled={this.props.actionsEnabled}
                     detailedView
@@ -486,7 +486,7 @@ export class MessageSimple extends PureComponent {
                   )}
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
-                      reverse={this.isMine()}
+                      mine={this.isMine()}
                       handleReaction={this.props.handleReaction}
                       actionsEnabled={this.props.actionsEnabled}
                       detailedView
