@@ -42,7 +42,12 @@
   }
 
   .rfu-file-upload-button,
-  .str-chat__input-emojiselect {
+  .str-chat__input-emojiselect,
+  .str-chat__input-fileupload {
+    position: unset;
+    top: unset;
+    right: unset;
+    left: unset;
     svg {
       fill: black;
       opacity: 0.5;
