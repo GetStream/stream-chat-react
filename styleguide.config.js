@@ -53,6 +53,7 @@ module.exports = {
         'src/components/MessageInput.js',
         'src/components/MessageInputSmall.js',
         'src/components/MessageInputLarge.js',
+        'src/components/MessageInputFlat.js',
         'src/components/ChatAutoComplete.js',
         'src/components/AutoComplete.js',
         'src/components/EditMessageForm.js',

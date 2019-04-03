@@ -145,7 +145,7 @@ export class MessageSimple extends PureComponent {
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>Sending...</Tooltip>
-          <LoadingIndicator isLoading />
+          <LoadingIndicator />
         </span>
       );
     } else if (
@@ -421,7 +421,7 @@ export class MessageSimple extends PureComponent {
                 )}
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
-                    reverse={this.isMine()}
+                    mine={this.isMine()}
                     handleReaction={this.props.handleReaction}
                     actionsEnabled={this.props.actionsEnabled}
                     detailedView
@@ -486,7 +486,7 @@ export class MessageSimple extends PureComponent {
                   )}
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
-                      reverse={this.isMine()}
+                      mine={this.isMine()}
                       handleReaction={this.props.handleReaction}
                       actionsEnabled={this.props.actionsEnabled}
                       detailedView

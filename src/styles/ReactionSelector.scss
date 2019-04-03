@@ -9,7 +9,7 @@
   font-size: 20px;
   margin: 0 5px;
   position: relative;
-  line-height: initial;
+  line-height: 0;
   button {
     padding: 0;
   }
@@ -28,7 +28,7 @@
 
   &__count {
     position: absolute;
-    top: 25px;
+    top: 28px;
     font-size: 10px;
     color: #fff;
     font-weight: 700;
@@ -197,10 +197,22 @@
 }
 
 .str-chat__message-simple {
+  .str-chat__reaction-selector {
+    right: 0;
+    left: unset;
+    &--reverse {
+      right: unset;
+      left: 0;
+    }
+  }
   &--me {
     .str-chat__reaction-selector {
-      left: unset;
-      right: 0;
+      left: 0;
+      right: unset;
+      &--reverse {
+        right: 0;
+        left: unset;
+      }
     }
   }
 }
