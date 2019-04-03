@@ -26,8 +26,8 @@ and adding custom date formatting:
 ```js
 const date = new Date('December 17, 1995 03:24:00');
 
-function formatDate(date) {
-  return <h2>Messages posted after {date.toDateString()}</h2>;
+function formatDate(d) {
+  return <h2>Messages posted after {d.toDateString()}</h2>;
 }
 
 <React.Fragment>
