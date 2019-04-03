@@ -9,7 +9,7 @@
   font-size: 20px;
   margin: 0 5px;
   position: relative;
-  line-height: initial;
+  line-height: 0;
   button {
     padding: 0;
   }
@@ -28,7 +28,7 @@
 
   &__count {
     position: absolute;
-    top: 25px;
+    top: 28px;
     font-size: 10px;
     color: #fff;
     font-weight: 700;

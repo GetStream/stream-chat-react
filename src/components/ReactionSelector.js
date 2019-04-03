@@ -191,10 +191,6 @@ export class ReactionSelector extends PureComponent {
     });
 
   componentDidMount() {
-    console.log(
-      this.props.messageList,
-      this.reactionSelector.current.getBoundingClientRect(),
-    );
     if (
       this.props.mine &&
       this.props.messageList &&
