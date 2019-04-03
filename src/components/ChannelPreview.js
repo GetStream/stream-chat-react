@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { stripHtmlToText } from '../utils';
-
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
 
 export class ChannelPreview extends PureComponent {
@@ -72,7 +70,7 @@ export class ChannelPreview extends PureComponent {
       return 'Message deleted';
     }
     if (latestMessage.text) {
-      return stripHtmlToText(latestMessage.text); // strip html from latestMessage.text
+      return latestMessage.text;
     } else {
       if (latestMessage.command) {
         return '/' + latestMessage.command;

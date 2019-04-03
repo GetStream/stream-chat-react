@@ -182,16 +182,3 @@ export function generateRandomId() {
 function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
-
-/**
-    Strip HTML from string
-    https://stackoverflow.com/a/43104417
-   */
-export function stripHtmlToText(html) {
-  const tmp = document.createElement('DIV');
-  tmp.innerHTML = html;
-  let res = tmp.textContent || tmp.innerText || '';
-  res.replace('\u200B', ''); // zero width space
-  res = res.trim();
-  return res;
-}
