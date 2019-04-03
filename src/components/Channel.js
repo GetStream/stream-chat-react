@@ -203,8 +203,6 @@ class ChannelInner extends PureComponent {
   copyChannelState() {
     const channel = this.props.channel;
 
-    console.log('channel.state', channel.state);
-
     this.setState({
       messages: channel.state.messages,
       read: channel.state.read,
