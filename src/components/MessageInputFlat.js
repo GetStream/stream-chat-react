@@ -18,9 +18,16 @@ import { Picker } from 'emoji-mart';
 export class MessageInputFlat extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
-    focus: PropTypes.bool.isRequired,
+    focus: PropTypes.bool,
     /** Grow the textarea while you're typing */
-    grow: PropTypes.bool.isRequired,
+    grow: PropTypes.bool,
+    /** Disable the textarea */
+    disabled: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    grow: true,
+    disabled: false,
   };
 
   renderUploads = () => (
