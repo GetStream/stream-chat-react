@@ -114,7 +114,10 @@ export class MessageSimple extends PureComponent {
 
   formatArray = (arr) => {
     let outStr = '';
-    const slicedArr = arr.map((item) => item.name || item.id).slice(0, 5);
+    const slicedArr = arr
+      .filter((item) => item.id !== this.props.client.user.id)
+      .map((item) => item.name || item.id)
+      .slice(0, 5);
     const restLength = arr.length - slicedArr.length;
     const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
 
@@ -157,13 +160,17 @@ export class MessageSimple extends PureComponent {
         <span className="str-chat__message-simple-status">
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={this.props.readBy[0].id}
+            name={
+              this.props.readBy.filter(
+                (item) => item.id !== this.props.client.user.id,
+              )[0].id
+            }
             image={this.props.readBy[0].image}
             size={15}
           />
-          {message.readBy.length > 1 && (
+          {message.readBy.length - 1 > 1 && (
             <span className="str-chat__message-simple-status-number">
-              {message.readBy.length}
+              {message.readBy.length - 1}
             </span>
           )}
         </span>
