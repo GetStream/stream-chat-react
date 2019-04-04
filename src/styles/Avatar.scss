@@ -22,7 +22,8 @@
     border-radius: 0;
   }
 
-  &-image, &-fallback {
+  &-image,
+  &-fallback {
     display: block;
     width: inherit;
     height: inherit;
@@ -51,7 +52,7 @@
   &--top,
   &--middle {
     .str-chat__message {
-      .str-chat__avatar {
+      > .str-chat__avatar {
         visibility: hidden;
       }
     }

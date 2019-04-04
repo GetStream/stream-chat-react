@@ -35,16 +35,17 @@
     left: 6px;
   }
 
+  .str-chat__avarar {
+    margin: 0;
+    visibility: visible;
+  }
+
   .latest-user {
     width: 20px;
     height: 20px;
     position: absolute;
     top: -24px;
     left: 0;
-
-    .str-chat__avarar {
-      margin: 0;
-    }
 
     &-tooltip {
       display: none;

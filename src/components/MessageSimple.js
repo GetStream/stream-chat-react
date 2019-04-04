@@ -350,14 +350,6 @@ export class MessageSimple extends PureComponent {
                 : message.user.name || message.user.id}{' '}
               deleted this message...
             </div>
-            {!this.props.threadList && message.reply_count !== 0 && (
-              <div className="str-chat__message-simple-reply-button">
-                <MessageRepliesCountButton
-                  onClick={this.props.openThread}
-                  reply_count={message.reply_count}
-                />
-              </div>
-            )}
           </div>
         </React.Fragment>
       );

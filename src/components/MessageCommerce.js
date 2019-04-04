@@ -91,7 +91,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return !this.props.Message.isMyMessage(this.props.message);
   }
 
   renderOptions() {
@@ -211,7 +211,7 @@ export class MessageCommerce extends PureComponent {
                 {/* if reactions show them */}
                 {hasReactions > 0 && !this.state.showDetailedReactions && (
                   <ReactionsList
-                    mine={!this.isMine()}
+                    mine={this.isMine()}
                     messageList={this.props.messageListRect}
                     reactions={message.latest_reactions}
                     reaction_counts={message.reaction_counts}
@@ -248,7 +248,6 @@ export class MessageCommerce extends PureComponent {
               <div className="str-chat__message-commerce-text">
                 <div
                   className={`str-chat__message-commerce-text-inner
-									${this.state.isFocused ? 'str-chat__message-commerce-text-inner--focused' : ''}
 									${hasAttachment ? 'str-chat__message-commerce-text-inner--has-attachment' : ''}
 									${
                     isOnlyEmojis(message.text)

@@ -32,10 +32,11 @@ class App extends Component {
     this.chatClient.setUser(
       {
         id: user,
+        role: 'admin',
       },
       userToken,
     );
-    this.channel = this.chatClient.channel('messaging', channelName, {
+    this.channel = this.chatClient.channel('commerce', channelName, {
       image: 'https://i.stack.imgur.com/e7G42m.jpg',
       name: 'Hello 👋',
       subtitle: 'Chat with us about NASA stuff!',
@@ -51,7 +52,7 @@ class App extends Component {
     });
 
     this.state = {
-      open: false,
+      open: true,
     };
   }
 

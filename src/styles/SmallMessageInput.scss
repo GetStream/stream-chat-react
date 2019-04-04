@@ -14,7 +14,7 @@
   &-fileupload {
     position: absolute;
     cursor: pointer;
-    top: 8px;
+    bottom: 10px;
     width: 22px;
     height: 22px;
     display: inline-flex;
@@ -58,8 +58,11 @@
   .rfu-file-upload-button {
     position: absolute;
     cursor: pointer;
-    top: 0px;
     right: 28px;
+  }
+
+  .rfu-dropzone .rfu-dropzone__notifier {
+    z-index: 1000;
   }
 }
 

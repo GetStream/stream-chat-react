@@ -76,6 +76,15 @@
         &.str-chat__thread--full {
           margin: 0;
         }
+        .str-chat__gallery {
+          justify-content: flex-end;
+          border-radius: 0;
+          &-image,
+          &-placeholder {
+            width: 100px;
+            height: 100px;
+          }
+        }
       }
       &__thread-list {
         padding: 0 10px;
@@ -170,7 +179,7 @@
 .livestream.str-chat,
 .team.str-chat {
   .str-chat__thread {
-    background: #fafafa;
+    background: transparent;
     &-header {
       background: rgba(255, 255, 255, 0.29);
     }
