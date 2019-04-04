@@ -157,7 +157,7 @@ export const renderText = (message) => {
       length: 20,
       omission: '...',
     });
-    const mkdown = `[${displayLink}](${urlInfo.raw})`;
+    const mkdown = `[${displayLink}](${urlInfo.protocol}${urlInfo.encoded})`;
     message = message.replace(urlInfo.raw, mkdown);
   }
 
