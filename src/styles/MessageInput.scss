@@ -49,6 +49,12 @@
     &--typing {
       font-style: italic;
     }
+
+    &--count {
+      &--hidden {
+        visibility: hidden;
+      }
+    }
   }
 }
 
