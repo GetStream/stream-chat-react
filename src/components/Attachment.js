@@ -7,6 +7,8 @@ import { FileIcon } from 'react-file-utils';
 import prettybytes from 'pretty-bytes';
 import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
+
+import { Audio } from './Audio';
 /**
  * Attachment - The message attachment
  *
@@ -43,7 +45,9 @@ export class Attachment extends PureComponent {
       type = 'image';
     } else if (a.type === 'file') {
       type = 'file';
-    } else if (a.type === 'video' || a.type === 'audio') {
+    } else if (a.type === 'audio') {
+      type = 'audio';
+    } else if (a.type === 'video') {
       type = 'media';
     } else {
       type = 'card';
@@ -104,6 +108,12 @@ export class Attachment extends PureComponent {
           </div>
         </div>,
       );
+    } else if (type === 'audio') {
+      results.push(
+        <div style={{ maxWidth: 450 }} key={`key-video-${a.id}`}>
+          <Audio og={a} />
+        </div>,
+      );
     } else if (type === 'media') {
       if (a.actions && a.actions.length) {
         results.push(
@@ -156,7 +166,9 @@ export class Attachment extends PureComponent {
 
     return (
       <div
-        className={`str-chat__message-attachment str-chat__message-attachment--${type} str-chat__message-attachment--${type}--${extra}`}
+        className={`str-chat__message-attachment str-chat__message-attachment--${type} str-chat__message-attachment--${
+          a.type
+        } str-chat__message-attachment--${type}--${extra}`}
         ref={this.attachmentRef}
       >
         {results}

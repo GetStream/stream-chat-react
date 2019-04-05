@@ -352,10 +352,7 @@ export class MessageSimple extends PureComponent {
             } `}
           >
             <div className="str-chat__message--deleted-inner">
-              {message.user.id === this.props.client.user.id
-                ? 'You'
-                : message.user.name || message.user.id}{' '}
-              deleted this message...
+              This message was deleted...
             </div>
           </div>
         </React.Fragment>

@@ -45,10 +45,14 @@
       &:not(:first-of-type) {
         margin: 16px 0 0;
       }
-      /* Make sure really long urls and words don't break out.
-        ** https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/ */
+      /* These are technically the same, but use both */
       overflow-wrap: break-word;
       word-wrap: break-word;
+
+      -ms-word-break: break-all;
+
+      /* Instead use this non-standard one: */
+      word-break: break-word;
 
       /* Adds a hyphen where the word breaks, if supported (No Blink) */
       -ms-hyphens: auto;

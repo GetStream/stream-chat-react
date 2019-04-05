@@ -59,6 +59,9 @@
       left: 0;
     }
   }
+  &--giphy &--header {
+    height: unset;
+  }
 }
 
 .str-chat.commerce {

@@ -169,10 +169,7 @@ export class MessageCommerce extends PureComponent {
               message.type
             } `}
           >
-            {message.user.id === this.props.client.user.id
-              ? 'You'
-              : message.user.name || message.user.id}{' '}
-            deleted this message...
+            This message was deleted...
           </span>
           <div className="clearfix" />
         </React.Fragment>

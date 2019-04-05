@@ -11,6 +11,7 @@ import './styles/ActionsBox.scss';
 import './styles/AttachmentActions.scss';
 import './styles/Attachment.scss';
 import './styles/Avatar.scss';
+import './styles/Audio.scss';
 import './styles/Card.scss';
 import './styles/ChannelHeader.scss';
 import './styles/ChannelList.scss';

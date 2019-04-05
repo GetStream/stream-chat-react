@@ -116,3 +116,23 @@
     }
   }
 }
+
+.str-chat.dark {
+  .emoji-mart {
+    background: #1a1a1a;
+    border: lighten(#1a1a1a, 10%);
+  }
+  .emoji-mart-category-label span {
+    background: lighten(#1a1a1a, 2%);
+    color: white;
+  }
+  .emoji-mart-search {
+    input {
+      background: lighten(#1a1a1a, 2%);
+      color: white;
+    }
+    button svg {
+      fill: white;
+    }
+  }
+}

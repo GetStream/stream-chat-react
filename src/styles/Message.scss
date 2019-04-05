@@ -31,7 +31,7 @@
         &.str-chat__message--has-text.str-chat__message--has-attachment {
           .str-chat__message-attachment--img,
           .str-chat__message-attachment-card {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: $border-radius $border-radius 2px $border-radius;
           }
         }
         .str-chat__gallery {
@@ -455,6 +455,10 @@
       margin-right: 42px;
     }
   }
+
+  .str-chat__message-attachment-file--item:hover {
+    background: transparent;
+  }
 }
 
 .messaging {
@@ -736,6 +740,11 @@
     &:last-of-type {
       border-top-color: transparent;
       border-radius: 0 0 $border-radius 2px;
+      &:first-of-type {
+        border-bottom: 1px solid #ebebeb;
+        border-top: 1px solid #ebebeb;
+        border-radius: $border-radius $border-radius $border-radius 2px;
+      }
     }
   }
   .str-chat__message-attachment-file--item {
@@ -749,6 +758,10 @@
       background: #ebebeb;
       &:last-of-type {
         border-radius: 0 0 2px $border-radius;
+
+        &:first-of-type {
+          border-radius: $border-radius $border-radius 2px $border-radius;
+        }
       }
     }
   }
@@ -897,5 +910,22 @@
         border-radius: $border-radius $border-radius $border-radius 2px;
       }
     }
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .str-chat__message .str-chat__message-attachment--img {
+    max-width: 235px;
+  }
+}
+
+@media screen and (max-width: 414px) {
+  .str-chat__message .str-chat__message-attachment--img {
+    max-width: 274px;
+  }
+}
+@media only screen and (device-width: 375px) and (-webkit-device-pixel-ratio: 3) {
+  .str-chat__message .str-chat__message-attachment--img {
+    max-width: 240px;
   }
 }

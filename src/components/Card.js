@@ -49,7 +49,9 @@ export class Card extends React.PureComponent {
 
     if (!title && !title_link && !image) {
       return (
-        <div className="str-chat__message-attachment-card">
+        <div
+          className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
+        >
           <div className="str-chat__message-attachment-card--content">
             <div className="str-chat__message-attachment-card--text">
               this content could not be displayed
@@ -64,7 +66,9 @@ export class Card extends React.PureComponent {
     }
 
     return (
-      <div className="str-chat__message-attachment-card">
+      <div
+        className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
+      >
         {image && (
           <div className="str-chat__message-attachment-card--header">
             <img src={image} alt={image} />

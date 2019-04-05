@@ -253,6 +253,7 @@ export class Message extends Component {
         handleAction={this.handleAction}
         handleReply={this.handleReply}
         handleRetry={this.handleRetry}
+        isMyMessage={this.isMyMessage}
         openThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }

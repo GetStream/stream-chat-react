@@ -100,16 +100,31 @@ class MessageList extends PureComponent {
     if (snapshot !== null) {
       const list = this.messageList.current;
 
-      const scrollDown = () => {
-        list.scrollTop = list.scrollHeight - snapshot;
-      };
-      scrollDown();
-      // scroll down after images load again
+      // const scrollDown = () => {
+      //   list.scrollTop = list.scrollHeight - snapshot;
+      // };
+      // scrollDown();
+      // setTimeout(scrollDown, 100);
 
-      const scrollDownAgain = () => {
-        this.scrollToTarget(this.bottomRef.current, this.messageList.current);
-      };
-      setTimeout(scrollDownAgain, 500);
+      this.scrollToTarget(
+        list.scrollHeight - snapshot,
+        this.messageList.current,
+      );
+
+      // scroll down after images load again
+      if (
+        this.props.messages[this.props.messages.length - 1].user.id !==
+        this.props.client.user.id
+      ) {
+        setTimeout(
+          () =>
+            this.scrollToTarget(
+              list.scrollHeight - snapshot,
+              this.messageList.current,
+            ),
+          100,
+        );
+      }
     }
 
     // handle new messages being sent/received
@@ -172,7 +187,7 @@ class MessageList extends PureComponent {
     }
     scrollDown.call(this);
     // scroll down after images load again
-    setTimeout(scrollDown.call(this), 100);
+    setTimeout(scrollDown.bind(this), 200);
   };
 
   /**

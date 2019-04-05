@@ -11083,7 +11083,6 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
 stream-chat@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.5.0.tgz#d2e3f7b79fdfc132052548f55046071213093500"
-  integrity sha512-XQQ0N6/GfkQqZwo0soQN6TuRp46Xe83eR8BI0XZAFClqm9AxRUYd3b0Q3ldLQo3huq3YVCSl7wKFZIik0FmYtQ==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"

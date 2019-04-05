@@ -50,10 +50,17 @@
   &-list {
     height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 
     .str-chat__list {
-      overflow-y: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       padding: 40px 0;
+      &--thread {
+        overflow-y: auto;
+      }
     }
   }
 }
@@ -91,7 +98,7 @@
 
         > .str-chat__list {
           background: transparent;
-          overflow-y: hidden;
+          overflow-y: auto;
           padding: 40px 0 0;
           .str-chat__list--thread {
             padding: 0;
@@ -161,7 +168,7 @@
       }
       &__thread-list {
         > .str-chat__list {
-          overflow-y: hidden;
+          overflow-y: auto;
           .str-chat__list--thread {
             overflow-y: hidden;
           }

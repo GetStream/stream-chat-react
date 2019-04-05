@@ -70,7 +70,7 @@ export class ChannelPreview extends PureComponent {
       return 'Message deleted';
     }
     if (latestMessage.text) {
-      return latestMessage.text;
+      return latestMessage.text.slice(0, 20);
     } else {
       if (latestMessage.command) {
         return '/' + latestMessage.command;

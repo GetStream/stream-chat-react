@@ -37,13 +37,15 @@ body {
 }
 
 .str-chat__container {
-  min-width: 375px;
-  max-width: 500px;
-  width: 100%;
+  width: 500px;
+  max-width: 100%;
 }
 
 .dark.str-chat {
   background: #1a1a1a;
+  img {
+    color: white;
+  }
 }
 
 @media screen and (max-width: 960px) {
