@@ -162,7 +162,6 @@ export class Message extends Component {
     }
 
     const originalMessage = this.props.message;
-    const updatedMessage = originalMessage.asMutable();
     let reactionChangePromise;
 
     /*
@@ -171,13 +170,7 @@ export class Message extends Component {
     - If it fails, revert to the old message...
      */
     if (userExistingReaction) {
-      // remove the reaction..
-      updatedMessage.latest_reactions = updatedMessage.latest_reactions.filter(
-        (value) => value !== userExistingReaction,
-      );
-      updatedMessage.own_reactions = updatedMessage.own_reactions.filter(
-        (value) => value !== userExistingReaction,
-      );
+      this.props.channel.state.removeReaction(userExistingReaction);
 
       reactionChangePromise = this.props.channel.deleteReaction(
         this.props.message.id,
@@ -187,18 +180,14 @@ export class Message extends Component {
       // add the reaction
       const messageID = this.props.message.id;
       const tmpReaction = {
+        message_id: messageID,
+        user: this.props.client.user,
         type: reactionType,
         created_at: new Date(),
-        user: this.props.client.user,
       };
       const reaction = { type: reactionType };
 
-      updatedMessage.latest_reactions = updatedMessage.latest_reactions.concat([
-        tmpReaction,
-      ]);
-      updatedMessage.own_reactions = updatedMessage.own_reactions.concat([
-        tmpReaction,
-      ]);
+      this.props.channel.state.addReaction(tmpReaction);
       reactionChangePromise = this.props.channel.sendReaction(
         messageID,
         reaction,
@@ -206,8 +195,6 @@ export class Message extends Component {
     }
 
     try {
-      // immediately apply the state change
-      this.props.updateMessage(updatedMessage);
       // only wait for the API call after the state is updated
       await reactionChangePromise;
     } catch (e) {
