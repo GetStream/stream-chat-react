@@ -144,7 +144,7 @@ export class ReactionSelector extends PureComponent {
           data-text={reaction.id}
           onClick={this.props.handleReaction.bind(this, reaction.id)}
         >
-          {count && this.props.detailedView && (
+          {Boolean(count) && this.props.detailedView && (
             <React.Fragment>
               <div
                 className="latest-user"
@@ -166,7 +166,7 @@ export class ReactionSelector extends PureComponent {
           )}
           <NimbleEmoji emoji={reaction} {...emojiSetDef} data={emojiData} />
 
-          {count && this.props.detailedView && (
+          {Boolean(count) && this.props.detailedView && (
             <span className="str-chat__message-reactions-list-item__count">
               {count || ''}
             </span>
