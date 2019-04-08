@@ -13,8 +13,6 @@ body {
 #root {
   width: 100%;
   height: 100vh;
-  display: flex;
-  justify-content: flex-end;
   background: url('https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg')
     top left no-repeat;
   background-size: cover;
