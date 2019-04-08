@@ -10,43 +10,17 @@ export class ReactionsList extends React.Component {
     reactions: PropTypes.array,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
+    reverse: PropTypes.bool,
   };
 
   static defaultProps = {
     reactionOptions: defaultMinimalEmojis,
     emojiSetDef,
+    reverse: false,
   };
 
   constructor(props) {
     super(props);
-    this.state = {
-      reverse: false,
-    };
-    this.reactionList = React.createRef();
-  }
-
-  componentDidMount() {
-    if (this.props.mine && this.reactionList && this.props.messageList) {
-      this.setState({
-        reverse:
-          this.reactionList.current.getBoundingClientRect().right + 100 >
-          this.props.messageList.right
-            ? true
-            : false,
-      });
-    } else if (
-      !this.props.mine &&
-      this.reactionList &&
-      this.props.messageList
-    ) {
-      this.setState({
-        reverse:
-          this.reactionList.current.getBoundingClientRect().left - 45 <
-          this.props.messageList.left
-            ? true
-            : false,
-      });
-    }
   }
 
   _renderReactions = (reactions) => {
@@ -102,7 +76,7 @@ export class ReactionsList extends React.Component {
     return (
       <div
         className={`str-chat__reaction-list ${
-          this.state.reverse ? 'str-chat__reaction-list--reverse' : ''
+          this.props.reverse ? 'str-chat__reaction-list--reverse' : ''
         }`}
         onClick={this.props.onClick}
         ref={this.reactionList}

@@ -27,20 +27,20 @@ export class ReactionSelector extends PureComponent {
     detailedView: PropTypes.bool,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
+
+    reverse: PropTypes.bool,
   };
 
   static defaultProps = {
-    direction: 'left',
     detailedView: true,
     reactionOptions: defaultMinimalEmojis,
+    reverse: false,
     emojiSetDef,
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      reverse: false,
-      elRect: null,
       showTooltip: false,
       users: [],
       position: 0,
@@ -190,35 +190,11 @@ export class ReactionSelector extends PureComponent {
       );
     });
 
-  componentDidMount() {
-    if (
-      this.props.mine &&
-      this.props.messageList &&
-      this.props.messageList.right <=
-        this.reactionSelector.current.getBoundingClientRect().right
-    ) {
-      this.setState({
-        reverse: true,
-      });
-    }
-
-    if (
-      !this.props.mine &&
-      this.props.messageList &&
-      this.props.messageList.left >=
-        this.reactionSelector.current.getBoundingClientRect().left
-    ) {
-      this.setState({
-        reverse: true,
-      });
-    }
-  }
-
   render() {
     return (
       <div
         className={`str-chat__reaction-selector ${
-          this.state.reverse ? 'str-chat__reaction-selector--reverse' : ''
+          this.props.reverse ? 'str-chat__reaction-selector--reverse' : ''
         }`}
         ref={this.reactionSelector}
       >

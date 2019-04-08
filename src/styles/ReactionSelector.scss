@@ -199,20 +199,20 @@
 
 .str-chat__message-simple {
   .str-chat__reaction-selector {
-    right: 0;
-    left: unset;
+    right: unset;
+    left: 0;
     &--reverse {
-      right: unset;
-      left: 0;
+      right: 0;
+      left: unset;
     }
   }
   &--me {
     .str-chat__reaction-selector {
-      left: 0;
-      right: unset;
+      left: unset;
+      right: 0;
       &--reverse {
-        right: 0;
-        left: unset;
+        right: unset;
+        left: 0;
       }
     }
   }

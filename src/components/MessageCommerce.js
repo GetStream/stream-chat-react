@@ -208,8 +208,6 @@ export class MessageCommerce extends PureComponent {
                 {/* if reactions show them */}
                 {hasReactions > 0 && !this.state.showDetailedReactions && (
                   <ReactionsList
-                    mine={this.isMine()}
-                    messageList={this.props.messageListRect}
                     reactions={message.latest_reactions}
                     reaction_counts={message.reaction_counts}
                     onClick={this._clickReactionList}
@@ -223,7 +221,6 @@ export class MessageCommerce extends PureComponent {
                     detailedView
                     reaction_counts={message.reaction_counts}
                     latest_reactions={message.latest_reactions}
-                    messageList={this.props.messageListRect}
                     ref={this.reactionSelectorRef}
                   />
                 )}
@@ -263,8 +260,7 @@ export class MessageCommerce extends PureComponent {
                   {/* if reactions show them */}
                   {hasReactions > 0 && !this.state.showDetailedReactions && (
                     <ReactionsList
-                      mine={!this.isMine()}
-                      messageList={this.props.messageListRect}
+                      reverse
                       reactions={message.latest_reactions}
                       reaction_counts={message.reaction_counts}
                       onClick={this._clickReactionList}
@@ -278,7 +274,6 @@ export class MessageCommerce extends PureComponent {
                       detailedView
                       reaction_counts={message.reaction_counts}
                       latest_reactions={message.latest_reactions}
-                      messageList={this.props.messageListRect}
                       ref={this.reactionSelectorRef}
                     />
                   )}
