@@ -237,6 +237,20 @@
               left: 46px;
             }
           }
+          > .str-chat__message-commerce-reply-button {
+            display: flex;
+            justify-content: flex-end;
+            .str-chat__message-replies-count-button {
+              display: flex;
+              flex-direction: row-reverse;
+              svg {
+                transform: scaleX(-1);
+                margin-left: 5px;
+                margin-bottom: 4px;
+                margin-right: 0;
+              }
+            }
+          }
         }
       }
 
