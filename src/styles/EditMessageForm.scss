@@ -1,0 +1,95 @@
+.str-chat__edit-message-form {
+  width: 100%;
+
+  form {
+    position: relative;
+    width: 100%;
+  }
+
+  textarea {
+    padding: 7px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #006cff;
+    border: 1px solid transparent;
+    resize: none;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 15px;
+    line-height: 22px;
+
+    /* color: $fontColor; */
+    &:focus {
+      box-shadow: inset 0 0 0 1px #006cff, 0 0 0 2px rgba(0, 108, 255, 0.36);
+      outline: 0;
+    }
+  }
+
+  button {
+    background: none;
+    border: none;
+
+    /* font-size: $fontSize; */
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.4);
+
+    &[type='submit'] {
+      color: $secondary-color;
+    }
+  }
+
+  .rfu-dropzone {
+    width: 100%;
+  }
+
+  .rfu-file-upload-button,
+  .str-chat__input-emojiselect,
+  .str-chat__input-fileupload {
+    position: unset;
+    top: unset;
+    right: unset;
+    left: unset;
+    svg {
+      fill: black;
+      opacity: 0.5;
+    }
+    &:hover {
+      svg {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.str-chat__edit-message-form-options {
+  display: flex;
+}
+
+.str-chat.dark {
+  .str-chat__edit-message-form {
+    .rfu-file-upload-button,
+    .str-chat__input-emojiselect {
+      svg {
+        fill: white;
+      }
+    }
+    button {
+      color: rgba(255, 255, 255, 0.4);
+      &[type='submit'] {
+        color: $secondary-color;
+      }
+    }
+
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.21);
+      border: 2px solid transparent;
+      border-radius: 6px;
+      color: white;
+      &:focus {
+        box-shadow: inset 0 0 0 1px #006cff;
+        border: 2px solid rgba(0, 108, 255, 0.36);
+        border-radius: 6px;
+      }
+    }
+  }
+}

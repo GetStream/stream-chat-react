@@ -1,0 +1,14 @@
+.str-chat__down {
+  display: flex;
+  height: 100%;
+  &-main {
+    flex: 1;
+    padding: 30px;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__down {
+    color: rgba(white, 0.87);
+  }
+}

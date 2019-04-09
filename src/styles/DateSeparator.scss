@@ -1,0 +1,48 @@
+.str-chat__date-separator {
+  display: flex;
+  margin: 40px;
+  align-items: center;
+
+  &-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.7);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  &-line {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+    height: 1px;
+    border: none;
+  }
+  > * {
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+}
+
+.commerce.str-chat {
+  .str-chat__date-separator {
+    margin: 40px 0;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__date-separator {
+    &-line {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    &-date {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+  &.team {
+    .str-chat__date-separator {
+      &-line {
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+}

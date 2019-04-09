@@ -1,0 +1,324 @@
+.str-chat__message-livestream {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  display: flex;
+  width: 100%;
+  margin: 0 0;
+  padding: 10px 10px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  position: relative;
+
+  &-left {
+    width: 30px;
+    .str-chat__avatar {
+      margin-right: 0;
+    }
+  }
+
+  &-right {
+    flex: 1;
+  }
+
+  &-content {
+    position: relative;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+
+    > * {
+      font-size: 13px;
+      line-height: 20px;
+      margin: 0;
+    }
+
+    .str-chat__message-mention {
+      font-size: 13px;
+      line-height: 20px;
+      margin: 0;
+
+      &:focus {
+        outline: 1;
+      }
+    }
+
+    p {
+      margin: 0;
+      white-space: pre-line;
+      &:not(:first-of-type) {
+        margin: 16px 0 0;
+      }
+      /* These are technically the same, but use both */
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+
+      -ms-word-break: break-all;
+
+      /* Instead use this non-standard one: */
+      word-break: break-word;
+
+      /* Adds a hyphen where the word breaks, if supported (No Blink) */
+      -ms-hyphens: auto;
+      -moz-hyphens: auto;
+      -webkit-hyphens: auto;
+      hyphens: auto;
+
+      code {
+        background-color: rgba(white, 0.2);
+        border: 1px solid rgba($secondary-color, 0.1);
+        border-radius: 3px;
+        padding: 2px 4px;
+      }
+
+      a {
+        color: $secondary-color;
+        font-weight: bold;
+        text-decoration: none;
+      }
+    }
+
+    pre,
+    code {
+      font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
+        'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
+        'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier,
+        monospace;
+      line-height: inherit;
+      padding: 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 0 5px 0 0;
+      border-radius: 4px;
+      background-color: rgba($secondary-color, 0.1);
+      border: 1px solid rgba($secondary-color, 0.2);
+    }
+
+    code {
+      width: inherit;
+      word-break: break-all;
+    }
+  }
+  &:hover {
+    .str-chat__message-livestream-actions {
+      display: flex;
+    }
+  }
+
+  &-actions {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+
+    width: 141px;
+    height: 24px;
+    padding: 0 4px;
+    position: absolute;
+    top: -12px;
+    right: 0;
+    border-radius: 24px;
+    display: none; /* FFS display: none */
+    align-items: center;
+    justify-content: space-between;
+
+    > span {
+      position: relative;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+
+      &:not(:last-of-type) {
+        border-right: 1px solid #e0e0e0;
+      }
+
+      > span {
+        position: relative;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        text-align: center;
+      }
+
+      cursor: pointer;
+
+      svg {
+        fill: #000;
+        opacity: 0.5;
+      }
+
+      &:hover svg {
+        opacity: 1;
+      }
+    }
+
+    .str-chat__message-actions-box {
+      bottom: initial;
+      left: initial;
+      visibility: hidden;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 7px;
+
+      &--open {
+        visibility: visible;
+      }
+    }
+  }
+
+  &-time {
+    font-size: 10px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, 0.5);
+    flex: 2;
+    padding: 0 4px;
+  }
+
+  &-text {
+    &--is-emoji {
+      font-size: 33px;
+      line-height: 42px;
+    }
+  }
+
+  &-author {
+    margin-bottom: 8px;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    strong {
+      margin-right: 8px;
+    }
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+  }
+
+  .str-chat__message-attachment--img {
+    border-radius: 0;
+  }
+
+  .str-chat__message-attachment-card {
+    margin: 0;
+    border-radius: 0;
+    background: rgba(white, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    &--content {
+      background: rgba(white, 0.2);
+    }
+
+    &--text {
+      display: none;
+    }
+
+    &--url {
+      text-transform: lowercase;
+    }
+  }
+
+  &__thread-banner {
+    text-align: center;
+    font-size: 12px;
+    padding: 8px;
+    margin: 8px 10px 0 10px;
+    background: rgba(0, 108, 255, 0.1);
+    border-radius: 2px;
+    color: #404040;
+  }
+
+  &--error,
+  &--failed {
+    .str-chat__message-livestream {
+      &-content {
+        p {
+          svg {
+            position: relative;
+            top: 2px;
+            margin-right: 4px;
+          }
+          color: red;
+        }
+      }
+    }
+  }
+  &--failed {
+    .str-chat__message-livestream {
+      &-content {
+        p {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  &--initial-message {
+    margin: 20px 10px 0;
+    width: auto;
+  }
+}
+
+.str-chat__list--thread {
+  .str-chat__message-livestream__actions {
+    min-width: 30px;
+  }
+  .str-chat__message-livestream {
+    &-actions {
+      width: 110px;
+      min-width: unset;
+
+      .str-chat__message-actions-box {
+        top: initial;
+        bottom: initial;
+        bottom: -10px;
+      }
+    }
+  }
+}
+
+.livestream.dark.str-chat {
+  .str-chat__message-livestream {
+    color: #e6e6e6;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
+      border-radius: 6px;
+    }
+    .str-chat__message-attachment-card {
+      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(white, 0.08);
+      &--content {
+        background: rgba(0, 0, 0, 0.1);
+      }
+      &--url {
+        color: rgba(white, 0.79);
+      }
+    }
+  }
+
+  .str-chat__message-livestream-actions {
+    background: #1b1d20;
+    border: 1px solid rgba(224, 224, 224, 0.03);
+    box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+    > span:not(:last-of-type) {
+      border-color: rgba(255, 255, 255, 0.04);
+    }
+    svg {
+      fill: #fff;
+    }
+  }
+  .str-chat__message-livestream-time {
+    color: #fff;
+    opacity: 0.5;
+  }
+}
