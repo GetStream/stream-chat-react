@@ -8156,13 +8156,22 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+stream-browserify@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/stream-browserify/-/stream-browserify-2.0.2.tgz#87521d38a44aa7ee91ce1cd2a47df0cb49dd660b"
+  integrity sha512-nX6hmklHs/gr2FuxYDltq8fJA1GDlxKQCz8O/IM4atRqBH8OORmBNgfvW5gG10GT/qQ9u0CzIvr2X5Pkt6ntqg==
+  dependencies:
+    inherits "~2.0.1"
+    readable-stream "^2.0.2"
+
 "stream-chat-react@link:../..":
   version "0.0.0"
   uid ""
 
-stream-chat@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.4.3.tgz#3003ca2f0727bc5ec0272d67cab105d6f6432503"
+stream-chat@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.6.0.tgz#ceaf907284e833e4c1aeab25415100fe550e5659"
+  integrity sha512-/v7Un3bhjQUyTnC04L1ArAYl1JXlXKxwl7OjYYgFt5dyNLSxfyNydXqR8MjisyVF9ST+p1vvf+nyHdG3Pp4QLw==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"

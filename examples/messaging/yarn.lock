@@ -8168,10 +8168,10 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.5.0.tgz#d2e3f7b79fdfc132052548f55046071213093500"
-  integrity sha512-XQQ0N6/GfkQqZwo0soQN6TuRp46Xe83eR8BI0XZAFClqm9AxRUYd3b0Q3ldLQo3huq3YVCSl7wKFZIik0FmYtQ==
+stream-chat@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.6.0.tgz#ceaf907284e833e4c1aeab25415100fe550e5659"
+  integrity sha512-/v7Un3bhjQUyTnC04L1ArAYl1JXlXKxwl7OjYYgFt5dyNLSxfyNydXqR8MjisyVF9ST+p1vvf+nyHdG3Pp4QLw==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
