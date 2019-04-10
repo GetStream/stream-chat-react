@@ -276,9 +276,9 @@ class MessageList extends PureComponent {
 
     // match readevents with lastMessageId with the correct id
     for (const event of readEvents) {
-      if (event.lastMessageID) {
-        readData[event.lastMessageID] = [
-          ...readData[event.lastMessageID],
+      if (event.last_message_id) {
+        readData[event.last_message_id] = [
+          ...readData[event.last_message_id],
           event.user,
         ];
       }
