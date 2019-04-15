@@ -8169,9 +8169,9 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.2.tgz#2179426b97f16db2af4c9125e986e13f6866bc52"
+stream-chat@^0.7.5:
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.5.tgz#3dd86e669bbe7f27a71f8e1e6d5872acbbef1585"
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
