@@ -9,6 +9,7 @@ module.exports = {
   sortProps: (props) => props,
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./webpack.config.styleguidist.js'),
+  serverPort: 6068,
 
   /*getExampleFilename(componentPath) {
 		componentPath = componentPath

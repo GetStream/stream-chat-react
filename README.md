@@ -17,8 +17,6 @@ You'll also want to review the React Chat Component Documentation.
 If you're customizing the components it's important to learn how the Chat Server API works.
 You can read about that in the Chat API docs.
 
-## Development & Contributing
-
 ### Commands
 
 - yarn docs-server
@@ -80,3 +78,7 @@ Common mistakes that hurt performance are:
 - Solution: Use a regular function
 - Mistake: Passing an object {} or an array [] that's not using seamless-immutable
 - Solution: Use an immutable type (ie a number or a string) or use a seamless immutable version of an object or an array
+
+### Contributing 
+
+We welcome code changes that improve this library or fix a problem, please make sure to follow all best practices and add tests if applicable before submitting a Pull Request on Github. We are very happy to merge your code in the official repository. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
