@@ -43,12 +43,6 @@ class App extends Component {
       example: 1,
     });
     const exampleVersion = 1;
-    this.channel.update({
-      image:
-        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-      name: 'The water cooler',
-      example: exampleVersion,
-    });
     this.chatClient
       .channel('team', 'aww', {
         image:
@@ -57,6 +51,13 @@ class App extends Component {
         example: exampleVersion,
       })
       .watch();
+    this.channel.update({
+      image:
+        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
+      name: 'The water cooler',
+      example: exampleVersion,
+    });
+
     this.channel.watch();
 
     const filters = { type: 'team', example: 1 };
