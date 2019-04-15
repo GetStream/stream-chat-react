@@ -3656,7 +3656,7 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-emoji-mart@^2.11.0:
+emoji-mart@~2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-2.11.0.tgz#fed7c44d3a642b5de08848e8833d65a656ea8414"
   dependencies:
@@ -11082,9 +11082,9 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.1.tgz#83c30db2dec2f3b3b4162db9ec353d30426595a3"
+stream-chat@^0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.2.tgz#2179426b97f16db2af4c9125e986e13f6866bc52"
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
