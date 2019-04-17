@@ -186,17 +186,8 @@ class MessageInput extends PureComponent {
   };
 
   getUsers = () => {
-    let users;
-    if (
-      !this.props.members ||
-      !this.props.watchers ||
-      !this.props.channel.state.members ||
-      !this.props.channel.state.watchers
-    ) {
-      users = [];
-    } else {
-      users = Object.values(this.props.members);
-      users.push(...Object.values(this.props.watchers));
+    const users = [];
+    if (this.props.channel.state.members || this.props.channel.state.watchers) {
       users.push(...Object.values(this.props.channel.state.members));
       users.push(...Object.values(this.props.channel.state.watchers));
     }
@@ -204,7 +195,7 @@ class MessageInput extends PureComponent {
     // make sure we don't list users twice
     const userMap = {};
     for (const user of users) {
-      if (user) {
+      if (user && !userMap[user.id]) {
         userMap[user.id] = user;
       }
     }
