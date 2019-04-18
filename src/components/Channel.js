@@ -245,7 +245,7 @@ class ChannelInner extends PureComponent {
     this.setState({ messages: c.state.messages });
   }
 
-  createMessagePreview = (text, attachments, parent) => {
+  createMessagePreview = (text, attachments, parent, mentioned_users) => {
     // create a preview of the message
     const clientSideID = `${this.props.client.userID}-` + uuidv4();
     const message = {
@@ -262,6 +262,7 @@ class ChannelInner extends PureComponent {
       },
       created_at: new Date(),
       attachments,
+      mentioned_users,
       reactions: [],
     };
 
@@ -272,10 +273,11 @@ class ChannelInner extends PureComponent {
   };
 
   _sendMessage = async (message) => {
-    const { text, attachments, id, parent_id } = message;
+    const { text, attachments, id, parent_id, mentioned_users } = message;
     const messageData = {
       text,
       attachments,
+      mentioned_users,
       id,
       parent_id,
     };
@@ -294,12 +296,22 @@ class ChannelInner extends PureComponent {
     }
   };
 
-  sendMessage = async ({ text, attachments = [], parent }) => {
+  sendMessage = async ({
+    text,
+    attachments = [],
+    mentioned_users = [],
+    parent,
+  }) => {
     // remove error messages upon submit
     this.props.channel.state.filterErrorMessages();
 
     // create a local preview message to show in the UI
-    const messagePreview = this.createMessagePreview(text, attachments, parent);
+    const messagePreview = this.createMessagePreview(
+      text,
+      attachments,
+      parent,
+      mentioned_users,
+    );
 
     // first we add the message to the UI
     this.updateMessage(messagePreview, {

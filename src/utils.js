@@ -128,9 +128,13 @@ export const formatArray = (dict) => {
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
-  if (!message) {
+  let { text } = message;
+  const { mentioned_users } = message;
+
+  if (!text) {
     return;
   }
+
   const allowed = [
     'html',
     'root',
@@ -146,10 +150,8 @@ export const renderText = (message) => {
     'inlineCode',
     'blockquote',
   ];
-  const regex = /\B@[a-z0-9_-]+/gim;
-  message = message.replace(regex, (x) => `**${x}**`);
 
-  const urls = anchorme(message, {
+  const urls = anchorme(text, {
     list: true,
   });
   for (const urlInfo of urls) {
@@ -158,13 +160,21 @@ export const renderText = (message) => {
       omission: '...',
     });
     const mkdown = `[${displayLink}](${urlInfo.protocol}${urlInfo.encoded})`;
-    message = message.replace(urlInfo.raw, mkdown);
+    text = text.replace(urlInfo.raw, mkdown);
+  }
+
+  if (mentioned_users.length) {
+    for (let i = 0; i < mentioned_users.length; i++) {
+      const username = mentioned_users[i].name;
+      const mkdown = `**@${username}**`;
+      text = text.replace('@' + username, mkdown);
+    }
   }
 
   return (
     <ReactMarkdown
       allowedTypes={allowed}
-      source={message}
+      source={text}
       linkTarget="_blank"
       plugins={[]}
       escapeHtml={true}

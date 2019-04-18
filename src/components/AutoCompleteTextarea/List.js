@@ -78,9 +78,12 @@ export default class List extends React.Component {
   modifyText = (value) => {
     if (!value) return;
 
-    const { onSelect, getTextToReplace } = this.props;
+    const { onSelect, getTextToReplace, getSelectedItem } = this.props;
 
     onSelect(getTextToReplace(value));
+    if (getSelectedItem) {
+      onSelect(getSelectedItem(value));
+    }
   };
 
   selectItem = (item, keyboard = false) => {

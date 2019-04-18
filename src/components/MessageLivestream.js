@@ -257,7 +257,7 @@ export class MessageLivestream extends React.PureComponent {
               >
                 {message.type !== 'error' &&
                   message.status !== 'failed' &&
-                  renderText(message.text)}
+                  renderText(message)}
 
                 {message.type === 'error' && !message.command && (
                   <p>

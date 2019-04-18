@@ -81,6 +81,7 @@ export class MessageInputLarge extends PureComponent {
               innerRef={this.props.textareaRef}
               handleSubmit={(e) => this.props.handleSubmit(e)}
               onChange={this.props.handleChange}
+              onSelectItem={this.props.onSelectItem}
               value={this.props.text}
               rows={1}
               placeholder="Type your message"

@@ -255,7 +255,7 @@ export class MessageCommerce extends PureComponent {
                       Error · Unsent
                     </div>
                   )}
-                  {renderText(message.text)}
+                  {renderText(message)}
 
                   {/* if reactions show them */}
                   {hasReactions > 0 && !this.state.showDetailedReactions && (

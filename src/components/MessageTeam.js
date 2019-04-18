@@ -363,7 +363,7 @@ export class MessageTeam extends PureComponent {
                     : ''
                 }
               >
-                {renderText(message.text)}
+                {renderText(message)}
               </span>
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}

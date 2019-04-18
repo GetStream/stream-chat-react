@@ -465,7 +465,7 @@ export class MessageSimple extends PureComponent {
                       Message Failed · Click to try again
                     </div>
                   )}
-                  {renderText(message.text)}
+                  {renderText(message)}
 
                   {/* if reactions show them */}
                   {hasReactions > 0 && !this.state.showDetailedReactions && (

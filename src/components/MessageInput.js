@@ -65,6 +65,8 @@ class MessageInput extends PureComponent {
       fileUploads: Immutable(fileUploads),
       emojiPickerIsOpen: false,
       filePanelIsOpen: false,
+      // mentioned_users: {},
+      mentioned_users: [],
     };
 
     this.textareaRef = React.createRef();
@@ -202,11 +204,28 @@ class MessageInput extends PureComponent {
     return Object.values(userMap);
   };
 
+  checkAndRemoveMentions = () => {
+    const { mentioned_users, text } = this.state;
+
+    for (let i = 0; i < mentioned_users.length; i++) {
+      if (text.indexOf(mentioned_users[i]) === -1) {
+        this.setState({
+          mentioned_users: mentioned_users.splice(i, 1),
+        });
+      }
+    }
+  };
+
   handleChange = (event) => {
     event.preventDefault();
     if (!event || !event.target) {
       return '';
     }
+
+    if (this.state.mentioned_users.length) {
+      this.checkAndRemoveMentions();
+    }
+
     const text = event.target.value;
     this.setState({ text });
     if (text) {
@@ -289,11 +308,13 @@ class MessageInput extends PureComponent {
       const sendMessagePromise = this.props.sendMessage({
         text,
         attachments,
+        mentioned_users: this.state.mentioned_users,
         parent: this.props.parent,
       });
       logChatPromiseExecution(sendMessagePromise, 'send message');
       this.setState({
         text: '',
+        mentioned_users: [],
         imageUploads: Immutable({}),
         imageOrder: [],
         fileUploads: Immutable({}),
@@ -519,6 +540,10 @@ class MessageInput extends PureComponent {
     }
   };
 
+  _onSelectItem = (item) => {
+    this.setState((prevState) => ({ mentioned_users: [...prevState.mentioned_users, item.id] }));
+  };
+
   render() {
     const { Input } = this.props;
     const handlers = {
@@ -536,6 +561,7 @@ class MessageInput extends PureComponent {
       handleSubmit: this.handleSubmit,
       handleChange: this.handleChange,
       onPaste: this._onPaste,
+      onSelectItem: this._onSelectItem,
       openEmojiPicker: this.openEmojiPicker,
     };
     return <Input {...this.props} {...this.state} {...handlers} />;

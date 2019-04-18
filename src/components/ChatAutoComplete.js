@@ -64,9 +64,8 @@ export class ChatAutoComplete extends PureComponent {
         dataProvider: (q) => {
           const matchingUsers = this.props.users.filter(
             (user) =>
-              (user &&
+              (user.name &&
                 user.name.toLowerCase().indexOf(q.toLowerCase()) !== -1) ||
-              (user && user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1) ||
               (user && user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1),
           );
           return matchingUsers.slice(0, 10);
@@ -77,6 +76,7 @@ export class ChatAutoComplete extends PureComponent {
           text: `@${entity.name || entity.id}`,
           caretPosition: 'next',
         }),
+        callback: (item) => this.props.onSelectItem(item),
       },
       '/': {
         dataProvider: (q, text) => {

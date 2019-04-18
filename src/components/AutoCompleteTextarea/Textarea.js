@@ -260,6 +260,31 @@ class ReactTextareaAutocomplete extends React.Component {
     this._closeAutocomplete();
   };
 
+  _getItemOnSelect = () => {
+    const { currentTrigger } = this.state;
+    const triggerSettings = this._getCurrentTriggerSettings();
+
+    if (!currentTrigger || !triggerSettings) return null;
+
+    const { callback } = triggerSettings;
+
+    if (!callback) return null;
+
+    return (item) => {
+      if (typeof callback !== 'function') {
+        throw new Error(
+          'Output functor is not defined! You have to define "output" function. https://github.com/webscopeio/react-textarea-autocomplete#trigger-type',
+        );
+      }
+      if (callback) {
+        const selectedItem = callback(item, currentTrigger);
+
+        return selectedItem;
+      }
+      return null;
+    };
+  };
+
   _getTextToReplace = () => {
     const { currentTrigger, actualToken } = this.state;
     const triggerSettings = this._getCurrentTriggerSettings();
@@ -679,6 +704,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     const suggestionData = this._getSuggestions();
     const textToReplace = this._getTextToReplace();
+    const selectedItem = this._getItemOnSelect();
 
     let maxRows = 10;
     if (!this.props.grow) {
@@ -710,6 +736,7 @@ class ReactTextareaAutocomplete extends React.Component {
                 itemClassName={itemClassName}
                 itemStyle={itemStyle}
                 getTextToReplace={textToReplace}
+                getSelectedItem={selectedItem}
                 onSelect={this._onSelect}
                 dropdownScroll={this._dropdownScroll}
               />
@@ -775,6 +802,7 @@ const triggerPropsCheck = ({ trigger }) => {
       component,
       dataProvider,
       output,
+      callback,
       afterWhitespace,
       allowWhitespace,
     } = triggerSetting;
@@ -789,6 +817,10 @@ const triggerPropsCheck = ({ trigger }) => {
 
     if (output && typeof output !== 'function') {
       return Error('Invalid prop trigger: output should be a function.');
+    }
+
+    if (callback && typeof callback !== 'function') {
+      return Error('Invalid prop trigger: callback should be a function.');
     }
 
     if (afterWhitespace && allowWhitespace) {
