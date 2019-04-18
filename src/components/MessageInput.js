@@ -329,8 +329,10 @@ class MessageInput extends PureComponent {
     for (const file of files) {
       if (file.type.startsWith('image/')) {
         this._uploadNewImage(file);
-      } else if (file instanceof File) {
+      } else if (file instanceof File && !this.props.noFiles) {
         this._uploadNewFile(file);
+      } else {
+        return;
       }
     }
   };
@@ -541,7 +543,14 @@ class MessageInput extends PureComponent {
   };
 
   _onSelectItem = (item) => {
-    this.setState((prevState) => ({ mentioned_users: [...prevState.mentioned_users, item.id] }));
+    this.setState((prevState) => ({
+      mentioned_users: [...prevState.mentioned_users, item.id],
+    }));
+  };
+
+  _getNumberOfUploads = () => {
+    const { fileUploads, imageUploads } = this.state;
+    return Object.keys(fileUploads).length + Object.keys(imageUploads).length;
   };
 
   render() {
@@ -563,6 +572,7 @@ class MessageInput extends PureComponent {
       onPaste: this._onPaste,
       onSelectItem: this._onSelectItem,
       openEmojiPicker: this.openEmojiPicker,
+      getUploadCount: this._getNumberOfUploads,
     };
     return <Input {...this.props} {...this.state} {...handlers} />;
   }
