@@ -178,6 +178,7 @@ class ChannelInner extends PureComponent {
       limit,
       id_lt: oldestMessageID,
     });
+
     const hasMore = queryResponse.messages.length === limit;
 
     const threadMessages = channel.state.threads[parentID] || [];
@@ -229,7 +230,6 @@ class ChannelInner extends PureComponent {
     // adds the message to the local channel state..
     // this adds to both the main channel state as well as any reply threads
     channel.state.addMessageSorted(updatedMessage);
-    console.log(updatedMessage);
 
     // update the Channel component state
     if (this.state.thread && updatedMessage.parent_id) {

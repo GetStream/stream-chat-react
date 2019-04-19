@@ -142,7 +142,7 @@ export default class List extends React.Component {
     }
 
     if (value[0] === '@') {
-      return `People matching <strong>${value.replace('@', '')}</strong>`;
+      return `Searching for people`;
     }
   };
 
@@ -155,6 +155,7 @@ export default class List extends React.Component {
       className,
       itemStyle,
     } = this.props;
+
     return (
       <ul className={`rta__list ${className || ''}`} style={style}>
         <li

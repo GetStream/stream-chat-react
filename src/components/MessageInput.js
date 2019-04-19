@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { MessageInputLarge } from './MessageInputLarge';
 import Immutable from 'seamless-immutable';
 import { generateRandomId } from '../utils';
+import uniq from 'lodash/uniq';
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
@@ -204,26 +205,10 @@ class MessageInput extends PureComponent {
     return Object.values(userMap);
   };
 
-  checkAndRemoveMentions = () => {
-    const { mentioned_users, text } = this.state;
-
-    for (let i = 0; i < mentioned_users.length; i++) {
-      if (text.indexOf(mentioned_users[i]) === -1) {
-        this.setState({
-          mentioned_users: mentioned_users.splice(i, 1),
-        });
-      }
-    }
-  };
-
   handleChange = (event) => {
     event.preventDefault();
     if (!event || !event.target) {
       return '';
-    }
-
-    if (this.state.mentioned_users.length) {
-      this.checkAndRemoveMentions();
     }
 
     const text = event.target.value;
@@ -308,7 +293,7 @@ class MessageInput extends PureComponent {
       const sendMessagePromise = this.props.sendMessage({
         text,
         attachments,
-        mentioned_users: this.state.mentioned_users,
+        mentioned_users: uniq(this.state.mentioned_users),
         parent: this.props.parent,
       });
       logChatPromiseExecution(sendMessagePromise, 'send message');

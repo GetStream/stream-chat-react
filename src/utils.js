@@ -162,19 +162,21 @@ export const renderText = (message) => {
     const mkdown = `[${displayLink}](${urlInfo.protocol}${urlInfo.encoded})`;
     text = text.replace(urlInfo.raw, mkdown);
   }
-
+  let newText = text;
   if (mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
       const username = mentioned_users[i].name || mentioned_users[i].id;
       const mkdown = `**@${username}**`;
-      text = text.replace('@' + username, mkdown);
+      const re = new RegExp(`@${username}`, 'g');
+      newText = text.replace(re, mkdown);
+      console.log('renderingmentions: ', text);
     }
   }
 
   return (
     <ReactMarkdown
       allowedTypes={allowed}
-      source={text}
+      source={newText}
       linkTarget="_blank"
       plugins={[]}
       escapeHtml={true}
