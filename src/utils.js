@@ -169,7 +169,6 @@ export const renderText = (message) => {
       const mkdown = `**@${username}**`;
       const re = new RegExp(`@${username}`, 'g');
       newText = text.replace(re, mkdown);
-      console.log('renderingmentions: ', text);
     }
   }
 
