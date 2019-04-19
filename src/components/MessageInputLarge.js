@@ -70,15 +70,12 @@ export class MessageInputLarge extends PureComponent {
   };
 
   render() {
-    const number = this.props.getUploadCount() || 0;
-    console.log(number);
     return (
       <div style={{ position: 'relative', zIndex: 100, width: '100%' }}>
         <ImageDropzone
           accept={this.props.acceptedFiles}
           multiple={this.props.multipleUploads}
           handleFiles={this.props.uploadNewFiles}
-          disabled={!this.props.multipleUploads && number >= 1}
         >
           <div className="str-chat__input">
             {this.renderUploads()}

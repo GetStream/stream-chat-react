@@ -64,7 +64,8 @@ export class ChatAutoComplete extends PureComponent {
         dataProvider: (q) => {
           const matchingUsers = this.props.users.filter(
             (user) =>
-              (user.name &&
+              (user &&
+                user.name &&
                 user.name.toLowerCase().indexOf(q.toLowerCase()) !== -1) ||
               (user && user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1),
           );

@@ -85,9 +85,9 @@ class App extends Component {
             <ChannelHeader />
             <MessageList Message={MessageTeam} />
             <MessageInput
-              acceptedFiles={['image/*']}
-              multipleUploads={false}
-              maxNumberOfFiles={3}
+              // acceptedFiles={['image/*']}
+              // multipleUploads={false}
+              // maxNumberOfFiles={3}
               focus
             />
           </Window>

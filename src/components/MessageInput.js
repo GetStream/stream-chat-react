@@ -557,7 +557,6 @@ class MessageInput extends PureComponent {
       onPaste: this._onPaste,
       onSelectItem: this._onSelectItem,
       openEmojiPicker: this.openEmojiPicker,
-      getUploadCount: this._getNumberOfUploads,
     };
     return <Input {...this.props} {...this.state} {...handlers} />;
   }
