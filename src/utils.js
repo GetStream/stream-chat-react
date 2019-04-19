@@ -168,7 +168,7 @@ export const renderText = (message) => {
       const username = mentioned_users[i].name || mentioned_users[i].id;
       const mkdown = `**@${username}**`;
       const re = new RegExp(`@${username}`, 'g');
-      newText = text.replace(re, mkdown);
+      newText = newText.replace(re, mkdown);
     }
   }
 
