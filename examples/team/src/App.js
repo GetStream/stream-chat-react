@@ -33,6 +33,7 @@ class App extends Component {
     this.chatClient.setUser(
       {
         id: user,
+        name: 'Jaap Bakker',
       },
       userToken,
     );
@@ -83,7 +84,12 @@ class App extends Component {
           <Window>
             <ChannelHeader />
             <MessageList Message={MessageTeam} />
-            <MessageInput focus />
+            <MessageInput
+              acceptedFiles={['image/*']}
+              multipleUploads={false}
+              maxNumberOfFiles={3}
+              focus
+            />
           </Window>
           <Thread Message={MessageTeam} />
         </Channel>
