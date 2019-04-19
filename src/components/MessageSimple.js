@@ -453,7 +453,9 @@ export class MessageSimple extends PureComponent {
                       ? 'str-chat__message-simple-text-inner--is-emoji'
                       : ''
                   }
-								`.trim()}
+                `.trim()}
+                  onMouseOver={this.props.onMentionsHoverMessage}
+                  onClick={this.props.onMentionsClickMessage}
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">

@@ -222,6 +222,13 @@ export class Message extends Component {
     await this.props.retrySendMessage(message);
   };
 
+  onMentionsClick = (e) => {
+    this.props.onMentionsClick(e, this.props.message.mentioned_users);
+  };
+  onMentionsHover = (e) => {
+    this.props.onMentionsHover(e, this.props.message.mentioned_users);
+  };
+
   render() {
     const message = this.props.message;
 
@@ -244,6 +251,8 @@ export class Message extends Component {
         openThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }
+        onMentionsClickMessage={this.onMentionsClick}
+        onMentionsHoverMessage={this.onMentionsHover}
       />
     );
   }

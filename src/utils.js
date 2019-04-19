@@ -165,7 +165,7 @@ export const renderText = (message) => {
 
   if (mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
-      const username = mentioned_users[i].name;
+      const username = mentioned_users[i].name || mentioned_users[i].id;
       const mkdown = `**@${username}**`;
       text = text.replace('@' + username, mkdown);
     }

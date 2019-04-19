@@ -81,7 +81,10 @@ class App extends Component {
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
         />
-        <Channel>
+        <Channel
+          onMentionsHover={(e, user) => console.log(e, user)}
+          onMentionsClick={(e, user) => console.log(e, user)}
+        >
           <Window>
             <ChannelHeader />
             <MessageList TypingIndicator={TypingIndicator} />

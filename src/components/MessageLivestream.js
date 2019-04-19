@@ -254,6 +254,8 @@ export class MessageLivestream extends React.PureComponent {
                     ? 'str-chat__message-livestream-text--is-emoji'
                     : ''
                 }
+                onMouseOver={this.props.onMentionsHoverMessage}
+                onClick={this.props.onMentionsClickMessage}
               >
                 {message.type !== 'error' &&
                   message.status !== 'failed' &&

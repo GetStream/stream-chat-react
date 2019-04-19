@@ -541,7 +541,9 @@ class MessageInput extends PureComponent {
   };
 
   _onSelectItem = (item) => {
-    this.setState((prevState) => ({ mentioned_users: [...prevState.mentioned_users, item.id] }));
+    this.setState((prevState) => ({
+      mentioned_users: [...prevState.mentioned_users, item.id],
+    }));
   };
 
   render() {

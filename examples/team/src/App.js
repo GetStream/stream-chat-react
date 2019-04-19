@@ -76,7 +76,10 @@ class App extends Component {
           List={ChannelListTeam}
           showSidebar
         />
-        <Channel>
+        <Channel
+          onMentionsHover={(e, user) => console.log(e, user)}
+          onMentionsClick={(e, user) => console.log(e, user)}
+        >
           <Window>
             <ChannelHeader />
             <MessageList Message={MessageTeam} />

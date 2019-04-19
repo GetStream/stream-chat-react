@@ -92,6 +92,7 @@ export class MessageInputFlat extends PureComponent {
               commands={this.props.getCommands()}
               innerRef={this.props.textareaRef}
               handleSubmit={(e) => this.props.handleSubmit(e)}
+              onSelectItem={this.props.onSelectItem}
               onChange={this.props.handleChange}
               value={this.props.text}
               rows={1}

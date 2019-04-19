@@ -68,7 +68,11 @@ class App extends Component {
       <>
         <div className={`wrapper ${this.state.open ? 'wrapper--open' : ''}`}>
           <Chat client={this.chatClient} theme={`commerce ${theme}`}>
-            <Channel channel={this.channel}>
+            <Channel
+              channel={this.channel}
+              onMentionsHover={(e, user) => console.log(e, user)}
+              onMentionsClick={(e, user) => console.log(e, user)}
+            >
               <Window>
                 <ChannelHeader />
                 {this.state.open && (

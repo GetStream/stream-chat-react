@@ -386,6 +386,25 @@ class MessageList extends PureComponent {
     return messageGroupStyles;
   };
 
+  _onMentionsHoverOrClick = (e, mentioned_users) => {
+    if (!this.props.onMentionsHover || !this.props.onMentionsClick) return;
+
+    const tagName = e.target.tagName.toLowerCase();
+    const textContent = e.target.innerHTML.replace('*', '');
+    if (tagName === 'strong' && textContent[0] === '@') {
+      const userName = textContent.replace('@', '');
+      const user = mentioned_users.find(
+        (user) => user.name === userName || user.id === userName,
+      );
+      if (this.props.onMentionsHover && e.type === 'mouseover') {
+        this.props.onMentionsHover(e, user);
+      }
+      if (this.props.onMentionsClick && e.type === 'click') {
+        this.props.onMentionsHover(e, user);
+      }
+    }
+  };
+
   render() {
     let allMessages = [...this.props.messages];
 
@@ -459,6 +478,8 @@ class MessageList extends PureComponent {
               removeMessage={this.props.removeMessage}
               Message={this.props.Message}
               Attachment={this.props.Attachment}
+              onMentionsClick={this.props.onMentionsClick}
+              onMentionsHover={this.props.onMentionsHover}
             />
           </li>,
         );

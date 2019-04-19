@@ -35,6 +35,11 @@ class Channel extends PureComponent {
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+
+    /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+    onMentionsClick: PropTypes.func,
+    /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+    onMentionsHover: PropTypes.func,
   };
 
   static defaultProps = {
@@ -224,6 +229,7 @@ class ChannelInner extends PureComponent {
     // adds the message to the local channel state..
     // this adds to both the main channel state as well as any reply threads
     channel.state.addMessageSorted(updatedMessage);
+    console.log(updatedMessage);
 
     // update the Channel component state
     if (this.state.thread && updatedMessage.parent_id) {
@@ -428,6 +434,25 @@ class ChannelInner extends PureComponent {
     this._loadMoreFinishedDebounced(hasMore, this.props.channel.state.messages);
   };
 
+  _onMentionsHoverOrClick = (e, mentioned_users) => {
+    if (!this.props.onMentionsHover || !this.props.onMentionsClick) return;
+
+    const tagName = e.target.tagName.toLowerCase();
+    const textContent = e.target.innerHTML.replace('*', '');
+    if (tagName === 'strong' && textContent[0] === '@') {
+      const userName = textContent.replace('@', '');
+      const user = mentioned_users.find(
+        (user) => user.name === userName || user.id === userName,
+      );
+      if (this.props.onMentionsHover && e.type === 'mouseover') {
+        this.props.onMentionsHover(e, user);
+      }
+      if (this.props.onMentionsClick && e.type === 'click') {
+        this.props.onMentionsHover(e, user);
+      }
+    }
+  };
+
   loadMoreFinished = (hasMore, messages) => {
     this.setState({
       loadingMore: false,
@@ -456,6 +481,8 @@ class ChannelInner extends PureComponent {
     openThread: this.openThread,
     closeThread: this.closeThread,
     loadMoreThread: this.loadMoreThread,
+    onMentionsClick: this._onMentionsHoverOrClick,
+    onMentionsHover: this._onMentionsHoverOrClick,
   });
 
   renderComponent = () => this.props.children;
