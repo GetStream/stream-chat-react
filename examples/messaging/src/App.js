@@ -93,13 +93,7 @@ class App extends Component {
           <Window>
             <ChannelHeader />
             <MessageList TypingIndicator={TypingIndicator} />
-            <MessageInput
-              // multipleUploads={false}
-              // acceptedFiles={['image/*']}
-              // maxNumberOfFiles={1}
-              Input={MessageInputFlat}
-              focus
-            />
+            <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
         </Channel>
