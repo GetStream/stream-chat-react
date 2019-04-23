@@ -86,14 +86,17 @@ class App extends Component {
         <Channel
           onMentionsHover={(e, user) => console.log(e, user)}
           onMentionsClick={(e, user) => console.log(e, user)}
-          multipleUploads={false}
-          acceptedFiles={['image/*']}
-          maxNumberOfFiles={1}
         >
           <Window>
             <ChannelHeader />
             <MessageList TypingIndicator={TypingIndicator} />
-            <MessageInput Input={MessageInputFlat} focus />
+            <MessageInput
+              multipleUploads={false}
+              acceptedFiles={['image/*']}
+              maxNumberOfFiles={1}
+              Input={MessageInputFlat}
+              focus
+            />
           </Window>
           <Thread Message={MessageSimple} />
         </Channel>
