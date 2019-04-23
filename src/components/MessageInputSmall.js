@@ -35,6 +35,12 @@ export class MessageInputSmall extends PureComponent {
           handleRemove={this.props.removeImage}
           handleRetry={this.props.uploadImage}
           handleFiles={this.props.uploadNewFiles}
+          multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
         />
       )}
       {this.props.fileOrder.length > 0 && (
@@ -70,7 +76,16 @@ export class MessageInputSmall extends PureComponent {
   render() {
     return (
       <div style={{ position: 'relative', zIndex: 0, width: '100%' }}>
-        <ImageDropzone handleFiles={this.props.uploadNewFiles}>
+        <ImageDropzone
+          accept={this.props.acceptedFiles}
+          multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
+          handleFiles={this.props.uploadNewFiles}
+        >
           <div className="str-chat__small-message-input">
             {this.renderUploads()}
             {this.renderEmojiPicker()}
@@ -100,7 +115,16 @@ export class MessageInputSmall extends PureComponent {
                 />
               </svg>
             </span>
-            <FileUploadButton multiple handleFiles={this.props.uploadNewFiles}>
+            <FileUploadButton
+              multiple={this.props.multipleUploads}
+              disabled={
+                this.props.numberOfUploads >= this.props.maxNumberOfFiles
+                  ? true
+                  : false
+              }
+              accepts={this.props.acceptedFiles}
+              handleFiles={this.props.uploadNewFiles}
+            >
               <span
                 className="str-chat__small-message-input-fileupload"
                 onClick={this.props.openFilePanel}

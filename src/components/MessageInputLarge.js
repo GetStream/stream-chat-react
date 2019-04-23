@@ -37,6 +37,11 @@ export class MessageInputLarge extends PureComponent {
           handleRetry={this.props.uploadImage}
           handleFiles={this.props.uploadNewFiles}
           multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
         />
       )}
       {this.props.fileOrder.length > 0 && (
@@ -75,6 +80,11 @@ export class MessageInputLarge extends PureComponent {
         <ImageDropzone
           accept={this.props.acceptedFiles}
           multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
           handleFiles={this.props.uploadNewFiles}
         >
           <div className="str-chat__input">
@@ -106,7 +116,17 @@ export class MessageInputLarge extends PureComponent {
                 />
               </svg>
             </span>
-            <FileUploadButton multiple handleFiles={this.props.uploadNewFiles}>
+
+            <FileUploadButton
+              multiple={this.props.multipleUploads}
+              disabled={
+                this.props.numberOfUploads >= this.props.maxNumberOfFiles
+                  ? true
+                  : false
+              }
+              accepts={this.props.acceptedFiles}
+              handleFiles={this.props.uploadNewFiles}
+            >
               <span className="str-chat__input-fileupload">
                 <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
                   <path

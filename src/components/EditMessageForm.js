@@ -39,6 +39,12 @@ export class EditMessageForm extends React.Component {
           handleRemove={this.props.removeImage}
           handleRetry={this.props.uploadImage}
           handleFiles={this.props.uploadNewFiles}
+          multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
         />
       )}
       {this.props.fileOrder.length > 0 && (
@@ -74,7 +80,16 @@ export class EditMessageForm extends React.Component {
   render() {
     return (
       <div className="str-chat__edit-message-form">
-        <ImageDropzone handleFiles={this.props.uploadNewFiles}>
+        <ImageDropzone
+          accept={this.props.acceptedFiles}
+          multiple={this.props.multipleUploads}
+          disabled={
+            this.props.numberOfUploads >= this.props.maxNumberOfFiles
+              ? true
+              : false
+          }
+          handleFiles={this.props.uploadNewFiles}
+        >
           <form onSubmit={this.props.handleSubmit}>
             {this.renderEmojiPicker()}
             {this.renderUploads()}
@@ -120,7 +135,13 @@ export class EditMessageForm extends React.Component {
                   </svg>
                 </span>
                 <FileUploadButton
-                  multiple
+                  multiple={this.props.multipleUploads}
+                  disabled={
+                    this.props.numberOfUploads >= this.props.maxNumberOfFiles
+                      ? true
+                      : false
+                  }
+                  accepts={this.props.acceptedFiles}
                   handleFiles={this.props.uploadNewFiles}
                 >
                   <span className="str-chat__input-fileupload">

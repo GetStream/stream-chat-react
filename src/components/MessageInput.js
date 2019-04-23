@@ -68,6 +68,7 @@ class MessageInput extends PureComponent {
       filePanelIsOpen: false,
       // mentioned_users: {},
       mentioned_users: [],
+      numberOfUploads: 0,
     };
 
     this.textareaRef = React.createRef();
@@ -326,6 +327,7 @@ class MessageInput extends PureComponent {
     const id = generateRandomId();
 
     await this.setState((prevState) => ({
+      numberOfUploads: prevState.numberOfUploads + 1,
       imageOrder: prevState.imageOrder.concat(id),
       imageUploads: prevState.imageUploads.setIn([id], {
         id,
@@ -354,6 +356,7 @@ class MessageInput extends PureComponent {
     const id = generateRandomId();
 
     await this.setState((prevState) => ({
+      numberOfUploads: prevState.numberOfUploads + 1,
       fileOrder: prevState.fileOrder.concat(id),
       fileUploads: prevState.fileUploads.setIn([id], {
         id,
@@ -394,10 +397,13 @@ class MessageInput extends PureComponent {
         const image = prevState.imageUploads[id];
         if (!image) {
           alreadyRemoved = true;
-          return {};
+          return {
+            numberOfUploads: prevState.numberOfUploads - 1,
+          };
         }
         return {
           imageUploads: prevState.imageUploads.setIn([id, 'state'], 'failed'),
+          numberOfUploads: prevState.numberOfUploads - 1,
         };
       });
 
@@ -444,9 +450,12 @@ class MessageInput extends PureComponent {
         const image = prevState.imageUploads[id];
         if (!image) {
           alreadyRemoved = true;
-          return {};
+          return {
+            numberOfUploads: prevState.numberOfUploads - 1,
+          };
         }
         return {
+          numberOfUploads: prevState.numberOfUploads - 1,
           fileUploads: prevState.fileUploads.setIn([id, 'state'], 'failed'),
         };
       });
@@ -472,6 +481,7 @@ class MessageInput extends PureComponent {
         return {};
       }
       return {
+        numberOfUploads: prevState.numberOfUploads - 1,
         imageUploads: prevState.imageUploads.set(id, undefined), // remove
         imageOrder: prevState.imageOrder.filter((_id) => id !== _id),
       };
@@ -486,6 +496,7 @@ class MessageInput extends PureComponent {
         return {};
       }
       return {
+        numberOfUploads: prevState.numberOfUploads - 1,
         fileUploads: prevState.fileUploads.set(id, undefined), // remove
         fileOrder: prevState.fileOrder.filter((_id) => id !== _id),
       };
@@ -531,11 +542,6 @@ class MessageInput extends PureComponent {
     this.setState((prevState) => ({
       mentioned_users: [...prevState.mentioned_users, item.id],
     }));
-  };
-
-  _getNumberOfUploads = () => {
-    const { fileUploads, imageUploads } = this.state;
-    return Object.keys(fileUploads).length + Object.keys(imageUploads).length;
   };
 
   render() {
