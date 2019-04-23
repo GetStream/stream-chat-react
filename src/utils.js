@@ -193,3 +193,28 @@ export function generateRandomId() {
 function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
+
+export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
+  if (ElementOrComponentOrLiteral === undefined) {
+    ElementOrComponentOrLiteral = fallback;
+  }
+  console.log(ElementOrComponentOrLiteral);
+  if (React.isValidElement(ElementOrComponentOrLiteral)) {
+    // Flow cast through any, to make flow believe it's a React.Element
+    const element = ElementOrComponentOrLiteral;
+    return element;
+  }
+
+  // Flow cast through any to remove React.Element after previous check
+  const ComponentOrLiteral = ElementOrComponentOrLiteral;
+
+  if (
+    typeof ComponentOrLiteral === 'string' ||
+    typeof ComponentOrLiteral === 'number' ||
+    typeof ComponentOrLiteral === 'boolean' ||
+    ComponentOrLiteral == null
+  ) {
+    return ComponentOrLiteral;
+  }
+  return <ComponentOrLiteral {...props} />;
+};

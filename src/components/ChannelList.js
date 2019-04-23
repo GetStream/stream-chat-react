@@ -2,9 +2,10 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { LoadingIndicator } from './LoadingIndicator';
+import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
-import { isPromise } from '../utils';
+import { isPromise, smartRender } from '../utils';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
@@ -28,12 +29,14 @@ class ChannelList extends PureComponent {
     /** The loading indicator to use */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
   static defaultProps = {
     Preview: ChannelPreviewLastMessage,
     LoadingIndicator,
     List: ChannelListTeam,
+    Paginator: LoadMorePaginator,
   };
 
   constructor(props) {
@@ -76,12 +79,33 @@ class ChannelList extends PureComponent {
     this.menuButton.current.checked = false;
   };
 
-  render() {
-    const context = {
-      clickCreateChannel: this.clickCreateChannel,
-      closeMenu: this.closeMenu,
+  // new channel list // *********************************
+  _childProps = () => ({
+    yes: 'yes',
+  });
+
+  _renderChannel = (item) => {
+    const args = {
+      channel: item,
+      ...this._childProps(),
     };
-    const List = this.props.List;
+
+    const { Preview } = this.props;
+    console.log(item);
+    return <Preview {...args} key={item.id} />;
+  };
+
+  render() {
+    // const context = {
+    //   clickCreateChannel: this.clickCreateChannel,
+    //   closeMenu: this.closeMenu,
+    // };
+    // const List = this.props.List;
+    //
+    const { Paginator } = this.props;
+    const loadNextPage = () => console.log('loadNextPage');
+    const refreshing = false;
+    const hasNextPage = true;
     return (
       <React.Fragment>
         <input
@@ -102,7 +126,16 @@ class ChannelList extends PureComponent {
           }`}
           ref={this.channelList}
         >
-          <List {...this.props} {...this.state} {...context} />
+          {/* <List {...this.props} {...this.state} {...context} /> */}
+
+          {smartRender(Paginator, {
+            loadNextPage,
+            hasNextPage,
+            refreshing,
+            children: this.state.channels.map((item) =>
+              this._renderChannel(item),
+            ),
+          })}
         </div>
       </React.Fragment>
     );

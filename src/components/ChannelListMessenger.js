@@ -58,7 +58,7 @@ class ChannelListMessenger extends PureComponent {
       return (
         <div className="str-chat__channel-list-messenger">
           <div className="str-chat__channel-list-messenger__main">
-            {this.renderChannels()}
+            {this.props.renderChannels() || this.renderChannels()}
           </div>
         </div>
       );
