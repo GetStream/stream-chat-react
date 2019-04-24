@@ -139,6 +139,9 @@ class ChannelInner extends PureComponent {
 
   componentWillUnmount() {
     this.props.channel.off(this.handleEvent);
+    this._loadMoreFinishedDebounced.cancel();
+    this._loadMoreThreadFinishedDebounced.cancel();
+
     if (this.visibilityListener) {
       Visibility.unbind(this.visibilityListener);
     }
