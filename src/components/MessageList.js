@@ -271,19 +271,23 @@ class MessageList extends PureComponent {
       readData[message.id] = [];
     }
 
-    // get all the read events
-    const readEvents = Object.values(this.props.read);
-
-    // match readevents with lastMessageId with the correct id
-    for (const event of readEvents) {
-      if (event.last_message_id) {
-        readData[event.last_message_id] = [
-          ...readData[event.last_message_id],
-          event.user,
+    for (const readState of Object.values(this.props.read)) {
+      if (readState.last_read == null) {
+        break;
+      }
+      let userLastReadMsgId;
+      for (const msg of messages) {
+        if (msg.updated_at < readState.last_read) {
+          userLastReadMsgId = msg.id;
+        }
+      }
+      if (userLastReadMsgId != null) {
+        readData[userLastReadMsgId] = [
+          ...readData[userLastReadMsgId],
+          readState.user,
         ];
       }
     }
-
     return readData;
   };
 

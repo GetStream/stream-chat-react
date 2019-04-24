@@ -3222,13 +3222,6 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
 expect@^23.6.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/expect/-/expect-23.6.0.tgz#1e0c8d3ba9a581c87bd71fb9bc8862d443425f98"
-  dependencies:
-    ansi-styles "^3.2.0"
-    jest-diff "^23.6.0"
-    jest-get-type "^22.1.0"
-    jest-matcher-utils "^23.6.0"
-    jest-message-util "^23.4.0"
-    jest-regex-util "^23.3.0"
 
 express@^4.16.2:
   version "4.16.4"
@@ -7190,9 +7183,10 @@ react-file-icon@^0.2.0:
     react-dom "^16.2.0"
     tinycolor2 "^1.4.1"
 
-react-file-utils@0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.3.2.tgz#76106cbad30702b467694d4bf70c7d0bf08e751b"
+react-file-utils@0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.3.7.tgz#4dde0ad2f1f24361f7fe0014e3c34bb05a69df4d"
+  integrity sha512-ShckjHx8cuPl6lmFg+XGZLvNJQ5QAGL71k4OT6qwGoChO6jnqbeqPMWplrpiAE8WiKl5dXjaqog2KDY5zy2x/Q==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.13"
     "@fortawesome/free-regular-svg-icons" "^5.7.0"
@@ -8169,9 +8163,10 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.7.5:
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.5.tgz#3dd86e669bbe7f27a71f8e1e6d5872acbbef1585"
+stream-chat@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.8.0.tgz#528725bd13393406375bcc05656a340070ba33dd"
+  integrity sha512-ddpTE6QwMv/cfaOmZFuFgDb8kN/pYavMaJg7nAH+9pZWag67eeAafBAdYn62s7BwN8IM94JD/hiFyLDvDVYZeg==
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
