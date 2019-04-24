@@ -49,16 +49,14 @@ class App extends Component {
       example: 1,
     });
     const exampleVersion = 1;
-    for (let i = 0; i < 10; i++) {
-      this.chatClient
-        .channel('messaging', `channel-${i + 1}`, {
-          image:
-            'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
-          name: `Channel ${i + 1}`,
-          example: exampleVersion,
-        })
-        .watch();
-    }
+    this.chatClient
+      .channel('messaging', `aww`, {
+        image:
+          'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
+        name: `aww`,
+        example: exampleVersion,
+      })
+      .watch();
     this.channel.update({
       image:
         'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
@@ -72,8 +70,8 @@ class App extends Component {
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       watch: true,
-      limit: 5,
-      offset: 0,
+      // limit: 5,
+      // offset: 0,
     });
   }
 

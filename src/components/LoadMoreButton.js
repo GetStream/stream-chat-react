@@ -15,7 +15,7 @@ export class LoadMoreButton extends React.Component {
       <button
         onClick={this.props.onClick}
         disabled={this.props.refreshing}
-        loading={this.props.refreshing}
+        // loading={this.props.refreshing}
       >
         {this.props.children}
       </button>

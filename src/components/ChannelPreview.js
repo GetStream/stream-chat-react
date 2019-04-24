@@ -16,7 +16,6 @@ export class ChannelPreview extends PureComponent {
 
   static propTypes = {
     channel: PropTypes.object.isRequired,
-    client: PropTypes.object.isRequired,
     activeChannel: PropTypes.object.isRequired,
     setActiveChannel: PropTypes.func.isRequired,
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
@@ -86,7 +85,6 @@ export class ChannelPreview extends PureComponent {
     const props = { ...this.state, ...this.props };
 
     const { Preview } = this.props;
-
     return (
       <Preview
         {...props}

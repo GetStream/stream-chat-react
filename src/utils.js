@@ -198,7 +198,6 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   if (ElementOrComponentOrLiteral === undefined) {
     ElementOrComponentOrLiteral = fallback;
   }
-  console.log(ElementOrComponentOrLiteral);
   if (React.isValidElement(ElementOrComponentOrLiteral)) {
     // Flow cast through any, to make flow believe it's a React.Element
     const element = ElementOrComponentOrLiteral;

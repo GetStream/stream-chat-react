@@ -11,7 +11,6 @@ export class LoadMorePaginator extends React.Component {
     LoadMoreButton,
   };
   render() {
-    console.log(this.props.LoadMoreButton);
     return (
       <React.Fragment>
         {!this.props.reverse && this.props.children}

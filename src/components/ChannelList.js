@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
+import { ChannelPreview } from './ChannelPreview';
 import { LoadingIndicator } from './LoadingIndicator';
 import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
@@ -80,32 +81,30 @@ class ChannelList extends PureComponent {
   };
 
   // new channel list // *********************************
-  _childProps = () => ({
-    yes: 'yes',
-  });
 
   _renderChannel = (item) => {
+    const { Preview } = this.props;
+
     const args = {
       channel: item,
-      ...this._childProps(),
+      activeChannel: this.props.channel,
+      closeMenu: this.closeMenu,
+      Preview,
+      setActiveChannel: this.props.setActiveChannel,
+      key: item.id,
     };
-
-    const { Preview } = this.props;
-    console.log(item);
-    return <Preview {...args} key={item.id} />;
+    return smartRender(ChannelPreview, { ...args });
   };
 
   render() {
-    // const context = {
-    //   clickCreateChannel: this.clickCreateChannel,
-    //   closeMenu: this.closeMenu,
-    // };
-    // const List = this.props.List;
-    //
-    const { Paginator } = this.props;
-    const loadNextPage = () => console.log('loadNextPage');
-    const refreshing = false;
-    const hasNextPage = true;
+    const {
+      List,
+      Paginator,
+      loadNextPage,
+      refreshing,
+      hasNextPage,
+    } = this.props;
+
     return (
       <React.Fragment>
         <input
@@ -127,15 +126,16 @@ class ChannelList extends PureComponent {
           ref={this.channelList}
         >
           {/* <List {...this.props} {...this.state} {...context} /> */}
-
-          {smartRender(Paginator, {
-            loadNextPage,
-            hasNextPage,
-            refreshing,
-            children: this.state.channels.map((item) =>
-              this._renderChannel(item),
-            ),
-          })}
+          <List loading={this.state.loading} error={this.state.error}>
+            {smartRender(Paginator, {
+              loadNextPage,
+              hasNextPage,
+              refreshing,
+              children: this.state.channels.map((item) =>
+                this._renderChannel(item),
+              ),
+            })}
+          </List>
         </div>
       </React.Fragment>
     );
