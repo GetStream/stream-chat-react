@@ -11055,9 +11055,9 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.7.7:
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.7.7.tgz#c0f92a02b3d99695d4efe6a8991838d488d1db3d"
+stream-chat@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.8.0.tgz#528725bd13393406375bcc05656a340070ba33dd"
   dependencies:
     axios "^0.18.0"
     cross-fetch "^3.0.0"
