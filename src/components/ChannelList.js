@@ -48,6 +48,12 @@ class ChannelList extends PureComponent {
   }
 
   async componentDidMount() {
+    await this.queryChannels();
+  }
+
+  // async componentDidUpdate(prevProps) {}
+
+  queryChannels = async () => {
     try {
       let channelQueryResponse = this.props.channels;
       if (isPromise(channelQueryResponse)) {
@@ -61,7 +67,7 @@ class ChannelList extends PureComponent {
       console.log(e);
       this.setState({ error: true });
     }
-  }
+  };
 
   static getDerivedStateFromError() {
     return { error: true };
@@ -83,14 +89,14 @@ class ChannelList extends PureComponent {
   // new channel list // *********************************
 
   _renderChannel = (item) => {
-    const { Preview } = this.props;
+    const { Preview, setActiveChannel, channel } = this.props;
 
     const args = {
       channel: item,
-      activeChannel: this.props.channel,
+      activeChannel: channel,
       closeMenu: this.closeMenu,
       Preview,
-      setActiveChannel: this.props.setActiveChannel,
+      setActiveChannel,
       key: item.id,
     };
     return smartRender(ChannelPreview, { ...args });
@@ -104,7 +110,7 @@ class ChannelList extends PureComponent {
       refreshing,
       hasNextPage,
     } = this.props;
-
+    console.log(this.props.channels);
     return (
       <React.Fragment>
         <input

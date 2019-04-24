@@ -70,18 +70,35 @@ class App extends Component {
     const sort = { last_message_at: -1 };
     this.channels = this.chatClient.queryChannels(filters, sort, {
       watch: true,
-      // limit: 5,
-      // offset: 0,
+      limit: 5,
+      offset: 0,
     });
+
+    this.state = {
+      channels: this.channels,
+    };
   }
+
+  loadNextPage = () => {
+    const filters = { type: 'messaging', example: 1 };
+    const sort = { last_message_at: -1 };
+    const channels = this.chatClient.queryChannels(filters, sort, {
+      watch: true,
+      limit: 5,
+      offset: 6,
+    });
+    this.channels = channels;
+  };
 
   render() {
     return (
       <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
-          channels={this.channels}
+          channels={this.state.channels}
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
+          loadNextPage={this.loadNextPage}
+          hasNextPage={true}
         />
         <Channel
           onMentionsHover={(e, user) => console.log(e, user)}
