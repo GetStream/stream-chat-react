@@ -6,7 +6,7 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
-import { isPromise, smartRender } from '../utils';
+import { smartRender } from '../utils';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
@@ -42,30 +42,30 @@ class ChannelList extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { error: false, loading: true, channels: [] };
+    this.state = { error: false };
 
     this.menuButton = React.createRef();
   }
 
-  async componentDidMount() {
-    await this.queryChannels();
-  }
+  // async componentDidMount() {
+  //   await this.queryChannels();
+  // }
 
-  queryChannels = async () => {
-    try {
-      let channelQueryResponse = this.props.channels;
-      if (isPromise(channelQueryResponse)) {
-        channelQueryResponse = await this.props.channels;
-        if (channelQueryResponse.length >= 1) {
-          this.props.setActiveChannel(channelQueryResponse[0]);
-        }
-      }
-      this.setState({ loading: false, channels: channelQueryResponse });
-    } catch (e) {
-      console.log(e);
-      this.setState({ error: true });
-    }
-  };
+  // queryChannels = async () => {
+  //   try {
+  //     let channelQueryResponse = this.props.channels;
+  //     if (isPromise(channelQueryResponse)) {
+  //       channelQueryResponse = await this.props.channels;
+  //       if (channelQueryResponse.length >= 1) {
+  //         this.props.setActiveChannel(channelQueryResponse[0]);
+  //       }
+  //     }
+  //     this.setState({ loading: false, channels: channelQueryResponse });
+  //   } catch (e) {
+  //     console.log(e);
+  //     this.setState({ error: true });
+  //   }
+  // };
 
   static getDerivedStateFromError() {
     return { error: true };
@@ -74,11 +74,6 @@ class ChannelList extends PureComponent {
   componentDidCatch(error, info) {
     console.warn(error, info);
   }
-
-  clickCreateChannel = (e) => {
-    this.props.setChannelStart();
-    e.target.blur();
-  };
 
   closeMenu = () => {
     this.menuButton.current.checked = false;
@@ -107,6 +102,8 @@ class ChannelList extends PureComponent {
       loadNextPage,
       refreshing,
       hasNextPage,
+      channels,
+      loadingChannels,
     } = this.props;
     return (
       <React.Fragment>
@@ -129,14 +126,12 @@ class ChannelList extends PureComponent {
           ref={this.channelList}
         >
           {/* <List {...this.props} {...this.state} {...context} /> */}
-          <List loading={this.state.loading} error={this.state.error}>
+          <List loading={loadingChannels} error={this.state.error}>
             {smartRender(Paginator, {
               loadNextPage,
               hasNextPage,
               refreshing,
-              children: this.state.channels.map((item) =>
-                this._renderChannel(item),
-              ),
+              children: channels.map((item) => this._renderChannel(item)),
             })}
           </List>
         </div>

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext } from '../context';
+import { isPromise } from '../utils';
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
@@ -49,12 +50,15 @@ export class Chat extends PureComponent {
       channel: {},
       // list of channels
       channels: [],
-      // create new Channel state
-      channelStart: false, // false
+      // loading channels
+      loadingChannels: true,
+      // error loading channels
+      error: false,
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.queryChannels();
     this.listenToChanges();
   }
 
@@ -68,20 +72,41 @@ export class Chat extends PureComponent {
     }));
   };
 
+  queryChannels = async () => {
+    try {
+      let channelQueryResponse = this.props.channels;
+      if (isPromise(channelQueryResponse)) {
+        channelQueryResponse = await this.props.channels;
+        if (channelQueryResponse.length >= 1) {
+          this.setActiveChannel(channelQueryResponse[0]);
+        }
+      }
+      this.setState({ loadingChannels: false, channels: channelQueryResponse });
+    } catch (e) {
+      console.log(e);
+      this.setState({ error: true });
+    }
+  };
+
+  //
+
   listenToChanges() {
     // The more complex sync logic is done in chat.js
     // listen to client.connection.recovered and all channel events
     this.props.client.on(this.handleEvent);
   }
 
-  handleEvent = (e) => {
-    // handle updated channel events
-    console.log(e);
-  };
+  // handleEvent = (e) => {
+  //   // handle updated channel events
+  //   // console.log(e);
+  // };
+
+  //
 
   getContext = () => ({
     client: this.props.client,
     channels: this.state.channels,
+    loadingChannels: this.state.loadingChannels,
     channel: this.state.channel,
     setActiveChannel: this.setActiveChannel,
     theme: this.props.theme,

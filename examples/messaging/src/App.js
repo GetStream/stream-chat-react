@@ -93,9 +93,12 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient} theme={`messaging ${theme}`}>
+      <Chat
+        client={this.chatClient}
+        channels={this.state.channels}
+        theme={`messaging ${theme}`}
+      >
         <ChannelList
-          channels={this.state.channels}
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
           loadNextPage={this.loadNextPage}
