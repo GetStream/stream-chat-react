@@ -95,14 +95,6 @@ export class MessageTeam extends PureComponent {
     }
   };
 
-  // _onMentionsHover = (e) => {
-  //   this.props.onMentionsHover(e, this.props.message.mentioned_users);
-  // };
-
-  // _onMentionsClick = (e) => {
-  //   this.props.onMentionsHover(e, this.props.message.mentioned_users);
-  // };
-
   onMouseLeaveMessage = () => {
     this.hideOptions();
     this.setState(
