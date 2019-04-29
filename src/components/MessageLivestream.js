@@ -193,42 +193,46 @@ export class MessageLivestream extends React.PureComponent {
               ref={this.reactionSelectorRef}
             />
           )}
-          {!this.props.initialMessage && message.type !== 'error' && (
-            <div className={`str-chat__message-livestream-actions`}>
-              <span className={`str-chat__message-livestream-time`}>
-                {moment(message.created_at).format('h:mmA')}
-              </span>
-              <span onClick={this.onClickReactionsAction}>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: reactionSvg,
-                  }}
-                />
-              </span>
-              {!this.props.threadList && (
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: threadSvg,
-                  }}
-                  onClick={(e) => this.props.openThread(e, message)}
-                />
-              )}
-              <span onClick={this.onClickOptionsAction}>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: optionsSvg,
-                  }}
-                />
-                <MessageActionsBox
-                  open={this.state.actionsBoxOpen}
-                  Message={this.props.Message}
-                  message={this.props.message}
-                  messageListRect={this.props.messageListRect}
-                  mine={this.props.Message.isMyMessage(this.props.message)}
-                />
-              </span>
-            </div>
-          )}
+          {!this.props.initialMessage &&
+            message.type !== 'error' &&
+            message.type !== 'system' &&
+            message.status !== 'failed' &&
+            message.status !== 'sending' && (
+              <div className={`str-chat__message-livestream-actions`}>
+                <span className={`str-chat__message-livestream-time`}>
+                  {moment(message.created_at).format('h:mmA')}
+                </span>
+                <span onClick={this.onClickReactionsAction}>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: reactionSvg,
+                    }}
+                  />
+                </span>
+                {!this.props.threadList && (
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: threadSvg,
+                    }}
+                    onClick={(e) => this.props.openThread(e, message)}
+                  />
+                )}
+                <span onClick={this.onClickOptionsAction}>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: optionsSvg,
+                    }}
+                  />
+                  <MessageActionsBox
+                    open={this.state.actionsBoxOpen}
+                    Message={this.props.Message}
+                    message={this.props.message}
+                    messageListRect={this.props.messageListRect}
+                    mine={this.props.Message.isMyMessage(this.props.message)}
+                  />
+                </span>
+              </div>
+            )}
 
           <div className={`str-chat__message-livestream-left`}>
             <Avatar
