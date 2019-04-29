@@ -51,8 +51,6 @@ class ChannelList extends PureComponent {
     await this.queryChannels();
   }
 
-  // async componentDidUpdate(prevProps) {}
-
   queryChannels = async () => {
     try {
       let channelQueryResponse = this.props.channels;
@@ -110,7 +108,6 @@ class ChannelList extends PureComponent {
       refreshing,
       hasNextPage,
     } = this.props;
-    console.log(this.props.channels);
     return (
       <React.Fragment>
         <input

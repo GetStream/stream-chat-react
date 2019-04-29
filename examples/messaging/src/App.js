@@ -87,7 +87,8 @@ class App extends Component {
       limit: 5,
       offset: 6,
     });
-    this.channels = channels;
+    this.setState({ channels }, () => console.log(this.state.channels));
+    console.log('bhoi');
   };
 
   render() {

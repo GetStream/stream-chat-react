@@ -54,6 +54,10 @@ export class Chat extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    this.listenToChanges();
+  }
+
   setActiveChannel = (channel, e) => {
     if (e !== undefined && e.preventDefault) {
       e.preventDefault();
@@ -62,6 +66,17 @@ export class Chat extends PureComponent {
     this.setState(() => ({
       channel,
     }));
+  };
+
+  listenToChanges() {
+    // The more complex sync logic is done in chat.js
+    // listen to client.connection.recovered and all channel events
+    this.props.client.on(this.handleEvent);
+  }
+
+  handleEvent = (e) => {
+    // handle updated channel events
+    console.log(e);
   };
 
   getContext = () => ({
