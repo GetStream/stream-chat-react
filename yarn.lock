@@ -674,6 +674,12 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@babel/runtime@^7.3.1":
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.3.tgz#79888e452034223ad9609187a0ad1fe0d2ad4bdc"
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@^7.0.0", "@babel/template@^7.1.0", "@babel/template@^7.1.2", "@babel/template@^7.2.2":
   version "7.2.2"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.2.2.tgz#005b3fdf0ed96e88041330379e0da9a708eb2907"
@@ -2329,6 +2335,10 @@ caseless@~0.12.0:
 ccount@^1.0.0, ccount@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/ccount/-/ccount-1.0.3.tgz#f1cec43f332e2ea5a569fd46f9f5bde4e6102aff"
+
+chai-arrays@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/chai-arrays/-/chai-arrays-2.0.0.tgz#d95820d1b39dc2e4abaa01f984b7f9123986a7cc"
 
 chalk@2.4.1:
   version "2.4.1"
@@ -9969,6 +9979,10 @@ regenerator-runtime@^0.12.0:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
 
+regenerator-runtime@^0.13.2:
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.2.tgz#32e59c9a6fb9b1a4aff09b4930ca2d4477343447"
+
 regenerator-transform@^0.13.3:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/regenerator-transform/-/regenerator-transform-0.13.3.tgz#264bd9ff38a8ce24b06e0636496b2c856b57bcbb"
@@ -11055,11 +11069,13 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.8.0.tgz#528725bd13393406375bcc05656a340070ba33dd"
+stream-chat@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.9.1.tgz#70fe01b78cb90a59cf3aa87f23c2f261af12f176"
   dependencies:
+    "@babel/runtime" "^7.3.1"
     axios "^0.18.0"
+    chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"
     form-data "^2.3.3"
     isomorphic-ws "^4.0.1"
