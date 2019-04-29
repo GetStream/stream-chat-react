@@ -198,7 +198,12 @@ export class MessageSimple extends PureComponent {
   };
 
   renderOptions() {
-    if (this.props.message.type === 'error' || this.props.initialMessage) {
+    if (
+      this.props.message.type === 'error' ||
+      this.props.message.type === 'system' ||
+      this.props.message.status === 'failed' ||
+      this.props.initialMessage
+    ) {
       return;
     }
 
