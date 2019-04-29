@@ -742,6 +742,13 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@babel/runtime@^7.3.1":
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.4.tgz#dc2e34982eb236803aa27a07fea6857af1b9171d"
+  integrity sha512-w0+uT71b6Yi7i5SE0co4NioIpSYS6lLiXvCzWzGSKvpK5vdQtCbICHMj+gbAKAOtxiV6HsVh/MBdaF9EQ6faSg==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@^7.1.0", "@babel/template@^7.1.2", "@babel/template@^7.2.2":
   version "7.2.2"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.2.2.tgz#005b3fdf0ed96e88041330379e0da9a708eb2907"
@@ -1912,6 +1919,11 @@ case-sensitive-paths-webpack-plugin@2.1.2:
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
+
+chai-arrays@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/chai-arrays/-/chai-arrays-2.0.0.tgz#d95820d1b39dc2e4abaa01f984b7f9123986a7cc"
+  integrity sha512-jWAvZu1BV8tL3pj0iosBECzzHEg+XB1zSnMjJGX83bGi/1GlGdDO7J/A0sbBBS6KJT0FVqZIzZW9C6WLiMkHpQ==
 
 chalk@2.4.1, chalk@^2.0.0, chalk@^2.0.1, chalk@^2.1.0, chalk@^2.4.1:
   version "2.4.1"
@@ -7423,6 +7435,11 @@ regenerator-runtime@^0.12.0:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
 
+regenerator-runtime@^0.13.2:
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.2.tgz#32e59c9a6fb9b1a4aff09b4930ca2d4477343447"
+  integrity sha512-S/TQAZJO+D3m9xeN1WTI8dLKBBiRgXBlTJvbWjCThHWZj9EvHK70Ff50/tYj2J/fvBY6JtFVwRuazHN2E7M9BA==
+
 regenerator-transform@^0.13.3:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/regenerator-transform/-/regenerator-transform-0.13.3.tgz#264bd9ff38a8ce24b06e0636496b2c856b57bcbb"
@@ -8163,12 +8180,14 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.8.0.tgz#528725bd13393406375bcc05656a340070ba33dd"
-  integrity sha512-ddpTE6QwMv/cfaOmZFuFgDb8kN/pYavMaJg7nAH+9pZWag67eeAafBAdYn62s7BwN8IM94JD/hiFyLDvDVYZeg==
+stream-chat@^0.12.1:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.12.1.tgz#788ce0edc52c0d585de296569f06d2b95471d137"
+  integrity sha512-Fd8Lbe+uyUdGR8VizazUXb+YGDzFu33GORsZk0xKh0Y+R4nUtqnwrbwwknpoz7q1SaUFuZho9+TfCyWIqn9RJg==
   dependencies:
+    "@babel/runtime" "^7.3.1"
     axios "^0.18.0"
+    chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"
     form-data "^2.3.3"
     isomorphic-ws "^4.0.1"
