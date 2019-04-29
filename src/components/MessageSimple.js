@@ -201,6 +201,7 @@ export class MessageSimple extends PureComponent {
     if (
       this.props.message.type === 'error' ||
       this.props.message.type === 'system' ||
+      this.props.message.type === 'ephemeral' ||
       this.props.message.status === 'failed' ||
       this.props.message.status === 'sending' ||
       this.props.initialMessage

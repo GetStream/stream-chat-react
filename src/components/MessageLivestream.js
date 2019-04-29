@@ -196,6 +196,7 @@ export class MessageLivestream extends React.PureComponent {
           {!this.props.initialMessage &&
             message.type !== 'error' &&
             message.type !== 'system' &&
+            message.type !== 'ephemeral' &&
             message.status !== 'failed' &&
             message.status !== 'sending' && (
               <div className={`str-chat__message-livestream-actions`}>

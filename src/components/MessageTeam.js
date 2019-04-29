@@ -309,6 +309,7 @@ export class MessageTeam extends PureComponent {
                 message.status !== 'sending' &&
                 message.status !== 'failed' &&
                 message.type !== 'system' &&
+                message.type !== 'ephemeral' &&
                 message.type !== 'error' && (
                   <div className={`str-chat__message-team-actions`}>
                     {this.state.reactionSelectorOpen && (

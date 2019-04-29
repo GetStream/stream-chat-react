@@ -98,6 +98,7 @@ export class MessageCommerce extends PureComponent {
     if (
       this.props.message.type === 'error' ||
       this.props.message.type === 'system' ||
+      this.props.message.type === 'ephemeral' ||
       this.props.message.status === 'sending' ||
       this.props.message.status === 'failed' ||
       this.props.initialMessage
