@@ -81,7 +81,6 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-styleguidist": "8.0.6",
-    "readable-stream": "^2.3.6",
     "rollup": "^0.68.2",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.1.8",
@@ -108,7 +107,7 @@
     "webpack-dev-server": "~3.1.11"
   },
   "resolutions": {
-    "react-styleguidist/**/readable-stream": "2.3.6"
+    "stream-browserify/**/readable-stream": "2.3.6"
   },
   "husky": {
     "hooks": {
