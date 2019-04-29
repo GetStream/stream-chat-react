@@ -451,7 +451,7 @@ class ChannelInner extends PureComponent {
         this.props.onMentionsHover(e, user);
       }
       if (this.props.onMentionsClick && e.type === 'click') {
-        this.props.onMentionsHover(e, user);
+        this.props.onMentionsClick(e, user);
       }
     }
   };
