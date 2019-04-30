@@ -3,7 +3,7 @@
 > The official React components for Stream Chat, a service for
 > building chat applications.
 
-[![NPM](https://img.shields.io/npm/V/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
+[![NPM](https://img.shields.io/npm/v/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
 [![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
 
