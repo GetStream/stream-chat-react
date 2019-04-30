@@ -3,7 +3,7 @@ import { LoadMoreButton } from './LoadMoreButton';
 import PropTypes from 'prop-types';
 import { smartRender } from '../utils';
 
-export class LoadMorePaginator extends React.Component {
+export class LoadMorePaginator extends React.PureComponent {
   static propTypes = {
     LoadMoreButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };

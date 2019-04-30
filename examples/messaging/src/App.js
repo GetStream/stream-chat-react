@@ -83,8 +83,7 @@ class App extends Component {
     const sort = { last_message_at: -1 };
     const options = {
       watch: true,
-      limit: 5,
-      // offset: 0,
+      limit: 1,
     };
     return (
       <Chat
@@ -98,22 +97,12 @@ class App extends Component {
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
-          hasNextPage={true}
         />
-        <Channel
-          onMentionsHover={(e, user) => console.log(e, user)}
-          onMentionsClick={(e, user) => console.log(e, user)}
-        >
+        <Channel>
           <Window>
             <ChannelHeader />
             <MessageList TypingIndicator={TypingIndicator} />
-            <MessageInput
-              multipleUploads={false}
-              acceptedFiles={['image/*']}
-              maxNumberOfFiles={1}
-              Input={MessageInputFlat}
-              focus
-            />
+            <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
         </Channel>

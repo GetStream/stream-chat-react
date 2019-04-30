@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export class LoadMoreButton extends React.Component {
+export class LoadMoreButton extends React.PureComponent {
   static propTypes = {
     onClick: PropTypes.func,
   };
@@ -15,7 +15,7 @@ export class LoadMoreButton extends React.Component {
       <button
         onClick={this.props.onClick}
         disabled={this.props.refreshing}
-        // loading={this.props.refreshing}
+        loading={this.props.refreshing}
       >
         {this.props.children}
       </button>

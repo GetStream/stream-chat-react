@@ -58,15 +58,15 @@ export class Chat extends PureComponent {
       error: false,
 
       offset: 0,
-      limit: 0,
     };
   }
 
   async componentDidMount() {
+    const { options, filters, sort } = this.props;
     await this.setState({
-      options: this.props.options,
-      filters: this.props.filter,
-      sort: this.props.sort,
+      options,
+      filters,
+      sort,
     });
     await this.queryChannels();
     this.listenToChanges();
@@ -82,60 +82,45 @@ export class Chat extends PureComponent {
     }));
   };
 
-  queryChannels = async (channels) => {
-    const channelPromise =
-      channels ||
-      this.props.client.queryChannels(this.state.filters, this.state.sort, {
-        ...this.props.options,
-        offset: this.state.offset,
-      });
+  queryChannels = async () => {
+    const { options, filters, sort, channels, offset } = this.state;
+
+    const channelPromise = this.props.client.queryChannels(filters, sort, {
+      ...options,
+      offset,
+    });
+
     try {
       let channelQueryResponse = channelPromise;
       if (isPromise(channelQueryResponse)) {
         channelQueryResponse = await channelPromise;
-        if (!channels && channelQueryResponse.length >= 1) {
+        if (offset === 0 && channelQueryResponse.length >= 1) {
           this.setActiveChannel(channelQueryResponse[0]);
         }
       }
       this.setState((prevState) => ({
-        // channels: uniq([...prevState.channels, ...channelQueryResponse]), // unique
-        channels: [...prevState.channels, ...channelQueryResponse], // not unique somehow
+        channels: [...prevState.channels, ...channelQueryResponse], // not unique somehow needs more checking
         loadingChannels: false,
-        offset: prevState.offset + this.props.options.limit,
+        offset: prevState.offset + options.limit,
+        hasNextPage:
+          channelQueryResponse.length >= options.limit ? true : false,
       }));
-      console.log(channelQueryResponse.length, this.state.channels.length);
+      console.log(channelQueryResponse.length, channels.length);
     } catch (e) {
       console.warn(e);
       this.setState({ error: true });
     }
   };
 
-  // event
-
   listenToChanges() {
-    // The more complex sync logic is done in chat.js
-    // listen to client.connection.recovered and all channel events
     this.props.client.on(this.handleEvent);
   }
 
-  handleEvent = () => {
-    // handle updated channel events
-    // console.log('');
-  };
+  handleEvent = () => null;
 
   //
   loadNextPage = () => {
-    const channels = this.props.client.queryChannels(
-      this.state.filters,
-      this.state.sort,
-      {
-        ...this.props.options,
-        offset: this.state.offset,
-      },
-    );
-    this.queryChannels(channels);
-    // this.setState({ channels }, () => console.log(this.state.channels));
-    console.log('bhoi');
+    this.queryChannels();
   };
 
   getContext = () => ({
@@ -146,6 +131,7 @@ export class Chat extends PureComponent {
     setActiveChannel: this.setActiveChannel,
     theme: this.props.theme,
     loadNextPage: this.loadNextPage,
+    hasNextPage: this.state.hasNextPage,
   });
 
   render() {
