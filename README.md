@@ -1,5 +1,14 @@
 ## React Chat Components
 
+> The official React components for Stream Chat, a service for
+> building chat applications.
+
+[![NPM](https://img.shields.io/npm/V/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
+[![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
+[![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
+
+You can sign up for a Stream account at https://getstream.io/chat/get_started/.
+
 With these chat components you can support any type of chat use case:
 
 - Livestreams like Twitch or Youtube
