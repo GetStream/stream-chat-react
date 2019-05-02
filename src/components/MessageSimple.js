@@ -156,16 +156,15 @@ export class MessageSimple extends PureComponent {
       !this.props.threadList &&
       !justReadByMe
     ) {
+      const lastReadUser = this.props.readBy.filter(
+        (item) => item.id !== this.props.client.user.id,
+      )[0];
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={
-              this.props.readBy.filter(
-                (item) => item.id !== this.props.client.user.id,
-              )[0].id
-            }
-            image={this.props.readBy[0].image}
+            name={lastReadUser.name || lastReadUser.id}
+            image={lastReadUser.image}
             size={15}
           />
           {message.readBy.length - 1 > 1 && (
