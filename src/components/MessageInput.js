@@ -206,7 +206,7 @@ class MessageInput extends PureComponent {
     // make sure we don't list users twice
     const userMap = {};
     for (const user of users) {
-      if (user && !userMap[user.id]) {
+      if (user !== undefined && !userMap[user.id]) {
         userMap[user.id] = user;
       }
     }
