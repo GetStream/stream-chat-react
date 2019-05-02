@@ -8,7 +8,7 @@ export class UserItem extends PureComponent {
       <div className="str-chat__user-item">
         <Avatar size={20} image={u.image} />
         <div>
-          <strong>{u.name}</strong> {u.id}
+          <strong>{u.name}</strong> {!u.name ? u.id : ''}
         </div>
       </div>
     );
