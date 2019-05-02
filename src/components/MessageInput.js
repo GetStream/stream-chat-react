@@ -195,11 +195,11 @@ class MessageInput extends PureComponent {
     const members = this.props.channel.state.members;
     const watchers = this.props.channel.state.watchers;
 
-    if (members) {
-      users.push(...Object.values(members));
+    if (members && Object.values(members).length) {
+      Object.values(members).forEach((member) => users.push(member.user));
     }
 
-    if (watchers) {
+    if (watchers && Object.values(watchers).length) {
       users.push(...Object.values(watchers));
     }
 
@@ -210,7 +210,8 @@ class MessageInput extends PureComponent {
         userMap[user.id] = user;
       }
     }
-    return Object.values(userMap);
+    const usersArray = Object.values(userMap);
+    return usersArray;
   };
 
   handleChange = (event) => {
