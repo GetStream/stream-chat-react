@@ -191,9 +191,16 @@ class MessageInput extends PureComponent {
 
   getUsers = () => {
     const users = [];
-    if (this.props.channel.state.members || this.props.channel.state.watchers) {
-      users.push(...Object.values(this.props.channel.state.members));
-      users.push(...Object.values(this.props.channel.state.watchers));
+
+    const members = this.props.channel.state.members;
+    const watchers = this.props.channel.state.watchers;
+
+    if (members) {
+      users.push(...Object.values(members));
+    }
+
+    if (watchers) {
+      users.push(...Object.values(watchers));
     }
 
     // make sure we don't list users twice
