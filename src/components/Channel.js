@@ -370,7 +370,10 @@ class ChannelInner extends PureComponent {
         mainChannelUpdated = false;
       }
 
-      if (mainChannelUpdated) {
+      if (
+        mainChannelUpdated &&
+        e.message.user.id !== this.props.client.userID
+      ) {
         if (Visibility.state() === 'visible') {
           this._markReadThrottled(channel);
         } else {
