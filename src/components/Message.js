@@ -39,6 +39,8 @@ export class Message extends Component {
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Allows you to overwrite the attachment component */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
   };
 
   static defaultProps = {

@@ -362,7 +362,11 @@ export class MessageTeam extends PureComponent {
                 onMouseOver={this.props.onMentionsHoverMessage}
                 onClick={this.props.onMentionsClickMessage}
               >
-                {renderText(message)}
+                {this.props.unsafeHTML ? (
+                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
+                ) : (
+                  renderText(message)
+                )}
               </span>
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}

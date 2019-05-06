@@ -264,7 +264,14 @@ export class MessageLivestream extends React.PureComponent {
               >
                 {message.type !== 'error' &&
                   message.status !== 'failed' &&
+                  !this.props.unsafeHTML &&
                   renderText(message)}
+
+                {message.type !== 'error' &&
+                  message.status !== 'failed' &&
+                  this.props.unsafeHTML && (
+                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
+                  )}
 
                 {message.type === 'error' && !message.command && (
                   <p>
