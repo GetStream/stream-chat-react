@@ -105,6 +105,7 @@ class ChannelList extends PureComponent {
       channels,
       loadingChannels,
     } = this.props;
+    console.log(this.props);
     return (
       <React.Fragment>
         <input

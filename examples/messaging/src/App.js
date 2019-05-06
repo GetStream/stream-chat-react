@@ -14,6 +14,7 @@ import {
   ChannelList,
   Window,
   Thread,
+  InfiniteScrollPaginator,
   TypingIndicator,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -97,6 +98,7 @@ class App extends Component {
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
+          Paginator={(props) => <InfiniteScrollPaginator {...props} />}
         />
         <Channel>
           <Window>

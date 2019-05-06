@@ -105,7 +105,6 @@ export class Chat extends PureComponent {
         hasNextPage:
           channelQueryResponse.length >= options.limit ? true : false,
       }));
-      console.log(channelQueryResponse.length, channels.length);
     } catch (e) {
       console.warn(e);
       this.setState({ error: true });
