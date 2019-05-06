@@ -83,7 +83,7 @@ export class Chat extends PureComponent {
   };
 
   queryChannels = async () => {
-    const { options, filters, sort, channels, offset } = this.state;
+    const { options, filters, sort, offset } = this.state;
 
     const channelPromise = this.props.client.queryChannels(filters, sort, {
       ...options,
@@ -115,9 +115,23 @@ export class Chat extends PureComponent {
     this.props.client.on(this.handleEvent);
   }
 
-  handleEvent = () => null;
+  handleEvent = (e) => {
+    if (e.type === 'notification.message_new') {
+      // if new message, put move channel up
+      console.log(e.type, 'notification.message_new');
+    }
 
-  //
+    if (e.type === 'notification.added_to_channel') {
+      console.log(e.type, 'notification.added_to_channel');
+    }
+
+    if (e.type === 'notification.removed_from_channel') {
+      console.log(e.type, 'notification.removed_from_channel');
+    }
+
+    return null;
+  };
+
   loadNextPage = () => {
     this.queryChannels();
   };

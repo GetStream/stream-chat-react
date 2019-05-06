@@ -17,13 +17,13 @@ export class InfiniteScrollPaginator extends React.Component {
   };
 
   render() {
-    console.log(this.props);
     return (
       <InfiniteScroll
         loadMore={this.props.loadNextPage}
         hasMore={this.props.hasNextPage}
         isLoading={this.props.refreshing}
         isReverse={this.props.reverse}
+        useWindow={false}
         loading={<LoadingIndicator />}
       >
         {this.props.children}
