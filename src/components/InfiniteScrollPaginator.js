@@ -14,6 +14,8 @@ export class InfiniteScrollPaginator extends React.Component {
     refreshing: PropTypes.bool,
     /** display the items in opposite order */
     reverse: PropTypes.bool,
+    /** Offset from when to start the loadNextPage call */
+    threshold: PropTypes.number,
   };
 
   render() {
@@ -23,6 +25,7 @@ export class InfiniteScrollPaginator extends React.Component {
         hasMore={this.props.hasNextPage}
         isLoading={this.props.refreshing}
         isReverse={this.props.reverse}
+        threshold={this.props.threshold}
         useWindow={false}
         loading={<LoadingIndicator />}
       >

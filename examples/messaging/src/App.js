@@ -53,7 +53,7 @@ class App extends Component {
     // });
     // this.channel.watch();
 
-    // for (let i = 0; i < 20; i++) {
+    // for (let i = 1; i < 75; i++) {
     //   const channel = this.chatClient.channel('messaging', `aww-${i}`, {
     //     image:
     //       'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
@@ -61,8 +61,6 @@ class App extends Component {
     //     example: exampleVersion,
     //   });
     //   channel.watch();
-
-    //   channel.sendMessage({ text: 'hello' });
     // }
 
     // const filters = { type: 'messaging', example: 1 };
@@ -81,10 +79,13 @@ class App extends Component {
 
   render() {
     const filters = { type: 'messaging', example: 1 };
-    const sort = { last_message_at: -1 };
+    const sort = {
+      last_message_at: -1,
+      cid: -1,
+    };
     const options = {
       watch: true,
-      limit: 1,
+      limit: 30,
     };
     return (
       <Chat
@@ -98,7 +99,9 @@ class App extends Component {
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
-          Paginator={(props) => <InfiniteScrollPaginator {...props} />}
+          Paginator={(props) => (
+            <InfiniteScrollPaginator threshold={300} {...props} />
+          )}
         />
         <Channel>
           <Window>

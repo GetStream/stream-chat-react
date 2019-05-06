@@ -133,6 +133,7 @@ export class Chat extends PureComponent {
   };
 
   loadNextPage = () => {
+    console.log('loadNextPage');
     this.queryChannels();
   };
 
