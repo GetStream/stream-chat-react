@@ -108,8 +108,12 @@
 }
 
 .str-chat-channel-list {
-  .str-chat__channel-list-messenger__main {
-    height: 100%;
-    overflow-y: auto;
+  .str-chat__channel-list-messenger {
+    padding: 0;
+    &__main {
+      padding: 20px 10px 0 10px;
+      height: 100%;
+      overflow-y: auto;
+    }
   }
 }

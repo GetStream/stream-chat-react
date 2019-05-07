@@ -27,7 +27,13 @@ export class InfiniteScrollPaginator extends React.Component {
         isReverse={this.props.reverse}
         threshold={this.props.threshold}
         useWindow={false}
-        loading={<LoadingIndicator />}
+        loader={
+          <div
+            style={{ height: '100px', width: '100%', backgroundColor: 'green' }}
+          >
+            <LoadingIndicator />
+          </div>
+        }
       >
         {this.props.children}
       </InfiniteScroll>

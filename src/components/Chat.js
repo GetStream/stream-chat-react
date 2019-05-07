@@ -56,7 +56,7 @@ export class Chat extends PureComponent {
       loadingChannels: true,
       // error loading channels
       error: false,
-
+      refreshing: false,
       offset: 0,
     };
   }
@@ -85,6 +85,8 @@ export class Chat extends PureComponent {
   queryChannels = async () => {
     const { options, filters, sort, offset } = this.state;
 
+    this.setState({ refreshing: true });
+
     const channelPromise = this.props.client.queryChannels(filters, sort, {
       ...options,
       offset,
@@ -104,10 +106,11 @@ export class Chat extends PureComponent {
         offset: prevState.offset + options.limit,
         hasNextPage:
           channelQueryResponse.length >= options.limit ? true : false,
+        refreshing: false,
       }));
     } catch (e) {
       console.warn(e);
-      this.setState({ error: true });
+      this.setState({ error: true, refreshing: false });
     }
   };
 
@@ -145,6 +148,7 @@ export class Chat extends PureComponent {
     setActiveChannel: this.setActiveChannel,
     theme: this.props.theme,
     loadNextPage: this.loadNextPage,
+    refreshing: this.state.refreshing,
     hasNextPage: this.state.hasNextPage,
   });
 
