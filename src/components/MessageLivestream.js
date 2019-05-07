@@ -203,14 +203,16 @@ export class MessageLivestream extends React.PureComponent {
                 <span className={`str-chat__message-livestream-time`}>
                   {moment(message.created_at).format('h:mmA')}
                 </span>
-                <span onClick={this.onClickReactionsAction}>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: reactionSvg,
-                    }}
-                  />
-                </span>
-                {!this.props.threadList && (
+                {this.props.channelConfig.reactions && (
+                  <span onClick={this.onClickReactionsAction}>
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: reactionSvg,
+                      }}
+                    />
+                  </span>
+                )}
+                {!this.props.threadList && this.props.channelConfig.replies && (
                   <span
                     dangerouslySetInnerHTML={{
                       __html: threadSvg,
