@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { ChannelPreview } from './ChannelPreview';
 import { LoadingIndicator } from './LoadingIndicator';

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { LoadingIndicator } from 'react-file-utils';
 
 import InfiniteScroll from './InfiniteScroll';
-import { LoadingIndicator } from './LoadingIndicator';
 
 export class InfiniteScrollPaginator extends React.Component {
   static propTypes = {
@@ -16,6 +16,12 @@ export class InfiniteScrollPaginator extends React.Component {
     reverse: PropTypes.bool,
     /** Offset from when to start the loadNextPage call */
     threshold: PropTypes.number,
+    /** The loading indicator to use */
+    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  };
+
+  static defaultProps = {
+    LoadingIndicator: <LoadingIndicator />,
   };
 
   render() {
@@ -29,7 +35,13 @@ export class InfiniteScrollPaginator extends React.Component {
         useWindow={false}
         loader={
           <div
-            style={{ height: '100px', width: '100%', backgroundColor: 'green' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 10,
+            }}
+            key="loadingindicator"
           >
             <LoadingIndicator />
           </div>

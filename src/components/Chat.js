@@ -121,7 +121,7 @@ export class Chat extends PureComponent {
   handleEvent = (e) => {
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
-      console.log(e.type, 'notification.message_new');
+      console.log(e.type, e, 'notification.message_new');
     }
 
     if (e.type === 'notification.added_to_channel') {
@@ -135,8 +135,30 @@ export class Chat extends PureComponent {
     return null;
   };
 
+  moveChannelUp = (cid) => {
+    const channels = this.state.channels;
+
+    // get channel index
+    const channelIndex = this.state.channels.findIndex(
+      (channel) => channel.cid === cid,
+    );
+    if (channelIndex === 0) return;
+
+    // get channel from channels
+    const channel = channels[channelIndex];
+
+    //remove channel from current position
+    channels.splice(channelIndex, 1);
+    //add channel at the start
+    channels.unshift(channel);
+
+    // set new channel state
+    this.setState({
+      channels: [...channels],
+    });
+  };
+
   loadNextPage = () => {
-    console.log('loadNextPage');
     this.queryChannels();
   };
 
@@ -150,6 +172,7 @@ export class Chat extends PureComponent {
     loadNextPage: this.loadNextPage,
     refreshing: this.state.refreshing,
     hasNextPage: this.state.hasNextPage,
+    moveChannelUp: this.moveChannelUp,
   });
 
   render() {
