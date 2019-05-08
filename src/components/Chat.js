@@ -64,7 +64,10 @@ export class Chat extends PureComponent {
   async componentDidMount() {
     const { options, filters, sort } = this.props;
     await this.setState({
-      options,
+      options: {
+        limit: 30,
+        ...options,
+      },
       filters,
       sort,
     });
@@ -119,17 +122,18 @@ export class Chat extends PureComponent {
   }
 
   handleEvent = (e) => {
+    console.log(e);
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
       console.log(e.type, e, 'notification.message_new');
     }
 
     if (e.type === 'notification.added_to_channel') {
-      console.log(e.type, 'notification.added_to_channel');
+      console.log(e.type, e, 'notification.added_to_channel');
     }
 
     if (e.type === 'notification.removed_from_channel') {
-      console.log(e.type, 'notification.removed_from_channel');
+      console.log(e.type, e, 'notification.removed_from_channel');
     }
 
     return null;

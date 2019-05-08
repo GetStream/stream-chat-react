@@ -24,7 +24,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const user =
   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
 const theme = urlParams.get('theme') || 'light';
-// const channelName = urlParams.get('channel') || 'demo';
+const channelName = urlParams.get('channel') || 'demo';
 const userToken =
   urlParams.get('user_token') ||
   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
@@ -43,15 +43,15 @@ class App extends Component {
       userToken,
     );
 
-    // const exampleVersion = 1;
+    const exampleVersion = 1;
 
-    // this.channel = this.chatClient.channel('messaging', channelName, {
-    //   image:
-    //     'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-    //   name: 'The water cooler',
-    //   example: exampleVersion,
-    // });
-    // this.channel.watch();
+    this.channel = this.chatClient.channel('messaging', channelName, {
+      image:
+        'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
+      name: 'The water cooler',
+      example: exampleVersion,
+    });
+    this.channel.watch();
 
     // for (let i = 1; i < 75; i++) {
     //   const channel = this.chatClient.channel('messaging', `aww-${i}`, {
@@ -63,29 +63,28 @@ class App extends Component {
     //   channel.watch();
     // }
 
-    // const filters = { type: 'messaging', example: 1 };
-    // const sort = { last_message_at: -1 };
+    const filters = { type: 'messaging', example: 1 };
+    const sort = { last_message_at: -1 };
 
-    // this.channels = this.chatClient.queryChannels(filters, sort, {
-    //   watch: true,
-    //   limit: 5,
-    //   offset: 0,
-    // });
+    this.channels = this.chatClient.queryChannels(filters, sort, {
+      watch: true,
+      limit: 5,
+      offset: 0,
+    });
 
-    // this.state = {
-    //   channels: this.channels,
-    // };
+    this.state = {
+      channels: this.channels,
+    };
   }
 
   render() {
     const filters = { type: 'messaging', example: 1 };
     const sort = {
       last_message_at: -1,
-      cid: -1,
+      cid: 1,
     };
     const options = {
       watch: true,
-      limit: 30,
     };
     return (
       <Chat
