@@ -38,6 +38,10 @@ export class Chat extends PureComponent {
     client: PropTypes.object.isRequired,
     /** The theme 'messaging', 'team', 'commerce', 'gaming', 'livestream' plus either 'light' or 'dark' */
     theme: PropTypes.oneOf(themes),
+    /** Function that runs when user gets added to a channel */
+    onAddedToChannel: PropTypes.func,
+    /** Function that runs when user gets removed to a channel */
+    onRemovedFromChannel: PropTypes.func,
   };
 
   static defaultProps = {
@@ -126,14 +130,24 @@ export class Chat extends PureComponent {
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
       console.log(e.type, e, 'notification.message_new');
+      // get channel if not in state currently
+      // move channel to starting position
     }
 
-    if (e.type === 'notification.added_to_channel') {
-      console.log(e.type, e, 'notification.added_to_channel');
+    if (
+      e.type === 'notification.added_to_channel' &&
+      this.props.onAddedTochannel
+    ) {
+      console.log(e.type, e);
+      this.props.addedToChannel(e);
     }
 
-    if (e.type === 'notification.removed_from_channel') {
-      console.log(e.type, e, 'notification.removed_from_channel');
+    if (
+      e.type === 'notification.removed_from_channel' &&
+      this.props.removedFromChannel
+    ) {
+      console.log(e.type, e);
+      this.props.removedFromChannel(e);
     }
 
     return null;

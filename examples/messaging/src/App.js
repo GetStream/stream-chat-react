@@ -62,19 +62,6 @@ class App extends Component {
     //   });
     //   channel.watch();
     // }
-
-    const filters = { type: 'messaging', example: 1 };
-    const sort = { last_message_at: -1 };
-
-    this.channels = this.chatClient.queryChannels(filters, sort, {
-      watch: true,
-      limit: 5,
-      offset: 0,
-    });
-
-    this.state = {
-      channels: this.channels,
-    };
   }
 
   render() {
