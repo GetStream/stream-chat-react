@@ -125,32 +125,54 @@ export class Chat extends PureComponent {
     this.props.client.on(this.handleEvent);
   }
 
-  handleEvent = (e) => {
-    console.log(e);
+  handleEvent = async (e) => {
+    if (e.type === 'message.new') {
+      this.moveChannelUp(e.cid);
+    }
+
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
-      console.log(e.type, e, 'notification.message_new');
       // get channel if not in state currently
+      const channel = await this.getChannel(e.cid);
       // move channel to starting position
+      this.setState((prevState) => ({
+        channels: [...channel, ...prevState.channels],
+      }));
     }
 
     if (
-      e.type === 'notification.added_to_channel' &&
-      this.props.onAddedTochannel
+      e.type === 'notification.added_to_channel'
+      // &&
+      // this.props.onAddedTochannel
     ) {
       console.log(e.type, e);
-      this.props.addedToChannel(e);
+      // this.props.onAddedToChannel(e);
     }
 
     if (
-      e.type === 'notification.removed_from_channel' &&
-      this.props.removedFromChannel
+      e.type === 'notification.removed_from_channel'
+      // &&
+      // this.props.onRemovedFromChannel
     ) {
       console.log(e.type, e);
-      this.props.removedFromChannel(e);
+      // this.props.onRemovedFromChannel(e);
     }
 
     return null;
+  };
+
+  getChannel = async (cid) => {
+    const channelPromise = this.props.client.queryChannels({ cid });
+
+    try {
+      let channelQueryResponse = channelPromise;
+      if (isPromise(channelQueryResponse)) {
+        channelQueryResponse = await channelPromise;
+      }
+      return channelQueryResponse;
+    } catch (e) {
+      console.warn(e);
+    }
   };
 
   moveChannelUp = (cid) => {
