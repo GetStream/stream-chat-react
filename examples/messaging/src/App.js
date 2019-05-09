@@ -73,6 +73,7 @@ class App extends Component {
     };
     const options = {
       member: true,
+      watch: true,
     };
     return (
       <Chat
