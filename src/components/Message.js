@@ -39,6 +39,8 @@ export class Message extends Component {
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Allows you to overwrite the attachment component */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -230,6 +232,7 @@ export class Message extends Component {
   };
 
   render() {
+    const config = this.props.channel.getConfig();
     const message = this.props.message;
 
     const actionsEnabled =
@@ -245,12 +248,12 @@ export class Message extends Component {
         handleFlag={this.handleFlag}
         handleMute={this.handleMute}
         handleAction={this.handleAction}
-        handleReply={this.handleReply}
         handleRetry={this.handleRetry}
         isMyMessage={this.isMyMessage}
         openThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }
+        channelConfig={config}
         onMentionsClickMessage={this.onMentionsClick}
         onMentionsHoverMessage={this.onMentionsHover}
       />

@@ -191,19 +191,27 @@ class MessageInput extends PureComponent {
 
   getUsers = () => {
     const users = [];
-    if (this.props.channel.state.members || this.props.channel.state.watchers) {
-      users.push(...Object.values(this.props.channel.state.members));
-      users.push(...Object.values(this.props.channel.state.watchers));
+
+    const members = this.props.channel.state.members;
+    const watchers = this.props.channel.state.watchers;
+
+    if (members && Object.values(members).length) {
+      Object.values(members).forEach((member) => users.push(member.user));
+    }
+
+    if (watchers && Object.values(watchers).length) {
+      users.push(...Object.values(watchers));
     }
 
     // make sure we don't list users twice
     const userMap = {};
     for (const user of users) {
-      if (user && !userMap[user.id]) {
+      if (user !== undefined && !userMap[user.id]) {
         userMap[user.id] = user;
       }
     }
-    return Object.values(userMap);
+    const usersArray = Object.values(userMap);
+    return usersArray;
   };
 
   handleChange = (event) => {

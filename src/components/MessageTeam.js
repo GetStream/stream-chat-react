@@ -95,14 +95,6 @@ export class MessageTeam extends PureComponent {
     }
   };
 
-  // _onMentionsHover = (e) => {
-  //   this.props.onMentionsHover(e, this.props.message.mentioned_users);
-  // };
-
-  // _onMentionsClick = (e) => {
-  //   this.props.onMentionsHover(e, this.props.message.mentioned_users);
-  // };
-
   onMouseLeaveMessage = () => {
     this.hideOptions();
     this.setState(
@@ -162,20 +154,15 @@ export class MessageTeam extends PureComponent {
       !this.props.threadList &&
       !justReadByMe
     ) {
+      const lastReadUser = this.props.readBy.filter(
+        (item) => item.id !== this.props.client.user.id,
+      )[0];
       return (
         <span className="str-chat__message-team-status">
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={
-              this.props.readBy.filter(
-                (item) => item.id !== this.props.client.user.id,
-              )[0].id
-            }
-            image={
-              this.props.readBy.filter(
-                (item) => item.id !== this.props.client.user.id,
-              )[0].image
-            }
+            name={lastReadUser.name || lastReadUser.id}
+            image={lastReadUser.image}
             size={15}
           />
           {message.readBy.length - 1 > 1 && (
@@ -316,6 +303,8 @@ export class MessageTeam extends PureComponent {
               {!this.props.initialMessage &&
                 message.status !== 'sending' &&
                 message.status !== 'failed' &&
+                message.type !== 'system' &&
+                message.type !== 'ephemeral' &&
                 message.type !== 'error' && (
                   <div className={`str-chat__message-team-actions`}>
                     {this.state.reactionSelectorOpen && (
@@ -329,22 +318,25 @@ export class MessageTeam extends PureComponent {
                       />
                     )}
 
-                    <span
-                      title="Reactions"
-                      dangerouslySetInnerHTML={{
-                        __html: reactionSvg,
-                      }}
-                      onClick={this.onClickReactionsAction}
-                    />
-                    {!this.props.threadList && (
+                    {this.props.channelConfig.reactions && (
                       <span
-                        title="Start a thread"
+                        title="Reactions"
                         dangerouslySetInnerHTML={{
-                          __html: threadSvg,
+                          __html: reactionSvg,
                         }}
-                        onClick={(e) => this.props.openThread(e, message)}
+                        onClick={this.onClickReactionsAction}
                       />
                     )}
+                    {!this.props.threadList &&
+                      this.props.channelConfig.replies && (
+                        <span
+                          title="Start a thread"
+                          dangerouslySetInnerHTML={{
+                            __html: threadSvg,
+                          }}
+                          onClick={(e) => this.props.openThread(e, message)}
+                        />
+                      )}
                     <span onClick={this.onClickOptionsAction}>
                       <span
                         title="Message actions"
@@ -373,7 +365,11 @@ export class MessageTeam extends PureComponent {
                 onMouseOver={this.props.onMentionsHoverMessage}
                 onClick={this.props.onMentionsClickMessage}
               >
-                {renderText(message)}
+                {this.props.unsafeHTML ? (
+                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
+                ) : (
+                  renderText(message)
+                )}
               </span>
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}

@@ -45,10 +45,13 @@ class MessageList extends PureComponent {
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Turn off grouping of messages by user */
     noGroupByUser: PropTypes.bool,
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
   };
 
   static defaultProps = {
     dateSeparator: DateSeparator,
+    unsafeHTML: false,
     noGroupByUser: false,
   };
 
@@ -481,6 +484,7 @@ class MessageList extends PureComponent {
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}
               Message={this.props.Message}
+              unsafeHTML={this.props.unsafeHTML}
               Attachment={this.props.Attachment}
               onMentionsClick={this.props.onMentionsClick}
               onMentionsHover={this.props.onMentionsHover}

@@ -371,7 +371,10 @@ class ChannelInner extends PureComponent {
         mainChannelUpdated = false;
       }
 
-      if (mainChannelUpdated) {
+      if (
+        mainChannelUpdated &&
+        e.message.user.id !== this.props.client.userID
+      ) {
         if (Visibility.state() === 'visible') {
           this._markReadThrottled(channel);
         } else {
@@ -452,7 +455,7 @@ class ChannelInner extends PureComponent {
         this.props.onMentionsHover(e, user);
       }
       if (this.props.onMentionsClick && e.type === 'click') {
-        this.props.onMentionsHover(e, user);
+        this.props.onMentionsClick(e, user);
       }
     }
   };

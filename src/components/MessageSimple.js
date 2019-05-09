@@ -35,6 +35,8 @@ export class MessageSimple extends PureComponent {
       PropTypes.func,
       PropTypes.object,
     ]).isRequired,
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -156,16 +158,15 @@ export class MessageSimple extends PureComponent {
       !this.props.threadList &&
       !justReadByMe
     ) {
+      const lastReadUser = this.props.readBy.filter(
+        (item) => item.id !== this.props.client.user.id,
+      )[0];
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
           <Avatar
-            name={
-              this.props.readBy.filter(
-                (item) => item.id !== this.props.client.user.id,
-              )[0].id
-            }
-            image={this.props.readBy[0].image}
+            name={lastReadUser.name || lastReadUser.id}
+            image={lastReadUser.image}
             size={15}
           />
           {message.readBy.length - 1 > 1 && (
@@ -198,10 +199,16 @@ export class MessageSimple extends PureComponent {
   };
 
   renderOptions() {
-    if (this.props.message.type === 'error' || this.props.initialMessage) {
+    if (
+      this.props.message.type === 'error' ||
+      this.props.message.type === 'system' ||
+      this.props.message.type === 'ephemeral' ||
+      this.props.message.status === 'failed' ||
+      this.props.message.status === 'sending' ||
+      this.props.initialMessage
+    ) {
       return;
     }
-
     const { message, Message } = this.props;
 
     if (this.isMine()) {
@@ -230,7 +237,7 @@ export class MessageSimple extends PureComponent {
               />
             </svg>
           </div>
-          {!this.props.threadList && (
+          {!this.props.threadList && this.props.channelConfig.replies && (
             <div
               onClick={this.props.openThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
@@ -243,22 +250,24 @@ export class MessageSimple extends PureComponent {
               </svg>
             </div>
           )}
-          <div
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
-            onClick={this._clickReactionList}
-          >
-            <svg
-              width="16"
-              height="14"
-              viewBox="0 0 16 14"
-              xmlns="http://www.w3.org/2000/svg"
+          {this.props.channelConfig.reactions && (
+            <div
+              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+              onClick={this._clickReactionList}
             >
-              <path
-                d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
-                fillRule="evenodd"
-              />
-            </svg>
-          </div>
+              <svg
+                width="16"
+                height="14"
+                viewBox="0 0 16 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </div>
+          )}
         </div>
       );
     } else {
@@ -467,7 +476,12 @@ export class MessageSimple extends PureComponent {
                       Message Failed · Click to try again
                     </div>
                   )}
-                  {renderText(message)}
+
+                  {this.props.unsafeHTML ? (
+                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
+                  ) : (
+                    renderText(message)
+                  )}
 
                   {/* if reactions show them */}
                   {hasReactions > 0 && !this.state.showDetailedReactions && (
