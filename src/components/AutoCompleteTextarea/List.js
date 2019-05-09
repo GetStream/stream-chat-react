@@ -82,7 +82,7 @@ export default class List extends React.Component {
 
     onSelect(getTextToReplace(value));
     if (getSelectedItem) {
-      onSelect(getSelectedItem(value));
+      getSelectedItem(value);
     }
   };
 
