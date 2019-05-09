@@ -107,14 +107,17 @@ export class Chat extends PureComponent {
           this.setActiveChannel(channelQueryResponse[0]);
         }
       }
-      this.setState((prevState) => ({
-        channels: [...prevState.channels, ...channelQueryResponse], // not unique somehow needs more checking
-        loadingChannels: false,
-        offset: prevState.offset + options.limit,
-        hasNextPage:
-          channelQueryResponse.length >= options.limit ? true : false,
-        refreshing: false,
-      }));
+      this.setState((prevState) => {
+        const channels = [...prevState.channels, ...channelQueryResponse];
+        return {
+          channels, // not unique somehow needs more checking
+          loadingChannels: false,
+          offset: channels.length + 1,
+          hasNextPage:
+            channelQueryResponse.length >= options.limit ? true : false,
+          refreshing: false,
+        };
+      });
     } catch (e) {
       console.warn(e);
       this.setState({ error: true, refreshing: false });
@@ -130,6 +133,7 @@ export class Chat extends PureComponent {
       this.moveChannelUp(e.cid);
     }
 
+    // move channel to start
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
       // get channel if not in state currently
@@ -140,22 +144,24 @@ export class Chat extends PureComponent {
       }));
     }
 
-    if (
-      e.type === 'notification.added_to_channel'
-      // &&
-      // this.props.onAddedTochannel
-    ) {
-      console.log(e.type, e);
-      // this.props.onAddedToChannel(e);
+    // add to channel
+    if (e.type === 'notification.added_to_channel') {
+      const channel = await this.getChannel(e.channel.cid);
+      this.setState((prevState) => ({
+        channels: [...channel, ...prevState.channels],
+      }));
     }
 
-    if (
-      e.type === 'notification.removed_from_channel'
-      // &&
-      // this.props.onRemovedFromChannel
-    ) {
-      console.log(e.type, e);
-      // this.props.onRemovedFromChannel(e);
+    // remove from channel
+    if (e.type === 'notification.removed_from_channel') {
+      this.setState((prevState) => {
+        const channels = prevState.channels.filter(
+          (channel) => channel.cid !== e.channel.cid,
+        );
+        return {
+          channels,
+        };
+      });
     }
 
     return null;

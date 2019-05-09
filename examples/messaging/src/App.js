@@ -53,14 +53,14 @@ class App extends Component {
     // });
     // this.channel.watch();
 
-    // for (let i = 1; i < 50; i++) {
+    // for (let i = 1; i < 75; i++) {
     //   const channel = this.chatClient.channel('messaging', `aww-${i}`, {
     //     image:
     //       'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
     //     name: `aww-${i}`,
     //     example: exampleVersion,
     //   });
-    //   channel.addMembers(['jaap', 'thierry']);
+    //   //   channel.addMembers(['jaap', 'thierry']);
     //   channel.watch();
     // }
   }
