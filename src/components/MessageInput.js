@@ -25,6 +25,7 @@ class MessageInput extends PureComponent {
     const fileOrder = [];
     const fileUploads = {};
     const attachments = [];
+    const mentioned_users = [];
     let text = '';
     if (props.message) {
       text = props.message.text;
@@ -55,6 +56,9 @@ class MessageInput extends PureComponent {
           attachments.push(attach);
         }
       }
+      for (const mention of props.message.mentioned_users) {
+        mentioned_users.push(mention.id);
+      }
     }
 
     this.state = {
@@ -66,8 +70,7 @@ class MessageInput extends PureComponent {
       fileUploads: Immutable(fileUploads),
       emojiPickerIsOpen: false,
       filePanelIsOpen: false,
-      // mentioned_users: {},
-      mentioned_users: [],
+      mentioned_users,
       numberOfUploads: 0,
     };
 
@@ -289,6 +292,7 @@ class MessageInput extends PureComponent {
       const updatedMessage = { id };
       updatedMessage.text = text;
       updatedMessage.attachments = attachments;
+      updatedMessage.mentioned_users = this.state.mentioned_users;
       // TODO: Remove this line and show an error when submit fails
       this.props.clearEditingState();
 
@@ -553,6 +557,7 @@ class MessageInput extends PureComponent {
   };
 
   render() {
+    console.log(this.state.mentioned_users);
     const { Input } = this.props;
     const handlers = {
       uploadNewFiles: this._uploadNewFiles,

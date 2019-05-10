@@ -112,6 +112,7 @@ export class EditMessageForm extends React.Component {
               innerRef={this.props.textareaRef}
               handleSubmit={this.props.handleSubmit}
               onChange={this.props.handleChange}
+              onSelectItem={this.props.onSelectItem}
               value={this.props.text}
               rows={1}
               onPaste={this.props.onPaste}
