@@ -8,6 +8,7 @@ import {
   MessageInput,
   ChannelHeader,
   ChannelListTeam,
+  InfiniteScrollPaginator,
   ChannelList,
   MessageTeam,
   Window,
@@ -69,12 +70,29 @@ class App extends Component {
   }
 
   render() {
+    const filters = { type: 'team', example: 1 };
+    const sort = {
+      last_message_at: -1,
+      cid: 1,
+    };
+    const options = {
+      member: true,
+      watch: true,
+    };
     return (
-      <Chat client={this.chatClient} theme={`team ${theme}`}>
+      <Chat
+        client={this.chatClient}
+        // channels={this.state.channels}
+        filters={filters}
+        sort={sort}
+        options={options}
+        theme={`team ${theme}`}
+      >
         <ChannelList
-          channels={this.channels}
           List={ChannelListTeam}
-          showSidebar
+          Paginator={(props) => (
+            <InfiniteScrollPaginator threshold={300} {...props} />
+          )}
         />
         <Channel
           onMentionsHover={(e, user) => console.log(e, user)}

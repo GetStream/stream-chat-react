@@ -54,6 +54,11 @@ class App extends Component {
   }
 
   render() {
+    const filters = { type: 'team', example: 1 };
+    const sort = { last_message_at: -1 };
+    this.channels = this.chatClient.queryChannels(filters, sort, {
+      subscribe: true,
+    });
     return (
       <>
         <div className="example-video-container">
@@ -62,8 +67,14 @@ class App extends Component {
           </div>
         </div>
         <div>
-          <Chat client={this.chatClient} theme={`livestream ${theme}`}>
-            <Channel channel={this.channel}>
+          <Chat
+            sort={sort}
+            filters={filters}
+            options={{}}
+            client={this.chatClient}
+            theme={`livestream ${theme}`}
+          >
+            <Channel>
               <Window hideOnThread>
                 <ChannelHeader live />
                 <MessageList noGroupByUser Message={MessageLivestream} />

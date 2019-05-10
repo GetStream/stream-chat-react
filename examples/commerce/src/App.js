@@ -64,12 +64,21 @@ class App extends Component {
   };
 
   render() {
+    const filters = { type: 'messaging', example: 1 };
+    const sort = { last_message_at: -1 };
+    this.channels = this.chatClient.queryChannels(filters, sort, {
+      subscribe: true,
+    });
     return (
       <>
         <div className={`wrapper ${this.state.open ? 'wrapper--open' : ''}`}>
-          <Chat client={this.chatClient} theme={`commerce ${theme}`}>
+          <Chat
+            sort={sort}
+            filters={filters}
+            client={this.chatClient}
+            theme={`commerce ${theme}`}
+          >
             <Channel
-              channel={this.channel}
               onMentionsHover={(e, user) => console.log(e, user)}
               onMentionsClick={(e, user) => console.log(e, user)}
             >
