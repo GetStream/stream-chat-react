@@ -441,7 +441,7 @@ class ChannelInner extends PureComponent {
   };
 
   _onMentionsHoverOrClick = (e, mentioned_users) => {
-    if (!this.props.onMentionsHover || !this.props.onMentionsClick) return;
+    if (!this.props.onMentionsHover && !this.props.onMentionsClick) return;
 
     const tagName = e.target.tagName.toLowerCase();
     const textContent = e.target.innerHTML.replace('*', '');
@@ -450,10 +450,18 @@ class ChannelInner extends PureComponent {
       const user = mentioned_users.find(
         (user) => user.name === userName || user.id === userName,
       );
-      if (this.props.onMentionsHover && e.type === 'mouseover') {
+      if (
+        this.props.onMentionsHover &&
+        typeof this.props.onMentionsHover === 'function' &&
+        e.type === 'mouseover'
+      ) {
         this.props.onMentionsHover(e, user);
       }
-      if (this.props.onMentionsClick && e.type === 'click') {
+      if (
+        this.props.onMentionsClick &&
+        e.type === 'click' &&
+        typeof this.props.onMentionsClick === 'function'
+      ) {
         this.props.onMentionsClick(e, user);
       }
     }

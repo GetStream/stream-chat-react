@@ -71,9 +71,26 @@ Note how we are not setting the <Channel channel={} /> property, but instead are
 ```js
 const data = require('./data');
 
+const filters = { type: 'team', example: 1 };
+const sort = {
+  last_message_at: -1,
+  cid: 1,
+};
+const options = {
+  member: true,
+  watch: true,
+  limit: 3,
+};
+
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
-    <ChannelList channels={data.channels} />
+    <ChannelList
+      List={ChannelListMessenger}
+      Preview={ChannelPreviewMessenger}
+      filters={filters}
+      options={options}
+      sort={sort}
+    />
     <Channel>
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <MessageList />

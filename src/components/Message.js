@@ -225,9 +225,16 @@ export class Message extends Component {
   };
 
   onMentionsClick = (e) => {
+    if (typeof this.props.onMentionsClick !== 'function') {
+      return;
+    }
     this.props.onMentionsClick(e, this.props.message.mentioned_users);
   };
+
   onMentionsHover = (e) => {
+    if (typeof this.props.onMentionsHover !== 'function') {
+      return;
+    }
     this.props.onMentionsHover(e, this.props.message.mentioned_users);
   };
 

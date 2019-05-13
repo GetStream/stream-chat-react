@@ -35,10 +35,6 @@ export class Chat extends PureComponent {
     client: PropTypes.object.isRequired,
     /** The theme 'messaging', 'team', 'commerce', 'gaming', 'livestream' plus either 'light' or 'dark' */
     theme: PropTypes.oneOf(themes),
-    /** Function that runs when user gets added to a channel */
-    onAddedToChannel: PropTypes.func,
-    /** Function that runs when user gets removed to a channel */
-    onRemovedFromChannel: PropTypes.func,
   };
 
   static defaultProps = {

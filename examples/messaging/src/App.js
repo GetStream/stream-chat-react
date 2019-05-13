@@ -55,13 +55,7 @@ class App extends Component {
       limit: 3,
     };
     return (
-      <Chat
-        client={this.chatClient}
-        filters={filters}
-        sort={sort}
-        options={options}
-        theme={`messaging ${theme}`}
-      >
+      <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}

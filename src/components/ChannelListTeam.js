@@ -15,14 +15,6 @@ import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {
-    /** Channels can be either an array of channels or a promise which resolves to an array of channels */
-    channels: PropTypes.oneOfType([
-      PropTypes.array,
-      PropTypes.objectOf({
-        then: PropTypes.func,
-      }),
-      PropTypes.object,
-    ]).isRequired,
     /** The Preview to use, defaults to ChannelPreviewLastMessage */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 

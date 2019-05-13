@@ -163,7 +163,7 @@ export const renderText = (message) => {
     text = text.replace(urlInfo.raw, mkdown);
   }
   let newText = text;
-  if (mentioned_users.length) {
+  if (mentioned_users && mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
       const username = mentioned_users[i].name || mentioned_users[i].id;
       const mkdown = `**@${username}**`;

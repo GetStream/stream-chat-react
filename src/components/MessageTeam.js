@@ -318,16 +318,18 @@ export class MessageTeam extends PureComponent {
                       />
                     )}
 
-                    {this.props.channelConfig.reactions && (
-                      <span
-                        title="Reactions"
-                        dangerouslySetInnerHTML={{
-                          __html: reactionSvg,
-                        }}
-                        onClick={this.onClickReactionsAction}
-                      />
-                    )}
+                    {this.props.channelConfig &&
+                      this.props.channelConfig.reactions && (
+                        <span
+                          title="Reactions"
+                          dangerouslySetInnerHTML={{
+                            __html: reactionSvg,
+                          }}
+                          onClick={this.onClickReactionsAction}
+                        />
+                      )}
                     {!this.props.threadList &&
+                      this.props.channelConfig &&
                       this.props.channelConfig.replies && (
                         <span
                           title="Start a thread"
