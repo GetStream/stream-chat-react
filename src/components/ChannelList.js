@@ -80,6 +80,10 @@ class ChannelList extends PureComponent {
     this.listenToChanges();
   }
 
+  componentWillUnmount() {
+    this.props.client.off(this.handleEvent);
+  }
+
   queryChannels = async () => {
     const { options, filters, sort } = this.props;
     const { offset } = this.state;
