@@ -10,6 +10,7 @@ import {
   MessageSimple,
   ChannelHeader,
   ChannelPreviewMessenger,
+  InfiniteScrollPaginator,
   ChannelListMessenger,
   ChannelList,
   Window,
@@ -52,7 +53,7 @@ class App extends Component {
     const options = {
       member: true,
       watch: true,
-      limit: 3,
+      limit: 30,
     };
     return (
       <Chat client={this.chatClient} theme={`messaging ${theme}`}>
@@ -62,9 +63,9 @@ class App extends Component {
           filters={filters}
           sort={sort}
           options={options}
-          // Paginator={(props) => (
-          //   <InfiniteScrollPaginator threshold={300} {...props} />
-          // )}
+          Paginator={(props) => (
+            <InfiniteScrollPaginator threshold={300} {...props} />
+          )}
         />
         <Channel>
           <Window>
