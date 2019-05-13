@@ -14,7 +14,6 @@ import {
   ChannelList,
   Window,
   Thread,
-  InfiniteScrollPaginator,
   TypingIndicator,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -42,27 +41,6 @@ class App extends Component {
       },
       userToken,
     );
-
-    // const exampleVersion = 1;
-
-    // this.channel = this.chatClient.channel('messaging', channelName, {
-    //   image:
-    //     'https://images.unsplash.com/photo-1512138664757-360e0aad5132?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2851&q=80',
-    //   name: 'The water cooler',
-    //   example: exampleVersion,
-    // });
-    // this.channel.watch();
-
-    // for (let i = 1; i < 75; i++) {
-    //   const channel = this.chatClient.channel('messaging', `aww-${i}`, {
-    //     image:
-    //       'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2855&q=80',
-    //     name: `aww-${i}`,
-    //     example: exampleVersion,
-    //   });
-    //   //   channel.addMembers(['jaap', 'thierry']);
-    //   channel.watch();
-    // }
   }
 
   render() {
@@ -74,12 +52,11 @@ class App extends Component {
     const options = {
       member: true,
       watch: true,
-      limit: 30,
+      limit: 3,
     };
     return (
       <Chat
         client={this.chatClient}
-        // channels={this.state.channels}
         filters={filters}
         sort={sort}
         options={options}
@@ -88,9 +65,12 @@ class App extends Component {
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
-          Paginator={(props) => (
-            <InfiniteScrollPaginator threshold={300} {...props} />
-          )}
+          filters={filters}
+          sort={sort}
+          options={options}
+          // Paginator={(props) => (
+          //   <InfiniteScrollPaginator threshold={300} {...props} />
+          // )}
         />
         <Channel>
           <Window>

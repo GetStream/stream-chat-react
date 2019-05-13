@@ -297,7 +297,6 @@ class ChannelInner extends PureComponent {
       if (messageResponse.message) {
         messageResponse.message.status = 'received';
         this.updateMessage(messageResponse.message);
-        this.props.moveChannelUp(this.props.channel.cid);
       }
     } catch (error) {
       // set the message to failed..
