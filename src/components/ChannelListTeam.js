@@ -15,14 +15,6 @@ import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {
-    /** Channels can be either an array of channels or a promise which resolves to an array of channels */
-    channels: PropTypes.oneOfType([
-      PropTypes.array,
-      PropTypes.objectOf({
-        then: PropTypes.func,
-      }),
-      PropTypes.object,
-    ]).isRequired,
     /** The Preview to use, defaults to ChannelPreviewLastMessage */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
@@ -33,11 +25,6 @@ class ChannelListTeam extends PureComponent {
   static defaultProps = {
     Preview: ChannelPreviewLastMessage,
     LoadingIndicator: LoadingChannels,
-  };
-
-  renderLoading = () => {
-    const Loader = this.props.LoadingIndicator;
-    return <Loader isLoading={true} />;
   };
 
   renderChannels = () =>
@@ -99,7 +86,7 @@ class ChannelListTeam extends PureComponent {
                 </button>
               </div>
             </div>
-            {this.renderChannels()}
+            {this.props.children}
           </div>
         </div>
       );

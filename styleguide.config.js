@@ -73,6 +73,8 @@ module.exports = {
         'src/components/Image.js',
         'src/components/DateSeparator.js',
         'src/components/Window.js',
+        'src/components/ChannelListMessenger.js',
+        'src/components/ChannelPreviewMessenger.js',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',

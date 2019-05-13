@@ -25,6 +25,7 @@ import './styles/EditMessageForm.scss';
 import './styles/Gallery.scss';
 import './styles/LoadingChannels.scss';
 import './styles/LoadingIndicator.scss';
+import './styles/LoadMoreButton.scss';
 import './styles/Message.scss';
 import './styles/MessageActions.scss';
 import './styles/MessageCommerce.scss';

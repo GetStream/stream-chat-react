@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0] 2019-05-13
+
+- Added Pagination to ChannelList
+  - Standard pagination with Load More button (`LoadMorePaginator`)
+  - Also includes a infinte scroll paginator (`InfiniteScrollPaginator`)
+  - **Important** Because of this change we moved the channelquery logic to `ChannelList` this means you need to pass your `filters`, `sort`, and `options`.
+
 ## [0.3.11] - 2019-04-23
 
 ### Added

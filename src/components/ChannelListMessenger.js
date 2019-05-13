@@ -12,14 +12,6 @@ import { withChatContext } from '../context';
  */
 class ChannelListMessenger extends PureComponent {
   static propTypes = {
-    /** Channels can be either an array of channels or a promise which resolves to an array of channels */
-    channels: PropTypes.oneOfType([
-      PropTypes.array,
-      PropTypes.objectOf({
-        then: PropTypes.func,
-      }),
-      PropTypes.object,
-    ]).isRequired,
     /** The Preview to use, defaults to ChannelPreviewMessenger */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
@@ -58,7 +50,7 @@ class ChannelListMessenger extends PureComponent {
       return (
         <div className="str-chat__channel-list-messenger">
           <div className="str-chat__channel-list-messenger__main">
-            {this.renderChannels()}
+            {this.props.children}
           </div>
         </div>
       );

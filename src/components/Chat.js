@@ -47,10 +47,7 @@ export class Chat extends PureComponent {
     this.state = {
       // currently active channel
       channel: {},
-      // list of channels
-      channels: [],
-      // create new Channel state
-      channelStart: false, // false
+      error: false,
     };
   }
 
@@ -66,7 +63,6 @@ export class Chat extends PureComponent {
 
   getContext = () => ({
     client: this.props.client,
-    channels: this.state.channels,
     channel: this.state.channel,
     setActiveChannel: this.setActiveChannel,
     theme: this.props.theme,
