@@ -557,7 +557,6 @@ class MessageInput extends PureComponent {
   };
 
   render() {
-    console.log(this.state.mentioned_users);
     const { Input } = this.props;
     const handlers = {
       uploadNewFiles: this._uploadNewFiles,
