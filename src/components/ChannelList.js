@@ -48,26 +48,6 @@ class ChannelList extends PureComponent {
     this.menuButton = React.createRef();
   }
 
-  // async componentDidMount() {
-  //   await this.queryChannels();
-  // }
-
-  // queryChannels = async () => {
-  //   try {
-  //     let channelQueryResponse = this.props.channels;
-  //     if (isPromise(channelQueryResponse)) {
-  //       channelQueryResponse = await this.props.channels;
-  //       if (channelQueryResponse.length >= 1) {
-  //         this.props.setActiveChannel(channelQueryResponse[0]);
-  //       }
-  //     }
-  //     this.setState({ loading: false, channels: channelQueryResponse });
-  //   } catch (e) {
-  //     console.log(e);
-  //     this.setState({ error: true });
-  //   }
-  // };
-
   static getDerivedStateFromError() {
     return { error: true };
   }

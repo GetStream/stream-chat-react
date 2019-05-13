@@ -112,7 +112,7 @@ export class Chat extends PureComponent {
         return {
           channels, // not unique somehow needs more checking
           loadingChannels: false,
-          offset: channels.length + 1,
+          offset: channels.length,
           hasNextPage:
             channelQueryResponse.length >= options.limit ? true : false,
           refreshing: false,

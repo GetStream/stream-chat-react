@@ -35,11 +35,6 @@ class ChannelListTeam extends PureComponent {
     LoadingIndicator: LoadingChannels,
   };
 
-  renderLoading = () => {
-    const Loader = this.props.LoadingIndicator;
-    return <Loader isLoading={true} />;
-  };
-
   renderChannels = () =>
     this.props.channels.map((c) => (
       <ChannelPreview
@@ -99,7 +94,7 @@ class ChannelListTeam extends PureComponent {
                 </button>
               </div>
             </div>
-            {this.renderChannels()}
+            {this.props.children}
           </div>
         </div>
       );
