@@ -146,22 +146,36 @@ export class Chat extends PureComponent {
 
     // add to channel
     if (e.type === 'notification.added_to_channel') {
-      const channel = await this.getChannel(e.channel.cid);
-      this.setState((prevState) => ({
-        channels: [...channel, ...prevState.channels],
-      }));
+      if (
+        this.props.onAddedToChannel &&
+        typeof this.props.onAddedToChannel === 'function'
+      ) {
+        this.props.onAddedToChannel(e);
+      } else {
+        const channel = await this.getChannel(e.channel.cid);
+        this.setState((prevState) => ({
+          channels: [...channel, ...prevState.channels],
+        }));
+      }
     }
 
     // remove from channel
     if (e.type === 'notification.removed_from_channel') {
-      this.setState((prevState) => {
-        const channels = prevState.channels.filter(
-          (channel) => channel.cid !== e.channel.cid,
-        );
-        return {
-          channels,
-        };
-      });
+      if (
+        this.props.onRemovedFromChannel &&
+        typeof this.props.onRemovedFromChannel === 'function'
+      ) {
+        this.props.onRemovedFromChannel(e);
+      } else {
+        this.setState((prevState) => {
+          const channels = prevState.channels.filter(
+            (channel) => channel.cid !== e.channel.cid,
+          );
+          return {
+            channels,
+          };
+        });
+      }
     }
 
     return null;
@@ -205,6 +219,7 @@ export class Chat extends PureComponent {
   };
 
   loadNextPage = () => {
+    console.log('loadNextPage');
     this.queryChannels();
   };
 
