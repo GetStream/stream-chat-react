@@ -172,7 +172,7 @@ export class Message extends Component {
     - If it fails, revert to the old message...
      */
     if (userExistingReaction) {
-      this.props.channel.state.removeReaction(userExistingReaction);
+      // this.props.channel.state.removeReaction(userExistingReaction);
 
       reactionChangePromise = this.props.channel.deleteReaction(
         this.props.message.id,
@@ -181,15 +181,10 @@ export class Message extends Component {
     } else {
       // add the reaction
       const messageID = this.props.message.id;
-      const tmpReaction = {
-        message_id: messageID,
-        user: this.props.client.user,
-        type: reactionType,
-        created_at: new Date(),
-      };
+
       const reaction = { type: reactionType };
 
-      this.props.channel.state.addReaction(tmpReaction);
+      // this.props.channel.state.addReaction(tmpReaction, this.props.message);
       reactionChangePromise = this.props.channel.sendReaction(
         messageID,
         reaction,
