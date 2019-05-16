@@ -60,6 +60,7 @@ class ChannelList extends PureComponent {
       loadingChannels: true,
       // error loading channels
       refreshing: false,
+      hasNextPage: false,
       offset: 0,
       error: false,
     };
@@ -90,8 +91,13 @@ class ChannelList extends PureComponent {
 
     this.setState({ refreshing: true });
 
-    const channelPromise = this.props.client.queryChannels(filters, sort, {
+    const newOptions = {
       ...options,
+    };
+    if (!options.limit) newOptions.limit = 30;
+
+    const channelPromise = this.props.client.queryChannels(filters, sort, {
+      ...newOptions,
       offset,
     });
 
@@ -110,7 +116,7 @@ class ChannelList extends PureComponent {
           loadingChannels: false,
           offset: channels.length,
           hasNextPage:
-            channelQueryResponse.length >= options.limit ? true : false,
+            channelQueryResponse.length >= newOptions.limit ? true : false,
           refreshing: false,
         };
       });

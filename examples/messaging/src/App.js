@@ -50,11 +50,7 @@ class App extends Component {
       last_message_at: -1,
       cid: 1,
     };
-    const options = {
-      member: true,
-      watch: true,
-      limit: 30,
-    };
+
     return (
       <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
@@ -62,7 +58,6 @@ class App extends Component {
           Preview={ChannelPreviewMessenger}
           filters={filters}
           sort={sort}
-          options={options}
           Paginator={(props) => (
             <InfiniteScrollPaginator threshold={300} {...props} />
           )}
