@@ -42,7 +42,7 @@ You can read about that in the Chat API docs.
 2.  Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children approach.
     Have a look at how flexible the channel layout is due to this approach:
 
-```js
+```jsx
 <Channel>
   <Window>
     <ChannelHeader type="Team" />
