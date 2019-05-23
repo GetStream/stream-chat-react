@@ -79,6 +79,7 @@
     "lint-staged": "^8.1.0",
     "node-sass": "^4.11.0",
     "parcel": "^1.11.0",
+    "postcss-loader": "^3.0.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-styleguidist": "8.0.6",
