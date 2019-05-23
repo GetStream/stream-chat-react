@@ -3234,6 +3234,13 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
 expect@^23.6.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/expect/-/expect-23.6.0.tgz#1e0c8d3ba9a581c87bd71fb9bc8862d443425f98"
+  dependencies:
+    ansi-styles "^3.2.0"
+    jest-diff "^23.6.0"
+    jest-get-type "^22.1.0"
+    jest-matcher-utils "^23.6.0"
+    jest-message-util "^23.4.0"
+    jest-regex-util "^23.3.0"
 
 express@^4.16.2:
   version "4.16.4"
@@ -7243,7 +7250,7 @@ react-prop-toggle@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-prop-toggle/-/react-prop-toggle-1.0.2.tgz#8b0b7e74653606b1427cfcf6c4eaa9198330568e"
 
-react-scripts@2.1.2, react-scripts@^2.0.5:
+react-scripts@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/react-scripts/-/react-scripts-2.1.2.tgz#cf1686cd9ca3c6148e1428e97aac12995f01b554"
   dependencies:
@@ -8180,10 +8187,10 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.12.1:
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.12.1.tgz#788ce0edc52c0d585de296569f06d2b95471d137"
-  integrity sha512-Fd8Lbe+uyUdGR8VizazUXb+YGDzFu33GORsZk0xKh0Y+R4nUtqnwrbwwknpoz7q1SaUFuZho9+TfCyWIqn9RJg==
+stream-chat@^0.13.2:
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.2.tgz#df50bf8e789317911a217e58b98501aa9052c865"
+  integrity sha512-vZBpC6zMpoMXsdsq5jZ2sPXhHTHklmASNhnk3iViFdVZSfBTnC9wAbkT3IbkyTmLCnC1hcT25COIfe9oNZyHAQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
     axios "^0.18.0"
