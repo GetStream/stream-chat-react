@@ -7,7 +7,7 @@ import json from 'rollup-plugin-json';
 import url from 'rollup-plugin-url';
 import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
-import builtins from 'rollup-plugin-node-builtins';
+import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 // eslint-disable-next-line
 import { terser } from 'rollup-plugin-terser';
