@@ -64,6 +64,7 @@ class ChannelList extends PureComponent {
       hasNextPage: false,
       offset: 0,
       error: false,
+      connectionRecoveredCount: 0,
     };
 
     this.menuButton = React.createRef();
@@ -134,6 +135,13 @@ class ChannelList extends PureComponent {
   handleEvent = async (e) => {
     if (e.type === 'message.new') {
       this.moveChannelUp(e.cid);
+    }
+
+    // make sure to re-render the channel list after connection is recovered
+    if (e.type === 'connection.recovered') {
+      this.setState((prevState) => ({
+        connectionRecoveredCount: prevState.connectionRecoveredCount + 1,
+      }));
     }
 
     // move channel to start
@@ -225,15 +233,16 @@ class ChannelList extends PureComponent {
   _renderChannel = (item) => {
     const { Preview, setActiveChannel, channel } = this.props;
 
-    const args = {
+    const props = {
       channel: item,
       activeChannel: channel,
       closeMenu: this.closeMenu,
       Preview,
       setActiveChannel,
       key: item.id,
+      connectionRecoveredCount: this.state.connectionRecoveredCount,
     };
-    return smartRender(ChannelPreview, { ...args });
+    return smartRender(ChannelPreview, { ...props });
   };
 
   render() {
