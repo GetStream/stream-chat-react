@@ -138,6 +138,7 @@ class ChannelInner extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.props.client.off('connection.recovered', this.handleEvent);
     this.props.channel.off(this.handleEvent);
     this._loadMoreFinishedDebounced.cancel();
     this._loadMoreThreadFinishedDebounced.cancel();

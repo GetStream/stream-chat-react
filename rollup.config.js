@@ -50,6 +50,7 @@ const normalBundle = {
     'lodash/throttle',
     'lodash/truncate',
     'lodash/uniq',
+    'lodash.uniqby',
     'emoji-mart',
     'emoji-mart/data/all.json',
     'emoji-regex',
