@@ -10,6 +10,7 @@ import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
 import { smartRender } from '../utils';
+import uniqBy from 'lodash.uniqby';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
@@ -139,10 +140,10 @@ class ChannelList extends PureComponent {
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
       // get channel if not in state currently
-      const channel = await this.getChannel(e.cid);
+      const channel = await this.getChannel(e.channel.type, e.channel.id);
       // move channel to starting position
       this.setState((prevState) => ({
-        channels: [...channel, ...prevState.channels],
+        channels: uniqBy([channel, ...prevState.channels], 'cid'),
       }));
     }
 
@@ -154,9 +155,9 @@ class ChannelList extends PureComponent {
       ) {
         this.props.onAddedToChannel(e);
       } else {
-        const channel = await this.getChannel(e.channel.cid);
+        const channel = await this.getChannel(e.channel.type, e.channel.id);
         this.setState((prevState) => ({
-          channels: [...channel, ...prevState.channels],
+          channels: uniqBy([channel, ...prevState.channels], 'cid'),
         }));
       }
     }
@@ -179,22 +180,13 @@ class ChannelList extends PureComponent {
         });
       }
     }
-
     return null;
   };
 
-  getChannel = async (cid) => {
-    const channelPromise = this.props.client.queryChannels({ cid });
-
-    try {
-      let channelQueryResponse = channelPromise;
-      if (isPromise(channelQueryResponse)) {
-        channelQueryResponse = await channelPromise;
-      }
-      return channelQueryResponse;
-    } catch (e) {
-      console.warn(e);
-    }
+  getChannel = async (type, id) => {
+    const channel = this.props.client.channel(type, id);
+    await channel.watch();
+    return channel;
   };
 
   moveChannelUp = (cid) => {
