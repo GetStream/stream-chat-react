@@ -8188,10 +8188,10 @@ stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.13.3:
-  version "0.13.3"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.3.tgz#f7daf6596088d707f058be300e754bde2006e22a"
-  integrity sha512-ehlx9PGlk8M0actRBhZiuMShzwQuUOCopL3b/AFefe316WnvaiRunY8F63Bb/vBIgB9v70NIAkKjFdDRbtOmfQ==
+stream-chat@^0.13.4:
+  version "0.13.4"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.4.tgz#60939080eaf2f2fd8e48310ef650d7be8a61959a"
+  integrity sha512-mkhnsCI7MxtEMeTEkQ4WS223PUzkix0ELtQC7QjtGOuGp1R5twwLPZjlGGuIRuFWIjVyWolM6aYUgW6RwViZxA==
   dependencies:
     "@babel/runtime" "^7.3.1"
     axios "^0.18.0"
