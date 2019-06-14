@@ -358,9 +358,7 @@ export class MessageSimple extends PureComponent {
         <React.Fragment>
           <div
             key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${
-              message.type
-            } `}
+            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
           >
             <div className="str-chat__message--deleted-inner">
               This message was deleted...
@@ -441,14 +439,18 @@ export class MessageSimple extends PureComponent {
 
             <div>
               {hasAttachment &&
-                images.length <= 1 &&
-                message.attachments.map((attachment, index) => (
-                  <Attachment
-                    key={`${message.id}-${index}`}
-                    attachment={attachment}
-                    actionHandler={this.props.handleAction}
-                  />
-                ))}
+                message.attachments.map((attachment, index) => {
+                  if (attachment.type === 'image' && images.length > 1)
+                    return null;
+
+                  return (
+                    <Attachment
+                      key={`${message.id}-${index}`}
+                      attachment={attachment}
+                      actionHandler={this.props.handleAction}
+                    />
+                  );
+                })}
             </div>
             {images.length > 1 && <Gallery images={images} />}
 
