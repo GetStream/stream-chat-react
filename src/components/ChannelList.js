@@ -133,6 +133,20 @@ class ChannelList extends PureComponent {
   }
 
   handleEvent = async (e) => {
+    if (e.type === 'user.presence.changed') {
+      let newChannels = this.state.channels;
+
+      newChannels = newChannels.map((channel) => {
+        if (!channel.state.members[e.user.id]) return channel;
+
+        channel.state.members.setIn([e.user.id, 'user'], e.user);
+
+        return channel;
+      });
+
+      this.setState({ channels: [...newChannels] });
+    }
+
     if (e.type === 'message.new') {
       this.moveChannelUp(e.cid);
     }
