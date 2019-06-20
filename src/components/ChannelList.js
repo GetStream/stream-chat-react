@@ -232,7 +232,7 @@ class ChannelList extends PureComponent {
 
   _renderChannel = (item) => {
     const { Preview, setActiveChannel, channel } = this.props;
-
+    if (!item) return;
     const props = {
       channel: item,
       activeChannel: channel,
