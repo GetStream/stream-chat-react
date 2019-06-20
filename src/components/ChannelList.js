@@ -204,7 +204,7 @@ class ChannelList extends PureComponent {
     const channelIndex = this.state.channels.findIndex(
       (channel) => channel.cid === cid,
     );
-    if (channelIndex === 0) return;
+    if (channelIndex <= 0) return;
 
     // get channel from channels
     const channel = channels[channelIndex];
