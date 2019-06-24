@@ -27,9 +27,7 @@
     flex-direction: column;
     text-align: left;
     padding: 0 10px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    max-width: 250px;
   }
 
   &-avatar {
@@ -41,6 +39,10 @@
 
   &-title {
     color: black;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   &-unread-count {
@@ -172,6 +174,13 @@
     line-height: 17px;
     font-weight: 600;
     margin-bottom: 2px;
+    max-width: 250px;
+    span {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 
   &--unread {
