@@ -439,16 +439,20 @@ export class MessageSimple extends PureComponent {
               </React.Fragment>
             )}
 
-            <div>
+            <div className="str-chat__message-attachment-container">
               {hasAttachment &&
-                images.length <= 1 &&
-                message.attachments.map((attachment, index) => (
-                  <Attachment
-                    key={`${message.id}-${index}`}
-                    attachment={attachment}
-                    actionHandler={this.props.handleAction}
-                  />
-                ))}
+                message.attachments.map((attachment, index) => {
+                  if (attachment.type === 'image' && images.length > 1)
+                    return null;
+
+                  return (
+                    <Attachment
+                      key={`${message.id}-${index}`}
+                      attachment={attachment}
+                      actionHandler={this.props.handleAction}
+                    />
+                  );
+                })}
             </div>
             {images.length > 1 && <Gallery images={images} />}
 
