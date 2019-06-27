@@ -358,7 +358,9 @@ export class MessageSimple extends PureComponent {
         <React.Fragment>
           <div
             key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
+            className={`${messageClasses} str-chat__message--deleted ${
+              message.type
+            } `}
           >
             <div className="str-chat__message--deleted-inner">
               This message was deleted...
@@ -437,7 +439,7 @@ export class MessageSimple extends PureComponent {
               </React.Fragment>
             )}
 
-            <div>
+            <div className="str-chat__message-attachment-container">
               {hasAttachment &&
                 message.attachments.map((attachment, index) => {
                   if (attachment.type === 'image' && images.length > 1)

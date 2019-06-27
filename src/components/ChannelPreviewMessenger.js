@@ -33,7 +33,7 @@ export class ChannelPreviewMessenger extends PureComponent {
         </div>
         <div className="str-chat__channel-preview-messenger--right">
           <div className="str-chat__channel-preview-messenger--name">
-            {channel.data.name}
+            <span>{channel.data.name}</span>
           </div>
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
