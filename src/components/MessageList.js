@@ -6,7 +6,9 @@ import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
 import { MessageNotification } from './MessageNotification';
 import { LoadingIndicator } from './LoadingIndicator';
 import { DateSeparator } from './DateSeparator';
+import { EventComponent } from './EventComponent';
 import { KEY_CODES } from './AutoCompleteTextarea';
+import deepequal from 'deep-equal';
 
 /**
  * MessageList - The message list components renders a list of messages
@@ -87,7 +89,11 @@ class MessageList extends PureComponent {
     }
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
-    if (prevProps.messages.length < this.props.messages.length) {
+
+    if (
+      prevProps.messages.length < this.props.messages.length ||
+      !deepequal(this.props.eventHistory, prevProps.eventHistory)
+    ) {
       const list = this.messageList.current;
       const pos = list.scrollHeight - list.scrollTop;
       return pos;
@@ -256,6 +262,16 @@ class MessageList extends PureComponent {
       } else {
         newMessages.push(message);
       }
+
+      const eventsNextToMessage = this.props.eventHistory[message.id];
+      if (eventsNextToMessage && eventsNextToMessage.length > 0) {
+        eventsNextToMessage.forEach((e) => {
+          newMessages.push({
+            type: 'channel.event',
+            event: e,
+          });
+        });
+      }
     }
     return newMessages;
   };
@@ -336,11 +352,18 @@ class MessageList extends PureComponent {
       if (message.type === 'message.date') {
         continue;
       }
+
+      if (message.type === 'channel.event') {
+        continue;
+      }
+
       const userId = message.user.id;
 
       const isTopMessage =
         !previousMessage ||
         previousMessage.type === 'message.date' ||
+        previousMessage.type === 'system' ||
+        previousMessage.type === 'channel.event' ||
         previousMessage.attachments.length !== 0 ||
         userId !== previousMessage.user.id ||
         previousMessage.type === 'error' ||
@@ -349,6 +372,8 @@ class MessageList extends PureComponent {
       const isBottomMessage =
         !nextMessage ||
         nextMessage.type === 'message.date' ||
+        nextMessage.type === 'system' ||
+        nextMessage.type === 'channel.event' ||
         nextMessage.attachments.length !== 0 ||
         userId !== nextMessage.user.id ||
         nextMessage.type === 'error' ||
@@ -446,6 +471,24 @@ class MessageList extends PureComponent {
         elements.push(
           <li key={message.date.toISOString() + '-i'}>
             <DateSeparator date={message.date} />
+          </li>,
+        );
+      } else if (
+        message.type === 'channel.event' ||
+        message.type === 'system'
+      ) {
+        console.log;
+        elements.push(
+          <li
+            key={
+              message.type === 'system'
+                ? message.created_at
+                : message.type === 'channel.event'
+                ? message.event.created_at
+                : ''
+            }
+          >
+            <EventComponent message={message} />
           </li>,
         );
       } else if (message.type !== 'message.read') {
