@@ -35,3 +35,10 @@
     }
   }
 }
+
+.str-chat.commerce,
+.str-chat.livestream {
+  .str-chat__event-component__channel-event {
+    display: none;
+  }
+}
