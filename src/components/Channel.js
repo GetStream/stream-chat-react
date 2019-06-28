@@ -403,9 +403,11 @@ class ChannelInner extends PureComponent {
 
   addToEventHistory = (e) => {
     this.setState((prevState) => {
+      if (!prevState.messages) {
+        return;
+      }
       const lastMessageId =
         prevState.messages[prevState.messages.length - 1].id;
-
       if (!prevState.eventHistory[lastMessageId])
         return {
           ...prevState,

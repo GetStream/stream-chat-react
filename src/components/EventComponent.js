@@ -41,20 +41,16 @@ export class EventComponent extends React.PureComponent {
           break;
       }
       return (
-        <div style={{ display: 'flex', marginTop: '20px' }}>
+        <div className="str-chat__event-component__channel-event">
           <Avatar
             image={message.event.user.image}
             name={message.event.user.name || message.event.user.id}
           />
-          <div
-            style={{
-              marginRight: '10px',
-              color: 'rgba(0,0,0,0.5)',
-              fontSize: '15px',
-            }}
-          >
-            <em>{sentence}</em>
-            <div style={{ fontSize: '11px', marginTop: '4px' }}>
+          <div className="str-chat__event-component__channel-event__content">
+            <em className="str-chat__event-component__channel-event__sentence">
+              {sentence}
+            </em>
+            <div className="str-chat__event-component__channel-event__date">
               {moment(message.created_at).format('LT')}
             </div>
           </div>

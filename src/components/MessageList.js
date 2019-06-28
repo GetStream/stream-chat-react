@@ -122,8 +122,9 @@ class MessageList extends PureComponent {
 
       // scroll down after images load again
       if (
+        this.props.messages.length > 0 &&
         this.props.messages[this.props.messages.length - 1].user.id !==
-        this.props.client.user.id
+          this.props.client.user.id
       ) {
         setTimeout(
           () =>
@@ -263,7 +264,9 @@ class MessageList extends PureComponent {
         newMessages.push(message);
       }
 
-      const eventsNextToMessage = this.props.eventHistory[message.id];
+      const eventsNextToMessage = this.props.eventHistory[
+        message.id || 'first'
+      ];
       if (eventsNextToMessage && eventsNextToMessage.length > 0) {
         eventsNextToMessage.forEach((e) => {
           newMessages.push({
@@ -273,6 +276,7 @@ class MessageList extends PureComponent {
         });
       }
     }
+
     return newMessages;
   };
 
