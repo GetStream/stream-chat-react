@@ -73,7 +73,9 @@ class ChannelListTeam extends PureComponent {
                   {this.props.client.user.name || this.props.client.user.id}
                 </div>
                 <div
-                  className={`str-chat__channel-list-team__header--status ${this.props.client.user.status}`}
+                  className={`str-chat__channel-list-team__header--status ${
+                    this.props.client.user.status
+                  }`}
                 >
                   {this.props.client.user.status}
                 </div>
