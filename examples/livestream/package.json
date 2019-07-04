@@ -5,7 +5,7 @@
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-scripts": "2.1.2",
+    "react-scripts": "2.1.4",
     "stream-chat-react": "link:../.."
   },
   "scripts": {
