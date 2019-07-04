@@ -55,7 +55,7 @@ You can read about that in the Chat API docs.
 
 ### Customizing styles
 
-`stream-chat-react` uses scss for styling. There may be times when you want to make simple changes to our stylesheets and don't want to manually override. To make these customizations you can do the following:
+`stream-chat-react` uses scss for styling. There may be times when you want to make simple changes to our stylesheets and don't want to manually override classes and styles. To make these customizations you can do the following:
 
 - Clone this repository
 - Make the changes you want in the scss files
