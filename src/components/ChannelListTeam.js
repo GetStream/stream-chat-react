@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { ChannelPreview } from './ChannelPreview';
-import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { LoadingChannels } from './LoadingChannels';
 import { Avatar } from './Avatar';
 import { ChatDown } from './ChatDown';
@@ -15,28 +13,15 @@ import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {
-    /** The Preview to use, defaults to ChannelPreviewLastMessage */
-    Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-
     /** The loading indicator to use */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    error: PropTypes.bool,
   };
 
   static defaultProps = {
-    Preview: ChannelPreviewLastMessage,
     LoadingIndicator: LoadingChannels,
+    error: false,
   };
-
-  renderChannels = () =>
-    this.props.channels.map((c) => (
-      <ChannelPreview
-        {...this.props}
-        activeChannel={this.props.channel}
-        key={c.cid}
-        channel={c}
-        Preview={this.props.Preview}
-      />
-    ));
 
   render() {
     const { showSidebar } = this.props;
@@ -73,9 +58,7 @@ class ChannelListTeam extends PureComponent {
                   {this.props.client.user.name || this.props.client.user.id}
                 </div>
                 <div
-                  className={`str-chat__channel-list-team__header--status ${
-                    this.props.client.user.status
-                  }`}
+                  className={`str-chat__channel-list-team__header--status ${this.props.client.user.status}`}
                 >
                   {this.props.client.user.status}
                 </div>
