@@ -137,6 +137,21 @@ class ChannelInner extends PureComponent {
     }
   }
 
+  componentDidUpdate() {
+    // If there is an active thread, then in that case we should sync
+    // it with updated state of channel.
+    if (this.state.thread) {
+      for (let i = this.state.messages.length - 1; i >= 0; i--) {
+        if (this.state.messages[i].id === this.state.thread.id) {
+          this.setState({
+            thread: this.state.messages[i],
+          });
+          break;
+        }
+      }
+    }
+  }
+
   componentWillUnmount() {
     this.props.client.off('connection.recovered', this.handleEvent);
     this.props.channel.off(this.handleEvent);
