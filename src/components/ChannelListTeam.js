@@ -13,13 +13,11 @@ import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {
-    /** The loading indicator to use */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    loading: PropTypes.bool,
     error: PropTypes.bool,
   };
 
   static defaultProps = {
-    LoadingIndicator: LoadingChannels,
     error: false,
   };
 

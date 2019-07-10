@@ -10,13 +10,12 @@ import { withChatContext } from '../context';
  */
 class ChannelListMessenger extends PureComponent {
   static propTypes = {
-    /** The loading indicator to use */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    loading: PropTypes.bool,
     error: PropTypes.bool,
   };
 
   static defaultProps = {
-    LoadingIndicator: LoadingChannels,
+    error: false,
   };
 
   render() {
