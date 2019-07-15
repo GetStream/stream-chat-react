@@ -1,4 +1,5 @@
 // TypeScript Version: 3.5
+import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 
@@ -18,13 +19,12 @@ interface ChannelContext {
   hasMore?: boolean;
   messages?: Client.MessageResponse[];
   online?: boolean;
-  // TODO: fix these to immutable
-  typing?: Object;
-  watchers?: Object;
+  typing?: SeamlessImmutable.Immutable<Object>;
+  watchers?: SeamlessImmutable.Immutable<Object>;
+  members?: SeamlessImmutable.Immutable<Object>;
+  read?: SeamlessImmutable.Immutable<Object>;
   watcher_count?: number;
-  members?: Object;
-  read?: Object;
-
+  eventHistory: object;
   thread?: boolean;
   threadMessages?: Client.MessageResponse[];
   threadLoadingMore?: boolean;
@@ -33,8 +33,8 @@ interface ChannelContext {
   client?: Client.StreamChat;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentProps>;
-  // multipleUploads: this.props.multipleUploads,
-  // acceptedFiles: this.props.acceptedFiles,
+  multipleUploads: boolean;
+  acceptedFiles: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
 
@@ -86,7 +86,7 @@ export interface ChatProps {
   theme?: Theme;
 }
 
-interface ChannelProps {
+interface ChannelProps extends ChatContext {
   /** Which channel to connect to, will initialize the channel if it's not initialized yet */
   channel?: Client.Channel;
   /** Client is passed automatically via the Chat Context */
@@ -95,6 +95,9 @@ interface ChannelProps {
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType;
+  multipleUploads: boolean;
+  acceptedFiles: string[];
+  maxNumberOfFiles: number;
 
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
@@ -136,11 +139,11 @@ interface ChannelListUIComponentProps {
 interface ChannelPreviewProps {
   channel: Client.StreamChat;
   activeChannel: Client.StreamChat;
-  closeMenu(): void;
   Preview: React.ElementType<ChannelPreviewUIComponentProps>;
-  setActiveChannel(channel: Client.StreamChat): void;
   key: string;
   connectionRecoveredCount: number;
+  closeMenu(): void;
+  setActiveChannel(channel: Client.StreamChat): void;
 }
 
 interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
@@ -199,9 +202,7 @@ interface DateSeparatorProps {
   /** The date to format */
   date: Date;
   /** Set the position of the date in the separator */
-  position?: 'left';
-  center;
-  right;
+  position?: 'left' | 'center' | 'right';
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
