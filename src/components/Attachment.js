@@ -166,9 +166,7 @@ export class Attachment extends PureComponent {
 
     return (
       <div
-        className={`str-chat__message-attachment str-chat__message-attachment--${type} str-chat__message-attachment--${
-          a.type
-        } str-chat__message-attachment--${type}--${extra}`}
+        className={`str-chat__message-attachment str-chat__message-attachment--${type} str-chat__message-attachment--${a.type} str-chat__message-attachment--${type}--${extra}`}
         ref={this.attachmentRef}
       >
         {results}
