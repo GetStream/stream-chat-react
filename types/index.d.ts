@@ -1,5 +1,4 @@
 // TypeScript Version: 3.5
-import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 
@@ -17,7 +16,7 @@ interface ChannelContext {
   // Loading more messages
   loadingMore?: boolean;
   hasMore?: boolean;
-  messages?: Client.Message[];
+  messages?: Client.MessageResponse[];
   online?: boolean;
   // TODO: fix these to immutable
   typing?: Object;
@@ -27,46 +26,65 @@ interface ChannelContext {
   read?: Object;
 
   thread?: boolean;
-  threadMessages?: Client.Message[];
+  threadMessages?: Client.MessageResponse[];
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
 
   client?: Client.StreamChat;
-  Message?: React.ElementType;
-  Attachment?: React.ElementType;
+  Message?: React.ElementType<MessageUIComponentProps>;
+  Attachment?: React.ElementType<AttachmentProps>;
   // multipleUploads: this.props.multipleUploads,
   // acceptedFiles: this.props.acceptedFiles,
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
 
   loadMore?(): void;
-
   // thread related
   closeThread?(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
 
   /** Via Context: The channel object */
   channel?: Client.StreamChat;
+
   /** Via Context: The function to update a message, handled by the Channel component */
-  updateMessage?(updatedMessage: Client.Message, extraState: object): void;
-  removeMessage?(updatedMessage: Client.Message): void;
-  openThread?(message: Client.Message, event: React.SyntheticEvent): void;
+  updateMessage?(
+    updatedMessage: Client.MessageResponse,
+    extraState: object,
+  ): void;
+  removeMessage?(updatedMessage: Client.MessageResponse): void;
+  openThread?(
+    message: Client.MessageResponse,
+    event: React.SyntheticEvent,
+  ): void;
+
   /** Function executed when user clicks on link to open thread */
   retrySendMessage?(message: Client.Message): void;
+
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
+
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.User): void;
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.User): void;
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
 }
+
+export type Theme =
+  | 'messaging light'
+  | 'messaging dark'
+  | 'team light'
+  | 'team dark'
+  | 'commerce light'
+  | 'commerce dark'
+  | 'gaming light'
+  | 'gaming dark'
+  | 'livestream light'
+  | 'livestream dark';
 
 export interface ChatProps {
   client: Client.StreamChat;
   theme?: Theme;
 }
-
-export type Theme = 'messaging light' | 'messaging dark';
 
 interface ChannelProps {
   /** Which channel to connect to, will initialize the channel if it's not initialized yet */
@@ -74,25 +92,25 @@ interface ChannelProps {
   /** Client is passed automatically via the Chat Context */
   client?: Client.StreamChat;
   /** The loading indicator to use */
-  LoadingIndicator?: React.ElementType;
-  Message?: React.ElementType;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType;
 
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.User): void;
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.User): void;
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
   reactionCounts?: Object;
 }
 
 interface ChannelListProps extends ChatContext {
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
-  Preview?: React.ElementType;
+  Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
   /** The loading indicator to use */
-  LoadingIndicator?: React.ElementType;
-  List?: React.ElementType;
-  Paginator?: React.ElementType;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  List?: React.ElementType<ChannelListUIComponentProps>;
+  Paginator?: React.ElementType<PaginatorProps>;
 
   /** Function that overrides default behaviour when users gets added to a channel */
   onAddedToChannel?(e: Client.Event): any;
@@ -108,14 +126,7 @@ interface ChannelListProps extends ChatContext {
   sort?: object;
 }
 
-interface ChannelListMessengerProps {
-  /** If channel list ran into error */
-  error: boolean;
-  /** If channel list is in loading state */
-  loading: boolean;
-}
-
-interface ChannelListTeamProps {
+interface ChannelListUIComponentProps {
   /** If channel list ran into error */
   error: boolean;
   /** If channel list is in loading state */
@@ -126,7 +137,7 @@ interface ChannelPreviewProps {
   channel: Client.StreamChat;
   activeChannel: Client.StreamChat;
   closeMenu(): void;
-  Preview: React.ElementType;
+  Preview: React.ElementType<ChannelPreviewUIComponentProps>;
   setActiveChannel(channel: Client.StreamChat): void;
   key: string;
   connectionRecoveredCount: number;
@@ -138,16 +149,16 @@ interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
 
   /** Following props are coming from state of ChannelPreview */
   unread: number;
-  lastMessage: Client.Message;
+  lastMessage: Client.MessageResponse;
   lastRead: Date;
 }
 
 interface PaginatorProps {
   /** callback to load the next page */
   loadNextPage(): void;
-  hasNextPage(): void;
+  hasNextPage?: boolean;
   /** indicates if there there's currently any refreshing taking place */
-  refreshing: boolean;
+  refreshing?: boolean;
 }
 
 interface LoadMorePaginatorProps extends PaginatorProps {
@@ -157,25 +168,20 @@ interface LoadMorePaginatorProps extends PaginatorProps {
 }
 
 interface InfiniteScrollPaginatorProps extends PaginatorProps {
-  /** callback to load the next page */
-  loadNextPage(): void;
-  /** indicates if there there's currently any refreshing taking place */
-  refreshing: boolean;
-  /** indicates if there is a next page to load */
-  hasNextPage: boolean;
   /** display the items in opposite order */
-  reverse: boolean;
+  reverse?: boolean;
   /** Offset from when to start the loadNextPage call */
-  threshold: number;
+  threshold?: number;
   /** The loading indicator to use */
-  LoadingIndicator: React.ElementType;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
 }
 
-interface LoadingIndicatorProps {
+export interface LoadingIndicatorProps {
   /** The size of the loading icon */
-  size: number;
+  size?: number;
   /** Set the color of the LoadingIndicator */
-  color: string;
+  color?: string;
+  [any]: any;
 }
 
 interface AvatarProps {
@@ -189,13 +195,24 @@ interface AvatarProps {
   size?: number;
 }
 
+interface DateSeparatorProps {
+  /** The date to format */
+  date: Date;
+  /** Set the position of the date in the separator */
+  position?: 'left';
+  center;
+  right;
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate?(date: Date): string;
+}
+
 interface MessageListProps extends ChannelContext {
   /** Date separator component to render  */
-  dateSeparator?: React.ElementType;
+  dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** The attachment component to render, defaults to Attachment */
-  Attachment?: React.ElementType;
+  Attachment?: React.ElementType<AttachmentProps>;
   /** Typing indicator component to render  */
-  TypingIndicator?: React.ElementType;
+  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Weather its a thread of no. Default - false  */
@@ -220,10 +237,10 @@ interface MessageInputProps {
   grow?: boolean;
 
   /** The parent message object when replying on a thread */
-  parent?: Client.Message | null;
+  parent?: Client.MessageResponse | null;
 
   /** The component handling how the input is rendered */
-  Input?: React.ElementType;
+  Input?: React.ElementType<MessageInputUIComponentProps>;
 
   /** Override image upload request */
   doImageUploadRequest?(file: object, channel: Client.Channel): void;
@@ -250,7 +267,7 @@ type FileUpload = {
   };
 };
 
-interface messageInputState {
+interface MessageInputState {
   text?: string;
   attachments?: Client.Attachment[];
   imageOrder?: string[];
@@ -263,15 +280,16 @@ interface messageInputState {
   mentioned_users?: string[];
   numberOfUploads?: number;
 }
-interface MessageInputUIComponentProps extends MessageInputProps {
+interface MessageInputUIComponentProps
+  extends MessageInputProps,
+    MessageInputState {
   /**
    * ======================================================================
    *     Props provided by parent MessageInput component
    * ======================================================================
    */
 
-  // TODO: Create file interface
-  uploadNewFiles?(files: []): void;
+  uploadNewFiles?(files: File[]): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
   removeFile?(id: string): void;
@@ -281,7 +299,7 @@ interface MessageInputUIComponentProps extends MessageInputProps {
   textareaRef?: React.RefObject<any>;
   onSelectEmoji?(emoji: object): void;
   getUsers?(): Client.User[];
-  getCommands?: [];
+  getCommands?(): [];
   handleSubmit?(event: React.FormEvent): void;
   handleChange?(event: React.ChangeEventHandler): void;
   onPaste?(event: React.ClipboardEventHandler): void;
@@ -301,21 +319,21 @@ interface AttachmentProps {
 
 interface MessageProps {
   /** The message object */
-  message: Client.Message;
+  message: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
   client: Client.StreamChat;
   /** The current channel this message is displayed in */
   channel: Client.Channel;
   /** A list of users that have read this message **/
-  readBy: Array<Client.User>;
+  readBy: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles: Array<string>;
   /** Editing, if the message is currently being edited */
   editing: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
-  Message: React.ElementType;
+  Message: React.ElementType<MessageUIComponentProps>;
   /** Allows you to overwrite the attachment component */
-  Attachment: React.ElementType;
+  Attachment: React.ElementType<AttachmentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: boolean;
 }
@@ -331,10 +349,19 @@ interface MessageUIComponentProps extends MessageProps {
     event: React.BaseSyntheticEvent,
   ): void;
   handleRetry(message: Client.Message): void;
-  isMyMessage(message: Client.Message): boolean;
-  openThread(message: Client.Message, event: React.BaseSyntheticEvent): void;
-  onMentionsClickMessage(event: React.MouseEvent, user: Client.User): void;
-  onMentionsHoverMessage(event: React.MouseEvent, user: Client.User): void;
+  isMyMessage(message: Client.MessageResponse): boolean;
+  openThread(
+    message: Client.MessageResponse,
+    event: React.BaseSyntheticEvent,
+  ): void;
+  onMentionsClickMessage(
+    event: React.MouseEvent,
+    user: Client.UserResponse,
+  ): void;
+  onMentionsHoverMessage(
+    event: React.MouseEvent,
+    user: Client.UserResponse,
+  ): void;
   // TODO: Create proper type for following config
   channelConfig: object;
 }
@@ -343,13 +370,13 @@ interface ThreadProps {
   /** Channel is passed via the Channel Context */
   channel?: Client.Channel;
   /** the thread (the parent message object) */
-  thread?: Client.Message | boolean;
+  thread?: Client.MessageResponse | boolean;
 
   /** The message component to use for rendering messages */
-  Message?: React.ElementType;
+  Message?: React.ElementType<MessageUIComponentProps>;
 
   /** The list of messages to render, state is handled by the parent channel component */
-  threadMessages?: Client.Message[];
+  threadMessages?: Client.MessageResponse[];
 
   /** loadMoreThread iss called when infinite scroll wants to load more messages */
   loadMoreThread?(): void;
@@ -399,15 +426,15 @@ export class MessageInputSmall extends React.PureComponent<
   any
 > {}
 
-export class Attachment extends React.PureComponent<AttachmentProps, any> {}
+export class Attachment extends React.PureComponent<AttachmentProps> {}
 
-export class ChannelList extends React.PureComponent<ChannelListProps, any> {}
+export class ChannelList extends React.PureComponent<ChannelListProps> {}
 export class ChannelListMessenger extends React.PureComponent<
-  ChannelListMessengerProps,
+  ChannelListUIComponentProps,
   any
 > {}
 export class ChannelListTeam extends React.PureComponent<
-  ChannelListTeamProps,
+  ChannelListUIComponentProps,
   any
 > {}
 
