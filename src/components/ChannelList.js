@@ -293,6 +293,7 @@ class ChannelList extends PureComponent {
             loading={loadingChannels}
             error={this.state.error}
             channels={channels}
+            setActiveChannel={this.props.setActiveChannel}
           >
             {smartRender(Paginator, {
               loadNextPage: this.loadNextPage,

@@ -42,6 +42,7 @@ class ChannelListMessenger extends PureComponent {
     ));
 
   render() {
+    console.log(this.props);
     if (this.props.error) {
       return <ChatDown type="Connection Error" />;
     } else if (this.props.loading) {
