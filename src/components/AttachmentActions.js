@@ -28,7 +28,9 @@ export class AttachmentActions extends React.PureComponent {
           <span key={0}>{text}</span>
           {actions.map((action) => (
             <button
-              className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
+              className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${
+                action.style
+              }`}
               key={`${id}-${action.value}`}
               data-value={action.value}
               onClick={actionHandler.bind(this, action.name, action.value)}

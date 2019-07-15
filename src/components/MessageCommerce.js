@@ -156,7 +156,7 @@ export class MessageCommerce extends PureComponent {
         <React.Fragment>
           <span
             key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
+            className={`${messageClasses} str-chat__message--deleted`}
           >
             This message was deleted...
           </span>
