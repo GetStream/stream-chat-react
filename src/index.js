@@ -20,6 +20,7 @@ import './styles/ChannelListTeam.scss';
 import './styles/ChannelPreview.scss';
 import './styles/ChannelSearch.scss';
 import './styles/ChatDown.scss';
+import './styles/EventComponent.scss';
 import './styles/DateSeparator.scss';
 import './styles/EditMessageForm.scss';
 import './styles/Gallery.scss';

@@ -74,7 +74,7 @@ class ChannelInner extends PureComponent {
       watchers: Immutable({}),
       members: Immutable({}),
       read: Immutable({}),
-
+      eventHistory: {},
       thread: false,
       threadMessages: [],
       threadLoadingMore: false,
@@ -383,12 +383,47 @@ class ChannelInner extends PureComponent {
         }
       }
     }
+
+    if (e.type === 'member.added') {
+      this.addToEventHistory(e);
+    }
+
+    if (e.type === 'member.removed') {
+      this.addToEventHistory(e);
+    }
+
     this._setStateThrottled({
       messages: channel.state.messages,
       watchers: channel.state.watchers,
       read: channel.state.read,
       typing: channel.state.typing,
       watcher_count: channel.state.watcher_count,
+    });
+  };
+
+  addToEventHistory = (e) => {
+    this.setState((prevState) => {
+      if (!prevState.messages) {
+        return;
+      }
+      const lastMessageId =
+        prevState.messages[prevState.messages.length - 1].id;
+      if (!prevState.eventHistory[lastMessageId])
+        return {
+          ...prevState,
+          eventHistory: {
+            ...prevState.eventHistory,
+            [lastMessageId]: [e],
+          },
+        };
+
+      return {
+        ...prevState,
+        eventHistory: {
+          ...prevState.eventHistory,
+          [lastMessageId]: [...prevState.eventHistory[lastMessageId], e],
+        },
+      };
     });
   };
 

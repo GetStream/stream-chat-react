@@ -53,6 +53,14 @@ You can read about that in the Chat API docs.
 </Channel>
 ```
 
+### Customizing styles
+
+`stream-chat-react` uses scss for styling. There may be times when you want to make simple changes to our stylesheets and don't want to manually override classes and styles. To make these customizations you can do the following:
+
+- Clone this repository
+- Make the changes you want in the scss files
+- Run `yarn build-styles` or `yarn watch-styles`
+
 ### Performance
 
 Since chat can get pretty active it's important to pay attention to performance.

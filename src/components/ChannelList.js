@@ -162,11 +162,18 @@ class ChannelList extends PureComponent {
     if (e.type === 'notification.message_new') {
       // if new message, put move channel up
       // get channel if not in state currently
-      const channel = await this.getChannel(e.channel.type, e.channel.id);
-      // move channel to starting position
-      this.setState((prevState) => ({
-        channels: uniqBy([channel, ...prevState.channels], 'cid'),
-      }));
+      if (
+        this.props.onMessageNew &&
+        typeof this.props.onMessageNew === 'function'
+      ) {
+        this.props.onMessageNew(this, e);
+      } else {
+        const channel = await this.getChannel(e.channel.type, e.channel.id);
+        // move channel to starting position
+        this.setState((prevState) => ({
+          channels: uniqBy([channel, ...prevState.channels], 'cid'),
+        }));
+      }
     }
 
     // add to channel
@@ -175,7 +182,7 @@ class ChannelList extends PureComponent {
         this.props.onAddedToChannel &&
         typeof this.props.onAddedToChannel === 'function'
       ) {
-        this.props.onAddedToChannel(e);
+        this.props.onAddedToChannel(this, e);
       } else {
         const channel = await this.getChannel(e.channel.type, e.channel.id);
         this.setState((prevState) => ({
@@ -190,7 +197,7 @@ class ChannelList extends PureComponent {
         this.props.onRemovedFromChannel &&
         typeof this.props.onRemovedFromChannel === 'function'
       ) {
-        this.props.onRemovedFromChannel(e);
+        this.props.onRemovedFromChannel(this, e);
       } else {
         this.setState((prevState) => {
           const channels = prevState.channels.filter(
@@ -282,8 +289,11 @@ class ChannelList extends PureComponent {
           }`}
           ref={this.channelList}
         >
-          {/* <List {...this.props} {...this.state} {...context} /> */}
-          <List loading={loadingChannels} error={this.state.error}>
+          <List
+            loading={loadingChannels}
+            error={this.state.error}
+            channels={channels}
+          >
             {smartRender(Paginator, {
               loadNextPage: this.loadNextPage,
               hasNextPage,
