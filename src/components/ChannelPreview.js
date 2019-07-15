@@ -8,7 +8,7 @@ export class ChannelPreview extends PureComponent {
     super(props);
 
     this.state = {
-      unread: 0,
+      // unread: 0,
       lastMessage: {},
       lastRead: new Date(),
     };
