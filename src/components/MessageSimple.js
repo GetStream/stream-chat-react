@@ -358,7 +358,9 @@ export class MessageSimple extends PureComponent {
         <React.Fragment>
           <div
             key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
+            className={`${messageClasses} str-chat__message--deleted ${
+              message.type
+            } `}
           >
             <div className="str-chat__message--deleted-inner">
               This message was deleted...
