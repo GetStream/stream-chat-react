@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.13] 2019-07-18
+
+- Adding prop function `onChannelUpdated` as callback for event `channel.updated`
+- Bug fix - Channel list component doesn't update when custom data on channel is updated.
+
 ## [0.6.0] 2019-05-13
 
 - Added Pagination to ChannelList
