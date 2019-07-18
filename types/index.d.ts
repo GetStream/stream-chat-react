@@ -3,14 +3,14 @@ import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 
-interface ChatContext {
+interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
   theme?: Theme;
 }
 
-interface ChannelContext {
+interface ChannelContextValue {
   error?: boolean;
   // Loading the intial content of the channel
   loading?: boolean;
@@ -19,12 +19,11 @@ interface ChannelContext {
   hasMore?: boolean;
   messages?: Client.MessageResponse[];
   online?: boolean;
-  typing?: SeamlessImmutable.Immutable<Object>;
-  watchers?: SeamlessImmutable.Immutable<Object>;
-  members?: SeamlessImmutable.Immutable<Object>;
-  read?: SeamlessImmutable.Immutable<Object>;
+  typing?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Event }>;
+  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
+  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
   watcher_count?: number;
-  eventHistory: object;
+  eventHistory?: { [lastMessageId: string]: Client.Event[] };
   thread?: boolean;
   threadMessages?: Client.MessageResponse[];
   threadLoadingMore?: boolean;
@@ -33,8 +32,8 @@ interface ChannelContext {
   client?: Client.StreamChat;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentProps>;
-  multipleUploads: boolean;
-  acceptedFiles: string[];
+  multipleUploads?: boolean;
+  acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
 
@@ -86,7 +85,7 @@ export interface ChatProps {
   theme?: Theme;
 }
 
-interface ChannelProps extends ChatContext {
+interface ChannelProps extends ChatContextValue {
   /** Which channel to connect to, will initialize the channel if it's not initialized yet */
   channel?: Client.Channel;
   /** Client is passed automatically via the Chat Context */
@@ -95,9 +94,9 @@ interface ChannelProps extends ChatContext {
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType;
-  multipleUploads: boolean;
-  acceptedFiles: string[];
-  maxNumberOfFiles: number;
+  multipleUploads?: boolean;
+  acceptedFiles?: string[];
+  maxNumberOfFiles?: number;
 
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
@@ -106,7 +105,7 @@ interface ChannelProps extends ChatContext {
   reactionCounts?: Object;
 }
 
-interface ChannelListProps extends ChatContext {
+interface ChannelListProps extends ChatContextValue {
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
@@ -207,7 +206,7 @@ interface DateSeparatorProps {
   formatDate?(date: Date): string;
 }
 
-interface MessageListProps extends ChannelContext {
+interface MessageListProps extends ChannelContextValue {
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** The attachment component to render, defaults to Attachment */
@@ -222,7 +221,7 @@ interface MessageListProps extends ChannelContext {
   unsafeHTML?: boolean;
 }
 
-interface ChannelHeaderProps extends ChannelContext {
+interface ChannelHeaderProps extends ChannelContextValue {
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
