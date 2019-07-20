@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.14] 2019-07-20
+
+- Adding prop `messageActions` to MessageList
+
 ## [0.6.13] 2019-07-18
 
 - Adding prop function `onChannelUpdated` as callback for event `channel.updated`
