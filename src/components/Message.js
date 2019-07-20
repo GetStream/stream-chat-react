@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { Attachment } from './Attachment';
 
 import deepequal from 'deep-equal';
+import { MESSAGE_ACTIONS } from '../utils';
+
 // import diff from 'shallow-diff';
 
 /**
@@ -49,6 +51,7 @@ export class Message extends Component {
     groupStyles: [],
     Attachment,
     editing: false,
+    messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
   shouldComponentUpdate(nextProps) {
