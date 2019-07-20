@@ -19,11 +19,17 @@ interface ChannelContextValue {
   hasMore?: boolean;
   messages?: Client.MessageResponse[];
   online?: boolean;
-  typing?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Event }>;
+  typing?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.TypingStartEvent;
+  }>;
   watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
   watcher_count?: number;
-  eventHistory?: { [lastMessageId: string]: Client.Event[] };
+  eventHistory?: {
+    [lastMessageId: string]: (
+      | Client.MemberAddedEvent
+      | Client.MemberRemovedEvent)[];
+  };
   thread?: boolean;
   threadMessages?: Client.MessageResponse[];
   threadLoadingMore?: boolean;
@@ -115,9 +121,9 @@ interface ChannelListProps extends ChatContextValue {
   Paginator?: React.ElementType<PaginatorProps>;
 
   /** Function that overrides default behaviour when users gets added to a channel */
-  onAddedToChannel?(e: Client.Event): any;
+  onAddedToChannel?(e: Client.NotificationAddedToChannelEvent): any;
   /** Function that overrides default behaviour when users gets removed from a channel */
-  onRemovedFromChannel?(e: Client.Event): any;
+  onRemovedFromChannel?(e: Client.NotificationRemovedFromChannelEvent): any;
 
   // TODO: Create proper interface for followings in chat js client.
   /** Object containing query filters */
@@ -183,7 +189,6 @@ export interface LoadingIndicatorProps {
   size?: number;
   /** Set the color of the LoadingIndicator */
   color?: string;
-  [any]: any;
 }
 
 interface AvatarProps {
