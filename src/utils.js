@@ -217,3 +217,10 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   }
   return <ComponentOrLiteral {...props} />;
 };
+
+export const MESSAGE_ACTIONS = {
+  edit: 'edit',
+  delete: 'delete',
+  flag: 'flag',
+  mute: 'mute',
+};
