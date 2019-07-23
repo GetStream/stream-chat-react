@@ -263,7 +263,6 @@ export class Message extends Component {
     }
 
     if (
-      this.canDeleteMessage &&
       this.canDeleteMessage(message) &&
       messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1
     ) {

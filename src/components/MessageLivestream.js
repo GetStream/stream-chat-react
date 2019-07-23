@@ -223,20 +223,22 @@ export class MessageLivestream extends React.PureComponent {
                       onClick={(e) => this.props.openThread(e, message)}
                     />
                   )}
-                <span onClick={this.onClickOptionsAction}>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: optionsSvg,
-                    }}
-                  />
-                  <MessageActionsBox
-                    open={this.state.actionsBoxOpen}
-                    Message={this.props.Message}
-                    message={this.props.message}
-                    messageListRect={this.props.messageListRect}
-                    mine={this.props.Message.isMyMessage(this.props.message)}
-                  />
-                </span>
+                {this.props.Message.getMessageActions().length > 0 && (
+                  <span onClick={this.onClickOptionsAction}>
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: optionsSvg,
+                      }}
+                    />
+                    <MessageActionsBox
+                      open={this.state.actionsBoxOpen}
+                      Message={this.props.Message}
+                      message={this.props.message}
+                      messageListRect={this.props.messageListRect}
+                      mine={this.props.Message.isMyMessage(this.props.message)}
+                    />
+                  </span>
+                )}
               </div>
             )}
 
