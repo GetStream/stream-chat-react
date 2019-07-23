@@ -27,12 +27,14 @@ class ChannelList extends PureComponent {
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-
+    /** Function that overrides default behaviour when new message is received on channel that is not being watched */
+    onMessageNew: PropTypes.func,
     /** Function that overrides default behaviour when users gets added to a channel */
     onAddedToChannel: PropTypes.func,
     /** Function that overrides default behaviour when users gets removed from a channel */
     onRemovedFromChannel: PropTypes.func,
-
+    /** Function that overrides default behaviour when channel gets updated */
+    onChannelUpdated: PropTypes.func,
     /** Object containing query filters */
     filters: PropTypes.object,
     /** Object containing query options */
@@ -65,6 +67,7 @@ class ChannelList extends PureComponent {
       offset: 0,
       error: false,
       connectionRecoveredCount: 0,
+      channelUpdateCount: 0,
     };
 
     this.menuButton = React.createRef();
@@ -209,6 +212,28 @@ class ChannelList extends PureComponent {
         });
       }
     }
+
+    // Update the channel with data
+    if (e.type === 'channel.updated') {
+      const channels = this.state.channels;
+      const channelIndex = channels.findIndex(
+        (channel) => channel.cid === e.channel.cid,
+      );
+      channels[channelIndex].data = Immutable(e.channel);
+
+      this.setState({
+        channels: [...channels],
+        channelUpdateCount: this.state.channelUpdateCount + 1,
+      });
+
+      if (
+        this.props.onChannelUpdated &&
+        typeof this.props.onChannelUpdated === 'function'
+      ) {
+        this.props.onChannelUpdated(this, e);
+      }
+    }
+
     return null;
   };
 
@@ -261,6 +286,8 @@ class ChannelList extends PureComponent {
       Preview,
       setActiveChannel,
       key: item.id,
+      // To force the update of preview component upon channel update.
+      channelUpdateCount: this.state.channelUpdateCount,
       connectionRecoveredCount: this.state.connectionRecoveredCount,
     };
     return smartRender(ChannelPreview, { ...props });
@@ -293,6 +320,8 @@ class ChannelList extends PureComponent {
             loading={loadingChannels}
             error={this.state.error}
             channels={channels}
+            setActiveChannel={this.props.setActiveChannel}
+            activeChannel={this.props.channel}
           >
             {smartRender(Paginator, {
               loadNextPage: this.loadNextPage,

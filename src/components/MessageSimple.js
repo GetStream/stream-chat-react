@@ -198,6 +198,38 @@ export class MessageSimple extends PureComponent {
     }
   };
 
+  renderMessageActions = () => {
+    if (!this.props.messageActions || this.props.messageActions.length === 0) {
+      return;
+    }
+
+    return (
+      <div
+        onClick={this._onClickOptionsAction}
+        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+      >
+        <MessageActionsBox
+          Message={this.props.Message}
+          open={this.state.actionsBoxOpen}
+          message={this.props.message}
+          messageListRect={this.props.messageListRect}
+          mine={this.isMine()}
+          messageActions={this.props.messageActions}
+        />
+        <svg
+          width="11"
+          height="4"
+          viewBox="0 0 11 4"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </div>
+    );
+  };
   renderOptions() {
     if (
       this.props.message.type === 'error' ||
@@ -214,29 +246,7 @@ export class MessageSimple extends PureComponent {
     if (this.isMine()) {
       return (
         <div className="str-chat__message-simple__actions">
-          <div
-            onClick={this._onClickOptionsAction}
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
-          >
-            <MessageActionsBox
-              Message={this.props.Message}
-              open={this.state.actionsBoxOpen}
-              message={this.props.message}
-              messageListRect={this.props.messageListRect}
-              mine={this.isMine()}
-            />
-            <svg
-              width="11"
-              height="4"
-              viewBox="0 0 11 4"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                fillRule="nonzero"
-              />
-            </svg>
-          </div>
+          {this.renderMessageActions()}
           {!this.props.threadList && this.props.channelConfig.replies && (
             <div
               onClick={this.props.openThread}
@@ -358,9 +368,7 @@ export class MessageSimple extends PureComponent {
         <React.Fragment>
           <div
             key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${
-              message.type
-            } `}
+            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
           >
             <div className="str-chat__message--deleted-inner">
               This message was deleted...

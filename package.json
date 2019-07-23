@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.6.10",
+  "version": "0.6.14",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -29,7 +29,7 @@
     "isomorphic-ws": "^4.0.1",
     "lodash.uniqby": "^4.7.0",
     "moment": "^2.23.0",
-    "prettier": "^1.16.4",
+    "prettier": "^1.18.2",
     "pretty-bytes": "^5.1.0",
     "prop-types": "^15.6.2",
     "react-file-utils": "0.3.7",

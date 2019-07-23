@@ -9,6 +9,7 @@ import { DateSeparator } from './DateSeparator';
 import { EventComponent } from './EventComponent';
 import { KEY_CODES } from './AutoCompleteTextarea';
 import deepequal from 'deep-equal';
+import { MESSAGE_ACTIONS } from '../utils';
 
 /**
  * MessageList - The message list components renders a list of messages
@@ -49,12 +50,15 @@ class MessageList extends PureComponent {
     noGroupByUser: PropTypes.bool,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
+    /** Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']  */
+    messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
   };
 
   static defaultProps = {
     dateSeparator: DateSeparator,
     unsafeHTML: false,
     noGroupByUser: false,
+    messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
   connectionChanged = (event) => {
@@ -535,6 +539,7 @@ class MessageList extends PureComponent {
               Attachment={this.props.Attachment}
               onMentionsClick={this.props.onMentionsClick}
               onMentionsHover={this.props.onMentionsHover}
+              messageActions={this.props.messageActions}
             />
           </li>,
         );
