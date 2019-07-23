@@ -199,7 +199,10 @@ export class MessageSimple extends PureComponent {
   };
 
   renderMessageActions = () => {
-    if (!this.props.messageActions || this.props.messageActions.length === 0) {
+    const { Message } = this.props;
+    const messageActions = Message.getMessageActions();
+
+    if (messageActions.length === 0) {
       return;
     }
 
@@ -211,10 +214,8 @@ export class MessageSimple extends PureComponent {
         <MessageActionsBox
           Message={this.props.Message}
           open={this.state.actionsBoxOpen}
-          message={this.props.message}
           messageListRect={this.props.messageListRect}
           mine={this.isMine()}
-          messageActions={this.props.messageActions}
         />
         <svg
           width="11"
@@ -241,8 +242,6 @@ export class MessageSimple extends PureComponent {
     ) {
       return;
     }
-    const { message, Message } = this.props;
-
     if (this.isMine()) {
       return (
         <div className="str-chat__message-simple__actions">
@@ -309,32 +308,7 @@ export class MessageSimple extends PureComponent {
               </svg>
             </div>
           )}
-          {(Message.canEditMessage(message) ||
-            Message.canDeleteMessage(message)) && (
-            <div
-              onClick={this._onClickOptionsAction}
-              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
-            >
-              <MessageActionsBox
-                Message={Message}
-                open={this.state.actionsBoxOpen}
-                message={message}
-                messageListRect={this.props.messageListRect}
-                mine={this.isMine()}
-              />
-              <svg
-                width="11"
-                height="4"
-                viewBox="0 0 11 4"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-                  fillRule="nonzero"
-                />
-              </svg>
-            </div>
-          )}
+          {this.renderMessageActions()}
         </div>
       );
     }

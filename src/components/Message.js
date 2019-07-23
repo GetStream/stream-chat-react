@@ -43,6 +43,11 @@ export class Message extends Component {
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
+    /**
+     * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+     * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+     * */
+    messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
   };
 
   static defaultProps = {
@@ -236,6 +241,51 @@ export class Message extends Component {
     this.props.onMentionsHover(e, this.props.message.mentioned_users);
   };
 
+  getMessageActions = () => {
+    const { message, messageActions: messageActionsProps } = this.props;
+    const messageActionsAfterPermission = [];
+    let messageActions = [];
+
+    if (messageActionsProps && typeof messageActionsProps === 'boolean') {
+      // If value of messageActionsProps is true, then populate all the possible values
+      messageActions = Object.keys(MESSAGE_ACTIONS);
+    } else if (messageActionsProps && messageActionsProps.length >= 0) {
+      messageActions = [...messageActionsProps];
+    } else {
+      return [];
+    }
+
+    if (
+      this.canEditMessage(message) &&
+      messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1
+    ) {
+      messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
+    }
+
+    if (
+      this.canDeleteMessage(message) &&
+      messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1
+    ) {
+      messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+    }
+
+    if (
+      !this.isMyMessage(message) &&
+      messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1
+    ) {
+      messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
+    }
+
+    if (
+      !this.isMyMessage(message) &&
+      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1
+    ) {
+      messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
+    }
+
+    return messageActionsAfterPermission;
+  };
+
   render() {
     const config = this.props.channel.getConfig();
     const message = this.props.message;
@@ -250,6 +300,7 @@ export class Message extends Component {
         actionsEnabled={actionsEnabled}
         Message={this}
         handleReaction={this.handleReaction}
+        getMessageActions={this.getMessageActions}
         handleFlag={this.handleFlag}
         handleMute={this.handleMute}
         handleAction={this.handleAction}

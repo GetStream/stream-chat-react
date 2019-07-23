@@ -20,8 +20,6 @@ export class MessageActionsBox extends React.Component {
       PropTypes.func,
       PropTypes.object,
     ]).isRequired,
-    /** The message for which the action box is displayed */
-    message: PropTypes.object.isRequired,
   };
 
   static defaultProp = {
@@ -59,7 +57,9 @@ export class MessageActionsBox extends React.Component {
   }
 
   render() {
-    const { Message, message, messageActions } = this.props;
+    const { Message } = this.props;
+    const messageActions = Message.getMessageActions();
+
     return (
       <div
         className={`str-chat__message-actions-box
@@ -70,36 +70,28 @@ export class MessageActionsBox extends React.Component {
         ref={this.actionsBoxRef}
       >
         <ul className="str-chat__message-actions-list">
-          {Message.isMyMessage &&
-            !Message.isMyMessage(message) &&
-            messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-              <button onClick={Message.handleFlag}>
-                <li className="str-chat__message-actions-list-item">Flag</li>
-              </button>
-            )}
-          {Message.isMyMessage &&
-            !Message.isMyMessage(message) &&
-            messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
-              <button onClick={Message.handleMute}>
-                <li className="str-chat__message-actions-list-item">Mute</li>
-              </button>
-            )}
-          {Message.canEditMessage &&
-            Message.canEditMessage(message) &&
-            messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-              <button onClick={Message.handleEdit}>
-                <li className="str-chat__message-actions-list-item">
-                  Edit Message
-                </li>
-              </button>
-            )}
-          {Message.canDeleteMessage &&
-            Message.canDeleteMessage(message) &&
-            messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
-              <button onClick={Message.handleDelete}>
-                <li className="str-chat__message-actions-list-item">Delete</li>
-              </button>
-            )}
+          {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
+            <button onClick={Message.handleFlag}>
+              <li className="str-chat__message-actions-list-item">Flag</li>
+            </button>
+          )}
+          {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
+            <button onClick={Message.handleMute}>
+              <li className="str-chat__message-actions-list-item">Mute</li>
+            </button>
+          )}
+          {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
+            <button onClick={Message.handleEdit}>
+              <li className="str-chat__message-actions-list-item">
+                Edit Message
+              </li>
+            </button>
+          )}
+          {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
+            <button onClick={Message.handleDelete}>
+              <li className="str-chat__message-actions-list-item">Delete</li>
+            </button>
+          )}
         </ul>
       </div>
     );
