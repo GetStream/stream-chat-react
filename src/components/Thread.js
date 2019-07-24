@@ -25,10 +25,13 @@ class Thread extends React.PureComponent {
     /** The message component to use for rendering messages */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
-    /** The list of messages to render, state is handled by the parent channel component */
+    /** The array of immutable messages to render. By default they are provided by parent Channel component */
     threadMessages: PropTypes.array.isRequired,
 
-    /** loadMoreThread iss called when infinite scroll wants to load more messages */
+    /**
+     * Function which provides next page of thread messages.
+     * loadMoreThread is called when infinite scroll wants to load more messages
+     * */
     loadMoreThread: PropTypes.func.isRequired,
 
     /** If there are more messages available, set to false when the end of pagination is reached */

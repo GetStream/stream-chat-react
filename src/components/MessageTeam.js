@@ -383,7 +383,7 @@ export class MessageTeam extends PureComponent {
                   <Attachment
                     key={`${message.id}-${index}`}
                     attachment={attachment}
-                    actionHandler={this.props.handleAction}
+                    actionHandler={this.props.Message.handleAction}
                   />
                 ))}
 
@@ -399,7 +399,7 @@ export class MessageTeam extends PureComponent {
               {message.status === 'failed' && (
                 <button
                   className="str-chat__message-team-failed"
-                  onClick={this.props.handleRetry.bind(
+                  onClick={this.props.Message.handleRetry.bind(
                     this,
                     this.props.message,
                   )}
@@ -426,7 +426,7 @@ export class MessageTeam extends PureComponent {
                 <Attachment
                   key={`${message.id}-${index}`}
                   attachment={attachment}
-                  actionHandler={this.props.handleAction}
+                  actionHandler={this.props.Message.handleAction}
                 />
               ))}
             {message.latest_reactions &&

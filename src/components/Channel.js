@@ -33,7 +33,9 @@ class Channel extends PureComponent {
     client: PropTypes.object.isRequired,
     /** The loading indicator to use */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Custom message component to be used in message list  */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Custom attachment component to be used to display attachments in message  */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
@@ -527,7 +529,6 @@ class ChannelInner extends PureComponent {
     resetNotification: this.resetNotification,
 
     loadMore: this.loadMore,
-    listenToScroll: this.listenToScroll,
 
     // thread related
     openThread: this.openThread,

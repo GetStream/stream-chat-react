@@ -29,7 +29,7 @@ export class MessageSimple extends PureComponent {
     message: PropTypes.object,
     /** The attachment component */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** The message component, most logic is delegated to this component */
+    /** The higher order message component, most logic is delegated to this component */
     Message: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.func,
@@ -431,7 +431,7 @@ export class MessageSimple extends PureComponent {
                     <Attachment
                       key={`${message.id}-${index}`}
                       attachment={attachment}
-                      actionHandler={this.props.handleAction}
+                      actionHandler={this.props.Message.handleAction}
                     />
                   );
                 })}

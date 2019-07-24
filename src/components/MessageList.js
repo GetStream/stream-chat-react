@@ -4,6 +4,8 @@ import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
 import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
 import { MessageNotification } from './MessageNotification';
+import { MessageSimple } from './MessageSimple';
+import { Attachment } from './Attachment';
 import { LoadingIndicator } from './LoadingIndicator';
 import { DateSeparator } from './DateSeparator';
 import { EventComponent } from './EventComponent';
@@ -32,16 +34,16 @@ class MessageList extends PureComponent {
     this.messageRefs = {};
   }
   static propTypes = {
-    /** The attachment component to render, defaults to Attachment */
+    /** Via Context: The attachment UI component to render, defaults to Attachment */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** A list of immutable messages */
+    /** Via Context: The message UI component to render, defaults to MessageSimple */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Via Context: A list of immutable messages */
     messages: PropTypes.array.isRequired,
     /** Via Context: The channel object */
     channel: PropTypes.object.isRequired,
     /** Via Context: The function to update a message, handled by the Channel component */
     updateMessage: PropTypes.func.isRequired,
-    /** Via Context: The function is called when the list scrolls */
-    listenToScroll: PropTypes.func,
     /** Typing indicator component to render  */
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Date separator component to render  */
@@ -58,6 +60,8 @@ class MessageList extends PureComponent {
   };
 
   static defaultProps = {
+    Message: MessageSimple,
+    Attachment,
     dateSeparator: DateSeparator,
     unsafeHTML: false,
     noGroupByUser: false,
@@ -488,7 +492,6 @@ class MessageList extends PureComponent {
         message.type === 'channel.event' ||
         message.type === 'system'
       ) {
-        console.log;
         elements.push(
           <li
             key={

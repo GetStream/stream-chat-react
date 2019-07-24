@@ -222,7 +222,7 @@ export class MessageCommerce extends PureComponent {
                 <Attachment
                   key={`${message.id}-${index}`}
                   attachment={attachment}
-                  actionHandler={this.props.handleAction}
+                  actionHandler={this.props.Message.handleAction}
                 />
               ))}
             {images.length > 1 && <Gallery images={images} />}

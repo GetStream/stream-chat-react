@@ -33,7 +33,19 @@ export class Chat extends PureComponent {
   static propTypes = {
     /** The StreamChat client object */
     client: PropTypes.object.isRequired,
-    /** The theme 'messaging', 'team', 'commerce', 'gaming', 'livestream' plus either 'light' or 'dark' */
+    /**
+     * Should be one of following:
+     *  'messaging light'
+     *  'messaging dark'
+     *  'team light'
+     *  'team dark'
+     *  'commerce light'
+     *  'commerce dark'
+     *  'gaming light'
+     *  'gaming dark'
+     *  'livestream light'
+     *  'livestream dark'
+     */
     theme: PropTypes.oneOf(themes),
   };
 
