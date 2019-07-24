@@ -339,23 +339,25 @@ export class MessageTeam extends PureComponent {
                           onClick={(e) => this.props.openThread(e, message)}
                         />
                       )}
-                    <span onClick={this.onClickOptionsAction}>
-                      <span
-                        title="Message actions"
-                        dangerouslySetInnerHTML={{
-                          __html: optionsSvg,
-                        }}
-                      />
-                      <MessageActionsBox
-                        Message={this.props.Message}
-                        open={this.state.actionsBoxOpen}
-                        message={this.props.message}
-                        messageListRect={this.props.messageListRect}
-                        mine={this.props.Message.isMyMessage(
-                          this.props.message,
-                        )}
-                      />
-                    </span>
+                    {this.props.Message.getMessageActions().length > 0 && (
+                      <span onClick={this.onClickOptionsAction}>
+                        <span
+                          title="Message actions"
+                          dangerouslySetInnerHTML={{
+                            __html: optionsSvg,
+                          }}
+                        />
+                        <MessageActionsBox
+                          Message={this.props.Message}
+                          open={this.state.actionsBoxOpen}
+                          message={this.props.message}
+                          messageListRect={this.props.messageListRect}
+                          mine={this.props.Message.isMyMessage(
+                            this.props.message,
+                          )}
+                        />
+                      </span>
+                    )}
                   </div>
                 )}
               <span

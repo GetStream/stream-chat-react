@@ -50,7 +50,10 @@ class MessageList extends PureComponent {
     noGroupByUser: PropTypes.bool,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
-    /** Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']  */
+    /**
+     * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+     * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+     * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
   };
 

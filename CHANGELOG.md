@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.15] 2019-07-23
+
+- Fixing Message actions for livestream and team chat.
+- Fixing flag/mute functionality. Earlier only admins were allowed to flag or mute the message. This was wrong. Every user should be able to
+  flag or mute any message (other than his own message)
+
 ## [0.6.14] 2019-07-20
 
 - Adding prop `messageActions` to MessageList
