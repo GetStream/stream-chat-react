@@ -13,7 +13,7 @@ export class MessageActionsBox extends React.Component {
     /** If the message actions box should be open or not */
     open: PropTypes.bool.isRequired,
     /** The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitely:
-     *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessagec`, `anEditMessage`, `isMyMessage`, `isAdmin`
+     *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessagec`, `canEditMessage`, `isMyMessage`, `isAdmin`
      */
     Message: PropTypes.oneOfType([
       PropTypes.node,

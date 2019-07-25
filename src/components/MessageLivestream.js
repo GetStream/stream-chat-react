@@ -315,7 +315,7 @@ export class MessageLivestream extends React.PureComponent {
                 )}
                 {message.status === 'failed' && (
                   <p
-                    onClick={this.props.Message.handleRetry.bind(
+                    onClick={this.props.handleRetry.bind(
                       this,
                       this.props.message,
                     )}
@@ -341,7 +341,7 @@ export class MessageLivestream extends React.PureComponent {
                   <Attachment
                     key={`${message.id}-${index}`}
                     attachment={attachment}
-                    actionHandler={this.props.Message.handleAction}
+                    actionHandler={this.props.handleAction}
                   />
                 ))}
 

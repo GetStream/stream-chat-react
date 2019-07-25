@@ -300,6 +300,12 @@ export class Message extends Component {
         actionsEnabled={actionsEnabled}
         Message={this}
         handleReaction={this.handleReaction}
+        getMessageActions={this.getMessageActions}
+        handleFlag={this.handleFlag}
+        handleMute={this.handleMute}
+        handleAction={this.handleAction}
+        handleRetry={this.handleRetry}
+        isMyMessage={this.isMyMessage}
         openThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }

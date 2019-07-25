@@ -212,7 +212,7 @@ export class MessageSimple extends PureComponent {
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
       >
         <MessageActionsBox
-          Message={this.props.Message}
+          Message={Message}
           open={this.state.actionsBoxOpen}
           messageListRect={this.props.messageListRect}
           mine={this.isMine()}
@@ -246,7 +246,7 @@ export class MessageSimple extends PureComponent {
       return (
         <div className="str-chat__message-simple__actions">
           {this.renderMessageActions()}
-          {!this.props.threadList && this.props.channelConfig.replies && (
+          {!this.props.threadList && this.props.channelConfig && this.props.channelConfig.replies && (
             <div
               onClick={this.props.openThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
@@ -259,7 +259,7 @@ export class MessageSimple extends PureComponent {
               </svg>
             </div>
           )}
-          {this.props.channelConfig.reactions && (
+          {this.props.channelConfig && this.props.channelConfig.reactions && (
             <div
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
@@ -282,7 +282,7 @@ export class MessageSimple extends PureComponent {
     } else {
       return (
         <div className="str-chat__message-simple__actions">
-          {this.props.channelConfig.reactions && (
+          {this.props.channelConfig && this.props.channelConfig.reactions && (
             <div
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
@@ -295,7 +295,7 @@ export class MessageSimple extends PureComponent {
               </svg>
             </div>
           )}
-          {!this.props.threadList && this.props.channelConfig.replies && (
+          {!this.props.threadList && this.props.channelConfig && this.props.channelConfig.replies && (
             <div
               onClick={this.props.openThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
@@ -431,7 +431,7 @@ export class MessageSimple extends PureComponent {
                     <Attachment
                       key={`${message.id}-${index}`}
                       attachment={attachment}
-                      actionHandler={this.props.Message.handleAction}
+                      actionHandler={this.props.handleAction}
                     />
                   );
                 })}
