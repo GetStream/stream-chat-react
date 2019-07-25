@@ -34,19 +34,32 @@ class MessageList extends PureComponent {
     this.messageRefs = {};
   }
   static propTypes = {
-    /** Via Context: The attachment UI component to render, defaults to Attachment */
+    /**
+     * Available through context: The attachment UI component.
+     *
+     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js
+     * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Via Context: The message UI component to render, defaults to MessageSimple */
+    /**
+     * Available through context: The message UI component to render.
+     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js
+     * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Via Context: A list of immutable messages */
+    /** Available through context: A array of immutable messages */
     messages: PropTypes.array.isRequired,
-    /** Via Context: The channel object */
+    /** Available through context: The channel object */
     channel: PropTypes.object.isRequired,
-    /** Via Context: The function to update a message, handled by the Channel component */
+    /** Available through context: The function to update a message, handled by the Channel component */
     updateMessage: PropTypes.func.isRequired,
-    /** Typing indicator component to render  */
+    /**
+     * Typing indicator UI component to render
+     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js
+     * */
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Date separator component to render  */
+    /**
+     * Date separator UI component to render
+     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js
+     * */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Turn off grouping of messages by user */
     noGroupByUser: PropTypes.bool,

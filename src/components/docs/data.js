@@ -301,4 +301,5 @@ export const MessageMock = {
   handleDelete: console.log,
   canDeleteMessage: () => true,
   canEditMessage: () => true,
+  getMessageActions: () => [],
 };

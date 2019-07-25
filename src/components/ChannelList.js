@@ -23,8 +23,26 @@ class ChannelList extends PureComponent {
     /** The Preview to use, defaults to ChannelPreviewLastMessage */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
-    /** The loading indicator to use */
+    /**
+     * The loading indicator to use. Loading indicator will be shown on the screen until the channels are
+     * being queried from API. Once the channels are loaded/queried, loading indicator is removed from the screen
+     * and replaced with children of the Channel component.
+     *
+     * Defaults to and accepts same props as:
+     * [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+     *
+     */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Custom UI Component which acts as container for list of channels. Note that, list (UI component) of channels is passed
+     * to this component as children. This component is for the purpose of adding header to channel list or styling container
+     * for list of channels.
+     *
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListTeam.js) (default)
+     * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
+     */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Function that overrides default behaviour when new message is received on channel that is not being watched */
