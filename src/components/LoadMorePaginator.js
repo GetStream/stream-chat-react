@@ -6,6 +6,12 @@ import { smartRender } from '../utils';
 export class LoadMorePaginator extends React.PureComponent {
   static propTypes = {
     LoadMoreButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** callback to load the next page */
+    loadNextPage: PropTypes.func,
+    /** indicates if there is a next page to load */
+    hasNextPage: PropTypes.bool,
+    /** display the items in opposite order */
+    reverse: PropTypes.bool,
   };
   static defaultProps = {
     LoadMoreButton,

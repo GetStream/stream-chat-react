@@ -25,7 +25,7 @@ class ChannelList extends PureComponent {
 
     /**
      * The loading indicator to use. Loading indicator will be shown on the screen until the channels are
-     * being queried from API. Once the channels are loaded/queried, loading indicator is removed from the screen
+     * being queried from API. Once the channels are loaded/queried, loading indicator is removed
      * and replaced with children of the Channel component.
      *
      * Defaults to and accepts same props as:
@@ -44,20 +44,60 @@ class ChannelList extends PureComponent {
      * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
      */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Component to act as a paginator around list of channels. It contains all the pagination logic such as
+     * - fetching next page of results when needed e.g., when scroll reaches the end of list
+     * - UI to display loading indicator when next page is being loaded
+     * - call to action button to trigger loading of next page.
+     *
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMorePaginator.js)
+     * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator.js)
+     */
     Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Function that overrides default behaviour when new message is received on channel that is not being watched */
+    /**
+     * Function that overrides default behaviour when new message is received on channel that is not being watched
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.message_new` event
+     * */
     onMessageNew: PropTypes.func,
-    /** Function that overrides default behaviour when users gets added to a channel */
+    /**
+     * Function that overrides default behaviour when users gets added to a channel
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.added_to_channel` event
+     * */
     onAddedToChannel: PropTypes.func,
-    /** Function that overrides default behaviour when users gets removed from a channel */
+    /**
+     * Function that overrides default behaviour when users gets removed from a channel
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.removed_from_channel` event
+     * */
     onRemovedFromChannel: PropTypes.func,
-    /** Function that overrides default behaviour when channel gets updated */
+    /**
+     * Function that overrides default behaviour when channel gets updated
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.channel_updated` event
+     * */
     onChannelUpdated: PropTypes.func,
-    /** Object containing query filters */
+    /**
+     * Object containing query filters
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for filter.
+     * */
     filters: PropTypes.object,
-    /** Object containing query options */
+    /**
+     * Object containing query options
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for options.
+     * */
     options: PropTypes.object,
-    /** Object containing sort parameters */
+    /**
+     * Object containing sort parameters
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for sort.
+     * */
     sort: PropTypes.object,
   };
 

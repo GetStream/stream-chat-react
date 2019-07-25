@@ -36,35 +36,40 @@ class Channel extends PureComponent {
      * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
      * and replaced with children of the Channel component.
      *
-     * Defaults to and accepts same props as:
-     * https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js
+     * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
      */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * Custom UI component to be used to display a message in message list.
      *
-     * Defaults to and accepts same props as:
-     * https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js
+     * Available built-in components (also accepts the same props as):
+     *
+     * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
+     * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
+     * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
+     * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+     *
      * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * Custom UI component to be used to display attachment in individual message.
      *
-     * Defaults to and accepts same props as:
-     * https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js
+     * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
      * Function to be called when a @mention in message is clicked.
      *
-     * e.g, `Channel.props.onMentionsClick = (event, user) => {}`, where event is DOM click event and user is target user object.
+     * @param {Event} event DOM Click event
+     * @param {Wser} user   Target user object which is clicked
      */
     onMentionsClick: PropTypes.func,
     /**
      * Function to be called when a @mention in message is hovered.
      *
-     * e.g, `Channel.props.onMentionsHover = (event, user) => {}`, where event is DOM click event and user is target user object.
+     * @param {Event} event DOM Click event
+     * @param {Wser} user   Target user object which is hovered
      */
     onMentionsHover: PropTypes.func,
   };

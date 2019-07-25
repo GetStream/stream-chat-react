@@ -35,30 +35,15 @@ class MessageList extends PureComponent {
   }
   static propTypes = {
     /**
-     * Available through context: The attachment UI component.
-     *
-     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js
-     * */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /**
-     * Available through context: The message UI component to render.
-     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js
-     * */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Available through context: A array of immutable messages */
-    messages: PropTypes.array.isRequired,
-    /** Available through context: The channel object */
-    channel: PropTypes.object.isRequired,
-    /** Available through context: The function to update a message, handled by the Channel component */
-    updateMessage: PropTypes.func.isRequired,
-    /**
      * Typing indicator UI component to render
-     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js
+     *
+     * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
      * */
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * Date separator UI component to render
-     * Defaults to and accepts same props as: https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js
+     *
+     * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
      * */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Turn off grouping of messages by user */
@@ -70,10 +55,117 @@ class MessageList extends PureComponent {
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+    /**
+     * **Available from channel context:**
+     *
+     * Custom UI component to be used to display attachment in individual message.
+     *
+     * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+     * */
+    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * **Available from channel context:**
+     *
+     * Custom UI component to be used to display a message in message list.
+     *
+     * Available built-in components (also accepts the same props as):
+     *
+     * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
+     * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
+     * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
+     * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+     *
+     * */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * **Available from channel context:**
+     *
+     * Array of immutable [message objects](https://getstream.io/chat/docs/#message_format)
+     * */
+    messages: PropTypes.array.isRequired,
+    /**
+     * **Available from channel context:**
+     * The channel object
+     * */
+    channel: PropTypes.object.isRequired,
+    /**
+     * **Available from channel context:**
+     * The function to update a message, handled by the Channel component
+     *
+     * @param updatedMessage Updated [message object](https://getstream.io/chat/docs/#message_format)
+     * */
+    updateMessage: PropTypes.func.isRequired,
+    /**
+     * Boolean weather current message list is a thread.
+     */
+    threadList: PropTypes.func,
+    /**
+     * **Available from channel context:**
+     *
+     * The function to resend a message, handled by the Channel component
+     *
+     * @param message A [message](https://getstream.io/chat/docs/#message_format) to be sent
+     * */
+    retrySendMessage: PropTypes.func,
+    /**
+     * **Available from channel context:**
+     *
+     * The function to remove a message from messagelist, handled by the Channel component
+     *
+     * @param message A [message](https://getstream.io/chat/docs/#message_format) to be removed
+     * */
+    removeMessage: PropTypes.func,
+    /**
+     * **Available from channel context:**
+     *
+     * The function to execute when @mention is clicked in message.
+     *
+     * @param event           DOM click event object
+     * @param mentioned_users Array of mentioned users in message. This array is available in message object.
+     */
+    onMentionsClick: PropTypes.func,
+    /**
+     * **Available from channel context:**
+     *
+     * The function to execute when @mention is hovered on message.
+     *
+     * @param event           DOM hover event object
+     * @param mentioned_users Array of mentioned users in message. This array is available in message object.
+     */
+    onMentionsHover: PropTypes.func,
+    /** Client is passed automatically via the Chat Context */
+    client: PropTypes.object,
+    /**
+     * **Available from channel context:**
+     *
+     * Function to execute when replies count button is clicked.
+     *
+     * @param message Parent message of thread which needs to be opened
+     * @param event DOM click event
+     */
+    openThread: PropTypes.func,
+    /**
+     * **Available from channel context:**
+     * Array of members of channel
+     */
+    members: PropTypes.array,
+    /**
+     * **Available from channel context:**
+     * Array of watchers of channel
+     */
+    watchers: PropTypes.array,
+    /**
+     * **Available from channel context:**
+     *
+     *
+     */
+    read: PropTypes.object,
+    typing: PropTypes.object,
   };
 
   static defaultProps = {
     Message: MessageSimple,
+    threadList: false,
     Attachment,
     dateSeparator: DateSeparator,
     unsafeHTML: false,
@@ -545,11 +637,11 @@ class MessageList extends PureComponent {
               editing={
                 !!(this.state.editing && this.state.editing === message.id)
               }
-              channel={this.props.channel}
-              threadList={this.props.threadList}
               clearEditingState={this.clearEditingState}
               setEditingState={this.setEditingState}
               messageListRect={this.state.messageListRect}
+              channel={this.props.channel}
+              threadList={this.props.threadList}
               retrySendMessage={this.props.retrySendMessage}
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}

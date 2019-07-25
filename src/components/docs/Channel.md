@@ -21,6 +21,11 @@ These functions:
 - retrySendMessage
 - resetNotification
 - loadMore
+- openThread
+- closeThread
+- loadMoreThread
+- onMentionsClick
+- onMentionsHover
 
 And the data exposed by the chat context:
 

@@ -20,6 +20,17 @@ export const channel = client.channel('team', 'docs', {
 export const channelContext = {
   client,
   channel,
+  updateMessage: () => {},
+  removeMessage: () => {},
+  sendMessage: () => {},
+  retrySendMessage: () => {},
+  resetNotification: () => {},
+  loadMore: () => {},
+  openThread: () => {},
+  closeThread: () => {},
+  loadMoreThread: () => {},
+  onMentionsClick: () => {},
+  onMentionsHover: () => {},
 };
 
 const filters = { type: 'team', example: 1 };
