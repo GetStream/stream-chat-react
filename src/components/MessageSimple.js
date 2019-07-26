@@ -494,6 +494,14 @@ export class MessageSimple extends PureComponent {
                   )}
                 </div>
 
+                {!this.isMine() && this.props.isFlagged && (
+                  <span
+                    className="str-chat__message-text-flag"
+                    title="This message has been flagged"
+                  >
+                    🚩
+                  </span>
+                )}
                 {message.text && this.renderOptions()}
               </div>
             )}

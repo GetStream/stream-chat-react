@@ -203,7 +203,11 @@
     }
   }
 }
-
+.str-chat__message-text {
+  &-flag {
+    margin-left: 5px;
+  }
+}
 .str-chat__message,
 .str-chat__message-simple {
   display: inline-flex;

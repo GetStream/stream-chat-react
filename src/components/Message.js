@@ -21,6 +21,7 @@ export class Message extends Component {
     super(props);
     this.state = {
       loading: false,
+      isFlagged: false,
     };
   }
 
@@ -59,7 +60,7 @@ export class Message extends Component {
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     // since there are many messages its important to only rerender messages when needed.
     let shouldUpdate = nextProps.message !== this.props.message;
     let reason = '';
@@ -104,6 +105,10 @@ export class Message extends Component {
       reason = 'messageListRect';
     }
 
+    if (nextState.isFlagged !== this.state.isFlagged) {
+      shouldUpdate = true;
+      reason = 'flag';
+    }
     if (shouldUpdate && reason) {
       // console.log(
       //   'message',
@@ -129,7 +134,12 @@ export class Message extends Component {
     event.preventDefault();
 
     const message = this.props.message;
-    await this.props.client.flagMessage(message.id);
+    const flagResponse = await this.props.client.flagMessage(message.id);
+    if (flagResponse && flagResponse.flag) {
+      this.setState({
+        isFlagged: true,
+      });
+    }
   };
 
   handleMute = async (event) => {
@@ -306,6 +316,9 @@ export class Message extends Component {
         handleAction={this.handleAction}
         handleRetry={this.handleRetry}
         isMyMessage={this.isMyMessage}
+        // This is a temporary flag that we will display if flag request succeds.
+        // Current we don't expose flag information about message.
+        isFlagged={this.state.isFlagged}
         openThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }
