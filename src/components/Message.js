@@ -48,6 +48,42 @@ export class Message extends Component {
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageErrorNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserErrorNotification: PropTypes.func,
   };
 
   static defaultProps = {
@@ -125,18 +161,91 @@ export class Message extends Component {
 
   canDeleteMessage = (message) => this.isMyMessage(message) || this.isAdmin();
 
+  /**
+   * Following function validates a function which returns notification message.
+   * It validates if the first parameter is function and also if return value of function is string or no.
+   *
+   * @param func {Function}
+   * @param args {Array} Arguments to be provided to func while executing.
+   */
+  validateAndGetNotificationMessage = (func, args) => {
+    if (!func || typeof func !== 'function') return false;
+
+    const returnValue = func.apply(null, args);
+
+    if (typeof returnValue !== 'string') return false;
+
+    return returnValue;
+  };
+
   handleFlag = async (event) => {
     event.preventDefault();
 
+    const {
+      getFlagMessageSuccessNotification,
+      getFlagMessageErrorNotification,
+    } = this.props;
     const message = this.props.message;
-    await this.props.client.flagMessage(message.id);
+
+    try {
+      await this.props.client.flagMessage(message.id);
+      const successMessage = this.validateAndGetNotificationMessage(
+        getFlagMessageSuccessNotification,
+        [message],
+      );
+      this.props.addNotification(
+        successMessage
+          ? successMessage
+          : 'Message has been succesfully flagged',
+        'success',
+      );
+    } catch (e) {
+      const errorMessage = this.validateAndGetNotificationMessage(
+        getFlagMessageErrorNotification,
+        [message],
+      );
+      this.props.addNotification(
+        errorMessage
+          ? errorMessage
+          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+        'error',
+      );
+    }
   };
 
   handleMute = async (event) => {
     event.preventDefault();
 
+    const {
+      getMuteUserSuccessNotification,
+      getMuteUserErrorNotification,
+    } = this.props;
     const message = this.props.message;
-    await this.props.client.flagMessage(message.user.id);
+
+    try {
+      await this.props.client.muteUser(message.user.id);
+      const successMessage = this.validateAndGetNotificationMessage(
+        getMuteUserSuccessNotification,
+        [message.user],
+      );
+
+      this.props.addNotification(
+        successMessage
+          ? successMessage
+          : `User with id ${message.user.id} has been muted`,
+        'success',
+      );
+    } catch (e) {
+      const errorMessage = this.validateAndGetNotificationMessage(
+        getMuteUserErrorNotification,
+        [message.user],
+      );
+
+      this.props.addNotification(
+        errorMessage ? errorMessage : 'Error muting a user ...',
+        'error',
+      );
+    }
   };
 
   handleEdit = () => {

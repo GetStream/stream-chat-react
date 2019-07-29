@@ -27,6 +27,26 @@
 .str-chat__reverse-infinite-scroll {
 }
 
+.str-chat__custom-notification {
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 8px;
+  font-family: $second-font;
+  text-align: center;
+
+  &.notification-success {
+    background: rgba(2, 208, 2, 0.1);
+    border: 1px solid rgba(2, 208, 2, 0.1);
+    color: green;
+  }
+
+  &.notification-error {
+    background: rgba(208, 2, 27, 0.1);
+    border: 1px solid rgba(208, 2, 27, 0.1);
+    color: #f00;
+  }
+}
+
 .str-chat__connection-issue {
   background: rgba(208, 2, 27, 0.1);
   border: 1px solid rgba(208, 2, 27, 0.1);
