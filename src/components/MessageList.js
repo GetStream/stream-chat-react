@@ -27,11 +27,13 @@ class MessageList extends PureComponent {
       newMessagesNotification: false,
       editing: '',
       online: true,
+      notifications: [],
     };
 
     this.bottomRef = React.createRef();
     this.messageList = React.createRef();
     this.messageRefs = {};
+    this.notificationTimeouts = [];
   }
   static propTypes = {
     /**
@@ -59,6 +61,42 @@ class MessageList extends PureComponent {
      * Boolean weather current message list is a thread.
      */
     threadList: PropTypes.boolean,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageErrorNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserErrorNotification: PropTypes.func,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#chat)** */
     client: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -125,6 +163,9 @@ class MessageList extends PureComponent {
     this.props.client.off('connection.changed', this.connectionChanged);
 
     document.removeEventListener('keydown', this.keypress);
+    this.notificationTimeouts.forEach((ct) => {
+      clearTimeout(ct);
+    });
   }
 
   getSnapshotBeforeUpdate(prevProps) {
@@ -485,6 +526,45 @@ class MessageList extends PureComponent {
     }
   };
 
+  /**
+   * Adds a temporary notification to message list.
+   * Notification will be removed after 5 seconds.
+   *
+   * @param notificationText  Text of notification to be added
+   * @param type              Type of notification. success | error
+   */
+  addNotification = (notificationText, type) => {
+    if (typeof notificationText !== 'string') return;
+    if (type !== 'success' && type !== 'error') return;
+
+    const nextIndex = new Date();
+
+    const newNotifications = [...this.state.notifications];
+    newNotifications.push({
+      id: nextIndex,
+      text: notificationText,
+      type,
+    });
+    this.setState({
+      notifications: newNotifications,
+    });
+
+    // remove the notification after 5000 ms
+    const ct = setTimeout(() => {
+      const index = this.state.notifications.findIndex((notification) => {
+        if (notification.id === nextIndex) return true;
+        return false;
+      });
+      const newNotifications = [...this.state.notifications];
+      newNotifications.splice(index, 1);
+      this.setState({
+        notifications: newNotifications,
+      });
+    }, 5000);
+
+    this.notificationTimeouts.push(ct);
+  };
+
   render() {
     let allMessages = [...this.props.messages];
 
@@ -571,6 +651,7 @@ class MessageList extends PureComponent {
               channel={this.props.channel}
               threadList={this.props.threadList}
               retrySendMessage={this.props.retrySendMessage}
+              addNotification={this.addNotification}
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}
               Message={this.props.Message}
@@ -579,6 +660,18 @@ class MessageList extends PureComponent {
               onMentionsClick={this.props.onMentionsClick}
               onMentionsHover={this.props.onMentionsHover}
               messageActions={this.props.messageActions}
+              getFlagMessageSuccessNotification={
+                this.props.getFlagMessageSuccessNotification
+              }
+              getFlagMessageErrorNotification={
+                this.props.getFlagMessageErrorNotification
+              }
+              getMuteUserSuccessNotification={
+                this.props.getMuteUserSuccessNotification
+              }
+              getMuteUserErrorNotification={
+                this.props.getMuteUserErrorNotification
+              }
             />
           </li>,
         );
@@ -616,7 +709,16 @@ class MessageList extends PureComponent {
         </div>
 
         <div className="str-chat__list-notifications">
-          <Notification active={!this.state.online}>
+          {this.state.notifications.map((notification) => (
+            <Notification
+              active={true}
+              key={notification.id}
+              type={notification.type}
+            >
+              {notification.text}
+            </Notification>
+          ))}
+          <Notification active={!this.state.online} type="error">
             Connection failure, reconnecting now...
           </Notification>
 
@@ -641,9 +743,13 @@ const Center = ({ children }) => (
   </div>
 );
 
-const Notification = ({ children, active }) => {
+const Notification = ({ children, active, type }) => {
   if (active) {
-    return <div className="str-chat__connection-issue">{children}</div>;
+    return (
+      <div className={`str-chat__custom-notification notification-${type}`}>
+        {children}
+      </div>
+    );
   }
   return null;
 };

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.16] 2019-07-29
+
+- Adding visual response (notification) for flag message and mute user functionality
+- Fixing broken mute user functionality
+
 ## [0.6.15] 2019-07-23
 
 - Fixing Message actions for livestream and team chat.
