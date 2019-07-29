@@ -11,12 +11,12 @@ import { withChannelContext } from '../context';
  */
 class ChannelHeader extends PureComponent {
   static propTypes = {
-    /** Via Context: the channel to render */
-    channel: PropTypes.object.isRequired,
     /** Set title manually */
     title: PropTypes.string,
     /** Show a little indicator that the channel is live right now */
     live: PropTypes.bool,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#chat)** */
+    channel: PropTypes.object.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#chat)** */
     watcher_count: PropTypes.number,
   };

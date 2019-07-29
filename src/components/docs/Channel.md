@@ -73,8 +73,9 @@ e.g.,
 - `loading` {boolean} if the channel is currently loading
 - `loadingMore` {boolean} if the channel is loading pagination
 - `hasMore` {boolean} if the channel has more messages to paginate through
-
-These functions:
+- `threadLoadingMore` {boolean} If the thread is currently loading more messages
+- `threadHasMore` {boolean} If there are more messages available in current active thread, set to false when the end of pagination is reached.
+  These functions:
 
 - **sendMessage** The function to send a message on channel.
 
@@ -127,10 +128,15 @@ These functions:
 
 And the data exposed by the chat context:
 
-- client (the client connection)
-- channels (the list of channels)
-- setActiveChannel (a function to set the currently active channel)
-- channel (the currently active channel)
+- **client** (the client connection)
+- **channels** {array} The list of channels
+- **setActiveChannel** A function to set the currently active channel. This is used in ChannelList component to navigate between channels.
+
+  **Params**
+
+  - `channel` Channel that needs to set to as active channel.
+
+- **channel** The currently active channel
 
 ```js
 const data = require('./data');

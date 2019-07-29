@@ -9,7 +9,7 @@ import { Message } from './Message';
 import { MessageInputSmall } from './MessageInputSmall';
 
 /**
- * Thread - The Thread renders a parent message with a list of replies. Use the stnadard message list of the main channel's messages.
+ * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
  * The thread is only used for the list of replies to a message.
  *
  * @example ./docs/Thread.md
@@ -17,31 +17,38 @@ import { MessageInputSmall } from './MessageInputSmall';
  */
 class Thread extends React.PureComponent {
   static propTypes = {
-    /** Channel is passed via the Channel Context */
-    channel: PropTypes.object.isRequired,
-    /** the thread (the parent message object) */
-    thread: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-
-    /** The message component to use for rendering messages */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-
-    /** The array of immutable messages to render. By default they are provided by parent Channel component */
-    threadMessages: PropTypes.array.isRequired,
-
-    /**
-     * Function which provides next page of thread messages.
-     * loadMoreThread is called when infinite scroll wants to load more messages
-     * */
-    loadMoreThread: PropTypes.func.isRequired,
-
-    /** If there are more messages available, set to false when the end of pagination is reached */
-    threadHasMore: PropTypes.bool,
-    /** If the thread is currently loading more messages */
-    threadLoadingMore: PropTypes.bool,
     /** Display the thread on 100% width of it's container. Useful for mobile style view */
     fullWidth: PropTypes.bool,
     /** Make input focus on mounting thread */
     autoFocus: PropTypes.bool,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    channel: PropTypes.object.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+     * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
+    thread: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+    /**
+     * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+     * The array of immutable messages to render. By default they are provided by parent Channel component */
+    threadMessages: PropTypes.array.isRequired,
+    /**
+     * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+     *
+     * Function which provides next page of thread messages.
+     * loadMoreThread is called when infinite scroll wants to load more messages
+     * */
+    loadMoreThread: PropTypes.func.isRequired,
+    /**
+     * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+     * If there are more messages available, set to false when the end of pagination is reached.
+     * */
+    threadHasMore: PropTypes.bool,
+    /**
+     * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+     * If the thread is currently loading more messages. This is helpful to display a loading indicator on threadlist */
+    threadLoadingMore: PropTypes.bool,
   };
 
   static defaultProps = {

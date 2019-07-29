@@ -35,16 +35,17 @@ export class Chat extends PureComponent {
     client: PropTypes.object.isRequired,
     /**
      * Should be one of following:
-     *  'messaging light'
-     *  'messaging dark'
-     *  'team light'
-     *  'team dark'
-     *  'commerce light'
-     *  'commerce dark'
-     *  'gaming light'
-     *  'gaming dark'
-     *  'livestream light'
-     *  'livestream dark'
+     *
+     *  - messaging light
+     *  - messaging dark
+     *  - team light
+     *  - team dark
+     *  - commerce light
+     *  - commerce dark
+     *  - gaming light
+     *  - gaming dark
+     *  - livestream light
+     *  - livestream dark
      */
     theme: PropTypes.oneOf(themes),
   };
