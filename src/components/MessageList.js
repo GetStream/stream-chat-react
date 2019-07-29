@@ -56,110 +56,38 @@ class MessageList extends PureComponent {
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
     /**
-     * **Available from channel context:**
-     *
-     * Custom UI component to be used to display attachment in individual message.
-     *
-     * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
-     * */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /**
-     * **Available from channel context:**
-     *
-     * Custom UI component to be used to display a message in message list.
-     *
-     * Available built-in components (also accepts the same props as):
-     *
-     * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
-     * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
-     * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
-     * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
-     *
-     * */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /**
-     * **Available from channel context:**
-     *
-     * Array of immutable [message objects](https://getstream.io/chat/docs/#message_format)
-     * */
-    messages: PropTypes.array.isRequired,
-    /**
-     * **Available from channel context:**
-     * The channel object
-     * */
-    channel: PropTypes.object.isRequired,
-    /**
-     * **Available from channel context:**
-     * The function to update a message, handled by the Channel component
-     *
-     * @param updatedMessage Updated [message object](https://getstream.io/chat/docs/#message_format)
-     * */
-    updateMessage: PropTypes.func.isRequired,
-    /**
      * Boolean weather current message list is a thread.
      */
-    threadList: PropTypes.func,
-    /**
-     * **Available from channel context:**
-     *
-     * The function to resend a message, handled by the Channel component
-     *
-     * @param message A [message](https://getstream.io/chat/docs/#message_format) to be sent
-     * */
-    retrySendMessage: PropTypes.func,
-    /**
-     * **Available from channel context:**
-     *
-     * The function to remove a message from messagelist, handled by the Channel component
-     *
-     * @param message A [message](https://getstream.io/chat/docs/#message_format) to be removed
-     * */
-    removeMessage: PropTypes.func,
-    /**
-     * **Available from channel context:**
-     *
-     * The function to execute when @mention is clicked in message.
-     *
-     * @param event           DOM click event object
-     * @param mentioned_users Array of mentioned users in message. This array is available in message object.
-     */
-    onMentionsClick: PropTypes.func,
-    /**
-     * **Available from channel context:**
-     *
-     * The function to execute when @mention is hovered on message.
-     *
-     * @param event           DOM hover event object
-     * @param mentioned_users Array of mentioned users in message. This array is available in message object.
-     */
-    onMentionsHover: PropTypes.func,
-    /** Client is passed automatically via the Chat Context */
+    threadList: PropTypes.boolean,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#chat)** */
     client: PropTypes.object,
-    /**
-     * **Available from channel context:**
-     *
-     * Function to execute when replies count button is clicked.
-     *
-     * @param message Parent message of thread which needs to be opened
-     * @param event DOM click event
-     */
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    messages: PropTypes.array.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    channel: PropTypes.object.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    updateMessage: PropTypes.func.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    retrySendMessage: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    removeMessage: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    onMentionsClick: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    onMentionsHover: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     openThread: PropTypes.func,
-    /**
-     * **Available from channel context:**
-     * Array of members of channel
-     */
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     members: PropTypes.array,
-    /**
-     * **Available from channel context:**
-     * Array of watchers of channel
-     */
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     watchers: PropTypes.array,
-    /**
-     * **Available from channel context:**
-     *
-     *
-     */
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     read: PropTypes.object,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     typing: PropTypes.object,
   };
 

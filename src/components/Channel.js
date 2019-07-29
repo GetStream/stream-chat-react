@@ -556,7 +556,6 @@ class ChannelInner extends PureComponent {
     removeMessage: this.removeMessage,
     sendMessage: this.sendMessage,
     retrySendMessage: this.retrySendMessage,
-    resetNotification: this.resetNotification,
 
     loadMore: this.loadMore,
 
