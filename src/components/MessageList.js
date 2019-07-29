@@ -57,6 +57,42 @@ class MessageList extends PureComponent {
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageErrorNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserErrorNotification: PropTypes.func,
   };
 
   static defaultProps = {
@@ -588,6 +624,18 @@ class MessageList extends PureComponent {
               onMentionsClick={this.props.onMentionsClick}
               onMentionsHover={this.props.onMentionsHover}
               messageActions={this.props.messageActions}
+              getFlagMessageSuccessNotification={
+                this.props.getFlagMessageSuccessNotification
+              }
+              getFlagMessageErrorNotification={
+                this.props.getFlagMessageErrorNotification
+              }
+              getMuteUserSuccessNotification={
+                this.props.getMuteUserSuccessNotification
+              }
+              getMuteUserErrorNotification={
+                this.props.getMuteUserErrorNotification
+              }
             />
           </li>,
         );
