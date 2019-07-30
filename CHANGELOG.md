@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.17] 2019-07-30
+
+- Export LoadingChannels component
+- Fix connectivity issue with threads
+- Better check for user roles
+- Improve message options UX in messaging theme
+
 ## [0.6.16] 2019-07-29
 
 - Adding visual response (notification) for flag message and mute user functionality
