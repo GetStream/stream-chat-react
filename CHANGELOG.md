@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.6.17] 2019-07-30
+## [0.6.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.17) 2019-07-30
 
 - Export LoadingChannels component
 - Fix connectivity issue with threads
