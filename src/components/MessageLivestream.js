@@ -30,16 +30,81 @@ const optionsSvg =
  */
 export class MessageLivestream extends React.PureComponent {
   static propTypes = {
-    /** The message object */
+    /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
-    /** The attachment component */
+    /**
+     * The attachment UI component.
+     * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+     * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** The message component, most logic is delegated to this component */
+    /**
+     * The higher order message component, most logic is delegated to this component
+     * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
+     *
+     * */
     Message: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.func,
       PropTypes.object,
     ]).isRequired,
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
+    /** If its parent message in thread. */
+    initialMessage: PropTypes.bool,
+    /** Channel config object */
+    channelConfig: PropTypes.object,
+    /** If component is in thread list */
+    threadList: PropTypes.bool,
+    /** Function to open thread on current messxage */
+    openThread: PropTypes.func,
+    /** If the message is in edit state */
+    editing: PropTypes.bool,
+    /** Function to exit edit state */
+    clearEditingState: PropTypes.func,
+    /**
+     * Function to publish updates on message to channel
+     *
+     * @param message Updated [message object](https://getstream.io/chat/docs/#message_format)
+     * */
+    updateMessage: PropTypes.func,
+    /**
+     * Reattempt sending a message
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) to resent.
+     */
+    handleRetry: PropTypes.func,
+    /**
+     * Add or remove reaction on message
+     *
+     * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+     * @param event Dom event which triggered this function
+     */
+    handleReaction: PropTypes.func,
+    /** If actions such as edit, delete, flag, mute are enabled on message */
+    actionsEnabled: PropTypes.bool,
+    /** DOMRect object for parent MessageList component */
+    messageListRect: PropTypes.object,
+    /**
+     * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
+     *
+     * @param name {string} Name of action
+     * @param value {string} Value of action
+     * @param event Dom event that triggered this handler
+     */
+    handleAction: PropTypes.func,
+    /**
+     * The handler for hover event on @mention in message
+     *
+     * @param event Dom hover event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsHoverMessage: PropTypes.func,
+    /**
+     * The handler for click event on @mention in message
+     *
+     * @param event Dom click event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsClickMessage: PropTypes.func,
   };
 
   static defaultProps = {
@@ -112,7 +177,27 @@ export class MessageLivestream extends React.PureComponent {
   }
 
   render() {
-    const { Attachment, message, groupStyles } = this.props;
+    const {
+      Attachment,
+      message,
+      groupStyles,
+      editing,
+      clearEditingState,
+      updateMessage,
+      initialMessage,
+      handleReaction,
+      actionsEnabled,
+      messageListRect,
+      channelConfig,
+      threadList,
+      openThread,
+      Message,
+      onMentionsHoverMessage,
+      onMentionsClickMessage,
+      unsafeHTML,
+      handleRetry,
+      handleAction,
+    } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
     );
@@ -139,7 +224,7 @@ export class MessageLivestream extends React.PureComponent {
       return null;
     }
 
-    if (this.props.editing) {
+    if (editing) {
       return (
         <div
           className={`str-chat__message-team str-chat__message-team--${
@@ -158,9 +243,9 @@ export class MessageLivestream extends React.PureComponent {
           )}
           <MessageInput
             Input={EditMessageForm}
-            message={this.props.message}
-            clearEditingState={this.props.clearEditingState}
-            updateMessage={this.props.updateMessage}
+            message={message}
+            clearEditingState={clearEditingState}
+            updateMessage={updateMessage}
           />
         </div>
       );
@@ -174,7 +259,7 @@ export class MessageLivestream extends React.PureComponent {
           } str-chat__message-livestream--${
             message.type
           } str-chat__message-livestream--${message.status} ${
-            this.props.initialMessage
+            initialMessage
               ? 'str-chat__message-livestream--initial-message'
               : ''
           }`}
@@ -182,18 +267,17 @@ export class MessageLivestream extends React.PureComponent {
         >
           {this.state.reactionSelectorOpen && (
             <ReactionSelector
-              mine={this.props.mine}
               reverse={false}
-              handleReaction={this.props.handleReaction}
-              actionsEnabled={this.props.actionsEnabled}
+              handleReaction={handleReaction}
+              actionsEnabled={actionsEnabled}
               detailedView
               latest_reactions={message.latest_reactions}
               reaction_counts={message.reaction_counts}
-              messageList={this.props.messageListRect}
+              messageList={messageListRect}
               ref={this.reactionSelectorRef}
             />
           )}
-          {!this.props.initialMessage &&
+          {!initialMessage &&
             message.type !== 'error' &&
             message.type !== 'system' &&
             message.type !== 'ephemeral' &&
@@ -203,27 +287,24 @@ export class MessageLivestream extends React.PureComponent {
                 <span className={`str-chat__message-livestream-time`}>
                   {moment(message.created_at).format('h:mmA')}
                 </span>
-                {this.props.channelConfig &&
-                  this.props.channelConfig.reactions && (
-                    <span onClick={this.onClickReactionsAction}>
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: reactionSvg,
-                        }}
-                      />
-                    </span>
-                  )}
-                {!this.props.threadList &&
-                  this.props.channelConfig &&
-                  this.props.channelConfig.replies && (
+                {channelConfig && channelConfig.reactions && (
+                  <span onClick={this.onClickReactionsAction}>
                     <span
                       dangerouslySetInnerHTML={{
-                        __html: threadSvg,
+                        __html: reactionSvg,
                       }}
-                      onClick={(e) => this.props.openThread(e, message)}
                     />
-                  )}
-                {this.props.Message.getMessageActions().length > 0 && (
+                  </span>
+                )}
+                {!threadList && channelConfig && channelConfig.replies && (
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: threadSvg,
+                    }}
+                    onClick={(e) => openThread(e, message)}
+                  />
+                )}
+                {Message.getMessageActions().length > 0 && (
                   <span onClick={this.onClickOptionsAction}>
                     <span
                       dangerouslySetInnerHTML={{
@@ -232,10 +313,10 @@ export class MessageLivestream extends React.PureComponent {
                     />
                     <MessageActionsBox
                       open={this.state.actionsBoxOpen}
-                      Message={this.props.Message}
-                      message={this.props.message}
-                      messageListRect={this.props.messageListRect}
-                      mine={this.props.Message.isMyMessage(this.props.message)}
+                      Message={Message}
+                      message={message}
+                      messageListRect={messageListRect}
+                      mine={Message.isMyMessage(message)}
                     />
                   </span>
                 )}
@@ -266,17 +347,17 @@ export class MessageLivestream extends React.PureComponent {
                     ? 'str-chat__message-livestream-text--is-emoji'
                     : ''
                 }
-                onMouseOver={this.props.onMentionsHoverMessage}
-                onClick={this.props.onMentionsClickMessage}
+                onMouseOver={onMentionsHoverMessage}
+                onClick={onMentionsClickMessage}
               >
                 {message.type !== 'error' &&
                   message.status !== 'failed' &&
-                  !this.props.unsafeHTML &&
+                  !unsafeHTML &&
                   renderText(message)}
 
                 {message.type !== 'error' &&
                   message.status !== 'failed' &&
-                  this.props.unsafeHTML && (
+                  unsafeHTML && (
                     <div dangerouslySetInnerHTML={{ __html: message.html }} />
                   )}
 
@@ -314,12 +395,7 @@ export class MessageLivestream extends React.PureComponent {
                   </p>
                 )}
                 {message.status === 'failed' && (
-                  <p
-                    onClick={this.props.handleRetry.bind(
-                      this,
-                      this.props.message,
-                    )}
-                  >
+                  <p onClick={handleRetry.bind(this, message)}>
                     <svg
                       width="14"
                       height="14"
@@ -341,7 +417,7 @@ export class MessageLivestream extends React.PureComponent {
                   <Attachment
                     key={`${message.id}-${index}`}
                     attachment={attachment}
-                    actionHandler={this.props.handleAction}
+                    actionHandler={handleAction}
                   />
                 ))}
 
@@ -349,13 +425,13 @@ export class MessageLivestream extends React.PureComponent {
 
               <SimpleReactionsList
                 reaction_counts={message.reaction_counts}
-                reactions={this.props.message.latest_reactions}
-                handleReaction={this.props.handleReaction}
+                reactions={message.latest_reactions}
+                handleReaction={handleReaction}
               />
 
-              {!this.props.initialMessage && (
+              {!initialMessage && (
                 <MessageRepliesCountButton
-                  onClick={this.props.openThread}
+                  onClick={openThread}
                   reply_count={message.reply_count}
                 />
               )}

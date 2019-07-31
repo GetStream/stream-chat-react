@@ -97,7 +97,7 @@ class MessageList extends PureComponent {
      *
      * */
     getMuteUserErrorNotification: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#chat)** */
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     client: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),

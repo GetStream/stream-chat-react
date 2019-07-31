@@ -19,10 +19,66 @@ import { isOnlyEmojis, renderText } from '../utils';
  */
 export class MessageCommerce extends PureComponent {
   static propTypes = {
-    /** The message object */
+    /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
-    /** The attachment component */
+    /**
+     * The attachment UI component.
+     * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+     * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * The higher order message component, most logic is delegated to this component
+     * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
+     *
+     * */
+    Message: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+      PropTypes.object,
+    ]).isRequired,
+    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+    unsafeHTML: PropTypes.bool,
+    /** If its parent message in thread. */
+    initialMessage: PropTypes.bool,
+    /** Channel config object */
+    channelConfig: PropTypes.object,
+    /** If component is in thread list */
+    threadList: PropTypes.bool,
+    /** Function to open thread on current messxage */
+    openThread: PropTypes.func,
+    /**
+     * Add or remove reaction on message
+     *
+     * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+     * @param event Dom event which triggered this function
+     */
+    handleReaction: PropTypes.func,
+    /** If actions such as edit, delete, flag, mute are enabled on message */
+    actionsEnabled: PropTypes.bool,
+    /**
+     * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
+     *
+     * @param name {string} Name of action
+     * @param value {string} Value of action
+     * @param event Dom event that triggered this handler
+     */
+    handleAction: PropTypes.func,
+    /**
+     * The handler for hover event on @mention in message
+     *
+     * @param event Dom hover event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsHoverMessage: PropTypes.func,
+    /**
+     * The handler for click event on @mention in message
+     *
+     * @param event Dom click event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsClickMessage: PropTypes.func,
+    /** Position of message in group. Possible values: top, bottom, middle, single */
+    groupStyles: PropTypes.array,
   };
 
   static defaultProps = {
@@ -125,8 +181,20 @@ export class MessageCommerce extends PureComponent {
   }
 
   render() {
-    const { message, groupStyles } = this.props;
-    const Attachment = this.props.Attachment;
+    const {
+      message,
+      groupStyles,
+      Attachment,
+      handleReaction,
+      actionsEnabled,
+      Message,
+      onMentionsHoverMessage,
+      onMentionsClickMessage,
+      unsafeHTML,
+      threadList,
+      openThread,
+    } = this.props;
+
     const when = moment(message.created_at).format('LT');
 
     const messageClasses = this.isMine()
@@ -205,8 +273,8 @@ export class MessageCommerce extends PureComponent {
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
                     reverse={false}
-                    handleReaction={this.props.handleReaction}
-                    actionsEnabled={this.props.actionsEnabled}
+                    handleReaction={handleReaction}
+                    actionsEnabled={actionsEnabled}
                     detailedView
                     reaction_counts={message.reaction_counts}
                     latest_reactions={message.latest_reactions}
@@ -222,7 +290,7 @@ export class MessageCommerce extends PureComponent {
                 <Attachment
                   key={`${message.id}-${index}`}
                   attachment={attachment}
-                  actionHandler={this.props.Message.handleAction}
+                  actionHandler={Message.handleAction}
                 />
               ))}
             {images.length > 1 && <Gallery images={images} />}
@@ -238,8 +306,8 @@ export class MessageCommerce extends PureComponent {
                       : ''
                   }
                 `.trim()}
-                  onMouseOver={this.props.onMentionsHoverMessage}
-                  onClick={this.props.onMentionsClickMessage}
+                  onMouseOver={onMentionsHoverMessage}
+                  onClick={onMentionsClickMessage}
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__commerce-message--error-message">
@@ -247,7 +315,7 @@ export class MessageCommerce extends PureComponent {
                     </div>
                   )}
 
-                  {this.props.unsafeHTML ? (
+                  {unsafeHTML ? (
                     <div dangerouslySetInnerHTML={{ __html: message.html }} />
                   ) : (
                     renderText(message)
@@ -265,8 +333,8 @@ export class MessageCommerce extends PureComponent {
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
                       reverse={false}
-                      handleReaction={this.props.handleReaction}
-                      actionsEnabled={this.props.actionsEnabled}
+                      handleReaction={handleReaction}
+                      actionsEnabled={actionsEnabled}
                       detailedView
                       reaction_counts={message.reaction_counts}
                       latest_reactions={message.latest_reactions}
@@ -278,10 +346,10 @@ export class MessageCommerce extends PureComponent {
                 {message.text && this.renderOptions()}
               </div>
             )}
-            {!this.props.threadList && (
+            {!threadList && (
               <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
-                  onClick={this.props.openThread}
+                  onClick={openThread}
                   reply_count={message.reply_count}
                 />
               </div>

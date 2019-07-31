@@ -25,14 +25,18 @@ import { isOnlyEmojis, renderText } from '../utils';
  */
 export class MessageSimple extends PureComponent {
   static propTypes = {
-    /** The message object */
+    /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
     /**
-     * The attachment UI component. By default following component is used:
-     * https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js
+     * The attachment UI component.
+     * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** The higher order message component, most logic is delegated to this component */
+    /**
+     * The higher order message component, most logic is delegated to this component
+     * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
+     *
+     * */
     Message: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.func,
@@ -40,6 +44,64 @@ export class MessageSimple extends PureComponent {
     ]).isRequired,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
+    /** Client object */
+    client: PropTypes.object,
+    /** If its parent message in thread. */
+    initialMessage: PropTypes.bool,
+    /** Channel config object */
+    channelConfig: PropTypes.object,
+    /** If component is in thread list */
+    threadList: PropTypes.bool,
+    /** Function to open thread on current messxage */
+    openThread: PropTypes.func,
+    /** If the message is in edit state */
+    editing: PropTypes.bool,
+    /** Function to exit edit state */
+    clearEditingState: PropTypes.func,
+    /**
+     * Function to publish updates on message to channel
+     *
+     * @param message Updated [message object](https://getstream.io/chat/docs/#message_format)
+     * */
+    updateMessage: PropTypes.func,
+    /**
+     * Reattempt sending a message
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) to resent.
+     */
+    handleRetry: PropTypes.func,
+    /**
+     * Add or remove reaction on message
+     *
+     * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+     * @param event Dom event which triggered this function
+     */
+    handleReaction: PropTypes.func,
+    /** If actions such as edit, delete, flag, mute are enabled on message */
+    actionsEnabled: PropTypes.bool,
+    /** DOMRect object for parent MessageList component */
+    messageListRect: PropTypes.object,
+    /**
+     * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
+     *
+     * @param name {string} Name of action
+     * @param value {string} Value of action
+     * @param event Dom event that triggered this handler
+     */
+    handleAction: PropTypes.func,
+    /**
+     * The handler for hover event on @mention in message
+     *
+     * @param event Dom hover event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsHoverMessage: PropTypes.func,
+    /**
+     * The handler for click event on @mention in message
+     *
+     * @param event Dom click event which triggered handler.
+     * @param user Target user object
+     */
+    onMentionsClickMessage: PropTypes.func,
   };
 
   static defaultProps = {
@@ -142,47 +204,41 @@ export class MessageSimple extends PureComponent {
   };
 
   renderStatus = () => {
-    const message = this.props;
-    if (!this.isMine() || this.props.message.type === 'error') {
+    const { readBy, client, message, threadList, lastReceivedId } = this.props;
+    if (!this.isMine() || message.type === 'error') {
       return null;
     }
-    const justReadByMe =
-      message.readBy.length === 1 &&
-      message.readBy[0].id === this.props.client.user.id;
-    if (this.props.message.status === 'sending') {
+    const justReadByMe = readBy.length === 1 && readBy[0].id === client.user.id;
+    if (message.status === 'sending') {
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>Sending...</Tooltip>
           <LoadingIndicator />
         </span>
       );
-    } else if (
-      message.readBy.length !== 0 &&
-      !this.props.threadList &&
-      !justReadByMe
-    ) {
-      const lastReadUser = this.props.readBy.filter(
-        (item) => item.id !== this.props.client.user.id,
+    } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
+      const lastReadUser = readBy.filter(
+        (item) => item.id !== client.user.id,
       )[0];
       return (
         <span className="str-chat__message-simple-status">
-          <Tooltip>{this.formatArray(message.readBy)}</Tooltip>
+          <Tooltip>{this.formatArray(readBy)}</Tooltip>
           <Avatar
             name={lastReadUser.name || lastReadUser.id}
             image={lastReadUser.image}
             size={15}
           />
-          {message.readBy.length - 1 > 1 && (
+          {readBy.length - 1 > 1 && (
             <span className="str-chat__message-simple-status-number">
-              {message.readBy.length - 1}
+              {readBy.length - 1}
             </span>
           )}
         </span>
       );
     } else if (
-      this.props.message.status === 'received' &&
-      this.props.message.id === this.props.lastReceivedId &&
-      !this.props.threadList
+      message.status === 'received' &&
+      message.id === lastReceivedId &&
+      !threadList
     ) {
       return (
         <span className="str-chat__message-simple-status">
@@ -202,7 +258,7 @@ export class MessageSimple extends PureComponent {
   };
 
   renderMessageActions = () => {
-    const { Message } = this.props;
+    const { Message, messageListRect } = this.props;
     const messageActions = Message.getMessageActions();
 
     if (messageActions.length === 0) {
@@ -217,7 +273,7 @@ export class MessageSimple extends PureComponent {
         <MessageActionsBox
           Message={Message}
           open={this.state.actionsBoxOpen}
-          messageListRect={this.props.messageListRect}
+          messageListRect={messageListRect}
           mine={this.isMine()}
         />
         <svg
@@ -235,13 +291,20 @@ export class MessageSimple extends PureComponent {
     );
   };
   renderOptions() {
+    const {
+      message,
+      initialMessage,
+      channelConfig,
+      threadList,
+      openThread,
+    } = this.props;
     if (
-      this.props.message.type === 'error' ||
-      this.props.message.type === 'system' ||
-      this.props.message.type === 'ephemeral' ||
-      this.props.message.status === 'failed' ||
-      this.props.message.status === 'sending' ||
-      this.props.initialMessage
+      message.type === 'error' ||
+      message.type === 'system' ||
+      message.type === 'ephemeral' ||
+      message.status === 'failed' ||
+      message.status === 'sending' ||
+      initialMessage
     ) {
       return;
     }
@@ -249,22 +312,20 @@ export class MessageSimple extends PureComponent {
       return (
         <div className="str-chat__message-simple__actions">
           {this.renderMessageActions()}
-          {!this.props.threadList &&
-            this.props.channelConfig &&
-            this.props.channelConfig.replies && (
-              <div
-                onClick={this.props.openThread}
-                className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
-              >
-                <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                    fillRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
-          {this.props.channelConfig && this.props.channelConfig.reactions && (
+          {!threadList && channelConfig && channelConfig.replies && (
+            <div
+              onClick={openThread}
+              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+            >
+              <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </div>
+          )}
+          {channelConfig && channelConfig.reactions && (
             <div
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
@@ -287,7 +348,7 @@ export class MessageSimple extends PureComponent {
     } else {
       return (
         <div className="str-chat__message-simple__actions">
-          {this.props.channelConfig && this.props.channelConfig.reactions && (
+          {channelConfig && channelConfig.reactions && (
             <div
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
@@ -300,21 +361,19 @@ export class MessageSimple extends PureComponent {
               </svg>
             </div>
           )}
-          {!this.props.threadList &&
-            this.props.channelConfig &&
-            this.props.channelConfig.replies && (
-              <div
-                onClick={this.props.openThread}
-                className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
-              >
-                <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                    fillRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
+          {!threadList && channelConfig && channelConfig.replies && (
+            <div
+              onClick={openThread}
+              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+            >
+              <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </div>
+          )}
           {this.renderMessageActions()}
         </div>
       );
@@ -322,8 +381,24 @@ export class MessageSimple extends PureComponent {
   }
 
   render() {
-    const { message } = this.props;
-    const Attachment = this.props.Attachment;
+    const {
+      message,
+      Attachment,
+      editing,
+      clearEditingState,
+      handleRetry,
+      updateMessage,
+      handleReaction,
+      actionsEnabled,
+      messageListRect,
+      handleAction,
+      onMentionsHoverMessage,
+      onMentionsClickMessage,
+      unsafeHTML,
+      threadList,
+      openThread,
+    } = this.props;
+
     const when = moment(message.created_at).calendar();
 
     const messageClasses = this.isMine()
@@ -361,16 +436,13 @@ export class MessageSimple extends PureComponent {
 
     return (
       <React.Fragment>
-        {this.props.editing && (
-          <Modal
-            open={this.props.editing}
-            onClose={this.props.clearEditingState}
-          >
+        {editing && (
+          <Modal open={editing} onClose={clearEditingState}>
             <MessageInput
               Input={EditMessageForm}
-              message={this.props.message}
-              clearEditingState={this.props.clearEditingState}
-              updateMessage={this.props.updateMessage}
+              message={message}
+              clearEditingState={clearEditingState}
+              updateMessage={updateMessage}
             />
           </Modal>
         )}
@@ -397,7 +469,7 @@ export class MessageSimple extends PureComponent {
             className="str-chat__message-inner"
             onClick={
               message.status === 'failed'
-                ? this.props.retrySendMessage.bind(this, message)
+                ? handleRetry.bind(this, message)
                 : null
             }
           >
@@ -416,12 +488,12 @@ export class MessageSimple extends PureComponent {
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
                     mine={this.isMine()}
-                    handleReaction={this.props.handleReaction}
-                    actionsEnabled={this.props.actionsEnabled}
+                    handleReaction={handleReaction}
+                    actionsEnabled={actionsEnabled}
                     detailedView
                     reaction_counts={message.reaction_counts}
                     latest_reactions={message.latest_reactions}
-                    messageList={this.props.messageListRect}
+                    messageList={messageListRect}
                     ref={this.reactionSelectorRef}
                   />
                 )}
@@ -438,7 +510,7 @@ export class MessageSimple extends PureComponent {
                     <Attachment
                       key={`${message.id}-${index}`}
                       attachment={attachment}
-                      actionHandler={this.props.handleAction}
+                      actionHandler={handleAction}
                     />
                   );
                 })}
@@ -458,8 +530,8 @@ export class MessageSimple extends PureComponent {
                       : ''
                   }
                 `.trim()}
-                  onMouseOver={this.props.onMentionsHoverMessage}
-                  onClick={this.props.onMentionsClickMessage}
+                  onMouseOver={onMentionsHoverMessage}
+                  onClick={onMentionsClickMessage}
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">
@@ -472,7 +544,7 @@ export class MessageSimple extends PureComponent {
                     </div>
                   )}
 
-                  {this.props.unsafeHTML ? (
+                  {unsafeHTML ? (
                     <div dangerouslySetInnerHTML={{ __html: message.html }} />
                   ) : (
                     renderText(message)
@@ -490,12 +562,12 @@ export class MessageSimple extends PureComponent {
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
                       mine={this.isMine()}
-                      handleReaction={this.props.handleReaction}
-                      actionsEnabled={this.props.actionsEnabled}
+                      handleReaction={handleReaction}
+                      actionsEnabled={actionsEnabled}
                       detailedView
                       reaction_counts={message.reaction_counts}
                       latest_reactions={message.latest_reactions}
-                      messageList={this.props.messageListRect}
+                      messageList={messageListRect}
                       ref={this.reactionSelectorRef}
                     />
                   )}
@@ -504,10 +576,10 @@ export class MessageSimple extends PureComponent {
                 {message.text && this.renderOptions()}
               </div>
             )}
-            {!this.props.threadList && message.reply_count !== 0 && (
+            {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
-                  onClick={this.props.openThread}
+                  onClick={openThread}
                   reply_count={message.reply_count}
                 />
               </div>
