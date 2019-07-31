@@ -18,12 +18,20 @@ import { Audio } from './Audio';
 export class Attachment extends PureComponent {
   attachmentRef = React.createRef();
   static propTypes = {
-    /** The attachment to render */
+    /**
+     * The attachment to render
+     * @see See [Attachment structure](https://getstream.io/chat/docs/#message_format)
+     *
+     *  */
     attachment: PropTypes.object.isRequired,
     /**
-		The handler function to call when an action is selected on an attachment.
-		Examples include canceling a \/giphy command or shuffling the results.
-		*/
+     *
+     * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
+     *
+     * @param name {string} Name of action
+     * @param value {string} Value of action
+     * @param event Dom event that triggered this handler
+     */
     actionHandler: PropTypes.func.isRequired,
   };
 

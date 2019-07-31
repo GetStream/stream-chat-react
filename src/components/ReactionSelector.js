@@ -15,11 +15,29 @@ import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
  */
 export class ReactionSelector extends PureComponent {
   static propTypes = {
-    /** Object containgin latest reactions */
+    /**
+     * Array of latest reactions.
+     * Reaction object has following structure:
+     *
+     * ```json
+     * {
+     *  "type": "love",
+     *  "user_id": "demo_user_id",
+     *  "user": {
+     *    ...userObject
+     *  },
+     *  "created_at": "datetime";
+     * }
+     * ```
+     * */
     latest_reactions: PropTypes.array.isRequired,
-    /** Object containing the reaction counts */
+    /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
-    /** Callback to handle the reaction */
+    /**
+     * Callback to handle the reaction
+     *
+     * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+     * */
     handleReaction: PropTypes.func.isRequired,
     /** Set the direction to either left or right */
     direction: PropTypes.oneOf(['left', 'right']),
