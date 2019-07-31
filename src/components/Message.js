@@ -156,10 +156,17 @@ export class Message extends Component {
 
   isMyMessage = (message) => this.props.client.user.id === message.user.id;
   isAdmin = () =>
-    this.props.members[this.props.client.user.id].role === 'admin';
+    this.props.client.user.role === 'admin' ||
+    (this.props.members &&
+      this.props.members[this.props.client.user.id] &&
+      this.props.members[this.props.client.user.id].role === 'admin');
   isOwner = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
     this.props.members[this.props.client.user.id].role === 'owner';
   isModerator = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
     this.props.members[this.props.client.user.id].role === 'moderator';
 
   canEditMessage = (message) =>
