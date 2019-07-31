@@ -41,7 +41,7 @@
   - Also includes a infinte scroll paginator (`InfiniteScrollPaginator`)
   - **Important** Because of this change we moved the channelquery logic to `ChannelList` this means you need to pass your `filters`, `sort`, and `options`.
 
-## [0.3.11](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.11) - 2019-04-23
+## [0.3.11](https://github.com/GetStream/stream-chat-react/releases/tag/v0.3.11) - 2019-04-23
 
 ### Added
 
@@ -50,7 +50,7 @@
   - `acceptedFiles={['image/*']}`
   - `maxNumberOfFiles={1}`
 
-## [0.3.10](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.10) - 2019-04-19
+## [0.3.10](https://github.com/GetStream/stream-chat-react/releases/tag/v0.3.10) - 2019-04-19
 
 ### Added
 
