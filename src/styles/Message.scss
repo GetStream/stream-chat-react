@@ -246,6 +246,8 @@
   }
   &-inner {
     position: relative;
+    margin-right: 90px;
+    margin-left: unset;
     > .str-chat__message-simple__actions {
       position: absolute;
       top: 5px;
@@ -365,6 +367,8 @@
       }
 
       &-inner {
+        margin-right: unset;
+        margin-left: 90px;
         justify-content: flex-end;
         align-items: flex-end;
         > .str-chat__message-simple__actions {
