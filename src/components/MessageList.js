@@ -52,6 +52,8 @@ class MessageList extends PureComponent {
     noGroupByUser: PropTypes.bool,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
+    /** Set the limit to use when paginating messages */
+    messageLimit: PropTypes.number,
     /**
      * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
@@ -528,6 +530,11 @@ class MessageList extends PureComponent {
     this.notificationTimeouts.push(ct);
   };
 
+  _loadMore = () =>
+    this.props.messageLimit
+      ? this.props.loadMore(this.props.messageLimit)
+      : this.props.loadMore();
+
   render() {
     let allMessages = [...this.props.messages];
 
@@ -650,7 +657,7 @@ class MessageList extends PureComponent {
           ref={this.messageList}
         >
           <ReverseInfiniteScroll
-            loadMore={this.props.loadMore}
+            loadMore={this._loadMore}
             hasMore={this.props.hasMore}
             isLoading={this.props.loadingMore}
             listenToScroll={this.listenToScroll}

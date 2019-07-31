@@ -469,13 +469,13 @@ class ChannelInner extends PureComponent {
     });
   }
 
-  loadMore = async () => {
+  loadMore = async (limit = 100) => {
     // prevent duplicate loading events...
     if (this.state.loadingMore) return;
     this.setState({ loadingMore: true });
 
     const oldestID = this.state.messages[0] ? this.state.messages[0].id : null;
-    const perPage = 100;
+    const perPage = limit;
     let queryResponse;
     try {
       queryResponse = await this.props.channel.query({
