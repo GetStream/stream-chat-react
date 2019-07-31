@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.19](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.19) 2019-07-31
+
+- Fix issue raised in 0.6.17
+
 ## [0.6.18](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.18) 2019-07-31
 
 - Improve message options UX in messaging theme
