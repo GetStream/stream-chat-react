@@ -24,7 +24,7 @@ export class EditMessageForm extends React.Component {
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     imageOrder: PropTypes.array,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
-    imageUploads: PropTypes.array,
+    imageUploads: PropTypes.object,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     removeImage: PropTypes.func,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
@@ -36,11 +36,11 @@ export class EditMessageForm extends React.Component {
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     fileOrder: PropTypes.array,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
-    fileUploads: PropTypes.array,
+    fileUploads: PropTypes.object,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     removeFile: PropTypes.func,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
-    uploadFile: PropTypes.object,
+    uploadFile: PropTypes.func,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     emojiPickerIsOpen: PropTypes.bool,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
@@ -62,7 +62,7 @@ export class EditMessageForm extends React.Component {
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     text: PropTypes.string,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
-    onPaste: PropTypes.object,
+    onPaste: PropTypes.func,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
     openEmojiPicker: PropTypes.func,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */

@@ -23,7 +23,7 @@ export class MessageActionsBox extends React.Component {
     /** If message belongs to current user. */
     mine: PropTypes.bool,
     /** DOMRect object for parent MessageList component */
-    messageListRect: PropTypes.bool,
+    messageListRect: PropTypes.object,
   };
 
   static defaultProp = {

@@ -11,7 +11,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
     closeMenu: PropTypes.func,
     unread_count: PropTypes.number,
     /** If channel of component is active (selected) channel */
-    active: PropTypes.object,
+    active: PropTypes.bool,
     latestMessage: PropTypes.string,
   };
 
