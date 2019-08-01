@@ -23,6 +23,60 @@ export class MessageInputSmall extends PureComponent {
     grow: PropTypes.bool.isRequired,
     /** Make the textarea disabled */
     disabled: PropTypes.bool,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    imageOrder: PropTypes.array,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    imageUploads: PropTypes.array,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    removeImage: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    uploadImage: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    uploadNewFiles: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    numberOfUploads: PropTypes.number,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    fileOrder: PropTypes.array,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    fileUploads: PropTypes.array,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    removeFile: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    uploadFile: PropTypes.object,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    emojiPickerIsOpen: PropTypes.bool,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    emojiPickerRef: PropTypes.object,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    onSelectEmoji: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    getUsers: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    getCommands: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    textareaRef: PropTypes.object,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    handleSubmit: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    handleChange: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    onSelectItem: PropTypes.func,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    text: PropTypes.string,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    onPaste: PropTypes.object,
+    /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
+    openEmojiPicker: PropTypes.func,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
+    watcher_count: PropTypes.number,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
+    typing: PropTypes.object,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
+    multipleUploads: PropTypes.object,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
+    maxNumberOfFiles: PropTypes.object,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
+    acceptedFiles: PropTypes.object,
   };
 
   renderUploads = () => (
