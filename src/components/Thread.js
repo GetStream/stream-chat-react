@@ -102,7 +102,16 @@ class ThreadInner extends React.PureComponent {
     return null;
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    const parentID = this.props.thread.id;
+    if (
+      parentID &&
+      this.props.thread.reply_count > 0 &&
+      this.props.threadMessages.length === 0
+    ) {
+      await this.props.loadMoreThread();
+    }
+
     // If we have a snapshot value, we've just added new items.
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)

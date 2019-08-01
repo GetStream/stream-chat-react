@@ -155,11 +155,31 @@ export class Message extends Component {
   }
 
   isMyMessage = (message) => this.props.client.user.id === message.user.id;
-  isAdmin = () => this.props.client.user.role === 'admin';
+  isAdmin = () =>
+    this.props.client.user.role === 'admin' ||
+    (this.props.members &&
+      this.props.members[this.props.client.user.id] &&
+      this.props.members[this.props.client.user.id].role === 'admin');
+  isOwner = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
+    this.props.members[this.props.client.user.id].role === 'owner';
+  isModerator = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
+    this.props.members[this.props.client.user.id].role === 'moderator';
 
-  canEditMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+  canEditMessage = (message) =>
+    this.isMyMessage(message) ||
+    this.isModerator() ||
+    this.isOwner() ||
+    this.isAdmin();
 
-  canDeleteMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+  canDeleteMessage = (message) =>
+    this.isMyMessage(message) ||
+    this.isModerator() ||
+    this.isOwner() ||
+    this.isAdmin();
 
   /**
    * Following function validates a function which returns notification message.
