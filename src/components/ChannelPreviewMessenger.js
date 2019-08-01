@@ -1,9 +1,23 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
 import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
 
 export class ChannelPreviewMessenger extends PureComponent {
+  static propTypes = {
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    setActiveChannel: PropTypes.func,
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    channel: PropTypes.object,
+    closeMenu: PropTypes.func,
+    unread: PropTypes.number,
+    /** If channel of component is active (selected) channel */
+    active: PropTypes.object,
+    latestMessage: PropTypes.string,
+  };
+
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {
