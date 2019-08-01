@@ -68,7 +68,7 @@ class Channel extends PureComponent {
     /**
      * Handle for hover on @mention in message
      *
-     * @param {Event} event DOM Click event
+     * @param {Event} event DOM hover event
      * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
      */
     onMentionsHover: PropTypes.func,

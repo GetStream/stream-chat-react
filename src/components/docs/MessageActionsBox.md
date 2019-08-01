@@ -10,6 +10,7 @@ const data = require('./data');
   <MessageActionsBox
     open={false}
     Message={data.MessageMock}
+    getMessageActions={() => []}
     message={data.message}
   />
 </div>;
@@ -24,6 +25,7 @@ const data = require('./data');
   <MessageActionsBox
     open={true}
     Message={data.MessageMock}
+    getMessageActions={() => []}
     message={data.message}
   />
 </div>;

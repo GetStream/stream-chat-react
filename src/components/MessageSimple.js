@@ -33,6 +33,8 @@ export class MessageSimple extends PureComponent {
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
+     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitely.
+     *
      * The higher order message component, most logic is delegated to this component
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
      *
@@ -58,6 +60,10 @@ export class MessageSimple extends PureComponent {
     editing: PropTypes.bool,
     /** Function to exit edit state */
     clearEditingState: PropTypes.func,
+    /** Returns true if message belongs to current user */
+    isMyMessage: PropTypes.func,
+    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    getMessageActions: PropTypes.func,
     /**
      * Function to publish updates on message to channel
      *
@@ -176,7 +182,7 @@ export class MessageSimple extends PureComponent {
   }
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return this.props.isMyMessage(this.props.message);
   }
 
   formatArray = (arr) => {
@@ -258,8 +264,8 @@ export class MessageSimple extends PureComponent {
   };
 
   renderMessageActions = () => {
-    const { Message, messageListRect } = this.props;
-    const messageActions = Message.getMessageActions();
+    const { Message, getMessageActions, messageListRect } = this.props;
+    const messageActions = getMessageActions();
 
     if (messageActions.length === 0) {
       return;
@@ -272,6 +278,7 @@ export class MessageSimple extends PureComponent {
       >
         <MessageActionsBox
           Message={Message}
+          getMessageActions={getMessageActions}
           open={this.state.actionsBoxOpen}
           messageListRect={messageListRect}
           mine={this.isMine()}

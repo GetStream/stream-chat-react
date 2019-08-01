@@ -14,7 +14,7 @@ import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 
 /**
- * MessageList - The message list components renders a list of messages
+ * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
  * @example ./docs/MessageList.md
  * @extends PureComponent

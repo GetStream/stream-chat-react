@@ -42,6 +42,12 @@ class ChannelList extends PureComponent {
      *
      * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListTeam.js) (default)
      * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
+     *
+     * It has access to some additional props:
+     *
+     * - `setActiveChannel` {function} Check [chat context](https://getstream.github.io/stream-chat-react/#chat)
+     * - `activeChannel` Currently active channel object
+     * - `channels` {array} List of channels in channel list
      */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**

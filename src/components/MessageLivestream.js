@@ -38,6 +38,9 @@ export class MessageLivestream extends React.PureComponent {
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
+     *
+     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitely.
+     *
      * The higher order message component, most logic is delegated to this component
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
      *
@@ -61,6 +64,10 @@ export class MessageLivestream extends React.PureComponent {
     editing: PropTypes.bool,
     /** Function to exit edit state */
     clearEditingState: PropTypes.func,
+    /** Returns true if message belongs to current user */
+    isMyMessage: PropTypes.func,
+    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    getMessageActions: PropTypes.func,
     /**
      * Function to publish updates on message to channel
      *
@@ -120,7 +127,7 @@ export class MessageLivestream extends React.PureComponent {
   editMessageFormRef = React.createRef();
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return this.props.isMyMessage(this.props.message);
   }
 
   onClickReactionsAction = () => {
@@ -197,6 +204,8 @@ export class MessageLivestream extends React.PureComponent {
       unsafeHTML,
       handleRetry,
       handleAction,
+      getMessageActions,
+      isMyMessage,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -304,7 +313,7 @@ export class MessageLivestream extends React.PureComponent {
                     onClick={(e) => openThread(e, message)}
                   />
                 )}
-                {Message.getMessageActions().length > 0 && (
+                {getMessageActions().length > 0 && (
                   <span onClick={this.onClickOptionsAction}>
                     <span
                       dangerouslySetInnerHTML={{
@@ -312,11 +321,12 @@ export class MessageLivestream extends React.PureComponent {
                       }}
                     />
                     <MessageActionsBox
+                      getMessageActions={getMessageActions}
                       open={this.state.actionsBoxOpen}
                       Message={Message}
                       message={message}
                       messageListRect={messageListRect}
-                      mine={Message.isMyMessage(message)}
+                      mine={isMyMessage(message)}
                     />
                   </span>
                 )}
