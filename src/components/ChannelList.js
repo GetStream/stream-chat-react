@@ -24,7 +24,7 @@ class ChannelList extends PureComponent {
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
-     * The loading indicator to use. Loading indicator will be shown on the screen until the channels are
+     * Loading indicator UI Component. It will be displayed until the channels are
      * being queried from API. Once the channels are loaded/queried, loading indicator is removed
      * and replaced with children of the Channel component.
      *
@@ -34,7 +34,7 @@ class ChannelList extends PureComponent {
      */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
-     * Custom UI Component which acts as container for list of channels. Note that, list (UI component) of channels is passed
+     * Custom UI Component for container of list of channels. Note that, list (UI component) of channels is passed
      * to this component as children. This component is for the purpose of adding header to channel list or styling container
      * for list of channels.
      *
@@ -45,7 +45,7 @@ class ChannelList extends PureComponent {
      */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
-     * Component to act as a paginator around list of channels. It contains all the pagination logic such as
+     * Paginator component for channels. It contains all the pagination logic such as
      * - fetching next page of results when needed e.g., when scroll reaches the end of list
      * - UI to display loading indicator when next page is being loaded
      * - call to action button to trigger loading of next page.

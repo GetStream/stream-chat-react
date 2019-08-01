@@ -32,7 +32,7 @@ class Channel extends PureComponent {
     /** Client is passed automatically via the Chat Context */
     client: PropTypes.object.isRequired,
     /**
-     * The loading indicator to use. Loading indicator will be shown on the screen until the messages are
+     * Loading indicator UI component. This will be shown on the screen until the messages are
      * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
      * and replaced with children of the Channel component.
      *
@@ -40,7 +40,7 @@ class Channel extends PureComponent {
      */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
-     * Custom UI component to be used to display a message in message list.
+     * Message UI component to display a message in message list.
      *
      * Available built-in components (also accepts the same props as):
      *
@@ -52,21 +52,21 @@ class Channel extends PureComponent {
      * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
-     * Custom UI component to be used to display attachment in individual message.
+     * Attachment UI component to display attachment in individual message.
      *
      * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
-     * Function to be called when a @mention in message is clicked.
+     * Handle for click on @mention in message
      *
      * @param {Event} event DOM Click event
      * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
      */
     onMentionsClick: PropTypes.func,
     /**
-     * Function to be called when a @mention in message is hovered.
+     * Handle for hover on @mention in message
      *
      * @param {Event} event DOM Click event
      * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
