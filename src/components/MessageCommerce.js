@@ -27,6 +27,9 @@ export class MessageCommerce extends PureComponent {
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
+     *
+     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitely.
+     *
      * The higher order message component, most logic is delegated to this component
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
      *
@@ -46,6 +49,10 @@ export class MessageCommerce extends PureComponent {
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
     openThread: PropTypes.func,
+    /** Returns true if message belongs to current user */
+    isMyMessage: PropTypes.func,
+    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    getMessageActions: PropTypes.func,
     /**
      * Add or remove reaction on message
      *
@@ -147,7 +154,7 @@ export class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return !this.props.Message.isMyMessage(this.props.message);
+    return !this.props.isMyMessage(this.props.message);
   }
 
   renderOptions() {
@@ -186,8 +193,8 @@ export class MessageCommerce extends PureComponent {
       groupStyles,
       Attachment,
       handleReaction,
+      handleAction,
       actionsEnabled,
-      Message,
       onMentionsHoverMessage,
       onMentionsClickMessage,
       unsafeHTML,
@@ -290,7 +297,7 @@ export class MessageCommerce extends PureComponent {
                 <Attachment
                   key={`${message.id}-${index}`}
                   attachment={attachment}
-                  actionHandler={Message.handleAction}
+                  actionHandler={handleAction}
                 />
               ))}
             {images.length > 1 && <Gallery images={images} />}

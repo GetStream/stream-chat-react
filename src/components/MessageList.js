@@ -14,7 +14,7 @@ import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 
 /**
- * MessageList - The message list components renders a list of messages
+ * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
  * @example ./docs/MessageList.md
  * @extends PureComponent
@@ -62,7 +62,7 @@ class MessageList extends PureComponent {
     /**
      * Boolean weather current message list is a thread.
      */
-    threadList: PropTypes.boolean,
+    threadList: PropTypes.bool,
     /**
      * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
      *
@@ -122,9 +122,9 @@ class MessageList extends PureComponent {
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     openThread: PropTypes.func,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    members: PropTypes.array,
+    members: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    watchers: PropTypes.array,
+    watchers: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     read: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */

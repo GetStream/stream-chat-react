@@ -30,7 +30,7 @@ export class ReactionSelector extends PureComponent {
      * }
      * ```
      * */
-    latest_reactions: PropTypes.array.isRequired,
+    latest_reactions: PropTypes.array,
     /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
     /**

@@ -20,7 +20,16 @@ import uniqBy from 'lodash.uniqby';
 
 class ChannelList extends PureComponent {
   static propTypes = {
-    /** The Preview to use, defaults to ChannelPreviewLastMessage */
+    /**
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+     * 2. [ChannelPreviewCountOnly](https://getstream.github.io/stream-chat-react/#ChannelPreviewCountOnly)
+     * 3. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+     * 4. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+     *
+     * The Preview to use, defaults to ChannelPreviewLastMessage
+     * */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
@@ -42,6 +51,12 @@ class ChannelList extends PureComponent {
      *
      * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListTeam.js) (default)
      * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
+     *
+     * It has access to some additional props:
+     *
+     * - `setActiveChannel` {function} Check [chat context](https://getstream.github.io/stream-chat-react/#chat)
+     * - `activeChannel` Currently active channel object
+     * - `channels` {array} List of channels in channel list
      */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**

@@ -433,6 +433,8 @@ export class Message extends Component {
         handleFlag={this.handleFlag}
         handleMute={this.handleMute}
         handleAction={this.handleAction}
+        handleDelete={this.handleDelete}
+        handleEdit={this.handleEdit}
         handleRetry={this.handleRetry}
         isMyMessage={this.isMyMessage}
         openThread={

@@ -74,24 +74,38 @@ It provides following state values as well:
 - **text** Current text in input box
 - **attachments** Array of [attachemts](https://getstream.io/chat/docs/#message_format) in message
 - **imageOrder** Array of ids of objects in `imageUploads` array in sequence in which they were uploaded
-- **imageUploads** Its an array of image objects which are set for upload. Image object here has following structure:
+- **imageUploads** Its an object/map of id vs image objects which are set for upload. It has following structure:
 
   ```json
     {
-      "id": "randomly_generated_temp_id",
-      "file": // File object
-      "status": "Uploading" // or "Finished"
+      "randomly_generated_temp_id_1": {
+          "id": "randomly_generated_temp_id_1",
+          "file": // File object
+          "status": "Uploading" // or "Finished"
+        },
+      "randomly_generated_temp_id_2": {
+          "id": "randomly_generated_temp_id_2",
+          "file": // File object
+          "status": "Uploading" // or "Finished"
+        },
     }
   ```
 
 - **fileOrder** Array of ids of objects in `fileUploads` array in sequence in which they were uploaded
-- **fileUploads** Its an array of file objects which are set for upload. Image object here has following structure:
+- **fileUploads** Its an object/map of id vs file objects which are set for upload. It has following structure:
 
   ```json
     {
-      "id": "randomly_generated_temp_id",
-      "file": // File object
-      "status": "Uploading" // or "Finished"
+      "randomly_generated_temp_id_1": {
+          "id": "randomly_generated_temp_id_1",
+          "file": // File object
+          "status": "Uploading" // or "Finished"
+        },
+      "randomly_generated_temp_id_2": {
+          "id": "randomly_generated_temp_id_2",
+          "file": // File object
+          "status": "Uploading" // or "Finished"
+        },
     }
   ```
 

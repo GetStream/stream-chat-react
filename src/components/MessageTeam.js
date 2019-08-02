@@ -39,9 +39,11 @@ export class MessageTeam extends PureComponent {
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
+     *
+     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitely.
+     *
      * The higher order message component, most logic is delegated to this component
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
-     *
      * */
     Message: PropTypes.oneOfType([
       PropTypes.node,
@@ -64,6 +66,10 @@ export class MessageTeam extends PureComponent {
     editing: PropTypes.bool,
     /** Function to exit edit state */
     clearEditingState: PropTypes.func,
+    /** Returns true if message belongs to current user */
+    isMyMessage: PropTypes.func,
+    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    getMessageActions: PropTypes.func,
     /**
      * Function to publish updates on message to channel
      *
@@ -197,7 +203,7 @@ export class MessageTeam extends PureComponent {
   };
 
   isMine() {
-    return this.props.Message.isMyMessage(this.props.message);
+    return this.props.isMyMessage(this.props.message);
   }
 
   renderStatus = () => {
@@ -278,6 +284,12 @@ export class MessageTeam extends PureComponent {
       unsafeHTML,
       handleAction,
       handleRetry,
+      getMessageActions,
+      isMyMessage,
+      handleFlag,
+      handleMute,
+      handleEdit,
+      handleDelete,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -414,7 +426,7 @@ export class MessageTeam extends PureComponent {
                         onClick={(e) => openThread(e, message)}
                       />
                     )}
-                    {Message.getMessageActions().length > 0 && (
+                    {getMessageActions().length > 0 && (
                       <span onClick={this.onClickOptionsAction}>
                         <span
                           title="Message actions"
@@ -423,11 +435,16 @@ export class MessageTeam extends PureComponent {
                           }}
                         />
                         <MessageActionsBox
+                          getMessageActions={getMessageActions}
                           Message={Message}
                           open={this.state.actionsBoxOpen}
                           message={message}
                           messageListRect={messageListRect}
-                          mine={Message.isMyMessage(message)}
+                          mine={isMyMessage(message)}
+                          handleFlag={handleFlag}
+                          handleMute={handleMute}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
                         />
                       </span>
                     )}
