@@ -206,6 +206,10 @@ export class MessageLivestream extends React.PureComponent {
       handleAction,
       getMessageActions,
       isMyMessage,
+      handleFlag,
+      handleMute,
+      handleEdit,
+      handleDelete,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -327,6 +331,10 @@ export class MessageLivestream extends React.PureComponent {
                       message={message}
                       messageListRect={messageListRect}
                       mine={isMyMessage(message)}
+                      handleFlag={handleFlag}
+                      handleMute={handleMute}
+                      handleEdit={handleEdit}
+                      handleDelete={handleDelete}
                     />
                   </span>
                 )}

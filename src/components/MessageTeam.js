@@ -286,6 +286,10 @@ export class MessageTeam extends PureComponent {
       handleRetry,
       getMessageActions,
       isMyMessage,
+      handleFlag,
+      handleMute,
+      handleEdit,
+      handleDelete,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -437,6 +441,10 @@ export class MessageTeam extends PureComponent {
                           message={message}
                           messageListRect={messageListRect}
                           mine={isMyMessage(message)}
+                          handleFlag={handleFlag}
+                          handleMute={handleMute}
+                          handleEdit={handleEdit}
+                          handleDelete={handleDelete}
                         />
                       </span>
                     )}

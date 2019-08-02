@@ -264,7 +264,15 @@ export class MessageSimple extends PureComponent {
   };
 
   renderMessageActions = () => {
-    const { Message, getMessageActions, messageListRect } = this.props;
+    const {
+      Message,
+      getMessageActions,
+      messageListRect,
+      handleFlag,
+      handleMute,
+      handleEdit,
+      handleDelete,
+    } = this.props;
     const messageActions = getMessageActions();
 
     if (messageActions.length === 0) {
@@ -281,6 +289,10 @@ export class MessageSimple extends PureComponent {
           getMessageActions={getMessageActions}
           open={this.state.actionsBoxOpen}
           messageListRect={messageListRect}
+          handleFlag={handleFlag}
+          handleMute={handleMute}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
           mine={this.isMine()}
         />
         <svg
