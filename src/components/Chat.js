@@ -34,20 +34,45 @@ export class Chat extends PureComponent {
     /** The StreamChat client object */
     client: PropTypes.object.isRequired,
     /**
-     * Should be one of following:
      *
-     *  - messaging light
-     *  - messaging dark
-     *  - team light
-     *  - team dark
-     *  - commerce light
-     *  - commerce dark
-     *  - gaming light
-     *  - gaming dark
-     *  - livestream light
-     *  - livestream dark
+     * Theme could be used for custom styling of the components.
+     *
+     * You can override the classes used in our components under parent theme class.
+     *
+     * e.g. If you want to build a theme where background of message is black
+     *
+     * ```
+     *  <Chat client={client} theme={demo}>
+     *    <Channel>
+     *      <MessageList />
+     *    </Channel>
+     *  </Chat>
+     * ```
+     *
+     * ```scss
+     *  .demo.str-chat {
+     *    .str-chat__message-simple {
+     *      &-text-inner {
+     *        background-color: black;
+     *      }
+     *    }
+     *  }
+     * ```
+     *
+     * Built in available themes:
+     *
+     *  - `messaging light`
+     *  - `messaging dark`
+     *  - `team light`
+     *  - `team dark`
+     *  - `commerce light`
+     *  - `commerce dark`
+     *  - `gaming light`
+     *  - `gaming dark`
+     *  - `livestream light`
+     *  - `livestream dark`
      */
-    theme: PropTypes.oneOf(themes),
+    theme: PropTypes.string,
   };
 
   static defaultProps = {
