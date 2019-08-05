@@ -83,6 +83,29 @@ module.exports = {
       exampleMode: 'collapse',
       usageMode: 'expand',
     },
+    {
+      name: 'Contexts',
+      sections: [
+        {
+          name: 'ChatContext',
+          content: 'src/components/docs/ChatContext.md',
+        },
+        {
+          name: 'withChatContext',
+          content: 'src/components/docs/withChatContext.md',
+        },
+        {
+          name: 'ChannelContext',
+          content: 'src/components/docs/ChannelContext.md',
+        },
+        {
+          name: 'withChannelContext',
+          content: 'src/components/docs/withChannelContext.md',
+        },
+      ],
+      exampleMode: 'collapse',
+      usageMode: 'expand',
+    },
   ],
   require: [
     path.join(path.resolve(path.dirname('')), 'dist/css/index.css'),

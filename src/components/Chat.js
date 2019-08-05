@@ -2,6 +2,16 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext } from '../context';
 
+const colors = ['light', 'dark'];
+const baseUseCases = ['messaging', 'team', 'commerce', 'gaming', 'livestream'];
+const themes = [];
+
+for (const color of colors) {
+  for (const useCase of baseUseCases) {
+    themes.push(`${useCase} ${color}`);
+  }
+}
+
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
@@ -18,17 +28,6 @@ import { ChatContext } from '../context';
  * @example ./docs/Chat.md
  * @extends PureComponent
  */
-
-const colors = ['light', 'dark'];
-const baseUseCases = ['messaging', 'team', 'commerce', 'gaming', 'livestream'];
-const themes = [];
-
-for (const color of colors) {
-  for (const useCase of baseUseCases) {
-    themes.push(`${useCase} ${color}`);
-  }
-}
-
 export class Chat extends PureComponent {
   static propTypes = {
     /** The StreamChat client object */

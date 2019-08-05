@@ -21,7 +21,7 @@ const channel = chatClient.channel('team', 'docs', {
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={chatClient}>
     <Channel channel={channel} Message={MessageTeam}>
-      <div className="str-chat__main-panel">
+      <div className="str-chat__main-panel" style={{ height: '500px' }}>
         <ChannelHeader type="Team" />
         <MessageList />
         <MessageInput />
@@ -32,27 +32,25 @@ const channel = chatClient.channel('team', 'docs', {
 </div>;
 ```
 
+**NOTE** The Chat produces the [ChatContext](#chatcontext) and exposes a [withChatContext](#withchatcontext) HOC.
+
 If you want to write your own component which consumes the chat context, have a look at the example below:
 
-```js
-const data = require('./data');
-const React = require('react');
-const ChatComponents = require('../');
+```json
 
-class MyContextAwareComponent extends React.PureComponent {
+class DemoComponent extends React.PureComponent {
   render() {
     return (
       <ol>
         <li>UserID: {this.props.client.userID}</li>
         <li>Active Channel: {this.props.channel.cid}</li>
-        <li>Available Channels: {this.props.channels.length}</li>
       </ol>
     );
   }
 }
 
-MyContextAwareComponent = ChatComponents.withChatContext(
-  MyContextAwareComponent,
+const MyContextAwareComponent = ChatComponents.withChatContext(
+  DemoComponent,
 );
 
 <div className="str-chat" style={{ height: 'unset' }}>
