@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.21](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.21) 2019-08-05
+
+- Syncing and improvements in styleguide
+
 ## [0.6.19](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.19) 2019-07-31
 
 - Fix issue raised in 0.6.17
