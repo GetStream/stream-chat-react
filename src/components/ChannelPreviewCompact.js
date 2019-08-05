@@ -2,6 +2,12 @@ import React from 'react';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
 
+/**
+ *
+ * @example ./docs/ChannelPreviewCompact.md
+ * @extends PureComponent
+ *
+ */
 export class ChannelPreviewCompact extends React.PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */

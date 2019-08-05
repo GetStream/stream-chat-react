@@ -77,7 +77,6 @@ module.exports = {
         'src/components/ChannelListTeam.js',
         'src/components/ChannelPreviewMessenger.js',
         'src/components/ChannelPreviewCompact.js',
-        'src/components/ChannelPreviewCountOnly.js',
         'src/components/ChannelPreviewLastMessage.js',
       ],
       exampleMode: 'collapse',
