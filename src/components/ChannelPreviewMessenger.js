@@ -5,6 +5,13 @@ import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
 
+/**
+ * Used as preview component for channel item in [ChannelList](#channellist) component.
+ * Its best suited for messenger type chat.
+ *
+ * @example ./docs/ChannelPreviewMessenger.md
+ * @extends PureComponent
+ */
 export class ChannelPreviewMessenger extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */

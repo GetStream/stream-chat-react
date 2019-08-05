@@ -24,9 +24,8 @@ class ChannelList extends PureComponent {
      * Available built-in options (also accepts the same props as):
      *
      * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
-     * 2. [ChannelPreviewCountOnly](https://getstream.github.io/stream-chat-react/#ChannelPreviewCountOnly)
-     * 3. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
-     * 4. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+     * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+     * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
      *
      * The Preview to use, defaults to ChannelPreviewLastMessage
      * */
