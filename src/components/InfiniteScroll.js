@@ -12,7 +12,7 @@ export default class InfiniteScroll extends Component {
     loader: PropTypes.node,
     loadMore: PropTypes.func.isRequired,
     pageStart: PropTypes.number,
-    isLoading: PropTypes.boolean,
+    isLoading: PropTypes.bool,
     ref: PropTypes.func,
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
