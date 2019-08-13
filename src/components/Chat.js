@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext } from '../context';
+import { IntlProvider } from 'react-intl';
 
 const colors = ['light', 'dark'];
 const baseUseCases = ['messaging', 'team', 'commerce', 'gaming', 'livestream'];
@@ -110,9 +111,11 @@ export class Chat extends PureComponent {
 
   render() {
     return (
-      <ChatContext.Provider value={this.getContext()}>
-        {this.props.children}
-      </ChatContext.Provider>
+      <IntlProvider locale={this.props.locale}>
+        <ChatContext.Provider value={this.getContext()}>
+          {this.props.children}
+        </ChatContext.Provider>
+      </IntlProvider>
     );
   }
 }
