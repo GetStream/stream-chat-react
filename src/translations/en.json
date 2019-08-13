@@ -12,5 +12,9 @@
   "date_separator.tomorrow": "Tomorrow",
   "date_separator.today": "Today",
   "date_separator.yesterday": "Yesterday",
-  "date_separator.last_week": "Last"
+  "date_separator.last_week": "Last",
+  "message.deleted": "This message was deleted...",
+  "message.error": "Error · Unsent",
+  "message.failed": "Message Failed · Click to try again",
+  "command.error": "<strong>/{command}</strong> is not a valid command"
 }

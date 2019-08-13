@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 
 import { isOnlyEmojis, renderText } from '../utils';
+import { FormattedMessage } from 'react-intl';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -446,7 +447,10 @@ export class MessageSimple extends PureComponent {
             className={`${messageClasses} str-chat__message--deleted ${message.type} `}
           >
             <div className="str-chat__message--deleted-inner">
-              This message was deleted...
+              <FormattedMessage
+                id="message.deleted"
+                defaultMessage="This message was deleted..."
+              />
             </div>
           </div>
         </React.Fragment>
@@ -554,12 +558,18 @@ export class MessageSimple extends PureComponent {
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__simple-message--error-message">
-                      Error · Unsent
+                      <FormattedMessage
+                        id="message.error"
+                        defaultMessage="Error · Unsent"
+                      />
                     </div>
                   )}
                   {message.status === 'failed' && (
                     <div className="str-chat__simple-message--error-message">
-                      Message Failed · Click to try again
+                      <FormattedMessage
+                        id="message.failed"
+                        defaultMessage="Message Failed · Click to try again"
+                      />
                     </div>
                   )}
 
