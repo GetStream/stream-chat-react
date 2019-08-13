@@ -1,22 +1,21 @@
 import React from 'react';
 
 import PropTypes from 'prop-types';
+import { FormattedMessage } from 'react-intl';
 
 export class MessageRepliesCountButton extends React.PureComponent {
   static propTypes = {
-    labelSingle: PropTypes.string,
-    labelPlural: PropTypes.string,
     reply_count: PropTypes.number,
     onClick: PropTypes.func,
   };
+
   static defaultProps = {
-    labelSingle: 'reply',
-    labelPlural: 'replies',
     reply_count: 0,
   };
 
   render() {
-    const { reply_count, labelSingle, labelPlural } = this.props;
+    const { reply_count } = this.props;
+
     if (reply_count && reply_count !== 0) {
       return (
         <button
@@ -29,7 +28,11 @@ export class MessageRepliesCountButton extends React.PureComponent {
               fillRule="nonzero"
             />
           </svg>
-          {reply_count} {reply_count === 1 ? labelSingle : labelPlural}
+          <FormattedMessage
+            id="message_replies.count_button"
+            defaultMessage="{count, plural, one {# reply} other {# replies}}"
+            values={{ count: reply_count }}
+          />
         </button>
       );
     }

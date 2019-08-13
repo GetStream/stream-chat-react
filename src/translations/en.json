@@ -16,5 +16,6 @@
   "message.deleted": "This message was deleted...",
   "message.error": "Error · Unsent",
   "message.failed": "Message Failed · Click to try again",
-  "command.error": "<strong>/{command}</strong> is not a valid command"
+  "command.error": "<strong>/{command}</strong> is not a valid command",
+  "message_replies.count_button": "{count, plural, one {# reply} other {# replies}}"
 }
