@@ -24,5 +24,6 @@
   "message_actions.delete": "Delete",
   "edit_message.cancel": "Cancel",
   "edit_message.submit": "Send",
-  "channel_search.placeholder": "Search"
+  "channel_search.placeholder": "Search",
+  "modal.close": "Close"
 }
