@@ -23,5 +23,6 @@
   "message_actions.edit": "Edit Message",
   "message_actions.delete": "Delete",
   "edit_message.cancel": "Cancel",
-  "edit_message.submit": "Send"
+  "edit_message.submit": "Send",
+  "channel_search.placeholder": "Search"
 }

@@ -1,11 +1,20 @@
 import React from 'react';
+import { injectIntl } from 'react-intl';
 // import PropTypes from 'prop-types';
 
-export class ChannelSearch extends React.PureComponent {
+class ChannelSearch extends React.PureComponent {
   render() {
+    const { intl } = this.props;
+
     return (
       <div className="str-chat__channel-search">
-        <input type="text" placeholder="Search" />
+        <input
+          type="text"
+          placeholder={intl.formatMessage({
+            id: 'channel_search.placeholder',
+            defaultMessage: 'Search',
+          })}
+        />
         <button type="submit">
           <svg
             width="18"
@@ -23,3 +32,6 @@ export class ChannelSearch extends React.PureComponent {
     );
   }
 }
+
+ChannelSearch = injectIntl(ChannelSearch);
+export { ChannelSearch };
