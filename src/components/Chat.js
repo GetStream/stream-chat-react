@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext } from '../context';
 import { IntlProvider } from 'react-intl';
-import messages_en from '../translations/en';
-import moment from 'moment';
+import messages_en from '../translations/en.json';
 
 const colors = ['light', 'dark'];
 const baseUseCases = ['messaging', 'team', 'commerce', 'gaming', 'livestream'];
@@ -95,10 +94,6 @@ export class Chat extends PureComponent {
       channel: {},
       error: false,
     };
-  }
-
-  componentDidMount() {
-    moment.locale(this.props.locale);
   }
 
   setActiveChannel = (channel, e) => {
