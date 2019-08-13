@@ -8,5 +8,9 @@
   "message_input.typing": "{count, plural, one {is typing...} other {are typing...}}",
   "channel_header.live": "live",
   "channel_header.members": "{count} members",
-  "channel_header.watchers": "{count} online"
+  "channel_header.watchers": "{count} online",
+  "date_separator.tomorrow": "Tomorrow",
+  "date_separator.today": "Today",
+  "date_separator.yesterday": "Yesterday",
+  "date_separator.last_week": "Last"
 }
