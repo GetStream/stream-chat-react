@@ -72,10 +72,13 @@ export class Chat extends PureComponent {
      *  - `livestream dark`
      */
     theme: PropTypes.string,
+    /** The App locale */
+    locale: PropTypes.string,
   };
 
   static defaultProps = {
     theme: 'messaging light',
+    locale: 'en',
   };
 
   constructor(props) {
