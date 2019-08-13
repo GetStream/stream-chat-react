@@ -96,6 +96,7 @@ const normalBundle = {
     '@babel/runtime/helpers/classCallCheck',
     '@babel/runtime/helpers/slicedToArray',
     '@babel/runtime/helpers/typeof',
+    'react-intl',
   ],
   plugins: [
     replace({
