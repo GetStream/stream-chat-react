@@ -413,7 +413,7 @@ class MessageTeam extends PureComponent {
                     {channelConfig && channelConfig.reactions && (
                       <span
                         title={intl.formatMessage({
-                          id: 'message_team.title.reactions',
+                          id: 'message.title.reactions',
                           defaultMessage: 'Reactions',
                         })}
                         dangerouslySetInnerHTML={{
@@ -425,7 +425,7 @@ class MessageTeam extends PureComponent {
                     {!threadList && channelConfig && channelConfig.replies && (
                       <span
                         title={intl.formatMessage({
-                          id: 'message_team.title.open_thread',
+                          id: 'message.title.open_thread',
                           defaultMessage: 'Start a thread',
                         })}
                         dangerouslySetInnerHTML={{
@@ -438,7 +438,7 @@ class MessageTeam extends PureComponent {
                       <span onClick={this.onClickOptionsAction}>
                         <span
                           title={intl.formatMessage({
-                            id: 'message_team.title.message_actions',
+                            id: 'message.title.message_actions',
                             defaultMessage: 'Message actions',
                           })}
                           dangerouslySetInnerHTML={{
