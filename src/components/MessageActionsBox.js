@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { MESSAGE_ACTIONS } from '../utils';
+import { FormattedMessage } from 'react-intl';
 
 /**
  * MessageActionsBox - A component for taking action on a message
@@ -85,24 +86,42 @@ export class MessageActionsBox extends React.Component {
         <ul className="str-chat__message-actions-list">
           {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
             <button onClick={handleFlag}>
-              <li className="str-chat__message-actions-list-item">Flag</li>
+              <li className="str-chat__message-actions-list-item">
+                <FormattedMessage
+                  id="message_actions.flag"
+                  defaultMessage="Flag"
+                />
+              </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
             <button onClick={handleMute}>
-              <li className="str-chat__message-actions-list-item">Mute</li>
+              <li className="str-chat__message-actions-list-item">
+                <FormattedMessage
+                  id="message_actions.mute"
+                  defaultMessage="Mute"
+                />
+              </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
             <button onClick={handleEdit}>
               <li className="str-chat__message-actions-list-item">
-                Edit Message
+                <FormattedMessage
+                  id="message_actions.edit"
+                  defaultMessage="Edit Message"
+                />
               </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
             <button onClick={handleDelete}>
-              <li className="str-chat__message-actions-list-item">Delete</li>
+              <li className="str-chat__message-actions-list-item">
+                <FormattedMessage
+                  id="message_actions.delete"
+                  defaultMessage="Delete"
+                />
+              </li>
             </button>
           )}
         </ul>

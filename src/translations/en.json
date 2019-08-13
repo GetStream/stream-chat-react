@@ -17,5 +17,9 @@
   "message.error": "Error · Unsent",
   "message.failed": "Message Failed · Click to try again",
   "command.error": "<strong>/{command}</strong> is not a valid command",
-  "message_replies.count_button": "{count, plural, one {# reply} other {# replies}}"
+  "message_replies.count_button": "{count, plural, one {# reply} other {# replies}}",
+  "message_actions.flag": "Flag",
+  "message_actions.mute": "Mute",
+  "message_actions.edit": "Edit Message",
+  "message_actions.delete": "Delete"
 }
