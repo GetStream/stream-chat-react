@@ -1,1 +1,5 @@
-{}
+{
+  "message_team.title.reactions": "Reactions",
+  "message_team.title.open_thread": "Start a thread",
+  "message_team.title.message_actions": "Message actions"
+}
