@@ -21,5 +21,7 @@
   "message_actions.flag": "Flag",
   "message_actions.mute": "Mute",
   "message_actions.edit": "Edit Message",
-  "message_actions.delete": "Delete"
+  "message_actions.delete": "Delete",
+  "edit_message.cancel": "Cancel",
+  "edit_message.submit": "Send"
 }

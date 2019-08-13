@@ -9,6 +9,7 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { FormattedMessage } from 'react-intl';
 
 /**
  * @example ./docs/EditMessageForm.md
@@ -214,8 +215,18 @@ export class EditMessageForm extends React.Component {
                 </FileUploadButton>
               </div>
               <div>
-                <button onClick={this.props.clearEditingState}>Cancel</button>
-                <button type="submit">Send</button>
+                <button onClick={this.props.clearEditingState}>
+                  <FormattedMessage
+                    id="edit_message.cancel"
+                    defaultMessage="Cancel"
+                  />
+                </button>
+                <button type="submit">
+                  <FormattedMessage
+                    id="edit_message.submit"
+                    defaultMessage="Send"
+                  />
+                </button>
               </div>
             </div>
           </form>
