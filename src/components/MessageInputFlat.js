@@ -10,12 +10,13 @@ import {
 } from 'react-file-utils';
 
 import { Picker } from 'emoji-mart';
+import { injectIntl } from 'react-intl';
 
 /**
  * MessageInputFlat - Large Message Input to be used for the MessageInput.
  * @example ./docs/MessageInputFlat.md
  */
-export class MessageInputFlat extends PureComponent {
+class MessageInputFlat extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool,
@@ -137,6 +138,8 @@ export class MessageInputFlat extends PureComponent {
   };
 
   render() {
+    const { intl } = this.props;
+
     return (
       <div
         className="str-chat__input-flat"
@@ -165,7 +168,10 @@ export class MessageInputFlat extends PureComponent {
               onChange={this.props.handleChange}
               value={this.props.text}
               rows={1}
-              placeholder="Type your message"
+              placeholder={intl.formatMessage({
+                id: 'message_input.placeholder',
+                defaultMessage: 'Type your message',
+              })}
               onPaste={this.props.onPaste}
               grow={this.props.grow}
               onFocus={this.props.onFocus}
@@ -208,3 +214,6 @@ export class MessageInputFlat extends PureComponent {
     );
   }
 }
+
+MessageInputFlat = injectIntl(MessageInputFlat);
+export { MessageInputFlat };
