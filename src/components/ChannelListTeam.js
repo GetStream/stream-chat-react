@@ -26,7 +26,7 @@ class ChannelListTeam extends PureComponent {
   render() {
     const { showSidebar } = this.props;
     if (this.props.error) {
-      return <ChatDown type="Connection Error" />;
+      return <ChatDown />;
     } else if (this.props.loading) {
       return <LoadingChannels />;
     } else {

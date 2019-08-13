@@ -25,5 +25,7 @@
   "edit_message.cancel": "Cancel",
   "edit_message.submit": "Send",
   "channel_search.placeholder": "Search",
-  "modal.close": "Close"
+  "modal.close": "Close",
+  "chat_down.connection_error": "Connection Error",
+  "chat_down.connection_error_text": "Error connecting to chat, refresh the page to try again."
 }
