@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
 import { withChannelContext } from '../context';
+import { FormattedMessage } from 'react-intl';
 
 /**
  * ChannelHeader - Render some basic information about this channel
@@ -36,7 +37,10 @@ class ChannelHeader extends PureComponent {
             {this.props.title || this.props.channel.data.name}{' '}
             {this.props.live && (
               <span className="str-chat__header-livestream-left--livelabel">
-                live
+                <FormattedMessage
+                  id="channel_header.live"
+                  defaultMessage="live"
+                />
               </span>
             )}
           </p>
@@ -47,9 +51,20 @@ class ChannelHeader extends PureComponent {
           )}
           <p className="str-chat__header-livestream-left--members">
             {!this.props.live && this.props.channel.data.member_count > 0 && (
-              <>{this.props.channel.data.member_count} members, </>
+              <>
+                <FormattedMessage
+                  id="channel_header.members"
+                  defaultMessage="{count} members"
+                  values={{ count: this.props.channel.data.member_count }}
+                />
+                ,{' '}
+              </>
             )}
-            {this.props.watcher_count} online
+            <FormattedMessage
+              id="channel_header.watchers"
+              defaultMessage="{count} online"
+              values={{ count: this.props.watcher_count }}
+            />
           </p>
         </div>
         <div className="str-chat__header-livestream-right">
