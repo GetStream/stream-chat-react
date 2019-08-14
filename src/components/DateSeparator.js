@@ -30,23 +30,6 @@ class DateSeparator extends React.PureComponent {
       return null;
     }
 
-    const tomorrow = intl.formatMessage({
-      id: 'date_separator.tomorrow',
-      defaultMessage: 'Tomorrow',
-    });
-    const today = intl.formatMessage({
-      id: 'date_separator.today',
-      defaultMessage: 'Today',
-    });
-    const yesterday = intl.formatMessage({
-      id: 'date_separator.yesterday',
-      defaultMessage: 'Yesterday',
-    });
-    const last_week = intl.formatMessage({
-      id: 'date_separator.last_week',
-      defaultMessage: 'Last',
-    });
-
     return (
       <div className="str-chat__date-separator">
         {(position === 'right' || position === 'center') && (
@@ -56,12 +39,30 @@ class DateSeparator extends React.PureComponent {
           {this.props.formatDate
             ? this.props.formatDate(this.props.date)
             : Moment(this.props.date.toISOString()).calendar(null, {
-                nextWeek: 'dddd',
-                nextDay: '[' + tomorrow + ']',
-                sameDay: '[' + today + ']',
-                lastDay: '[' + yesterday + ']',
-                lastWeek: '[' + last_week + '] dddd',
-                sameElse: 'L',
+                nextWeek: intl.formatMessage({
+                  id: 'date_separator.next_week',
+                  defaultMessage: 'dddd',
+                }),
+                nextDay: intl.formatMessage({
+                  id: 'date_separator.tomorrow',
+                  defaultMessage: '[Tomorrow]',
+                }),
+                sameDay: intl.formatMessage({
+                  id: 'date_separator.today',
+                  defaultMessage: '[Today]',
+                }),
+                lastDay: intl.formatMessage({
+                  id: 'date_separator.yesterday',
+                  defaultMessage: '[Yesterday]',
+                }),
+                lastWeek: intl.formatMessage({
+                  id: 'date_separator.last_week',
+                  defaultMessage: '[Last] dddd',
+                }),
+                sameElse: intl.formatMessage({
+                  id: 'date_separator.else',
+                  defaultMessage: 'L',
+                }),
               })}
         </div>
         {(position === 'left' || position === 'center') && (
