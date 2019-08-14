@@ -1,10 +1,11 @@
 import React from 'react';
 import moment from 'moment';
 import { Avatar } from './Avatar';
+import { injectIntl } from 'react-intl';
 
-export class EventComponent extends React.PureComponent {
+class EventComponent extends React.PureComponent {
   render() {
-    const { message } = this.props;
+    const { message, intl } = this.props;
     if (message.type === 'system') {
       return (
         <div className="str-chat__message--system">
@@ -30,12 +31,26 @@ export class EventComponent extends React.PureComponent {
 
       switch (message.event.type) {
         case 'member.removed':
-          sentence = `${message.event.user.name ||
-            message.event.user.id} was removed from the chat`;
+          sentence = intl.formatMessage(
+            {
+              id: 'event_component.member_removed',
+              defaultMessage: '{user} was removed from the chat',
+            },
+            {
+              user: message.event.user.name || message.event.user.id,
+            },
+          );
           break;
         case 'member.added':
-          sentence = `${message.event.user.name ||
-            message.event.user.id} has joined the chat`;
+          sentence = intl.formatMessage(
+            {
+              id: 'event_component.member_added',
+              defaultMessage: '{user} has joined the chat',
+            },
+            {
+              user: message.event.user.name || message.event.user.id,
+            },
+          );
           break;
         default:
           break;
@@ -61,3 +76,6 @@ export class EventComponent extends React.PureComponent {
     return null;
   }
 }
+
+EventComponent = injectIntl(EventComponent);
+export { EventComponent };

@@ -31,5 +31,7 @@
   "message.flag.success": "Message has been successfully flagged",
   "message.flag.error": "Error adding flag: Either the flag already exist or there is issue with network connection ...",
   "message.mute.success": "User with id {id} has been muted",
-  "message.mute.error": "Error muting a user ..."
+  "message.mute.error": "Error muting a user ...",
+  "event_component.member_removed": "{user} was removed from the chat",
+  "event_component.member_added": "{user} has joined the chat"
 }
