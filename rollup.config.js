@@ -110,10 +110,16 @@ const normalBundle = {
     scss({
       output: pkg.style,
     }),
-    copy([{ files: 'src/assets/*', dest: 'dist/assets' }], {
-      verbose: true,
-      watch: process.env.ROLLUP_WATCH,
-    }),
+    copy(
+      [
+        { files: 'src/assets/*', dest: 'dist/assets' },
+        { files: 'src/translations/*', dest: 'dist/translations' },
+      ],
+      {
+        verbose: true,
+        watch: process.env.ROLLUP_WATCH,
+      },
+    ),
     url(),
     commonjs(),
     json(),
