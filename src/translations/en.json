@@ -27,5 +27,9 @@
   "channel_search.placeholder": "Search",
   "modal.close": "Close",
   "chat_down.connection_error": "Connection Error",
-  "chat_down.connection_error_text": "Error connecting to chat, refresh the page to try again."
+  "chat_down.connection_error_text": "Error connecting to chat, refresh the page to try again.",
+  "message.flag.success": "Message has been successfully flagged",
+  "message.flag.error": "Error adding flag: Either the flag already exist or there is issue with network connection ...",
+  "message.mute.success": "User with id {id} has been muted",
+  "message.mute.error": "Error muting a user ..."
 }
