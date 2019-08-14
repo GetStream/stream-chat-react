@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
+import { injectIntl } from 'react-intl';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -9,7 +10,7 @@ import PropTypes from 'prop-types';
  * @extends PureComponent
  */
 
-export class ChannelPreviewLastMessage extends PureComponent {
+class ChannelPreviewLastMessage extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     setActiveChannel: PropTypes.func,
@@ -30,6 +31,8 @@ export class ChannelPreviewLastMessage extends PureComponent {
   };
 
   render() {
+    const { intl } = this.props;
+
     const unreadClass =
       this.props.unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
     const activeClass = this.props.active
@@ -49,7 +52,10 @@ export class ChannelPreviewLastMessage extends PureComponent {
             <span className="str-chat__channel-preview-title">{name}</span>
             <span className="str-chat__channel-preview-last-message">
               {!this.props.channel.state.messages[0]
-                ? 'Nothing yet...'
+                ? intl.formatMessage({
+                    id: 'channel_preview.latest_message.none',
+                    defaultMessage: 'Nothing yet...',
+                  })
                 : this.props.latestMessage}
             </span>
             {this.props.unread_count >= 1 && (
@@ -63,3 +69,6 @@ export class ChannelPreviewLastMessage extends PureComponent {
     );
   }
 }
+
+ChannelPreviewLastMessage = injectIntl(ChannelPreviewLastMessage);
+export { ChannelPreviewLastMessage };

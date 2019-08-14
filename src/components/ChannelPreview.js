@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
+import { injectIntl } from 'react-intl';
 
-export class ChannelPreview extends PureComponent {
+class ChannelPreview extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -57,27 +58,48 @@ export class ChannelPreview extends PureComponent {
   }
 
   getLatestMessage = () => {
-    const { channel } = this.props;
+    const { channel, intl } = this.props;
 
     const latestMessage =
       channel.state.messages[channel.state.messages.length - 1];
 
     if (!latestMessage) {
-      return 'Nothing yet...';
+      return intl.formatMessage({
+        id: 'channel_preview.latest_message.none',
+        defaultMessage: 'Nothing yet...',
+      });
     }
     if (latestMessage.deleted_at) {
-      return 'Message deleted';
+      return intl.formatMessage({
+        id: 'channel_preview.latest_message.deleted',
+        defaultMessage: 'Message deleted...',
+      });
     }
     if (latestMessage.text) {
       return latestMessage.text.slice(0, 20);
     } else {
       if (latestMessage.command) {
-        return '/' + latestMessage.command;
+        return intl.formatMessage(
+          {
+            id: 'channel_preview.latest_message.command',
+            defaultMessage: '/{command}',
+          },
+          {
+            command: latestMessage.command,
+          },
+        );
       }
       if (latestMessage.attachments.length) {
-        return '🏙 Attachment...';
+        return intl.formatMessage({
+          id: 'channel_preview.latest_message.attachment',
+          defaultMessage: 'Attachment...',
+        });
       }
-      return 'Empty message...';
+
+      return intl.formatMessage({
+        id: 'channel_preview.latest_message.empty',
+        defaultMessage: 'Empty message...',
+      });
     }
   };
 
@@ -94,3 +116,6 @@ export class ChannelPreview extends PureComponent {
     );
   }
 }
+
+ChannelPreview = injectIntl(ChannelPreview);
+export { ChannelPreview };

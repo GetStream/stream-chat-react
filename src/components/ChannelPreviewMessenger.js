@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
+import { injectIntl } from 'react-intl';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -12,7 +13,7 @@ import truncate from 'lodash/truncate';
  * @example ./docs/ChannelPreviewMessenger.md
  * @extends PureComponent
  */
-export class ChannelPreviewMessenger extends PureComponent {
+class ChannelPreviewMessenger extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     setActiveChannel: PropTypes.func,
@@ -41,7 +42,7 @@ export class ChannelPreviewMessenger extends PureComponent {
       ? 'str-chat__channel-preview-messenger--active'
       : '';
 
-    const { channel } = this.props;
+    const { channel, intl } = this.props;
 
     return (
       <button
@@ -58,7 +59,10 @@ export class ChannelPreviewMessenger extends PureComponent {
           </div>
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
-              ? 'Nothing yet...'
+              ? intl.formatMessage({
+                  id: 'channel_preview.latest_message.none',
+                  defaultMessage: 'Nothing yet...',
+                })
               : truncate(this.props.latestMessage, 14)}
           </div>
         </div>
@@ -66,3 +70,6 @@ export class ChannelPreviewMessenger extends PureComponent {
     );
   }
 }
+
+ChannelPreviewMessenger = injectIntl(ChannelPreviewMessenger);
+export { ChannelPreviewMessenger };

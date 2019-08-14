@@ -33,5 +33,10 @@
   "message.mute.success": "User with id {id} has been muted",
   "message.mute.error": "Error muting a user ...",
   "event_component.member_removed": "{user} was removed from the chat",
-  "event_component.member_added": "{user} has joined the chat"
+  "event_component.member_added": "{user} has joined the chat",
+  "channel_preview.latest_message.none": "Nothing yet...",
+  "channel_preview.latest_message.deleted": "Message deleted...",
+  "channel_preview.latest_message.command": "/{command}",
+  "channel_preview.latest_message.attachment": "Attachment...",
+  "channel_preview.latest_message.empty": "Empty message..."
 }
