@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.22](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.22) 2019-08-15
+
+- Adding support for loading error indicator
+- Adding fallback as thumb_url for image attachments
+
 ## [0.6.21](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.21) 2019-08-05
 
 - Syncing and improvements in styleguide
