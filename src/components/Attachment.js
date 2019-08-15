@@ -97,25 +97,26 @@ export class Attachment extends PureComponent {
         results.push(<Image {...a} key={`key-image-${a.id}`} />);
       }
     } else if (type === 'file') {
-      results.push(
-        <div
-          className="str-chat__message-attachment-file--item"
-          key={`key-file-${a.id}`}
-        >
-          <FileIcon
-            mimeType={a.mime_type}
-            filename={a.title}
-            big={true}
-            size={30}
-          />
-          <div className="str-chat__message-attachment-file--item-text">
-            <SafeAnchor href={a.asset_url} download>
-              {a.title}
-            </SafeAnchor>
-            {a.file_size && <span>{prettybytes(a.file_size)}</span>}
-          </div>
-        </div>,
-      );
+      a.asset_url &&
+        results.push(
+          <div
+            className="str-chat__message-attachment-file--item"
+            key={`key-file-${a.id}`}
+          >
+            <FileIcon
+              mimeType={a.mime_type}
+              filename={a.title}
+              big={true}
+              size={30}
+            />
+            <div className="str-chat__message-attachment-file--item-text">
+              <SafeAnchor href={a.asset_url} download>
+                {a.title}
+              </SafeAnchor>
+              {a.file_size && <span>{prettybytes(a.file_size)}</span>}
+            </div>
+          </div>,
+        );
     } else if (type === 'audio') {
       results.push(
         <div style={{ maxWidth: 450 }} key={`key-video-${a.id}`}>
@@ -171,6 +172,8 @@ export class Attachment extends PureComponent {
         results.push(<Card {...a} key={`key-card-${a.id}`} />);
       }
     }
+
+    if (results.length === 0) return null;
 
     return (
       <div
