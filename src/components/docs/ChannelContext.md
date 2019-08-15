@@ -67,7 +67,7 @@ e.g.,
 ```
 
 - read: the read state for each user
-- `error` {boolean} Bool indicating if there was an issue loading the channel
+- `error` {boolean | object} Error object (if any) in loading the channel, otherwise false
 - `loading` {boolean} if the channel is currently loading
 - `loadingMore` {boolean} if the channel is loading pagination
 - `hasMore` {boolean} if the channel has more messages to paginate through
