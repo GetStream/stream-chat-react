@@ -44,7 +44,7 @@ export class Gallery extends React.PureComponent {
   render() {
     const { images } = this.props;
     const formattedArray = images.map((image) => ({
-      src: image.image_url,
+      src: image.image_url || image.thumb_url,
     }));
 
     return (
@@ -55,7 +55,7 @@ export class Gallery extends React.PureComponent {
             key={`gallery-image-${i}`}
             onClick={() => this.openLightbox(i)}
           >
-            <img src={image.image_url} />
+            <img src={image.image_url || image.thumb_url} />
           </div>
         ))}
         {images.length > 3 && (
