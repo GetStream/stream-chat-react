@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatAutoComplete } from './ChatAutoComplete';
-import { formatArray } from '../utils';
+import { formatTypingArray } from '../utils';
 
 import {
   ImageDropzone,
@@ -213,7 +213,7 @@ class MessageInputLarge extends PureComponent {
                 />
               </span>
               <span className="str-chat__input-footer--typing">
-                {formatArray(intl, this.props.typing)}
+                {formatTypingArray(intl, this.props.typing)}
               </span>
             </div>
           </div>

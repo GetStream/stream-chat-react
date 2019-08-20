@@ -98,7 +98,7 @@ export const isPromise = (thing) => {
 export const byDate = (a, b) => a.created_at - b.created_at;
 
 // https://stackoverflow.com/a/29234240/7625485
-export const formatArray = (intl, dict) => {
+export const formatTypingArray = (intl, dict) => {
   const arr2 = Object.keys(dict);
   const arr3 = [];
   arr2.forEach((item, i) =>
