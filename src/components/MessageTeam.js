@@ -198,7 +198,12 @@ class MessageTeam extends PureComponent {
     if (message.status === 'sending') {
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>Sending...</Tooltip>
+          <Tooltip>
+            <FormattedMessage
+              id="message.status.sending"
+              defaultMessage="Sending..."
+            />
+          </Tooltip>
           <LoadingIndicator isLoading />
         </span>
       );
@@ -227,7 +232,12 @@ class MessageTeam extends PureComponent {
     ) {
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>Delivered</Tooltip>
+          <Tooltip>
+            <FormattedMessage
+              id="message.status.delivered"
+              defaultMessage="Delivered"
+            />
+          </Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.72 6.633a.955.955 0 1 0-1.352-1.352L6.986 8.663 5.633 7.31A.956.956 0 1 0 4.28 8.663l2.029 2.028a.956.956 0 0 0 1.353 0l4.058-4.058z"

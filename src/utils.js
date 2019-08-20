@@ -121,7 +121,6 @@ export const formatTypingArray = (intl, dict) => {
   let outStr = '';
   if (arr3.length === 1) {
     outStr = arr3[0] + ' ' + typing;
-    dict;
   } else if (arr3.length === 2) {
     //joins all with "and" but =no commas
     //example: "bob and sam"

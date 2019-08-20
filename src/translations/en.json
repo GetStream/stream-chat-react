@@ -31,6 +31,8 @@
   "message.title.message_actions": "Message actions",
   "message.title.open_thread": "Start a thread",
   "message.title.reactions": "Reactions",
+  "message.status.sending": "Sending...",
+  "message.status.delivered": "Delivered",
   "message_actions.delete": "Delete",
   "message_actions.edit": "Edit Message",
   "message_actions.flag": "Flag",
