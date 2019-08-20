@@ -146,14 +146,27 @@ export const formatStatusArray = (intl, arr) => {
   let outStr = '';
   const slicedArr = arr.map((item) => item.name || item.id).slice(0, 5);
   const restLength = arr.length - slicedArr.length;
-  const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
+
+  const and = intl.formatMessage({
+    id: 'message_status.and',
+    defaultMessage: 'and',
+  });
+  const more = intl.formatMessage(
+    {
+      id: 'message_status.more',
+      defaultMessage: 'and {count} more',
+    },
+    { count: restLength },
+  );
+
+  const lastStr = restLength > 0 ? ' ' + more : '';
 
   if (slicedArr.length === 1) {
     outStr = slicedArr[0] + ' ';
   } else if (slicedArr.length === 2) {
     //joins all with "and" but =no commas
     //example: "bob and sam"
-    outStr = slicedArr.join(' and ') + ' ';
+    outStr = slicedArr.join(' ' + and + ' ') + ' ';
   } else if (slicedArr.length > 2) {
     //joins all with commas, but last one gets ", and" (oxford comma!)
     //example: "bob, joe, and sam"
