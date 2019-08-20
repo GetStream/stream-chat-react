@@ -13,7 +13,7 @@ import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { formatStatusArray, isOnlyEmojis, renderText } from '../utils';
 import { FormattedMessage, injectIntl } from 'react-intl';
 
 const reactionSvg =
@@ -178,37 +178,19 @@ class MessageTeam extends PureComponent {
     );
   };
 
-  // https://stackoverflow.com/a/29234240/7625485
-  formatArray = (arr) => {
-    let outStr = '';
-    const slicedArr = arr
-      .filter((item) => item.id !== this.props.client.user.id)
-      .map((item) => item.name || item.id)
-      .slice(0, 5);
-    const restLength = arr.length - slicedArr.length;
-    const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = slicedArr.join(' and ') + ' ';
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, and sam"
-      outStr = slicedArr.join(', ') + lastStr;
-    }
-
-    return outStr;
-  };
-
   isMine() {
     return this.props.isMyMessage(this.props.message);
   }
 
   renderStatus = () => {
-    const { readBy, message, threadList, client, lastReceivedId } = this.props;
+    const {
+      readBy,
+      message,
+      threadList,
+      client,
+      lastReceivedId,
+      intl,
+    } = this.props;
     if (!this.isMine() || message.type === 'error') {
       return null;
     }
@@ -221,12 +203,11 @@ class MessageTeam extends PureComponent {
         </span>
       );
     } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
-      const lastReadUser = readBy.filter(
-        (item) => item.id !== client.user.id,
-      )[0];
+      const readByOthers = readBy.filter((item) => item.id !== client.user.id);
+      const lastReadUser = readByOthers[0];
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>{this.formatArray(readBy)}</Tooltip>
+          <Tooltip>{formatStatusArray(intl, readByOthers)}</Tooltip>
           <Avatar
             name={lastReadUser.name || lastReadUser.id}
             image={lastReadUser.image}

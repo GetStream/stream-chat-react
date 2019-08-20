@@ -142,6 +142,28 @@ export const formatTypingArray = (intl, dict) => {
   return outStr;
 };
 
+// https://stackoverflow.com/a/29234240/7625485
+export const formatStatusArray = (intl, arr) => {
+  let outStr = '';
+  const slicedArr = arr.map((item) => item.name || item.id).slice(0, 5);
+  const restLength = arr.length - slicedArr.length;
+  const lastStr = restLength > 0 ? ' and ' + restLength + ' more' : '';
+
+  if (slicedArr.length === 1) {
+    outStr = slicedArr[0] + ' ';
+  } else if (slicedArr.length === 2) {
+    //joins all with "and" but =no commas
+    //example: "bob and sam"
+    outStr = slicedArr.join(' and ') + ' ';
+  } else if (slicedArr.length > 2) {
+    //joins all with commas, but last one gets ", and" (oxford comma!)
+    //example: "bob, joe, and sam"
+    outStr = slicedArr.join(', ') + lastStr;
+  }
+
+  return outStr;
+};
+
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
