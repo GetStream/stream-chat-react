@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.26](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.26) 2019-09-05
+
+- The built in MessageInput components now use native emoji to create consistent rendering between the picker and the message
+
 ## [0.6.22](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.22) 2019-08-15
 
 - Adding support for loading error indicator
