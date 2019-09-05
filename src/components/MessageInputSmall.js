@@ -116,6 +116,7 @@ export class MessageInputSmall extends PureComponent {
           ref={this.props.emojiPickerRef}
         >
           <Picker
+            native
             emoji="point_up"
             title="Pick your emoji…"
             onSelect={this.props.onSelectEmoji}

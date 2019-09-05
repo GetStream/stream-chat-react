@@ -120,6 +120,7 @@ export class EditMessageForm extends React.Component {
           ref={this.props.emojiPickerRef}
         >
           <Picker
+            native
             emoji="point_up"
             title="Pick your emoji…"
             onSelect={this.props.onSelectEmoji}
@@ -153,6 +154,7 @@ export class EditMessageForm extends React.Component {
                 ref={this.props.emojiPickerRef}
               >
                 <Picker
+                  native
                   emoji="point_up"
                   title="Pick your emoji…"
                   onSelect={this.props.onSelectEmoji}
