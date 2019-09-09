@@ -7316,9 +7316,9 @@ prettier@^1.18.2:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.18.2.tgz#6823e7c5900017b4bd3acf46fe9ac4b4d7bda9ea"
   integrity sha512-OeHeMc0JhFE9idD4ZdtNibzY0+TPHSpSSb9h8FqtP+YnoZZ1sl8Vc9b1sasjfymH3SonAF4QcA2+mzHPhMvIiw==
 
-pretty-bytes@criles25/pretty-bytes#support-ie11:
+pretty-bytes@xometry/pretty-bytes:
   version "5.3.0"
-  resolved "https://codeload.github.com/criles25/pretty-bytes/tar.gz/97232e85364181cce1d0094c8ad68145a4ffaea9"
+  resolved "https://codeload.github.com/xometry/pretty-bytes/tar.gz/b0b95db95a35b6451c2d1bf3b7e92f7bcf8fb588"
 
 private@^0.1.6, private@~0.1.5:
   version "0.1.8"

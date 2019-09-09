@@ -8965,8 +8965,8 @@ function (_PureComponent) {
     });
 
     _this.state = {
-      // unread: 0,
       lastMessage: {},
+      unread: 0,
       lastRead: new Date()
     };
     return _this;
@@ -8977,6 +8977,10 @@ function (_PureComponent) {
     value: function componentDidMount() {
       // listen to change...
       var channel = this.props.channel;
+      var unread = channel.countUnread();
+      this.setState({
+        unread: unread
+      });
       channel.on('message.new', this.handleEvent);
     }
   }, {
