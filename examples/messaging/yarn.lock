@@ -1067,6 +1067,11 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
 
+"@types/seamless-immutable@^7.1.10":
+  version "7.1.10"
+  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.10.tgz#4c4313ad5069c881f38a19c7df20b7b694bf0f57"
+  integrity sha512-KG2oQ6M2HhVFcm1uknm8TsL2dQKZnGWZ12lGE+rhD3uXZmrFh5fpleGAwhXtbX+hWHXWFQcMLMpah7lHfgZzkg==
+
 "@types/tapable@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.2.tgz#e13182e1b69871a422d7863e11a4a6f5b814a4bd"
@@ -9445,12 +9450,13 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.13.7:
-  version "0.13.7"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.7.tgz#1d4696e512499e6c4d05b7989da39acc8c0dd4e9"
-  integrity sha512-VooyngYMheORi5aP1YVL8QgqTJcRgCj0cGKFBg4PnM+4pBQrI5XXZ3BB9/aIOhcgQkUI+gm/tUgmf2u+ZJMlmA==
+stream-chat@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.0.4.tgz#2e3f11bb0ccc3b21f0b9058d68bda41f4cc3f45f"
+  integrity sha512-yzjpLjXNLhJjJHraD4942qlEP3qDvSW7vrCt0bHP3sIb8sf2sngwON7PCFE0+WdzEI9vi/idXxFaUWg7UJsamQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
+    "@types/seamless-immutable" "^7.1.10"
     axios "^0.18.1"
     chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"

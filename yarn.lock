@@ -1062,6 +1062,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/seamless-immutable@^7.1.10":
+  version "7.1.10"
+  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.10.tgz#4c4313ad5069c881f38a19c7df20b7b694bf0f57"
+  integrity sha512-KG2oQ6M2HhVFcm1uknm8TsL2dQKZnGWZ12lGE+rhD3uXZmrFh5fpleGAwhXtbX+hWHXWFQcMLMpah7lHfgZzkg==
+
 "@types/unist@*", "@types/unist@^2.0.0":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.3.tgz#9c088679876f374eb5983f150d4787aa6fb32d7e"
@@ -10126,12 +10131,13 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^0.13.7:
-  version "0.13.7"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.7.tgz#1d4696e512499e6c4d05b7989da39acc8c0dd4e9"
-  integrity sha512-VooyngYMheORi5aP1YVL8QgqTJcRgCj0cGKFBg4PnM+4pBQrI5XXZ3BB9/aIOhcgQkUI+gm/tUgmf2u+ZJMlmA==
+stream-chat@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.0.4.tgz#2e3f11bb0ccc3b21f0b9058d68bda41f4cc3f45f"
+  integrity sha512-yzjpLjXNLhJjJHraD4942qlEP3qDvSW7vrCt0bHP3sIb8sf2sngwON7PCFE0+WdzEI9vi/idXxFaUWg7UJsamQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
+    "@types/seamless-immutable" "^7.1.10"
     axios "^0.18.1"
     chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"
