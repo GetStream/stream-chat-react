@@ -517,7 +517,20 @@ class ChannelInner extends PureComponent {
     if (this.state.loadingMore) return;
     this.setState({ loadingMore: true });
 
-    const oldestID = this.state.messages[0] ? this.state.messages[0].id : null;
+    const oldestMessage = this.state.messages[0]
+      ? this.state.messages[0]
+      : null;
+
+    if (oldestMessage.status !== 'received') {
+      this.setState({
+        loadingMore: false,
+      });
+
+      return;
+    }
+
+    const oldestID = oldestMessage ? oldestMessage.id : null;
+
     const perPage = limit;
     let queryResponse;
     try {

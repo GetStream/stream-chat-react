@@ -33,9 +33,9 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
-    // if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
-    //   this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-    // }
+    if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
+      this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
+    }
     this.chatClient.setUser(
       {
         id: user,
