@@ -4,6 +4,7 @@
 
 - Add IE 11 support for MessageInput
 - Fixing pagination issue when oldest message is not received yet
+- Fixing issue that didn't display unread count correctly on initial load
 
 ## [0.6.25](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.25) 2019-09-05
 
