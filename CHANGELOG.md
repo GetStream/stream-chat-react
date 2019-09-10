@@ -1,11 +1,11 @@
 # Changelog
 
-## [0.6.26](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.27) 2019-09-10
+## [0.6.26](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.26) 2019-09-10
 
 - Add IE 11 support for MessageInput
 - Fixing pagination issue when oldest message is not received yet
 
-## [0.6.25](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.26) 2019-09-05
+## [0.6.25](https://github.com/GetStream/stream-chat-react/releases/tag/v0.6.25) 2019-09-05
 
 - The built in MessageInput components now use native emoji to create consistent rendering between the picker and the message
 
