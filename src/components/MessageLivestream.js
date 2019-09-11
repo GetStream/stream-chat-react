@@ -39,7 +39,7 @@ export class MessageLivestream extends React.PureComponent {
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      *
-     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitely.
+     * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
      *
      * The higher order message component, most logic is delegated to this component
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
