@@ -107,7 +107,7 @@ class ChannelInner extends PureComponent {
     super(props);
     this.state = {
       error: false,
-      // Loading the intial content of the channel
+      // Loading the initial content of the channel
       loading: true,
       // Loading more messages
       loadingMore: false,

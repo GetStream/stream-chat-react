@@ -37,12 +37,12 @@ export class Message extends Component {
     editing: PropTypes.bool,
     /**
      * Message UI component to display a message in message list.
-     * Avaialble from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
      * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * Attachment UI component to display attachment in individual message.
-     * Avaialble from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -53,7 +53,7 @@ export class Message extends Component {
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
     /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
      *
      * This function should accept following params:
      *
@@ -71,7 +71,7 @@ export class Message extends Component {
      * */
     getFlagMessageErrorNotification: PropTypes.func,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
      *
      * This function should accept following params:
      *
@@ -247,7 +247,7 @@ export class Message extends Component {
       this.props.addNotification(
         successMessage
           ? successMessage
-          : 'Message has been succesfully flagged',
+          : 'Message has been successfully flagged',
         'success',
       );
     } catch (e) {

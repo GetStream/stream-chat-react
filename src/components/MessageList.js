@@ -64,7 +64,7 @@ class MessageList extends PureComponent {
      */
     threadList: PropTypes.bool,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
      *
      * This function should accept following params:
      *
@@ -82,7 +82,7 @@ class MessageList extends PureComponent {
      * */
     getFlagMessageErrorNotification: PropTypes.func,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
      *
      * This function should accept following params:
      *
