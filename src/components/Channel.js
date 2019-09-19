@@ -83,6 +83,12 @@ class Channel extends PureComponent {
      * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
      */
     onMentionsHover: PropTypes.func,
+    /** Weather to allow multiple attachment uploads */
+    multipleUploads: PropTypes.bool,
+    /** List of accepted file types */
+    acceptedFiles: PropTypes.array,
+    /** Maximum number of attachments allowed per message */
+    maxNumberOfFiles: PropTypes.number,
   };
 
   static defaultProps = {

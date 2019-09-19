@@ -394,6 +394,7 @@ class ChannelList extends PureComponent {
             channels={channels}
             setActiveChannel={this.props.setActiveChannel}
             activeChannel={this.props.channel}
+            showSidebar={this.props.showSidebar}
           >
             {smartRender(Paginator, {
               loadNextPage: this.loadNextPage,

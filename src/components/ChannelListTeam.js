@@ -17,6 +17,7 @@ class ChannelListTeam extends PureComponent {
     error: PropTypes.bool,
     /** Stream chat client object */
     client: PropTypes.object,
+    showSidebar: PropTypes.bool,
   };
 
   static defaultProps = {
