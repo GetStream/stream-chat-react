@@ -1,34 +1,3 @@
-The channel component provides the channel context to the underlying components.
-
-The channel context provides the following properties:
-
-- messages: the list of immutable messages
-- online: a count of the online users
-- typing: who is currently typing
-- watchers: who is currently online
-- members: members of this channel (members are permanent, watchers are users who are online right now)
-- read: the read state for each user
-- error: bool indicating if there was an issue loading the channel
-- loading: if the channel is currently loading
-- loadingMore: if the channel is loading pagination
-- hasMore: if the channel has more messages to paginate through
-
-These functions:
-
-- updateMessage
-- removeMessage
-- sendMessage
-- retrySendMessage
-- resetNotification
-- loadMore
-
-And the data exposed by the chat context:
-
-- client (the client connection)
-- channels (the list of channels)
-- setActiveChannel (a function to set the currently active channel)
-- channel (the currently active channel)
-
 ```js
 const data = require('./data');
 
@@ -101,14 +70,11 @@ const options = {
 </div>;
 ```
 
-The Channel produces the ChannelContext and exposes a withChannelContext HOC.
+**NOTE** The Channel produces the [ChannelContext](#channelcontext) and exposes a [withChannelContext](#withchannelcontext) HOC.
+
 The example below shows you how to write components that consume the channel context.
 
-```js
-const data = require('./data');
-const React = require('react');
-const ChatComponents = require('../');
-
+```json
 class CustomChannelHeader extends React.PureComponent {
   render() {
     return (
@@ -123,13 +89,13 @@ class CustomChannelHeader extends React.PureComponent {
   }
 }
 
-CustomChannelHeader = ChatComponents.withChannelContext(CustomChannelHeader);
+ContextAwareCustomChannelHeader = ChatComponents.withChannelContext(CustomChannelHeader);
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
     <Channel channel={data.channel}>
       <div className="str-chat__main-panel" style={{ height: '500px' }}>
-        <CustomChannelHeader />
+        <ContextAwareCustomChannelHeader />
         <MessageList />
         <MessageInput />
       </div>

@@ -7,8 +7,6 @@ import { Attachment } from './Attachment';
 import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 
-// import diff from 'shallow-diff';
-
 /**
  * Message - A high level component which implements all the logic required for a message.
  * The actual rendering of the message is delegated via the "Message" property
@@ -37,9 +35,15 @@ export class Message extends Component {
     groupStyles: PropTypes.array,
     /** Editing, if the message is currently being edited */
     editing: PropTypes.bool,
-    /** The message rendering component, the Message component delegates its rendering logic to this component */
+    /**
+     * Message UI component to display a message in message list.
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Allows you to overwrite the attachment component */
+    /**
+     * Attachment UI component to display attachment in individual message.
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
@@ -48,6 +52,69 @@ export class Message extends Component {
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageErrorNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserErrorNotification: PropTypes.func,
+    /** Latest message id on current channel */
+    lastReceivedId: PropTypes.string,
+    /** DOMRect object for parent MessageList component */
+    messageListRect: PropTypes.object,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    members: PropTypes.object,
+    /**
+     * Function to add custom notification on messagelist
+     *
+     * @param text Notification text to display
+     * @param type Type of notification. 'success' | 'error'
+     * */
+    addNotification: PropTypes.func,
+    /** Sets the editing state */
+    setEditingState: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    updateMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    removeMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    retrySendMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    onMentionsClick: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    onMentionsHover: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    openThread: PropTypes.func,
   };
 
   static defaultProps = {
@@ -119,24 +186,117 @@ export class Message extends Component {
   }
 
   isMyMessage = (message) => this.props.client.user.id === message.user.id;
-  isAdmin = () => this.props.client.user.role === 'admin';
+  isAdmin = () =>
+    this.props.client.user.role === 'admin' ||
+    (this.props.members &&
+      this.props.members[this.props.client.user.id] &&
+      this.props.members[this.props.client.user.id].role === 'admin');
+  isOwner = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
+    this.props.members[this.props.client.user.id].role === 'owner';
+  isModerator = () =>
+    this.props.members &&
+    this.props.members[this.props.client.user.id] &&
+    this.props.members[this.props.client.user.id].role === 'moderator';
 
-  canEditMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+  canEditMessage = (message) =>
+    this.isMyMessage(message) ||
+    this.isModerator() ||
+    this.isOwner() ||
+    this.isAdmin();
 
-  canDeleteMessage = (message) => this.isMyMessage(message) || this.isAdmin();
+  canDeleteMessage = (message) =>
+    this.isMyMessage(message) ||
+    this.isModerator() ||
+    this.isOwner() ||
+    this.isAdmin();
+
+  /**
+   * Following function validates a function which returns notification message.
+   * It validates if the first parameter is function and also if return value of function is string or no.
+   *
+   * @param func {Function}
+   * @param args {Array} Arguments to be provided to func while executing.
+   */
+  validateAndGetNotificationMessage = (func, args) => {
+    if (!func || typeof func !== 'function') return false;
+
+    const returnValue = func.apply(null, args);
+
+    if (typeof returnValue !== 'string') return false;
+
+    return returnValue;
+  };
 
   handleFlag = async (event) => {
     event.preventDefault();
 
+    const {
+      getFlagMessageSuccessNotification,
+      getFlagMessageErrorNotification,
+    } = this.props;
     const message = this.props.message;
-    await this.props.client.flagMessage(message.id);
+
+    try {
+      await this.props.client.flagMessage(message.id);
+      const successMessage = this.validateAndGetNotificationMessage(
+        getFlagMessageSuccessNotification,
+        [message],
+      );
+      this.props.addNotification(
+        successMessage
+          ? successMessage
+          : 'Message has been successfully flagged',
+        'success',
+      );
+    } catch (e) {
+      const errorMessage = this.validateAndGetNotificationMessage(
+        getFlagMessageErrorNotification,
+        [message],
+      );
+      this.props.addNotification(
+        errorMessage
+          ? errorMessage
+          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+        'error',
+      );
+    }
   };
 
   handleMute = async (event) => {
     event.preventDefault();
 
+    const {
+      getMuteUserSuccessNotification,
+      getMuteUserErrorNotification,
+    } = this.props;
     const message = this.props.message;
-    await this.props.client.flagMessage(message.user.id);
+
+    try {
+      await this.props.client.muteUser(message.user.id);
+      const successMessage = this.validateAndGetNotificationMessage(
+        getMuteUserSuccessNotification,
+        [message.user],
+      );
+
+      this.props.addNotification(
+        successMessage
+          ? successMessage
+          : `User with id ${message.user.id} has been muted`,
+        'success',
+      );
+    } catch (e) {
+      const errorMessage = this.validateAndGetNotificationMessage(
+        getMuteUserErrorNotification,
+        [message.user],
+      );
+
+      this.props.addNotification(
+        errorMessage ? errorMessage : 'Error muting a user ...',
+        'error',
+      );
+    }
   };
 
   handleEdit = () => {
@@ -304,6 +464,8 @@ export class Message extends Component {
         handleFlag={this.handleFlag}
         handleMute={this.handleMute}
         handleAction={this.handleAction}
+        handleDelete={this.handleDelete}
+        handleEdit={this.handleEdit}
         handleRetry={this.handleRetry}
         isMyMessage={this.isMyMessage}
         openThread={

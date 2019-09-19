@@ -4,6 +4,8 @@ import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
 import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
 import { MessageNotification } from './MessageNotification';
+import { MessageSimple } from './MessageSimple';
+import { Attachment } from './Attachment';
 import { LoadingIndicator } from './LoadingIndicator';
 import { DateSeparator } from './DateSeparator';
 import { EventComponent } from './EventComponent';
@@ -12,7 +14,7 @@ import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 
 /**
- * MessageList - The message list components renders a list of messages
+ * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
  * @example ./docs/MessageList.md
  * @extends PureComponent
@@ -25,39 +27,114 @@ class MessageList extends PureComponent {
       newMessagesNotification: false,
       editing: '',
       online: true,
+      notifications: [],
     };
 
     this.bottomRef = React.createRef();
     this.messageList = React.createRef();
     this.messageRefs = {};
+    this.notificationTimeouts = [];
   }
   static propTypes = {
-    /** The attachment component to render, defaults to Attachment */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** A list of immutable messages */
-    messages: PropTypes.array.isRequired,
-    /** Via Context: The channel object */
-    channel: PropTypes.object.isRequired,
-    /** Via Context: The function to update a message, handled by the Channel component */
-    updateMessage: PropTypes.func.isRequired,
-    /** Via Context: The function is called when the list scrolls */
-    listenToScroll: PropTypes.func,
-    /** Typing indicator component to render  */
+    /**
+     * Typing indicator UI component to render
+     *
+     * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
+     * */
     TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Date separator component to render  */
+    /**
+     * Date separator UI component to render
+     *
+     * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
+     * */
     dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** Turn off grouping of messages by user */
     noGroupByUser: PropTypes.bool,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
+    /** Set the limit to use when paginating messages */
+    messageLimit: PropTypes.number,
     /**
      * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
      * If all the actions need to be disabled, empty array or false should be provided as value of prop.
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+    /**
+     * Boolean weather current message list is a thread.
+     */
+    threadList: PropTypes.bool,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+     *
+     * */
+    getFlagMessageErrorNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserSuccessNotification: PropTypes.func,
+    /**
+     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+     *
+     * This function should accept following params:
+     *
+     * @param user A user object which is being muted
+     *
+     * */
+    getMuteUserErrorNotification: PropTypes.func,
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    client: PropTypes.object,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    messages: PropTypes.array.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    channel: PropTypes.object.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    updateMessage: PropTypes.func.isRequired,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    retrySendMessage: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    removeMessage: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    onMentionsClick: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    onMentionsHover: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    openThread: PropTypes.func,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    members: PropTypes.object,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    watchers: PropTypes.object,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    read: PropTypes.object,
+    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+    typing: PropTypes.object,
   };
 
   static defaultProps = {
+    Message: MessageSimple,
+    threadList: false,
+    Attachment,
     dateSeparator: DateSeparator,
     unsafeHTML: false,
     noGroupByUser: false,
@@ -88,6 +165,9 @@ class MessageList extends PureComponent {
     this.props.client.off('connection.changed', this.connectionChanged);
 
     document.removeEventListener('keydown', this.keypress);
+    this.notificationTimeouts.forEach((ct) => {
+      clearTimeout(ct);
+    });
   }
 
   getSnapshotBeforeUpdate(prevProps) {
@@ -448,6 +528,50 @@ class MessageList extends PureComponent {
     }
   };
 
+  /**
+   * Adds a temporary notification to message list.
+   * Notification will be removed after 5 seconds.
+   *
+   * @param notificationText  Text of notification to be added
+   * @param type              Type of notification. success | error
+   */
+  addNotification = (notificationText, type) => {
+    if (typeof notificationText !== 'string') return;
+    if (type !== 'success' && type !== 'error') return;
+
+    const nextIndex = new Date();
+
+    const newNotifications = [...this.state.notifications];
+    newNotifications.push({
+      id: nextIndex,
+      text: notificationText,
+      type,
+    });
+    this.setState({
+      notifications: newNotifications,
+    });
+
+    // remove the notification after 5000 ms
+    const ct = setTimeout(() => {
+      const index = this.state.notifications.findIndex((notification) => {
+        if (notification.id === nextIndex) return true;
+        return false;
+      });
+      const newNotifications = [...this.state.notifications];
+      newNotifications.splice(index, 1);
+      this.setState({
+        notifications: newNotifications,
+      });
+    }, 5000);
+
+    this.notificationTimeouts.push(ct);
+  };
+
+  _loadMore = () =>
+    this.props.messageLimit
+      ? this.props.loadMore(this.props.messageLimit)
+      : this.props.loadMore();
+
   render() {
     let allMessages = [...this.props.messages];
 
@@ -488,7 +612,6 @@ class MessageList extends PureComponent {
         message.type === 'channel.event' ||
         message.type === 'system'
       ) {
-        console.log;
         elements.push(
           <li
             key={
@@ -529,12 +652,13 @@ class MessageList extends PureComponent {
               editing={
                 !!(this.state.editing && this.state.editing === message.id)
               }
-              channel={this.props.channel}
-              threadList={this.props.threadList}
               clearEditingState={this.clearEditingState}
               setEditingState={this.setEditingState}
               messageListRect={this.state.messageListRect}
+              channel={this.props.channel}
+              threadList={this.props.threadList}
               retrySendMessage={this.props.retrySendMessage}
+              addNotification={this.addNotification}
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}
               Message={this.props.Message}
@@ -543,6 +667,18 @@ class MessageList extends PureComponent {
               onMentionsClick={this.props.onMentionsClick}
               onMentionsHover={this.props.onMentionsHover}
               messageActions={this.props.messageActions}
+              getFlagMessageSuccessNotification={
+                this.props.getFlagMessageSuccessNotification
+              }
+              getFlagMessageErrorNotification={
+                this.props.getFlagMessageErrorNotification
+              }
+              getMuteUserSuccessNotification={
+                this.props.getMuteUserSuccessNotification
+              }
+              getMuteUserErrorNotification={
+                this.props.getMuteUserErrorNotification
+              }
             />
           </li>,
         );
@@ -557,7 +693,7 @@ class MessageList extends PureComponent {
           ref={this.messageList}
         >
           <ReverseInfiniteScroll
-            loadMore={this.props.loadMore}
+            loadMore={this._loadMore}
             hasMore={this.props.hasMore}
             isLoading={this.props.loadingMore}
             listenToScroll={this.listenToScroll}
@@ -580,7 +716,16 @@ class MessageList extends PureComponent {
         </div>
 
         <div className="str-chat__list-notifications">
-          <Notification active={!this.state.online}>
+          {this.state.notifications.map((notification) => (
+            <Notification
+              active={true}
+              key={notification.id}
+              type={notification.type}
+            >
+              {notification.text}
+            </Notification>
+          ))}
+          <Notification active={!this.state.online} type="error">
             Connection failure, reconnecting now...
           </Notification>
 
@@ -605,9 +750,13 @@ const Center = ({ children }) => (
   </div>
 );
 
-const Notification = ({ children, active }) => {
+const Notification = ({ children, active, type }) => {
   if (active) {
-    return <div className="str-chat__connection-issue">{children}</div>;
+    return (
+      <div className={`str-chat__custom-notification notification-${type}`}>
+        {children}
+      </div>
+    );
   }
   return null;
 };

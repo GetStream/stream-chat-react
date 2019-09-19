@@ -18,12 +18,20 @@ import { Audio } from './Audio';
 export class Attachment extends PureComponent {
   attachmentRef = React.createRef();
   static propTypes = {
-    /** The attachment to render */
+    /**
+     * The attachment to render
+     * @see See [Attachment structure](https://getstream.io/chat/docs/#message_format)
+     *
+     *  */
     attachment: PropTypes.object.isRequired,
     /**
-		The handler function to call when an action is selected on an attachment.
-		Examples include canceling a \/giphy command or shuffling the results.
-		*/
+     *
+     * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
+     *
+     * @param name {string} Name of action
+     * @param value {string} Value of action
+     * @param event Dom event that triggered this handler
+     */
     actionHandler: PropTypes.func.isRequired,
   };
 
@@ -89,25 +97,26 @@ export class Attachment extends PureComponent {
         results.push(<Image {...a} key={`key-image-${a.id}`} />);
       }
     } else if (type === 'file') {
-      results.push(
-        <div
-          className="str-chat__message-attachment-file--item"
-          key={`key-file-${a.id}`}
-        >
-          <FileIcon
-            mimeType={a.mime_type}
-            filename={a.title}
-            big={true}
-            size={30}
-          />
-          <div className="str-chat__message-attachment-file--item-text">
-            <SafeAnchor href={a.asset_url} download>
-              {a.title}
-            </SafeAnchor>
-            {a.file_size && <span>{prettybytes(a.file_size)}</span>}
-          </div>
-        </div>,
-      );
+      a.asset_url &&
+        results.push(
+          <div
+            className="str-chat__message-attachment-file--item"
+            key={`key-file-${a.id}`}
+          >
+            <FileIcon
+              mimeType={a.mime_type}
+              filename={a.title}
+              big={true}
+              size={30}
+            />
+            <div className="str-chat__message-attachment-file--item-text">
+              <SafeAnchor href={a.asset_url} download>
+                {a.title}
+              </SafeAnchor>
+              {a.file_size && <span>{prettybytes(a.file_size)}</span>}
+            </div>
+          </div>,
+        );
     } else if (type === 'audio') {
       results.push(
         <div style={{ maxWidth: 450 }} key={`key-video-${a.id}`}>
@@ -163,6 +172,8 @@ export class Attachment extends PureComponent {
         results.push(<Card {...a} key={`key-card-${a.id}`} />);
       }
     }
+
+    if (results.length === 0) return null;
 
     return (
       <div

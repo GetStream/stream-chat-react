@@ -37,6 +37,18 @@ export class ChatAutoComplete extends PureComponent {
     trigger: PropTypes.func,
     /** Minimum number of Character */
     minChar: PropTypes.number,
+    /** Array of [user object](https://getstream.io/chat/docs/#chat-doc-set-user). Used for mentions suggestions */
+    users: PropTypes.array,
+    /**
+     * Handler for selecting item from suggestions list
+     *
+     * @param item Selected item object.
+     *  */
+    onSelectItem: PropTypes.func,
+    /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
+    commands: PropTypes.array,
+    /** Listener for onfocus event on textarea */
+    onFocus: PropTypes.object,
   };
 
   static defaultProps = {

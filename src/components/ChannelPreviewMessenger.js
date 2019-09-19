@@ -1,9 +1,30 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+
 import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
 
+/**
+ * Used as preview component for channel item in [ChannelList](#channellist) component.
+ * Its best suited for messenger type chat.
+ *
+ * @example ./docs/ChannelPreviewMessenger.md
+ * @extends PureComponent
+ */
 export class ChannelPreviewMessenger extends PureComponent {
+  static propTypes = {
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    setActiveChannel: PropTypes.func,
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    channel: PropTypes.object,
+    closeMenu: PropTypes.func,
+    unread: PropTypes.number,
+    /** If channel of component is active (selected) channel */
+    active: PropTypes.bool,
+    latestMessage: PropTypes.string,
+  };
+
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {

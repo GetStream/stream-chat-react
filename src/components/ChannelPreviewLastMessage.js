@@ -1,7 +1,27 @@
 import React, { PureComponent } from 'react';
 import { Avatar } from './Avatar';
+import PropTypes from 'prop-types';
+
+/**
+ * Used as preview component for channel item in [ChannelList](#channellist) component.
+ *
+ * @example ./docs/ChannelPreviewLastMessage.md
+ * @extends PureComponent
+ */
 
 export class ChannelPreviewLastMessage extends PureComponent {
+  static propTypes = {
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    setActiveChannel: PropTypes.func,
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    channel: PropTypes.object,
+    closeMenu: PropTypes.func,
+    unread_count: PropTypes.number,
+    /** If channel of component is active (selected) channel */
+    active: PropTypes.bool,
+    latestMessage: PropTypes.string,
+  };
+
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {

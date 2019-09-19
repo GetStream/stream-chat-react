@@ -74,7 +74,33 @@ module.exports = {
         'src/components/DateSeparator.js',
         'src/components/Window.js',
         'src/components/ChannelListMessenger.js',
+        'src/components/ChannelListTeam.js',
         'src/components/ChannelPreviewMessenger.js',
+        'src/components/ChannelPreviewCompact.js',
+        'src/components/ChannelPreviewLastMessage.js',
+      ],
+      exampleMode: 'collapse',
+      usageMode: 'expand',
+    },
+    {
+      name: 'Contexts',
+      sections: [
+        {
+          name: 'ChatContext',
+          content: 'src/components/docs/ChatContext.md',
+        },
+        {
+          name: 'withChatContext',
+          content: 'src/components/docs/withChatContext.md',
+        },
+        {
+          name: 'ChannelContext',
+          content: 'src/components/docs/ChannelContext.md',
+        },
+        {
+          name: 'withChannelContext',
+          content: 'src/components/docs/withChannelContext.md',
+        },
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',

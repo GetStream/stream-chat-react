@@ -1067,6 +1067,11 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
 
+"@types/seamless-immutable@^7.1.10":
+  version "7.1.10"
+  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.10.tgz#4c4313ad5069c881f38a19c7df20b7b694bf0f57"
+  integrity sha512-KG2oQ6M2HhVFcm1uknm8TsL2dQKZnGWZ12lGE+rhD3uXZmrFh5fpleGAwhXtbX+hWHXWFQcMLMpah7lHfgZzkg==
+
 "@types/tapable@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.2.tgz#e13182e1b69871a422d7863e11a4a6f5b814a4bd"
@@ -2683,6 +2688,11 @@ core-js@2.6.4:
   version "2.6.4"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.4.tgz#b8897c062c4d769dd30a0ac5c73976c47f92ea0d"
   integrity sha512-05qQ5hXShcqGkPZpXEFLIpxayZscVD2kuMBZewxiIPPEagukO4mqgPA9CWhUvFBJfy3ODdK2p9xyHh7FTU9/7A==
+
+core-js@3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.1.4.tgz#3a2837fc48e582e1ae25907afcd6cf03b0cc7a07"
+  integrity sha512-YNZN8lt82XIMLnLirj9MhKDFZHalwzzrL9YLt6eb0T5D0EDl4IQ90IGkua8mHbnxNrkj1d8hbdizMc0Qmg1WnQ==
 
 core-js@^2.4.0, core-js@^2.5.0:
   version "2.6.9"
@@ -8119,6 +8129,13 @@ promise@8.0.2:
   dependencies:
     asap "~2.0.6"
 
+promise@8.0.3:
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/promise/-/promise-8.0.3.tgz#f592e099c6cddc000d538ee7283bb190452b0bf6"
+  integrity sha512-HeRDUL1RJiLhyA0/grn+PTShlBAcLuh/1BJGtrvjwbvRDCTLLMEz9rOGCV+R3vHY4MixIuoMEd9Yq/XvsTPcjw==
+  dependencies:
+    asap "~2.0.6"
+
 prompts@^0.1.9:
   version "0.1.14"
   resolved "https://registry.yarnpkg.com/prompts/-/prompts-0.1.14.tgz#a8e15c612c5c9ec8f8111847df3337c9cbd443b2"
@@ -8311,6 +8328,18 @@ react-app-polyfill@^0.2.1:
     object-assign "4.1.1"
     promise "8.0.2"
     raf "3.4.1"
+    whatwg-fetch "3.0.0"
+
+react-app-polyfill@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-1.0.2.tgz#2a51175885c88245a2a356dc46df29f38ec9f060"
+  integrity sha512-yZcpLnIr0FOIzrOOz9JC37NWAWEuCaQWmYn9EWjEzlCW4cOmA5MkT5L3iP8QuUeFnoqVCTJgjIWYbXEJgNXhGA==
+  dependencies:
+    core-js "3.1.4"
+    object-assign "4.1.1"
+    promise "8.0.3"
+    raf "3.4.1"
+    regenerator-runtime "0.13.3"
     whatwg-fetch "3.0.0"
 
 react-dev-utils@^7.0.2:
@@ -8616,6 +8645,11 @@ regenerate@^1.2.1, regenerate@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.0.tgz#4a856ec4b56e4077c557589cae85e7a4c8869a11"
   integrity sha512-1G6jJVDWrt0rK99kBjvEtziZNCICAuvIPkSiUFIQxVP06RCVpq3dmDo2oi6ABpYaDYaTRr67BEhL8r1wgEZZKg==
+
+regenerator-runtime@0.13.3:
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
+  integrity sha512-naKIZz2GQ8JWh///G7L3X6LaQUAMp2lvb1rvwwsURe/VXwD6VMfr+/1NuNw3ag8v2kY1aQ/go5SNn79O9JU7yw==
 
 regenerator-runtime@^0.11.0:
   version "0.11.1"
@@ -9445,12 +9479,13 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^0.13.7:
-  version "0.13.7"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-0.13.7.tgz#1d4696e512499e6c4d05b7989da39acc8c0dd4e9"
-  integrity sha512-VooyngYMheORi5aP1YVL8QgqTJcRgCj0cGKFBg4PnM+4pBQrI5XXZ3BB9/aIOhcgQkUI+gm/tUgmf2u+ZJMlmA==
+stream-chat@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.0.4.tgz#2e3f11bb0ccc3b21f0b9058d68bda41f4cc3f45f"
+  integrity sha512-yzjpLjXNLhJjJHraD4942qlEP3qDvSW7vrCt0bHP3sIb8sf2sngwON7PCFE0+WdzEI9vi/idXxFaUWg7UJsamQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
+    "@types/seamless-immutable" "^7.1.10"
     axios "^0.18.1"
     chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"

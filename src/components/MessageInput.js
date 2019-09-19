@@ -11,6 +11,13 @@ import {
 } from 'react-file-utils';
 import { logChatPromiseExecution } from 'stream-chat';
 
+// polyfill for IE11 to make MessageInput functional
+if (!Element.prototype.matches) {
+  Element.prototype.matches =
+    Element.prototype.msMatchesSelector ||
+    Element.prototype.webkitMatchesSelector;
+}
+
 /**
  * MessageInput - Input a new message, support for all the rich features such as image uploads, @mentions, emoticons etc.
  * @example ./docs/MessageInput.md
@@ -97,7 +104,16 @@ class MessageInput extends PureComponent {
     /** The parent message object when replying on a thread */
     parent: PropTypes.object,
 
-    /** The component handling how the input is rendered */
+    /**
+     * The component handling how the input is rendered
+     *
+     * Available built-in components (also accepts the same props as):
+     *
+     * 1. [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInputSmall.js)
+     * 2. [MessageInputLarge](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInputLarge.js) (default)
+     * 3. [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInputFlat.js)
+     *
+     * */
     Input: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /** Override image upload request */

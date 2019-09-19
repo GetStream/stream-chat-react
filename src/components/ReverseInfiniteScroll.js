@@ -6,6 +6,7 @@ export class ReverseInfiniteScroll extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     element: PropTypes.node,
+    /** Weather there are more elements to be loaded or not */
     hasMore: PropTypes.bool,
     initialLoad: PropTypes.bool,
     isReverse: PropTypes.bool,
@@ -17,6 +18,8 @@ export class ReverseInfiniteScroll extends Component {
     useCapture: PropTypes.bool,
     useWindow: PropTypes.bool,
     className: PropTypes.string,
+    /** The function is called when the list scrolls */
+    listenToScroll: PropTypes.func,
   };
 
   static defaultProps = {

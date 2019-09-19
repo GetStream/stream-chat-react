@@ -3,7 +3,7 @@ import Moment from 'moment';
 import PropTypes from 'prop-types';
 
 /**
- * DateSeparator - A simple date seperator
+ * DateSeparator - A simple date separator
  *
  * @example ./docs/DateSeparator.md
  * @extends PureComponent

@@ -8,8 +8,8 @@ export class ChannelPreview extends PureComponent {
     super(props);
 
     this.state = {
-      // unread: 0,
       lastMessage: {},
+      unread: 0,
       lastRead: new Date(),
     };
   }
@@ -28,6 +28,9 @@ export class ChannelPreview extends PureComponent {
   componentDidMount() {
     // listen to change...
     const channel = this.props.channel;
+    const unread = channel.countUnread();
+
+    this.setState({ unread });
     channel.on('message.new', this.handleEvent);
   }
 

@@ -20,26 +20,98 @@ import uniqBy from 'lodash.uniqby';
 
 class ChannelList extends PureComponent {
   static propTypes = {
-    /** The Preview to use, defaults to ChannelPreviewLastMessage */
+    /**
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+     * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+     * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+     *
+     * The Preview to use, defaults to ChannelPreviewLastMessage
+     * */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
-    /** The loading indicator to use */
+    /**
+     * Loading indicator UI Component. It will be displayed until the channels are
+     * being queried from API. Once the channels are loaded/queried, loading indicator is removed
+     * and replaced with children of the Channel component.
+     *
+     * Defaults to and accepts same props as:
+     * [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+     *
+     */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Custom UI Component for container of list of channels. Note that, list (UI component) of channels is passed
+     * to this component as children. This component is for the purpose of adding header to channel list or styling container
+     * for list of channels.
+     *
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListTeam.js) (default)
+     * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
+     *
+     * It has access to some additional props:
+     *
+     * - `setActiveChannel` {function} Check [chat context](https://getstream.github.io/stream-chat-react/#chat)
+     * - `activeChannel` Currently active channel object
+     * - `channels` {array} List of channels in channel list
+     */
     List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Paginator component for channels. It contains all the pagination logic such as
+     * - fetching next page of results when needed e.g., when scroll reaches the end of list
+     * - UI to display loading indicator when next page is being loaded
+     * - call to action button to trigger loading of next page.
+     *
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMorePaginator.js)
+     * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator.js)
+     */
     Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Function that overrides default behaviour when new message is received on channel that is not being watched */
+    /**
+     * Function that overrides default behaviour when new message is received on channel that is not being watched
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.message_new` event
+     * */
     onMessageNew: PropTypes.func,
-    /** Function that overrides default behaviour when users gets added to a channel */
+    /**
+     * Function that overrides default behaviour when users gets added to a channel
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.added_to_channel` event
+     * */
     onAddedToChannel: PropTypes.func,
-    /** Function that overrides default behaviour when users gets removed from a channel */
+    /**
+     * Function that overrides default behaviour when users gets removed from a channel
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.removed_from_channel` event
+     * */
     onRemovedFromChannel: PropTypes.func,
-    /** Function that overrides default behaviour when channel gets updated */
+    /**
+     * Function that overrides default behaviour when channel gets updated
+     *
+     * @param {Component} thisArg Reference to ChannelList component
+     * @param {Event} event       [Event object](https://getstream.io/chat/docs/#event_object) corresponding to `notification.channel_updated` event
+     * */
     onChannelUpdated: PropTypes.func,
-    /** Object containing query filters */
+    /**
+     * Object containing query filters
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for filter.
+     * */
     filters: PropTypes.object,
-    /** Object containing query options */
+    /**
+     * Object containing query options
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for options.
+     * */
     options: PropTypes.object,
-    /** Object containing sort parameters */
+    /**
+     * Object containing sort parameters
+     * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for sort.
+     * */
     sort: PropTypes.object,
   };
 

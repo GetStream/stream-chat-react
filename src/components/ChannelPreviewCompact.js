@@ -1,7 +1,26 @@
 import React from 'react';
 import { Avatar } from './Avatar';
+import PropTypes from 'prop-types';
 
+/**
+ *
+ * @example ./docs/ChannelPreviewCompact.md
+ * @extends PureComponent
+ *
+ */
 export class ChannelPreviewCompact extends React.PureComponent {
+  static propTypes = {
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    setActiveChannel: PropTypes.func,
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+    channel: PropTypes.object,
+    closeMenu: PropTypes.func,
+    unread_count: PropTypes.number,
+    /** If channel of component is active (selected) channel */
+    active: PropTypes.bool,
+    latestMessage: PropTypes.string,
+  };
+
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {
@@ -24,7 +43,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
         className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-compact--left">
-          {true && <Avatar image={this.props.channel.data.image} size={20} />}
+          <Avatar image={this.props.channel.data.image} size={20} />
         </div>
         <div className="str-chat__channel-preview-compact--right">{name}</div>
       </button>
