@@ -88,9 +88,12 @@ export class Chat extends PureComponent {
     };
   }
 
-  setActiveChannel = (channel, e) => {
+  setActiveChannel = async (channel, watchers = {}, e) => {
     if (e !== undefined && e.preventDefault) {
       e.preventDefault();
+    }
+    if (Object.keys(watchers).length) {
+      await channel.query({ watch: true, watchers });
     }
     this.setState(() => ({
       channel,

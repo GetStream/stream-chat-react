@@ -68,7 +68,6 @@ class Channel extends PureComponent {
      * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-
     /**
      * Handle for click on @mention in message
      *
@@ -593,7 +592,6 @@ class ChannelInner extends PureComponent {
     removeMessage: this.removeMessage,
     sendMessage: this.sendMessage,
     retrySendMessage: this.retrySendMessage,
-
     loadMore: this.loadMore,
 
     // thread related
