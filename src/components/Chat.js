@@ -92,7 +92,6 @@ export class Chat extends PureComponent {
     if (e !== undefined && e.preventDefault) {
       e.preventDefault();
     }
-
     this.setState(() => ({
       channel,
     }));

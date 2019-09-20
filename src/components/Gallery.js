@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Lightbox from 'react-images';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 
 /**
  * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
@@ -13,32 +13,15 @@ export class Gallery extends React.PureComponent {
   };
 
   state = {
-    lightboxIsOpen: false,
-    imageIndex: 0,
+    modalIsOpen: false,
+    currentIndex: 0,
   };
 
-  openLightbox = (i) => {
-    this.setState({
-      lightboxIsOpen: true,
-      imageIndex: i,
-    });
-  };
-  closeLightbox = () => {
-    this.setState({
-      lightboxIsOpen: false,
-      imageIndex: 0,
-    });
-  };
-
-  gotoPrevLightboxImage = () => {
-    this.setState({
-      imageIndex: this.state.imageIndex - 1,
-    });
-  };
-  gotoNextLightboxImage = () => {
-    this.setState({
-      imageIndex: this.state.imageIndex + 1,
-    });
+  toggleModal = (index) => {
+    this.setState((state) => ({
+      modalIsOpen: !state.modalIsOpen,
+      currentIndex: index,
+    }));
   };
 
   render() {
@@ -46,14 +29,13 @@ export class Gallery extends React.PureComponent {
     const formattedArray = images.map((image) => ({
       src: image.image_url || image.thumb_url,
     }));
-
     return (
       <div className="str-chat__gallery">
         {images.slice(0, 3).map((image, i) => (
           <div
             className="str-chat__gallery-image"
             key={`gallery-image-${i}`}
-            onClick={() => this.openLightbox(i)}
+            onClick={() => this.toggleModal(i)}
           >
             <img src={image.image_url || image.thumb_url} />
           </div>
@@ -65,12 +47,12 @@ export class Gallery extends React.PureComponent {
               background: `url(${images[3].image_url}) top left no-repeat`,
               backgroundSize: 'cover',
             }}
-            onClick={() => this.openLightbox(3)}
+            onClick={() => this.toggleModal(3)}
           >
             <p>{images.length - 3} more</p>
           </div>
         )}
-        <Lightbox
+        {/* <Lightbox
           images={formattedArray}
           isOpen={this.state.lightboxIsOpen}
           onClickPrev={this.gotoPrevLightboxImage}
@@ -78,7 +60,17 @@ export class Gallery extends React.PureComponent {
           onClose={this.closeLightbox}
           backdropClosesModal
           currentImage={this.state.imageIndex}
-        />
+        /> */}
+        <ModalGateway>
+          {this.state.modalIsOpen ? (
+            <Modal onClose={this.toggleModal}>
+              <Carousel
+                views={formattedArray}
+                currentIndex={this.state.currentIndex}
+              />
+            </Modal>
+          ) : null}
+        </ModalGateway>
       </div>
     );
   }
