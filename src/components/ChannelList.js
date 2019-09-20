@@ -412,12 +412,16 @@ class ChannelList extends PureComponent {
             setActiveChannel={this.props.setActiveChannel}
             activeChannel={this.props.channel}
           >
-            {smartRender(Paginator, {
-              loadNextPage: this.loadNextPage,
-              hasNextPage,
-              refreshing,
-              children: channels.map((item) => this._renderChannel(item)),
-            })}
+            {!channels.length ? (
+              <EmptyStateIndicator listType="channel" />
+            ) : (
+              smartRender(Paginator, {
+                loadNextPage: this.loadNextPage,
+                hasNextPage,
+                refreshing,
+                children: channels.map((item) => this._renderChannel(item)),
+              })
+            )}
           </List>
         </div>
       </React.Fragment>
