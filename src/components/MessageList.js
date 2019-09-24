@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Message } from './Message';
 import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
+import { EmptyStateIndicator } from './EmptyStateIndicator';
 import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
 import { MessageNotification } from './MessageNotification';
 import { MessageSimple } from './MessageSimple';
@@ -64,7 +65,7 @@ class MessageList extends PureComponent {
      */
     threadList: PropTypes.bool,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
      *
      * This function should accept following params:
      *
@@ -82,7 +83,7 @@ class MessageList extends PureComponent {
      * */
     getFlagMessageErrorNotification: PropTypes.func,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
      *
      * This function should accept following params:
      *
@@ -105,6 +106,12 @@ class MessageList extends PureComponent {
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * The UI Indicator to use when MessagerList or ChannelList is empty
+     *
+     *
+     * */
+    EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     messages: PropTypes.array.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -136,6 +143,7 @@ class MessageList extends PureComponent {
     threadList: false,
     Attachment,
     dateSeparator: DateSeparator,
+    EmptyStateIndicator,
     unsafeHTML: false,
     noGroupByUser: false,
     messageActions: Object.keys(MESSAGE_ACTIONS),
@@ -692,27 +700,31 @@ class MessageList extends PureComponent {
           }`}
           ref={this.messageList}
         >
-          <ReverseInfiniteScroll
-            loadMore={this._loadMore}
-            hasMore={this.props.hasMore}
-            isLoading={this.props.loadingMore}
-            listenToScroll={this.listenToScroll}
-            useWindow={false}
-            loader={
-              <Center key="loadingindicator">
-                <LoadingIndicator size={20} />
-              </Center>
-            }
-          >
-            <ul className="str-chat__ul">{elements}</ul>
-            {this.props.TypingIndicator && (
-              <TypingIndicator
-                typing={this.props.typing}
-                client={this.props.client}
-              />
-            )}
-            <div key="bottom" ref={this.bottomRef} />
-          </ReverseInfiniteScroll>
+          {!elements.length ? (
+            <EmptyStateIndicator listType="message" />
+          ) : (
+            <ReverseInfiniteScroll
+              loadMore={this._loadMore}
+              hasMore={this.props.hasMore}
+              isLoading={this.props.loadingMore}
+              listenToScroll={this.listenToScroll}
+              useWindow={false}
+              loader={
+                <Center key="loadingindicator">
+                  <LoadingIndicator size={20} />
+                </Center>
+              }
+            >
+              <ul className="str-chat__ul">{elements}</ul>
+              {this.props.TypingIndicator && (
+                <TypingIndicator
+                  typing={this.props.typing}
+                  client={this.props.client}
+                />
+              )}
+              <div key="bottom" ref={this.bottomRef} />
+            </ReverseInfiniteScroll>
+          )}
         </div>
 
         <div className="str-chat__list-notifications">

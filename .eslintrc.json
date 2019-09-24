@@ -36,7 +36,11 @@
       "modules": true
     }
   },
-
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "overrides": [
     {
       "files": ["*.md"],

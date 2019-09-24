@@ -29,7 +29,7 @@ class ChannelPreviewMessenger extends PureComponent {
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {
-    this.props.setActiveChannel(this.props.channel);
+    this.props.setActiveChannel(this.props.channel, this.props.watchers);
     this.channelPreviewButton.current.blur();
     this.props.closeMenu();
   };

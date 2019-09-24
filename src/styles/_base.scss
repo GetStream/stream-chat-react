@@ -48,7 +48,8 @@
 .str-chat {
   height: 100vh;
   font-family: $second-font;
-  &.messaging {
+  &.messaging,
+  &.commerce {
     background-color: #f1f1f3;
     &.dark {
       background-color: #212326;

@@ -5,6 +5,7 @@ import { isPromise } from '../utils';
 
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { ChannelPreview } from './ChannelPreview';
+import { EmptyStateIndicator } from './EmptyStateIndicator';
 import { LoadingIndicator } from './LoadingIndicator';
 import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
@@ -20,6 +21,12 @@ import uniqBy from 'lodash.uniqby';
 
 class ChannelList extends PureComponent {
   static propTypes = {
+    /**
+     *
+     *
+     * Indicator for Empty State
+     * */
+    EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * Available built-in options (also accepts the same props as):
      *
@@ -113,6 +120,11 @@ class ChannelList extends PureComponent {
      * @see See [Channel query documentation](https://getstream.io/chat/docs/#query_channels) for a list of available fields for sort.
      * */
     sort: PropTypes.object,
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
+    watchers: PropTypes.object,
   };
 
   static defaultProps = {
@@ -120,10 +132,11 @@ class ChannelList extends PureComponent {
     LoadingIndicator,
     List: ChannelListTeam,
     Paginator: LoadMorePaginator,
-
+    EmptyStateIndicator,
     filters: {},
     options: {},
     sort: {},
+    watchers: {},
   };
 
   constructor(props) {
@@ -183,7 +196,10 @@ class ChannelList extends PureComponent {
       if (isPromise(channelQueryResponse)) {
         channelQueryResponse = await channelPromise;
         if (offset === 0 && channelQueryResponse.length >= 1) {
-          this.props.setActiveChannel(channelQueryResponse[0]);
+          this.props.setActiveChannel(
+            channelQueryResponse[0],
+            this.props.watchers,
+          );
         }
       }
       this.setState((prevState) => {
@@ -349,7 +365,7 @@ class ChannelList extends PureComponent {
   // new channel list // *********************************
 
   _renderChannel = (item) => {
-    const { Preview, setActiveChannel, channel } = this.props;
+    const { Preview, setActiveChannel, channel, watchers } = this.props;
     if (!item) return;
     const props = {
       channel: item,
@@ -357,6 +373,7 @@ class ChannelList extends PureComponent {
       closeMenu: this.closeMenu,
       Preview,
       setActiveChannel,
+      watchers,
       key: item.id,
       // To force the update of preview component upon channel update.
       channelUpdateCount: this.state.channelUpdateCount,
@@ -395,12 +412,16 @@ class ChannelList extends PureComponent {
             setActiveChannel={this.props.setActiveChannel}
             activeChannel={this.props.channel}
           >
-            {smartRender(Paginator, {
-              loadNextPage: this.loadNextPage,
-              hasNextPage,
-              refreshing,
-              children: channels.map((item) => this._renderChannel(item)),
-            })}
+            {!channels.length ? (
+              <EmptyStateIndicator listType="channel" />
+            ) : (
+              smartRender(Paginator, {
+                loadNextPage: this.loadNextPage,
+                hasNextPage,
+                refreshing,
+                children: channels.map((item) => this._renderChannel(item)),
+              })
+            )}
           </List>
         </div>
       </React.Fragment>

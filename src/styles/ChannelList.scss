@@ -85,7 +85,8 @@
 
   .str-chat-channel-list {
     &.messaging,
-    &.team {
+    &.team,
+    &.commerce {
       position: fixed;
       left: -380px;
       top: 0;
@@ -100,7 +101,8 @@
   .str-chat-channel-checkbox:checked {
     & ~ .str-chat-channel-list {
       &.messaging,
-      &.team {
+      &.team,
+      &.commerce {
         left: 0px;
       }
     }

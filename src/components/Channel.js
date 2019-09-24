@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { withChatContext, ChannelContext } from '../context';
 
 import { LoadingIndicator } from './LoadingIndicator';
+import { LoadingErrorIndicator } from './LoadingErrorIndicator';
 
 import uuidv4 from 'uuid/v4';
 import PropTypes from 'prop-types';
@@ -32,6 +33,16 @@ class Channel extends PureComponent {
     /** Client is passed automatically via the Chat Context */
     client: PropTypes.object.isRequired,
     /**
+     * Error indicator UI component. This will be shown on the screen if channel query fails.
+     *
+     * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
+     *
+     * */
+    LoadingErrorIndicator: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+    ]),
+    /**
      * Loading indicator UI component. This will be shown on the screen until the messages are
      * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
      * and replaced with children of the Channel component.
@@ -57,7 +68,6 @@ class Channel extends PureComponent {
      * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-
     /**
      * Handle for click on @mention in message
      *
@@ -76,6 +86,7 @@ class Channel extends PureComponent {
 
   static defaultProps = {
     LoadingIndicator,
+    LoadingErrorIndicator,
     Message: MessageSimple,
     Attachment,
   };
@@ -95,7 +106,7 @@ class ChannelInner extends PureComponent {
     super(props);
     this.state = {
       error: false,
-      // Loading the intial content of the channel
+      // Loading the initial content of the channel
       loading: true,
       // Loading more messages
       loadingMore: false,
@@ -148,6 +159,10 @@ class ChannelInner extends PureComponent {
     client: PropTypes.object.isRequired,
     /** The loading indicator to use */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    LoadingErrorIndicator: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+    ]),
   };
 
   async componentDidMount() {
@@ -157,7 +172,7 @@ class ChannelInner extends PureComponent {
       try {
         await channel.watch();
       } catch (e) {
-        this.setState({ error: true });
+        this.setState({ error: e });
         errored = true;
       }
     }
@@ -194,11 +209,6 @@ class ChannelInner extends PureComponent {
       Visibility.unbind(this.visibilityListener);
     }
   }
-
-  renderLoading = () => {
-    const Loader = this.props.LoadingIndicator;
-    return <Loader isLoading={true} />;
-  };
 
   openThread = (message, e) => {
     if (e && e.preventDefault) {
@@ -450,7 +460,7 @@ class ChannelInner extends PureComponent {
 
   addToEventHistory = (e) => {
     this.setState((prevState) => {
-      if (!prevState.messages) {
+      if (!prevState.message || !prevState.message.length) {
         return;
       }
       const lastMessageId =
@@ -506,7 +516,18 @@ class ChannelInner extends PureComponent {
     if (this.state.loadingMore) return;
     this.setState({ loadingMore: true });
 
-    const oldestID = this.state.messages[0] ? this.state.messages[0].id : null;
+    const oldestMessage = this.state.messages[0];
+
+    if (oldestMessage && oldestMessage.status !== 'received') {
+      this.setState({
+        loadingMore: false,
+      });
+
+      return;
+    }
+
+    const oldestID = oldestMessage ? oldestMessage.id : null;
+
     const perPage = limit;
     let queryResponse;
     try {
@@ -571,7 +592,6 @@ class ChannelInner extends PureComponent {
     removeMessage: this.removeMessage,
     sendMessage: this.sendMessage,
     retrySendMessage: this.retrySendMessage,
-
     loadMore: this.loadMore,
 
     // thread related
@@ -586,8 +606,13 @@ class ChannelInner extends PureComponent {
 
   render() {
     let core;
+    const LoadingIndicator = this.props.LoadingIndicator;
+    const LoadingErrorIndicator = this.props.LoadingErrorIndicator;
+
     if (this.state.error) {
-      core = <div>Error: {this.state.error.message}</div>;
+      core = (
+        <LoadingErrorIndicator error={this.state.error}></LoadingErrorIndicator>
+      );
     } else if (this.state.loading) {
       core = <LoadingIndicator size={25} isLoading={true} />;
     } else if (!this.props.channel || !this.props.channel.watch) {

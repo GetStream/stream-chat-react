@@ -24,7 +24,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
   channelPreviewButton = React.createRef();
 
   onSelectChannel = () => {
-    this.props.setActiveChannel(this.props.channel);
+    this.props.setActiveChannel(this.props.channel, this.props.watchers);
     this.channelPreviewButton.current.blur();
   };
   render() {
@@ -43,7 +43,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
         className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-compact--left">
-          {true && <Avatar image={this.props.channel.data.image} size={20} />}
+          <Avatar image={this.props.channel.data.image} size={20} />
         </div>
         <div className="str-chat__channel-preview-compact--right">{name}</div>
       </button>

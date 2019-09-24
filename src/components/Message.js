@@ -8,8 +8,6 @@ import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 import { injectIntl } from 'react-intl';
 
-// import diff from 'shallow-diff';
-
 /**
  * Message - A high level component which implements all the logic required for a message.
  * The actual rendering of the message is delegated via the "Message" property
@@ -38,9 +36,15 @@ class Message extends Component {
     groupStyles: PropTypes.array,
     /** Editing, if the message is currently being edited */
     editing: PropTypes.bool,
-    /** The message rendering component, the Message component delegates its rendering logic to this component */
+    /**
+     * Message UI component to display a message in message list.
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /** Allows you to overwrite the attachment component */
+    /**
+     * Attachment UI component to display attachment in individual message.
+     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+     * */
     Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
@@ -50,7 +54,7 @@ class Message extends Component {
      * */
     messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
     /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is succesful
+     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
      *
      * This function should accept following params:
      *
@@ -68,7 +72,7 @@ class Message extends Component {
      * */
     getFlagMessageErrorNotification: PropTypes.func,
     /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is succesful
+     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
      *
      * This function should accept following params:
      *
@@ -85,6 +89,33 @@ class Message extends Component {
      *
      * */
     getMuteUserErrorNotification: PropTypes.func,
+    /** Latest message id on current channel */
+    lastReceivedId: PropTypes.string,
+    /** DOMRect object for parent MessageList component */
+    messageListRect: PropTypes.object,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    members: PropTypes.object,
+    /**
+     * Function to add custom notification on messagelist
+     *
+     * @param text Notification text to display
+     * @param type Type of notification. 'success' | 'error'
+     * */
+    addNotification: PropTypes.func,
+    /** Sets the editing state */
+    setEditingState: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    updateMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    removeMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    retrySendMessage: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    onMentionsClick: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    onMentionsHover: PropTypes.func,
+    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+    openThread: PropTypes.func,
   };
 
   static defaultProps = {
