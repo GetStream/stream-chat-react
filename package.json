@@ -33,7 +33,7 @@
     "pretty-bytes": "^5.1.0",
     "prop-types": "^15.6.2",
     "react-file-utils": "0.3.7",
-    "react-images": "^0.5.19",
+    "react-images": "^1.0.0",
     "react-markdown": "^4.0.6",
     "react-player": "^1.8.0",
     "react-textarea-autosize": "^7.1.0",

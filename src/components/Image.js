@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Lightbox from 'react-images';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
@@ -10,10 +10,6 @@ import Lightbox from 'react-images';
  * @extends PureComponent
  */
 export class Image extends React.PureComponent {
-  state = {
-    isOpen: false,
-  };
-
   static propTypes = {
     /** The full size image url */
     image_url: PropTypes.string,
@@ -22,35 +18,35 @@ export class Image extends React.PureComponent {
     /** The text fallback for the image */
     fallback: PropTypes.string,
   };
-
-  openLightbox = () => {
-    this.setState({
-      isOpen: true,
-    });
+  state = {
+    modalIsOpen: false,
+    currentIndex: 0,
   };
 
-  closeLightbox = () => {
-    this.setState({
-      isOpen: false,
-    });
+  toggleModal = () => {
+    this.setState((state) => ({
+      modalIsOpen: !state.modalIsOpen,
+    }));
   };
 
   render() {
     const { image_url, thumb_url, fallback } = this.props;
+    const formattedArray = [{ src: image_url || thumb_url }];
     return (
       <React.Fragment>
         <img
           className="str-chat__message-attachment--img"
-          onClick={this.openLightbox}
+          onClick={this.toggleModal}
           src={thumb_url || image_url}
           alt={fallback}
         />
-        <Lightbox
-          isOpen={this.state.isOpen}
-          onClose={this.closeLightbox}
-          images={[{ src: image_url || thumb_url }]}
-          backdropClosesModal={true}
-        />
+        <ModalGateway>
+          {this.state.modalIsOpen ? (
+            <Modal onClose={this.toggleModal}>
+              <Carousel views={formattedArray} />
+            </Modal>
+          ) : null}
+        </ModalGateway>
       </React.Fragment>
     );
   }
