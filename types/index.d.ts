@@ -1,4 +1,4 @@
-// TypeScript Version: 3.5
+// TypeScript Version: 2.8
 
 /** Components */
 import * as React from 'react';
@@ -11,7 +11,7 @@ export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
-  theme?: Theme;
+  theme?: string;
 }
 
 export interface ChannelContextValue extends ChatContextValue {
@@ -77,21 +77,20 @@ export interface ChannelContextValue extends ChatContextValue {
   listenToScroll?(offset: number): void;
 }
 
-export type Theme =
-  | 'messaging light'
-  | 'messaging dark'
-  | 'team light'
-  | 'team dark'
-  | 'commerce light'
-  | 'commerce dark'
-  | 'gaming light'
-  | 'gaming dark'
-  | 'livestream light'
-  | 'livestream dark';
-
 export interface ChatProps {
   client: Client.StreamChat;
-  theme?: Theme;
+  // Available built in themes:
+  // 'messaging light'
+  // | 'messaging dark'
+  // | 'team light'
+  // | 'team dark'
+  // | 'commerce light'
+  // | 'commerce dark'
+  // | 'gaming light'
+  // | 'gaming dark'
+  // | 'livestream light'
+  // | 'livestream dark'
+  theme?: string;
 }
 
 export interface ChannelProps extends ChatContextValue {
@@ -121,21 +120,21 @@ export interface ChannelListProps extends ChatContextValue {
   Paginator?: React.ElementType<PaginatorProps>;
 
   onMessageNew?(
-    this: React.ElementType<ChannelListProps>,
+    thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.MessageNewEvent>,
   ): any;
   /** Function that overrides default behaviour when users gets added to a channel */
   onAddedToChannel?(
-    this: React.ElementType<ChannelListProps>,
+    thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.NotificationAddedToChannelEvent>,
   ): any;
   /** Function that overrides default behaviour when users gets removed from a channel */
   onRemovedFromChannel?(
-    this: React.ElementType<ChannelListProps>,
+    thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.NotificationRemovedFromChannelEvent>,
   ): any;
   onChannelUpdated?(
-    this: React.ElementType<ChannelListProps>,
+    thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.ChannelUpdatedEvent>,
   ): any;
   /** Object containing query filters */
@@ -149,9 +148,9 @@ export interface ChannelListProps extends ChatContextValue {
 
 export interface ChannelListUIComponentProps extends ChatContextValue {
   /** If channel list ran into error */
-  error: boolean;
+  error?: boolean;
   /** If channel list is in loading state */
-  loading: boolean;
+  loading?: boolean;
   showSidebar: boolean;
 }
 
@@ -311,12 +310,6 @@ export interface MessageInputState {
 export interface MessageInputUIComponentProps
   extends MessageInputProps,
     MessageInputState {
-  /**
-   * ======================================================================
-   *     Props provided by parent MessageInput component
-   * ======================================================================
-   */
-
   uploadNewFiles?(files: File[]): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
@@ -342,7 +335,7 @@ export interface AttachmentUIComponentProps {
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
 		*/
-  actionHandler(
+  actionHandler?(
     name: string,
     value: string,
     event: React.BaseSyntheticEvent,
@@ -351,51 +344,50 @@ export interface AttachmentUIComponentProps {
 
 export interface MessageProps {
   /** The message object */
-  message: Client.MessageResponse;
+  message?: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
-  client: Client.StreamChat;
+  client?: Client.StreamChat;
   /** The current channel this message is displayed in */
-  channel: Client.Channel;
+  channel?: Client.Channel;
   /** A list of users that have read this message **/
-  readBy: Array<Client.UserResponse>;
+  readBy?: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-  groupStyles: Array<string>;
+  groupStyles?: Array<string>;
   /** Editing, if the message is currently being edited */
-  editing: boolean;
+  editing?: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
-  Message: React.ElementType<MessageUIComponentProps>;
+  Message?: React.ElementType<MessageUIComponentProps>;
   /** Allows you to overwrite the attachment component */
-  Attachment: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML: boolean;
+  unsafeHTML?: boolean;
 }
 
 export interface MessageUIComponentProps extends MessageProps {
-  actionsEnabled: boolean;
-  handleReaction(reactionType: string, event?: React.BaseSyntheticEvent): void;
-  handleFlag(event?: React.BaseSyntheticEvent): void;
-  handleMute(event?: React.BaseSyntheticEvent): void;
-  handleAction(
+  actionsEnabled?: boolean;
+  handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
+  handleFlag?(event?: React.BaseSyntheticEvent): void;
+  handleMute?(event?: React.BaseSyntheticEvent): void;
+  handleAction?(
     name: string,
     value: string,
     event: React.BaseSyntheticEvent,
   ): void;
-  handleRetry(message: Client.Message): void;
-  isMyMessage(message: Client.MessageResponse): boolean;
-  openThread(
+  handleRetry?(message: Client.Message): void;
+  isMyMessage?(message: Client.MessageResponse): boolean;
+  openThread?(
     message: Client.MessageResponse,
     event: React.BaseSyntheticEvent,
   ): void;
-  onMentionsClickMessage(
+  onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
-  onMentionsHoverMessage(
+  onMentionsHoverMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
-  // TODO: Create proper type for following config
-  channelConfig: object;
+  channelConfig?: object;
 }
 
 export interface ThreadProps extends ChannelContextValue {
