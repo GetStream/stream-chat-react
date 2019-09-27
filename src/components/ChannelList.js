@@ -411,6 +411,7 @@ class ChannelList extends PureComponent {
             channels={channels}
             setActiveChannel={this.props.setActiveChannel}
             activeChannel={this.props.channel}
+            showSidebar={this.props.showSidebar}
           >
             {!channels.length ? (
               <EmptyStateIndicator listType="channel" />

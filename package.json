@@ -4,6 +4,7 @@
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
+  "typings": "./types/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
@@ -39,7 +40,7 @@
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
     "stream-browserify": "^2.0.2",
-    "stream-chat": "^1.0.4",
+    "stream-chat": "^1.1.1",
     "uuid": "^3.3.2",
     "visibilityjs": "^2.0.2",
     "ws": "^6.1.3"
