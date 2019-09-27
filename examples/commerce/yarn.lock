@@ -1062,6 +1062,11 @@
     "@svgr/plugin-svgo" "^4.0.3"
     loader-utils "^1.1.0"
 
+"@types/node@*":
+  version "12.7.8"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.8.tgz#cb1bf6800238898bc2ff6ffa5702c3cadd350708"
+  integrity sha512-FMdVn84tJJdV+xe+53sYiZS4R5yn1mAIxfj+DVoNiQjTYz1+OYmjwEZr1ev9nU0axXwda0QDbYl06QHanRVH3A==
+
 "@types/prop-types@*":
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.2.tgz#0e58ae66773d7fd7c372a493aff740878ec9ceaa"
@@ -1080,15 +1085,22 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/seamless-immutable@^7.1.10":
-  version "7.1.11"
-  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.11.tgz#89250c3e2587a44c2a051f5798e6f29f0e91bbc9"
-  integrity sha512-U8Mp+Q6P5ZxG6KDRwWduQl822MnsnBtOq/Lb4HQB9Tzi8t1nr7PLqq88I4kTwEDHO95hcH8y8KhGvxWPIS6QoQ==
+"@types/seamless-immutable@7.1.10":
+  version "7.1.10"
+  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.10.tgz#4c4313ad5069c881f38a19c7df20b7b694bf0f57"
+  integrity sha512-KG2oQ6M2HhVFcm1uknm8TsL2dQKZnGWZ12lGE+rhD3uXZmrFh5fpleGAwhXtbX+hWHXWFQcMLMpah7lHfgZzkg==
 
 "@types/tapable@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.2.tgz#e13182e1b69871a422d7863e11a4a6f5b814a4bd"
   integrity sha512-42zEJkBpNfMEAvWR5WlwtTH22oDzcMjFsL9gDGExwF8X8WvAiw7Vwop7hPw03QT8TKfec83LwbHj6SvpqM4ELQ==
+
+"@types/uuid@^3.4.5":
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.5.tgz#d4dc10785b497a1474eae0ba7f0cb09c0ddfd6eb"
+  integrity sha512-MNL15wC3EKyw1VLF+RoVO4hJJdk9t/Hlv3rt1OL65Qvuadm4BYo6g9ZJQqoq7X8NBFSsQXgAujWciovh2lpVjA==
+  dependencies:
+    "@types/node" "*"
 
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
@@ -9607,13 +9619,14 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.0.4.tgz#2e3f11bb0ccc3b21f0b9058d68bda41f4cc3f45f"
-  integrity sha512-yzjpLjXNLhJjJHraD4942qlEP3qDvSW7vrCt0bHP3sIb8sf2sngwON7PCFE0+WdzEI9vi/idXxFaUWg7UJsamQ==
+stream-chat@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.1.1.tgz#45ffb4a9e52e75e1707c3f649d3646c6e29c6aa3"
+  integrity sha512-aw2X5Qw5S+Ho4zc3coAnoT4f/68vm93Ja7BKh7bql49iuvFIUF+GuzyHmw2pcSrKTOZ7d+h7mbS1L2VhUF30NA==
   dependencies:
     "@babel/runtime" "^7.3.1"
-    "@types/seamless-immutable" "^7.1.10"
+    "@types/seamless-immutable" "7.1.10"
+    "@types/uuid" "^3.4.5"
     axios "^0.18.1"
     chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"
