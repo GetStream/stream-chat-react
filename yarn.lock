@@ -10379,14 +10379,12 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.1.1.tgz#45ffb4a9e52e75e1707c3f649d3646c6e29c6aa3"
-  integrity sha512-aw2X5Qw5S+Ho4zc3coAnoT4f/68vm93Ja7BKh7bql49iuvFIUF+GuzyHmw2pcSrKTOZ7d+h7mbS1L2VhUF30NA==
+stream-chat@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.1.2.tgz#5674388f4b9d1438bddda191b9e84365d0404496"
+  integrity sha512-8ZocDy8RD5yWn4iUgEUINnnbfxsaR/X9TDu6JLsweC9H8KzRwQsDQUTWF2u6BV9C+iZO4WrvYs1WmriklKd2hA==
   dependencies:
     "@babel/runtime" "^7.3.1"
-    "@types/seamless-immutable" "7.1.10"
-    "@types/uuid" "^3.4.5"
     axios "^0.18.1"
     chai-arrays "^2.0.0"
     cross-fetch "^3.0.0"
