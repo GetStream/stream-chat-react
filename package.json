@@ -51,6 +51,7 @@
   },
   "files": [
     "dist",
+    "/types",
     "README.md"
   ],
   "devDependencies": {
