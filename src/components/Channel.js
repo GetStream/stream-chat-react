@@ -211,7 +211,7 @@ class ChannelInner extends PureComponent {
     this._loadMoreFinishedDebounced.cancel();
     this._loadMoreThreadFinishedDebounced.cancel();
 
-    if (this.visibilityListener) {
+    if (this.visibilityListener || this.visibilityListener === 0) {
       Visibility.unbind(this.visibilityListener);
     }
   }
