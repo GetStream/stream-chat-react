@@ -129,6 +129,7 @@ export class MessageInputSmall extends PureComponent {
   };
 
   render() {
+    const SendButton = this.props.SendButton;
     return (
       <div style={{ position: 'relative', zIndex: 0, width: '100%' }}>
         <ImageDropzone
@@ -141,7 +142,13 @@ export class MessageInputSmall extends PureComponent {
           }
           handleFiles={this.props.uploadNewFiles}
         >
-          <div className="str-chat__small-message-input">
+          <div
+            className={`str-chat__small-message-input ${
+              SendButton
+                ? 'str-chat__small-message-input--send-button-active'
+                : null
+            }`}
+          >
             {this.renderUploads()}
             {this.renderEmojiPicker()}
             <ChatAutoComplete
@@ -192,6 +199,7 @@ export class MessageInputSmall extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
+            {SendButton && <SendButton sendMessage={this.props.handleSubmit} />}
           </div>
         </ImageDropzone>
       </div>

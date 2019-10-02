@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { withChannelContext } from '../context';
 import PropTypes from 'prop-types';
 import { MessageInputLarge } from './MessageInputLarge';
+import { SendButton } from './SendButton';
 import Immutable from 'seamless-immutable';
 import { generateRandomId } from '../utils';
 import uniq from 'lodash/uniq';
@@ -121,6 +122,12 @@ class MessageInput extends PureComponent {
 
     /** Override file upload request */
     doFileUploadRequest: PropTypes.func,
+    /**
+     * Custom UI component for send button.
+     *
+     * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
+     * */
+    SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
   static defaultProps = {
@@ -128,6 +135,7 @@ class MessageInput extends PureComponent {
     disabled: false,
     grow: true,
     Input: MessageInputLarge,
+    SendButton,
   };
 
   componentDidMount() {

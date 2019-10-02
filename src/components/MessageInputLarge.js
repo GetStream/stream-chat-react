@@ -130,6 +130,7 @@ export class MessageInputLarge extends PureComponent {
   };
 
   render() {
+    const SendButton = this.props.SendButton;
     return (
       <div style={{ position: 'relative', zIndex: 100, width: '100%' }}>
         <ImageDropzone
@@ -191,6 +192,7 @@ export class MessageInputLarge extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
+            {SendButton && <SendButton sendMessage={this.props.handleSubmit} />}
           </div>
           <div>
             <div className="str-chat__input-footer">

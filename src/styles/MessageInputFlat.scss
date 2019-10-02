@@ -2,7 +2,9 @@
   background: white;
   padding: 10px 40px;
   position: relative;
-
+  .str-chat__textarea {
+    flex: 1;
+  }
   textarea {
     min-height: 56px;
     background: rgba(0, 0, 0, 0.05);
@@ -45,7 +47,8 @@
   .rfu-file-upload-button {
     position: absolute;
     top: calc(100% - 40px);
-    right: 25px;
+    right: 55px;
+
     svg {
       fill: #000;
       opacity: 0.5;
@@ -53,6 +56,12 @@
         opacity: 1;
       }
     }
+    @media screen and (min-width: 768px) {
+      right: 25px;
+    }
+  }
+  &-wrapper {
+    display: flex;
   }
 }
 

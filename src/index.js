@@ -42,6 +42,7 @@ import './styles/NewChannel.scss';
 import './styles/ReactionList.scss';
 import './styles/ReactionSelector.scss';
 import './styles/ReadState.scss';
+import './styles/SendButton.scss';
 import './styles/SimpleReactionsList.scss';
 import './styles/SmallMessageInput.scss';
 import './styles/Thread.scss';
