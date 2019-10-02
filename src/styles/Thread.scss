@@ -150,6 +150,9 @@
 .team {
   &.str-chat {
     .str-chat {
+      &__thread {
+        background: white;
+      }
       @media screen and (max-width: 960px) {
         &__thread {
           position: fixed;
@@ -184,7 +187,7 @@
 }
 
 .livestream.str-chat,
-.team.str-chat {
+.str-chat {
   .str-chat__thread {
     background: transparent;
     &-header {

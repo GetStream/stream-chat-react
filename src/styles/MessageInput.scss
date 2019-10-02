@@ -5,6 +5,7 @@
   position: relative;
   font-family: $second-font;
   padding-bottom: 0;
+  display: flex;
 
   &--emojipicker {
     position: absolute;
@@ -16,12 +17,12 @@
     right: 20px;
   }
 
-  &-fileupload {
+  .rfu-file-upload-button {
     right: 46px;
   }
 
   &-emojiselect,
-  &-fileupload {
+  .rfu-file-upload-button {
     position: absolute;
     cursor: pointer;
     top: calc(100% - 35px);
@@ -56,11 +57,19 @@
       }
     }
   }
+  &--send-button {
+    border: 0;
+    background: 0;
+    outline: 0;
+    @media screen and (min-width: 768px) {
+      display: none;
+    }
+  }
 }
 
 .str-chat__textarea {
   height: auto;
-
+  flex: 1;
   textarea {
     width: 100%;
     outline: none;
@@ -234,16 +243,24 @@
       padding: 10px 40px;
 
       &-emojiselect,
-      &-fileupload {
+      .rfu-file-upload-button {
         top: calc(100% - 44px);
       }
 
       &-emojiselect {
-        right: 50px;
+        right: 90px;
+        @media screen and (min-width: 768px) {
+          right: 50px;
+        }
       }
 
-      &-fileupload {
-        right: 76px;
+      .rfu-file-upload-button {
+        right: 116px;
+        top: calc(100% - 43px);
+
+        @media screen and (min-width: 768px) {
+          right: 76px;
+        }
       }
 
       &-footer {
@@ -271,16 +288,23 @@
           padding: 12px;
         }
         &-emojiselect,
-        &-fileupload {
+        .rfu-file-upload-button {
           top: calc(100% - 40px);
         }
 
         &-emojiselect {
-          right: 30px;
+          right: 68px;
+          @media screen and (min-width: 768px) {
+            right: 30px;
+          }
         }
 
-        &-fileupload {
-          right: 56px;
+        .rfu-file-upload-button {
+          right: 90px;
+          top: calc(100% - 39px);
+          @media screen and (min-width: 768px) {
+            right: 56px;
+          }
         }
         &-footer {
           padding: 0 20px 10px;

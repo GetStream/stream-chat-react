@@ -138,9 +138,12 @@ export class MessageInputFlat extends PureComponent {
   };
 
   render() {
+    const SendButton = this.props.SendButton;
     return (
       <div
-        className="str-chat__input-flat"
+        className={`str-chat__input-flat ${
+          SendButton ? 'str-chat__input-flat--send-button-active' : null
+        }`}
         style={{ position: 'relative', zIndex: 1, width: '100%' }}
       >
         <ImageDropzone
@@ -203,6 +206,15 @@ export class MessageInputFlat extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
+            {SendButton && (
+              <button
+                className="str-chat__input-flat--send-button"
+                style={{ marginLeft: 10 }}
+                onClick={this.props.handleSubmit}
+              >
+                <SendButton />
+              </button>
+            )}
           </div>
         </ImageDropzone>
       </div>
