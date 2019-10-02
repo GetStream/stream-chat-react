@@ -122,7 +122,11 @@ class MessageInput extends PureComponent {
 
     /** Override file upload request */
     doFileUploadRequest: PropTypes.func,
-    /** Override the default SendButton with your own component. */
+    /**
+     * Custom UI component for send button.
+     *
+     * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
+     * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
