@@ -192,7 +192,7 @@ export class MessageInputLarge extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
-            {SendButton && <SendButton onClick={this.props.handleSubmit} />}
+            {SendButton && <SendButton sendMessage={this.props.handleSubmit} />}
           </div>
           <div>
             <div className="str-chat__input-footer">

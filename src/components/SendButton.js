@@ -1,6 +1,6 @@
 import React from 'react';
-export const SendButton = ({ onClick }) => (
-  <button className="str-chat__send-button" onClick={onClick}>
+export const SendButton = ({ sendMessage }) => (
+  <button className="str-chat__send-button" onClick={sendMessage}>
     <svg
       width="18"
       height="17"

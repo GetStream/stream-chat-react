@@ -196,7 +196,7 @@ export class MessageInputFlat extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
-            {SendButton && <SendButton onClick={this.props.handleSubmit} />}
+            {SendButton && <SendButton sendMessage={this.props.handleSubmit} />}
           </div>
         </ImageDropzone>
       </div>
