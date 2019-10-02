@@ -95,11 +95,7 @@ export class MessageInputFlat extends PureComponent {
           handleRetry={this.props.uploadImage}
           handleFiles={this.props.uploadNewFiles}
           multiple={this.props.multipleUploads}
-          disabled={
-            this.props.numberOfUploads >= this.props.maxNumberOfFiles
-              ? true
-              : false
-          }
+          disabled={this.props.numberOfUploads >= this.props.maxNumberOfFiles}
         />
       )}
       {this.props.fileOrder.length > 0 && (
@@ -149,11 +145,7 @@ export class MessageInputFlat extends PureComponent {
         <ImageDropzone
           accept={this.props.acceptedFiles}
           multiple={this.props.multipleUploads}
-          disabled={
-            this.props.numberOfUploads >= this.props.maxNumberOfFiles
-              ? true
-              : false
-          }
+          disabled={this.props.numberOfUploads >= this.props.maxNumberOfFiles}
           handleFiles={this.props.uploadNewFiles}
         >
           <div className="str-chat__input-flat-wrapper">
@@ -191,8 +183,6 @@ export class MessageInputFlat extends PureComponent {
               multiple={this.props.multipleUploads}
               disabled={
                 this.props.numberOfUploads >= this.props.maxNumberOfFiles
-                  ? true
-                  : false
               }
               accepts={this.props.acceptedFiles}
               handleFiles={this.props.uploadNewFiles}

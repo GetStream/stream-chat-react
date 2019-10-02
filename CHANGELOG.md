@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.2) 2019-09-30
+
+- Updating js-client version
+
+## [0.7.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.1) 2019-09-30
+
+- Fix - Adding typescript declaration files in production build
+
 ## [0.7.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.0) 2019-09-27
 
 - Adding typescript declaration file

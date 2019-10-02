@@ -11,23 +11,23 @@ import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
  */
 export class Card extends React.PureComponent {
   static propTypes = {
-    /** Title retured by the OG scraper */
+    /** Title returned by the OG scraper */
     title: PropTypes.string.isRequired,
-    /** Link retured by the OG scraper */
+    /** Link returned by the OG scraper */
     title_link: PropTypes.string,
-    /** The scraped url, used as a fallback if the OG-data doesnt include a link */
+    /** The scraped url, used as a fallback if the OG-data doesn't include a link */
     og_scrape_url: PropTypes.string,
     /** The url of the full sized image */
     image_url: PropTypes.string,
     /** The url for thumbnail sized image*/
     thumb_url: PropTypes.string,
-    /** Description retured by the OG scraper */
+    /** Description returned by the OG scraper */
     text: PropTypes.string,
   };
 
   trimUrl = (url) => {
     let trimmedUrl;
-    if (url !== undefined || url !== null) {
+    if (url !== undefined && url !== null) {
       trimmedUrl = url
         .replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
         .split('/')[0];
