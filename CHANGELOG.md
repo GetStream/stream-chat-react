@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.3](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.3) 2019-10-02
+
+- Added SendButton prop to MessageInput. This only shows on mobile to make sure you're able to submit the form without having a return button.
+
 ## [0.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.2) 2019-09-30
 
 - Updating js-client version
