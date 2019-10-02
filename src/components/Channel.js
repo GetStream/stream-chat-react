@@ -286,7 +286,7 @@ class ChannelInner extends PureComponent {
       typing: {},
     });
 
-    channel.markRead();
+    if (channel.countUnread() > 0) channel.markRead();
   }
 
   updateMessage = (updatedMessage, extraState) => {
