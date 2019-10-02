@@ -270,7 +270,7 @@ export class MessageCommerce extends PureComponent {
               <React.Fragment>
                 {this.renderOptions()}
                 {/* if reactions show them */}
-                {hasReactions > 0 && !this.state.showDetailedReactions && (
+                {hasReactions && !this.state.showDetailedReactions && (
                   <ReactionsList
                     reactions={message.latest_reactions}
                     reaction_counts={message.reaction_counts}
@@ -329,7 +329,7 @@ export class MessageCommerce extends PureComponent {
                   )}
 
                   {/* if reactions show them */}
-                  {hasReactions > 0 && !this.state.showDetailedReactions && (
+                  {hasReactions && !this.state.showDetailedReactions && (
                     <ReactionsList
                       reverse
                       reactions={message.latest_reactions}
