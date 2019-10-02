@@ -57,14 +57,6 @@
       }
     }
   }
-  &--send-button {
-    border: 0;
-    background: 0;
-    outline: 0;
-    @media screen and (min-width: 768px) {
-      display: none;
-    }
-  }
 }
 
 .str-chat__textarea {

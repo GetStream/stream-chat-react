@@ -126,7 +126,8 @@
   }
 }
 
-.team.str-chat {
+.team.str-chat,
+.messaging.str-chat {
   .str-chat__small-message-input {
     &-emojiselect {
       right: 50px;

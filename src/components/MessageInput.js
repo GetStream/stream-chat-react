@@ -122,7 +122,7 @@ class MessageInput extends PureComponent {
 
     /** Override file upload request */
     doFileUploadRequest: PropTypes.func,
-    /** SendButtonComponent */
+    /** Override the default SendButton with your own component. */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 

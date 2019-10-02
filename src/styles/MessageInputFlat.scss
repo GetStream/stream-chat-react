@@ -44,19 +44,6 @@
     bottom: calc(100%);
   }
 
-  &--send-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    outline: 0;
-    &:hover {
-      opacity: 0.69;
-    }
-    @media screen and (min-width: 768px) {
-      display: none;
-    }
-  }
-
   .rfu-file-upload-button {
     position: absolute;
     top: calc(100% - 40px);

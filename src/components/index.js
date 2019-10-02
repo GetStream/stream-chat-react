@@ -24,6 +24,7 @@ export { MessageCommerce } from './MessageCommerce';
 export { MessageLivestream } from './MessageLivestream';
 export { MessageTeam } from './MessageTeam';
 export { MessageSimple } from './MessageSimple';
+export { SendButton } from './SendButton';
 export { Thread } from './Thread';
 export { TypingIndicator } from './TypingIndicator';
 export { Window } from './Window';

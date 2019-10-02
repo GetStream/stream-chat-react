@@ -199,15 +199,7 @@ export class MessageInputSmall extends PureComponent {
                 </svg>
               </span>
             </FileUploadButton>
-            {SendButton && (
-              <button
-                className="str-chat__small-message-input--send-button"
-                style={{ marginLeft: 10 }}
-                onClick={this.props.handleSubmit}
-              >
-                <SendButton />
-              </button>
-            )}
+            {SendButton && <SendButton onClick={this.props.handleSubmit} />}
           </div>
         </ImageDropzone>
       </div>
