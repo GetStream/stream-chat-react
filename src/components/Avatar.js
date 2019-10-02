@@ -71,9 +71,8 @@ export class Avatar extends React.PureComponent {
             src={image}
             alt={initials}
             className={
-              'str-chat__avatar-image' + this.state.loaded
-                ? ' str-chat__avatar-image--loaded'
-                : ''
+              'str-chat__avatar-image' +
+              (this.state.loaded ? ' str-chat__avatar-image--loaded' : '')
             }
             style={{
               width: size,
