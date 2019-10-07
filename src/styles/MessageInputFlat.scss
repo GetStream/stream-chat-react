@@ -39,6 +39,10 @@
     }
   }
 
+  &--textarea-wrapper {
+    display: flex;
+  }
+
   &--emojipicker {
     position: absolute;
     bottom: calc(100%);
@@ -59,9 +63,6 @@
     @media screen and (min-width: 768px) {
       right: 25px;
     }
-  }
-  &-wrapper {
-    display: flex;
   }
 }
 

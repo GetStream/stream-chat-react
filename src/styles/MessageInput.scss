@@ -5,12 +5,16 @@
   position: relative;
   font-family: $second-font;
   padding-bottom: 0;
-  display: flex;
+  // display: flex;
 
   &--emojipicker {
     position: absolute;
     bottom: 100%;
     right: 0;
+  }
+
+  &--textarea-wrapper {
+    display: flex;
   }
 
   &-emojiselect {
