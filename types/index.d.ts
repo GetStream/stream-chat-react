@@ -229,9 +229,18 @@ export interface DateSeparatorProps {
   formatDate?(date: Date): string;
 }
 
+export interface EmptyStateIndicatorProps {
+  /** List Type */
+  listType: string;
+}
+
 export interface MessageListProps extends ChannelContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
+  /** Component to render at the top of the MessageList */
+  HeaderComponent: React.ElementType;
+  /** Component to render at the top of the MessageList */
+  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** Turn off grouping of messages by user */

@@ -108,10 +108,12 @@ class MessageList extends PureComponent {
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
      * The UI Indicator to use when MessagerList or ChannelList is empty
-     *
-     *
      * */
     EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Component to render at the top of the MessageList
+     * */
+    HeaderComponent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     messages: PropTypes.array.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -589,6 +591,7 @@ class MessageList extends PureComponent {
 
     const TypingIndicator = this.props.TypingIndicator;
     const DateSeparator = this.props.dateSeparator;
+    const HeaderComponent = this.props.HeaderComponent;
 
     // sort by date
     allMessages.sort(function(a, b) {
@@ -700,6 +703,7 @@ class MessageList extends PureComponent {
           }`}
           ref={this.messageList}
         >
+          {HeaderComponent && <HeaderComponent />}
           {!elements.length ? (
             <EmptyStateIndicator listType="message" />
           ) : (
