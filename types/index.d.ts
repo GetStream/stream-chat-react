@@ -229,8 +229,8 @@ export interface DateSeparatorProps {
   formatDate?(date: Date): string;
 }
 
-export interface DateSeparatorProps {
-  /** The date to format */
+export interface EmptyStateIndicatorProps {
+  /** List Type */
   listType: string;
 }
 
