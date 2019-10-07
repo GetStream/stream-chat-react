@@ -2,7 +2,6 @@
   margin: 10px;
   position: relative;
   z-index: 1000;
-  display: flex;
 
   .str-chat__textarea {
     flex: 1;
@@ -13,6 +12,10 @@
   }
   .rfu-file-upload-button {
     right: 26px;
+  }
+
+  &--textarea-wrapper {
+    display: flex;
   }
 
   &-emojiselect,
@@ -77,7 +80,6 @@
     position: absolute;
     cursor: pointer;
     right: 28px;
-    top: 8px;
   }
 
   &--send-button-active {
