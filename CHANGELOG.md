@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.6) 2019-10-08
+
+- Fixed unbinding of visibility listener
+
+## [0.7.5](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.5) 2019-10-08
+
+- Updated js-client with fix for failing fileuploads
+
+## [0.7.4](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.4) 2019-10-07
+
+- Fixed styling issues for SendButton
+
 ## [0.7.3](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.3) 2019-10-02
 
 - Added SendButton prop to MessageInput. This only shows on mobile to make sure you're able to submit the form without having a return button.
