@@ -4,7 +4,7 @@
 
 - Fixed unbinding of visibility listener
 
-## [0.7.5](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.5) 2019-10-08
+## [0.7.5](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.5) 2019-10-07
 
 - Updated js-client with fix for failing fileuploads
 
