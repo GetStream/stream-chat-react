@@ -299,7 +299,11 @@ export class Message extends Component {
     }
   };
 
-  handleEdit = () => {
+  handleEdit = (event) => {
+    if (event !== undefined && event.preventDefault) {
+      event.preventDefault();
+    }
+
     this.props.setEditingState(this.props.message);
   };
 

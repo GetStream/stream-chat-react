@@ -39,8 +39,6 @@ export class ReactionSelector extends PureComponent {
      * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
      * */
     handleReaction: PropTypes.func.isRequired,
-    /** Set the direction to either left or right */
-    direction: PropTypes.oneOf(['left', 'right']),
     /** Enable the avatar display */
     detailedView: PropTypes.bool,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */

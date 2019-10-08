@@ -11,6 +11,7 @@ export class ReactionsList extends React.Component {
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
     reverse: PropTypes.bool,
+    reaction_counts: PropTypes.object,
   };
 
   static defaultProps = {
