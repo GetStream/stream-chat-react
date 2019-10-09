@@ -192,7 +192,10 @@ class MessageList extends PureComponent {
       !deepequal(this.props.eventHistory, prevProps.eventHistory)
     ) {
       const list = this.messageList.current;
-      const pos = list.scrollHeight - list.scrollTop;
+      const pos = {
+        offsetTop: list.scrollTop,
+        offsetBottom: list.scrollHeight - list.scrollTop,
+      };
       return pos;
     }
     return null;
@@ -202,39 +205,7 @@ class MessageList extends PureComponent {
     // If we have a snapshot value, we've just added new items.
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)
-
-    if (snapshot !== null) {
-      const list = this.messageList.current;
-
-      // const scrollDown = () => {
-      //   list.scrollTop = list.scrollHeight - snapshot;
-      // };
-      // scrollDown();
-      // setTimeout(scrollDown, 100);
-
-      this.scrollToTarget(
-        list.scrollHeight - snapshot,
-        this.messageList.current,
-      );
-
-      // scroll down after images load again
-      if (
-        this.props.messages.length > 0 &&
-        this.props.messages[this.props.messages.length - 1].user.id !==
-          this.props.client.user.id
-      ) {
-        setTimeout(
-          () =>
-            this.scrollToTarget(
-              list.scrollHeight - snapshot,
-              this.messageList.current,
-            ),
-          100,
-        );
-      }
-    }
-
-    // handle new messages being sent/received
+    const userScrolledUp = this.userScrolledUp();
     const currentLastMessage = this.props.messages[
       this.props.messages.length - 1
     ];
@@ -245,7 +216,6 @@ class MessageList extends PureComponent {
     }
 
     const hasNewMessage = currentLastMessage.id !== previousLastMessage.id;
-    const userScrolledUp = this.userScrolledUp();
     const isOwner = currentLastMessage.user.id === this.props.client.userID;
 
     let scrollToBottom = false;
@@ -256,6 +226,36 @@ class MessageList extends PureComponent {
     } else if (hasNewMessage && !userScrolledUp) {
       scrollToBottom = true;
     }
+    if (snapshot !== null) {
+      const list = this.messageList.current;
+
+      // Maintain the offsetTop of scroll so that content in viewport doesn't move.
+      // This is for the case where user has scroll up significantly and a new message arrives from someone.
+      if (!scrollToBottom) {
+        this.scrollToTarget(snapshot.offsetTop, this.messageList.current);
+      } else {
+        // Maintain the bottomOffset of scroll.
+        // This is for the case of pagination, when more messages get loaded.
+        this.scrollToTarget(
+          list.scrollHeight - snapshot.offsetBottom,
+          this.messageList.current,
+        );
+      }
+
+      // scroll down after images load again
+      if (this.props.messages.length > 0 && scrollToBottom) {
+        setTimeout(
+          () =>
+            this.scrollToTarget(
+              list.scrollHeight - snapshot.offsetBottom,
+              this.messageList.current,
+            ),
+          100,
+        );
+      }
+    }
+
+    // handle new messages being sent/received
 
     if (scrollToBottom) {
       this.scrollToBottom();
@@ -415,7 +415,6 @@ class MessageList extends PureComponent {
 
   listenToScroll = (offset) => {
     this.scrollOffset = offset;
-
     if (this.state.newMessagesNotification && !this.userScrolledUp()) {
       this.setState({
         newMessagesNotification: false,
