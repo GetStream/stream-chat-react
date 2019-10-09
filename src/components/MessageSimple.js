@@ -506,9 +506,7 @@ export class MessageSimple extends PureComponent {
                 )}
                 {this.state.showDetailedReactions && (
                   <ReactionSelector
-                    mine={this.isMine()}
                     handleReaction={handleReaction}
-                    actionsEnabled={actionsEnabled}
                     detailedView
                     reaction_counts={message.reaction_counts}
                     latest_reactions={message.latest_reactions}

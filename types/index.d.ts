@@ -370,11 +370,39 @@ export interface MessageProps {
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
+  messageActions?: Array<string>;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  lastReceivedId?: string | null;
+  messageListRect?: DOMRect;
+  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
+  addNotification?(notificationText: string, type: string): any;
+  setEditingState?(message: Client.MessageResponse): any;
+  updateMessage?(
+    updatedMessage: Client.MessageResponse,
+    extraState: object,
+  ): void;
+  /** Function executed when user clicks on link to open thread */
+  retrySendMessage?(message: Client.Message): void;
+  removeMessage?(updatedMessage: Client.MessageResponse): void;
+  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  openThread?(
+    message: Client.MessageResponse,
+    event: React.SyntheticEvent,
+  ): void;
 }
 
 export interface MessageUIComponentProps extends MessageProps {
   actionsEnabled?: boolean;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
+  handleEdit?(event?: React.BaseSyntheticEvent): void;
+  handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
   handleAction?(
@@ -384,10 +412,7 @@ export interface MessageUIComponentProps extends MessageProps {
   ): void;
   handleRetry?(message: Client.Message): void;
   isMyMessage?(message: Client.MessageResponse): boolean;
-  openThread?(
-    message: Client.MessageResponse,
-    event: React.BaseSyntheticEvent,
-  ): void;
+  openThread?(event: React.BaseSyntheticEvent): void;
   onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
@@ -397,6 +422,7 @@ export interface MessageUIComponentProps extends MessageProps {
     user: Client.UserResponse,
   ): void;
   channelConfig?: object;
+  threadList: boolean;
 }
 
 export interface ThreadProps extends ChannelContextValue {
@@ -409,6 +435,84 @@ export interface ThreadProps extends ChannelContextValue {
 export interface TypingIndicatorProps {
   typing: object;
   client: Client.StreamChat;
+}
+
+export interface ReactionSelectorProps {
+  /**
+   * Array of latest reactions.
+   * Reaction object has following structure:
+   *
+   * ```json
+   * {
+   *  "type": "love",
+   *  "user_id": "demo_user_id",
+   *  "user": {
+   *    ...userObject
+   *  },
+   *  "created_at": "datetime";
+   * }
+   * ```
+   * */
+  latest_reactions: Client.ReactionResponse[];
+  /**
+   * {
+   *  'like': 9,
+   *  'love': 6,
+   *  'haha': 2
+   * }
+   */
+  reaction_counts: {
+    [reaction_type: string]: number;
+  };
+  /** Enable the avatar display */
+  detailedView?: boolean;
+  /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+  reactionOptions?: MinimalEmojiInterface;
+  reverse?: boolean;
+  handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
+  emojiSetDef?: EnojiSetDef;
+}
+
+export interface EnojiSetDef {
+  spriteUrl: string;
+  size: number;
+  sheetColumns: number;
+  sheetRows: number;
+  sheetSize: number;
+}
+
+export interface ReactionsListProps {
+  /**
+   * Array of latest reactions.
+   * Reaction object has following structure:
+   *
+   * ```json
+   * {
+   *  "type": "love",
+   *  "user_id": "demo_user_id",
+   *  "user": {
+   *    ...userObject
+   *  },
+   *  "created_at": "datetime";
+   * }
+   * ```
+   * */
+  reactions: Client.ReactionResponse[];
+  /**
+   * {
+   *  'like': 9,
+   *  'love': 6,
+   *  'haha': 2
+   * }
+   */
+  reaction_counts: {
+    [reaction_type: string]: number;
+  };
+  /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+  reactionOptions?: MinimalEmojiInterface;
+  onClick?(): void;
+  reverse?: boolean;
+  emojiSetDef?: EnojiSetDef;
 }
 
 export interface WindowProps {
@@ -499,6 +603,16 @@ export class TypingIndicator extends React.PureComponent<
   TypingIndicatorProps,
   any
 > {}
+
+export class ReactionSelector extends React.PureComponent<
+  ReactionSelectorProps,
+  any
+> {}
+export class ReactionsList extends React.PureComponent<
+  ReactionsListProps,
+  any
+> {}
+
 export class Window extends React.PureComponent<WindowProps, any> {}
 
 /** Utils */
@@ -516,8 +630,8 @@ export interface commonEmojiInterface {
   custom: boolean;
 }
 
-export const defaultMinimalEmojis: defaultMinimalEmojiInterface[];
-export interface defaultMinimalEmojiInterface
+export const defaultMinimalEmojis: MinimalEmojiInterface[];
+export interface MinimalEmojiInterface
   extends commonEmojiInterface,
     emojiSetDefInterface {
   id: string;

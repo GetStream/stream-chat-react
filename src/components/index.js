@@ -28,6 +28,8 @@ export { SendButton } from './SendButton';
 export { Thread } from './Thread';
 export { TypingIndicator } from './TypingIndicator';
 export { Window } from './Window';
+export { ReactionSelector } from './ReactionSelector';
+export { ReactionsList } from './ReactionsList';
 
 export * from '../utils';
 export * from '../context';
