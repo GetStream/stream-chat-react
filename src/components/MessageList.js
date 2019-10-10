@@ -219,6 +219,7 @@ class MessageList extends PureComponent {
     const isOwner = currentLastMessage.user.id === this.props.client.userID;
 
     let scrollToBottom = false;
+    const list = this.messageList.current;
 
     // always scroll down when it's your own message that you added...
     if (hasNewMessage && isOwner) {
@@ -226,12 +227,23 @@ class MessageList extends PureComponent {
     } else if (hasNewMessage && !userScrolledUp) {
       scrollToBottom = true;
     }
-    if (snapshot !== null) {
-      const list = this.messageList.current;
 
+    if (scrollToBottom) {
+      this.scrollToBottom();
+      // Scroll further once attachments are laoded.
+      setTimeout(this.scrollToBottom, 100);
+
+      // remove the scroll notification if we already scrolled down...
+      this.state.newMessagesNotification &&
+        this.setState({ newMessagesNotification: false });
+
+      return;
+    }
+
+    if (snapshot !== null) {
       // Maintain the offsetTop of scroll so that content in viewport doesn't move.
       // This is for the case where user has scroll up significantly and a new message arrives from someone.
-      if (!scrollToBottom) {
+      if (hasNewMessage) {
         this.scrollToTarget(snapshot.offsetTop, this.messageList.current);
       } else {
         // Maintain the bottomOffset of scroll.
@@ -241,38 +253,11 @@ class MessageList extends PureComponent {
           this.messageList.current,
         );
       }
-
-      // scroll down after images load again
-      if (this.props.messages.length > 0 && scrollToBottom) {
-        setTimeout(
-          () =>
-            this.scrollToTarget(
-              list.scrollHeight - snapshot.offsetBottom,
-              this.messageList.current,
-            ),
-          100,
-        );
-      }
-    }
-
-    // handle new messages being sent/received
-
-    if (scrollToBottom) {
-      this.scrollToBottom();
     }
 
     // Check the scroll position... if you're scrolled up show a little notification
-    if (
-      !scrollToBottom &&
-      hasNewMessage &&
-      !this.state.newMessagesNotification
-    ) {
+    if (hasNewMessage && !this.state.newMessagesNotification) {
       this.setState({ newMessagesNotification: true });
-    }
-
-    // remove the scroll notification if we already scrolled down...
-    if (scrollToBottom && this.state.newMessagesNotification) {
-      this.setState({ newMessagesNotification: false });
     }
   }
 
