@@ -377,6 +377,56 @@ class MessageList extends PureComponent {
     return newMessages;
   };
 
+  insertIntro = (messages) => {
+    if (!this.props.HeaderComponent) return;
+    const newMessages = messages || [];
+    // if no headerPosition is set, HeaderComponent will go at the top
+    if (!this.props.headerPosition) {
+      newMessages.unshift({
+        type: 'channel.intro',
+        // created_at: new Date(0),
+      });
+      return newMessages;
+    }
+
+    // if no messages, intro get's inserted
+    if (!newMessages.length) {
+      newMessages.unshift({
+        type: 'channel.intro',
+      });
+      return newMessages;
+    }
+
+    // else loop over the messages
+    for (const [i, message] of messages.entries()) {
+      const messageTime = message.created_at
+        ? message.created_at.getTime()
+        : null;
+      const nextMessageTime =
+        messages[i + 1] && messages[i + 1].created_at
+          ? messages[i + 1].created_at.getTime()
+          : null;
+      const { headerPosition } = this.props;
+
+      // headerposition is smaller than message time so comes after;
+      if (messageTime < headerPosition) {
+        // if header position is also smaller than message time continue;
+        if (nextMessageTime < headerPosition) {
+          if (!nextMessageTime) {
+            newMessages.push({ type: 'channel.intro' });
+            return newMessages;
+          }
+          continue;
+        } else {
+          newMessages.splice(i + 1, 0, { type: 'channel.intro' });
+          return newMessages;
+        }
+      }
+    }
+
+    return newMessages;
+  };
+
   goToNewMessages = async () => {
     await this.scrollToBottom();
     this.setState({
@@ -450,6 +500,7 @@ class MessageList extends PureComponent {
       const message = messages[i];
       const nextMessage = messages[i + 1];
       const groupStyles = [];
+
       if (message.type === 'message.date') {
         continue;
       }
@@ -458,10 +509,15 @@ class MessageList extends PureComponent {
         continue;
       }
 
+      if (message.type === 'channel.intro') {
+        continue;
+      }
+
       const userId = message.user.id;
 
       const isTopMessage =
         !previousMessage ||
+        previousMessage.type === 'channel.intro' ||
         previousMessage.type === 'message.date' ||
         previousMessage.type === 'system' ||
         previousMessage.type === 'channel.event' ||
@@ -475,6 +531,7 @@ class MessageList extends PureComponent {
         nextMessage.type === 'message.date' ||
         nextMessage.type === 'system' ||
         nextMessage.type === 'channel.event' ||
+        nextMessage.type === 'channel.intro' ||
         nextMessage.attachments.length !== 0 ||
         userId !== nextMessage.user.id ||
         nextMessage.type === 'error' ||
@@ -586,7 +643,7 @@ class MessageList extends PureComponent {
     let allMessages = [...this.props.messages];
 
     allMessages = this.insertDates(allMessages);
-
+    allMessages = this.insertIntro(allMessages);
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
     const TypingIndicator = this.props.TypingIndicator;
@@ -617,6 +674,12 @@ class MessageList extends PureComponent {
         elements.push(
           <li key={message.date.toISOString() + '-i'}>
             <DateSeparator date={message.date} />
+          </li>,
+        );
+      } else if (message.type === 'channel.intro') {
+        elements.push(
+          <li key="intro">
+            <HeaderComponent />
           </li>,
         );
       } else if (
@@ -703,7 +766,6 @@ class MessageList extends PureComponent {
           }`}
           ref={this.messageList}
         >
-          {HeaderComponent && <HeaderComponent />}
           {!elements.length ? (
             <EmptyStateIndicator listType="message" />
           ) : (
