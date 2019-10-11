@@ -378,7 +378,6 @@ class MessageList extends PureComponent {
   };
 
   insertIntro = (messages) => {
-    if (!this.props.HeaderComponent) return;
     const newMessages = messages || [];
     // if no headerPosition is set, HeaderComponent will go at the top
     if (!this.props.headerPosition) {
@@ -643,7 +642,9 @@ class MessageList extends PureComponent {
     let allMessages = [...this.props.messages];
 
     allMessages = this.insertDates(allMessages);
-    allMessages = this.insertIntro(allMessages);
+    if (this.props.HeaderComponent) {
+      allMessages = this.insertIntro(allMessages);
+    }
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
     const TypingIndicator = this.props.TypingIndicator;
