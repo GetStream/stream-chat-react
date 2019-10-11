@@ -411,6 +411,8 @@ class MessageList extends PureComponent {
       if (messageTime < headerPosition) {
         // if header position is also smaller than message time continue;
         if (nextMessageTime < headerPosition) {
+          if (messages[i + 1] && messages[i + 1].type === 'message.date')
+            continue;
           if (!nextMessageTime) {
             newMessages.push({ type: 'channel.intro' });
             return newMessages;
