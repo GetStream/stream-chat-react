@@ -304,13 +304,11 @@ export class Message extends Component {
   };
 
   handleEdit = (event) => {
-    const { setEditingState, message } = this.props;
-
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
 
-    setEditingState(message);
+    this.props.setEditingState(this.props.message);
   };
 
   handleDelete = async (event) => {

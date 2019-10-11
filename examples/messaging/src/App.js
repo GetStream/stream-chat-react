@@ -60,6 +60,7 @@ class App extends Component {
           filters={filters}
           sort={sort}
           options={options}
+          watchers={{ limit: 10 }}
           Paginator={(props) => (
             <InfiniteScrollPaginator threshold={300} {...props} />
           )}

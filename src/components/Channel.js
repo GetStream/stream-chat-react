@@ -88,18 +88,6 @@ class Channel extends PureComponent {
     acceptedFiles: PropTypes.array,
     /** Maximum number of attachments allowed per message */
     maxNumberOfFiles: PropTypes.number,
-    /** Override send message request (Advanced usage only)
-     *
-     * @param {String} channelId full channel ID in format of `type:id`
-     * @param {Object} message
-     */
-    doSendMessageRequest: PropTypes.func,
-    /** Override update(edit) message request (Advanced usage only)
-     *
-     * @param {String} channelId full channel ID in format of `type:id`
-     * @param {Object} updatedMessage
-     */
-    doUpdateMessageRequest: PropTypes.func,
   };
 
   static defaultProps = {

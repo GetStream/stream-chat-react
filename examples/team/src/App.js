@@ -38,7 +38,7 @@ class App extends Component {
   }
 
   render() {
-    const filters = { type: 'team', example: 1 };
+    const filters = { type: 'team' };
     const sort = {
       last_message_at: -1,
       cid: 1,

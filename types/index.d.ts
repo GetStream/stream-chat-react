@@ -51,7 +51,6 @@ export interface ChannelContextValue extends ChatContextValue {
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
-  editMessage?(updatedMessage: Client.Message): void;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
     updatedMessage: Client.MessageResponse,
@@ -109,17 +108,6 @@ export interface ChannelProps extends ChatContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
-
-  /** Override send message request (Advanced usage only) */
-  doSendMessageRequest?(
-    channelId: string,
-    message: Client.Message,
-  ): Promise<Client.MessageResponse> | void;
-  /** Override update(edit) message request (Advanced usage only) */
-  doUpdateMessageRequest?(
-    channelId: string,
-    updatedMessage: Client.Message,
-  ): Promise<Client.MessageResponse> | void;
 }
 
 export interface ChannelListProps extends ChatContextValue {
@@ -149,14 +137,6 @@ export interface ChannelListProps extends ChatContextValue {
     thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.ChannelUpdatedEvent>,
   ): any;
-  onChannelDeleted?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.ChannelDeletedEvent>,
-  ): void;
-  onChannelTruncated?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.ChannelTruncatedEvent>,
-  ): void;
   /** Object containing query filters */
   filters: object;
   /** Object containing query options */
@@ -254,18 +234,13 @@ export interface EmptyStateIndicatorProps {
   listType: string;
 }
 
-export interface SendButtonProps {
-  /** Function that gets triggered on click */
-  sendMessage?(message: Client.Message): void;
-}
-
 export interface MessageListProps extends ChannelContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList */
-  HeaderComponent?: React.ElementType;
+  HeaderComponent: React.ElementType;
   /** Component to render at the top of the MessageList */
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** Turn off grouping of messages by user */
@@ -280,7 +255,6 @@ export interface MessageListProps extends ChannelContextValue {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  additionalMessageInputProps?: object;
 }
 
 export interface ChannelHeaderProps extends ChannelContextValue {
@@ -297,8 +271,6 @@ export interface MessageInputProps {
   disabled?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
-  /** Max number of rows the textarea is allowed to grow */
-  maxRows?: number;
 
   /** The parent message object when replying on a thread */
   parent?: Client.MessageResponse | null;
@@ -306,17 +278,11 @@ export interface MessageInputProps {
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputUIComponentProps>;
 
-  /** Change the SendButton component */
-  SendButton?: React.ElementType<SendButtonProps>;
-
   /** Override image upload request */
   doImageUploadRequest?(file: object, channel: Client.Channel): void;
 
   /** Override file upload request */
   doFileUploadRequest?(file: object, channel: Client.Channel): void;
-
-  /** Completely override the submit handler (advanced usage only) */
-  overrideSubmitHandler?(message: object, channelCid: string): void;
 }
 
 export type ImageUpload = {
@@ -430,7 +396,6 @@ export interface MessageProps {
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
   ): void;
-  additionalMessageInputProps?: object;
 }
 
 export interface MessageUIComponentProps extends MessageProps {
@@ -447,7 +412,7 @@ export interface MessageUIComponentProps extends MessageProps {
   ): void;
   handleRetry?(message: Client.Message): void;
   isMyMessage?(message: Client.MessageResponse): boolean;
-  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  openThread?(event: React.BaseSyntheticEvent): void;
   onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
@@ -457,8 +422,7 @@ export interface MessageUIComponentProps extends MessageProps {
     user: Client.UserResponse,
   ): void;
   channelConfig?: object;
-  threadList?: boolean;
-  additionalMessageInputProps?: object;
+  threadList: boolean;
 }
 
 export interface ThreadProps extends ChannelContextValue {
@@ -466,9 +430,6 @@ export interface ThreadProps extends ChannelContextValue {
   fullWidth?: boolean;
   /** Make input focus on mounting thread */
   autoFocus?: boolean;
-  additionalParentMessageProps?: object;
-  additionalMessageListProps?: object;
-  additionalMessageInputProps?: object;
 }
 
 export interface TypingIndicatorProps {

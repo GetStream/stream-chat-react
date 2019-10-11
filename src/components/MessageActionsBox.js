@@ -16,7 +16,7 @@ export class MessageActionsBox extends React.Component {
      * @deprecated
      *
      *  The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitly:
-     *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessage`, `canEditMessage`, `isMyMessage`, `isAdmin`
+     *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessagec`, `canEditMessage`, `isMyMessage`, `isAdmin`
      */
     Message: PropTypes.oneOfType([
       PropTypes.node,

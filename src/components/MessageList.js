@@ -109,12 +109,6 @@ class MessageList extends PureComponent {
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
-     * Custom UI component to display system messages.
-     *
-     * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
-     */
-    MessageSystem: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    /**
      * The UI Indicator to use when MessagerList or ChannelList is empty
      * */
     EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
@@ -637,12 +631,9 @@ class MessageList extends PureComponent {
     }
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
-    const {
-      TypingIndicator,
-      dateSeparator: DateSeparator,
-      HeaderComponent,
-      EmptyStateIndicator,
-    } = this.props;
+    const TypingIndicator = this.props.TypingIndicator;
+    const DateSeparator = this.props.dateSeparator;
+    const HeaderComponent = this.props.HeaderComponent;
 
     // sort by date
     allMessages.sort((a, b) => a.created_at - b.created_at);

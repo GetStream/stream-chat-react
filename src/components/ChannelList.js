@@ -140,14 +140,6 @@ class ChannelList extends PureComponent {
      * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
      * */
     watchers: PropTypes.object,
-    /**
-     * Set a Channel to be active and move it to the top of the list of channels by ID.
-     * */
-    customAciveChannel: PropTypes.string,
-    /**
-     * If true, channels won't be dynamically sorted by most recent message.
-     */
-    lockChannelOrder: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -230,6 +222,12 @@ class ChannelList extends PureComponent {
       let channelQueryResponse = channelPromise;
       if (isPromise(channelQueryResponse)) {
         channelQueryResponse = await channelPromise;
+        if (offset === 0 && channelQueryResponse.length >= 1) {
+          this.props.setActiveChannel(
+            channelQueryResponse[0],
+            this.props.watchers,
+          );
+        }
       }
       this.setState((prevState) => {
         const channels = [...prevState.channels, ...channelQueryResponse];

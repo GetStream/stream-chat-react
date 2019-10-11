@@ -162,7 +162,6 @@ export class MessageInputSmall extends PureComponent {
                 onChange={this.props.handleChange}
                 value={this.props.text}
                 rows={1}
-                maxRows={this.props.maxRows}
                 onSelectItem={this.props.onSelectItem}
                 placeholder="Type your message"
                 onPaste={this.props.onPaste}

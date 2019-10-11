@@ -62,7 +62,7 @@ export class Gallery extends React.PureComponent {
         /> */}
         <ModalGateway>
           {this.state.modalIsOpen ? (
-            <Modal onClose={this.toggleModal} closeOnBackdropClick={true}>
+            <Modal onClose={this.toggleModal}>
               <Carousel
                 views={formattedArray}
                 currentIndex={this.state.currentIndex}
