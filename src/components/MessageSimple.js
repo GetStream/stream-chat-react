@@ -55,7 +55,7 @@ export class MessageSimple extends PureComponent {
     /** If component is in thread list */
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
-    openThread: PropTypes.func,
+    handleOpenThread: PropTypes.func,
     /** If the message is in edit state */
     editing: PropTypes.bool,
     /** Function to exit edit state */
@@ -315,7 +315,7 @@ export class MessageSimple extends PureComponent {
       initialMessage,
       channelConfig,
       threadList,
-      openThread,
+      handleOpenThread,
     } = this.props;
     if (
       message.type === 'error' ||
@@ -333,7 +333,7 @@ export class MessageSimple extends PureComponent {
           {this.renderMessageActions()}
           {!threadList && channelConfig && channelConfig.replies && (
             <div
-              onClick={openThread}
+              onClick={handleOpenThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
             >
               <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
@@ -382,7 +382,7 @@ export class MessageSimple extends PureComponent {
           )}
           {!threadList && channelConfig && channelConfig.replies && (
             <div
-              onClick={openThread}
+              onClick={handleOpenThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
             >
               <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
@@ -415,7 +415,7 @@ export class MessageSimple extends PureComponent {
       onMentionsClickMessage,
       unsafeHTML,
       threadList,
-      openThread,
+      handleOpenThread,
     } = this.props;
 
     const when = moment(message.created_at).calendar();
@@ -596,7 +596,7 @@ export class MessageSimple extends PureComponent {
             {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
-                  onClick={openThread}
+                  onClick={handleOpenThread}
                   reply_count={message.reply_count}
                 />
               </div>

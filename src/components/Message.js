@@ -471,10 +471,10 @@ export class Message extends Component {
         handleDelete={this.handleDelete}
         handleEdit={this.handleEdit}
         handleRetry={this.handleRetry}
-        isMyMessage={this.isMyMessage}
-        openThread={
+        handleOpenThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }
+        isMyMessage={this.isMyMessage}
         channelConfig={config}
         onMentionsClickMessage={this.onMentionsClick}
         onMentionsHoverMessage={this.onMentionsHover}

@@ -48,7 +48,7 @@ export class MessageCommerce extends PureComponent {
     /** If component is in thread list */
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
-    openThread: PropTypes.func,
+    handleOpenThread: PropTypes.func,
     /** Returns true if message belongs to current user */
     isMyMessage: PropTypes.func,
     /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
@@ -199,7 +199,7 @@ export class MessageCommerce extends PureComponent {
       onMentionsClickMessage,
       unsafeHTML,
       threadList,
-      openThread,
+      handleOpenThread,
     } = this.props;
 
     const when = moment(message.created_at).format('LT');
@@ -356,7 +356,7 @@ export class MessageCommerce extends PureComponent {
             {!threadList && (
               <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
-                  onClick={openThread}
+                  onClick={handleOpenThread}
                   reply_count={message.reply_count}
                 />
               </div>
