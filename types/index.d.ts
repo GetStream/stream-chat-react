@@ -238,9 +238,9 @@ export interface MessageListProps extends ChannelContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList */
-  HeaderComponent: React.ElementType;
+  HeaderComponent?: React.ElementType;
   /** Component to render at the top of the MessageList */
-  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
+  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** Turn off grouping of messages by user */
@@ -412,7 +412,7 @@ export interface MessageUIComponentProps extends MessageProps {
   ): void;
   handleRetry?(message: Client.Message): void;
   isMyMessage?(message: Client.MessageResponse): boolean;
-  openThread?(event: React.BaseSyntheticEvent): void;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
   onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
@@ -422,7 +422,7 @@ export interface MessageUIComponentProps extends MessageProps {
     user: Client.UserResponse,
   ): void;
   channelConfig?: object;
-  threadList: boolean;
+  threadList?: boolean;
 }
 
 export interface ThreadProps extends ChannelContextValue {

@@ -59,7 +59,7 @@ export class MessageLivestream extends React.PureComponent {
     /** If component is in thread list */
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
-    openThread: PropTypes.func,
+    handleOpenThread: PropTypes.func,
     /** If the message is in edit state */
     editing: PropTypes.bool,
     /** Function to exit edit state */
@@ -197,7 +197,7 @@ export class MessageLivestream extends React.PureComponent {
       messageListRect,
       channelConfig,
       threadList,
-      openThread,
+      handleOpenThread,
       Message,
       onMentionsHoverMessage,
       onMentionsClickMessage,
@@ -314,7 +314,7 @@ export class MessageLivestream extends React.PureComponent {
                     dangerouslySetInnerHTML={{
                       __html: threadSvg,
                     }}
-                    onClick={(e) => openThread(e, message)}
+                    onClick={(e) => handleOpenThread(e, message)}
                   />
                 )}
                 {getMessageActions().length > 0 && (
@@ -449,7 +449,7 @@ export class MessageLivestream extends React.PureComponent {
 
               {!initialMessage && (
                 <MessageRepliesCountButton
-                  onClick={openThread}
+                  onClick={handleOpenThread}
                   reply_count={message.reply_count}
                 />
               )}

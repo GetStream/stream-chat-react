@@ -61,7 +61,7 @@ export class MessageTeam extends PureComponent {
     /** If component is in thread list */
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
-    openThread: PropTypes.func,
+    handleOpenThread: PropTypes.func,
     /** If the message is in edit state */
     editing: PropTypes.bool,
     /** Function to exit edit state */
@@ -276,7 +276,7 @@ export class MessageTeam extends PureComponent {
       initialMessage,
       handleReaction,
       channelConfig,
-      openThread,
+      handleOpenThread,
       Message,
       messageListRect,
       onMentionsHoverMessage,
@@ -423,7 +423,7 @@ export class MessageTeam extends PureComponent {
                         dangerouslySetInnerHTML={{
                           __html: threadSvg,
                         }}
-                        onClick={(e) => openThread(e, message)}
+                        onClick={(e) => handleOpenThread(e, message)}
                       />
                     )}
                     {getMessageActions().length > 0 && (
@@ -527,7 +527,7 @@ export class MessageTeam extends PureComponent {
               )}
             {!threadList && (
               <MessageRepliesCountButton
-                onClick={openThread}
+                onClick={handleOpenThread}
                 reply_count={message.reply_count}
               />
             )}
