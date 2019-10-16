@@ -754,7 +754,7 @@ class MessageList extends PureComponent {
           ref={this.messageList}
         >
           {!elements.length ? (
-            <EmptyStateIndicator listType="message" />
+            <this.props.EmptyStateIndicator listType="message" />
           ) : (
             <ReverseInfiniteScroll
               loadMore={this._loadMore}
