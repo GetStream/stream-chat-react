@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.9](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.9) 2019-10-16
+
+- Changing prop name for MessageSimple from openThread to handleOpenThread.
+- Fixing scroll issue on messagelist. Related to issue [#67](https://github.com/GetStream/stream-chat-react/issues/67)
+
+## [0.7.8](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.8) 2019-10-11
+
+- Bug fix with dateseperator in messagelist
+
+## [0.7.7](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.7) 2019-10-11
+
+- Adding intro message to messagelist
+
 ## [0.7.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.6) 2019-10-08
 
 - Fixed unbinding of visibility listener
