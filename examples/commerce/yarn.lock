@@ -9602,10 +9602,10 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
   version "0.0.0"
   uid ""
 
-stream-chat@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.1.2.tgz#5674388f4b9d1438bddda191b9e84365d0404496"
-  integrity sha512-8ZocDy8RD5yWn4iUgEUINnnbfxsaR/X9TDu6JLsweC9H8KzRwQsDQUTWF2u6BV9C+iZO4WrvYs1WmriklKd2hA==
+stream-chat@^1.1.4:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.1.6.tgz#4d3159fe0fa2087f6a19e1b160d4bc05126ccd7d"
+  integrity sha512-Tca/ulnJnDUsObfMBdJmfR94MhFTy61MpoZgAvj8Hy2J8CcGSejq4ZtEpTvhvBZeR83haEW0AeUoOLomS5poMg==
   dependencies:
     "@babel/runtime" "^7.3.1"
     axios "^0.18.1"
