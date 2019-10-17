@@ -636,6 +636,7 @@ class MessageList extends PureComponent {
     const TypingIndicator = this.props.TypingIndicator;
     const DateSeparator = this.props.dateSeparator;
     const HeaderComponent = this.props.HeaderComponent;
+    const EmptyStateIndicator = this.props.EmptyStateIndicator;
 
     // sort by date
     allMessages.sort(function(a, b) {
