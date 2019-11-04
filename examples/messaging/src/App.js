@@ -48,6 +48,7 @@ class App extends Component {
     const filters = { type: 'messaging' };
     const sort = {
       last_message_at: -1,
+      updated_at: -1,
       cid: 1,
     };
     const options = { state: true, watch: true, presence: true };
@@ -68,7 +69,12 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList TypingIndicator={TypingIndicator} />
+            <MessageList
+              // headerPosition={1570692400000}
+              // headerPosition={Date.now()}
+              // HeaderComponent={() => <p>--this is sthe header component --</p>}
+              TypingIndicator={TypingIndicator}
+            />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />

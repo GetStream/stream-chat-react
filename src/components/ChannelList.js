@@ -125,6 +125,10 @@ class ChannelList extends PureComponent {
      * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
      * */
     watchers: PropTypes.object,
+    /**
+     * Set a Channel to be active and move it to the top of the list of channels by ID.
+     * */
+    customAciveChannel: PropTypes.string,
   };
 
   static defaultProps = {
@@ -204,6 +208,7 @@ class ChannelList extends PureComponent {
       }
       this.setState((prevState) => {
         const channels = [...prevState.channels, ...channelQueryResponse];
+
         return {
           channels, // not unique somehow needs more checking
           loadingChannels: false,
@@ -213,6 +218,17 @@ class ChannelList extends PureComponent {
           refreshing: false,
         };
       });
+
+      // Set a channel as active and move it to the top of the list.
+      if (this.props.customActiveChannel) {
+        const customActiveChannel = channelQueryResponse.filter(
+          (channel) => channel.id === this.props.customActiveChannel,
+        )[0];
+        if (customActiveChannel) {
+          this.props.setActiveChannel(customActiveChannel, this.props.watchers);
+          this.moveChannelUp(customActiveChannel.cid);
+        }
+      }
     } catch (e) {
       console.warn(e);
       this.setState({ error: true, refreshing: false });
@@ -333,7 +349,6 @@ class ChannelList extends PureComponent {
 
   moveChannelUp = (cid) => {
     const channels = this.state.channels;
-
     // get channel index
     const channelIndex = this.state.channels.findIndex(
       (channel) => channel.cid === cid,
