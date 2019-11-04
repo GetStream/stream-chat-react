@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.10](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.10) 2019-10-16
+
+- Added `customActiveChannel` prop on `ChannelList` to specify a custom channel to be moved to the top and set to active upon mounting.
+
 ## [0.7.9](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.9) 2019-10-16
 
 - Changing prop name for MessageSimple from openThread to handleOpenThread.
