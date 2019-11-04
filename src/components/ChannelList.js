@@ -199,12 +199,6 @@ class ChannelList extends PureComponent {
       let channelQueryResponse = channelPromise;
       if (isPromise(channelQueryResponse)) {
         channelQueryResponse = await channelPromise;
-        if (offset === 0 && channelQueryResponse.length >= 1) {
-          this.props.setActiveChannel(
-            channelQueryResponse[0],
-            this.props.watchers,
-          );
-        }
       }
       this.setState((prevState) => {
         const channels = [...prevState.channels, ...channelQueryResponse];
@@ -228,6 +222,11 @@ class ChannelList extends PureComponent {
           this.props.setActiveChannel(customActiveChannel, this.props.watchers);
           this.moveChannelUp(customActiveChannel.cid);
         }
+      } else if (offset === 0 && this.state.channels.length >= 1) {
+        this.props.setActiveChannel(
+          this.state.channels[0],
+          this.props.watchers,
+        );
       }
     } catch (e) {
       console.warn(e);
