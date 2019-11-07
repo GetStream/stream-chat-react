@@ -66,14 +66,7 @@ export class Audio extends React.Component {
       <div className="str-chat__audio">
         <div className="str-chat__audio__wrapper">
           <audio ref={this.audioRef}>
-            <source
-              src={url}
-              type={
-                audio.type === 'audio/vnd.facebook.bridge'
-                  ? 'audio/mp3'
-                  : 'audio/mp3'
-              }
-            />
+            <source src={url} type="audio/mp3" />
           </audio>
           <div className="str-chat__audio__image">
             <div className="str-chat__audio__image--overlay">

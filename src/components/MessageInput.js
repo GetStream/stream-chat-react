@@ -210,11 +210,7 @@ class MessageInput extends PureComponent {
     textareaElement.selectionEnd = newCursorPosition;
   };
 
-  getCommands = () => {
-    const config = this.props.channel.getConfig();
-    const allCommands = config.commands;
-    return allCommands;
-  };
+  getCommands = () => this.props.channel.getConfig().commands;
 
   getUsers = () => {
     const users = [];
@@ -237,8 +233,7 @@ class MessageInput extends PureComponent {
         userMap[user.id] = user;
       }
     }
-    const usersArray = Object.values(userMap);
-    return usersArray;
+    return Object.values(userMap);
   };
 
   handleChange = (event) => {

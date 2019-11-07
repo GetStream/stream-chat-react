@@ -96,8 +96,7 @@ class ThreadInner extends React.PureComponent {
     // Capture the scroll position so we can adjust scroll later.
     if (prevProps.threadMessages.length < this.props.threadMessages.length) {
       const list = this.messageList.current;
-      const pos = list.scrollHeight - list.scrollTop;
-      return pos;
+      return list.scrollHeight - list.scrollTop;
     }
     return null;
   }

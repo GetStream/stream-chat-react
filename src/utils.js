@@ -90,10 +90,7 @@ export const isOnlyEmojis = (text) => {
   return !noSpace;
 };
 
-export const isPromise = (thing) => {
-  const promise = thing && typeof thing.then === 'function';
-  return promise;
-};
+export const isPromise = (thing) => thing && typeof thing.then === 'function';
 
 export const byDate = (a, b) => a.created_at - b.created_at;
 
@@ -200,7 +197,7 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   }
   if (React.isValidElement(ElementOrComponentOrLiteral)) {
     // Flow cast through any, to make flow believe it's a React.Element
-    const element = ElementOrComponentOrLiteral;
+    const element = ElementOrComponentOrLiteral; // eslint-disable-line
     return element;
   }
 

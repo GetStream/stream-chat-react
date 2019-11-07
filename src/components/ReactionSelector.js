@@ -92,11 +92,8 @@ export class ReactionSelector extends PureComponent {
     }));
   };
 
-  getUsersPerReaction = (reactions, type) => {
-    const filtered =
-      reactions && reactions.filter((item) => item.type === type);
-    return filtered;
-  };
+  getUsersPerReaction = (reactions, type) =>
+    reactions && reactions.filter((item) => item.type === type);
 
   getLatestUser = (reactions, type) => {
     const filtered = this.getUsersPerReaction(reactions, type);
@@ -109,8 +106,7 @@ export class ReactionSelector extends PureComponent {
 
   getUserNames = (reactions, type) => {
     const filtered = this.getUsersPerReaction(reactions, type);
-    const users = filtered && filtered.map((item) => item.user || 'NotFound');
-    return users;
+    return filtered && filtered.map((item) => item.user || 'NotFound');
   };
 
   getContainerDimensions = () =>
@@ -147,7 +143,7 @@ export class ReactionSelector extends PureComponent {
 
   renderReactionItems = () => {
     const { reaction_counts, latest_reactions } = this.props;
-    const lis = this.props.reactionOptions.map((reaction) => {
+    return this.props.reactionOptions.map((reaction) => {
       const users = this.getUserNames(latest_reactions, reaction.id);
       const latestUser = this.getLatestUser(latest_reactions, reaction.id);
 
@@ -190,7 +186,6 @@ export class ReactionSelector extends PureComponent {
         </li>
       );
     });
-    return lis;
   };
 
   renderUsers = (users) =>

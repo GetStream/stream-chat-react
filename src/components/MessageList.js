@@ -14,6 +14,8 @@ import { KEY_CODES } from './AutoCompleteTextarea';
 import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 
+/* eslint sonarjs/no-duplicate-string: 0 */
+
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
@@ -192,11 +194,10 @@ class MessageList extends PureComponent {
       !deepequal(this.props.eventHistory, prevProps.eventHistory)
     ) {
       const list = this.messageList.current;
-      const pos = {
+      return {
         offsetTop: list.scrollTop,
         offsetBottom: list.scrollHeight - list.scrollTop,
       };
-      return pos;
     }
     return null;
   }
@@ -218,15 +219,10 @@ class MessageList extends PureComponent {
     const hasNewMessage = currentLastMessage.id !== previousLastMessage.id;
     const isOwner = currentLastMessage.user.id === this.props.client.userID;
 
-    let scrollToBottom = false;
     const list = this.messageList.current;
 
     // always scroll down when it's your own message that you added...
-    if (hasNewMessage && isOwner) {
-      scrollToBottom = true;
-    } else if (hasNewMessage && !userScrolledUp) {
-      scrollToBottom = true;
-    }
+    const scrollToBottom = hasNewMessage && (isOwner || !userScrolledUp);
 
     if (scrollToBottom) {
       this.scrollToBottom();
@@ -332,12 +328,7 @@ class MessageList extends PureComponent {
         prevMessageDate = messages[i - 1].created_at.getDay();
       }
 
-      if (i === 0) {
-        newMessages.push(
-          { type: 'message.date', date: message.created_at },
-          message,
-        );
-      } else if (messageDate !== prevMessageDate) {
+      if (i === 0 || messageDate !== prevMessageDate) {
         newMessages.push(
           { type: 'message.date', date: message.created_at },
           message,
@@ -624,6 +615,7 @@ class MessageList extends PureComponent {
       ? this.props.loadMore(this.props.messageLimit)
       : this.props.loadMore();
 
+  // eslint-disable-next-line
   render() {
     let allMessages = [...this.props.messages];
 
@@ -633,15 +625,15 @@ class MessageList extends PureComponent {
     }
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
-    const TypingIndicator = this.props.TypingIndicator;
-    const DateSeparator = this.props.dateSeparator;
-    const HeaderComponent = this.props.HeaderComponent;
-    const EmptyStateIndicator = this.props.EmptyStateIndicator;
+    const {
+      TypingIndicator,
+      DateSeparator,
+      HeaderComponent,
+      EmptyStateIndicator,
+    } = this.props;
 
     // sort by date
-    allMessages.sort(function(a, b) {
-      return a.created_at - b.created_at;
-    });
+    allMessages.sort((a, b) => a.created_at - b.created_at);
 
     // get the readData
     const readData = this.getReadStates(allMessages);

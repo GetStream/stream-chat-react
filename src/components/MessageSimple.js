@@ -399,6 +399,7 @@ export class MessageSimple extends PureComponent {
     }
   }
 
+  // eslint-disable-next-line
   render() {
     const {
       message,
