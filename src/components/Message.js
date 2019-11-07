@@ -206,11 +206,7 @@ export class Message extends Component {
     this.isOwner() ||
     this.isAdmin();
 
-  canDeleteMessage = (message) =>
-    this.isMyMessage(message) ||
-    this.isModerator() ||
-    this.isOwner() ||
-    this.isAdmin();
+  canDeleteMessage = (message) => this.canEditMessage(message);
 
   /**
    * Following function validates a function which returns notification message.

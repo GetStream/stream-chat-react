@@ -1,6 +1,10 @@
 {
-  "plugins": ["babel", "markdown"],
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "plugins": ["babel", "markdown", "sonarjs"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:sonarjs/recommended"
+  ],
   "rules": {
     "no-console": 0,
     "no-class-assign": 0,
@@ -22,7 +26,8 @@
     "react/prop-types": 0,
     "no-var": 2,
     "linebreak-style": [2, "unix"],
-    "semi": [1, "always"]
+    "semi": [1, "always"],
+    "sonarjs/cognitive-complexity": ["error", 30]
   },
   "env": {
     "es6": true,

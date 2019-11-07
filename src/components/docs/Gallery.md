@@ -1,11 +1,5 @@
 ```js
-const images = [
-  { image_url: 'https://placehold.it/300x200' },
-  { image_url: 'https://placehold.it/300x200' },
-  { image_url: 'https://placehold.it/300x200' },
-  { image_url: 'https://placehold.it/300x200' },
-  { image_url: 'https://placehold.it/300x200' },
-  { image_url: 'https://placehold.it/300x200' },
-];
-<Gallery images={images} />;
+const image = { image_url: 'https://placehold.it/300x200' };
+
+<Gallery images={Array(6).fill(image)} />;
 ```

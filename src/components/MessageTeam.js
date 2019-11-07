@@ -264,11 +264,22 @@ export class MessageTeam extends PureComponent {
     document.removeEventListener('click', this.hideReactions, false);
   }
 
+  renderAttachments(attachments) {
+    const { Attachment, message, handleAction } = this.props;
+    return attachments.map((attachment, index) => (
+      <Attachment
+        key={`${message.id}-${index}`}
+        attachment={attachment}
+        actionHandler={handleAction}
+      />
+    ));
+  }
+
+  // eslint-disable-next-line
   render() {
     const {
       message,
       groupStyles,
-      Attachment,
       editing,
       clearEditingState,
       updateMessage,
@@ -282,7 +293,6 @@ export class MessageTeam extends PureComponent {
       onMentionsHoverMessage,
       onMentionsClickMessage,
       unsafeHTML,
-      handleAction,
       handleRetry,
       getMessageActions,
       isMyMessage,
@@ -468,14 +478,7 @@ export class MessageTeam extends PureComponent {
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
-              {message.text === '' &&
-                attachments.map((attachment, index) => (
-                  <Attachment
-                    key={`${message.id}-${index}`}
-                    attachment={attachment}
-                    actionHandler={handleAction}
-                  />
-                ))}
+              {message.text === '' && this.renderAttachments(attachments)}
 
               {message.latest_reactions &&
                 message.latest_reactions.length !== 0 &&
@@ -509,13 +512,7 @@ export class MessageTeam extends PureComponent {
             {this.renderStatus()}
             {message.text !== '' &&
               hasAttachment &&
-              attachments.map((attachment, index) => (
-                <Attachment
-                  key={`${message.id}-${index}`}
-                  attachment={attachment}
-                  actionHandler={handleAction}
-                />
-              ))}
+              this.renderAttachments(attachments)}
             {message.latest_reactions &&
               message.latest_reactions.length !== 0 &&
               message.text === '' && (

@@ -115,8 +115,7 @@ class ReactTextareaAutocomplete extends React.Component {
       return 0;
     }
 
-    const position = this.textareaRef.selectionEnd;
-    return position;
+    return this.textareaRef.selectionEnd;
   };
 
   // handle the on-enter behaviour
@@ -278,9 +277,7 @@ class ReactTextareaAutocomplete extends React.Component {
         );
       }
       if (callback) {
-        const selectedItem = callback(item, currentTrigger);
-
-        return selectedItem;
+        return callback(item, currentTrigger);
       }
       return null;
     };

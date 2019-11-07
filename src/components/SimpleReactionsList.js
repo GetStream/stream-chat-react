@@ -115,12 +115,10 @@ export class SimpleReactionsList extends React.PureComponent {
     ));
   };
 
-  getUsernames = (reactions) => {
-    const usernames = reactions.map((item) =>
+  getUsernames = (reactions) =>
+    reactions.map((item) =>
       item.user !== null ? item.user.name || item.user.id : 'null',
     );
-    return usernames;
-  };
 
   setUsernames = (type) => {
     const reactionsByType = this.getReactionsByType(this.props.reactions);
@@ -136,10 +134,7 @@ export class SimpleReactionsList extends React.PureComponent {
     );
   };
 
-  renderUsernames = (users) => {
-    const str = users.join(', ');
-    return str;
-  };
+  renderUsernames = (users) => users.join(', ');
 
   render() {
     const { reactions } = this.props;
