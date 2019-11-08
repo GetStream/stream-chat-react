@@ -409,7 +409,7 @@ export class Message extends Component {
     if (messageActionsProps && typeof messageActionsProps === 'boolean') {
       // If value of messageActionsProps is true, then populate all the possible values
       messageActions = Object.keys(MESSAGE_ACTIONS);
-    } else if (messageActionsProps && messageActionsProps.length >= 0) {
+    } else if (messageActionsProps && messageActionsProps.length > 0) {
       messageActions = [...messageActionsProps];
     } else {
       return [];
