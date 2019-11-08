@@ -627,7 +627,7 @@ class MessageList extends PureComponent {
 
     const {
       TypingIndicator,
-      DateSeparator,
+      dateSeparator: DateSeparator,
       HeaderComponent,
       EmptyStateIndicator,
     } = this.props;
