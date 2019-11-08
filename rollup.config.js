@@ -108,6 +108,8 @@ const normalBundle = {
     }),
     scss({
       output: pkg.style,
+      failOnError: true,
+      linefeed: 'lf',
     }),
     copy([{ files: 'src/assets/*', dest: 'dist/assets' }], {
       verbose: true,
