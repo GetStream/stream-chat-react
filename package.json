@@ -123,8 +123,8 @@
     }
   },
   "scripts": {
-    "start": "mkdir -p dist/assets assets && rollup -c -w",
-    "build": "mkdir -p dist/assets assets && rollup -c",
+    "start": "rollup -c -w",
+    "build": "rollup -c",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
     "watch-styles": "sass --watch src/styles/index.scss dist/styles/styles.css",
