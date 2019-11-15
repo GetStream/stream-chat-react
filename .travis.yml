@@ -3,7 +3,9 @@ os:
   - linux
   - windows
 node_js:
-  - 11
+  - 10
+  - 12
+  - 13
 before_install:
   - npm install -g yarn
 script:
