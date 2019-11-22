@@ -109,6 +109,12 @@ class MessageList extends PureComponent {
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     /**
+     * Custom UI component to display system messages.
+     *
+     * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
+     */
+    MessageSystem: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
      * The UI Indicator to use when MessagerList or ChannelList is empty
      * */
     EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
@@ -144,6 +150,7 @@ class MessageList extends PureComponent {
 
   static defaultProps = {
     Message: MessageSimple,
+    MessageSystem: EventComponent,
     threadList: false,
     Attachment,
     dateSeparator: DateSeparator,
@@ -618,7 +625,7 @@ class MessageList extends PureComponent {
   // eslint-disable-next-line
   render() {
     let allMessages = [...this.props.messages];
-
+    const MessageSystem = this.props.MessageSystem;
     allMessages = this.insertDates(allMessages);
     if (this.props.HeaderComponent) {
       allMessages = this.insertIntro(allMessages);
@@ -666,19 +673,20 @@ class MessageList extends PureComponent {
         message.type === 'channel.event' ||
         message.type === 'system'
       ) {
-        elements.push(
-          <li
-            key={
-              message.type === 'system'
-                ? message.created_at
-                : message.type === 'channel.event'
-                ? message.event.created_at
-                : ''
-            }
-          >
-            <EventComponent message={message} />
-          </li>,
-        );
+        MessageSystem &&
+          elements.push(
+            <li
+              key={
+                message.type === 'system'
+                  ? message.created_at
+                  : message.type === 'channel.event'
+                  ? message.event.created_at
+                  : ''
+              }
+            >
+              <MessageSystem message={message} />
+            </li>,
+          );
       } else if (message.type !== 'message.read') {
         let groupStyles = messageGroupStyles[message.id];
         if (!groupStyles) {
