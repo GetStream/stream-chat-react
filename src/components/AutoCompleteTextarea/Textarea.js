@@ -550,8 +550,8 @@ class ReactTextareaAutocomplete extends React.Component {
     if (
       currentTrigger &&
       value[tokenMatch.index - 1] &&
-      (trigger[currentTrigger].afterWhitespace &&
-        !value[tokenMatch.index - 1].match(/\s/))
+      trigger[currentTrigger].afterWhitespace &&
+      !value[tokenMatch.index - 1].match(/\s/)
     ) {
       this._closeAutocomplete();
       return;

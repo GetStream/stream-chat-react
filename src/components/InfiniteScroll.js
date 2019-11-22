@@ -167,7 +167,8 @@ export default class InfiniteScroll extends Component {
     // Here we make sure the element is visible as well as checking the offset
     if (
       offset < Number(this.props.threshold) &&
-      (el && el.offsetParent !== null)
+      el &&
+      el.offsetParent !== null
     ) {
       this.detachScrollListener();
       // Call loadMore after detachScrollListener to allow for non-async loadMore functions
