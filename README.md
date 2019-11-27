@@ -7,7 +7,12 @@
 [![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
 
-You can sign up for a Stream account at https://getstream.io/chat/get_started/.
+
+**Quick Links**
+
+* [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
+* [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
+* [Chat UI Kit](https://getstream.io/chat/ui-kit/)
 
 With these chat components you can support any type of chat use case:
 
@@ -17,7 +22,7 @@ With these chat components you can support any type of chat use case:
 - Messaging style chat like Whatsapp or Facebook's messenger
 - Commerce chat like Drift or Intercom
 
-### React Chat Tutorial
+### React Native Chat Tutorial
 
 The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make common changes. 
 
