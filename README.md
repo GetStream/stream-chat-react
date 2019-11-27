@@ -17,14 +17,29 @@ With these chat components you can support any type of chat use case:
 - Messaging style chat like Whatsapp or Facebook's messenger
 - Commerce chat like Drift or Intercom
 
-### React Chat Tutorial & Docs
+### React Chat Tutorial
 
-The best place to start is the React Chat Tutorial
+The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make common changes. 
 
-You'll also want to review the React Chat Component Documentation.
+### Example Apps
 
-If you're customizing the components it's important to learn how the Chat Server API works.
-You can read about that in the Chat API docs.
+This repo includes 4 example apps. You can try them out like this:
+
+```
+git clone git@github.com:GetStream/stream-chat-react.git
+cd examples
+cd messaging
+yarn
+yarn start
+```
+
+The 4 examples are `messaging`, `team`, `commerce` and `livestream`. You can also preview these demos online in the [Chat Demos](https://getstream.io/chat/demos/)
+
+### Docs
+
+The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream-chat-react/) document how all the components work. 
+
+The React components are created using the stream-chat-js library. If you're customizing the components it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
 
 ### Commands
 
