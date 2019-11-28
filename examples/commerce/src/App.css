@@ -24,6 +24,9 @@ body {
   display: flex;
   align-items: flex-end;
 }
+.str-chat.commerce {
+  background: none;
+}
 
 .str-chat-channel .str-chat__container {
   height: auto;
