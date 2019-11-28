@@ -33,9 +33,9 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
-    if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
-      this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-    }
+    // if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
+    //   this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
+    // }
     this.chatClient.setUser(
       {
         id: user,
@@ -45,7 +45,7 @@ class App extends Component {
   }
 
   render() {
-    const filters = { type: 'messaging' };
+    const filters = { type: 'messaging', example: 1 };
     const sort = {
       last_message_at: -1,
       updated_at: -1,
@@ -61,7 +61,6 @@ class App extends Component {
           filters={filters}
           sort={sort}
           options={options}
-          watchers={{ limit: 10 }}
           Paginator={(props) => (
             <InfiniteScrollPaginator threshold={300} {...props} />
           )}
@@ -69,12 +68,7 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList
-              // headerPosition={1570692400000}
-              // headerPosition={Date.now()}
-              // HeaderComponent={() => <p>--this is sthe header component --</p>}
-              TypingIndicator={TypingIndicator}
-            />
+            <MessageList TypingIndicator={TypingIndicator} />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />

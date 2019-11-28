@@ -7,12 +7,11 @@
 [![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
 
-
 **Quick Links**
 
-* [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
-* [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
-* [Chat UI Kit](https://getstream.io/chat/ui-kit/)
+- [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
+- [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
+- [Chat UI Kit](https://getstream.io/chat/ui-kit/)
 
 With these chat components you can support any type of chat use case:
 
@@ -22,9 +21,9 @@ With these chat components you can support any type of chat use case:
 - Messaging style chat like Whatsapp or Facebook's messenger
 - Commerce chat like Drift or Intercom
 
-## React Native Chat Tutorial
+## React Chat Tutorial
 
-The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make common changes. 
+The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make common changes.
 
 ## Example Apps
 
@@ -42,7 +41,7 @@ The 4 examples are `messaging`, `team`, `commerce` and `livestream`. You can als
 
 ## Docs
 
-The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream-chat-react/) document how all the components work. 
+The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream-chat-react/) document how all the components work.
 
 The React components are created using the stream-chat-js library. If you're customizing the components it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
 
