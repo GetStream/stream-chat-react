@@ -1,10 +1,7 @@
 # Stream Chat Messaging Example App
 
-Increase engagement in your community or replace email for your team with chat in your app. Stream’s chat SDK allows you to build anything from a simple chat to your own Slack competitor. Powerful slash commands, Giphy integration and message attachments provide the building blocks of an engaging chat experience.
+Is your core product something that would benefit from the increased engagement that comes from in-app chat? With Stream Chat, your users can send messages and exchange photos, links, videos, audio, and files, as well as react to other users' messages and interact with bots.
 
-- Giphy, emoticons and File Attachments
-- Threads keep the discussion organized
-- Direct and Group Chats
 - Link previews help users share information
 - Push & Email notifications
 - Search your messages & conversations

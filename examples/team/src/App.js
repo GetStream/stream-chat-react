@@ -29,7 +29,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
-    this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
+    // this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
     this.chatClient.setUser(
       {
         id: user,
@@ -39,7 +39,7 @@ class App extends Component {
   }
 
   render() {
-    const filters = { type: 'team' };
+    const filters = { type: 'team', example: 1 };
     const sort = {
       last_message_at: -1,
       cid: 1,
@@ -67,12 +67,7 @@ class App extends Component {
           <Window>
             <ChannelHeader />
             <MessageList Message={MessageTeam} />
-            <MessageInput
-              multipleUploads={false}
-              acceptedFiles={['image/*']}
-              maxNumberOfFiles={3}
-              focus
-            />
+            <MessageInput focus />
           </Window>
           <Thread Message={MessageTeam} />
         </Channel>
