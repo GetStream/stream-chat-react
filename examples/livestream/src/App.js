@@ -1,4 +1,3 @@
-/* globals process */
 import React, { Component } from 'react';
 import { StreamChat } from 'stream-chat';
 import {
@@ -18,24 +17,24 @@ import './App.css';
 import video from './assets/video.png';
 
 const urlParams = new URLSearchParams(window.location.search);
-const user =
-  urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
+// const user =
+//   urlParams.get('user') || process.env.REACT_APP_CHAT_API_DEFAULT_USER;
 const theme = urlParams.get('theme') || 'light';
 const channelName = urlParams.get('channel') || 'demo';
-const userToken =
-  urlParams.get('user_token') ||
-  process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
+// const userToken =
+//   urlParams.get('user_token') ||
+//   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
+    this.chatClient = new StreamChat('qk4nn7rpcn75');
     // this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
     this.chatClient.setUser(
       {
-        id: user,
+        id: 'example-user',
       },
-      userToken,
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZXhhbXBsZS11c2VyIn0.HlC0dMKL43y3K_XbfvQS_Yc3V314HU4Z7LrBLil777g',
     );
     this.channel = this.chatClient.channel('livestream', channelName, {
       image:
