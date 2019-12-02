@@ -1,5 +1,5 @@
 # React Chat Components
-<img src="https://i.imgur.com/lqgWmKs.png" alt="react native chat" />
+<img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" />
 
 > The official React components for Stream Chat, a service for
 > building chat applications.
