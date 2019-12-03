@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.13](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.13) 2019-12-03
+
+- Handling and updating channel list on `channel.truncated` and `channel.deleted` event.
+
 ## [0.7.12](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.12) 2019-11-22
 
 - Adding prop `MessageSystem` to customize system messages
