@@ -1,5 +1,7 @@
 # React Chat Components
 
+<a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" /></a>
+
 > The official React components for Stream Chat, a service for
 > building chat applications.
 
