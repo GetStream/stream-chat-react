@@ -8851,10 +8851,10 @@ react-file-icon@^0.2.0:
     react-dom "^16.2.0"
     tinycolor2 "^1.4.1"
 
-react-file-utils@0.3.12:
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.3.12.tgz#59560ea8a0e3bbbf297f53a529b01cde99bc2503"
-  integrity sha512-KwuKqDYqcXDb45hGdc5vcMQoARkn3463sodTTRLma8yEDqLw7rauYeD7aSerwcl+47Xd8cqWq/Cn+NPeb3jBlg==
+react-file-utils@0.3.13:
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.3.13.tgz#e7b5ac8a71c733ef756ff0c74ba71248b1e3db38"
+  integrity sha512-SXNY3FJxkDzU+gE6NRCr7DEPUXzgB3gh/r5606ewEIr4BL9j9xUtRkn9g9GrHO6hRCKTkgOdqOW0H+UBGeh/Rg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.13"
     "@fortawesome/free-regular-svg-icons" "^5.7.0"
