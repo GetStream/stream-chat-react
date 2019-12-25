@@ -51,6 +51,7 @@ export interface ChannelContextValue extends ChatContextValue {
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
+  editMessage?(updatedMessage: Client.Message): void;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
     updatedMessage: Client.MessageResponse,
@@ -108,6 +109,11 @@ export interface ChannelProps extends ChatContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  /** Override update(edit) message request (Advanced usage only) */
+  doUpdateMessageRequest?(
+    channelId: string,
+    updatedMessage: Client.Message,
+  ): Promise<Client.MessageResponse> | void;
 }
 
 export interface ChannelListProps extends ChatContextValue {

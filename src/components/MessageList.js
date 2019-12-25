@@ -314,7 +314,7 @@ class MessageList extends PureComponent {
   };
 
   clearEditingState = (e) => {
-    if (e) {
+    if (e && e.preventDefault) {
       e.preventDefault();
     }
     this.setState({
