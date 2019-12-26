@@ -102,7 +102,6 @@ export class Attachment extends PureComponent {
     } else if (type === 'mml') {
       //const MMLTag = (this.props.client.MML) ? this.props.client.MML : MML
       const MMLTag = MML;
-      console.log("this.props for attachment", this.props)
       results.push(
         <div style={{ maxWidth: 450 }} key={`key-mml-${a.id}`}>
           <MMLTag
