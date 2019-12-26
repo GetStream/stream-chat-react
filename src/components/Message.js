@@ -369,7 +369,6 @@ export class Message extends Component {
   };
 
   handleAction = async (name, value, event) => {
-    console.log("handling action", name, value, event);
     // TODO: we should deprecate the old way of handling actions and only use MML
     let actionType, actionData, data;
     const messageID = this.props.message.id;
