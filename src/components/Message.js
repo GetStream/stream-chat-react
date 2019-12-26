@@ -369,12 +369,23 @@ export class Message extends Component {
   };
 
   handleAction = async (name, value, event) => {
-    event.preventDefault();
+    console.log("handling action", name, value, event);
+    // TODO: we should deprecate the old way of handling actions and only use MML
+    let actionType, actionData, data;
     const messageID = this.props.message.id;
-    const formData = {};
-    formData[name] = value;
+    if (name === 'MML') {
+      const values = value;
+      actionType = 'MML';
+      data = await this.props.channel.sendMMLAction(messageID, values);
+    } else {
 
-    const data = await this.props.channel.sendAction(messageID, formData);
+
+      event.preventDefault();
+      actionType = 'LEGACY';
+      actionData = {};
+      actionData[name] = value;
+      data = await this.props.channel.sendAction(messageID, actionData);
+    }
 
     if (data && data.message) {
       this.props.updateMessage(data.message);
