@@ -180,6 +180,8 @@ class ThreadInner extends React.PureComponent {
             initialMessage
             threadList
             Message={this.props.Message}
+            // TODO: remove the following line in next release, since we already have additionalParentMessageProps now.
+            {...this.props}
             {...this.props.additionalParentMessageProps}
           />
           <div className="str-chat__thread-start">Start of a new thread</div>
