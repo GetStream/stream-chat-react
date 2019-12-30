@@ -84,6 +84,7 @@
     "lint-staged": "^8.1.0",
     "node-sass": "^4.11.0",
     "node-sass-import": "^2.0.1",
+    "parcel": "^1.11.0",
     "postcss-loader": "^3.0.0",
     "prettier": "^1.18.2",
     "react-styleguidist": "8.0.6",
