@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.15) 2019-12-30
+
+- Added the following props on the `Thread` component so the underlying MessageList, MessageInput and Message components can be customized using props:
+  - `additionalParentMessageProps`
+  - `additionalMessageListProps`
+  - `additionalMessageInputProps`
+- Added the following props to the `Channel` component:
+  - `doUpdateMessageRequest` to override the update(edit) message request (Advanced usage only)
+  - `doSendMessageRequest` to override the send message request (Advanced usage only)
+
 ## [0.7.13](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.13) 2019-12-03
 
 - Handling and updating channel list on `channel.truncated` and `channel.deleted` event.
