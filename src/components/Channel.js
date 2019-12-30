@@ -88,6 +88,12 @@ class Channel extends PureComponent {
     acceptedFiles: PropTypes.array,
     /** Maximum number of attachments allowed per message */
     maxNumberOfFiles: PropTypes.number,
+    /** Override send message request (Advanced usage only)
+     *
+     * @param {String} channelId full channel ID in format of `type:id`
+     * @param {Object} message
+     */
+    doSendMessageRequest: PropTypes.func,
     /** Override update(edit) message request (Advanced usage only)
      *
      * @param {String} channelId full channel ID in format of `type:id`
@@ -375,7 +381,16 @@ class ChannelInner extends PureComponent {
     };
 
     try {
-      const messageResponse = await this.props.channel.sendMessage(messageData);
+      let messageResponse;
+      if (this.props.doSendMessageRequest) {
+        messageResponse = await this.props.doSendMessageRequest(
+          this.props.channel.cid,
+          messageData,
+        );
+      } else {
+        messageResponse = await this.props.channel.sendMessage(messageData);
+      }
+
       // replace it after send is completed
       if (messageResponse.message) {
         messageResponse.message.status = 'received';
