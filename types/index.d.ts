@@ -242,6 +242,11 @@ export interface EmptyStateIndicatorProps {
   listType: string;
 }
 
+export interface SendButtonProps {
+  /** Function that gets triggered on click */
+  sendMessage?(message: Client.Message): void;
+}
+
 export interface MessageListProps extends ChannelContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
@@ -285,6 +290,9 @@ export interface MessageInputProps {
 
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputUIComponentProps>;
+
+  /** Change the SendButton component */
+  SendButton?: React.ElementType<SendButtonProps>;
 
   /** Override image upload request */
   doImageUploadRequest?(file: object, channel: Client.Channel): void;
