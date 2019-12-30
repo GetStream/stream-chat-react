@@ -287,7 +287,7 @@ export interface MessageInputProps {
   Input?: React.ElementType<MessageInputUIComponentProps>;
 
   /** Change the SendButton component */
-  SendButton?: React.ElementType<>;
+  SendButton?: React.ElementType<any>;
 
   /** Override image upload request */
   doImageUploadRequest?(file: object, channel: Client.Channel): void;
