@@ -458,6 +458,9 @@ export interface ThreadProps extends ChannelContextValue {
   fullWidth?: boolean;
   /** Make input focus on mounting thread */
   autoFocus?: boolean;
+  additionalParentMessageProps?: object;
+  additionalMessageListProps?: object;
+  additionalMessageInputProps?: object;
 }
 
 export interface TypingIndicatorProps {
