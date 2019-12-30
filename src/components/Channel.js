@@ -94,6 +94,12 @@ class Channel extends PureComponent {
      * @param {Object} message
      */
     doSendMessageRequest: PropTypes.func,
+    /** Override update(edit) message request (Advanced usage only)
+     *
+     * @param {String} channelId full channel ID in format of `type:id`
+     * @param {Object} updatedMessage
+     */
+    doUpdateMessageRequest: PropTypes.func,
   };
 
   static defaultProps = {
@@ -349,6 +355,19 @@ class ChannelInner extends PureComponent {
       message.parent_id = parent.id;
     }
     return message;
+  };
+
+  editMessage = (updatedMessage) => {
+    if (this.props.doUpdateMessageRequest) {
+      return Promise.resolve(
+        this.props.doUpdateMessageRequest(
+          this.props.channel.cid,
+          updatedMessage,
+        ),
+      );
+    }
+
+    return this.props.client.updateMessage(updatedMessage);
   };
 
   _sendMessage = async (message) => {
@@ -612,6 +631,7 @@ class ChannelInner extends PureComponent {
     updateMessage: this.updateMessage,
     removeMessage: this.removeMessage,
     sendMessage: this.sendMessage,
+    editMessage: this.editMessage,
     retrySendMessage: this.retrySendMessage,
     loadMore: this.loadMore,
 

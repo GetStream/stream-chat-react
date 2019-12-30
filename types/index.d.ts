@@ -51,6 +51,7 @@ export interface ChannelContextValue extends ChatContextValue {
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): void;
+  editMessage?(updatedMessage: Client.Message): void;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
     updatedMessage: Client.MessageResponse,
@@ -108,10 +109,15 @@ export interface ChannelProps extends ChatContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+
   /** Override send message request (Advanced usage only) */
   doSendMessageRequest?(
     channelId: string,
     message: Client.Message,
+  /** Override update(edit) message request (Advanced usage only) */
+  doUpdateMessageRequest?(
+    channelId: string,
+    updatedMessage: Client.Message,
   ): Promise<Client.MessageResponse> | void;
 }
 
@@ -247,6 +253,11 @@ export interface EmptyStateIndicatorProps {
   listType: string;
 }
 
+export interface SendButtonProps {
+  /** Function that gets triggered on click */
+  sendMessage?(message: Client.Message): void;
+}
+
 export interface MessageListProps extends ChannelContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
@@ -290,6 +301,9 @@ export interface MessageInputProps {
 
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputUIComponentProps>;
+
+  /** Change the SendButton component */
+  SendButton?: React.ElementType<SendButtonProps>;
 
   /** Override image upload request */
   doImageUploadRequest?(file: object, channel: Client.Channel): void;
