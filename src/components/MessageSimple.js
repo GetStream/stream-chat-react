@@ -468,7 +468,7 @@ export class MessageSimple extends PureComponent {
               message={message}
               clearEditingState={clearEditingState}
               updateMessage={updateMessage}
-              {...this.props.adtitionalMessageInputProps}
+              {...this.props.additionalMessageInputProps}
             />
           </Modal>
         )}
