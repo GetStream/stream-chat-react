@@ -44,8 +44,7 @@ export class Gallery extends React.PureComponent {
           <div
             className="str-chat__gallery-placeholder"
             style={{
-              background: `url(${images[3].image_url}) top left no-repeat`,
-              backgroundSize: 'cover',
+              backgroundImage: `url(${images[3].image_url})`,
             }}
             onClick={() => this.toggleModal(3)}
           >

@@ -68,7 +68,7 @@ export class Attachment extends PureComponent {
   );
 
   renderAttachment = (a) => (
-    <div style={{ maxWidth: 450 }} key={`key-image-${a.id}`}>
+    <div className="str-chat__attachment" key={`key-image-${a.id}`}>
       <Card {...a} key={`key-card-${a.id}`} />
       {this.renderAttachmentActions(a)}
     </div>
@@ -88,7 +88,7 @@ export class Attachment extends PureComponent {
     if (type === 'image') {
       if (a.actions && a.actions.length) {
         results.push(
-          <div style={{ maxWidth: 450 }} key={`key-image-${a.id}`}>
+          <div className="str-chat__attachment" key={`key-image-${a.id}`}>
             <Image {...a} />
             {this.renderAttachmentActions(a)}
           </div>,
@@ -119,14 +119,14 @@ export class Attachment extends PureComponent {
         );
     } else if (type === 'audio') {
       results.push(
-        <div style={{ maxWidth: 450 }} key={`key-video-${a.id}`}>
+        <div className="str-chat__attachment" key={`key-video-${a.id}`}>
           <Audio og={a} />
         </div>,
       );
     } else if (type === 'media') {
       if (a.actions && a.actions.length) {
         results.push(
-          <div style={{ maxWidth: 450 }} key={`key-video-${a.id}`}>
+          <div className="str-chat__attachment" key={`key-video-${a.id}`}>
             <div className="str-chat__player-wrapper">
               <ReactPlayer
                 className="react-player"
