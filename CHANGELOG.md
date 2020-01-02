@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.17) 2019-01-02
+
+- Added `maxRows` props to MessageInput component
+
 ## [0.7.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.16) 2019-01-02
 
 - Removed inline styles from multiple locations
