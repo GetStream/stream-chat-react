@@ -19,6 +19,8 @@ export class ChatAutoComplete extends PureComponent {
     rows: PropTypes.number,
     /** Grow the number of rows of the textarea while you're typing */
     grow: PropTypes.bool,
+    /** Maximum number of rows */
+    maxRows: PropTypes.number,
     /** Make the textarea disabled */
     disabled: PropTypes.bool,
     /** The value of the textarea */
@@ -154,6 +156,7 @@ export class ChatAutoComplete extends PureComponent {
         trigger={this.getTriggers()}
         replaceWord={this.emojiReplace}
         minChar={0}
+        maxRows={this.props.maxRows}
         innerRef={
           innerRef &&
           ((ref) => {

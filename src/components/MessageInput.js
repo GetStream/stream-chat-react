@@ -94,6 +94,8 @@ class MessageInput extends PureComponent {
     disabled: PropTypes.bool.isRequired,
     /** Grow the textarea while you're typing */
     grow: PropTypes.bool.isRequired,
+    /** Set the maximum number of rows */
+    maxRows: PropTypes.number.isRequired,
     /** Via Context: the channel that we're sending the message to */
     channel: PropTypes.object.isRequired,
     /** Via Context: the users currently typing, passed from the Channel component */
@@ -134,6 +136,7 @@ class MessageInput extends PureComponent {
     focus: false,
     disabled: false,
     grow: true,
+    maxRows: 10,
     Input: MessageInputLarge,
     SendButton,
   };

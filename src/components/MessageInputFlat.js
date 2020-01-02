@@ -162,6 +162,7 @@ export class MessageInputFlat extends PureComponent {
                 onChange={this.props.handleChange}
                 value={this.props.text}
                 rows={1}
+                maxRows={this.props.maxRows}
                 placeholder="Type your message"
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}

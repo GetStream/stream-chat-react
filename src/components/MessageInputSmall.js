@@ -21,6 +21,8 @@ export class MessageInputSmall extends PureComponent {
     focus: PropTypes.bool.isRequired,
     /** Grow the textarea while you're typing */
     grow: PropTypes.bool.isRequired,
+    /** Specify the max amount of rows the textarea is able to grow */
+    maxRows: PropTypes.number.isRequired,
     /** Make the textarea disabled */
     disabled: PropTypes.bool,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
@@ -160,6 +162,7 @@ export class MessageInputSmall extends PureComponent {
                 onChange={this.props.handleChange}
                 value={this.props.text}
                 rows={1}
+                maxRows={this.props.maxRows}
                 onSelectItem={this.props.onSelectItem}
                 placeholder="Type your message"
                 onPaste={this.props.onPaste}

@@ -296,6 +296,8 @@ export interface MessageInputProps {
   disabled?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
+  /** Max number of rows the textarea is allowed to grow */
+  maxRows?: number;
 
   /** The parent message object when replying on a thread */
   parent?: Client.MessageResponse | null;
