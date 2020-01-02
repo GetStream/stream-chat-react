@@ -24,6 +24,7 @@ import './styles/EventComponent.scss';
 import './styles/DateSeparator.scss';
 import './styles/EditMessageForm.scss';
 import './styles/Gallery.scss';
+import './styles/InfiniteScrollPaginator.scss';
 import './styles/LoadingChannels.scss';
 import './styles/LoadingIndicator.scss';
 import './styles/LoadMoreButton.scss';

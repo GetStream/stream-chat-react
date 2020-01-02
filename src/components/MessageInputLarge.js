@@ -134,7 +134,7 @@ export class MessageInputLarge extends PureComponent {
   render() {
     const SendButton = this.props.SendButton;
     return (
-      <div style={{ position: 'relative', zIndex: 0, width: '100%' }}>
+      <div className="str-chat__input-large">
         <ImageDropzone
           accept={this.props.acceptedFiles}
           multiple={this.props.multipleUploads}

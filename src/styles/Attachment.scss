@@ -1,3 +1,7 @@
+.str-chat__attachment {
+  max-width: 450px;
+}
+
 .str-chat__player-wrapper {
   position: relative;
   padding-top: 56.25%; /* Player ratio: 100 / (1280 / 720) */

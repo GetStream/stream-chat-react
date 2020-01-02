@@ -133,7 +133,7 @@ export class MessageInputSmall extends PureComponent {
   render() {
     const SendButton = this.props.SendButton;
     return (
-      <div style={{ position: 'relative', zIndex: 0, width: '100%' }}>
+      <div className="str-chat__small-message-input__wrapper">
         <ImageDropzone
           accept={this.props.acceptedFiles}
           multiple={this.props.multipleUploads}

@@ -140,7 +140,6 @@ export class MessageInputFlat extends PureComponent {
         className={`str-chat__input-flat ${
           SendButton ? 'str-chat__input-flat--send-button-active' : null
         }`}
-        style={{ position: 'relative', zIndex: 1, width: '100%' }}
       >
         <ImageDropzone
           accept={this.props.acceptedFiles}

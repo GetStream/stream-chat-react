@@ -811,9 +811,7 @@ MessageList = withChannelContext(MessageList);
 export { MessageList };
 
 const Center = ({ children }) => (
-  <div style={{ width: 100 + '%', display: 'flex', justifyContent: 'center' }}>
-    {children}
-  </div>
+  <div className="str-chat__list__center">{children}</div>
 );
 
 const Notification = ({ children, active, type }) => {
