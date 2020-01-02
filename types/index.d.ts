@@ -280,6 +280,7 @@ export interface MessageListProps extends ChannelContextValue {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
+  additionalMessageInputProps?: object;
 }
 
 export interface ChannelHeaderProps extends ChannelContextValue {
@@ -296,6 +297,8 @@ export interface MessageInputProps {
   disabled?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
+  /** Max number of rows the textarea is allowed to grow */
+  maxRows?: number;
 
   /** The parent message object when replying on a thread */
   parent?: Client.MessageResponse | null;
@@ -424,6 +427,7 @@ export interface MessageProps {
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
   ): void;
+  additionalMessageInputProps?: object;
 }
 
 export interface MessageUIComponentProps extends MessageProps {
@@ -451,6 +455,7 @@ export interface MessageUIComponentProps extends MessageProps {
   ): void;
   channelConfig?: object;
   threadList?: boolean;
+  additionalMessageInputProps?: object;
 }
 
 export interface ThreadProps extends ChannelContextValue {

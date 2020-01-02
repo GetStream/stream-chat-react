@@ -108,6 +108,11 @@ export class MessageSimple extends PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * Additional props for underlying MessageInput component.
+     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+     * */
+    additionalMessageInputProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -463,6 +468,7 @@ export class MessageSimple extends PureComponent {
               message={message}
               clearEditingState={clearEditingState}
               updateMessage={updateMessage}
+              {...this.props.additionalMessageInputProps}
             />
           </Modal>
         )}

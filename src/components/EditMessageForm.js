@@ -19,6 +19,8 @@ export class EditMessageForm extends React.Component {
     focus: PropTypes.bool,
     /** Grow the textarea while you're typing */
     grow: PropTypes.bool,
+    /** Specify the max amount of rows the textarea is able to grow */
+    maxRows: PropTypes.number.isRequired,
     /** Disable the textarea */
     disabled: PropTypes.bool,
     /** @see See [MessageInput](https://getstream.github.io/stream-chat-react/#messageinput) for doc */
@@ -171,6 +173,7 @@ export class EditMessageForm extends React.Component {
               onSelectItem={this.props.onSelectItem}
               value={this.props.text}
               rows={1}
+              maxRows={this.props.maxRows}
               onPaste={this.props.onPaste}
               grow={this.props.grow}
             />
