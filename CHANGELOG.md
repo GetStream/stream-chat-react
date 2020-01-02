@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.16) 2019-01-02
+
+- Removed inline styles from multiple locations
+- Exporting new component `ChatAutoComplete` (Advanced usage only)
+
 ## [0.7.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.15) 2019-12-30
 
 - Added the following props on the `Thread` component so the underlying MessageList, MessageInput and Message components can be customized using props:
