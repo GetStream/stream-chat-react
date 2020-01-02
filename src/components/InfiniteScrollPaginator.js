@@ -35,12 +35,7 @@ export class InfiniteScrollPaginator extends React.Component {
         useWindow={false}
         loader={
           <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 10,
-            }}
+            className="str-chat__infinite-scroll-paginator"
             key="loadingindicator"
           >
             <LoadingIndicator />
