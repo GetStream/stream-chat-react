@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import { Message } from './Message';
 import { MessageInputSmall } from './MessageInputSmall';
+import { smartRender } from '../utils';
 
 /**
  * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
@@ -68,6 +69,8 @@ class Thread extends React.PureComponent {
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
+    /** Customized MessageInput component to used within Thread instead of default MessageInput */
+    MessageInput: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
   static defaultProps = {
@@ -75,6 +78,7 @@ class Thread extends React.PureComponent {
     threadLoadingMore: true,
     fullWidth: false,
     autoFocus: true,
+    MessageInput,
   };
 
   render() {
@@ -195,12 +199,12 @@ class ThreadInner extends React.PureComponent {
             Message={this.props.Message}
             {...this.props.additionalMessageListProps}
           />
-          <MessageInput
-            Input={MessageInputSmall}
-            parent={this.props.thread}
-            focus={this.props.autoFocus}
-            {...this.props.additionalMessageInputProps}
-          />
+          {smartRender(this.props.MessageInput, {
+            MessageInputSmall,
+            parent: this.props.thread,
+            focus: this.props.autoFocus,
+            ...this.props.additionalMessageInputProps,
+          })}
         </div>
       </div>
     );
