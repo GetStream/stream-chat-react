@@ -32,6 +32,12 @@ export { Window } from './Window';
 export { ReactionSelector } from './ReactionSelector';
 export { ReactionsList } from './ReactionsList';
 export { ChatAutoComplete } from './ChatAutoComplete';
+export { EditMessageForm } from './EditMessageForm';
+export { MessageActionsBox } from './MessageActionsBox';
+export { MessageRepliesCountButton } from './MessageRepliesCountButton';
+export { Modal } from './Modal';
+export { Gallery } from './Gallery';
+export { Tooltip } from './Tooltip';
 
 export * from '../utils';
 export * from '../context';
