@@ -27,6 +27,11 @@ export class MessageActionsBox extends React.Component {
     mine: PropTypes.bool,
     /** DOMRect object for parent MessageList component */
     messageListRect: PropTypes.object,
+    handleFlag: PropTypes.func,
+    handleMute: PropTypes.func,
+    handleEdit: PropTypes.func,
+    handleDelete: PropTypes.func,
+    getMessageActions: PropTypes.func,
   };
 
   static defaultProps = {

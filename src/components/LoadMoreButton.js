@@ -5,6 +5,7 @@ import { LoadingIndicator } from 'react-file-utils';
 export class LoadMoreButton extends React.PureComponent {
   static propTypes = {
     onClick: PropTypes.func,
+    refreshing: PropTypes.bool,
   };
 
   static defaultProps = {

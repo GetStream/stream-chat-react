@@ -1,8 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Avatar } from './Avatar';
 
 export class TypingIndicator extends React.PureComponent {
+  static propTypes = {
+    typing: PropTypes.object,
+    open: PropTypes.bool,
+  };
+
   render() {
     // if (Object.keys(this.props.typing).length <= 0) {
     //   return null;

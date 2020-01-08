@@ -1,7 +1,15 @@
 import React, { PureComponent } from 'react';
 import { Avatar } from './Avatar';
+import PropTypes from 'prop-types';
 
 export class UserItem extends PureComponent {
+  static propTypes = {
+    entity: PropTypes.shape({
+      name: PropTypes.string,
+      id: PropTypes.string,
+      image: PropTypes.string,
+    }),
+  };
   render() {
     const u = this.props.entity;
     return (
