@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class InfiniteScroll extends Component {
+export class InfiniteScroll extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     element: PropTypes.node,
@@ -235,3 +235,5 @@ export default class InfiniteScroll extends Component {
     return React.createElement(element, props, childrenArray);
   }
 }
+
+export default InfiniteScroll;
