@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
+import truncate from 'lodash/truncate';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -20,6 +21,11 @@ export class ChannelPreviewLastMessage extends PureComponent {
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
     latestMessage: PropTypes.string,
+    latestMessageLength: PropTypes.number,
+  };
+
+  static defaultProps = {
+    latestMessageLength: 20,
   };
 
   channelPreviewButton = React.createRef();
@@ -50,7 +56,10 @@ export class ChannelPreviewLastMessage extends PureComponent {
             <span className="str-chat__channel-preview-last-message">
               {!this.props.channel.state.messages[0]
                 ? 'Nothing yet...'
-                : this.props.latestMessage}
+                : truncate(
+                    this.props.latestMessage,
+                    this.props.latestMessageLength,
+                  )}
             </span>
             {this.props.unread_count >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
