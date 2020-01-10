@@ -276,6 +276,9 @@ class MessageInput extends PureComponent {
     const text = this.state.text;
     // the channel component handles the actual sending of the message
     const attachments = [...this.state.attachments];
+    if (this.props.message && this.props.message.attachments) {
+      attachments.push(...this.props.message.attachments);
+    }
     for (const id of this.state.imageOrder) {
       const image = this.state.imageUploads[id];
       if (!image || image.state === 'failed') {
@@ -285,6 +288,10 @@ class MessageInput extends PureComponent {
         // TODO: show error to user that they should wait until image is uploaded
         return;
       }
+      const dupe = attachments.filter(
+        (attach) => image.url === attach.image_url,
+      );
+      if (dupe.length >= 1) continue;
       attachments.push({
         type: 'image',
         image_url: image.url,
@@ -317,6 +324,7 @@ class MessageInput extends PureComponent {
       updatedMessage.mentioned_users = this.state.mentioned_users;
       // TODO: Remove this line and show an error when submit fails
       this.props.clearEditingState();
+      console.log('updatedMessage: ', updatedMessage);
 
       const updateMessagePromise = this.props
         .editMessage(updatedMessage)
