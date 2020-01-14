@@ -12,6 +12,7 @@ import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
 import { smartRender } from '../utils';
 import uniqBy from 'lodash.uniqby';
+import deepequal from 'deep-equal';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
@@ -191,6 +192,18 @@ class ChannelList extends PureComponent {
   async componentDidMount() {
     await this.queryChannels();
     this.listenToChanges();
+  }
+
+  async componentDidUpdate(prevProps) {
+    if (!deepequal(prevProps.filters, this.props.filters)) {
+      await this.setState({
+        offset: 0,
+        channels: Immutable([]),
+        loadingChannels: true,
+        refreshing: false,
+      });
+      await this.queryChannels();
+    }
   }
 
   componentWillUnmount() {
