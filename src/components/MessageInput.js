@@ -324,7 +324,6 @@ class MessageInput extends PureComponent {
       updatedMessage.mentioned_users = this.state.mentioned_users;
       // TODO: Remove this line and show an error when submit fails
       this.props.clearEditingState();
-      console.log('updatedMessage: ', updatedMessage);
 
       const updateMessagePromise = this.props
         .editMessage(updatedMessage)
