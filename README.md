@@ -33,8 +33,7 @@ This repo includes 4 example apps. You can try them out like this:
 
 ```
 git clone git@github.com:GetStream/stream-chat-react.git
-cd examples
-cd messaging
+cd examples/messaging
 yarn
 yarn start
 ```
