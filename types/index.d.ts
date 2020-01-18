@@ -384,11 +384,11 @@ export interface AttachmentUIComponentProps {
 
 export interface MessageProps {
   /** The message object */
-  message?: Client.MessageResponse;
+  message: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
-  client?: Client.StreamChat;
+  client: Client.StreamChat;
   /** The current channel this message is displayed in */
-  channel?: Client.Channel;
+  channel: Client.Channel;
   /** A list of users that have read this message **/
   readBy?: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
@@ -412,17 +412,17 @@ export interface MessageProps {
   watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
   addNotification?(notificationText: string, type: string): any;
   setEditingState?(message: Client.MessageResponse): any;
-  updateMessage?(
+  updateMessage(
     updatedMessage: Client.MessageResponse,
-    extraState: object,
+    extraState?: object,
   ): void;
   /** Function executed when user clicks on link to open thread */
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -580,9 +580,13 @@ export class MessageInputSmall extends React.PureComponent<
   any
 > {}
 
-export class Attachment extends React.PureComponent<
-  AttachmentUIComponentProps
-> {}
+export class Attachment extends React.PureComponent<AttachmentUIComponentProps> {
+  attachmentType(a: Client.Attachment): void;
+}
+
+
+
+export class AttachmentActions extends React.PureComponent<AttachmentActionsComponentProps, any> {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
 export class ChannelListMessenger extends React.PureComponent<

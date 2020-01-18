@@ -3,13 +3,24 @@ import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
 
 import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
+
+export interface CardComponentProps {
+  title?: string;
+  title_link?: string;
+  og_scrape_url?: string;
+  image_url?: string;
+  thumb_url?: string;
+  text?: string;
+  type?: string;
+}
+
 /**
  * Card - Simple Card Layout
  *
  * @example ./docs/Card.md
  * @extends PureComponent
  */
-export class Card extends React.PureComponent {
+export class Card extends React.PureComponent<CardComponentProps, any> {
   static propTypes = {
     /** Title returned by the OG scraper */
     title: PropTypes.string.isRequired,
@@ -25,7 +36,7 @@ export class Card extends React.PureComponent {
     text: PropTypes.string,
   };
 
-  trimUrl = (url) => {
+  trimUrl = (url: string) => {
     let trimmedUrl;
     if (url !== undefined && url !== null) {
       trimmedUrl = url
@@ -93,7 +104,7 @@ export class Card extends React.PureComponent {
                 rel="noopener noreferrer"
                 className="str-chat__message-attachment-card--url"
               >
-                {this.trimUrl(title_link || og_scrape_url)}
+                {title_link ? this.trimUrl(title_link) : og_scrape_url ?  this.trimUrl(og_scrape_url) : null}
               </SafeAnchor>
             )}
           </div>

@@ -5,13 +5,22 @@ import { LoadingChannels } from './LoadingChannels';
 
 import placeholder from '../assets/str-chat__connection-error.svg';
 
+export interface ChatDownProps {
+    /** The image url for this error */
+    image: string;
+    /** The type of error */
+    type: string;
+    /** The error message to show */
+    text: string;
+}
+
 /**
  * ChatDown - Indicator that chat is down or your network isn't working
  *
  * @example ./docs/ChatDown.md
  * @extends PureComponent
  */
-export class ChatDown extends React.PureComponent {
+export class ChatDown extends React.PureComponent<ChatDownProps> {
   static propTypes = {
     /** The image url for this error */
     image: PropTypes.string,

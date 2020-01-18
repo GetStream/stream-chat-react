@@ -1,13 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+type shape = 'circle' | 'rounded' | 'square';
+
+export interface AvatarComponentProps {
+  /** image url */
+  image: string;
+  /** name of the picture, used for title tag fallback */
+  name: string;
+  /** shape of the avatar, circle, rounded or square */
+  shape: shape;
+  /** size in pixels */
+  size: number;
+}
+
 /**
  * Avatar - A round avatar image with fallback to username's first letter
  *
  * @example ./docs/Avatar.md
  * @extends PureComponent
  */
-export class Avatar extends React.PureComponent {
+export class Avatar extends React.PureComponent<AvatarComponentProps> {
   static propTypes = {
     /** image url */
     image: PropTypes.string,
@@ -29,12 +42,13 @@ export class Avatar extends React.PureComponent {
     loaded: false,
   };
 
-  getInitials = (name) =>
+  getInitials = (name: string) =>
     name
       ? name
           .split(' ')
           .slice(0, 1)
           .map((name) => name.charAt(0))
+          .join(' ')
       : null;
 
   onLoad = () => {
@@ -45,7 +59,7 @@ export class Avatar extends React.PureComponent {
     this.setState({ errored: true });
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: AvatarComponentProps) {
     if (prevProps.image !== this.props.image) {
       this.setState({ loaded: false, errored: false });
     }
@@ -69,7 +83,7 @@ export class Avatar extends React.PureComponent {
         {image && !this.state.errored ? (
           <img
             src={image}
-            alt={initials}
+            alt={initials ? initials : ''}
             className={
               'str-chat__avatar-image' +
               (this.state.loaded ? ' str-chat__avatar-image--loaded' : '')

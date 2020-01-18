@@ -1,7 +1,22 @@
 import * as React from 'react';
+import * as Client from 'stream-chat';
 
-export class Audio extends React.Component {
-  constructor(props) {
+export interface AudioComponentProps {
+  og: Client.Attachment;
+  handleClose?: (event: React.BaseSyntheticEvent) => void;
+}
+
+export interface AudioComponentState {
+  updateProgress: any;
+  open: boolean;
+  playing: boolean;
+  progress: number;
+}
+
+export class Audio extends React.Component<AudioComponentProps, AudioComponentState> {
+  audioRef: React.RefObject<HTMLAudioElement>;
+
+  constructor(props: AudioComponentProps) {
     super(props);
     this.state = {
       open: false,
@@ -51,7 +66,7 @@ export class Audio extends React.Component {
     window.clearInterval(this.state.updateProgress);
   }
 
-  _handleClose = (e) => {
+  _handleClose = (e: React.BaseSyntheticEvent) => {
     if (this.props.handleClose) {
       this.props.handleClose(e);
     }

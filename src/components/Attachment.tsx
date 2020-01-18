@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import * as Client from 'stream-chat';
 import ReactPlayer from 'react-player';
 import { Card } from './Card';
 import { Image } from './Image';
@@ -9,14 +10,27 @@ import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
 
 import { Audio } from './Audio';
+
+export interface AttachmentUIComponentProps {
+  /** The attachment to render */
+  attachment: Client.Attachment;
+  /**
+		The handler function to call when an action is selected on an attachment.
+		Examples include canceling a \/giphy command or shuffling the results.
+  */
+  actionHandler: (name: string, value: string | undefined, event: React.BaseSyntheticEvent)=> void;
+}
+
+
 /**
  * Attachment - The message attachment
  *
  * @example ./docs/Attachment.md
  * @extends PureComponent
  */
-export class Attachment extends PureComponent {
-  attachmentRef = React.createRef();
+export class Attachment extends React.PureComponent<AttachmentUIComponentProps> {
+  attachmentRef: React.RefObject<HTMLDivElement> = React.createRef();
+
   static propTypes = {
     /**
      * The attachment to render
@@ -35,7 +49,7 @@ export class Attachment extends PureComponent {
     actionHandler: PropTypes.func.isRequired,
   };
 
-  attachmentType(a) {
+  attachmentType(a: Client.Attachment) {
     let type, extra;
     if (a.actions && a.actions.length > 0) {
       extra = 'actions';
@@ -59,7 +73,7 @@ export class Attachment extends PureComponent {
     return { type, extra };
   }
 
-  renderAttachmentActions = (a) => (
+  renderAttachmentActions = (a: Client.Attachment) => (
     <AttachmentActions
       key={'key-actions-' + a.id}
       {...a}
@@ -67,7 +81,7 @@ export class Attachment extends PureComponent {
     />
   );
 
-  renderAttachment = (a) => (
+  renderAttachment = (a: Client.Attachment) => (
     <div className="str-chat__attachment" key={`key-image-${a.id}`}>
       <Card {...a} key={`key-card-${a.id}`} />
       {this.renderAttachmentActions(a)}
@@ -172,5 +186,3 @@ export class Attachment extends PureComponent {
     );
   }
 }
-
-Attachment.propTypes = {};

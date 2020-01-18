@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const EmptyStateIndicator = ({ listType }) => {
+export const EmptyStateIndicator = (listType: string) => {
   let Indicator;
   switch (listType) {
     case 'channel':

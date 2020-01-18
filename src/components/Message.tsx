@@ -6,6 +6,8 @@ import { Attachment } from './Attachment';
 
 import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
+import { MessageUIComponentProps } from '../../types'
+import * as Client from 'stream-chat';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -14,8 +16,8 @@ import { MESSAGE_ACTIONS } from '../utils';
  * @example ./docs/Message.md
  * @extends Component
  */
-export class Message extends Component {
-  constructor(props) {
+export class Message extends Component<MessageUIComponentProps> {
+  constructor(props: MessageUIComponentProps) {
     super(props);
     this.state = {
       loading: false,
@@ -131,7 +133,7 @@ export class Message extends Component {
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: MessageUIComponentProps) {
     // since there are many messages its important to only rerender messages when needed.
     let shouldUpdate = nextProps.message !== this.props.message;
     let reason = '';
@@ -190,7 +192,7 @@ export class Message extends Component {
     return shouldUpdate;
   }
 
-  isMyMessage = (message) => this.props.client.user.id === message.user.id;
+  isMyMessage = (message: Client.MessageResponse) => message.user ? this.props.client.user.id === message.user.id : false;
   isAdmin = () =>
     this.props.client.user.role === 'admin' ||
     (this.props.members &&
@@ -205,13 +207,13 @@ export class Message extends Component {
     this.props.members[this.props.client.user.id] &&
     this.props.members[this.props.client.user.id].role === 'moderator';
 
-  canEditMessage = (message) =>
+  canEditMessage = (message: Client.MessageResponse) =>
     this.isMyMessage(message) ||
     this.isModerator() ||
     this.isOwner() ||
     this.isAdmin();
 
-  canDeleteMessage = (message) => this.canEditMessage(message);
+  canDeleteMessage = (message: Client.MessageResponse) => this.canEditMessage(message);
 
   /**
    * Following function validates a function which returns notification message.
@@ -220,22 +222,23 @@ export class Message extends Component {
    * @param func {Function}
    * @param args {Array} Arguments to be provided to func while executing.
    */
-  validateAndGetNotificationMessage = (func, args) => {
+  validateAndGetNotificationMessage = (func?: (a0: any) => string, args?: [any]) => {
     if (!func || typeof func !== 'function') return false;
 
-    const returnValue = func.apply(null, args);
+    const returnValue = func.apply(null, args ? args : [null]);
 
     if (typeof returnValue !== 'string') return false;
 
     return returnValue;
   };
 
-  handleFlag = async (event) => {
+  handleFlag = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     const {
       getFlagMessageSuccessNotification,
       getFlagMessageErrorNotification,
+      addNotification,
     } = this.props;
     const message = this.props.message;
 
@@ -245,34 +248,39 @@ export class Message extends Component {
         getFlagMessageSuccessNotification,
         [message],
       );
-      this.props.addNotification(
+      addNotification ? addNotification(
         successMessage
           ? successMessage
           : 'Message has been successfully flagged',
         'success',
-      );
+      ) : null;
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getFlagMessageErrorNotification,
         [message],
       );
-      this.props.addNotification(
+      addNotification ? addNotification(
         errorMessage
           ? errorMessage
           : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
         'error',
-      );
+      ) : null;
     }
   };
 
-  handleMute = async (event) => {
+  handleMute = async (event: React.SyntheticEvent) => {
     event.preventDefault();
+    const { addNotification } = this.props;
 
     const {
       getMuteUserSuccessNotification,
       getMuteUserErrorNotification,
     } = this.props;
     const message = this.props.message;
+
+    if (!message.user || message.user.id) {
+      return;
+    }
 
     try {
       await this.props.client.muteUser(message.user.id);
@@ -281,50 +289,50 @@ export class Message extends Component {
         [message.user],
       );
 
-      this.props.addNotification(
+      addNotification ? addNotification(
         successMessage
           ? successMessage
           : `User with id ${message.user.id} has been muted`,
         'success',
-      );
+      ) : null;
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getMuteUserErrorNotification,
         [message.user],
       );
 
-      this.props.addNotification(
+      addNotification ? addNotification(
         errorMessage ? errorMessage : 'Error muting a user ...',
         'error',
-      );
+      ) : null;
     }
   };
 
-  handleEdit = (event) => {
+  handleEdit = (event: React.SyntheticEvent) => {
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
 
-    this.props.setEditingState(this.props.message);
+    this.props.setEditingState ? this.props.setEditingState(this.props.message) : null;
   };
 
-  handleDelete = async (event) => {
+  handleDelete = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     const message = this.props.message;
     const data = await this.props.client.deleteMessage(message.id);
-    this.props.updateMessage(data.message);
+    this.props.updateMessage ? this.props.updateMessage(data.message, {}) : null;
   };
 
-  handleReaction = async (reactionType, event) => {
+  handleReaction = async (reactionType: string, event: React.SyntheticEvent) => {
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
 
     let userExistingReaction = null;
 
-    const currentUser = this.props.client.userID;
+    const currentUser = this.props.client.user.id;
 
-    for (const reaction of this.props.message.own_reactions) {
+    for (const reaction of this.props.message.own_reactions || []) {
       // own user should only ever contain the current user id
       // just in case we check to prevent bugs with message updates from breaking reactions
       if (currentUser === reaction.user.id && reaction.type === reactionType) {
@@ -360,7 +368,7 @@ export class Message extends Component {
       // this.props.channel.state.addReaction(tmpReaction, this.props.message);
       reactionChangePromise = this.props.channel.sendReaction(
         messageID,
-        reaction,
+        reaction
       );
     }
 
@@ -373,7 +381,7 @@ export class Message extends Component {
     }
   };
 
-  handleAction = async (name, value, event) => {
+  handleAction = async (name: string, value: string, event: React.SyntheticEvent) => {
     event.preventDefault();
     const messageID = this.props.message.id;
     const formData = {};
@@ -383,24 +391,32 @@ export class Message extends Component {
 
     if (data && data.message) {
       this.props.updateMessage(data.message);
-    } else {
+    } else if (this.props.removeMessage) {
       this.props.removeMessage(this.props.message);
     }
   };
 
-  handleRetry = async (message) => {
-    await this.props.retrySendMessage(message);
+  handleRetry = async (message: Client.Message) => {
+    if (this.props.retrySendMessage) {
+      return this.props.retrySendMessage(message); 
+    }
   };
 
-  onMentionsClick = (e) => {
+  onMentionsClick = (e: React.MouseEvent) => {
     if (typeof this.props.onMentionsClick !== 'function') {
+      return;
+    }
+    if (!this.props.message.mentioned_users) {
       return;
     }
     this.props.onMentionsClick(e, this.props.message.mentioned_users);
   };
 
-  onMentionsHover = (e) => {
+  onMentionsHover = (e: React.MouseEvent) => {
     if (typeof this.props.onMentionsHover !== 'function') {
+      return;
+    }
+    if (!this.props.message.mentioned_users) {
       return;
     }
     this.props.onMentionsHover(e, this.props.message.mentioned_users);

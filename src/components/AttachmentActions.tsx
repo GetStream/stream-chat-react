@@ -1,5 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import * as Client from 'stream-chat';
+
+export interface AttachmentActionsComponentProps {
+  id?: string;
+  text?: string;
+  actions?: Array<Client.Action>;
+  actionHandler: (name: string, value: string | undefined, event: React.BaseSyntheticEvent)=> void;
+}
 
 /**
  * AttachmentActions - The actions you can take on an attachment
@@ -7,10 +15,10 @@ import PropTypes from 'prop-types';
  * @example ./docs/AttachmentActions.md
  * @extends PureComponent
  */
-export class AttachmentActions extends React.PureComponent {
+export class AttachmentActions extends React.PureComponent<AttachmentActionsComponentProps> {
   static propTypes = {
     // /** The id of the form input */
-    // id: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     /** The text for the form input */
     text: PropTypes.string,
     /** A list of actions */
@@ -33,7 +41,7 @@ export class AttachmentActions extends React.PureComponent {
       <div className="str-chat__message-attachment-actions">
         <form className="str-chat__message-attachment-actions-form">
           <span key={0}>{text}</span>
-          {actions.map((action) => (
+          {actions ? actions.map((action) => (
             <button
               className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
               key={`${id}-${action.value}`}
@@ -42,7 +50,7 @@ export class AttachmentActions extends React.PureComponent {
             >
               {action.text}
             </button>
-          ))}
+          )) : null}
         </form>
       </div>
     );

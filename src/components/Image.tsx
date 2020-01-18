@@ -3,13 +3,26 @@ import PropTypes from 'prop-types';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
+export interface ImageProps {
+  /** The full size image url */
+  image_url?: string;
+  /** The thumb url */
+  thumb_url?: string;
+  /** The text fallback for the image */
+  fallback?: string;
+}
+
+export interface ImageState {
+  modalIsOpen: boolean;
+}
+
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
  *
  * @example ./docs/Image.md
  * @extends PureComponent
  */
-export class Image extends React.PureComponent {
+export class Image extends React.PureComponent<ImageProps, ImageState> {
   static propTypes = {
     /** The full size image url */
     image_url: PropTypes.string,
