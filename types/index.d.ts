@@ -42,7 +42,8 @@ export interface ChannelContextValue extends ChatContextValue {
   eventHistory?: {
     [lastMessageId: string]: (
       | Client.MemberAddedEvent
-      | Client.MemberRemovedEvent)[];
+      | Client.MemberRemovedEvent
+    )[];
   };
   thread?: Client.MessageResponse | boolean;
   threadMessages?: Client.MessageResponse[];
@@ -580,13 +581,16 @@ export class MessageInputSmall extends React.PureComponent<
   any
 > {}
 
-export class Attachment extends React.PureComponent<AttachmentUIComponentProps> {
+export class Attachment extends React.PureComponent<
+  AttachmentUIComponentProps
+> {
   attachmentType(a: Client.Attachment): void;
 }
 
-
-
-export class AttachmentActions extends React.PureComponent<AttachmentActionsComponentProps, any> {}
+export class AttachmentActions extends React.PureComponent<
+  AttachmentActionsComponentProps,
+  any
+> {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
 export class ChannelListMessenger extends React.PureComponent<

@@ -1,19 +1,17 @@
 {
-    "compilerOptions": {
-        "outDir": "./built",
-        "allowJs": true,
-        "target": "es5",
-        "jsx": "react",
-        "strict": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "module": "commonjs",
-        "baseUrl": ".",
-        "paths": {
-            "*" : ["src/@types/*"]
-        }
-    },
-    "include": [
-        "./src/**/*"
-    ]
+  "compilerOptions": {
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es5",
+    "jsx": "react",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/@types/*"]
+    }
+  },
+  "include": ["./src/**/*"]
 }
