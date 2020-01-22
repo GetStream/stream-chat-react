@@ -314,6 +314,9 @@ export interface MessageInputProps {
 
   /** Override file upload request */
   doFileUploadRequest?(file: object, channel: Client.Channel): void;
+
+  /** Completely override the submit handler (advanced usage only) */
+  overrideSubmitHandler?(message: object, channelCid: string): void;
 }
 
 export type ImageUpload = {
