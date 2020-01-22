@@ -15,5 +15,5 @@ export const EmoticonItem = (props) => {
         {char}
       </span>
     </div>
-  )
-}
+  );
+};
