@@ -22,34 +22,41 @@ class ChannelHeader extends PureComponent {
   };
 
   render() {
+    let {
+      channel,
+      title,
+      live,
+      watcher_count
+    } = this.props;
+
     return (
       <div className="str-chat__header-livestream">
-        {this.props.channel.data.image && (
+        {channel.data.image && (
           <Avatar
-            image={this.props.channel.data.image}
+            image={channel.data.image}
             shape="rounded"
-            size={this.props.channel.type === 'commerce' ? 60 : 40}
+            size={channel.type === 'commerce' ? 60 : 40}
           />
         )}
         <div className="str-chat__header-livestream-left">
           <p className="str-chat__header-livestream-left--title">
-            {this.props.title || this.props.channel.data.name}{' '}
-            {this.props.live && (
+            {title || channel.data.name}{' '}
+            {live && (
               <span className="str-chat__header-livestream-left--livelabel">
                 live
               </span>
             )}
           </p>
-          {this.props.channel.data.subtitle && (
+          {channel.data.subtitle && (
             <p className="str-chat__header-livestream-left--subtitle">
-              {this.props.channel.data.subtitle}
+              {channel.data.subtitle}
             </p>
           )}
           <p className="str-chat__header-livestream-left--members">
-            {!this.props.live && this.props.channel.data.member_count > 0 && (
-              <>{this.props.channel.data.member_count} members, </>
+            {!live && channel.data.member_count > 0 && (
+              <>{channel.data.member_count} members, </>
             )}
-            {this.props.watcher_count} online
+            {watcher_count} online
           </p>
         </div>
         <div className="str-chat__header-livestream-right">

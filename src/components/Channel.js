@@ -1,18 +1,17 @@
 import React, { PureComponent } from 'react';
-import { withChatContext, ChannelContext } from '../context';
-
-import { LoadingIndicator } from './LoadingIndicator';
-import { LoadingErrorIndicator } from './LoadingErrorIndicator';
-
 import uuidv4 from 'uuid/v4';
 import PropTypes from 'prop-types';
 import Immutable from 'seamless-immutable';
 import Visibility from 'visibilityjs';
 import { logChatPromiseExecution } from 'stream-chat';
+import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
+
+import { withChatContext, ChannelContext } from '../context';
+import { LoadingIndicator } from './LoadingIndicator';
+import { LoadingErrorIndicator } from './LoadingErrorIndicator';
 import { MessageSimple } from './MessageSimple';
 import { Attachment } from './Attachment';
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
 /**
  * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.
  * ChannelHeader, MessageList, Thread and MessageInput should be used as children of the Channel component.
@@ -184,7 +183,7 @@ class ChannelInner extends PureComponent {
   };
 
   async componentDidMount() {
-    const channel = this.props.channel;
+    const { channel } = this.props;
     let errored = false;
     if (!channel.initialized) {
       try {
@@ -233,7 +232,7 @@ class ChannelInner extends PureComponent {
       e.preventDefault();
     }
 
-    const channel = this.props.channel;
+    const { channel } = this.props;
     const threadMessages = channel.state.threads[message.id] || [];
 
     this.setState({
@@ -248,7 +247,7 @@ class ChannelInner extends PureComponent {
     this.setState({
       threadLoadingMore: true,
     });
-    const channel = this.props.channel;
+    const { channel } = this.props;
     const parentID = this.state.thread.id;
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
@@ -286,7 +285,7 @@ class ChannelInner extends PureComponent {
   };
 
   copyChannelState() {
-    const channel = this.props.channel;
+    const { channel } = this.props;
 
     this.setState({
       messages: channel.state.messages,
@@ -302,7 +301,7 @@ class ChannelInner extends PureComponent {
   }
 
   updateMessage = (updatedMessage, extraState) => {
-    const channel = this.props.channel;
+    const { channel } = this.props;
 
     extraState = extraState || {};
 
@@ -319,15 +318,15 @@ class ChannelInner extends PureComponent {
   };
 
   removeMessage = (message) => {
-    const channel = this.props.channel;
+    const { channel } = this.props;
     channel.state.removeMessage(message);
     this.setState({ messages: channel.state.messages });
   };
 
   removeEphemeralMessages() {
-    const c = this.props.channel;
-    c.state.selectRegularMessages();
-    this.setState({ messages: c.state.messages });
+    const { channel } = this.props;
+    channel.state.selectRegularMessages();
+    this.setState({ messages: channel.state.messages });
   }
 
   createMessagePreview = (text, attachments, parent, mentioned_users) => {
@@ -358,16 +357,22 @@ class ChannelInner extends PureComponent {
   };
 
   editMessage = (updatedMessage) => {
-    if (this.props.doUpdateMessageRequest) {
+    let {
+      doUpdateMessageRequest,
+      channel,
+      client
+    } = this.props;
+
+    if (doUpdateMessageRequest) {
       return Promise.resolve(
-        this.props.doUpdateMessageRequest(
-          this.props.channel.cid,
+        doUpdateMessageRequest(
+          channel.cid,
           updatedMessage,
         ),
       );
     }
 
-    return this.props.client.updateMessage(updatedMessage);
+    return client.updateMessage(updatedMessage);
   };
 
   _sendMessage = async (message) => {
@@ -540,8 +545,13 @@ class ChannelInner extends PureComponent {
   listenToChanges() {
     // The more complex sync logic is done in chat.js
     // listen to client.connection.recovered and all channel events
-    this.props.client.on('connection.recovered', this.handleEvent);
-    const channel = this.props.channel;
+
+    let {
+      client,
+      channel
+    } = this.props;
+
+    client.on('connection.recovered', this.handleEvent);
     channel.on(this.handleEvent);
     this.boundMarkRead = this.markRead.bind(this, channel);
     this.visibilityListener = Visibility.change((e, state) => {
@@ -619,36 +629,48 @@ class ChannelInner extends PureComponent {
     });
   };
 
-  getContext = () => ({
-    ...this.state,
-    client: this.props.client,
-    channel: this.props.channel,
-    Message: this.props.Message,
-    Attachment: this.props.Attachment,
-    multipleUploads: this.props.multipleUploads,
-    acceptedFiles: this.props.acceptedFiles,
-    maxNumberOfFiles: this.props.maxNumberOfFiles,
-    updateMessage: this.updateMessage,
-    removeMessage: this.removeMessage,
-    sendMessage: this.sendMessage,
-    editMessage: this.editMessage,
-    retrySendMessage: this.retrySendMessage,
-    loadMore: this.loadMore,
+  getContext = () => {
 
-    // thread related
-    openThread: this.openThread,
-    closeThread: this.closeThread,
-    loadMoreThread: this.loadMoreThread,
-    onMentionsClick: this._onMentionsHoverOrClick,
-    onMentionsHover: this._onMentionsHoverOrClick,
-  });
+    const {
+      client,
+      channel,
+      Message,
+      Attachment,
+      multipleUploads,
+      acceptedFiles,
+      maxNumberOfFiles,
+    } = this.props;
+
+    return {
+      ...this.state,
+      client,
+      channel,
+      Message,
+      Attachment,
+      multipleUploads,
+      acceptedFiles,
+      maxNumberOfFiles,
+      updateMessage: this.updateMessage,
+      removeMessage: this.removeMessage,
+      sendMessage: this.sendMessage,
+      editMessage: this.editMessage,
+      retrySendMessage: this.retrySendMessage,
+      loadMore: this.loadMore,
+  
+      // thread related
+      openThread: this.openThread,
+      closeThread: this.closeThread,
+      loadMoreThread: this.loadMoreThread,
+      onMentionsClick: this._onMentionsHoverOrClick,
+      onMentionsHover: this._onMentionsHoverOrClick,
+    }
+  };
 
   renderComponent = () => this.props.children;
 
   render() {
     let core;
-    const LoadingIndicator = this.props.LoadingIndicator;
-    const LoadingErrorIndicator = this.props.LoadingErrorIndicator;
+    const { LoadingIndicator, LoadingErrorIndicator } = this.props;
 
     if (this.state.error) {
       core = (
