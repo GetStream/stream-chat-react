@@ -22,7 +22,7 @@ class ChannelHeader extends PureComponent {
   };
 
   render() {
-    let {
+    const {
       channel,
       title,
       live,

@@ -357,7 +357,7 @@ class ChannelInner extends PureComponent {
   };
 
   editMessage = (updatedMessage) => {
-    let {
+    const {
       doUpdateMessageRequest,
       channel,
       client
@@ -546,7 +546,7 @@ class ChannelInner extends PureComponent {
     // The more complex sync logic is done in chat.js
     // listen to client.connection.recovered and all channel events
 
-    let {
+    const {
       client,
       channel
     } = this.props;
@@ -663,7 +663,7 @@ class ChannelInner extends PureComponent {
       loadMoreThread: this.loadMoreThread,
       onMentionsClick: this._onMentionsHoverOrClick,
       onMentionsHover: this._onMentionsHoverOrClick,
-    }
+    };
   };
 
   renderComponent = () => this.props.children;
