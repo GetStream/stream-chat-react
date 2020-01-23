@@ -330,6 +330,27 @@ class MessageInput extends PureComponent {
         .then(this.props.clearEditingState);
 
       logChatPromiseExecution(updateMessagePromise, 'update message');
+    } else if (
+      this.props.overrideSubmitHandler &&
+      typeof this.props.overrideSubmitHandler === 'function'
+    ) {
+      this.props.overrideSubmitHandler(
+        {
+          text,
+          attachments,
+          mentioned_users: uniq(this.state.mentioned_users),
+          parent: this.props.parent,
+        },
+        this.props.channel.cid,
+      );
+      this.setState({
+        text: '',
+        mentioned_users: [],
+        imageUploads: Immutable({}),
+        imageOrder: [],
+        fileUploads: Immutable({}),
+        fileOrder: [],
+      });
     } else {
       const sendMessagePromise = this.props.sendMessage({
         text,
