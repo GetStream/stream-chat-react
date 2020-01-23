@@ -22,11 +22,7 @@ class Window extends React.PureComponent {
   };
 
   render() {
-    const {
-      thread,
-      hideOnThread,
-      children
-    } = this.props;
+    const { thread, hideOnThread, children } = this.props;
 
     // If thread is active and window should hide on thread. Return null
     if (thread && hideOnThread) {

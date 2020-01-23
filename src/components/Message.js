@@ -237,7 +237,7 @@ export class Message extends Component {
       getFlagMessageErrorNotification,
       message,
       client,
-      addNotification
+      addNotification,
     } = this.props;
 
     try {
@@ -274,7 +274,7 @@ export class Message extends Component {
       getMuteUserErrorNotification,
       message,
       client,
-      addNotification
+      addNotification,
     } = this.props;
 
     try {
