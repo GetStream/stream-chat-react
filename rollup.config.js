@@ -9,6 +9,8 @@ import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
+import typescript from 'rollup-plugin-typescript';
+
 // eslint-disable-next-line
 import { terser } from 'rollup-plugin-terser';
 
@@ -20,7 +22,7 @@ import process from 'process';
 process.env.NODE_ENV = 'production';
 
 const baseConfig = {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   cache: false,
   watch: {
     chokidar: false,
@@ -98,6 +100,7 @@ const normalBundle = {
     '@babel/runtime/helpers/typeof',
   ],
   plugins: [
+    typescript(),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),

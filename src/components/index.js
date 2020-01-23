@@ -1,4 +1,4 @@
-export { Avatar } from './Avatar';
+export { Avatar } from './Avatar.tsx';
 export { Message } from './Message';
 export { MessageList } from './MessageList';
 export { Chat } from './Chat';
