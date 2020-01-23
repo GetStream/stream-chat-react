@@ -139,6 +139,7 @@ const fullBrowserBundle = {
     },
   ],
   plugins: [
+    typescript(),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
