@@ -9,7 +9,7 @@ import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
-import typescript from 'rollup-plugin-typescript';
+import typescript from '@rollup/plugin-typescript';
 
 // eslint-disable-next-line
 import { terser } from 'rollup-plugin-terser';
@@ -163,7 +163,7 @@ const fullBrowserBundle = {
     globals({
       process: true,
       globals: false,
-      buffer: false,
+      buffer: true,
       dirname: false,
       filename: false,
     }),

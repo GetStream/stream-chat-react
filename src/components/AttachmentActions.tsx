@@ -6,7 +6,11 @@ export interface AttachmentActionsComponentProps {
   id?: string;
   text?: string;
   actions?: Array<Client.Action>;
-  actionHandler: (name: string, value: string | undefined, event: React.BaseSyntheticEvent)=> void;
+  actionHandler: (
+    name: string,
+    value: string | undefined,
+    event: React.BaseSyntheticEvent,
+  ) => void;
 }
 
 /**
@@ -15,7 +19,9 @@ export interface AttachmentActionsComponentProps {
  * @example ./docs/AttachmentActions.md
  * @extends PureComponent
  */
-export class AttachmentActions extends React.PureComponent<AttachmentActionsComponentProps> {
+export class AttachmentActions extends React.PureComponent<
+  AttachmentActionsComponentProps
+> {
   static propTypes = {
     // /** The id of the form input */
     id: PropTypes.string.isRequired,
@@ -41,16 +47,18 @@ export class AttachmentActions extends React.PureComponent<AttachmentActionsComp
       <div className="str-chat__message-attachment-actions">
         <form className="str-chat__message-attachment-actions-form">
           <span key={0}>{text}</span>
-          {actions ? actions.map((action) => (
-            <button
-              className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
-              key={`${id}-${action.value}`}
-              data-value={action.value}
-              onClick={actionHandler.bind(this, action.name, action.value)}
-            >
-              {action.text}
-            </button>
-          )) : null}
+          {actions
+            ? actions.map((action) => (
+                <button
+                  className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
+                  key={`${id}-${action.value}`}
+                  data-value={action.value}
+                  onClick={actionHandler.bind(this, action.name, action.value)}
+                >
+                  {action.text}
+                </button>
+              ))
+            : null}
         </form>
       </div>
     );

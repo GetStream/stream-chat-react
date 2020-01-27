@@ -13,7 +13,10 @@ export interface AudioComponentState {
   progress: number;
 }
 
-export class Audio extends React.Component<AudioComponentProps, AudioComponentState> {
+export class Audio extends React.Component<
+  AudioComponentProps,
+  AudioComponentState
+> {
   audioRef: React.RefObject<HTMLAudioElement>;
 
   constructor(props: AudioComponentProps) {

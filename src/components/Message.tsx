@@ -6,7 +6,7 @@ import { Attachment } from './Attachment';
 
 import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
-import { MessageUIComponentProps } from '../../types'
+import { MessageUIComponentProps } from '../../types';
 import * as Client from 'stream-chat';
 
 /**
@@ -192,7 +192,8 @@ export class Message extends Component<MessageUIComponentProps> {
     return shouldUpdate;
   }
 
-  isMyMessage = (message: Client.MessageResponse) => message.user ? this.props.client.user.id === message.user.id : false;
+  isMyMessage = (message: Client.MessageResponse) =>
+    message.user ? this.props.client.user.id === message.user.id : false;
   isAdmin = () =>
     this.props.client.user.role === 'admin' ||
     (this.props.members &&
@@ -213,7 +214,8 @@ export class Message extends Component<MessageUIComponentProps> {
     this.isOwner() ||
     this.isAdmin();
 
-  canDeleteMessage = (message: Client.MessageResponse) => this.canEditMessage(message);
+  canDeleteMessage = (message: Client.MessageResponse) =>
+    this.canEditMessage(message);
 
   /**
    * Following function validates a function which returns notification message.
@@ -222,7 +224,10 @@ export class Message extends Component<MessageUIComponentProps> {
    * @param func {Function}
    * @param args {Array} Arguments to be provided to func while executing.
    */
-  validateAndGetNotificationMessage = (func?: (a0: any) => string, args?: [any]) => {
+  validateAndGetNotificationMessage = (
+    func?: (a0: any) => string,
+    args?: [any],
+  ) => {
     if (!func || typeof func !== 'function') return false;
 
     const returnValue = func.apply(null, args ? args : [null]);
@@ -248,23 +253,27 @@ export class Message extends Component<MessageUIComponentProps> {
         getFlagMessageSuccessNotification,
         [message],
       );
-      addNotification ? addNotification(
-        successMessage
-          ? successMessage
-          : 'Message has been successfully flagged',
-        'success',
-      ) : null;
+      addNotification
+        ? addNotification(
+            successMessage
+              ? successMessage
+              : 'Message has been successfully flagged',
+            'success',
+          )
+        : null;
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getFlagMessageErrorNotification,
         [message],
       );
-      addNotification ? addNotification(
-        errorMessage
-          ? errorMessage
-          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-        'error',
-      ) : null;
+      addNotification
+        ? addNotification(
+            errorMessage
+              ? errorMessage
+              : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+            'error',
+          )
+        : null;
     }
   };
 
@@ -289,22 +298,26 @@ export class Message extends Component<MessageUIComponentProps> {
         [message.user],
       );
 
-      addNotification ? addNotification(
-        successMessage
-          ? successMessage
-          : `User with id ${message.user.id} has been muted`,
-        'success',
-      ) : null;
+      addNotification
+        ? addNotification(
+            successMessage
+              ? successMessage
+              : `User with id ${message.user.id} has been muted`,
+            'success',
+          )
+        : null;
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getMuteUserErrorNotification,
         [message.user],
       );
 
-      addNotification ? addNotification(
-        errorMessage ? errorMessage : 'Error muting a user ...',
-        'error',
-      ) : null;
+      addNotification
+        ? addNotification(
+            errorMessage ? errorMessage : 'Error muting a user ...',
+            'error',
+          )
+        : null;
     }
   };
 
@@ -313,17 +326,24 @@ export class Message extends Component<MessageUIComponentProps> {
       event.preventDefault();
     }
 
-    this.props.setEditingState ? this.props.setEditingState(this.props.message) : null;
+    this.props.setEditingState
+      ? this.props.setEditingState(this.props.message)
+      : null;
   };
 
   handleDelete = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     const message = this.props.message;
     const data = await this.props.client.deleteMessage(message.id);
-    this.props.updateMessage ? this.props.updateMessage(data.message, {}) : null;
+    this.props.updateMessage
+      ? this.props.updateMessage(data.message, {})
+      : null;
   };
 
-  handleReaction = async (reactionType: string, event: React.SyntheticEvent) => {
+  handleReaction = async (
+    reactionType: string,
+    event: React.SyntheticEvent,
+  ) => {
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
@@ -365,10 +385,9 @@ export class Message extends Component<MessageUIComponentProps> {
 
       const reaction = { type: reactionType };
 
-      // this.props.channel.state.addReaction(tmpReaction, this.props.message);
       reactionChangePromise = this.props.channel.sendReaction(
         messageID,
-        reaction
+        reaction,
       );
     }
 
@@ -381,10 +400,14 @@ export class Message extends Component<MessageUIComponentProps> {
     }
   };
 
-  handleAction = async (name: string, value: string, event: React.SyntheticEvent) => {
+  handleAction = async (
+    name: string,
+    value: string,
+    event: React.SyntheticEvent,
+  ) => {
     event.preventDefault();
     const messageID = this.props.message.id;
-    const formData = {};
+    const formData: any = {};
     formData[name] = value;
 
     const data = await this.props.channel.sendAction(messageID, formData);
@@ -398,7 +421,7 @@ export class Message extends Component<MessageUIComponentProps> {
 
   handleRetry = async (message: Client.Message) => {
     if (this.props.retrySendMessage) {
-      return this.props.retrySendMessage(message); 
+      return this.props.retrySendMessage(message);
     }
   };
 
@@ -474,7 +497,7 @@ export class Message extends Component<MessageUIComponentProps> {
     const actionsEnabled =
       message.type === 'regular' && message.status === 'received';
 
-    const Component = this.props.Message;
+    const Component: any = this.props.Message;
     return (
       <Component
         {...this.props}

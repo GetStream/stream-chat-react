@@ -44,7 +44,7 @@ class App extends Component {
   }
 
   render() {
-    const filters = { type: 'messaging', example: 1 };
+    const filters = { type: 'messaging' };
     const sort = {
       last_message_at: -1,
       updated_at: -1,
