@@ -10,8 +10,6 @@ import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
-import { terser } from 'rollup-plugin-terser';
 
 import replace from 'rollup-plugin-replace';
 
