@@ -9,6 +9,7 @@ import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
+import PropTypes from 'prop-types';
 // eslint-disable-next-line
 import { terser } from 'rollup-plugin-terser';
 
@@ -154,7 +155,11 @@ const fullBrowserBundle = {
       browser: true,
     }),
     url(),
-    commonjs(),
+    commonjs({
+      namedExports: {
+        'prop-types': Object.keys(PropTypes),
+      },
+    }),
     json(),
     globals({
       process: true,
