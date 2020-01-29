@@ -42,7 +42,8 @@ export interface ChannelContextValue extends ChatContextValue {
   eventHistory?: {
     [lastMessageId: string]: (
       | Client.MemberAddedEvent
-      | Client.MemberRemovedEvent)[];
+      | Client.MemberRemovedEvent
+    )[];
   };
   thread?: Client.MessageResponse | boolean;
   threadMessages?: Client.MessageResponse[];
