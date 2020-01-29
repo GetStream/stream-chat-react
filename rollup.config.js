@@ -100,7 +100,7 @@ const normalBundle = {
     '@babel/runtime/helpers/typeof',
   ],
   plugins: [
-    typescript(),
+    typescript({ noEmitOnError: true }),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
@@ -139,7 +139,7 @@ const fullBrowserBundle = {
     },
   ],
   plugins: [
-    typescript(),
+    typescript({ noEmitOnError: true }),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
