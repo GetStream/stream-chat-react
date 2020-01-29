@@ -23,7 +23,7 @@
     "@braintree/sanitize-url": "^3.0.0",
     "@webscopeio/react-textarea-autocomplete": "^4.0.0",
     "anchorme": "^1.1.2",
-    "deep-equal": "^1.0.1",
+    "deep-equal": "^2.0.1",
     "emoji-mart": "2.11.0",
     "emoji-regex": "^8.0.0",
     "isomorphic-ws": "^4.0.1",
