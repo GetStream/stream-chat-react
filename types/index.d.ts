@@ -491,7 +491,7 @@ export interface ThreadProps extends ChannelContextValue {
   additionalParentMessageProps?: object;
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
-  MessageInput: React.ElementType<MessageInputProps>;
+  MessageInput?: React.ElementType<MessageInputProps>;
 }
 
 export interface TypingIndicatorProps {
@@ -671,34 +671,34 @@ export interface ImageProps {
 }
 
 export interface InfiniteScrollProps {
-  hasMore: boolean;
-  initialLoad: boolean;
-  isReverse: boolean;
   loadMore(): any;
-  pageStart: number;
-  isLoading: boolean;
-  useCapture: boolean;
-  useWindow: boolean;
-  element: React.ElementType;
-  loader: React.ReactNode;
-  threshold: number;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
 }
 
 export interface ReverseInfiniteScrollProps {
-  hasMore: boolean;
-  initialLoad: boolean;
-  isReverse: boolean;
   loadMore(): any;
-  pageStart: number;
-  isLoading: boolean;
-  useCapture: boolean;
-  useWindow: boolean;
-  element: React.ElementType;
-  loader: React.ReactNode;
-  threshold: number;
-  className: string;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
+  className?: string;
   /** The function is called when the list scrolls */
-  listenToScroll(
+  listenToScroll?(
     standardOffset: string | number,
     reverseOffset: string | number,
   ): any;
