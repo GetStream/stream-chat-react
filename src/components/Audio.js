@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 export class Audio extends React.Component {
   static propTypes = {
-    handleClose: PropTypes.func,
     /** Attachment object of audio type */
     og: PropTypes.object,
   };
@@ -57,12 +56,6 @@ export class Audio extends React.Component {
   componentWillUnmount() {
     window.clearInterval(this.state.updateProgress);
   }
-
-  _handleClose = (e) => {
-    if (this.props.handleClose) {
-      this.props.handleClose(e);
-    }
-  };
 
   render() {
     const { og } = this.props;

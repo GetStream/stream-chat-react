@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 export class InfiniteScroll extends Component {
   static propTypes = {
-    children: PropTypes.node.isRequired,
     element: PropTypes.node,
     hasMore: PropTypes.bool,
     initialLoad: PropTypes.bool,
@@ -40,7 +39,6 @@ export class InfiniteScroll extends Component {
   }
 
   componentDidMount() {
-    this.pageLoaded = this.props.pageStart;
     this.attachScrollListener();
   }
 
@@ -173,7 +171,7 @@ export class InfiniteScroll extends Component {
       this.detachScrollListener();
       // Call loadMore after detachScrollListener to allow for non-async loadMore functions
       if (typeof this.props.loadMore === 'function') {
-        this.props.loadMore((this.pageLoaded += 1));
+        this.props.loadMore();
       }
     }
   }

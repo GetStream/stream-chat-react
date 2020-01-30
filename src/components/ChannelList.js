@@ -258,6 +258,7 @@ class ChannelList extends PureComponent {
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handleEvent = async (e) => {
+    console.log(e);
     if (e.type === 'user.presence.changed') {
       let newChannels = this.state.channels;
 

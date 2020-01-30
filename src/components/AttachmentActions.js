@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 export class AttachmentActions extends React.PureComponent {
   static propTypes = {
     // /** The id of the form input */
-    // id: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     /** The text for the form input */
     text: PropTypes.string,
     /** A list of actions */

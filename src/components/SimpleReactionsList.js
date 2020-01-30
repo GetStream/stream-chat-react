@@ -8,11 +8,11 @@ import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 export class SimpleReactionsList extends React.PureComponent {
   static propTypes = {
     reactions: PropTypes.array,
-    reaction_coutns: PropTypes.object,
-    renderReactions: PropTypes.func,
+    reaction_counts: PropTypes.object,
     showTooltip: PropTypes.bool,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
+    handleReaction: PropTypes.func,
   };
 
   static defaultProps = {
