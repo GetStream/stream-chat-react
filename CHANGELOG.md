@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.20](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.20) 2019-01-14
+
+- When you change the filters prop on the ChannelList component this now we will refresh the channels with the new query
+
 ## [0.7.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.17) 2019-01-02
 
 - Added `maxRows` props to MessageInput component
