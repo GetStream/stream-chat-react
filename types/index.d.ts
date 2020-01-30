@@ -1,8 +1,8 @@
 // TypeScript Version: 2.8
 
 /** Components */
-import * as React from 'react';
-import * as Client from 'stream-chat';
+// import * as React from 'react';
+// import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
@@ -478,6 +478,7 @@ export interface MessageUIComponentProps extends MessageProps {
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
+  getMessageActions(): Array<string>;
   channelConfig?: object;
   threadList?: boolean;
   additionalMessageInputProps?: object;
