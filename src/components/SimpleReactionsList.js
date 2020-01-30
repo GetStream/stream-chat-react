@@ -8,10 +8,16 @@ import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 export class SimpleReactionsList extends React.PureComponent {
   static propTypes = {
     reactions: PropTypes.array,
+    /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
     showTooltip: PropTypes.bool,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
+    /**
+     * Handler to set/unset reaction on message.
+     *
+     * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+     * */
     handleReaction: PropTypes.func,
   };
 

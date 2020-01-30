@@ -175,30 +175,46 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
 }
 
 export interface ChannelPreviewProps {
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
+  /** Current selected channel object */
   activeChannel: Client.Channel;
-  Preview: React.ElementType<ChannelPreviewUIComponentProps>;
+  /**
+   * Available built-in options (also accepts the same props as):
+   *
+   * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+   * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+   * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+   *
+   * The Preview to use, defaults to ChannelPreviewLastMessage
+   * */
+  Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
   key: string;
-  closeMenu(): void;
+  closeMenu?(): void;
+  /** Setter for selected channel */
   setActiveChannel(
-    channel?: Client.Channel,
-    watchers: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    channel: Client.Channel,
+    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
     e?: React.BaseSyntheticEvent,
   ): void;
   // Following props is just to make sure preview component gets updated after connection is recovered.
   // It is not actually used anywhere internally
-  connectionRecoveredCount: number;
-  channelUpdateCount: number;
+  connectionRecoveredCount?: number;
+  channelUpdateCount?: number;
 }
 
 export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
-  latestMessage: string;
-  active: boolean;
+  /** Latest message's text. */
+  latestMessage?: string;
+  /** Length of latest message to truncate at */
+  latestMessageLength?: number;
+  active?: boolean;
 
   /** Following props are coming from state of ChannelPreview */
-  unread: number;
-  lastMessage: Client.MessageResponse;
-  lastRead: Date;
+  unread?: number;
+  lastMessage?: Client.MessageResponse;
+
+  lastRead?: Date;
 }
 
 export interface PaginatorProps {
@@ -372,7 +388,7 @@ export interface MessageInputUIComponentProps
   getCommands?(): [];
   handleSubmit?(event: React.FormEvent): void;
   handleChange?(event: React.ChangeEventHandler): void;
-  onPaste?: ClipboardEventHandler<T>;
+  onPaste?: React.ClipboardEventHandler;
   onSelectItem?(item: Client.UserResponse): void;
   openEmojiPicker?(): void;
 }
@@ -475,6 +491,7 @@ export interface ThreadProps extends ChannelContextValue {
   additionalParentMessageProps?: object;
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
+  MessageInput: React.ElementType<MessageInputProps>;
 }
 
 export interface TypingIndicatorProps {
@@ -604,8 +621,8 @@ export interface ChatAutoCompleteProps {
   users: Client.UserResponse[];
   onSelectItem?(item: any): any;
   commands: Client.CommandResponse[];
-  onFocus?: React.FocusEventHandler<T>;
-  onPaste?: React.ClipboardEventHandler<T>;
+  onFocus?: React.FocusEventHandler;
+  onPaste?: React.ClipboardEventHandler;
 }
 
 export interface ChatDownProps {
@@ -664,7 +681,6 @@ export interface InfiniteScrollProps {
   useWindow: boolean;
   element: React.ElementType;
   loader: React.ReactNode;
-  ref: React.Ref;
   threshold: number;
 }
 
@@ -679,7 +695,6 @@ export interface ReverseInfiniteScrollProps {
   useWindow: boolean;
   element: React.ElementType;
   loader: React.ReactNode;
-  ref: React.Ref;
   threshold: number;
   className: string;
   /** The function is called when the list scrolls */

@@ -62,7 +62,10 @@ export class MessageSimple extends PureComponent {
     clearEditingState: PropTypes.func,
     /** Returns true if message belongs to current user */
     isMyMessage: PropTypes.func,
-    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    /**
+     * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
+     * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
+     * */
     getMessageActions: PropTypes.func,
     /**
      * Function to publish updates on message to channel

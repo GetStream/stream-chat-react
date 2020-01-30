@@ -27,10 +27,38 @@ export class MessageActionsBox extends React.Component {
     mine: PropTypes.bool,
     /** DOMRect object for parent MessageList component */
     messageListRect: PropTypes.object,
+    /**
+     * Handler for flaging a current message
+     *
+     * @param event React's MouseEventHandler event
+     * @returns void
+     * */
     handleFlag: PropTypes.func,
+    /**
+     * Handler for muting a current message
+     *
+     * @param event React's MouseEventHandler event
+     * @returns void
+     * */
     handleMute: PropTypes.func,
+    /**
+     * Handler for editing a current message
+     *
+     * @param event React's MouseEventHandler event
+     * @returns void
+     * */
     handleEdit: PropTypes.func,
+    /**
+     * Handler for deleting a current message
+     *
+     * @param event React's MouseEventHandler event
+     * @returns void
+     * */
     handleDelete: PropTypes.func,
+    /**
+     * Returns array of avalable message actions for current message.
+     * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
+     */
     getMessageActions: PropTypes.func,
   };
 

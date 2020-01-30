@@ -12,7 +12,6 @@ export class InfiniteScroll extends Component {
     loadMore: PropTypes.func.isRequired,
     pageStart: PropTypes.number,
     isLoading: PropTypes.bool,
-    ref: PropTypes.func,
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
     useWindow: PropTypes.bool,
@@ -205,7 +204,6 @@ export class InfiniteScroll extends Component {
       loader,
       loadMore,
       pageStart,
-      ref,
       threshold,
       useCapture,
       useWindow,
@@ -215,9 +213,6 @@ export class InfiniteScroll extends Component {
 
     props.ref = (node) => {
       this.scrollComponent = node;
-      if (ref) {
-        ref(node);
-      }
     };
 
     const childrenArray = [children];

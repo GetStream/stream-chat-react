@@ -5,8 +5,10 @@ import { Avatar } from './Avatar';
 
 export class TypingIndicator extends React.PureComponent {
   static propTypes = {
+    /** @see See [chat context](https://getstream.github.io/stream-chat-react/#chatcontext) doc */
+    client: PropTypes.object,
+    /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channelcontext) doc */
     typing: PropTypes.object,
-    open: PropTypes.bool,
   };
 
   render() {

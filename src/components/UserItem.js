@@ -5,8 +5,11 @@ import PropTypes from 'prop-types';
 export class UserItem extends PureComponent {
   static propTypes = {
     entity: PropTypes.shape({
+      /** Name of the user */
       name: PropTypes.string,
+      /** Id of the user */
       id: PropTypes.string,
+      /** Image of the user */
       image: PropTypes.string,
     }),
   };

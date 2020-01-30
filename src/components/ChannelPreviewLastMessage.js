@@ -13,14 +13,23 @@ import truncate from 'lodash/truncate';
 export class ChannelPreviewLastMessage extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    setActiveChannel: PropTypes.func,
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    channel: PropTypes.object,
-    closeMenu: PropTypes.func,
-    unread_count: PropTypes.number,
+    channel: PropTypes.object.isRequired,
+    /** Current selected channel object */
+    activeChannel: PropTypes.object.isRequired,
+    /** Setter for selected channel */
+    setActiveChannel: PropTypes.func.isRequired,
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
+    watchers: PropTypes.object,
+    /** Number of unread messages */
+    unread: PropTypes.number,
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
+    /** Latest message's text. */
     latestMessage: PropTypes.string,
+    /** Length of latest message to truncate at */
     latestMessageLength: PropTypes.number,
   };
 
@@ -37,7 +46,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
 
   render() {
     const unreadClass =
-      this.props.unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
+      this.props.unread >= 1 ? 'str-chat__channel-preview--unread' : '';
     const activeClass = this.props.active
       ? 'str-chat__channel-preview--active'
       : '';
@@ -47,7 +56,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
       >
         <button onClick={this.onSelectChannel} ref={this.channelPreviewButton}>
-          {this.props.unread_count >= 1 && (
+          {this.props.unread >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
           <Avatar image={this.props.channel.data.image} />
@@ -61,9 +70,9 @@ export class ChannelPreviewLastMessage extends PureComponent {
                     this.props.latestMessageLength,
                   )}
             </span>
-            {this.props.unread_count >= 1 && (
+            {this.props.unread >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
-                {this.props.unread_count}
+                {this.props.unread}
               </span>
             )}
           </div>

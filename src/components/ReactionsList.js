@@ -7,10 +7,13 @@ import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../utils';
 
 export class ReactionsList extends React.Component {
   static propTypes = {
+    /** List of reactions */
     reactions: PropTypes.array,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
+    /** If true, reaction list will be shown at trailing end of message bubble. */
     reverse: PropTypes.bool,
+    /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
   };
 
