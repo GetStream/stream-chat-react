@@ -6,6 +6,8 @@ import { SendButton } from './SendButton';
 import Immutable from 'seamless-immutable';
 import { generateRandomId } from '../utils';
 import uniq from 'lodash/uniq';
+import uuidv4 from 'uuid/v4';
+
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
@@ -17,6 +19,24 @@ if (!Element.prototype.matches) {
   Element.prototype.matches =
     Element.prototype.msMatchesSelector ||
     Element.prototype.webkitMatchesSelector;
+}
+
+/** If file name contains special chars, then generate a new name for file, so as to avoid failures in uploading on image */
+function validateAndFixFileName(file) {
+  if (isASCII(file.name)) return file;
+
+  const blob = file.slice(0, file.size, file.type);
+  const extension = /[.]/.exec(file.name)
+    ? /[^.]+$/.exec(file.name)
+    : undefined;
+  const newFileName = extension ? `${uuidv4()}.${extension}` : `${uuidv4()}`;
+
+  return new File([blob], `${newFileName}`, { type: file.type });
+}
+
+function isASCII(str, extended) {
+  // eslint-disable-next-line no-control-regex
+  return (extended ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(str);
 }
 
 /**
@@ -434,7 +454,7 @@ class MessageInput extends PureComponent {
     if (!img) {
       return;
     }
-    const { file } = img;
+    let { file } = img;
 
     await this.setState((prevState) => ({
       imageUploads: prevState.imageUploads.setIn([id, 'state'], 'uploading'),
@@ -442,6 +462,8 @@ class MessageInput extends PureComponent {
 
     let response = {};
     response = {};
+    file = validateAndFixFileName(file);
+
     try {
       if (this.props.doImageUploadRequest) {
         response = await this.props.doImageUploadRequest(
@@ -488,10 +510,11 @@ class MessageInput extends PureComponent {
     if (!upload) {
       return;
     }
-    const { file } = upload;
+    let { file } = upload;
     await this.setState((prevState) => ({
       imageUploads: prevState.imageUploads.setIn([id, 'state'], 'uploading'),
     }));
+    file = validateAndFixFileName(file);
 
     let response = {};
     response = {};
