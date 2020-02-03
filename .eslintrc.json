@@ -1,5 +1,5 @@
 {
-  "plugins": ["babel", "markdown", "sonarjs"],
+  "plugins": ["babel", "markdown", "sonarjs", "jest"],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -31,7 +31,8 @@
   },
   "env": {
     "es6": true,
-    "browser": true
+    "browser": true,
+    "jest/globals": true
   },
   "parser": "babel-eslint",
   "parserOptions": {

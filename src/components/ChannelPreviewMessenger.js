@@ -23,6 +23,11 @@ export class ChannelPreviewMessenger extends PureComponent {
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
     latestMessage: PropTypes.string,
+    latestMessageLength: PropTypes.number,
+  };
+
+  static defaultProps = {
+    latestMessageLength: 20,
   };
 
   channelPreviewButton = React.createRef();
@@ -57,9 +62,11 @@ export class ChannelPreviewMessenger extends PureComponent {
             <span>{channel.data.name}</span>
           </div>
           <div className="str-chat__channel-preview-messenger--last-message">
-            {!channel.state.messages[0]
+            {!this.props.latestMessage
               ? 'Nothing yet...'
-              : truncate(this.props.latestMessage, 14)}
+              : truncate(this.props.latestMessage, {
+                  length: this.props.latestMessageLength,
+                })}
           </div>
         </div>
       </button>
