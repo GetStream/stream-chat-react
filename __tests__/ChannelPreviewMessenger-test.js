@@ -37,22 +37,24 @@ describe('ChannelPreviewMessenger', () => {
     await channel.watch();
   });
 
-  it('Channel name and empty message should be present in begining', () => {
+  it('should display empty message (from emptyMessageText prop) when channel has no messages', () => {
+    const emptyMessageText = 'Nothing yet...';
+
     const { getByText } = render(
       <ChannelPreviewMessenger
         latestMessage=""
+        emptyMessageText={emptyMessageText}
         channel={channel}
         activeChannel={channel}
         setActiveChannel={() => {}}
       />,
     );
 
-    const emptyMessageText = 'Nothing yet...';
     expect(getByText(emptyMessageText)).toBeTruthy();
     expect(getByText(channelName)).toBeTruthy();
   });
 
-  it('Latest message should be present in cacatenated state', () => {
+  it('should display latest message in channel (from latestMessage prop)', () => {
     const { getByText, rerender } = render(
       <ChannelPreviewMessenger
         latestMessage="This is a message from me, this is so cool man!!"
@@ -62,6 +64,29 @@ describe('ChannelPreviewMessenger', () => {
       />,
     );
     expect(getByText('This is a message...')).toBeTruthy();
+
+    // Updating the latest message should reflect in view.
+    rerender(
+      <ChannelPreviewMessenger
+        latestMessage="New Message from me. This should be updated in preview!!"
+        latestMessageLength={20}
+        channel={channel}
+        activeChannel={channel}
+      />,
+    );
+
+    expect(getByText('New Message from ...')).toBeTruthy();
+  });
+
+  it('should reflect the updated latest message in channel (from latestMessage prop)', () => {
+    const { getByText, rerender } = render(
+      <ChannelPreviewMessenger
+        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessageLength={20}
+        channel={channel}
+        activeChannel={channel}
+      />,
+    );
 
     // Updating the latest message should reflect in view.
     rerender(
