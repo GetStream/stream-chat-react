@@ -22,10 +22,13 @@ export class ChannelPreviewLastMessage extends PureComponent {
     active: PropTypes.bool,
     latestMessage: PropTypes.string,
     latestMessageLength: PropTypes.number,
+    /** Text to display in place of latest message, when channel has no messages yet. */
+    emptyMessageText: PropTypes.string,
   };
 
   static defaultProps = {
     latestMessageLength: 20,
+    emptyMessageText: 'Nothing yet...',
   };
 
   channelPreviewButton = React.createRef();
@@ -36,34 +39,40 @@ export class ChannelPreviewLastMessage extends PureComponent {
   };
 
   render() {
+    const {
+      channel,
+      emptyMessageText,
+      latestMessage,
+      latestMessageLength,
+      unread_count,
+      active,
+    } = this.props;
+
     const unreadClass =
-      this.props.unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
-    const activeClass = this.props.active
-      ? 'str-chat__channel-preview--active'
-      : '';
-    const name = this.props.channel.data.name || this.props.channel.cid;
+      unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
+    const activeClass = active ? 'str-chat__channel-preview--active' : '';
+    const name = channel.data.name || channel.cid;
     return (
       <div
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
       >
         <button onClick={this.onSelectChannel} ref={this.channelPreviewButton}>
-          {this.props.unread_count >= 1 && (
+          {unread_count >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
-          <Avatar image={this.props.channel.data.image} />
+          <Avatar image={channel.data.image} />
           <div className="str-chat__channel-preview-info">
             <span className="str-chat__channel-preview-title">{name}</span>
             <span className="str-chat__channel-preview-last-message">
-              {!this.props.channel.state.messages[0]
-                ? 'Nothing yet...'
-                : truncate(
-                    this.props.latestMessage,
-                    this.props.latestMessageLength,
-                  )}
+              {!latestMessage
+                ? emptyMessageText
+                : truncate(latestMessage, {
+                    length: latestMessageLength,
+                  })}
             </span>
-            {this.props.unread_count >= 1 && (
+            {unread_count >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
-                {this.props.unread_count}
+                {unread_count}
               </span>
             )}
           </div>
