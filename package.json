@@ -34,7 +34,7 @@
     "react-file-utils": "0.3.13",
     "react-images": "^1.0.0",
     "react-markdown": "^4.3.1",
-    "react-player": "^1.14.2",
+    "react-player": "^1.15.2",
     "react-textarea-autosize": "^7.1.0",
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",

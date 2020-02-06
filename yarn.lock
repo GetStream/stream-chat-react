@@ -8119,10 +8119,10 @@ react-motion@^0.5.0:
     prop-types "^15.5.8"
     raf "^3.1.0"
 
-react-player@^1.14.2:
-  version "1.14.2"
-  resolved "https://registry.yarnpkg.com/react-player/-/react-player-1.14.2.tgz#666f2de883c4c251fe316ce267f2d11f2f201e31"
-  integrity sha512-t3R1szFSA1mkd66R4OSYwONjy1tETySoFYgsFzskhin9WCnypdPOuj5N5+uiuAInSg5ueznxoMGndl3JSoXYlQ==
+react-player@^1.15.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/react-player/-/react-player-1.15.2.tgz#b348df962dbdba39242e8c6edef1df479531a00b"
+  integrity sha512-8KWo2ZQU9OnTx5Yp7eKRh/jGadSc436MOqJ+7c7RryfOXeuY938yZ2Osvh6bZY+etMWXDBHqXm14Vv9SoGb68g==
   dependencies:
     deepmerge "^4.0.0"
     load-script "^1.0.0"
