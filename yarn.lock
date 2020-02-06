@@ -1288,10 +1288,10 @@
     "@webassemblyjs/wast-parser" "1.8.5"
     "@xtuc/long" "4.2.2"
 
-"@webscopeio/react-textarea-autocomplete@^4.0.0":
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/@webscopeio/react-textarea-autocomplete/-/react-textarea-autocomplete-4.6.2.tgz#4c96ed09781a0e92e846163b3fef54c4fa07eb87"
-  integrity sha512-pRZ2gEYbl1ENentI9bVTjONVJVA/K8xcIwAgdMMuyXyefwnD4ssJxErXSPqRbZvuoZ3tU0CNFc++GKhp2z4pcw==
+"@webscopeio/react-textarea-autocomplete@^4.6.3":
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/@webscopeio/react-textarea-autocomplete/-/react-textarea-autocomplete-4.6.3.tgz#4abc9a36006e6c52321f3d43c10711432fa10afe"
+  integrity sha512-09aVXwhxIcfpU3Qyx5zxAec73BDE/32BGTWZkXDCB5yZEzU5Qnw++68Lvv/Z/oB+ifqFsG9JOoXf2S0lz6mwcg==
   dependencies:
     custom-event "^1.0.1"
     textarea-caret "3.0.2"
@@ -9469,10 +9469,10 @@ stream-browserify@^2.0.1, stream-browserify@^2.0.2:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.3.0.tgz#afbc6046aeb173e495cad7f070c65897367b8280"
-  integrity sha512-y/D678WnBNKmZWhWI0XNr1bmg4GYYrsq8QWK6u0GUTfvS68L35tkSIN9RS1GxgTQOjMY29GzQvScnaVtV6SVUQ==
+stream-chat@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.3.1.tgz#080695f9e10ceaec5fb9343b9b19bee0b70e2bb9"
+  integrity sha512-IzNXw34o3SVfyetgI0bZgScDqWwDvb2aEXcklXN8vGQT+IqNl7+0/0G9YzZPOJvye2gNErYeXhzY6nk7XcBXDg==
   dependencies:
     "@babel/runtime" "^7.3.1"
     axios "^0.18.1"
