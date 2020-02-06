@@ -1,4 +1,8 @@
 ```js
+import { Chat } from '../Chat';
+import { ChannelList } from '../ChannelList';
+import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
+
 const data = require('./data');
 const filters = { type: 'team', example: 1 };
 const sort = {

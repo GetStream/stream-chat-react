@@ -1,6 +1,8 @@
 React Select allows you to select a reaction. Here's how to use it:
 
 ```js
+import { ReactionSelector } from '../ReactionSelector';
+
 const data = require('./data');
 
 function handleReaction(reaction) {
@@ -18,6 +20,8 @@ function handleReaction(reaction) {
 Align to the right:
 
 ```js
+import { ReactionSelector } from '../ReactionSelector';
+
 const data = require('./data');
 
 function handleReaction(reaction) {
