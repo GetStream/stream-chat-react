@@ -1,6 +1,9 @@
 MessageTeam handles the rendering of a message and depends on the Message component for all the logic.
 
 ```js
+import { Message } from '../Message';
+import { MessageTeam } from '../MessageTeam';
+
 const data = require('./data');
 
 const readBy = [
@@ -16,7 +19,7 @@ const readBy = [
   message={data.message}
   Message={MessageTeam}
   readBy={readBy}
-  groupStyles={['bottom']}
+  groupStyles={['single']}
   editing={false}
   {...data.channelContext}
 />;

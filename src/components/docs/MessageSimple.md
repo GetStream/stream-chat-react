@@ -1,6 +1,9 @@
 MessageSimple handles the rendering of a message and depends on the Message component for all the logic.
 
 ```js
+import { Message } from '../Message';
+import { MessageSimple } from '../MessageSimple';
+
 const data = require('./data');
 
 const readBy = [

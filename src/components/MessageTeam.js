@@ -331,9 +331,7 @@ export class MessageTeam extends PureComponent {
     if (editing) {
       return (
         <div
-          className={`str-chat__message-team str-chat__message-team--${
-            groupStyles[0]
-          } str-chat__message-team--editing`}
+          className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
           {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (

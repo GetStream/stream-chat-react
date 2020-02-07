@@ -124,6 +124,11 @@ Sometimes you'll want to use our components but will need custom functionality. 
 Both functions have access to the selected file and the channel object and expect an object to be returned `{file: url}`.
 
 ```js
+import { Chat } from '../Chat';
+import { Channel } from '../Channel';
+import { MessageTeam } from '../MessageTeam';
+import { MessageInput } from '../MessageInput';
+
 const data = require('./data');
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client} Message={MessageTeam}>
