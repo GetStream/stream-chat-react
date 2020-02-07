@@ -13,11 +13,16 @@ import chevrondown from '../assets/str-chat__icon-chevron-down.svg';
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {
+    /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
     loading: PropTypes.bool,
+    /** When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js) */
     error: PropTypes.bool,
     /** Stream chat client object */
     client: PropTypes.object,
+    /** When true, sidebar containing logo of the team is visible */
     showSidebar: PropTypes.bool,
+    /** Url for sidebar logo image. */
+    sidebarImage: PropTypes.string,
   };
 
   static defaultProps = {
@@ -36,10 +41,7 @@ class ChannelListTeam extends PureComponent {
           {showSidebar && (
             <div className="str-chat__channel-list-team__sidebar">
               <div className="str-chat__channel-list-team__sidebar--top">
-                <Avatar
-                  image="https://cdn.dribbble.com/users/610788/screenshots/5157282/spacex.png"
-                  size={50}
-                />
+                <Avatar image={this.props.sidebarImage} size={50} />
               </div>
             </div>
           )}

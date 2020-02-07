@@ -12,7 +12,7 @@ import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
 export class Card extends React.PureComponent {
   static propTypes = {
     /** Title returned by the OG scraper */
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     /** Link returned by the OG scraper */
     title_link: PropTypes.string,
     /** The scraped url, used as a fallback if the OG-data doesn't include a link */

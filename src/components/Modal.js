@@ -1,8 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export class Modal extends React.PureComponent {
   innerRef = React.createRef();
-
+  static propTypes = {
+    /** Callback handler for closing of modal. */
+    onClose: PropTypes.func,
+    /** If true, modal is opened or visible. */
+    open: PropTypes.bool,
+  };
   componentDidMount() {
     document.addEventListener('keyPress', this.handleEscKey, false);
   }

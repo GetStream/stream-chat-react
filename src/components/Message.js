@@ -114,6 +114,8 @@ export class Message extends Component {
     onMentionsHover: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     openThread: PropTypes.func,
+    /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
+    clearEditingState: PropTypes.func,
     /**
      * Additional props for underlying MessageInput component.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput

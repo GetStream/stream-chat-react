@@ -1,8 +1,8 @@
 // TypeScript Version: 2.8
 
 /** Components */
-import * as React from 'react';
-import * as Client from 'stream-chat';
+// import * as React from 'react';
+// import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
@@ -175,24 +175,46 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
 }
 
 export interface ChannelPreviewProps {
-  channel: Client.StreamChat;
-  activeChannel: Client.StreamChat;
-  Preview: React.ElementType<ChannelPreviewUIComponentProps>;
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  channel: Client.Channel;
+  /** Current selected channel object */
+  activeChannel: Client.Channel;
+  /**
+   * Available built-in options (also accepts the same props as):
+   *
+   * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+   * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+   * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+   *
+   * The Preview to use, defaults to ChannelPreviewLastMessage
+   * */
+  Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
   key: string;
-  connectionRecoveredCount: number;
-  closeMenu(): void;
-  setActiveChannel(channel: Client.StreamChat): void;
-  channelUpdateCount: number;
+  closeMenu?(): void;
+  /** Setter for selected channel */
+  setActiveChannel(
+    channel: Client.Channel,
+    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    e?: React.BaseSyntheticEvent,
+  ): void;
+  // Following props is just to make sure preview component gets updated after connection is recovered.
+  // It is not actually used anywhere internally
+  connectionRecoveredCount?: number;
+  channelUpdateCount?: number;
 }
 
 export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
-  latestMessage: string;
-  active: boolean;
+  /** Latest message's text. */
+  latestMessage?: string;
+  /** Length of latest message to truncate at */
+  latestMessageLength?: number;
+  active?: boolean;
 
   /** Following props are coming from state of ChannelPreview */
-  unread: number;
-  lastMessage: Client.MessageResponse;
-  lastRead: Date;
+  unread?: number;
+  lastMessage?: Client.MessageResponse;
+
+  lastRead?: Date;
 }
 
 export interface PaginatorProps {
@@ -366,7 +388,7 @@ export interface MessageInputUIComponentProps
   getCommands?(): [];
   handleSubmit?(event: React.FormEvent): void;
   handleChange?(event: React.ChangeEventHandler): void;
-  onPaste?(event: React.ClipboardEventHandler): void;
+  onPaste?: React.ClipboardEventHandler;
   onSelectItem?(item: Client.UserResponse): void;
   openEmojiPicker?(): void;
 }
@@ -456,6 +478,7 @@ export interface MessageUIComponentProps extends MessageProps {
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
+  getMessageActions(): Array<string>;
   channelConfig?: object;
   threadList?: boolean;
   additionalMessageInputProps?: object;
@@ -469,6 +492,7 @@ export interface ThreadProps extends ChannelContextValue {
   additionalParentMessageProps?: object;
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
+  MessageInput?: React.ElementType<MessageInputProps>;
 }
 
 export interface TypingIndicatorProps {
@@ -560,6 +584,267 @@ export interface WindowProps {
   thread?: Client.MessageResponse | boolean;
 }
 
+export interface AttachmentActionsProps {
+  id: string;
+  text: string;
+  actions: Client.Action[];
+  actionHandler?(
+    name: string,
+    value: string,
+    event: React.BaseSyntheticEvent,
+  ): void;
+}
+
+export interface AudioProps {
+  og: Client.Attachment;
+}
+
+export interface CardProps {
+  title?: string;
+  title_link?: string;
+  og_scrape_url?: string;
+  image_url?: string;
+  thumb_url?: string;
+  text?: string;
+}
+
+export interface ChatAutoCompleteProps {
+  rows: number;
+  grow: boolean;
+  maxRows: number;
+  disabled: boolean;
+  value: string;
+  handleSubmit?(event: React.FormEvent): void;
+  onChange?(event: React.ChangeEventHandler): void;
+  placeholder: string;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  minChar: number;
+  users: Client.UserResponse[];
+  onSelectItem?(item: any): any;
+  commands: Client.CommandResponse[];
+  onFocus?: React.FocusEventHandler;
+  onPaste?: React.ClipboardEventHandler;
+}
+
+export interface ChatDownProps {
+  image: string;
+  type: string;
+  text: string;
+}
+
+export interface CommandItemProps {
+  entity: {
+    name: string;
+    args: string;
+    description: string;
+  };
+}
+
+export interface EditMessageFormProps extends MessageInputUIComponentProps {}
+export interface EmoticonItemProps {
+  entity: {
+    name: string;
+    native: string;
+    char: string;
+  };
+}
+
+export interface UserItemProps {
+  entity: {
+    name: string;
+    id: string;
+    image: string;
+  };
+}
+
+export interface EventComponentProps {
+  message: Client.MessageResponse;
+}
+
+export interface GalleryProps {
+  images: Client.Attachment[];
+}
+
+export interface ImageProps {
+  image_url: string;
+  thumb_url: string;
+  fallback: string;
+}
+
+export interface InfiniteScrollProps {
+  loadMore(): any;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
+}
+
+export interface ReverseInfiniteScrollProps {
+  loadMore(): any;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
+  className?: string;
+  /** The function is called when the list scrolls */
+  listenToScroll?(
+    standardOffset: string | number,
+    reverseOffset: string | number,
+  ): any;
+}
+
+export interface LoadMoreButtonProps {
+  onClick: React.MouseEventHandler;
+  refreshing: boolean;
+}
+export interface LoadingChannelsProps {}
+export interface MessageActionsProps {
+  onClickReact: React.MouseEventHandler;
+  /** If the message actions box should be open or not */
+  open: boolean;
+  /**
+   * @deprecated
+   *
+   *  The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitly:
+   *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessage`, `canEditMessage`, `isMyMessage`, `isAdmin`
+   */
+  Message?: React.ElementType<MessageProps>;
+  /** If message belongs to current user. */
+  mine?: boolean;
+  /** DOMRect object for parent MessageList component */
+  messageListRect?: DOMRect;
+  handleEdit?(event?: React.BaseSyntheticEvent): void;
+  handleDelete?(event?: React.BaseSyntheticEvent): void;
+  handleFlag?(event?: React.BaseSyntheticEvent): void;
+  handleMute?(event?: React.BaseSyntheticEvent): void;
+  getMessageActions(): Array<string>;
+}
+export interface MessageActionsBoxProps extends MessageActionsProps {}
+export interface MessageNotificationProps {
+  showNotification: boolean;
+  onClick: React.MouseEventHandler;
+}
+export interface MessageRepliesCountButtonProps {
+  labelSingle: string;
+  labelPlural: string;
+  reply_count: number;
+  onClick: React.MouseEventHandler;
+}
+export interface ModalProps {
+  onClose(): void;
+  open: boolean;
+}
+export interface SafeAnchorProps {}
+export interface SimpleReactionsListProps {
+  reactions: Client.ReactionResponse[];
+  /**
+   * {
+   *  'like': 9,
+   *  'love': 6,
+   *  'haha': 2
+   * }
+   */
+  reaction_counts: {
+    [reaction_type: string]: number;
+  };
+  showTooltip?: boolean;
+  /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+  reactionOptions?: MinimalEmojiInterface;
+  handleReaction?(reactionType: string): void;
+}
+export interface TooltipProps {}
+
+export class AttachmentActions extends React.PureComponent<
+  AttachmentActionsProps,
+  any
+> {}
+export class Audio extends React.PureComponent<AudioProps, any> {}
+export class Card extends React.PureComponent<CardProps, any> {}
+export class ChatAutoComplete extends React.PureComponent<
+  ChatAutoCompleteProps,
+  any
+> {}
+export class ChatDown extends React.PureComponent<ChatDownProps, any> {}
+
+export class CommandItem extends React.PureComponent<CommandItemProps, any> {}
+export class UserItem extends React.PureComponent<UserItemProps, any> {}
+
+export class DateSeparator extends React.PureComponent<
+  DateSeparatorProps,
+  any
+> {}
+export class EditMessageForm extends React.PureComponent<
+  EditMessageFormProps,
+  any
+> {}
+export class EmoticonItem extends React.PureComponent<EmoticonItemProps, any> {}
+export class EmptyStateIndicator extends React.PureComponent<
+  EmptyStateIndicatorProps,
+  any
+> {}
+export class EventComponent extends React.PureComponent<
+  EventComponentProps,
+  any
+> {}
+export class Gallery extends React.PureComponent<GalleryProps, any> {}
+export class Image extends React.PureComponent<ImageProps, any> {}
+export class InfiniteScroll extends React.PureComponent<
+  InfiniteScrollProps,
+  any
+> {}
+export class LoadMoreButton extends React.PureComponent<
+  LoadMoreButtonProps,
+  any
+> {}
+export class LoadingChannels extends React.PureComponent<
+  LoadingChannelsProps,
+  any
+> {}
+export class LoadingErrorIndicator extends React.PureComponent<
+  LoadingErrorIndicatorProps,
+  any
+> {}
+export class MessageActions extends React.PureComponent<
+  MessageActionsProps,
+  any
+> {}
+export class MessageActionsBox extends React.PureComponent<
+  MessageActionsBoxProps,
+  any
+> {}
+export class MessageNotification extends React.PureComponent<
+  MessageNotificationProps,
+  any
+> {}
+export class MessageRepliesCountButton extends React.PureComponent<
+  MessageRepliesCountButtonProps,
+  any
+> {}
+export class Modal extends React.PureComponent<ModalProps, any> {}
+export class ReverseInfiniteScroll extends React.PureComponent<
+  ReverseInfiniteScrollProps,
+  any
+> {}
+export class SafeAnchor extends React.PureComponent<SafeAnchorProps, any> {}
+export class SendButton extends React.PureComponent<SendButtonProps, any> {}
+export class SimpleReactionsList extends React.PureComponent<
+  SimpleReactionsListProps,
+  any
+> {}
+export class Tooltip extends React.PureComponent<TooltipProps, any> {}
+
 export class Chat extends React.PureComponent<ChatProps, any> {}
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
@@ -597,11 +882,25 @@ export class ChannelListTeam extends React.PureComponent<
   any
 > {}
 
+export class ChannelPreview extends React.PureComponent<
+  ChannelPreviewProps,
+  any
+> {}
+
 export class ChannelPreviewCompact extends React.PureComponent<
   ChannelPreviewUIComponentProps,
   any
 > {}
 export class ChannelPreviewMessenger extends React.PureComponent<
+  ChannelPreviewUIComponentProps,
+  any
+> {}
+
+export class ChannelPreviewCountOnly extends React.PureComponent<
+  ChannelPreviewUIComponentProps,
+  any
+> {}
+export class ChannelPreviewLastMessage extends React.PureComponent<
   ChannelPreviewUIComponentProps,
   any
 > {}
