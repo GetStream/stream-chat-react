@@ -1,8 +1,8 @@
 // TypeScript Version: 2.8
 
 /** Components */
-// import * as React from 'react';
-// import * as Client from 'stream-chat';
+import * as React from 'react';
+import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
@@ -454,6 +454,7 @@ export interface MessageProps {
     event: React.SyntheticEvent,
   ): void;
   additionalMessageInputProps?: object;
+  clearEditingState?(e?: React.MouseEvent): void;
 }
 
 export interface MessageUIComponentProps extends MessageProps {
@@ -849,7 +850,7 @@ export class Tooltip extends React.PureComponent<TooltipProps, any> {}
 export class Chat extends React.PureComponent<ChatProps, any> {}
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
-export class Message extends React.PureComponent<any, any> {}
+export class Message extends React.PureComponent<MessageProps, any> {}
 export class MessageList extends React.PureComponent<MessageListProps, any> {}
 export class ChannelHeader extends React.PureComponent<
   ChannelHeaderProps,
