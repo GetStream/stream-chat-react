@@ -2,6 +2,7 @@ The channel header component renders some basic information about a channel:
 
 ```js
 const data = require('./data');
+import { ChannelHeader } from '../ChannelHeader';
 
 <ChannelHeader channel={data.channel} online={23} live={true} />;
 ```
@@ -9,6 +10,13 @@ const data = require('./data');
 Example of ChannelHeader component usage:
 
 ```js
+import { Chat } from '../Chat';
+import { Channel } from '../Channel';
+import { ChannelHeader } from '../ChannelHeader';
+import { MessageList } from '../MessageList';
+import { MessageInput } from '../MessageInput';
+import { Thread } from '../Thread';
+
 const data = require('./data');
 
 <div className="str-chat" style={{ height: 'unset' }}>

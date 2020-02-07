@@ -66,7 +66,10 @@ export class MessageLivestream extends React.PureComponent {
     clearEditingState: PropTypes.func,
     /** Returns true if message belongs to current user */
     isMyMessage: PropTypes.func,
-    /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+    /**
+     * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
+     * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
+     * */
     getMessageActions: PropTypes.func,
     /**
      * Function to publish updates on message to channel
@@ -240,9 +243,7 @@ export class MessageLivestream extends React.PureComponent {
     if (editing) {
       return (
         <div
-          className={`str-chat__message-team str-chat__message-team--${
-            groupStyles[0]
-          } str-chat__message-team--editing`}
+          className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
           {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (

@@ -4,6 +4,8 @@ There's also a command(`/mute`) for muting the user that wrote the message.
 A closed message box
 
 ```js
+import { MessageActionsBox } from '../MessageActionsBox';
+
 const data = require('./data');
 
 <div style={{ position: 'relative' }}>
@@ -19,6 +21,8 @@ const data = require('./data');
 An open message box
 
 ```js
+import { MessageActionsBox } from '../MessageActionsBox';
+
 const data = require('./data');
 
 <div style={{ position: 'relative' }}>

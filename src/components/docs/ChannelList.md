@@ -1,4 +1,7 @@
 ```js
+import { ChannelList } from '../ChannelList';
+import { Chat } from '../Chat';
+
 const data = require('./data');
 const filters = { type: 'team', example: 1 };
 const sort = {

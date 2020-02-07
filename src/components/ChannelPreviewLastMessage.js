@@ -13,14 +13,23 @@ import truncate from 'lodash/truncate';
 export class ChannelPreviewLastMessage extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    setActiveChannel: PropTypes.func,
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    channel: PropTypes.object,
-    closeMenu: PropTypes.func,
-    unread_count: PropTypes.number,
+    channel: PropTypes.object.isRequired,
+    /** Current selected channel object */
+    activeChannel: PropTypes.object.isRequired,
+    /** Setter for selected channel */
+    setActiveChannel: PropTypes.func.isRequired,
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
+    watchers: PropTypes.object,
+    /** Number of unread messages */
+    unread: PropTypes.number,
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
+    /** Latest message's text. */
     latestMessage: PropTypes.string,
+    /** Length of latest message to truncate at */
     latestMessageLength: PropTypes.number,
     /** Text to display in place of latest message, when channel has no messages yet. */
     emptyMessageText: PropTypes.string,
@@ -52,6 +61,7 @@ export class ChannelPreviewLastMessage extends PureComponent {
       unread_count >= 1 ? 'str-chat__channel-preview--unread' : '';
     const activeClass = active ? 'str-chat__channel-preview--active' : '';
     const name = channel.data.name || channel.cid;
+
     return (
       <div
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}

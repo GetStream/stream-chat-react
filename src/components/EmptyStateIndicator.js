@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export const EmptyStateIndicator = ({ listType }) => {
   let Indicator;
@@ -15,4 +16,9 @@ export const EmptyStateIndicator = ({ listType }) => {
   }
 
   return Indicator;
+};
+
+EmptyStateIndicator.propTypes = {
+  /** channel | message */
+  listType: PropTypes.string,
 };

@@ -10,7 +10,9 @@ import { withChatContext } from '../context';
  */
 class ChannelListMessenger extends PureComponent {
   static propTypes = {
+    /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
     loading: PropTypes.bool,
+    /** When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js) */
     error: PropTypes.bool,
   };
 

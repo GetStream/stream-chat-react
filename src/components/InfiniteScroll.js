@@ -2,9 +2,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class InfiniteScroll extends Component {
+export class InfiniteScroll extends Component {
   static propTypes = {
-    children: PropTypes.node.isRequired,
     element: PropTypes.node,
     hasMore: PropTypes.bool,
     initialLoad: PropTypes.bool,
@@ -13,7 +12,6 @@ export default class InfiniteScroll extends Component {
     loadMore: PropTypes.func.isRequired,
     pageStart: PropTypes.number,
     isLoading: PropTypes.bool,
-    ref: PropTypes.func,
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
     useWindow: PropTypes.bool,
@@ -40,7 +38,6 @@ export default class InfiniteScroll extends Component {
   }
 
   componentDidMount() {
-    this.pageLoaded = this.props.pageStart;
     this.attachScrollListener();
   }
 
@@ -173,7 +170,7 @@ export default class InfiniteScroll extends Component {
       this.detachScrollListener();
       // Call loadMore after detachScrollListener to allow for non-async loadMore functions
       if (typeof this.props.loadMore === 'function') {
-        this.props.loadMore((this.pageLoaded += 1));
+        this.props.loadMore();
       }
     }
   }
@@ -207,7 +204,6 @@ export default class InfiniteScroll extends Component {
       loader,
       loadMore,
       pageStart,
-      ref,
       threshold,
       useCapture,
       useWindow,
@@ -217,9 +213,6 @@ export default class InfiniteScroll extends Component {
 
     props.ref = (node) => {
       this.scrollComponent = node;
-      if (ref) {
-        ref(node);
-      }
     };
 
     const childrenArray = [children];
@@ -235,3 +228,5 @@ export default class InfiniteScroll extends Component {
     return React.createElement(element, props, childrenArray);
   }
 }
+
+export default InfiniteScroll;

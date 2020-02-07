@@ -4,7 +4,10 @@ import { LoadingIndicator } from 'react-file-utils';
 
 export class LoadMoreButton extends React.PureComponent {
   static propTypes = {
+    /** onClick handler load more button. Pagination logic should be executed in this handler. */
     onClick: PropTypes.func,
+    /** If true, LoadingIndicator is displayed instead of button */
+    refreshing: PropTypes.bool,
   };
 
   static defaultProps = {

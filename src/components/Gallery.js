@@ -9,7 +9,14 @@ import Carousel, { Modal, ModalGateway } from 'react-images';
  */
 export class Gallery extends React.PureComponent {
   static propTypes = {
-    images: PropTypes.array.isRequired,
+    images: PropTypes.arrayOf(
+      PropTypes.shape({
+        /** Url of the image */
+        image_url: PropTypes.string,
+        /** Url of thumbnail of image */
+        thumb_url: PropTypes.string,
+      }),
+    ),
   };
 
   state = {

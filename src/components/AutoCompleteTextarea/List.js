@@ -5,7 +5,7 @@ import React from 'react';
 import Listeners, { KEY_CODES } from './listener';
 import Item from './Item';
 
-export default class List extends React.Component {
+export class List extends React.Component {
   state = {
     selectedItem: null,
   };
@@ -183,3 +183,5 @@ export default class List extends React.Component {
     );
   }
 }
+
+export default List;

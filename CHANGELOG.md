@@ -1,14 +1,23 @@
 # Changelog
 
-## [0.7.20](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.20) 2019-01-14
+## [0.8.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.1) 2020-02-07
+
+- Fixing broken typescript file [cc86f6f](https://github.com/GetStream/stream-chat-react/commit/cc86f6fea998e8581121c7da42870b0c5d316d8c)
+
+## [0.8.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.0) 2020-02-07
+
+- Updated dependencies [dfe466d](https://github.com/GetStream/stream-chat-react/commit/dfe466d43e75b7213857fdf9a6e007ecfc3d4614)
+- Exported all the components and updated typescript types - [41e478f](https://github.com/GetStream/stream-chat-react/commit/41e478fc1d37aad8994b9b1075ce9a576a1497f0)
+
+## [0.7.20](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.20) 2020-01-14
 
 - When you change the filters prop on the ChannelList component this now we will refresh the channels with the new query
 
-## [0.7.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.17) 2019-01-02
+## [0.7.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.17) 2020-01-02
 
 - Added `maxRows` props to MessageInput component
 
-## [0.7.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.16) 2019-01-02
+## [0.7.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.7.16) 2020-01-02
 
 - Removed inline styles from multiple locations
 - Exporting new component `ChatAutoComplete` (Advanced usage only)

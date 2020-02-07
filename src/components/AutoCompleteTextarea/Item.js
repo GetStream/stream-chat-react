@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export default class Item extends React.Component {
+export class Item extends React.Component {
   selectItem = () => {
     const { item, onSelectHandler } = this.props;
     onSelectHandler(item);
@@ -39,3 +39,5 @@ export default class Item extends React.Component {
     );
   }
 }
+
+export default Item;

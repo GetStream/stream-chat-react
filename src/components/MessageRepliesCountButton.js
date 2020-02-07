@@ -4,9 +4,17 @@ import PropTypes from 'prop-types';
 
 export class MessageRepliesCountButton extends React.PureComponent {
   static propTypes = {
+    /** Label for number of replies, when count is 1 */
     labelSingle: PropTypes.string,
+    /** Label for number of replies, when count is more than 1 */
     labelPlural: PropTypes.string,
+    /** Number of replies */
     reply_count: PropTypes.number,
+    /**
+     * click handler for button
+     * @param event React's MouseEventHandler event
+     * @returns void
+     * */
     onClick: PropTypes.func,
   };
   static defaultProps = {

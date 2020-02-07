@@ -79,6 +79,12 @@ export class MessageInputSmall extends PureComponent {
     maxNumberOfFiles: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
+    /**
+     * Custom UI component for send button.
+     *
+     * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
+     * */
+    SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
   renderUploads = () => (
