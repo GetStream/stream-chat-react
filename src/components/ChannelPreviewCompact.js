@@ -11,13 +11,21 @@ import PropTypes from 'prop-types';
 export class ChannelPreviewCompact extends React.PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    setActiveChannel: PropTypes.func,
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    channel: PropTypes.object,
-    closeMenu: PropTypes.func,
-    unread_count: PropTypes.number,
+    channel: PropTypes.object.isRequired,
+    /** Current selected channel object */
+    activeChannel: PropTypes.object.isRequired,
+    /** Setter for selected channel */
+    setActiveChannel: PropTypes.func.isRequired,
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
+    watchers: PropTypes.object,
+    /** Number of unread messages */
+    unread: PropTypes.number,
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
+    /** Latest message's text. */
     latestMessage: PropTypes.string,
   };
 

@@ -10,7 +10,12 @@ import PropTypes from 'prop-types';
 export class LoadingErrorIndicator extends React.PureComponent {
   static propTypes = {
     /** Error object */
-    error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+    error: PropTypes.oneOfType([
+      PropTypes.shape({
+        message: PropTypes.string,
+      }),
+      PropTypes.bool,
+    ]),
   };
   static defaultProps = {
     error: false,

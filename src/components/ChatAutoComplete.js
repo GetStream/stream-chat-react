@@ -35,8 +35,6 @@ export class ChatAutoComplete extends PureComponent {
     placeholder: PropTypes.string,
     /** What loading component to use for the auto complete when loading results. */
     LoadingIndicator: PropTypes.node,
-    /** function to set up your triggers for autocomplete(eg. '@' for mentions, '/' for commands) */
-    trigger: PropTypes.func,
     /** Minimum number of Character */
     minChar: PropTypes.number,
     /** Array of [user object](https://getstream.io/chat/docs/#chat-doc-set-user). Used for mentions suggestions */

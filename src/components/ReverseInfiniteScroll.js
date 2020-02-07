@@ -13,7 +13,6 @@ export class ReverseInfiniteScroll extends Component {
     loader: PropTypes.node,
     loadMore: PropTypes.func.isRequired,
     pageStart: PropTypes.number,
-    ref: PropTypes.func,
     threshold: PropTypes.number,
     useCapture: PropTypes.bool,
     useWindow: PropTypes.bool,
@@ -44,7 +43,6 @@ export class ReverseInfiniteScroll extends Component {
   }
 
   componentDidMount() {
-    this.pageLoaded = this.props.pageStart;
     this.attachScrollListener();
   }
 
@@ -179,7 +177,7 @@ export class ReverseInfiniteScroll extends Component {
       //this.detachScrollListener();
       // Call loadMore after detachScrollListener to allow for non-async loadMore functions
       if (typeof this.props.loadMore === 'function') {
-        this.props.loadMore((this.pageLoaded += 1));
+        this.props.loadMore();
       }
     }
   }
@@ -224,9 +222,6 @@ export class ReverseInfiniteScroll extends Component {
 
     props.ref = (node) => {
       this.scrollComponent = node;
-      if (ref) {
-        ref(node);
-      }
     };
 
     const childrenArray = [children];

@@ -15,10 +15,26 @@ export class ChannelPreview extends PureComponent {
   }
 
   static propTypes = {
+    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     channel: PropTypes.object.isRequired,
+    /** Current selected channel object */
     activeChannel: PropTypes.object.isRequired,
+    /** Setter for selected channel */
     setActiveChannel: PropTypes.func.isRequired,
+    /**
+     * Available built-in options (also accepts the same props as):
+     *
+     * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+     * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+     * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+     *
+     * The Preview to use, defaults to ChannelPreviewLastMessage
+     * */
     Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
     watchers: PropTypes.object,
   };
 
