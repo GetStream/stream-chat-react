@@ -19,7 +19,7 @@ describe('ChannelPreviewLastMessage', () => {
   let channelID;
   let channel;
   let channelName;
-  beforeEach(async function() {
+  beforeAll(async function() {
     chatClient = getTestClient();
     userId = `thierry-${uuidv4()}`;
     userToken = createUserToken(userId);
@@ -129,7 +129,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={0}
+        unread={0}
         channel={channel}
         activeChannel={channel}
       />,
@@ -144,7 +144,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={unreadCount}
+        unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
@@ -160,7 +160,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={unreadCount}
+        unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
@@ -174,7 +174,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={unreadCount}
+        unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
@@ -186,7 +186,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={unreadCount}
+        unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
@@ -201,7 +201,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={10}
+        unread={10}
         channel={channel}
         activeChannel={channel}
       />,
@@ -217,7 +217,7 @@ describe('ChannelPreviewLastMessage', () => {
       <ChannelPreviewLastMessage
         latestMessage="This is a message from me, this is so cool man!!"
         latestMessageLength={20}
-        unread_count={0}
+        unread={0}
         channel={channel}
         activeChannel={channel}
       />,

@@ -18,7 +18,7 @@ describe('ChannelPreviewMessenger', () => {
   let channelID;
   let channel;
   let channelName;
-  beforeEach(async function() {
+  beforeAll(async function() {
     chatClient = getTestClient();
     userId = `thierry-${uuidv4()}`;
     userToken = createUserToken(userId);
