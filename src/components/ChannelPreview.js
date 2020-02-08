@@ -41,7 +41,7 @@ export const ChannelPreview = ({
     const unread = channel.countUnread(lastRead);
     setLatestMessage(getPreviewLatestMessage(channel));
     setUnread(unread);
-  }, [channel, activeChannel, isActive, lastRead]);
+  }, [channel, activeChannel]);
 
   const isActive = useCallback(() => activeChannel.cid === channel.cid, [
     activeChannel,
