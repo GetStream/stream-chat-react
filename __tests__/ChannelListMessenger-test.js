@@ -11,7 +11,7 @@ import { getTestClient, createUserToken } from './utils';
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
 
-describe.only('ChannelListMessenger', () => {
+describe('ChannelListMessenger', () => {
   let chatClient;
   let userId;
   let userToken;

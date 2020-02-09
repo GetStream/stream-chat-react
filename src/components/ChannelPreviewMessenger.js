@@ -41,6 +41,7 @@ export const ChannelPreviewMessenger = ({
       onClick={onSelectChannel}
       ref={channelPreviewButton}
       className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
+      role="listitem"
     >
       <div className="str-chat__channel-preview-messenger--left">
         {<Avatar image={channel.data.image} size={40} />}

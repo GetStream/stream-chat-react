@@ -39,7 +39,7 @@ describe('ChannelListTeam', () => {
     await channel.watch();
   });
 
-  it.only('should render <ChatDown /> only if error prop is true', () => {
+  it('should render <ChatDown /> only if error prop is true', () => {
     const { queryByTestId, rerender } = render(
       <ChannelListTeam client={chatClient} error />,
     );
