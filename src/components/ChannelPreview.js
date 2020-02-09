@@ -14,7 +14,7 @@ export const ChannelPreview = ({
   const [lastMessage, setLastMessage] = useState({});
 
   useEffect(() => {
-    const handleEvent = () => {
+    const handleEvent = (event) => {
       setLastMessage(event.message);
       if (!isActive()) {
         const unread = channel.countUnread(lastRead);
