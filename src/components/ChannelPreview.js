@@ -11,13 +11,13 @@ export const ChannelPreview = ({
   const [unread, setUnread] = useState(0);
   const [lastRead, setLastRead] = useState(new Date());
   const [latestMessage, setLatestMessage] = useState('');
-  const [lastMessage, setLastMessage] = useState({});
+  const [lastMessage] = useState({});
 
   useEffect(() => {
-    const handleEvent = (event) => {
-      setLastMessage(event.message);
+    const handleEvent = () => {
+      setLatestMessage(getPreviewLatestMessage(channel));
       if (!isActive()) {
-        const unread = channel.countUnread(lastRead);
+        const unread = channel.countUnread(new Date());
         setUnread(unread);
       } else {
         setUnread(0);

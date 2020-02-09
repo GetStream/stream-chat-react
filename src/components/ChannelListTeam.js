@@ -37,7 +37,7 @@ class ChannelListTeam extends PureComponent {
       return <LoadingChannels data-testid="loading-channels" />;
     } else {
       return (
-        <div className="str-chat__channel-list-team">
+        <div className="str-chat__channel-list-team" role="list">
           {showSidebar && (
             <div className="str-chat__channel-list-team__sidebar">
               <div className="str-chat__channel-list-team__sidebar--top">
