@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
-import { ChannelListTeam } from '../src/components/ChannelListTeam';
+import { ChannelListMessenger } from '../src/components/ChannelListMessenger';
 import uuidv4 from 'uuid/v4';
 import { getTestClient, createUserToken } from './utils';
 
@@ -11,7 +11,7 @@ import { getTestClient, createUserToken } from './utils';
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
 
-describe('ChannelListTeam', () => {
+describe.only('ChannelListMessenger', () => {
   let chatClient;
   let userId;
   let userToken;
@@ -39,59 +39,25 @@ describe('ChannelListTeam', () => {
     await channel.watch();
   });
 
-  it.only('should render <ChatDown /> only if error prop is true', () => {
+  it('should render <ChatDown /> only if error prop is true', () => {
     const { queryByTestId, rerender } = render(
-      <ChannelListTeam client={chatClient} error />,
+      <ChannelListMessenger client={chatClient} error />,
     );
 
     expect(queryByTestId('chat-down')).toBeTruthy();
 
-    rerender(<ChannelListTeam client={chatClient} error={false} />);
+    rerender(<ChannelListMessenger client={chatClient} error={false} />);
     expect(queryByTestId('chat-down')).toBeNull();
   });
 
   it('should render <LoadingChannels /> only if loading prop is true', () => {
     const { queryByTestId, rerender } = render(
-      <ChannelListTeam client={chatClient} loading />,
+      <ChannelListMessenger client={chatClient} loading />,
     );
 
     expect(queryByTestId('loading-channels')).toBeTruthy();
 
-    rerender(<ChannelListTeam client={chatClient} error={false} />);
+    rerender(<ChannelListMessenger client={chatClient} error={false} />);
     expect(queryByTestId('loading-channels')).toBeNull();
-  });
-
-  it('should show sidebar only when showSidebar prop is true', () => {
-    const { container, rerender } = render(
-      <ChannelListTeam client={chatClient} showSidebar />,
-    );
-
-    let sidebar = container.querySelector(
-      `.str-chat__channel-list-team__sidebar`,
-    );
-    expect(sidebar).toBeTruthy();
-
-    rerender(<ChannelListTeam client={chatClient} showSidebar={false} />);
-
-    sidebar = container.querySelector(`.str-chat__channel-list-team__sidebar`);
-    expect(sidebar).toBeFalsy();
-  });
-
-  it('should display user name', () => {
-    const { getByText } = render(
-      <ChannelListTeam client={chatClient} showSidebar />,
-    );
-
-    const userName = getByText(chatClient.user.name);
-    expect(userName).toBeTruthy();
-  });
-
-  it('should display user status', () => {
-    const { getByText } = render(
-      <ChannelListTeam client={chatClient} showSidebar />,
-    );
-
-    const userStatus = getByText(chatClient.user.status);
-    expect(userStatus).toBeTruthy();
   });
 });
