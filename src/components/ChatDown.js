@@ -14,7 +14,7 @@ import placeholder from '../assets/str-chat__connection-error.svg';
 export class ChatDown extends React.PureComponent {
   static propTypes = {
     /** The image url for this error */
-    image: PropTypes.string,
+    image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     /** The type of error */
     type: PropTypes.string,
     /** The error message to show */
@@ -31,7 +31,7 @@ export class ChatDown extends React.PureComponent {
     const { image, type, text } = this.props;
 
     return (
-      <div className="str-chat__down">
+      <div className="str-chat__down" data-testid="chat-down">
         <LoadingChannels />
         <div className="str-chat__down-main">
           <img src={image} />

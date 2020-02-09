@@ -34,7 +34,7 @@ class ChannelListTeam extends PureComponent {
     if (this.props.error) {
       return <ChatDown type="Connection Error" />;
     } else if (this.props.loading) {
-      return <LoadingChannels />;
+      return <LoadingChannels data-testid="loading-channels" />;
     } else {
       return (
         <div className="str-chat__channel-list-team">

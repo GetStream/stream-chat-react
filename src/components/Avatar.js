@@ -56,6 +56,7 @@ export class Avatar extends React.PureComponent {
     const initials = this.getInitials(name);
     return (
       <div
+        data-testid="avatar"
         className={`str-chat__avatar str-chat__avatar--${shape}`}
         title={name}
         style={{

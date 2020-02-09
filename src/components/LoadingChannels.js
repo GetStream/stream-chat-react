@@ -6,7 +6,7 @@ import React from 'react';
  * @example ./docs/LoadingChannels.md
  */
 export const LoadingChannels = () => (
-  <div className="str-chat__loading-channels">
+  <div className="str-chat__loading-channels" data-testid="loading-channels">
     <div className="str-chat__loading-channels-item">
       <div className="str-chat__loading-channels-avatar" />
       <div className="str-chat__loading-channels-meta">
