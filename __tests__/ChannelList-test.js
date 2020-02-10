@@ -389,7 +389,7 @@ describe('ChannelList', () => {
     });
   });
 
-  describe('channel from the list is updated', () => {
+  describe('when channel from the list is updated', () => {
     const newName = `${uuidv4()}`;
     const updateChannelName = async () => {
       channels[1].update({
@@ -446,7 +446,7 @@ describe('ChannelList', () => {
     });
   });
 
-  describe('channel from the list is deleted', () => {
+  describe('when channel from the list is deleted', () => {
     const deleteChannel = async (channelIndexToBeDeleted) => {
       channels[channelIndexToBeDeleted].delete();
 
@@ -497,12 +497,35 @@ describe('ChannelList', () => {
     });
   });
 
-  describe('channel from the list is truncated', () => {
-    it('should update the channel', () => {
-      // TODO: implement a test
-    });
-    test('if `onChannelTruncated` function prop is provided, it should call `onChannelTruncated`', () => {
-      // TODO: implement a test
+  describe('when channel from the list is truncated', () => {
+    const truncateChannel = async (channelIndexToBeTruncated) => {
+      channels[channelIndexToBeTruncated].truncate();
+
+      await new Promise((resolve) => {
+        chatClient.on('channel.truncated', resolve);
+      });
+    };
+
+    test('if `onChannelTruncated` function prop is provided, it should call `onChannelTruncated`', async () => {
+      const onChannelTruncated = jest.fn();
+      const { getByRole } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true }}
+            onChannelTruncated={onChannelTruncated}
+          />
+        </Chat>,
+      );
+      await wait(() => {
+        getByRole('list');
+      });
+      const channelIndexToBeTruncated = 1;
+      await truncateChannel(channelIndexToBeTruncated);
+
+      expect(onChannelTruncated).toHaveBeenCalledTimes(1);
     });
   });
 });
