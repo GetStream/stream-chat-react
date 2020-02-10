@@ -206,8 +206,6 @@ describe('ChannelList', () => {
   });
 
   describe('when user is added to channel', () => {
-    beforeEach(setupChat);
-
     const onAddedToChannel = jest.fn();
     let newChannel;
 
@@ -271,19 +269,60 @@ describe('ChannelList', () => {
   });
 
   describe('when user is removed from a channel', () => {
+    const removeMember = async (channelIndexToBeRemoved) => {
+      channels[channelIndexToBeRemoved].removeMembers([userId]);
+
+      await new Promise((resolve) => {
+        chatClient.on('notification.removed_from_channel', () => {
+          resolve();
+        });
+      });
+    };
+
     test('if `onRemovedFromChannel` prop function is provided, it should call `onRemovedFromChannel`', async () => {
-      // TODO: implement a test
+      const onRemovedFromChannel = jest.fn();
+      const { getByRole } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true, limit: 10 }}
+            onRemovedFromChannel={onRemovedFromChannel}
+          />
+        </Chat>,
+      );
+
+      await wait(() => {
+        getByRole('list');
+      });
+      const channelIndexToBeRemoved = 1;
+      await removeMember(channelIndexToBeRemoved);
+      expect(onRemovedFromChannel).toHaveBeenCalledTimes(1);
     });
     test('if `onRemovedFromChannel` prop function is not provided, it should remove the channel from list', async () => {
-      // TODO: implement a test
+      const { getByRole, queryByTestId } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true, limit: 10 }}
+          />
+        </Chat>,
+      );
+
+      await wait(() => {
+        getByRole('list');
+      });
+
+      const channelIndexToBeRemoved = 1;
+      await removeMember(channelIndexToBeRemoved);
+      expect(queryByTestId(channels[channelIndexToBeRemoved].id)).toBeNull();
     });
   });
 
   describe('when new message is added to channel (which is not in the list)', () => {
-    beforeEach(async () => {
-      await setupChat();
-    });
-
     const onMessageNew = jest.fn();
     let Render, newChannel;
 
@@ -385,7 +424,6 @@ describe('ChannelList', () => {
       expect(getByText(newName)).toBeTruthy();
     });
     it('should call `onChannelUpdated`, if its provided', async () => {
-      // TODO: implement a test
       const onChannelUpdated = jest.fn();
       const { getByRole } = render(
         <Chat client={chatClient}>
@@ -409,11 +447,53 @@ describe('ChannelList', () => {
   });
 
   describe('channel from the list is deleted', () => {
-    test('if `onChannelDeleted` function prop is provided, it should call `onChannelDeleted`', () => {
-      // TODO: implement a test
+    const deleteChannel = async (channelIndexToBeDeleted) => {
+      channels[channelIndexToBeDeleted].delete();
+
+      await new Promise((resolve) => {
+        chatClient.on('channel.deleted', resolve);
+      });
+    };
+
+    test('if `onChannelDeleted` function prop is provided, it should call `onChannelDeleted`', async () => {
+      const onChannelDeleted = jest.fn();
+      const { getByRole } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true }}
+            onChannelDeleted={onChannelDeleted}
+          />
+        </Chat>,
+      );
+      await wait(() => {
+        getByRole('list');
+      });
+      const channelIndexToBeDeleted = 1;
+      await deleteChannel(channelIndexToBeDeleted);
+
+      expect(onChannelDeleted).toHaveBeenCalledTimes(1);
     });
-    test('if `onChannelDeleted` function prop not is provided, it should remove channel from list', () => {
-      // TODO: implement a test
+    test('if `onChannelDeleted` function prop not is provided, it should remove channel from list', async () => {
+      const { getByRole, queryByTestId } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true }}
+          />
+        </Chat>,
+      );
+      await wait(() => {
+        getByRole('list');
+      });
+      const channelIndexToBeDeleted = 1;
+      await deleteChannel(channelIndexToBeDeleted);
+
+      expect(queryByTestId(channels[channelIndexToBeDeleted].id)).toBeNull();
     });
   });
 
