@@ -351,12 +351,60 @@ describe('ChannelList', () => {
   });
 
   describe('channel from the list is updated', () => {
-    it('should update the channel in list', () => {
-      // TODO: implement a test
-    });
+    const newName = `${uuidv4()}`;
+    const updateChannelName = async () => {
+      channels[1].update({
+        name: newName,
+      });
 
-    it('should call `onChannelUpdated`, if its provided', () => {
+      await new Promise((resolve) => {
+        chatClient.on('channel.updated', () => {
+          resolve();
+        });
+      });
+    };
+
+    // Following test makes sure changes to channel are reflected in the list.
+    it('should reflect updated name in list', async () => {
+      const { getByRole, getByText } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true }}
+          />
+        </Chat>,
+      );
+      await wait(() => {
+        getByRole('list');
+      });
+
+      await updateChannelName();
+
+      expect(getByText(newName)).toBeTruthy();
+    });
+    it('should call `onChannelUpdated`, if its provided', async () => {
       // TODO: implement a test
+      const onChannelUpdated = jest.fn();
+      const { getByRole } = render(
+        <Chat client={chatClient}>
+          <ChannelList
+            filters={{ members: { $in: [userId] } }}
+            Preview={ChannelPreviewComponent}
+            List={ChannelListComponent}
+            options={{ state: true, watch: true, presence: true }}
+            onChannelUpdated={onChannelUpdated}
+          />
+        </Chat>,
+      );
+      await wait(() => {
+        getByRole('list');
+      });
+
+      await updateChannelName();
+
+      expect(onChannelUpdated).toHaveBeenCalledTimes(1);
     });
   });
 
