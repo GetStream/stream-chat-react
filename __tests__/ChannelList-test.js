@@ -9,8 +9,6 @@ import { act } from 'react-dom/test-utils';
 
 import { ChannelList } from '../src/components/ChannelList';
 import { Chat } from '../src/components/Chat';
-import { ChatDown } from '../src/components/ChatDown';
-import { LoadingChannels } from '../src/components/LoadingChannels';
 
 import uuidv4 from 'uuid/v4';
 import { getTestClient, createUserToken } from './utils';
@@ -34,10 +32,11 @@ const ChannelPreviewComponent = ({ channel, latestMessage }) => (
 );
 
 const ChannelListComponent = (props) => {
-  if (props.error) {
-    return <ChatDown type="Connection Error" />;
-  } else if (props.loading) {
-    return <LoadingChannels data-testid="loading-channels" />;
+  const { error, loading, LoadingErrorIndicator, LoadingIndicator } = props;
+  if (error) {
+    return <LoadingErrorIndicator type="Connection Error" />;
+  } else if (loading) {
+    return <LoadingIndicator />;
   } else {
     return <div role="list">{props.children}</div>;
   }
@@ -45,6 +44,10 @@ const ChannelListComponent = (props) => {
 
 const EmptyStateIndicatorComponent = () => (
   <div data-testid="empty-state-indicator"></div>
+);
+
+const LoadingIndicatorComponent = () => (
+  <div data-testid="loading-indicator"></div>
 );
 
 describe('ChannelList', () => {
@@ -103,7 +106,23 @@ describe('ChannelList', () => {
 
   beforeEach(setupChat);
 
-  it.only('should render EmptyStateIndicator if there are no channels', async () => {
+  // TODO: Fix this test
+  it.skip('should render LoadingIndicator in the begining', () => {
+    const { getByTestId } = render(
+      <Chat client={chatClient}>
+        <ChannelList
+          // Using some random id to get 0 channels from query.
+          filters={{ members: { $in: ['random-user id-to-not-hit'] } }}
+          Preview={ChannelPreviewComponent}
+          LoadingIndicator={LoadingIndicatorComponent}
+          List={ChannelListComponent}
+        />
+      </Chat>,
+    );
+    expect(getByTestId('loading-indicator')).toBeTruthy();
+  });
+
+  it('should render EmptyStateIndicator if there are no channels', async () => {
     const { getByTestId } = render(
       <Chat client={chatClient}>
         <ChannelList
@@ -121,6 +140,10 @@ describe('ChannelList', () => {
     });
 
     expect(getByTestId('empty-state-indicator')).toBeTruthy();
+  });
+
+  it('should render LoadingErrorIndicator in case of error', async () => {
+    // TODO: add a test
   });
 
   it('should render all channels in list', async () => {
@@ -197,7 +220,7 @@ describe('ChannelList', () => {
       });
     };
 
-    it('should call `onAddedToChannel` prop function', async () => {
+    test('if `onAddedToChannel` prop function is provided, it should call `onAddedToChannel`', async () => {
       const { getByRole } = render(
         <Chat client={chatClient}>
           <ChannelList
@@ -218,7 +241,7 @@ describe('ChannelList', () => {
       expect(onAddedToChannel).toHaveBeenCalledTimes(1);
     });
 
-    it('should move the channel to top, if `onAddedToChannel` prop is empty', async () => {
+    test('if `onAddedToChannel` prop function is provided, it should move the channel to the top', async () => {
       const { getByTestId, getAllByRole, getByRole } = render(
         <Chat client={chatClient}>
           <ChannelList
@@ -247,7 +270,16 @@ describe('ChannelList', () => {
     });
   });
 
-  describe('when new message is added to channel (which is not in the list) or when `notification.message_new` event is received', () => {
+  describe('when user is removed from a channel', () => {
+    test('if `onRemovedFromChannel` prop function is provided, it should call `onRemovedFromChannel`', async () => {
+      // TODO: implement a test
+    });
+    test('if `onRemovedFromChannel` prop function is not provided, it should remove the channel from list', async () => {
+      // TODO: implement a test
+    });
+  });
+
+  describe('when new message is added to channel (which is not in the list)', () => {
     beforeEach(async () => {
       await setupChat();
     });
@@ -267,7 +299,7 @@ describe('ChannelList', () => {
       });
     };
 
-    test('case 1: `onMessageNew` prop function is provided - should call `onMessageNew`', async () => {
+    test('if `onMessageNew` function prop is provided, it should call `onMessageNew`', async () => {
       Render = render(
         <Chat client={chatClient}>
           <ChannelList
@@ -289,7 +321,7 @@ describe('ChannelList', () => {
       expect(onMessageNew).toHaveBeenCalledTimes(1);
     });
 
-    test('case 2: `onMessageNew` prop function is provided - should move channel to top of list', async () => {
+    test('if `onMessageNew` function prop is nbot provided, it should move channel to top of list', async () => {
       const { getByText, getByTestId, getAllByRole } = render(
         <Chat client={chatClient}>
           <ChannelList
@@ -315,6 +347,34 @@ describe('ChannelList', () => {
         '[role="listitem"]',
       );
       expect(channelPreview.isEqualNode(items[0])).toBeTruthy();
+    });
+  });
+
+  describe('channel from the list is updated', () => {
+    it('should update the channel in list', () => {
+      // TODO: implement a test
+    });
+
+    it('should call `onChannelUpdated`, if its provided', () => {
+      // TODO: implement a test
+    });
+  });
+
+  describe('channel from the list is deleted', () => {
+    test('if `onChannelDeleted` function prop is provided, it should call `onChannelDeleted`', () => {
+      // TODO: implement a test
+    });
+    test('if `onChannelDeleted` function prop not is provided, it should remove channel from list', () => {
+      // TODO: implement a test
+    });
+  });
+
+  describe('channel from the list is truncated', () => {
+    it('should update the channel', () => {
+      // TODO: implement a test
+    });
+    test('if `onChannelTruncated` function prop is provided, it should call `onChannelTruncated`', () => {
+      // TODO: implement a test
     });
   });
 });
