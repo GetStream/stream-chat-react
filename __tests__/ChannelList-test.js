@@ -43,6 +43,10 @@ const ChannelListComponent = (props) => {
   }
 };
 
+const EmptyStateIndicatorComponent = () => (
+  <div data-testid="empty-state-indicator"></div>
+);
+
 describe('ChannelList', () => {
   let chatClient;
   let chatClientVishal;
@@ -98,6 +102,26 @@ describe('ChannelList', () => {
   };
 
   beforeEach(setupChat);
+
+  it.only('should render EmptyStateIndicator if there are no channels', async () => {
+    const { getByTestId } = render(
+      <Chat client={chatClient}>
+        <ChannelList
+          // Using some random id to get 0 channels from query.
+          filters={{ members: { $in: ['random-user id-to-not-hit'] } }}
+          Preview={ChannelPreviewComponent}
+          EmptyStateIndicator={EmptyStateIndicatorComponent}
+          List={ChannelListComponent}
+        />
+      </Chat>,
+    );
+
+    await wait(() => {
+      getByTestId('empty-state-indicator');
+    });
+
+    expect(getByTestId('empty-state-indicator')).toBeTruthy();
+  });
 
   it('should render all channels in list', async () => {
     const { getByText, getByRole } = render(

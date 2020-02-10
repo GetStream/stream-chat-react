@@ -463,7 +463,7 @@ class ChannelList extends PureComponent {
   };
 
   render() {
-    const { List, Paginator } = this.props;
+    const { List, Paginator, EmptyStateIndicator } = this.props;
     const { channels, loadingChannels, refreshing, hasNextPage } = this.state;
     return (
       <React.Fragment>
