@@ -172,7 +172,23 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   error?: boolean;
   /** If channel list is in loading state */
   loading?: boolean;
-  showSidebar: boolean;
+  showSidebar?: boolean;
+  /**
+   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
+   *
+   * Defaults to and accepts same props as:
+   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
+   *
+   */
+  LoadingIndicator?: React.ElementType<LoadingChannelsProps>;
+  /**
+   * Error indicator UI Component. It will be displayed if `error` prop is true
+   *
+   * Defaults to and accepts same props as:
+   * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js)
+   *
+   */
+  LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
 export interface ChannelPreviewProps {
