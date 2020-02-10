@@ -23,18 +23,39 @@ class ChannelListTeam extends PureComponent {
     showSidebar: PropTypes.bool,
     /** Url for sidebar logo image. */
     sidebarImage: PropTypes.string,
+    /**
+     * Loading indicator UI Component. It will be displayed if `loading` prop is true.
+     *
+     * Defaults to and accepts same props as:
+     * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
+     *
+     */
+    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Error indicator UI Component. It will be displayed if `error` prop is true
+     *
+     * Defaults to and accepts same props as:
+     * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js)
+     *
+     */
+    LoadingErrorIndicator: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+    ]),
   };
 
   static defaultProps = {
     error: false,
+    LoadingIndicator: LoadingChannels,
+    LoadingErrorIndicator: ChatDown,
   };
 
   render() {
-    const { showSidebar } = this.props;
+    const { showSidebar, LoadingErrorIndicator, LoadingIndicator } = this.props;
     if (this.props.error) {
-      return <ChatDown type="Connection Error" />;
+      return <LoadingErrorIndicator type="Connection Error" />;
     } else if (this.props.loading) {
-      return <LoadingChannels data-testid="loading-channels" />;
+      return <LoadingIndicator />;
     } else {
       return (
         <div className="str-chat__channel-list-team" role="list">
