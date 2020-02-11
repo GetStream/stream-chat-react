@@ -8,7 +8,7 @@ export { ChannelHeader } from './ChannelHeader';
 export { ChannelList } from './ChannelList';
 export { ChannelListMessenger } from './ChannelListMessenger';
 export { ChannelListTeam } from './ChannelListTeam';
-export { ChannelPreview } from './ChannelPreview';
+export { default as ChannelPreview } from './ChannelPreview';
 export { ChannelPreviewCompact } from './ChannelPreviewCompact';
 export { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
 export { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';

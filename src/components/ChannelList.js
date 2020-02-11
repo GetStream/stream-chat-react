@@ -4,7 +4,7 @@ import Immutable from 'seamless-immutable';
 import { isPromise } from '../utils';
 
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
-import { ChannelPreview } from './ChannelPreview';
+import ChannelPreview from './ChannelPreview';
 import { EmptyStateIndicator } from './EmptyStateIndicator';
 import { LoadingChannels } from './LoadingChannels';
 import { LoadMorePaginator } from './LoadMorePaginator';

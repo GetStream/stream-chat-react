@@ -1,64 +1,60 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-export const ChannelPreview = ({
+const ChannelPreview = ({
   Preview,
   setActiveChannel,
   watchers,
   channel,
   activeChannel,
+  closeMenu,
 }) => {
   const [unread, setUnread] = useState(0);
   const [lastRead, setLastRead] = useState(new Date());
-  const [latestMessage, setLatestMessage] = useState('');
   const [lastMessage, setLastMessage] = useState({});
 
   useEffect(() => {
     const handleEvent = (event) => {
-      setLatestMessage(getPreviewLatestMessage(channel));
       setLastMessage(event.message);
       if (!isActive()) {
-        const unread = channel.countUnread(new Date());
+        const unread = channel.countUnread(lastRead);
         setUnread(unread);
       } else {
         setUnread(0);
       }
     };
 
+    const unread = channel.countUnread(lastRead);
+    setUnread(unread);
+
     channel.on('message.new', handleEvent);
+
     return () => {
       channel.off('message.new', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // listen to change...
     if (isActive()) {
       setLastRead(new Date());
+      setUnread(0);
     }
+  }, [channel, activeChannel, isActive]);
 
-    const unread = channel.countUnread(lastRead);
-    setLatestMessage(getPreviewLatestMessage(channel));
-    setUnread(unread);
-  }, [channel, activeChannel]);
-
-  const isActive = useCallback(() => activeChannel.cid === channel.cid, [
-    activeChannel,
-    channel,
-  ]);
+  const isActive = () => activeChannel.cid === channel.cid;
 
   return (
     <Preview
       lastMessage={lastMessage}
       channel={channel}
       unread={unread}
-      latestMessage={latestMessage}
+      latestMessage={getPreviewLatestMessage(channel)}
       activeChannel={activeChannel}
       active={activeChannel.cid === channel.cid}
       setActiveChannel={setActiveChannel}
       watchers={watchers}
+      closeMenu={closeMenu}
     />
   );
 };
@@ -109,3 +105,5 @@ ChannelPreview.propTypes = {
    * */
   watchers: PropTypes.object,
 };
+
+export default React.memo(ChannelPreview);
