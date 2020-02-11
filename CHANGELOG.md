@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.3](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.3) 2020-02-11
+
+- Fixing `LoadingIndicator` prop for InfiniteScrollPaginator component - [fb81d68](https://github.com/GetStream/stream-chat-react/commit/fb81d68deb2822b9cf2f0414a3d430b86277f024)
+
 ## [0.8.2](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.2) 2020-02-10
 
 - Fixing `LoadingIndicator` prop for ChannelList component - [e6e2e9f](https://github.com/GetStream/stream-chat-react/commit/e6e2e9fdd280d183b4378996c926e4540e467c17)
