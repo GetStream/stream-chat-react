@@ -1,15 +1,16 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
-
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
-import { ChannelPreviewMessenger } from '../src/components/ChannelPreviewMessenger';
 import uuidv4 from 'uuid/v4';
+import truncate from 'lodash/truncate';
+
 import { getTestClient, createUserToken } from './utils';
 
-// Note: running cleanup afterEach is done automatically for you in @testing-library/react@9.0.0 or higher
-// unmount and cleanup DOM after the test is finished.
+import { ChannelPreviewMessenger } from '../src/components/ChannelPreviewMessenger';
+
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
+
+const latestMessage = 'This is a message from me, this is so cool man!!';
 
 describe('ChannelPreviewMessenger', () => {
   let chatClient;
@@ -54,61 +55,57 @@ describe('ChannelPreviewMessenger', () => {
     expect(getByText(channelName)).toBeTruthy();
   });
 
-  it('should display latest message in channel (from latestMessage prop)', () => {
-    const { getByText, rerender } = render(
+  it('should display latest message truncated to length provided by latestMessageLength prop', () => {
+    const latestMessageLength = 20;
+    const { getByText } = render(
       <ChannelPreviewMessenger
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
-        channel={channel}
-        activeChannel={channel}
-      />,
-    );
-    expect(getByText('This is a message...')).toBeTruthy();
-
-    // Updating the latest message should reflect in view.
-    rerender(
-      <ChannelPreviewMessenger
-        latestMessage="New Message from me. This should be updated in preview!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
+        latestMessageLength={latestMessageLength}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
-    expect(getByText('New Message from ...')).toBeTruthy();
+    const truncatedLatestMessage = truncate(latestMessage, {
+      length: latestMessageLength,
+    });
+
+    expect(getByText(truncatedLatestMessage)).toBeTruthy();
   });
 
-  it('should reflect the updated latest message in channel (from latestMessage prop)', () => {
+  it('should show updated latest message when latestMessage prop changes', () => {
     const { getByText, rerender } = render(
       <ChannelPreviewMessenger
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
+        latestMessageLength={10000}
         channel={channel}
         activeChannel={channel}
       />,
     );
+    expect(getByText(latestMessage)).toBeTruthy();
 
     // Updating the latest message should reflect in view.
+    const updatedLatestMessage =
+      'New Message from me. This should be updated in preview!!';
     rerender(
       <ChannelPreviewMessenger
-        latestMessage="New Message from me. This should be updated in preview!!"
-        latestMessageLength={20}
+        latestMessage={updatedLatestMessage}
+        latestMessageLength={10000}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
-    expect(getByText('New Message from ...')).toBeTruthy();
+    expect(getByText(updatedLatestMessage)).toBeTruthy();
   });
 
-  it('should call setActiveChannel and closeMenu on click', () => {
+  it('should call `setActiveChannel` and `closeMenu` prop functions on click', () => {
     const setActiveChannel = jest.fn();
     const closeMenu = jest.fn();
     const watchers = {};
     const { container } = render(
       <ChannelPreviewMessenger
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         channel={channel}
         activeChannel={channel}
         setActiveChannel={setActiveChannel}
@@ -121,6 +118,7 @@ describe('ChannelPreviewMessenger', () => {
       '.str-chat__channel-preview-messenger--last-message',
     );
     fireEvent.click(containerBtn);
+
     expect(setActiveChannel).toHaveBeenCalledTimes(1);
     expect(setActiveChannel).toHaveBeenLastCalledWith(channel, watchers);
     expect(closeMenu).toHaveBeenCalledTimes(1);

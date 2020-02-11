@@ -6,15 +6,13 @@
 import React from 'react';
 import { cleanup, render, wait } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-
-import { ChannelList } from '../src/components/ChannelList';
-import { Chat } from '../src/components/Chat';
-
 import uuidv4 from 'uuid/v4';
+
 import { getTestClient, createUserToken } from './utils';
 
-// Note: running cleanup afterEach is done automatically for you in @testing-library/react@9.0.0 or higher
-// unmount and cleanup DOM after the test is finished.
+import { Chat } from '../src/components/Chat';
+import { ChannelList } from '../src/components/ChannelList';
+
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
 
@@ -58,16 +56,14 @@ describe('ChannelList', () => {
   let userToken;
   let userTokenVishal;
   let channels;
-  const newMessage = 'This is new';
 
   const setupChat = async () => {
     channels = [];
+
+    // Prepare client for Thierry user
     chatClient = getTestClient();
-    chatClientVishal = getTestClient();
     userId = `thierry-${uuidv4()}`;
-    userIdVishal = `vishal-${uuidv4()}`;
     userToken = createUserToken(userId);
-    userTokenVishal = createUserToken(userIdVishal);
     chatClient.setUser(
       {
         id: userId,
@@ -76,6 +72,11 @@ describe('ChannelList', () => {
       },
       userToken,
     );
+
+    // Prepare client for Vishal user
+    chatClientVishal = getTestClient();
+    userIdVishal = `vishal-${uuidv4()}`;
+    userTokenVishal = createUserToken(userIdVishal);
     chatClientVishal.setUser(
       {
         id: userIdVishal,
@@ -157,6 +158,7 @@ describe('ChannelList', () => {
       </Chat>,
     );
 
+    // Wait for list of channels to load in DOM.
     await wait(() => {
       getByRole('list');
     });
@@ -178,10 +180,12 @@ describe('ChannelList', () => {
       </Chat>,
     );
 
+    // Wait for list of channels to load in DOM.
     await wait(() => {
       getByRole('list');
     });
 
+    const newMessage = `${uuidv4()}`;
     await act(async () => {
       channels[2].sendMessage({
         text: newMessage,
@@ -300,6 +304,7 @@ describe('ChannelList', () => {
       await removeMember(channelIndexToBeRemoved);
       expect(onRemovedFromChannel).toHaveBeenCalledTimes(1);
     });
+
     test('if `onRemovedFromChannel` prop function is not provided, it should remove the channel from list', async () => {
       const { getByRole, queryByTestId } = render(
         <Chat client={chatClient}>
@@ -328,9 +333,12 @@ describe('ChannelList', () => {
 
     const createNewChannelAndSendMessage = async () => {
       newChannel = await createChannel();
+
+      const newMessage = `${uuidv4()}`;
       newChannel.sendMessage({
         text: newMessage,
       });
+
       await new Promise((resolve) => {
         chatClient.on('notification.message_new', () => {
           resolve();
@@ -360,7 +368,7 @@ describe('ChannelList', () => {
       expect(onMessageNew).toHaveBeenCalledTimes(1);
     });
 
-    test('if `onMessageNew` function prop is nbot provided, it should move channel to top of list', async () => {
+    test('if `onMessageNew` function prop is not provided, it should move channel to top of list', async () => {
       const { getByText, getByTestId, getAllByRole } = render(
         <Chat client={chatClient}>
           <ChannelList

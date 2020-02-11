@@ -1,17 +1,20 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
-
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
-import { ChannelPreviewCompact } from '../src/components/ChannelPreviewCompact';
 import uuidv4 from 'uuid/v4';
+
 import { getTestClient, createUserToken } from './utils';
 
-// Note: running cleanup afterEach is done automatically for you in @testing-library/react@9.0.0 or higher
-// unmount and cleanup DOM after the test is finished.
+import { ChannelPreviewCompact } from '../src/components/ChannelPreviewCompact';
+
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
+
+// Testing based on class names is generally not recommended. But in this case,
+// existence of class is dependent on props, so going to make an exception here.
 const unreadCountClassName = 'str-chat__channel-preview-compact--unread';
 const activeChannelClassName = 'str-chat__channel-preview-compact--active';
+const latestMessage = 'This is a message from me, this is so cool man!!';
+
 describe('ChannelPreviewCompact', () => {
   let chatClient;
   let userId;
@@ -19,6 +22,7 @@ describe('ChannelPreviewCompact', () => {
   let channelID;
   let channel;
   let channelName;
+
   beforeAll(async function() {
     chatClient = getTestClient();
     userId = `thierry-${uuidv4()}`;
@@ -43,7 +47,7 @@ describe('ChannelPreviewCompact', () => {
     const watchers = {};
     const { container } = render(
       <ChannelPreviewCompact
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         channel={channel}
         activeChannel={channel}
@@ -77,7 +81,7 @@ describe('ChannelPreviewCompact', () => {
     let unreadCount = 10;
     const { container, rerender } = render(
       <ChannelPreviewCompact
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         unread={unreadCount}
         channel={channel}
@@ -90,7 +94,7 @@ describe('ChannelPreviewCompact', () => {
     unreadCount = unreadCount + 1;
     rerender(
       <ChannelPreviewCompact
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         unread={unreadCount}
         channel={channel}
@@ -102,7 +106,7 @@ describe('ChannelPreviewCompact', () => {
     unreadCount = 0;
     rerender(
       <ChannelPreviewCompact
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         unread={unreadCount}
         channel={channel}

@@ -20,14 +20,14 @@
     "getstream.io"
   ],
   "jest": {
+    "verbose": true,
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/examples",
       "/__tests__/utils.js"
     ],
     "transform": {
-      "^.+\\.jsx?$": "babel-jest",
-      "^.+\\.svg$": "jest-svg-transformer"
+      "^.+\\.jsx?$": "babel-jest"
     },
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/assetsTransformer.js",
@@ -75,6 +75,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.0.0",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.1",
+    "@testing-library/react": "^9.4.0",
     "@types/seamless-immutable": "7.1.11",
     "@types/uuid": "^3.4.5",
     "autoprefixer": "^9.4.3",
@@ -92,16 +93,17 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-sonarjs": "^0.5.0",
-    "@testing-library/react": "^9.4.0",
-    "react-test-renderer": "^16.12.0",
     "htmlparser2": "^4.0.0",
     "husky": "^4.2.1",
+    "jest": "^25.1.0",
     "node-sass": "^4.13.1",
     "node-sass-import": "^2.0.1",
     "postcss-loader": "^3.0.0",
     "prettier": "^1.19.1",
     "react-styleguidist": "10.6.1",
+    "react-test-renderer": "^16.12.0",
     "rollup": "^1.31.0",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -144,6 +146,7 @@
     "prettier": "prettier --list-different '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc",
     "prettier-fix": "prettier --write '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc",
     "eslint": "eslint '**/*.{js,md}' --max-warnings 0",
+    "check": "yarn run prettier-fix && yarn run eslint && yarn run test",
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
     "lint": "prettier --list-different '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc && eslint '**/*.{js,md}' --max-warnings 0 && stylelint '**/*.{css,scss}'",
     "lint-fix": "prettier --write '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc && eslint --fix '**/*.{js,md}' --max-warnings 0 && stylelint --fix '**/*.{css,scss}'",
@@ -151,7 +154,7 @@
     "preversion": "make example-deps && git add yarn.lock && git add examples/*/yarn.lock",
     "version": "yarn docs && git add docs && git add yarn.lock examples/*/yarn.lock",
     "postversion": "git push && git push --tags && npm publish",
-    "test": "jest"
+    "test": "jest --testTimeout 70000"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended-scss",

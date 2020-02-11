@@ -1,13 +1,9 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
-
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { ChannelListMessenger } from '../src/components/ChannelListMessenger';
 import uuidv4 from 'uuid/v4';
 import { getTestClient, createUserToken } from './utils';
 
-// Note: running cleanup afterEach is done automatically for you in @testing-library/react@9.0.0 or higher
-// unmount and cleanup DOM after the test is finished.
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
 

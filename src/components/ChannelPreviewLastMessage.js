@@ -39,7 +39,12 @@ export const ChannelPreviewLastMessage = ({
   return (
     <div className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}>
       <button onClick={onSelectChannel} ref={channelPreviewButton}>
-        {unread >= 1 && <div className="str-chat__channel-preview--dot" />}
+        {unread >= 1 && (
+          <div
+            className="str-chat__channel-preview--dot"
+            data-testid="channel-preview-last-message-dot"
+          />
+        )}
         <Avatar image={channel.data.image} />
         <div className="str-chat__channel-preview-info">
           <span className="str-chat__channel-preview-title">{name}</span>
@@ -51,7 +56,10 @@ export const ChannelPreviewLastMessage = ({
                 })}
           </span>
           {unread >= 1 && (
-            <span className="str-chat__channel-preview-unread-count">
+            <span
+              className="str-chat__channel-preview-unread-count"
+              data-testid="channel-preview-last-message-unread-count"
+            >
               {unread}
             </span>
           )}

@@ -1,16 +1,18 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
-
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
-import { ChannelPreviewLastMessage } from '../src/components/ChannelPreviewLastMessage';
 import uuidv4 from 'uuid/v4';
+import truncate from 'lodash/truncate';
+
 import { getTestClient, createUserToken } from './utils';
 
-// Note: running cleanup afterEach is done automatically for you in @testing-library/react@9.0.0 or higher
-// unmount and cleanup DOM after the test is finished.
+import { ChannelPreviewLastMessage } from '../src/components/ChannelPreviewLastMessage';
+
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
-const unreadCountClassName = 'str-chat__channel-preview-unread-count';
+
+const latestMessage = 'This is a message from me, this is so cool man!!';
+const unreadCountTestId = 'channel-preview-last-message-unread-count';
+const previewDotTestId = 'channel-preview-last-message-dot';
 
 describe('ChannelPreviewLastMessage', () => {
   let chatClient;
@@ -55,51 +57,47 @@ describe('ChannelPreviewLastMessage', () => {
     expect(getByText(channelName)).toBeTruthy();
   });
 
-  it('should display latest message in channel (from latestMessage prop)', () => {
-    const { getByText, rerender } = render(
+  it('should display latest message truncated to length provided by latestMessageLength prop', () => {
+    const latestMessageLength = 20;
+    const { getByText } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
-        channel={channel}
-        activeChannel={channel}
-      />,
-    );
-    expect(getByText('This is a message...')).toBeTruthy();
-
-    // Updating the latest message should reflect in view.
-    rerender(
-      <ChannelPreviewLastMessage
-        latestMessage="New Message from me. This should be updated in preview!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
+        latestMessageLength={latestMessageLength}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
-    expect(getByText('New Message from ...')).toBeTruthy();
+    const truncatedLatestMessage = truncate(latestMessage, {
+      length: latestMessageLength,
+    });
+
+    expect(getByText(truncatedLatestMessage)).toBeTruthy();
   });
 
   it('should reflect the updated latest message in channel (from latestMessage prop)', () => {
     const { getByText, rerender } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
+        latestMessageLength={10000}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
     // Updating the latest message should reflect in view.
+    const updatedLatestMessage =
+      'New Message from me. This should be updated in preview!!';
     rerender(
       <ChannelPreviewLastMessage
-        latestMessage="New Message from me. This should be updated in preview!!"
-        latestMessageLength={20}
+        latestMessage={updatedLatestMessage}
+        latestMessageLength={10000}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
-    expect(getByText('New Message from ...')).toBeTruthy();
+    expect(getByText(updatedLatestMessage)).toBeTruthy();
   });
 
   it('should call setActiveChannel on click', () => {
@@ -107,7 +105,7 @@ describe('ChannelPreviewLastMessage', () => {
     const watchers = {};
     const { container } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         channel={channel}
         activeChannel={channel}
@@ -116,64 +114,44 @@ describe('ChannelPreviewLastMessage', () => {
       />,
     );
 
-    const containerBtn = container.querySelector(
-      '.str-chat__channel-preview button',
-    );
+    const containerBtn = container.querySelector('button');
+
     fireEvent.click(containerBtn);
     expect(setActiveChannel).toHaveBeenCalledTimes(1);
     expect(setActiveChannel).toHaveBeenLastCalledWith(channel, watchers);
   });
 
   it('should not display unread message count if count is 0', () => {
-    const { container } = render(
+    const { queryByTestId } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
+        latestMessage={latestMessage}
         latestMessageLength={20}
         unread={0}
         channel={channel}
         activeChannel={channel}
       />,
     );
-    const unreadCountDiv = container.querySelector(`.${unreadCountClassName}`);
-    expect(unreadCountDiv).toBeFalsy();
+    expect(queryByTestId(unreadCountTestId)).toBeNull();
   });
 
-  it('should display unread message count when count is greater than 0', () => {
-    const unreadCount = 10;
-    const { container } = render(
-      <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
-        unread={unreadCount}
-        channel={channel}
-        activeChannel={channel}
-      />,
-    );
-    const unreadCountDiv = container.querySelector(`.${unreadCountClassName}`);
-    expect(unreadCountDiv).toBeTruthy();
-    expect(unreadCountDiv.textContent).toBe(unreadCount.toString());
-  });
-
-  it('should show new unread count in UI when unread message count changes', () => {
+  it('should show updated unread count when unread prop changes', () => {
     let unreadCount = 10;
-    const { container, rerender } = render(
+    const { getByTestId, queryByTestId, rerender } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
     );
-    let unreadCountDiv = container.querySelector(`.${unreadCountClassName}`);
+    const unreadCountDiv = getByTestId(unreadCountTestId);
     expect(unreadCountDiv).toBeTruthy();
     expect(unreadCountDiv.textContent).toBe(unreadCount.toString());
 
     unreadCount = unreadCount + 1;
     rerender(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         unread={unreadCount}
         channel={channel}
         activeChannel={channel}
@@ -184,47 +162,37 @@ describe('ChannelPreviewLastMessage', () => {
     unreadCount = 0;
     rerender(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         unread={unreadCount}
         channel={channel}
         activeChannel={channel}
       />,
     );
 
-    unreadCountDiv = container.querySelector(`.${unreadCountClassName}`);
-    expect(unreadCountDiv).toBeFalsy();
+    expect(queryByTestId(unreadCountTestId)).toBeNull();
   });
 
-  it('should display unread count indicator (small dot) if count is greater than 0', () => {
-    const { container } = render(
+  it('should display unread count indicator (small dot) only if count is greater than 0', () => {
+    const { queryByTestId, rerender } = render(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         unread={10}
         channel={channel}
         activeChannel={channel}
       />,
     );
-    const unreadCountDiv = container.querySelector(
-      '.str-chat__channel-preview--dot',
-    );
-    expect(unreadCountDiv).toBeTruthy();
-  });
 
-  it('should not display unread count indicator (small dot) if count is 0', () => {
-    const { container } = render(
+    expect(queryByTestId(previewDotTestId)).toBeTruthy();
+
+    rerender(
       <ChannelPreviewLastMessage
-        latestMessage="This is a message from me, this is so cool man!!"
-        latestMessageLength={20}
+        latestMessage={latestMessage}
         unread={0}
         channel={channel}
         activeChannel={channel}
       />,
     );
-    const unreadCountDiv = container.querySelector(
-      '.str-chat__channel-preview--dot',
-    );
-    expect(unreadCountDiv).toBeFalsy();
+
+    expect(queryByTestId(previewDotTestId)).toBeNull();
   });
 });
