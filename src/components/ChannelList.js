@@ -158,6 +158,10 @@ class ChannelList extends PureComponent {
      * */
     customAciveChannel: PropTypes.string,
     /**
+     * Last channel will be set as active channel if true, defaults to true
+     */
+    setActiveChannelOnMount: PropTypes.bool,
+    /**
      * If true, channels won't be dynamically sorted by most recent message.
      */
     lockChannelOrder: PropTypes.bool,
@@ -170,6 +174,7 @@ class ChannelList extends PureComponent {
     List: ChannelListTeam,
     Paginator: LoadMorePaginator,
     EmptyStateIndicator,
+    setActiveChannelOnMount: true,
     filters: {},
     options: {},
     sort: {},
@@ -225,7 +230,7 @@ class ChannelList extends PureComponent {
   }
 
   queryChannels = async () => {
-    const { options, filters, sort } = this.props;
+    const { options, filters, sort, setActiveChannelOnMount } = this.props;
     const { offset } = this.state;
 
     this.setState({ refreshing: true });
@@ -267,7 +272,11 @@ class ChannelList extends PureComponent {
           this.props.setActiveChannel(customActiveChannel, this.props.watchers);
           this.moveChannelUp(customActiveChannel.cid);
         }
-      } else if (offset === 0 && this.state.channels.length >= 1) {
+      } else if (
+        setActiveChannelOnMount &&
+        offset === 0 &&
+        this.state.channels.length
+      ) {
         this.props.setActiveChannel(
           this.state.channels[0],
           this.props.watchers,
