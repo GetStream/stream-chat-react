@@ -49,11 +49,15 @@ export class ChannelPreview extends PureComponent {
 
     this.setState({ unread });
     channel.on('message.new', this.handleEvent);
+    channel.on('message.updated', this.handleEvent);
+    channel.on('message.deleted', this.handleEvent);
   }
 
   componentWillUnmount() {
     const channel = this.props.channel;
     channel.off('message.new', this.handleEvent);
+    channel.off('message.updated', this.handleEvent);
+    channel.off('message.deleted', this.handleEvent);
   }
 
   handleEvent = (event) => {
