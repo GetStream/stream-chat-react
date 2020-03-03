@@ -147,7 +147,8 @@ class MessageList extends PureComponent {
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     typing: PropTypes.object,
     /**
-     * Additional props for underlying MessageInput component.
+     * Additional props for underlying MessageInput component. We have instance of MessageInput
+     * component in MessageSimple component, for handling edit state.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,

@@ -1,8 +1,14 @@
 import React from 'react';
 import moment from 'moment';
 import { Avatar } from './Avatar';
+import PropTypes from 'prop-types';
 
 export class EventComponent extends React.PureComponent {
+  static propTypes = {
+    /** Message object */
+    message: PropTypes.object,
+  };
+
   render() {
     const { message } = this.props;
     if (message.type === 'system') {

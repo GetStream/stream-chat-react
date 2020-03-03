@@ -1,11 +1,13 @@
 Simple LoadingIndicator. Here's a small version
 
 ```js
-<LoadingIndicator size={15} />
+import { LoadingIndicator } from '../LoadingIndicator';
+<LoadingIndicator size={15} />;
 ```
 
 And an example for a larger one
 
 ```js
-<LoadingIndicator size={35} />
+import { LoadingIndicator } from '../LoadingIndicator';
+<LoadingIndicator size={35} />;
 ```

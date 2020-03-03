@@ -23,7 +23,7 @@ export interface CardComponentProps {
 export class Card extends React.PureComponent<CardComponentProps, any> {
   static propTypes = {
     /** Title returned by the OG scraper */
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     /** Link returned by the OG scraper */
     title_link: PropTypes.string,
     /** The scraped url, used as a fallback if the OG-data doesn't include a link */

@@ -15,14 +15,29 @@ import truncate from 'lodash/truncate';
 export class ChannelPreviewMessenger extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    setActiveChannel: PropTypes.func,
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    channel: PropTypes.object,
-    closeMenu: PropTypes.func,
+    channel: PropTypes.object.isRequired,
+    /** Current selected channel object */
+    activeChannel: PropTypes.object.isRequired,
+    /** Setter for selected channel */
+    setActiveChannel: PropTypes.func.isRequired,
+    /**
+     * Object containing watcher parameters
+     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+     * */
+    watchers: PropTypes.object,
+    /** Number of unread messages */
     unread: PropTypes.number,
     /** If channel of component is active (selected) channel */
     active: PropTypes.bool,
+    /** Latest message's text. */
     latestMessage: PropTypes.string,
+    /** Length of latest message to truncate at */
+    latestMessageLength: PropTypes.number,
+    closeMenu: PropTypes.func,
+  };
+
+  static defaultProps = {
+    latestMessageLength: 14,
   };
 
   channelPreviewButton = React.createRef();
@@ -32,6 +47,7 @@ export class ChannelPreviewMessenger extends PureComponent {
     this.channelPreviewButton.current.blur();
     this.props.closeMenu();
   };
+
   render() {
     const unreadClass =
       this.props.unread >= 1
@@ -59,7 +75,9 @@ export class ChannelPreviewMessenger extends PureComponent {
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
               ? 'Nothing yet...'
-              : truncate(this.props.latestMessage, 14)}
+              : truncate(this.props.latestMessage, {
+                  length: this.props.latestMessageLength,
+                })}
           </div>
         </div>
       </button>

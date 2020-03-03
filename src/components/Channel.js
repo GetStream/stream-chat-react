@@ -33,6 +33,13 @@ class Channel extends PureComponent {
     /** Client is passed automatically via the Chat Context */
     client: PropTypes.object.isRequired,
     /**
+     * Empty channel UI component. This will be shown on the screen if there is no active channel.
+     *
+     * Defaults to null which skips rendering the Channel
+     *
+     * */
+    EmptyPlaceholder: PropTypes.node,
+    /**
      * Error indicator UI component. This will be shown on the screen if channel query fails.
      *
      * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
@@ -103,6 +110,7 @@ class Channel extends PureComponent {
   };
 
   static defaultProps = {
+    EmptyPlaceholder: null,
     LoadingIndicator,
     LoadingErrorIndicator,
     Message: MessageSimple,
@@ -111,7 +119,7 @@ class Channel extends PureComponent {
 
   render() {
     if (!this.props.channel.cid) {
-      return null; // <div>Select a channel</div>;
+      return this.props.EmptyPlaceholder;
     }
     // We use a wrapper to make sure the key variable is set.
     // this ensures that if you switch channel the component is recreated

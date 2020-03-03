@@ -34,7 +34,7 @@ export class ReactionSelector extends PureComponent {
     /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
     /**
-     * Callback to handle the reaction
+     * Handler to set/unset reaction on message.
      *
      * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
      * */
@@ -43,7 +43,7 @@ export class ReactionSelector extends PureComponent {
     detailedView: PropTypes.bool,
     /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
-
+    /** If true, reaction list will be shown at trailing end of message bubble. */
     reverse: PropTypes.bool,
   };
 

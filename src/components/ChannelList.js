@@ -6,13 +6,14 @@ import { isPromise } from '../utils';
 import { ChannelPreviewLastMessage } from './ChannelPreviewLastMessage';
 import { ChannelPreview } from './ChannelPreview';
 import { EmptyStateIndicator } from './EmptyStateIndicator';
-import { LoadingIndicator } from './LoadingIndicator';
+import { LoadingChannels } from './LoadingChannels';
 import { LoadMorePaginator } from './LoadMorePaginator';
 import { withChatContext } from '../context';
 import { ChannelListTeam } from './ChannelListTeam';
 import { smartRender } from '../utils';
 import uniqBy from 'lodash.uniqby';
 import deepequal from 'deep-equal';
+import { ChatDown } from './ChatDown';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
@@ -45,10 +46,22 @@ class ChannelList extends PureComponent {
      * and replaced with children of the Channel component.
      *
      * Defaults to and accepts same props as:
-     * [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+     * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
      *
      */
     LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Error indicator UI Component. It will be displayed if there is any error if loading the channels.
+     * This error could be related to network or failing API.
+     *
+     * Defaults to and accepts same props as:
+     * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js)
+     *
+     */
+    LoadingErrorIndicator: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.func,
+    ]),
     /**
      * Custom UI Component for container of list of channels. Note that, list (UI component) of channels is passed
      * to this component as children. This component is for the purpose of adding header to channel list or styling container
@@ -145,6 +158,10 @@ class ChannelList extends PureComponent {
      * */
     customAciveChannel: PropTypes.string,
     /**
+     * Last channel will be set as active channel if true, defaults to true
+     */
+    setActiveChannelOnMount: PropTypes.bool,
+    /**
      * If true, channels won't be dynamically sorted by most recent message.
      */
     lockChannelOrder: PropTypes.bool,
@@ -152,10 +169,12 @@ class ChannelList extends PureComponent {
 
   static defaultProps = {
     Preview: ChannelPreviewLastMessage,
-    LoadingIndicator,
+    LoadingIndicator: LoadingChannels,
+    LoadingErrorIndicator: ChatDown,
     List: ChannelListTeam,
     Paginator: LoadMorePaginator,
     EmptyStateIndicator,
+    setActiveChannelOnMount: true,
     filters: {},
     options: {},
     sort: {},
@@ -211,7 +230,7 @@ class ChannelList extends PureComponent {
   }
 
   queryChannels = async () => {
-    const { options, filters, sort } = this.props;
+    const { options, filters, sort, setActiveChannelOnMount } = this.props;
     const { offset } = this.state;
 
     this.setState({ refreshing: true });
@@ -253,7 +272,11 @@ class ChannelList extends PureComponent {
           this.props.setActiveChannel(customActiveChannel, this.props.watchers);
           this.moveChannelUp(customActiveChannel.cid);
         }
-      } else if (offset === 0 && this.state.channels.length >= 1) {
+      } else if (
+        setActiveChannelOnMount &&
+        offset === 0 &&
+        this.state.channels.length
+      ) {
         this.props.setActiveChannel(
           this.state.channels[0],
           this.props.watchers,
@@ -463,7 +486,7 @@ class ChannelList extends PureComponent {
   };
 
   render() {
-    const { List, Paginator } = this.props;
+    const { List, Paginator, EmptyStateIndicator } = this.props;
     const { channels, loadingChannels, refreshing, hasNextPage } = this.state;
     return (
       <React.Fragment>
@@ -492,6 +515,8 @@ class ChannelList extends PureComponent {
             setActiveChannel={this.props.setActiveChannel}
             activeChannel={this.props.channel}
             showSidebar={this.props.showSidebar}
+            LoadingIndicator={this.props.LoadingIndicator}
+            LoadingErrorIndicator={this.props.LoadingErrorIndicator}
           >
             {!channels.length ? (
               <EmptyStateIndicator listType="channel" />

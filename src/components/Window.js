@@ -1,5 +1,4 @@
 import React from 'react';
-
 import PropTypes from 'prop-types';
 
 import { withChannelContext } from '../context';
@@ -23,11 +22,13 @@ class Window extends React.PureComponent {
   };
 
   render() {
+    const { thread, hideOnThread, children } = this.props;
+
     // If thread is active and window should hide on thread. Return null
-    if (this.props.thread && this.props.hideOnThread) {
+    if (thread && hideOnThread) {
       return null;
     }
-    return <div className={`str-chat__main-panel`}>{this.props.children}</div>;
+    return <div className={`str-chat__main-panel`}>{children}</div>;
   }
 }
 

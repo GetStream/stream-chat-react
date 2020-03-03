@@ -12,13 +12,14 @@ import globals from 'rollup-plugin-node-globals';
 import typescript from '@rollup/plugin-typescript';
 
 // eslint-disable-next-line
-import { terser } from 'rollup-plugin-terser';
+// import { terser } from 'rollup-plugin-terser';
+import PropTypes from 'prop-types';
 
 import replace from 'rollup-plugin-replace';
 
 import pkg from './package.json';
 
-import process from 'process';
+import process from 'process-es6';
 process.env.NODE_ENV = 'production';
 
 const baseConfig = {
@@ -158,7 +159,11 @@ const fullBrowserBundle = {
       browser: true,
     }),
     url(),
-    commonjs(),
+    commonjs({
+      namedExports: {
+        'prop-types': Object.keys(PropTypes),
+      },
+    }),
     json(),
     globals({
       process: true,

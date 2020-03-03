@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import deepequal from 'deep-equal';
 
 import { MessageSimple } from './MessageSimple';
-import PropTypes from 'prop-types';
 import { Attachment } from './Attachment';
-
-import deepequal from 'deep-equal';
 import { MESSAGE_ACTIONS } from '../utils';
 import { MessageUIComponentProps } from '../../types';
 import * as Client from 'stream-chat';
@@ -117,6 +116,8 @@ export class Message extends Component<MessageUIComponentProps> {
     onMentionsHover: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     openThread: PropTypes.func,
+    /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
+    clearEditingState: PropTypes.func,
     /**
      * Additional props for underlying MessageInput component.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
@@ -243,37 +244,34 @@ export class Message extends Component<MessageUIComponentProps> {
     const {
       getFlagMessageSuccessNotification,
       getFlagMessageErrorNotification,
+      message,
+      client,
       addNotification,
     } = this.props;
-    const message = this.props.message;
 
     try {
-      await this.props.client.flagMessage(message.id);
+      await client.flagMessage(message.id);
       const successMessage = this.validateAndGetNotificationMessage(
         getFlagMessageSuccessNotification,
         [message],
       );
-      addNotification
-        ? addNotification(
-            successMessage
-              ? successMessage
-              : 'Message has been successfully flagged',
-            'success',
-          )
-        : null;
+      addNotification(
+        successMessage
+          ? successMessage
+          : 'Message has been successfully flagged',
+        'success',
+      );
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getFlagMessageErrorNotification,
         [message],
       );
-      addNotification
-        ? addNotification(
-            errorMessage
-              ? errorMessage
-              : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-            'error',
-          )
-        : null;
+      addNotification(
+        errorMessage
+          ? errorMessage
+          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+        'error',
+      );
     }
   };
 
@@ -284,60 +282,56 @@ export class Message extends Component<MessageUIComponentProps> {
     const {
       getMuteUserSuccessNotification,
       getMuteUserErrorNotification,
+      message,
+      client,
+      addNotification,
     } = this.props;
-    const message = this.props.message;
 
     if (!message.user || message.user.id) {
       return;
     }
 
     try {
-      await this.props.client.muteUser(message.user.id);
+      await client.muteUser(message.user.id);
       const successMessage = this.validateAndGetNotificationMessage(
         getMuteUserSuccessNotification,
         [message.user],
       );
 
-      addNotification
-        ? addNotification(
-            successMessage
-              ? successMessage
-              : `User with id ${message.user.id} has been muted`,
-            'success',
-          )
-        : null;
+      addNotification(
+        successMessage
+          ? successMessage
+          : `User with id ${message.user.id} has been muted`,
+        'success',
+      );
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getMuteUserErrorNotification,
         [message.user],
       );
 
-      addNotification
-        ? addNotification(
-            errorMessage ? errorMessage : 'Error muting a user ...',
-            'error',
-          )
-        : null;
+      addNotification(
+        errorMessage ? errorMessage : 'Error muting a user ...',
+        'error',
+      );
     }
   };
 
-  handleEdit = (event: React.SyntheticEvent) => {
+  handleEdit = (event) => {
+    const { setEditingState, message } = this.props;
+
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
 
-    this.props.setEditingState
-      ? this.props.setEditingState(this.props.message)
-      : null;
+    setEditingState(message);
   };
 
   handleDelete = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    const message = this.props.message;
-    const data = await this.props.client.deleteMessage(message.id);
-    this.props.updateMessage
-      ? this.props.updateMessage(data.message, {})
-      : null;
+    const { message, client, updateMessage } = this.props;
+    const data = await client.deleteMessage(message.id);
+    updateMessage(data.message);
   };
 
   handleReaction = async (
@@ -492,7 +486,7 @@ export class Message extends Component<MessageUIComponentProps> {
 
   render() {
     const config = this.props.channel.getConfig();
-    const message = this.props.message;
+    const { message } = this.props;
 
     const actionsEnabled =
       message.type === 'regular' && message.status === 'received';
