@@ -7,7 +7,6 @@ import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { isOnlyEmojis, renderText } from '../utils';
 import { withTranslationContext } from '../context';
@@ -202,6 +201,7 @@ class MessageCommerce extends PureComponent {
       threadList,
       handleOpenThread,
       t,
+      moment,
     } = this.props;
 
     const when = moment(message.created_at).format('LT');

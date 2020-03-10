@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
 
@@ -10,7 +9,7 @@ export class EventComponent extends React.PureComponent {
   };
 
   render() {
-    const { message } = this.props;
+    const { message, moment } = this.props;
     if (message.type === 'system') {
       return (
         <div className="str-chat__message--system">

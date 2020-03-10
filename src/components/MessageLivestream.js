@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { Avatar } from './Avatar';
 import { Attachment } from './Attachment';
@@ -215,6 +214,7 @@ class MessageLivestream extends React.PureComponent {
       handleEdit,
       handleDelete,
       t,
+      moment,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,

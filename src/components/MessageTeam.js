@@ -11,7 +11,6 @@ import { Tooltip } from './Tooltip';
 import { Gallery } from './Gallery';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { isOnlyEmojis, renderText } from '../utils';
 import { withTranslationContext } from '../context';
@@ -318,6 +317,7 @@ class MessageTeam extends PureComponent {
       handleEdit,
       handleDelete,
       t,
+      moment,
     } = this.props;
     if (message.type === 'message.read') {
       return null;

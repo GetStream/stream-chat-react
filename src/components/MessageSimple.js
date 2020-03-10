@@ -13,7 +13,6 @@ import { MessageInput } from './MessageInput';
 import { EditMessageForm } from './EditMessageForm';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { isOnlyEmojis, renderText } from '../utils';
 import { withTranslationContext } from '../context';
@@ -440,6 +439,7 @@ class MessageSimple extends PureComponent {
       threadList,
       handleOpenThread,
       t,
+      moment,
     } = this.props;
 
     const when = moment(message.created_at).calendar();
