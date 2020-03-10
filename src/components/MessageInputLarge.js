@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatAutoComplete } from './ChatAutoComplete';
 import { formatArray } from '../utils';
+import { withTranslationContext } from '../context';
 
 import {
   ImageDropzone,
@@ -16,7 +17,7 @@ import { Picker } from 'emoji-mart';
  * MessageInputLarge - Large Message Input to be used for the MessageInput.
  * @example ./docs/MessageInputLarge.md
  */
-export class MessageInputLarge extends PureComponent {
+class MessageInputLarge extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool.isRequired,
@@ -138,6 +139,7 @@ export class MessageInputLarge extends PureComponent {
   };
 
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div className="str-chat__input-large">
@@ -165,7 +167,7 @@ export class MessageInputLarge extends PureComponent {
                 value={this.props.text}
                 rows={1}
                 maxRows={this.props.maxRows}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 disabled={this.props.disabled}
@@ -232,3 +234,7 @@ export class MessageInputLarge extends PureComponent {
     );
   }
 }
+
+const MessageInputLargeWithContext = withTranslationContext(MessageInputLarge);
+
+export { MessageInputLargeWithContext as MessageInputLarge };

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
 import { ChatAutoComplete } from './ChatAutoComplete';
 import { Picker } from 'emoji-mart';
@@ -15,7 +16,7 @@ import {
  * MessageInputSmall - compact design to be used for the MessageInput. It has all the features of MessageInput minus the typing indicator.
  * @example ./docs/MessageInputSmall.md
  */
-export class MessageInputSmall extends PureComponent {
+class MessageInputSmall extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool.isRequired,
@@ -137,6 +138,7 @@ export class MessageInputSmall extends PureComponent {
   };
 
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div className="str-chat__small-message-input__wrapper">
@@ -170,7 +172,7 @@ export class MessageInputSmall extends PureComponent {
                 rows={1}
                 maxRows={this.props.maxRows}
                 onSelectItem={this.props.onSelectItem}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 disabled={this.props.disabled}
@@ -223,3 +225,7 @@ export class MessageInputSmall extends PureComponent {
     );
   }
 }
+
+const MessageInputSmallWithContext = withTranslationContext(MessageInputSmall);
+
+export { MessageInputSmallWithContext as MessageInputSmall };
