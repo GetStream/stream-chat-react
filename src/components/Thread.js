@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { withChannelContext } from '../context';
+import { withChannelContext, withTranslationContext } from '../context';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
@@ -154,6 +154,7 @@ class ThreadInner extends React.PureComponent {
       return null;
     }
 
+    const { t } = this.props;
     const read = {};
     return (
       <div
@@ -163,8 +164,13 @@ class ThreadInner extends React.PureComponent {
       >
         <div className="str-chat__thread-header">
           <div className="str-chat__thread-header-details">
-            <strong>Thread</strong>
-            <small>{this.props.thread.reply_count} replies</small>
+            <strong>{t('Thread')}</strong>
+            <small>
+              {' '}
+              {t('{{ replyCount }} replies', {
+                replyCount: this.props.thread.reply_count,
+              })}
+            </small>
           </div>
           <button
             onClick={(e) => this.props.closeThread(e)}
@@ -188,7 +194,9 @@ class ThreadInner extends React.PureComponent {
             {...this.props}
             {...this.props.additionalParentMessageProps}
           />
-          <div className="str-chat__thread-start">Start of a new thread</div>
+          <div className="str-chat__thread-start">
+            {t('Start of a new thread')}
+          </div>
           <MessageList
             messages={this.props.threadMessages}
             read={read}
@@ -211,5 +219,5 @@ class ThreadInner extends React.PureComponent {
   }
 }
 
-Thread = withChannelContext(Thread);
+Thread = withChannelContext(withTranslationContext(Thread));
 export { Thread };
