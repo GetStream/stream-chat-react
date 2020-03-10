@@ -9,11 +9,12 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { withTranslationContext } from '../context';
 
 /**
  * @example ./docs/EditMessageForm.md
  */
-export class EditMessageForm extends React.Component {
+class EditMessageForm extends React.Component {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool,
@@ -115,6 +116,7 @@ export class EditMessageForm extends React.Component {
   );
 
   renderEmojiPicker = () => {
+    const { t } = this.props;
     if (this.props.emojiPickerIsOpen) {
       return (
         <div
@@ -124,7 +126,7 @@ export class EditMessageForm extends React.Component {
           <Picker
             native
             emoji="point_up"
-            title="Pick your emoji…"
+            title={t('Pick your emoji')}
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
@@ -135,6 +137,7 @@ export class EditMessageForm extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
     return (
       <div className="str-chat__edit-message-form">
         <ImageDropzone
@@ -158,7 +161,7 @@ export class EditMessageForm extends React.Component {
                 <Picker
                   native
                   emoji="point_up"
-                  title="Pick your emoji…"
+                  title={t('Pick your emoji')}
                   onSelect={this.props.onSelectEmoji}
                   color="#006CFF"
                 />
@@ -219,8 +222,10 @@ export class EditMessageForm extends React.Component {
                 </FileUploadButton>
               </div>
               <div>
-                <button onClick={this.props.clearEditingState}>Cancel</button>
-                <button type="submit">Send</button>
+                <button onClick={this.props.clearEditingState}>
+                  {t('Cancel')}
+                </button>
+                <button type="submit">{t('Send')}</button>
               </div>
             </div>
           </form>
@@ -229,3 +234,6 @@ export class EditMessageForm extends React.Component {
     );
   }
 }
+
+EditMessageForm = withTranslationContext(EditMessageForm);
+export { EditMessageForm };

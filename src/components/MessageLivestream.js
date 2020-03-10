@@ -13,6 +13,7 @@ import { Gallery } from './Gallery';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import { isOnlyEmojis, renderText } from '../utils';
+import { withTranslationContext } from '../context';
 
 const reactionSvg =
   '<svg width="14" height="14" xmlns="http://www.w3.org/2000/svg"><path d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z" fillRule="evenodd"/></svg>';
@@ -28,7 +29,7 @@ const optionsSvg =
  * @example ./docs/MessageLivestream.md
  * @extends PureComponent
  */
-export class MessageLivestream extends React.PureComponent {
+class MessageLivestream extends React.PureComponent {
   static propTypes = {
     /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
@@ -213,6 +214,7 @@ export class MessageLivestream extends React.PureComponent {
       handleMute,
       handleEdit,
       handleDelete,
+      t,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -355,7 +357,7 @@ export class MessageLivestream extends React.PureComponent {
                 <strong>{message.user.name || message.user.id}</strong>
                 {message.type === 'error' && (
                   <div className="str-chat__message-team-error-header">
-                    Only visible to you
+                    {t('Only visible to you')}
                   </div>
                 )}
               </div>
@@ -410,6 +412,7 @@ export class MessageLivestream extends React.PureComponent {
                         fillRule="evenodd"
                       />
                     </svg>
+                    {/* TODO: Translate following sentence */}
                     <strong>/{message.command}</strong> is not a valid command
                   </p>
                 )}
@@ -426,7 +429,7 @@ export class MessageLivestream extends React.PureComponent {
                         fillRule="evenodd"
                       />
                     </svg>
-                    Message failed. Click to try again.
+                    {t('Message failed. Click to try again.')}
                   </p>
                 )}
               </div>
@@ -461,3 +464,6 @@ export class MessageLivestream extends React.PureComponent {
     );
   }
 }
+
+MessageLivestream = withTranslationContext(MessageLivestream);
+export { MessageLivestream };

@@ -1,5 +1,9 @@
 import React, { PureComponent } from 'react';
-import { withChatContext, ChannelContext } from '../context';
+import {
+  withChatContext,
+  ChannelContext,
+  withTranslationContext,
+} from '../context';
 
 import { LoadingIndicator } from './LoadingIndicator';
 import { LoadingErrorIndicator } from './LoadingErrorIndicator';
@@ -654,6 +658,8 @@ class ChannelInner extends PureComponent {
   renderComponent = () => this.props.children;
 
   render() {
+    const { t } = this.props;
+
     let core;
     const LoadingIndicator = this.props.LoadingIndicator;
     const LoadingErrorIndicator = this.props.LoadingErrorIndicator;
@@ -665,7 +671,7 @@ class ChannelInner extends PureComponent {
     } else if (this.state.loading) {
       core = <LoadingIndicator size={25} isLoading={true} />;
     } else if (!this.props.channel || !this.props.channel.watch) {
-      core = <div>Channel Missing</div>;
+      core = <div>{t('Channel Missing')}</div>;
     } else {
       core = (
         <ChannelContext.Provider value={this.getContext()}>
@@ -682,6 +688,6 @@ class ChannelInner extends PureComponent {
   }
 }
 
-Channel = withChatContext(Channel);
+Channel = withChatContext(withTranslationContext(Channel));
 
 export { Channel };

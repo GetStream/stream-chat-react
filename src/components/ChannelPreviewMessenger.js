@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
+import { withTranslationContext } from '../context';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -12,7 +13,7 @@ import truncate from 'lodash/truncate';
  * @example ./docs/ChannelPreviewMessenger.md
  * @extends PureComponent
  */
-export class ChannelPreviewMessenger extends PureComponent {
+class ChannelPreviewMessenger extends PureComponent {
   static propTypes = {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     channel: PropTypes.object.isRequired,
@@ -57,7 +58,7 @@ export class ChannelPreviewMessenger extends PureComponent {
       ? 'str-chat__channel-preview-messenger--active'
       : '';
 
-    const { channel } = this.props;
+    const { channel, t } = this.props;
 
     return (
       <button
@@ -74,7 +75,7 @@ export class ChannelPreviewMessenger extends PureComponent {
           </div>
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
-              ? 'Nothing yet...'
+              ? t('Nothing yet...')
               : truncate(this.props.latestMessage, {
                   length: this.props.latestMessageLength,
                 })}
@@ -84,3 +85,6 @@ export class ChannelPreviewMessenger extends PureComponent {
     );
   }
 }
+
+ChannelPreviewMessenger = withTranslationContext(ChannelPreviewMessenger);
+export { ChannelPreviewMessenger };
