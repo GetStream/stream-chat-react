@@ -146,6 +146,7 @@ export const renderText = (message) => {
     'code',
     'inlineCode',
     'blockquote',
+    'delete',
   ];
 
   const urls = anchorme(text, {
