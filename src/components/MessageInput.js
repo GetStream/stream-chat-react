@@ -307,6 +307,10 @@ class MessageInput extends PureComponent {
         // TODO: show error to user that they should wait until image is uploaded
         return;
       }
+      const dupe = attachments.filter(
+        (attach) => upload.asset_url === attach.url,
+      );
+      if (dupe.length >= 1) continue;
       attachments.push({
         type: 'file',
         asset_url: upload.url,
@@ -495,6 +499,7 @@ class MessageInput extends PureComponent {
 
     let response = {};
     response = {};
+
     try {
       if (this.props.doFileUploadRequest) {
         response = await this.props.doFileUploadRequest(
