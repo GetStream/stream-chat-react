@@ -29,17 +29,15 @@ class MessageRepliesCountButton extends React.PureComponent {
 
     if (reply_count === 1) {
       if (labelSingle) {
-        singleReplyText = `${reply_count} reply`;
+        singleReplyText = `1 ${labelSingle}`;
       } else {
-        singleReplyText = t('{{ replyCount }} reply', {
-          replyCount: reply_count,
-        });
+        singleReplyText = t('1 reply');
       }
     }
 
     if (reply_count > 1) {
       if (labelPlural) {
-        pluralReplyText = `${reply_count} replies`;
+        pluralReplyText = `${reply_count} ${labelPlural}`;
       } else {
         pluralReplyText = t('{{ replyCount }} replies', {
           replyCount: reply_count,

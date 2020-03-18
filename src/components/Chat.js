@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext, TranslationContext } from '../context';
 import { Streami18n } from '../Streami18n';
-
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
@@ -81,8 +80,8 @@ export class Chat extends PureComponent {
 
   async componentDidMount() {
     const { i18nInstance } = this.props;
-
     let streami18n;
+
     if (i18nInstance && i18nInstance instanceof Streami18n) {
       streami18n = i18nInstance;
     } else {

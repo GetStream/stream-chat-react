@@ -95,6 +95,10 @@ export const isPromise = (thing) => thing && typeof thing.then === 'function';
 export const byDate = (a, b) => a.created_at - b.created_at;
 
 // https://stackoverflow.com/a/29234240/7625485
+/**
+ * @deprecated This function is deprecated and will be removed in future major release.
+ * @param {*} dict
+ */
 export const formatArray = (dict) => {
   const arr2 = Object.keys(dict);
   const arr3 = [];

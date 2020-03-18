@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatAutoComplete } from './ChatAutoComplete';
-import { formatArray } from '../utils';
 import { withTranslationContext } from '../context';
 
 import {
@@ -138,6 +137,36 @@ class MessageInputLarge extends PureComponent {
     }
   };
 
+  constructTypingString = (dict) => {
+    const { t } = this.props;
+    const arr2 = Object.keys(dict);
+    const arr3 = [];
+    arr2.forEach((item, i) =>
+      arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id),
+    );
+    let outStr = '';
+    if (arr3.length === 1) {
+      outStr = t('{{ user }} is typing...', { user: arr3[0] });
+      dict;
+    } else if (arr3.length === 2) {
+      //joins all with "and" but =no commas
+      //example: "bob and sam"
+      outStr = t('{{ firstUser }} and {{ secondUser }} are typing...', {
+        firstUser: arr3[0],
+        secondUser: arr3[1],
+      });
+    } else if (arr3.length > 2) {
+      //joins all with commas, but last one gets ", and" (oxford comma!)
+      //example: "bob, joe, and sam"
+      outStr = t('{{ commaSeparatedUsers }} and {{ lastUser }} are typing...', {
+        commaSeparatedUsers: arr3.slice(0, -1).join(', '),
+        lastUser: arr3.slice(-1),
+      });
+    }
+
+    return outStr;
+  };
+
   render() {
     const { t } = this.props;
     const SendButton = this.props.SendButton;
@@ -225,7 +254,7 @@ class MessageInputLarge extends PureComponent {
                 {this.props.watcher_count} online
               </span>
               <span className="str-chat__input-footer--typing">
-                {formatArray(this.props.typing)}
+                {this.constructTypingString(this.props.typing)}
               </span>
             </div>
           </div>
