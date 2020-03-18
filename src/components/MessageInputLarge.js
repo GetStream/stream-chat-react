@@ -141,9 +141,12 @@ class MessageInputLarge extends PureComponent {
     const { t } = this.props;
     const arr2 = Object.keys(dict);
     const arr3 = [];
-    arr2.forEach((item, i) =>
-      arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id),
-    );
+    arr2.forEach((item, i) => {
+      if (this.props.client.user.id === dict[arr2[i]].user.id) {
+        return;
+      }
+      arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id);
+    });
     let outStr = '';
     if (arr3.length === 1) {
       outStr = t('{{ user }} is typing...', { user: arr3[0] });
