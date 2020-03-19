@@ -1,8 +1,9 @@
 import React from 'react';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
-export class EventComponent extends React.PureComponent {
+class EventComponent extends React.PureComponent {
   static propTypes = {
     /** Message object */
     message: PropTypes.object,
@@ -66,3 +67,7 @@ export class EventComponent extends React.PureComponent {
     return null;
   }
 }
+
+EventComponent = withTranslationContext(EventComponent);
+
+export { EventComponent };
