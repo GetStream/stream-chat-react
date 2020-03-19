@@ -107,6 +107,7 @@ const normalBundle = {
     }),
     scss({
       output: pkg.style,
+      prefix: `@import "./variables.scss";`,
     }),
     copy([{ files: 'src/assets/*', dest: 'dist/assets' }], {
       verbose: true,
