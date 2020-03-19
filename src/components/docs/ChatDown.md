@@ -24,9 +24,11 @@ And here's a version using defaults:
 ```js
 import { Chat } from '../Chat';
 import { ChatDown } from '../ChatDown';
+const data = require('./data');
+
 <div className="str-chat">
   <Chat>
-    <ChatDown />
+    <ChatDown {...data.translationContext} />
   </Chat>
 </div>;
 ```

@@ -34,6 +34,7 @@ const data = require('./data');
     groupStyles={['top']}
     editing={false}
     {...data.channelContext}
+    {...data.translationContext}
   />
 </div>;
 ```
@@ -66,5 +67,6 @@ const readBy = [
   groupStyles={['single']}
   editing={false}
   {...data.channelContext}
+  {...data.translationContext}
 />;
 ```

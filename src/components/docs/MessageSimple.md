@@ -23,6 +23,7 @@ const readBy = [
     groupStyles={['bottom']}
     editing={false}
     {...data.channelContext}
+    {...data.translationContext}
   />
 </div>;
 ```

@@ -1,4 +1,5 @@
 import React from 'react';
+import Moment from 'moment';
 
 export const ChatContext = React.createContext({ client: null });
 
@@ -46,7 +47,8 @@ export function withChannelContext(OriginalComponent) {
 }
 
 export const TranslationContext = React.createContext({
-  t: () => 'Value not found',
+  t: (msg) => msg,
+  moment: (input) => Moment(input),
 });
 
 export function withTranslationContext(OriginalComponent) {

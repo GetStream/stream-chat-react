@@ -2,7 +2,7 @@
 /* eslint sonarjs/no-duplicate-string: 0 */
 
 const StreamChat = require('stream-chat').StreamChat;
-
+const Moment = require('moment');
 export const client = new StreamChat('qk4nn7rpcn75');
 
 client.setUser(
@@ -32,6 +32,10 @@ export const channelContext = {
   loadMoreThread: () => {},
   onMentionsClick: () => {},
   onMentionsHover: () => {},
+};
+export const translationContext = {
+  t: (msg) => msg,
+  moment: (date) => Moment(date),
 };
 
 const filters = { type: 'team', example: 1 };
