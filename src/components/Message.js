@@ -289,7 +289,7 @@ export class Message extends Component {
       addNotification(
         successMessage
           ? successMessage
-          : `User with id ${message.user.id} has been muted`,
+          : `${message.user.name || message.user.id} has been muted`,
         'success',
       );
     } catch (e) {
