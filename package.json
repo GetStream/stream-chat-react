@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -50,7 +50,7 @@
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
     "stream-browserify": "^2.0.2",
-    "stream-chat": "^1.4.0",
+    "stream-chat": "^1.5.1",
     "uuid": "^3.4.0",
     "visibilityjs": "^2.0.2"
   },
