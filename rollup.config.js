@@ -118,10 +118,16 @@ const normalBundle = {
       output: pkg.style,
       prefix: `@import "./variables.scss";`,
     }),
-    copy([{ files: 'src/assets/*', dest: 'dist/assets' }], {
-      verbose: true,
-      watch: process.env.ROLLUP_WATCH,
-    }),
+    copy(
+      [
+        { files: 'src/assets/*', dest: 'dist/assets' },
+        { files: 'src/i18n/*.json', dest: 'dist/i18n' },
+      ],
+      {
+        verbose: true,
+        watch: process.env.ROLLUP_WATCH,
+      },
+    ),
     url(),
     commonjs(),
     json(),
@@ -176,6 +182,7 @@ const fullBrowserBundle = {
       dirname: false,
       filename: false,
     }),
+    copy([{ files: 'src/i18n/*.json', dest: 'dist/i18n' }]),
     // terser(),
   ],
 };
