@@ -98,13 +98,18 @@ export const byDate = (a, b) => a.created_at - b.created_at;
 /**
  * @deprecated This function is deprecated and will be removed in future major release.
  * @param {*} dict
+ * @param {*} currentUserId
  */
-export const formatArray = (dict) => {
+export const formatArray = (dict, currentUserId) => {
   const arr2 = Object.keys(dict);
   const arr3 = [];
-  arr2.forEach((item, i) =>
-    arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id),
-  );
+  arr2.forEach((item, i) => {
+    if (currentUserId === dict[arr2[i]].user.id) {
+      return;
+    }
+
+    arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id);
+  });
   let outStr = '';
   if (arr3.length === 1) {
     outStr = arr3[0] + ' is typing...';
@@ -150,6 +155,7 @@ export const renderText = (message) => {
     'code',
     'inlineCode',
     'blockquote',
+    'delete',
   ];
 
   const urls = anchorme(text, {

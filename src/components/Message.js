@@ -204,7 +204,7 @@ export class Message extends Component {
   isModerator = () =>
     this.props.members &&
     this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].role === 'moderator';
+    this.props.members[this.props.client.user.id].is_moderator;
 
   canEditMessage = (message) =>
     this.isMyMessage(message) ||

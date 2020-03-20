@@ -333,7 +333,12 @@ class ChannelInner extends PureComponent {
   removeMessage = (message) => {
     const channel = this.props.channel;
     channel.state.removeMessage(message);
-    this.setState({ messages: channel.state.messages });
+    const threadMessages = channel.state.threads[message.parent_id] || [];
+    this.setState({
+      messages: channel.state.messages,
+      threads: channel.state.threads,
+      threadMessages,
+    });
   };
 
   removeEphemeralMessages() {

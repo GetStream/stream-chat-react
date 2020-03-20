@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.7](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.7) 2020-03-19
+
+- Fixed a bug where attachments got duplicated upon submitting an edited message [cb93b92](https://github.com/GetStream/stream-chat-react/commit/cb93b9274c94b1d813c2d061869251cc04f5f610)
+
+## [0.8.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.6) 2020-03-17
+
+- Allow `~~test~~` double tilde for strikethrough in messages - [6870194](https://github.com/GetStream/stream-chat-react/commit/6870194a778f95b3c896d76fa4d4b39e3114c692)
+- Fix issue where attachments got duplicated when editing messages - [eea7f61](https://github.com/GetStream/stream-chat-react/commit/eea7f61763359ca8b4dfb13feff294668455643d)
+
 ## [0.8.4](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.4) 2020-02-11
 
 - Fixing `EmptyStateIndicator` prop for ChannelList component - [20d1672](https://github.com/GetStream/stream-chat-react/commit/20d1672969f030bc8f948aea5955706c6dcf757a)
