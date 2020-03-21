@@ -7,7 +7,7 @@ import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { isOnlyEmojis, renderText } from '../utils';
 
@@ -202,7 +202,7 @@ export class MessageCommerce extends PureComponent {
       handleOpenThread,
     } = this.props;
 
-    const when = moment(message.created_at).format('LT');
+    const when = dayjs(message.created_at).format('LT');
 
     const messageClasses = this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'

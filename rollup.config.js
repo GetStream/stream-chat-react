@@ -42,7 +42,7 @@ const normalBundle = {
   ],
   external: [
     'anchorme',
-    'moment',
+    'dayjs',
     'stream-chat-client',
     'react-images',
     'lodash/debounce',

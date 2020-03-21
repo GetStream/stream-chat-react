@@ -13,9 +13,12 @@ import { MessageInput } from './MessageInput';
 import { EditMessageForm } from './EditMessageForm';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
 
 import { isOnlyEmojis, renderText } from '../utils';
+
+dayjs.extend(calendar);
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -427,7 +430,7 @@ export class MessageSimple extends PureComponent {
       handleOpenThread,
     } = this.props;
 
-    const when = moment(message.created_at).calendar();
+    const when = dayjs(message.created_at).calendar();
 
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'

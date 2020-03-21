@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { Avatar } from './Avatar';
 import { Attachment } from './Attachment';
@@ -299,7 +299,7 @@ export class MessageLivestream extends React.PureComponent {
             message.status !== 'sending' && (
               <div className={`str-chat__message-livestream-actions`}>
                 <span className={`str-chat__message-livestream-time`}>
-                  {moment(message.created_at).format('h:mmA')}
+                  {dayjs(message.created_at).format('h:mmA')}
                 </span>
                 {channelConfig && channelConfig.reactions && (
                   <span onClick={this.onClickReactionsAction}>
