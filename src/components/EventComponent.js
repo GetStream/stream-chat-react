@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
 
@@ -20,8 +20,8 @@ export class EventComponent extends React.PureComponent {
             <div className="str-chat__message--system__line" />
           </div>
           <div className="str-chat__message--system__date">
-            <strong>{moment(message.created_at).format('dddd')} </strong>
-            at {moment(message.created_at).format('hh:mm A')}
+            <strong>{dayjs(message.created_at).format('dddd')} </strong>
+            at {dayjs(message.created_at).format('hh:mm A')}
           </div>
         </div>
       );
@@ -57,7 +57,7 @@ export class EventComponent extends React.PureComponent {
               {sentence}
             </em>
             <div className="str-chat__event-component__channel-event__date">
-              {moment(message.created_at).format('LT')}
+              {dayjs(message.created_at).format('LT')}
             </div>
           </div>
         </div>

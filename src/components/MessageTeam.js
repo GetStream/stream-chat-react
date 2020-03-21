@@ -11,7 +11,7 @@ import { Tooltip } from './Tooltip';
 import { Gallery } from './Gallery';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { isOnlyEmojis, renderText } from '../utils';
 
@@ -378,7 +378,7 @@ export class MessageTeam extends PureComponent {
 
             <time dateTime={message.created_at} title={message.created_at}>
               {Boolean(Date.parse(message.created_at)) &&
-                moment(message.created_at).format('h:mmA')}
+                dayjs(message.created_at).format('h:mmA')}
             </time>
           </div>
           <div className="str-chat__message-team-group">

@@ -1,6 +1,9 @@
+import dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
 import React from 'react';
-import Moment from 'moment';
 import PropTypes from 'prop-types';
+
+dayjs.extend(calendar);
 
 /**
  * DateSeparator - A simple date separator
@@ -34,7 +37,7 @@ export class DateSeparator extends React.PureComponent {
         <div className="str-chat__date-separator-date">
           {this.props.formatDate
             ? this.props.formatDate(this.props.date)
-            : Moment(this.props.date.toISOString()).calendar(null, {
+            : dayjs(this.props.date.toISOString()).calendar(null, {
                 lastDay: '[Yesterday]',
                 sameDay: '[Today]',
                 nextDay: '[Tomorrow]',

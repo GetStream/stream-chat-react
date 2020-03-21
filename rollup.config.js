@@ -42,7 +42,8 @@ const normalBundle = {
   ],
   external: [
     'anchorme',
-    'moment',
+    'dayjs',
+    'dayjs/plugin/calendar',
     'stream-chat-client',
     'react-images',
     'lodash/debounce',
