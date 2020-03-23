@@ -210,7 +210,7 @@ to Streami18n constructor, which will be then used internally (using the languag
 
 e.g.,
 
-```
+```js static
 const i18n = new Streami18n({
  language: 'nl',
  dayjsLocaleConfigForLanguage: {
@@ -227,7 +227,7 @@ Similarly, you can add locale config for dayjs while registering translation via
 
 e.g.,
 
-```
+```js static
 const i18n = new Streami18n();
 
 i18n.registerTranslation(
@@ -248,7 +248,7 @@ i18n.registerTranslation(
 
 2.  Provide your own Moment object
 
-```js
+```js static
 import 'moment/locale/nl';
 import 'moment/locale/it';
 // or if you want to include all locales
@@ -264,13 +264,11 @@ const i18n = new Streami18n({
 
 3.  Provide your own Dayjs object
 
-```js
+```js static
 import Dayjs from 'dayjs';
 
 import 'dayjs/locale/nl';
 import 'dayjs/locale/it';
-// or if you want to include all locales
-import 'dayjs/min/locales';
 
 const i18n = new Streami18n({
   language: 'nl',

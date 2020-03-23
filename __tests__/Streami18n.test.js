@@ -6,7 +6,7 @@ import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
 
-const customMomentLocaleConfig = {
+const customDayjsLocaleConfig = {
   months: 'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
     '_',
   ),
@@ -119,7 +119,7 @@ describe('Streami18n instance - with built-in langauge', () => {
   describe('custom momentjs locale config', () => {
     const streami18nOptions = {
       language: 'nl',
-      dayjsLocaleConfigForLanguage: customMomentLocaleConfig,
+      dayjsLocaleConfigForLanguage: customDayjsLocaleConfig,
     };
     const streami18n = new Streami18n(streami18nOptions);
 
@@ -184,7 +184,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   streami18n.registerTranslation(
     languageCode,
     translations,
-    customMomentLocaleConfig,
+    customDayjsLocaleConfig,
   );
 
   it('should add Marathi translations object to list of translations', () => {
@@ -198,11 +198,9 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     expect(tDatetimeParser() instanceof Dayjs).toBe(true);
 
     const localeConfig = tDatetimeParser().localeData();
-    for (const key in customMomentLocaleConfig) {
+    for (const key in customDayjsLocaleConfig) {
       if (localeConfig[key]) {
-        expect(customMomentLocaleConfig[key]).toStrictEqual(
-          localeConfig[key](),
-        );
+        expect(customDayjsLocaleConfig[key]).toStrictEqual(localeConfig[key]());
       }
     }
   });
