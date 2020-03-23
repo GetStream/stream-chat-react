@@ -56,8 +56,6 @@ export class Chat extends PureComponent {
      *  - `team dark`
      *  - `commerce light`
      *  - `commerce dark`
-     *  - `gaming light`
-     *  - `gaming dark`
      *  - `livestream light`
      *  - `livestream dark`
      */
