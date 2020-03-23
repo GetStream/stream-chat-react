@@ -201,10 +201,10 @@ class MessageCommerce extends PureComponent {
       threadList,
       handleOpenThread,
       t,
-      moment,
+      tDatetimeParser,
     } = this.props;
 
-    const when = moment(message.created_at).format('LT');
+    const when = tDatetimeParser(message.created_at).format('LT');
 
     const messageClasses = this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'

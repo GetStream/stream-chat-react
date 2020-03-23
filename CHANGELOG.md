@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.9.0) 2020-03-21
+
+- 20% bundle size reduction (use day.js instead of moment.js)
+
 ## [0.8.8](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.8) 2020-03-20
 
 - Changing mute success notification to show name of user instead of id - [e5bab26](https://github.com/GetStream/stream-chat-react/commit/e5bab26958e9d3ff5ad53491ed5d964d02f95dab)

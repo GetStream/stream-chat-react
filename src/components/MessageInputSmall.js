@@ -77,7 +77,7 @@ class MessageInputSmall extends PureComponent {
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     multipleUploads: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
-    maxNumberOfFiles: PropTypes.object,
+    maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
     /**

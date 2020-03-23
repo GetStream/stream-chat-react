@@ -1,5 +1,5 @@
 import React from 'react';
-import Moment from 'moment';
+import Dayjs from 'dayjs';
 
 export const ChatContext = React.createContext({ client: null });
 
@@ -48,7 +48,7 @@ export function withChannelContext(OriginalComponent) {
 
 export const TranslationContext = React.createContext({
   t: (msg) => msg,
-  moment: (input) => Moment(input),
+  tDatetimeParser: (input) => Dayjs(input),
 });
 
 export function withTranslationContext(OriginalComponent) {

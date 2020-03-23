@@ -56,8 +56,6 @@ export class Chat extends PureComponent {
      *  - `team dark`
      *  - `commerce light`
      *  - `commerce dark`
-     *  - `gaming light`
-     *  - `gaming dark`
      *  - `livestream light`
      *  - `livestream dark`
      */
@@ -92,8 +90,8 @@ export class Chat extends PureComponent {
       this.setState({ t });
     });
 
-    const { t, moment } = await streami18n.getTranslators();
-    this.setState({ t, moment });
+    const { t, tDatetimeParser } = await streami18n.getTranslators();
+    this.setState({ t, tDatetimeParser });
   }
 
   setActiveChannel = async (channel, watchers = {}, e) => {
@@ -119,7 +117,10 @@ export class Chat extends PureComponent {
     return (
       <ChatContext.Provider value={this.getContext()}>
         <TranslationContext.Provider
-          value={{ t: this.state.t, moment: this.state.moment }}
+          value={{
+            t: this.state.t,
+            tDatetimeParser: this.state.tDatetimeParser,
+          }}
         >
           {this.props.children}
         </TranslationContext.Provider>

@@ -439,10 +439,10 @@ class MessageSimple extends PureComponent {
       threadList,
       handleOpenThread,
       t,
-      moment,
+      tDatetimeParser,
     } = this.props;
 
-    const when = moment(message.created_at).calendar();
+    const when = tDatetimeParser(message.created_at).calendar();
 
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
