@@ -22,13 +22,13 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
     Logger function to log warnings/errors from this class
 
-  - **momentLocaleConfigForLanguage** (object) default: 'enConfig'
+  - **dayjsLocaleConfigForLanguage** (object) default: 'enConfig'
 
-    [Config object](https://momentjs.com/docs/#/i18n/changing-locale/) for internal moment object, corresponding to language (param)
+    [Config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) for internal dayjs object, corresponding to language (param)
 
-  - **Moment** (function)
+  - **DatetimeParser** (function)
 
-    Moment instance/function.
+    Moment or Dayjs instance/function.
 
 - **geti18Instance**
 
@@ -48,7 +48,7 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
   ```js static
   const streami18n = new Streami18n({ language: 'nl' });
-  const { t, moment } = await streami18n.getTranslators();
+  const { t, tDatetimeParser } = await streami18n.getTranslators();
   ```
 
 - **registerTranslation**
@@ -57,7 +57,7 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
   - language | string
   - translator | object
-  - customMomentLocale | object (optional)
+  - customDayjsLocale | object (optional)
 
   ```js static
     streami18n.registerTranslation(
@@ -194,21 +194,26 @@ Stream provides following list of in-built translations:
 
 ## Datetime translations
 
-Stream components uses [momentjs](http://momentjs.com/) internally to format datetime stamp. e.g., in ChannelPreview, MessageContent components.
-Momentjs has locale support as well -https://momentjs.com/docs/#/i18n/
+Stream react chat components uses [dayjs](https://day.js.org/en/) internally by default to format datetime stamp.
+e.g., in ChannelPreview, MessageContent components.
+Dayjs has locale support as well - https://day.js.org/docs/en/i18n/i18n
+Dayjs is a lightweight alternative to Momentjs with the same modern API.
 
-You can either provide the moment locale config while registering
-language with Streami18n (either via constructor or registerTranslation()) or you can provide your own Moment instance
+Dayjs provides locale config for plenty of languages, you can check the whole list of locale configs at following url
+https://github.com/iamkun/dayjs/tree/dev/src/locale
+
+You can either provide the dayjs locale config while registering
+language with Streami18n (either via constructor or registerTranslation()) OR you can provide your own Dayjs or Moment instance
 to Streami18n constructor, which will be then used internally (using the language locale) in components.
 
 1.  Via language registration
 
 e.g.,
 
-```js static
+```
 const i18n = new Streami18n({
  language: 'nl',
- momentLocaleConfigForLanguage: {
+ dayjsLocaleConfigForLanguage: {
    months: [...],
    monthsShort: [...],
    calendar: {
@@ -218,11 +223,11 @@ const i18n = new Streami18n({
 });
 ```
 
-Similarly, you can add locale config for moment while registering translation via `registerTranslation` function.
+Similarly, you can add locale config for dayjs while registering translation via `registerTranslation` function.
 
 e.g.,
 
-```js static
+```
 const i18n = new Streami18n();
 
 i18n.registerTranslation(
@@ -241,9 +246,9 @@ i18n.registerTranslation(
 );
 ```
 
-2. Provide your own Moment object
+2.  Provide your own Moment object
 
-```js static
+```js
 import 'moment/locale/nl';
 import 'moment/locale/it';
 // or if you want to include all locales
@@ -253,8 +258,24 @@ import Moment from moment
 
 const i18n = new Streami18n({
  language: 'nl',
- Moment: Moment
+ DatetimeParser: Moment
 })
+```
+
+3.  Provide your own Dayjs object
+
+```js
+import Dayjs from 'dayjs';
+
+import 'dayjs/locale/nl';
+import 'dayjs/locale/it';
+// or if you want to include all locales
+import 'dayjs/min/locales';
+
+const i18n = new Streami18n({
+  language: 'nl',
+  DatetimeParser: Dayjs,
+});
 ```
 
 If you would like to stick with english language for datetimes in Stream compoments, you can set `disableDateTimeTranslations` to true.
@@ -269,7 +290,7 @@ const i18n = new Streami18n({
 });
 ```
 
-The default `en` locale config from moment is as follow:
+The default `en` locale config from dayjs is as follow:
 
 ```json static
 {
@@ -324,7 +345,7 @@ The default `en` locale config from moment is as follow:
     "lastWeek": "[Last] dddd [at] LT",
     "sameElse": "L"
   },
-  "longDateFormat": {
+  "formats": {
     "LTS": "h:mm:ss A",
     "LT": "h:mm A",
     "L": "MM/DD/YYYY",

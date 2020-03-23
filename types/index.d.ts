@@ -1083,5 +1083,5 @@ export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
   t?: i18next.TFunction;
-  moment?(datetime: moment.MomentInput): moment.Moment;
+  tDatetimeParser?<T>(datetime: string | number): T;
 }
