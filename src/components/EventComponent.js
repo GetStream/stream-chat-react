@@ -1,16 +1,16 @@
 import React from 'react';
-import dayjs from 'dayjs';
 import { Avatar } from './Avatar';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
-export class EventComponent extends React.PureComponent {
+class EventComponent extends React.PureComponent {
   static propTypes = {
     /** Message object */
     message: PropTypes.object,
   };
 
   render() {
-    const { message } = this.props;
+    const { message, tDateTimeParser } = this.props;
     if (message.type === 'system') {
       return (
         <div className="str-chat__message--system">
@@ -20,8 +20,10 @@ export class EventComponent extends React.PureComponent {
             <div className="str-chat__message--system__line" />
           </div>
           <div className="str-chat__message--system__date">
-            <strong>{dayjs(message.created_at).format('dddd')} </strong>
-            at {dayjs(message.created_at).format('hh:mm A')}
+            <strong>
+              {tDateTimeParser(message.created_at).format('dddd')}{' '}
+            </strong>
+            at {tDateTimeParser(message.created_at).format('hh:mm A')}
           </div>
         </div>
       );
@@ -57,7 +59,7 @@ export class EventComponent extends React.PureComponent {
               {sentence}
             </em>
             <div className="str-chat__event-component__channel-event__date">
-              {dayjs(message.created_at).format('LT')}
+              {tDateTimeParser(message.created_at).format('LT')}
             </div>
           </div>
         </div>
@@ -67,3 +69,7 @@ export class EventComponent extends React.PureComponent {
     return null;
   }
 }
+
+EventComponent = withTranslationContext(EventComponent);
+
+export { EventComponent };

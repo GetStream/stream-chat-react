@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Message } from './Message';
-import { withChannelContext } from '../context';
+import { withChannelContext, withTranslationContext } from '../context';
 import PropTypes from 'prop-types';
 import { EmptyStateIndicator } from './EmptyStateIndicator';
 import { ReverseInfiniteScroll } from './ReverseInfiniteScroll';
@@ -643,6 +643,7 @@ class MessageList extends PureComponent {
       dateSeparator: DateSeparator,
       HeaderComponent,
       EmptyStateIndicator,
+      t,
     } = this.props;
 
     // sort by date
@@ -801,14 +802,14 @@ class MessageList extends PureComponent {
             </Notification>
           ))}
           <Notification active={!this.state.online} type="error">
-            Connection failure, reconnecting now...
+            {t('Connection failure, reconnecting now...')}
           </Notification>
 
           <MessageNotification
             showNotification={this.state.newMessagesNotification}
             onClick={() => this.goToNewMessages()}
           >
-            New Messages!
+            {t('New Messages!')}
           </MessageNotification>
         </div>
       </React.Fragment>
@@ -816,7 +817,7 @@ class MessageList extends PureComponent {
   }
 }
 
-MessageList = withChannelContext(MessageList);
+MessageList = withChannelContext(withTranslationContext(MessageList));
 export { MessageList };
 
 const Center = ({ children }) => (

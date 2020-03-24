@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
-export const EmptyStateIndicator = ({ listType }) => {
+export const EmptyStateIndicator = withTranslationContext(({ listType, t }) => {
   let Indicator;
   switch (listType) {
     case 'channel':
-      Indicator = <p>You have no channels currently</p>;
+      Indicator = <p>{t('You have no channels currently')}</p>;
       break;
     case 'message':
       Indicator = null;
@@ -16,7 +17,7 @@ export const EmptyStateIndicator = ({ listType }) => {
   }
 
   return Indicator;
-};
+});
 
 EmptyStateIndicator.propTypes = {
   /** channel | message */

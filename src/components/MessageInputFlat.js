@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 import { ChatAutoComplete } from './ChatAutoComplete';
 
 import {
@@ -15,7 +16,7 @@ import { Picker } from 'emoji-mart';
  * MessageInputFlat - Large Message Input to be used for the MessageInput.
  * @example ./docs/MessageInputFlat.md
  */
-export class MessageInputFlat extends PureComponent {
+class MessageInputFlat extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool,
@@ -140,6 +141,7 @@ export class MessageInputFlat extends PureComponent {
   };
 
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div
@@ -168,7 +170,7 @@ export class MessageInputFlat extends PureComponent {
                 value={this.props.text}
                 rows={1}
                 maxRows={this.props.maxRows}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 onFocus={this.props.onFocus}
@@ -217,3 +219,7 @@ export class MessageInputFlat extends PureComponent {
     );
   }
 }
+
+const MessageInputFlatWithContext = withTranslationContext(MessageInputFlat);
+
+export { MessageInputFlatWithContext as MessageInputFlat };

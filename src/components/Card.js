@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
 
 import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
+import { withTranslationContext } from '../context';
 /**
  * Card - Simple Card Layout
  *
  * @example ./docs/Card.md
  * @extends PureComponent
  */
-export class Card extends React.PureComponent {
+class Card extends React.PureComponent {
   static propTypes = {
     /** Title returned by the OG scraper */
     title: PropTypes.string,
@@ -44,6 +45,7 @@ export class Card extends React.PureComponent {
       image_url,
       thumb_url,
       og_scrape_url,
+      t,
     } = this.props;
     const image = thumb_url || image_url;
 
@@ -54,7 +56,7 @@ export class Card extends React.PureComponent {
         >
           <div className="str-chat__message-attachment-card--content">
             <div className="str-chat__message-attachment-card--text">
-              this content could not be displayed
+              {t('this content could not be displayed')}
             </div>
           </div>
         </div>
@@ -109,3 +111,6 @@ export class Card extends React.PureComponent {
     );
   }
 }
+
+Card = withTranslationContext(Card);
+export { Card };

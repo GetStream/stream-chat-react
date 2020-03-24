@@ -22,5 +22,6 @@ const readBy = [
   groupStyles={['single']}
   editing={false}
   {...data.channelContext}
+  {...data.translationContext}
 />;
 ```

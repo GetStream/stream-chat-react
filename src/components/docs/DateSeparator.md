@@ -3,12 +3,13 @@ Here's what it looks like for today.
 
 ```js
 import { DateSeparator } from '../DateSeparator';
+const data = require('./data');
 
 const date = new Date();
 <React.Fragment>
-  <DateSeparator date={date} />
-  <DateSeparator date={date} position="center" />
-  <DateSeparator date={date} position="left" />
+  <DateSeparator date={date} {...data.translationContext} />
+  <DateSeparator date={date} position="center" {...data.translationContext} />
+  <DateSeparator date={date} position="left" {...data.translationContext} />
 </React.Fragment>;
 ```
 
@@ -16,12 +17,13 @@ and for a date in the past:
 
 ```js
 import { DateSeparator } from '../DateSeparator';
+const data = require('./data');
 
 const date = new Date('December 17, 1995 03:24:00');
 <React.Fragment>
-  <DateSeparator date={date} />
-  <DateSeparator date={date} position="center" />
-  <DateSeparator date={date} position="left" />
+  <DateSeparator date={date} {...data.translationContext} />
+  <DateSeparator date={date} position="center" {...data.translationContext} />
+  <DateSeparator date={date} position="left" {...data.translationContext} />
 </React.Fragment>;
 ```
 
@@ -29,6 +31,7 @@ and adding custom date formatting:
 
 ```js
 import { DateSeparator } from '../DateSeparator';
+const data = require('./data');
 
 const date = new Date('December 17, 1995 03:24:00');
 
@@ -37,8 +40,22 @@ function formatDate(d) {
 }
 
 <React.Fragment>
-  <DateSeparator formatDate={formatDate} date={date} />
-  <DateSeparator formatDate={formatDate} date={date} position="center" />
-  <DateSeparator formatDate={formatDate} date={date} position="left" />
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    {...data.translationContext}
+  />
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    position="center"
+    {...data.translationContext}
+  />
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    position="left"
+    {...data.translationContext}
+  />
 </React.Fragment>;
 ```

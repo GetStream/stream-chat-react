@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { ChatContext } from '../context';
-
+import { ChatContext, TranslationContext } from '../context';
+import { Streami18n } from '../Streami18n';
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
@@ -76,6 +76,24 @@ export class Chat extends PureComponent {
     };
   }
 
+  async componentDidMount() {
+    const { i18nInstance } = this.props;
+    let streami18n;
+
+    if (i18nInstance && i18nInstance instanceof Streami18n) {
+      streami18n = i18nInstance;
+    } else {
+      streami18n = new Streami18n({ language: 'en' });
+    }
+
+    streami18n.registerSetLanguageCallback((t) => {
+      this.setState({ t });
+    });
+
+    const { t, tDateTimeParser } = await streami18n.getTranslators();
+    this.setState({ t, tDateTimeParser });
+  }
+
   setActiveChannel = async (channel, watchers = {}, e) => {
     if (e !== undefined && e.preventDefault) {
       e.preventDefault();
@@ -98,7 +116,14 @@ export class Chat extends PureComponent {
   render() {
     return (
       <ChatContext.Provider value={this.getContext()}>
-        {this.props.children}
+        <TranslationContext.Provider
+          value={{
+            t: this.state.t,
+            tDateTimeParser: this.state.tDateTimeParser,
+          }}
+        >
+          {this.props.children}
+        </TranslationContext.Provider>
       </ChatContext.Provider>
     );
   }

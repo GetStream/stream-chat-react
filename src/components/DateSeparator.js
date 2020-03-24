@@ -1,9 +1,6 @@
-import dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
 import React from 'react';
 import PropTypes from 'prop-types';
-
-dayjs.extend(calendar);
+import { withTranslationContext } from '../context';
 
 /**
  * DateSeparator - A simple date separator
@@ -11,7 +8,7 @@ dayjs.extend(calendar);
  * @example ./docs/DateSeparator.md
  * @extends PureComponent
  */
-export class DateSeparator extends React.PureComponent {
+class DateSeparator extends React.PureComponent {
   static propTypes = {
     /** The date to format */
     date: PropTypes.instanceOf(Date),
@@ -25,7 +22,7 @@ export class DateSeparator extends React.PureComponent {
     position: 'right',
   };
   render() {
-    const { position } = this.props;
+    const { position, tDateTimeParser } = this.props;
     if (!Date.parse(this.props.date)) {
       return null;
     }
@@ -37,14 +34,7 @@ export class DateSeparator extends React.PureComponent {
         <div className="str-chat__date-separator-date">
           {this.props.formatDate
             ? this.props.formatDate(this.props.date)
-            : dayjs(this.props.date.toISOString()).calendar(null, {
-                lastDay: '[Yesterday]',
-                sameDay: '[Today]',
-                nextDay: '[Tomorrow]',
-                lastWeek: '[Last] dddd',
-                nextWeek: 'dddd',
-                sameElse: 'L',
-              })}
+            : tDateTimeParser(this.props.date.toISOString()).calendar()}
         </div>
         {(position === 'left' || position === 'center') && (
           <hr className="str-chat__date-separator-line" />
@@ -53,3 +43,7 @@ export class DateSeparator extends React.PureComponent {
     );
   }
 }
+
+DateSeparator = withTranslationContext(DateSeparator);
+
+export { DateSeparator };

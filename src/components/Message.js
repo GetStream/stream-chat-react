@@ -240,6 +240,7 @@ export class Message extends Component {
       message,
       client,
       addNotification,
+      t,
     } = this.props;
 
     try {
@@ -251,7 +252,7 @@ export class Message extends Component {
       addNotification(
         successMessage
           ? successMessage
-          : 'Message has been successfully flagged',
+          : t('Message has been successfully flagged'),
         'success',
       );
     } catch (e) {
@@ -262,7 +263,9 @@ export class Message extends Component {
       addNotification(
         errorMessage
           ? errorMessage
-          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+          : t(
+              'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+            ),
         'error',
       );
     }
@@ -277,6 +280,7 @@ export class Message extends Component {
       message,
       client,
       addNotification,
+      t,
     } = this.props;
 
     try {
@@ -289,7 +293,9 @@ export class Message extends Component {
       addNotification(
         successMessage
           ? successMessage
-          : `${message.user.name || message.user.id} has been muted`,
+          : t(`{{ user }} has been muted`, {
+              user: message.user.name || message.user.id,
+            }),
         'success',
       );
     } catch (e) {
@@ -299,7 +305,7 @@ export class Message extends Component {
       );
 
       addNotification(
-        errorMessage ? errorMessage : 'Error muting a user ...',
+        errorMessage ? errorMessage : t('Error muting a user ...'),
         'error',
       );
     }
