@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.0) 2020-03-24
+
+- i18n support for library. Documentatio - https://getstream.github.io/stream-chat-react/#section-streami18n
+
 ## [0.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.9.0) 2020-03-21
 
 - 20% bundle size reduction (use day.js instead of moment.js)
