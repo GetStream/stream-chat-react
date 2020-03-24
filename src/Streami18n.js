@@ -4,6 +4,7 @@ import calendar from 'dayjs/plugin/calendar';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import localeData from 'dayjs/plugin/localeData';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import {
   enTranslations,
@@ -328,8 +329,8 @@ export class Streami18n {
    *    [Config object](https://momentjs.com/docs/#/i18n/changing-locale/) for internal moment object,
    *    corresponding to language (param)
    *
-   *  - Moment (function) Moment instance. e.g. import Moment from 'moment';
-   *    Make sure to load all the required locales in this Moment instance that you will be provide to Streami18n
+   *  - DateTimeParser (function) Moment or Dayjs instance/function.
+   *    Make sure to load all the required locales in this Moment or Dayjs instance that you will be provide to Streami18n
    *
    * @param {*} options
    */
@@ -351,6 +352,7 @@ export class Streami18n {
         this.DateTimeParser.extend(LocalizedFormat);
         this.DateTimeParser.extend(calendar);
         this.DateTimeParser.extend(localeData);
+        this.DateTimeParser.extend(relativeTime);
       }
     } catch (error) {
       throw Error(
