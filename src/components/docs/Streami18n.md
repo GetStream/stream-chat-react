@@ -278,13 +278,27 @@ const i18n = new Streami18n({
 
 If you would like to stick with english language for datetimes in Stream compoments, you can set `disableDateTimeTranslations` to true.
 
-**TIP**: If you would like to stick with english language for datetimes in Stream compoments,
-you can set `disableDateTimeTranslations` to true.
+**NOTE** Please note here that locales in `dayjs/locale/it` (and all other language locale files), does not load calendar related
+config like 'today at', 'tomorrow at' etc. You will need to manually configure calendar locale using [updateLocale](https://day.js.org/docs/en/plugin/update-locale).
+
+**TIPS**
+
+1. If you would like to stick with english language for datetimes in Stream compoments,
+   you can set `disableDateTimeTranslations` to true.
 
 ```js static
 const i18n = new Streami18n({
   language: 'nl',
   disableDateTimeTranslations: false,
+});
+```
+
+2. If you want to disable all the warnings, you can override logger option:
+
+```js static
+const i18n = new Streami18n({
+  language: 'nl',
+  logger: () => null,
 });
 ```
 
