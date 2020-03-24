@@ -69,7 +69,12 @@ class Thread extends React.PureComponent {
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
-    /** Customized MessageInput component to used within Thread instead of default MessageInput */
+    /** Customized MessageInput component to used within Thread instead of default MessageInput 
+        Useable as follows:
+        ```
+        <Thread MessageInput={<MessageInput Input={MessageInputSmall} /> }/>
+        ```
+    */
     MessageInput: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   };
 
