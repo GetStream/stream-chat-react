@@ -61,7 +61,7 @@ const normalBundle = {
     'dayjs/locale/fr',
     'dayjs/locale/hi',
     'dayjs/locale/es',
-    'dayjs/locale/en-gb',
+    'dayjs/locale/en',
     'lodash/uniq',
     'lodash.uniqby',
     'emoji-mart',
