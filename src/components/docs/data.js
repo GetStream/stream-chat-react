@@ -35,7 +35,7 @@ export const channelContext = {
 };
 export const translationContext = {
   t: (msg) => msg,
-  moment: (date) => Dayjs(date),
+  tDateTimeParser: (date) => Dayjs(date),
 };
 
 const filters = { type: 'team', example: 1 };

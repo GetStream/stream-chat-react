@@ -206,7 +206,7 @@ You can either provide the dayjs locale config while registering
 language with Streami18n (either via constructor or registerTranslation()) OR you can provide your own Dayjs or Moment instance
 to Streami18n constructor, which will be then used internally (using the language locale) in components.
 
-1.  Via language registration
+### Via language registration
 
 e.g.,
 
@@ -246,7 +246,7 @@ i18n.registerTranslation(
 );
 ```
 
-2.  Provide your own Moment object
+### Provide your own Moment object
 
 ```js static
 import 'moment/locale/nl';
@@ -262,7 +262,7 @@ const i18n = new Streami18n({
 })
 ```
 
-3.  Provide your own Dayjs object
+### Provide your own Dayjs object
 
 ```js static
 import Dayjs from 'dayjs';
