@@ -10,7 +10,7 @@ class EventComponent extends React.PureComponent {
   };
 
   render() {
-    const { message, tDatetimeParser } = this.props;
+    const { message, tDateTimeParser } = this.props;
     if (message.type === 'system') {
       return (
         <div className="str-chat__message--system">
@@ -21,9 +21,9 @@ class EventComponent extends React.PureComponent {
           </div>
           <div className="str-chat__message--system__date">
             <strong>
-              {tDatetimeParser(message.created_at).format('dddd')}{' '}
+              {tDateTimeParser(message.created_at).format('dddd')}{' '}
             </strong>
-            at {tDatetimeParser(message.created_at).format('hh:mm A')}
+            at {tDateTimeParser(message.created_at).format('hh:mm A')}
           </div>
         </div>
       );
@@ -59,7 +59,7 @@ class EventComponent extends React.PureComponent {
               {sentence}
             </em>
             <div className="str-chat__event-component__channel-event__date">
-              {tDatetimeParser(message.created_at).format('LT')}
+              {tDateTimeParser(message.created_at).format('LT')}
             </div>
           </div>
         </div>

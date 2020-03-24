@@ -22,7 +22,7 @@ class DateSeparator extends React.PureComponent {
     position: 'right',
   };
   render() {
-    const { position, tDatetimeParser } = this.props;
+    const { position, tDateTimeParser } = this.props;
     if (!Date.parse(this.props.date)) {
       return null;
     }
@@ -34,7 +34,7 @@ class DateSeparator extends React.PureComponent {
         <div className="str-chat__date-separator-date">
           {this.props.formatDate
             ? this.props.formatDate(this.props.date)
-            : tDatetimeParser(this.props.date.toISOString()).calendar()}
+            : tDateTimeParser(this.props.date.toISOString()).calendar()}
         </div>
         {(position === 'left' || position === 'center') && (
           <hr className="str-chat__date-separator-line" />

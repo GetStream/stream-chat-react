@@ -48,7 +48,7 @@ export function withChannelContext(OriginalComponent) {
 
 export const TranslationContext = React.createContext({
   t: (msg) => msg,
-  tDatetimeParser: (input) => Dayjs(input),
+  tDateTimeParser: (input) => Dayjs(input),
 });
 
 export function withTranslationContext(OriginalComponent) {

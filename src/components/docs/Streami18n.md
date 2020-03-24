@@ -26,7 +26,7 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
     [Config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) for internal dayjs object, corresponding to language (param)
 
-  - **DatetimeParser** (function)
+  - **DateTimeParser** (function)
 
     Moment or Dayjs instance/function.
 
@@ -48,7 +48,7 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
   ```js static
   const streami18n = new Streami18n({ language: 'nl' });
-  const { t, tDatetimeParser } = await streami18n.getTranslators();
+  const { t, tDateTimeParser } = await streami18n.getTranslators();
   ```
 
 - **registerTranslation**
@@ -258,7 +258,7 @@ import Moment from moment
 
 const i18n = new Streami18n({
  language: 'nl',
- DatetimeParser: Moment
+ DateTimeParser: Moment
 })
 ```
 
@@ -272,7 +272,7 @@ import 'dayjs/locale/it';
 
 const i18n = new Streami18n({
   language: 'nl',
-  DatetimeParser: Dayjs,
+  DateTimeParser: Dayjs,
 });
 ```
 

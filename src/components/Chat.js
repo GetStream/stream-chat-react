@@ -90,8 +90,8 @@ export class Chat extends PureComponent {
       this.setState({ t });
     });
 
-    const { t, tDatetimeParser } = await streami18n.getTranslators();
-    this.setState({ t, tDatetimeParser });
+    const { t, tDateTimeParser } = await streami18n.getTranslators();
+    this.setState({ t, tDateTimeParser });
   }
 
   setActiveChannel = async (channel, watchers = {}, e) => {
@@ -119,7 +119,7 @@ export class Chat extends PureComponent {
         <TranslationContext.Provider
           value={{
             t: this.state.t,
-            tDatetimeParser: this.state.tDatetimeParser,
+            tDateTimeParser: this.state.tDateTimeParser,
           }}
         >
           {this.props.children}

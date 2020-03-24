@@ -214,7 +214,7 @@ class MessageLivestream extends React.PureComponent {
       handleEdit,
       handleDelete,
       t,
-      tDatetimeParser,
+      tDateTimeParser,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -301,7 +301,7 @@ class MessageLivestream extends React.PureComponent {
             message.status !== 'sending' && (
               <div className={`str-chat__message-livestream-actions`}>
                 <span className={`str-chat__message-livestream-time`}>
-                  {tDatetimeParser(message.created_at).format('h:mmA')}
+                  {tDateTimeParser(message.created_at).format('h:mmA')}
                 </span>
                 {channelConfig && channelConfig.reactions && (
                   <span onClick={this.onClickReactionsAction}>

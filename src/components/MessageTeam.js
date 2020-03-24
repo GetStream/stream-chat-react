@@ -316,7 +316,7 @@ class MessageTeam extends PureComponent {
       handleEdit,
       handleDelete,
       t,
-      tDatetimeParser,
+      tDateTimeParser,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -392,7 +392,7 @@ class MessageTeam extends PureComponent {
 
             <time dateTime={message.created_at} title={message.created_at}>
               {Boolean(Date.parse(message.created_at)) &&
-                tDatetimeParser(message.created_at).format('h:mmA')}
+                tDateTimeParser(message.created_at).format('h:mmA')}
             </time>
           </div>
           <div className="str-chat__message-team-group">
