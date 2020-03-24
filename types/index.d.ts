@@ -6,7 +6,8 @@ import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
-
+import * as i18next from 'i18next';
+import * as Dayjs from 'dayjs';
 export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
@@ -93,6 +94,7 @@ export interface ChatProps {
   // | 'livestream light'
   // | 'livestream dark'
   theme?: string;
+  i18nInstance?: Streami18n;
 }
 
 export interface ChannelProps
@@ -1083,5 +1085,48 @@ export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
   t?: i18next.TFunction;
-  tDateTimeParser?<T>(datetime: string | number): T;
+  tDateTimeParser?(datetime: string | number): object;
 }
+
+export interface Streami18nOptions {
+  language: string;
+  disableDateTimeTranslations?: boolean;
+  translationsForLanguage?: object;
+  debug?: boolean;
+  logger?(msg: string): any;
+  dayjsLocaleConfigForLanguage?: object;
+  DateTimeParser?(): object;
+}
+
+export interface Streami18nTranslators {
+  t: i18next.TFunction;
+  tDateTimeParser?(datetime?: string | number): object;
+}
+
+export class Streami18n {
+  constructor(options?: Streami18nOptions);
+
+  init(): Promise<Streami18nTranslators>;
+  validateCurrentLanguage(): void;
+  geti18Instance(): i18next.i18n;
+  getAvailableLanguages(): Array<string>;
+  getTranslations(): Array<string>;
+  getTranslators(): Promise<Streami18nTranslators>;
+  registerTranslation(
+    key: string,
+    translation: object,
+    customDayjsLocale?: Partial<ILocale>,
+  ): void;
+  addOrUpdateLocale(key: string, config: Partial<ILocale>): void;
+  setLanguage(language: string): Promise<void>;
+  localeExists(language: string): boolean;
+  registerSetLanguageCallback(callback: (t: i18next.TFunction) => void): void;
+}
+
+export const enTranslations: object;
+export const nlTranslations: object;
+export const ruTranslations: object;
+export const trTranslations: object;
+export const frTranslations: object;
+export const hiTranslations: object;
+export const itTranslations: object;
