@@ -27,7 +27,7 @@ import 'dayjs/locale/it';
 // These locale imports also set these locale globally.
 // So As a last step I am going to import english locale
 // to make sure I don't mess up language at other places in app.
-import 'dayjs/locale/en-gb';
+import 'dayjs/locale/en';
 
 Dayjs.extend(updateLocale);
 
@@ -118,6 +118,15 @@ Dayjs.updateLocale('ru', {
     lastDay: '[Вчера, в] LT',
   },
 });
+
+const en_locale = {
+  weekdays: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split(
+    '_',
+  ),
+  months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split(
+    '_',
+  ),
+};
 
 /**
  * Wrapper around [i18next](https://www.i18next.com/) class for Stream related translations.
@@ -387,7 +396,7 @@ export class Streami18n {
       finalOptions.dayjsLocaleConfigForLanguage;
 
     if (dayjsLocaleConfigForLanguage) {
-      this.DateTimeParser.updateLocale(this.currentLanguage, {
+      this.addOrUpdateLocale(this.currentLanguage, {
         ...dayjsLocaleConfigForLanguage,
       });
     } else if (!this.localeExists(this.currentLanguage)) {
@@ -405,7 +414,6 @@ export class Streami18n {
       ) {
         return this.DateTimeParser(timestamp).locale(defaultLng);
       }
-
       return this.DateTimeParser(timestamp).locale(this.currentLanguage);
     };
   }
@@ -465,6 +473,12 @@ export class Streami18n {
    */
   async getTranslators() {
     if (!this.initialized) {
+      if (this.dayjsLocales[this.currentLanguage]) {
+        this.addOrUpdateLocale(
+          this.currentLanguage,
+          this.dayjsLocales[this.currentLanguage],
+        );
+      }
       return await this.init();
     } else {
       return {
@@ -511,6 +525,15 @@ export class Streami18n {
     }
   }
 
+  addOrUpdateLocale(key, config) {
+    if (this.localeExists(key)) {
+      Dayjs.updateLocale(key, { ...config });
+    } else {
+      // Merging the custom locale config with en config, so missing keys can default to english.
+      Dayjs.locale({ name: key, ...{ ...en_locale, ...config } }, null, true);
+    }
+  }
+
   /**
    * Changes the language.
    * @param {*} language
@@ -523,7 +546,10 @@ export class Streami18n {
     try {
       const t = await this.i18nInstance.changeLanguage(language);
       if (this.dayjsLocales[language]) {
-        this.DateTimeParser.updateLocale(language, this.dayjsLocales[language]);
+        this.addOrUpdateLocale(
+          this.currentLanguage,
+          this.dayjsLocales[this.currentLanguage],
+        );
       }
 
       this.setLanguageCallback(t);

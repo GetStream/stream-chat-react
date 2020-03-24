@@ -172,7 +172,7 @@ describe('Streami18n instance - with custom translations', () => {
 
 describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   const streami18nOptions = {
-    language: 'nl',
+    language: 'en',
     disableDateTimeTranslations: false,
   };
   const streami18n = new Streami18n(streami18nOptions);
@@ -186,6 +186,8 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     translations,
     customDayjsLocaleConfig,
   );
+
+  streami18n.setLanguage('mr');
 
   it('should add Marathi translations object to list of translations', () => {
     expect(streami18n.getTranslations()).toHaveProperty(languageCode, {
