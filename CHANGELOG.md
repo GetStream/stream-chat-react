@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.1) 2020-03-25
+
+- Added missing i18next dependency to dependency list [c7cf11f](https://github.com/GetStream/stream-chat-react/commit/c7cf11f32b5a0346889534387adcb99e06f5d90d)
+
 ## [0.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.0) 2020-03-24
 
 - i18n support for library. Documentatio - https://getstream.github.io/stream-chat-react/#section-streami18n
