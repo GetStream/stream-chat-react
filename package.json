@@ -38,6 +38,7 @@
     "deep-equal": "^2.0.1",
     "emoji-mart": "2.11.0",
     "emoji-regex": "^8.0.0",
+    "i18next": "^19.3.3",
     "isomorphic-ws": "^4.0.1",
     "lodash.uniqby": "^4.7.0",
     "pretty-bytes": "^5.1.0",
