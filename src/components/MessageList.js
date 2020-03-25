@@ -29,7 +29,6 @@ class MessageList extends PureComponent {
     this.state = {
       newMessagesNotification: false,
       editing: '',
-      online: true,
       notifications: [],
     };
 
@@ -166,12 +165,6 @@ class MessageList extends PureComponent {
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
-  connectionChanged = (event) => {
-    if (this.state.online !== event.online) {
-      this.setState({ online: event.online });
-    }
-  };
-
   componentDidMount() {
     // start at the bottom
     this.scrollToBottom();
@@ -181,14 +174,10 @@ class MessageList extends PureComponent {
       messageListRect,
     });
 
-    this.props.client.on('connection.changed', this.connectionChanged);
-
     document.addEventListener('keydown', this.keypress);
   }
 
   componentWillUnmount() {
-    this.props.client.off('connection.changed', this.connectionChanged);
-
     document.removeEventListener('keydown', this.keypress);
     this.notificationTimeouts.forEach((ct) => {
       clearTimeout(ct);
@@ -730,6 +719,7 @@ class MessageList extends PureComponent {
               addNotification={this.addNotification}
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}
+              handleReaction={this.props.handleReaction}
               Message={this.props.Message}
               unsafeHTML={this.props.unsafeHTML}
               Attachment={this.props.Attachment}
@@ -801,7 +791,7 @@ class MessageList extends PureComponent {
               {notification.text}
             </Notification>
           ))}
-          <Notification active={!this.state.online} type="error">
+          <Notification active={!this.props.online} type="error">
             {t('Connection failure, reconnecting now...')}
           </Notification>
 

@@ -470,6 +470,11 @@ export interface MessageProps extends TranslationContextValue {
   /** Function executed when user clicks on link to open thread */
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
+  handleReaction?(
+    message: Client.MessageResponse,
+    reactionType: string,
+    event?: React.BaseSyntheticEvent,
+  ): Promise<void>;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */

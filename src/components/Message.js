@@ -114,6 +114,14 @@ export class Message extends Component {
     onMentionsHover: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     openThread: PropTypes.func,
+    /**
+     * Reaction handler
+     *
+     * @param message
+     * @param reactionType e.g. love, haha
+     * @event DOM event
+     */
+    handleReaction: PropTypes.func,
     /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
     clearEditingState: PropTypes.func,
     /**
@@ -328,62 +336,8 @@ export class Message extends Component {
     updateMessage(data.message);
   };
 
-  handleReaction = async (reactionType, event) => {
-    if (event !== undefined && event.preventDefault) {
-      event.preventDefault();
-    }
-
-    let userExistingReaction = null;
-
-    const currentUser = this.props.client.userID;
-
-    for (const reaction of this.props.message.own_reactions) {
-      // own user should only ever contain the current user id
-      // just in case we check to prevent bugs with message updates from breaking reactions
-      if (currentUser === reaction.user.id && reaction.type === reactionType) {
-        userExistingReaction = reaction;
-      } else if (currentUser !== reaction.user.id) {
-        console.warn(
-          `message.own_reactions contained reactions from a different user, this indicates a bug`,
-        );
-      }
-    }
-
-    const originalMessage = this.props.message;
-    let reactionChangePromise;
-
-    /*
-    - Add the reaction to the local state
-    - Make the API call in the background
-    - If it fails, revert to the old message...
-     */
-    if (userExistingReaction) {
-      // this.props.channel.state.removeReaction(userExistingReaction);
-
-      reactionChangePromise = this.props.channel.deleteReaction(
-        this.props.message.id,
-        userExistingReaction.type,
-      );
-    } else {
-      // add the reaction
-      const messageID = this.props.message.id;
-
-      const reaction = { type: reactionType };
-
-      // this.props.channel.state.addReaction(tmpReaction, this.props.message);
-      reactionChangePromise = this.props.channel.sendReaction(
-        messageID,
-        reaction,
-      );
-    }
-
-    try {
-      // only wait for the API call after the state is updated
-      await reactionChangePromise;
-    } catch (e) {
-      // revert to the original message if the API call fails
-      this.props.updateMessage(originalMessage);
-    }
+  handleReaction = (reactionType, event) => {
+    this.props.handleReaction(this.props.message, reactionType, event);
   };
 
   handleAction = async (name, value, event) => {
