@@ -78,6 +78,10 @@ class EditMessageForm extends React.Component {
     maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -179,6 +183,7 @@ class EditMessageForm extends React.Component {
               maxRows={this.props.maxRows}
               onPaste={this.props.onPaste}
               grow={this.props.grow}
+              additionalTextareaProps={this.props.additionalTextareaProps}
             />
             <div className="str-chat__message-team-form-footer">
               <div className="str-chat__edit-message-form-options">
