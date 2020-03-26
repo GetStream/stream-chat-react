@@ -5,6 +5,7 @@ import deepequal from 'deep-equal';
 import { MessageSimple } from './MessageSimple';
 import { Attachment } from './Attachment';
 import { MESSAGE_ACTIONS } from '../utils';
+import { withTranslationContext } from '../context';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -13,7 +14,7 @@ import { MESSAGE_ACTIONS } from '../utils';
  * @example ./docs/Message.md
  * @extends Component
  */
-export class Message extends Component {
+class Message extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -499,3 +500,7 @@ export class Message extends Component {
     );
   }
 }
+
+Message = withTranslationContext(Message);
+
+export { Message };

@@ -364,6 +364,16 @@ export interface MessageInputProps {
 
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?(message: object, channelCid: string): void;
+  /**
+   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * e.g.
+   * <MessageInput
+   *  additionalTextareaProps={{
+   *    maxLength: 10,
+   *  }}
+   * />
+   */
+  additionalTextareaProps: object;
 }
 
 export type ImageUpload = {
@@ -655,6 +665,7 @@ export interface ChatAutoCompleteProps {
   commands: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
+  additionalTextareaProps: object;
 }
 
 export interface ChatDownProps extends TranslationContextValue {

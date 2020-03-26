@@ -87,6 +87,10 @@ class MessageInputSmall extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   renderUploads = () => (
@@ -178,6 +182,7 @@ class MessageInputSmall extends PureComponent {
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 disabled={this.props.disabled}
+                additionalTextareaProps={this.props.additionalTextareaProps}
               />
 
               <span
