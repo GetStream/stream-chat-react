@@ -187,6 +187,7 @@ export const renderText = (message) => {
       plugins={[]}
       escapeHtml={true}
       skipHtml={false}
+      unwrapDisallowed={true}
     />
   );
 };
@@ -230,4 +231,14 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   flag: 'flag',
   mute: 'mute',
+};
+
+export const filterEmoji = (emoji) => {
+  if (
+    emoji.name === 'White Smiling Face' ||
+    emoji.name === 'White Frowning Face'
+  ) {
+    return false;
+  }
+  return true;
 };
