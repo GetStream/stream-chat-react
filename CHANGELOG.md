@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.2) 2020-03-26
+
+- Bug fix - making sure translators are ready before rendering Chat component [1b0c07a65b88075d14b038977d42138ec7fdaa21](https://github.com/GetStream/stream-chat-react/commit/1b0c07a65b88075d14b038977d42138ec7fdaa21) Fixes [#181](https://github.com/GetStream/stream-chat-react/issues/181)
+- Fixing small styling issues with MessageInput
+  - [a17300e](https://github.com/GetStream/stream-chat-react/commit/a17300e5a9b8cdcf6ba03c6260679dda3269c812)
+  - [0f0bf0a](https://github.com/GetStream/stream-chat-react/commit/0f0bf0a304fdcea498878c9ab501dc18e63340d4)
+
 ## [0.10.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.1) 2020-03-25
 
 - Added missing i18next dependency to dependency list [c7cf11f](https://github.com/GetStream/stream-chat-react/commit/c7cf11f32b5a0346889534387adcb99e06f5d90d)
