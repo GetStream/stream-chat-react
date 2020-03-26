@@ -423,7 +423,7 @@ export interface MessageInputUIComponentProps
   getUsers?(): Client.User[];
   getCommands?(): [];
   handleSubmit?(event: React.FormEvent): void;
-  handleChange?(event: React.ChangeEventHandler): void;
+  handleChange?(event: React.ChangeEvent<HTMLTextAreaElement>): void;
   onPaste?: React.ClipboardEventHandler;
   onSelectItem?(item: Client.UserResponse): void;
   openEmojiPicker?(): void;
