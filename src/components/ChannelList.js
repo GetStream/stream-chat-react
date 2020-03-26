@@ -377,6 +377,9 @@ class ChannelList extends PureComponent {
       const channelIndex = channels.findIndex(
         (channel) => channel.cid === e.channel.cid,
       );
+
+      if (channelIndex < 0) return;
+
       channels[channelIndex].data = Immutable(e.channel);
 
       this.setState({
@@ -404,6 +407,9 @@ class ChannelList extends PureComponent {
         const channelIndex = channels.findIndex(
           (channel) => channel.cid === e.channel.cid,
         );
+
+        if (channelIndex < 0) return;
+
         // Remove the deleted channel from the list.s
         channels.splice(channelIndex, 1);
         this.setState({
