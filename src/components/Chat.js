@@ -114,6 +114,8 @@ export class Chat extends PureComponent {
   });
 
   render() {
+    if (!this.state.t) return null;
+
     return (
       <ChatContext.Provider value={this.getContext()}>
         <TranslationContext.Provider
