@@ -49,6 +49,10 @@ export class ChatAutoComplete extends PureComponent {
     commands: PropTypes.array,
     /** Listener for onfocus event on textarea */
     onFocus: PropTypes.object,
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -175,6 +179,7 @@ export class ChatAutoComplete extends PureComponent {
         value={this.props.value}
         grow={this.props.grow}
         disabled={this.props.disabled}
+        additionalTextareaProps={this.props.additionalTextareaProps}
       />
     );
   }

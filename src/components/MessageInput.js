@@ -130,6 +130,16 @@ class MessageInput extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     * e.g.
+     * <MessageInput
+     *  additionalTextareaProps={{
+     *    maxLength: 10,
+     *  }}
+     * />
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -139,6 +149,7 @@ class MessageInput extends PureComponent {
     maxRows: 10,
     Input: MessageInputLarge,
     SendButton,
+    additionalTextareaProps: {},
   };
 
   componentDidMount() {

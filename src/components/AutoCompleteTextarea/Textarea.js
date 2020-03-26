@@ -482,6 +482,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'handleSubmit',
       'replaceWord',
       'grow',
+      'additionalTextareaProps',
     ];
 
     // eslint-disable-next-line
@@ -774,6 +775,7 @@ class ReactTextareaAutocomplete extends React.Component {
           onFocus={this.props.onFocus}
           value={value}
           style={style}
+          {...this.props.additionalTextareaProps}
         />
       </div>
     );
