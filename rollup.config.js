@@ -47,6 +47,7 @@ const normalBundle = {
     'dayjs/plugin/updateLocale',
     'dayjs/plugin/localizedFormat',
     'dayjs/plugin/localeData',
+    'dayjs/plugin/relativeTime',
     'stream-chat-client',
     'react-images',
     'lodash/debounce',
