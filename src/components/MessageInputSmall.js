@@ -11,6 +11,7 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { filterEmoji } from '../utils';
 
 /**
  * MessageInputSmall - compact design to be used for the MessageInput. It has all the features of MessageInput minus the typing indicator.
@@ -131,6 +132,7 @@ class MessageInputSmall extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );

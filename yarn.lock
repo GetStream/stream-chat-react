@@ -3738,11 +3738,12 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-emoji-mart@2.11.0:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-2.11.0.tgz#fed7c44d3a642b5de08848e8833d65a656ea8414"
-  integrity sha512-ol1ABg0xfDwCeKVu0Mmr/iTRHUMvqlyLZJFRQy+e6aWV83/Y+TEbJpBbtk7NxaW3BLAOyJ8r0NWthRQwxTtT1A==
+emoji-mart@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-3.0.0.tgz#eca24a04881e27752a6921e09f65a86ce8539a50"
+  integrity sha512-r5DXyzOLJttdwRYfJmPq/XL3W5tiAE/VsRnS0Hqyn27SqPA/GOYwVUSx50px/dXdJyDSnvmoPbuJ/zzhwSaU4A==
   dependencies:
+    "@babel/runtime" "^7.0.0"
     prop-types "^15.6.0"
 
 "emoji-regex@>=6.0.0 <=6.1.1":

@@ -36,7 +36,7 @@
     "anchorme": "^1.1.2",
     "dayjs": "^1.8.23",
     "deep-equal": "^2.0.1",
-    "emoji-mart": "2.11.0",
+    "emoji-mart": "3.0.0",
     "emoji-regex": "^8.0.0",
     "i18next": "^19.3.3",
     "isomorphic-ws": "^4.0.1",

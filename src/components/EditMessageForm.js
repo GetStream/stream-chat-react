@@ -10,6 +10,7 @@ import {
   FileUploadButton,
 } from 'react-file-utils';
 import { withTranslationContext } from '../context';
+import { filterEmoji } from '../utils';
 
 /**
  * @example ./docs/EditMessageForm.md
@@ -130,6 +131,7 @@ class EditMessageForm extends React.Component {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
@@ -164,6 +166,7 @@ class EditMessageForm extends React.Component {
                   title={t('Pick your emoji')}
                   onSelect={this.props.onSelectEmoji}
                   color="#006CFF"
+                  emojisToShowFilter={filterEmoji}
                 />
               </div>
             )}

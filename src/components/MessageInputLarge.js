@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatAutoComplete } from './ChatAutoComplete';
 import { withTranslationContext } from '../context';
-
+import { filterEmoji } from '../utils';
 import {
   ImageDropzone,
   ImagePreviewer,
@@ -131,6 +131,8 @@ class MessageInputLarge extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            useButton={true}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );

@@ -9,6 +9,7 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { filterEmoji } from '../utils';
 
 import { Picker } from 'emoji-mart';
 
@@ -134,6 +135,7 @@ class MessageInputFlat extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
