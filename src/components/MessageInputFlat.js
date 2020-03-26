@@ -84,6 +84,10 @@ class MessageInputFlat extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -175,6 +179,7 @@ class MessageInputFlat extends PureComponent {
                 grow={this.props.grow}
                 onFocus={this.props.onFocus}
                 disabled={this.props.disabled}
+                additionalTextareaProps={this.props.additionalTextareaProps}
               />
 
               <span
