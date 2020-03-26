@@ -21,6 +21,11 @@
 
   &--textarea-wrapper {
     display: flex;
+    .str-chat__textarea {
+      textarea {
+        padding-right: 70px;
+      }
+    }
   }
 
   &-emojiselect {
