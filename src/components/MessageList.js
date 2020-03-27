@@ -320,7 +320,7 @@ class MessageList extends PureComponent {
   insertDates = (messages) => {
     const newMessages = [];
     for (const [i, message] of messages.entries()) {
-      if (message.type === 'message.read' || message.deleted_at) {
+      if (message.type === 'message.read') {
         newMessages.push(message);
         continue;
       }
