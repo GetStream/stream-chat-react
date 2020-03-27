@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.1) 2020-03-27
+
+- Reverting optimistic reaction UI related changes
+
+  Reverted commits:
+
+  - [36f8fd0](https://github.com/GetStream/stream-chat-react/commit/36f8fd025f1f8f5bf8c825ba86c141893d69b662)
+  - [393c3a5](https://github.com/GetStream/stream-chat-react/commit/393c3a5fb6d31bd5abf24af69b522a85f573e77f)
+
+  Reason: Please check the changelog for [v1.6.1](https://github.com/GetStream/stream-chat-js/blob/master/CHANGELOG.md#march-27-2020---161) stream-chat-js
+
 ## [0.11.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.0) 2020-03-27
 
 - Improvements to reaction UX: Updating UI optimistically instead of waiting for reaction api
