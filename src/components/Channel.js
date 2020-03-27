@@ -373,10 +373,10 @@ class ChannelInner extends PureComponent {
      * - If it fails, revert to the old message...
      */
     if (userExistingReaction) {
-      channel.state.removeReaction(userExistingReaction, message);
+      channel.state.removeReaction(tmpReaction, message);
       this.copyChannelMessages();
       resetReaction = () => {
-        channel.state.addReaction(userExistingReaction, message);
+        channel.state.addReaction(tmpReaction, message);
       };
 
       reactionChangePromise = channel.deleteReaction(
