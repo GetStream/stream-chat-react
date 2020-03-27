@@ -208,7 +208,6 @@ class ChannelInner extends PureComponent {
     }
     this.originalTitle = document.title;
     this.lastRead = new Date();
-    this.props.client.on('connection.changed', this.connectionChanged);
     if (!errored) {
       this.copyChannelState();
       this.listenToChanges();
@@ -232,7 +231,6 @@ class ChannelInner extends PureComponent {
 
   componentWillUnmount() {
     this.props.client.off('connection.recovered', this.handleEvent);
-    this.props.client.off('connection.changed', this.connectionChanged);
     this.props.channel.off(this.handleEvent);
     this._loadMoreFinishedDebounced.cancel();
     this._loadMoreThreadFinishedDebounced.cancel();
@@ -241,11 +239,6 @@ class ChannelInner extends PureComponent {
       Visibility.unbind(this.visibilityListener);
     }
   }
-  connectionChanged = (event) => {
-    if (this.state.online !== event.online) {
-      this.setState({ online: event.online });
-    }
-  };
 
   openThread = (message, e) => {
     if (e && e.preventDefault) {
@@ -319,94 +312,6 @@ class ChannelInner extends PureComponent {
 
     if (channel.countUnread() > 0) channel.markRead();
   }
-
-  copyChannelMessages() {
-    const { channel } = this.props;
-    let threadMessages = [];
-
-    if (this.state.thread) {
-      threadMessages = channel.state.threads[this.state.thread.id] || [];
-    }
-    this._setStateThrottled({
-      messages: channel.state.messages,
-      threadMessages,
-    });
-  }
-
-  handleReaction = async (message, reactionType, event) => {
-    if (!this.state.online) return;
-
-    if (event !== undefined && event.preventDefault) {
-      event.preventDefault();
-    }
-    const { channel, client } = this.props;
-
-    let userExistingReaction = null;
-
-    for (const reaction of message.own_reactions) {
-      // own user should only ever contain the current user id
-      // just in case we check to prevent bugs with message updates from breaking reactions
-      if (
-        client.userID === reaction.user.id &&
-        reaction.type === reactionType
-      ) {
-        userExistingReaction = reaction;
-      } else if (client.userID !== reaction.user.id) {
-        console.warn(
-          `message.own_reactions contained reactions from a different user, this indicates a bug`,
-        );
-      }
-    }
-
-    let reactionChangePromise;
-    let resetReaction;
-    const tmpReaction = {
-      type: reactionType,
-      user_id: client.userID,
-      message_id: message.id,
-      user: client.user,
-    };
-
-    /*
-     * - Add the reaction to the local state
-     * - Make the API call in the background
-     * - If it fails, revert to the old message...
-     */
-    if (userExistingReaction) {
-      channel.state.removeReaction(tmpReaction, message);
-      this.copyChannelMessages();
-      resetReaction = () => {
-        channel.state.addReaction(tmpReaction, message);
-      };
-
-      reactionChangePromise = channel.deleteReaction(
-        message.id,
-        userExistingReaction.type,
-      );
-    } else {
-      // add the reaction
-      const messageID = message.id;
-
-      channel.state.addReaction(tmpReaction, message);
-      this.copyChannelMessages();
-
-      resetReaction = () => {
-        channel.state.removeReaction(tmpReaction, message);
-      };
-
-      reactionChangePromise = channel.sendReaction(messageID, {
-        type: reactionType,
-      });
-    }
-
-    try {
-      // only wait for the API call after the state is updated
-      await reactionChangePromise;
-    } catch (e) {
-      resetReaction();
-      this.copyChannelMessages();
-    }
-  };
 
   updateMessage = (updatedMessage, extraState) => {
     const channel = this.props.channel;
@@ -745,7 +650,6 @@ class ChannelInner extends PureComponent {
     sendMessage: this.sendMessage,
     editMessage: this.editMessage,
     retrySendMessage: this.retrySendMessage,
-    handleReaction: this.handleReaction,
     loadMore: this.loadMore,
 
     // thread related
