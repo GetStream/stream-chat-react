@@ -373,18 +373,20 @@ class ChannelList extends PureComponent {
 
     // Update the channel with data
     if (e.type === 'channel.updated') {
-      const channels = this.state.channels;
-      const channelIndex = channels.findIndex(
-        (channel) => channel.cid === e.channel.cid,
-      );
+      // quick check to avoid calling setState in case channel does not exist
+      if (!this.state.channels.find(({ cid }) => cid === e.channel.cid)) return;
 
-      if (channelIndex < 0) return;
+      this.setState(({ channels, channelUpdateCount }) => {
+        const channelIndex = channels.findIndex(
+          (channel) => channel.cid === e.channel.cid,
+        );
+        if (channelIndex < 0) return null;
 
-      channels[channelIndex].data = Immutable(e.channel);
-
-      this.setState({
-        channels: [...channels],
-        channelUpdateCount: this.state.channelUpdateCount + 1,
+        channels[channelIndex].data = Immutable(e.channel);
+        return {
+          channels: [...channels],
+          channelUpdateCount: channelUpdateCount + 1,
+        };
       });
 
       if (
