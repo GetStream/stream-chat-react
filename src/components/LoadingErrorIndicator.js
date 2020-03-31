@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
 /**
  * LoadingErrorIndicator - UI component for error indicator in Channel.
@@ -7,7 +8,7 @@ import PropTypes from 'prop-types';
  * @example ./docs/LoadingErrorIndicator.md
  * @extends PureComponent
  */
-export class LoadingErrorIndicator extends React.PureComponent {
+class LoadingErrorIndicator extends React.PureComponent {
   static propTypes = {
     /** Error object */
     error: PropTypes.oneOfType([
@@ -24,6 +25,16 @@ export class LoadingErrorIndicator extends React.PureComponent {
   render() {
     if (!this.props.error) return null;
 
-    return <div>Error: {this.props.error.message}</div>;
+    const { t } = this.props;
+    return (
+      <div>
+        {t('Error: {{ errorMessage }}', {
+          errorMessage: this.props.error.message,
+        })}
+      </div>
+    );
   }
 }
+
+LoadingErrorIndicator = withTranslationContext(LoadingErrorIndicator);
+export { LoadingErrorIndicator };

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
 import { ChatAutoComplete } from './ChatAutoComplete';
 import { Picker } from 'emoji-mart';
@@ -10,12 +11,13 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { filterEmoji } from '../utils';
 
 /**
  * MessageInputSmall - compact design to be used for the MessageInput. It has all the features of MessageInput minus the typing indicator.
  * @example ./docs/MessageInputSmall.md
  */
-export class MessageInputSmall extends PureComponent {
+class MessageInputSmall extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool.isRequired,
@@ -76,7 +78,7 @@ export class MessageInputSmall extends PureComponent {
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     multipleUploads: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
-    maxNumberOfFiles: PropTypes.object,
+    maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
     /**
@@ -85,6 +87,10 @@ export class MessageInputSmall extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   renderUploads = () => (
@@ -130,6 +136,7 @@ export class MessageInputSmall extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
@@ -137,6 +144,7 @@ export class MessageInputSmall extends PureComponent {
   };
 
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div className="str-chat__small-message-input__wrapper">
@@ -170,10 +178,11 @@ export class MessageInputSmall extends PureComponent {
                 rows={1}
                 maxRows={this.props.maxRows}
                 onSelectItem={this.props.onSelectItem}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 disabled={this.props.disabled}
+                additionalTextareaProps={this.props.additionalTextareaProps}
               />
 
               <span
@@ -223,3 +232,7 @@ export class MessageInputSmall extends PureComponent {
     );
   }
 }
+
+const MessageInputSmallWithContext = withTranslationContext(MessageInputSmall);
+
+export { MessageInputSmallWithContext as MessageInputSmall };

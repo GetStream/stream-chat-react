@@ -1,5 +1,67 @@
 # Changelog
 
+## [0.11.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.1) 2020-03-27
+
+- Reverting optimistic reaction UI related changes
+
+  Reverted commits:
+
+  - [36f8fd0](https://github.com/GetStream/stream-chat-react/commit/36f8fd025f1f8f5bf8c825ba86c141893d69b662)
+  - [393c3a5](https://github.com/GetStream/stream-chat-react/commit/393c3a5fb6d31bd5abf24af69b522a85f573e77f)
+
+  Reason: Please check the changelog for [v1.6.1](https://github.com/GetStream/stream-chat-js/blob/master/CHANGELOG.md#march-27-2020---161) stream-chat-js
+
+## [0.11.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.0) 2020-03-27
+
+- Improvements to reaction UX: Updating UI optimistically instead of waiting for reaction api
+  call to succeed
+  - [36f8fd0](https://github.com/GetStream/stream-chat-react/commit/36f8fd025f1f8f5bf8c825ba86c141893d69b662)
+  - [393c3a5](https://github.com/GetStream/stream-chat-react/commit/393c3a5fb6d31bd5abf24af69b522a85f573e77f)
+- Fix for a bug: Flagging a message results in "`t is not a function`" error in console
+  - commit [d537e78](https://github.com/GetStream/stream-chat-react/commit/d537e787b624b11f8f97f90075afe6f824be025e)
+  - fixes issue [#181](https://github.com/GetStream/stream-chat-react/issues/181#issuecomment-604283175)
+- Adding support for `additionalTextareaProps` prop in MessageInput component
+  - [5346f54](https://github.com/GetStream/stream-chat-react/commit/5346f548f9080d2b178b7ad215425361d433f95f)
+  - [a6719bb](https://github.com/GetStream/stream-chat-react/commit/a6719bb8dc0b9209c45653c5b6fe6fe0e5e8bf32)
+- Filter out buggy emojis and updating emoji-mart [333ed77](https://github.com/GetStream/stream-chat-react/commit/333ed77ad7d4ebe5dbb2a80052ac3292eeb5e3ee)
+- Displaying DateSeperator before deleted messages. So far we didn't show it [8ed3ca5](https://github.com/GetStream/stream-chat-react/commit/8ed3ca508cdb3561d645455c7529d9ea7dceea9f)
+- Updating `stream-chat` version to 1.6.0 [d4b7c14](https://github.com/GetStream/stream-chat-react/commit/d4b7c143ae7e4d36fe8e76d1cf9fde78c1a1dc39)
+
+## [0.10.2](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.2) 2020-03-26
+
+- Bug fix - making sure translators are ready before rendering Chat component [1b0c07a65b88075d14b038977d42138ec7fdaa21](https://github.com/GetStream/stream-chat-react/commit/1b0c07a65b88075d14b038977d42138ec7fdaa21) Fixes [#181](https://github.com/GetStream/stream-chat-react/issues/181)
+- Fixing small styling issues with MessageInput
+  - [a17300e](https://github.com/GetStream/stream-chat-react/commit/a17300e5a9b8cdcf6ba03c6260679dda3269c812)
+  - [0f0bf0a](https://github.com/GetStream/stream-chat-react/commit/0f0bf0a304fdcea498878c9ab501dc18e63340d4)
+
+## [0.10.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.1) 2020-03-25
+
+- Added missing i18next dependency to dependency list [c7cf11f](https://github.com/GetStream/stream-chat-react/commit/c7cf11f32b5a0346889534387adcb99e06f5d90d)
+
+## [0.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.10.0) 2020-03-24
+
+- i18n support for library. Documentatio - https://getstream.github.io/stream-chat-react/#section-streami18n
+
+## [0.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.9.0) 2020-03-21
+
+- 20% bundle size reduction (use day.js instead of moment.js)
+
+## [0.8.8](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.8) 2020-03-20
+
+- Changing mute success notification to show name of user instead of id - [e5bab26](https://github.com/GetStream/stream-chat-react/commit/e5bab26958e9d3ff5ad53491ed5d964d02f95dab)
+- Bug fix: Cancel button on giphy command in thread failed to remove message - [e592a4e](https://github.com/GetStream/stream-chat-react/commit/e592a4e8c8738cd61549b14a40dc317934777ce5)
+- Fixing typing indicator to now show up when current user is typing - [c24dc7a](https://github.com/GetStream/stream-chat-react/commit/c24dc7a1ed0ec2b1dada780b32f899b00d59165a)
+- Fixing moderator role check function in Message.js - [311fab9](https://github.com/GetStream/stream-chat-react/commit/311fab9efb5bd8ebd90b86c8ed1c2a86db62d6f7)
+
+## [0.8.7](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.7) 2020-03-19
+
+- Fixed a bug where attachments got duplicated upon submitting an edited message [cb93b92](https://github.com/GetStream/stream-chat-react/commit/cb93b9274c94b1d813c2d061869251cc04f5f610)
+
+## [0.8.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.6) 2020-03-17
+
+- Allow `~~test~~` double tilde for strikethrough in messages - [6870194](https://github.com/GetStream/stream-chat-react/commit/6870194a778f95b3c896d76fa4d4b39e3114c692)
+- Fix issue where attachments got duplicated when editing messages - [eea7f61](https://github.com/GetStream/stream-chat-react/commit/eea7f61763359ca8b4dfb13feff294668455643d)
+
 ## [0.8.4](https://github.com/GetStream/stream-chat-react/releases/tag/v0.8.4) 2020-02-11
 
 - Fixing `EmptyStateIndicator` prop for ChannelList component - [20d1672](https://github.com/GetStream/stream-chat-react/commit/20d1672969f030bc8f948aea5955706c6dcf757a)

@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
+import { withTranslationContext } from '../context';
 
-export class ChannelPreview extends PureComponent {
+class ChannelPreview extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -81,16 +82,16 @@ export class ChannelPreview extends PureComponent {
   }
 
   getLatestMessage = () => {
-    const { channel } = this.props;
+    const { channel, t } = this.props;
 
     const latestMessage =
       channel.state.messages[channel.state.messages.length - 1];
 
     if (!latestMessage) {
-      return 'Nothing yet...';
+      return t('Nothing yet...');
     }
     if (latestMessage.deleted_at) {
-      return 'Message deleted';
+      return t('Message deleted');
     }
     if (latestMessage.text) {
       return latestMessage.text;
@@ -99,9 +100,9 @@ export class ChannelPreview extends PureComponent {
         return '/' + latestMessage.command;
       }
       if (latestMessage.attachments.length) {
-        return '🏙 Attachment...';
+        return t('🏙 Attachment...');
       }
-      return 'Empty message...';
+      return t('Empty message...');
     }
   };
 
@@ -118,3 +119,7 @@ export class ChannelPreview extends PureComponent {
     );
   }
 }
+
+ChannelPreview = withTranslationContext(ChannelPreview);
+
+export { ChannelPreview };

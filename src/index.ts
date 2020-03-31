@@ -52,3 +52,4 @@ import './styles/Tooltip.scss';
 
 //
 export * from './components';
+export * from './i18n';

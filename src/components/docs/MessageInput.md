@@ -123,6 +123,18 @@ Sometimes you'll want to use our components but will need custom functionality. 
 
 Both functions have access to the selected file and the channel object and expect an object to be returned `{file: url}`.
 
+### Allowed markdown in messages;
+
+- paragraph
+- emphasis
+- strong
+- link
+- list
+- code blocks
+- inline code
+- blockquote
+- stikethrough
+
 ```js
 import { Chat } from '../Chat';
 import { Channel } from '../Channel';

@@ -377,12 +377,14 @@ class ChannelList extends PureComponent {
       const channelIndex = channels.findIndex(
         (channel) => channel.cid === e.channel.cid,
       );
-      channels[channelIndex].data = Immutable(e.channel);
+      if (channelIndex > -1) {
+        channels[channelIndex].data = Immutable(e.channel);
 
-      this.setState({
-        channels: [...channels],
-        channelUpdateCount: this.state.channelUpdateCount + 1,
-      });
+        this.setState({
+          channels: [...channels],
+          channelUpdateCount: this.state.channelUpdateCount + 1,
+        });
+      }
 
       if (
         this.props.onChannelUpdated &&
@@ -404,6 +406,9 @@ class ChannelList extends PureComponent {
         const channelIndex = channels.findIndex(
           (channel) => channel.cid === e.channel.cid,
         );
+
+        if (channelIndex < 0) return;
+
         // Remove the deleted channel from the list.s
         channels.splice(channelIndex, 1);
         this.setState({

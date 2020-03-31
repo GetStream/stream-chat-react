@@ -9,11 +9,13 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { withTranslationContext } from '../context';
+import { filterEmoji } from '../utils';
 
 /**
  * @example ./docs/EditMessageForm.md
  */
-export class EditMessageForm extends React.Component {
+class EditMessageForm extends React.Component {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool,
@@ -74,9 +76,13 @@ export class EditMessageForm extends React.Component {
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     multipleUploads: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
-    maxNumberOfFiles: PropTypes.object,
+    maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -115,6 +121,7 @@ export class EditMessageForm extends React.Component {
   );
 
   renderEmojiPicker = () => {
+    const { t } = this.props;
     if (this.props.emojiPickerIsOpen) {
       return (
         <div
@@ -124,10 +131,11 @@ export class EditMessageForm extends React.Component {
           <Picker
             native
             emoji="point_up"
-            title="Pick your emoji…"
+            title={t('Pick your emoji')}
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
@@ -135,6 +143,7 @@ export class EditMessageForm extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
     return (
       <div className="str-chat__edit-message-form">
         <ImageDropzone
@@ -158,9 +167,10 @@ export class EditMessageForm extends React.Component {
                 <Picker
                   native
                   emoji="point_up"
-                  title="Pick your emoji…"
+                  title={t('Pick your emoji')}
                   onSelect={this.props.onSelectEmoji}
                   color="#006CFF"
+                  emojisToShowFilter={filterEmoji}
                 />
               </div>
             )}
@@ -176,6 +186,7 @@ export class EditMessageForm extends React.Component {
               maxRows={this.props.maxRows}
               onPaste={this.props.onPaste}
               grow={this.props.grow}
+              additionalTextareaProps={this.props.additionalTextareaProps}
             />
             <div className="str-chat__message-team-form-footer">
               <div className="str-chat__edit-message-form-options">
@@ -219,8 +230,10 @@ export class EditMessageForm extends React.Component {
                 </FileUploadButton>
               </div>
               <div>
-                <button onClick={this.props.clearEditingState}>Cancel</button>
-                <button type="submit">Send</button>
+                <button onClick={this.props.clearEditingState}>
+                  {t('Cancel')}
+                </button>
+                <button type="submit">{t('Send')}</button>
               </div>
             </div>
           </form>
@@ -229,3 +242,6 @@ export class EditMessageForm extends React.Component {
     );
   }
 }
+
+EditMessageForm = withTranslationContext(EditMessageForm);
+export { EditMessageForm };

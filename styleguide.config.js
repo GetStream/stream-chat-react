@@ -79,6 +79,12 @@ module.exports = {
         'src/components/ChannelPreviewCompact.js',
         'src/components/ChannelPreviewLastMessage.js',
       ],
+      sections: [
+        {
+          name: 'Streami18n',
+          content: 'src/components/docs/Streami18n.md',
+        },
+      ],
       exampleMode: 'collapse',
       usageMode: 'expand',
     },

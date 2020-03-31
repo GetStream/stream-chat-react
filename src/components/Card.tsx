@@ -14,13 +14,14 @@ export interface CardComponentProps {
   type?: string;
 }
 
+import { withTranslationContext } from '../context';
 /**
  * Card - Simple Card Layout
  *
  * @example ./docs/Card.md
  * @extends PureComponent
  */
-export class Card extends React.PureComponent<CardComponentProps, any> {
+class Card extends React.PureComponent<CardComponentProps, any> {
   static propTypes = {
     /** Title returned by the OG scraper */
     title: PropTypes.string,
@@ -55,6 +56,7 @@ export class Card extends React.PureComponent<CardComponentProps, any> {
       image_url,
       thumb_url,
       og_scrape_url,
+      t,
     } = this.props;
     const image = thumb_url || image_url;
 
@@ -65,7 +67,7 @@ export class Card extends React.PureComponent<CardComponentProps, any> {
         >
           <div className="str-chat__message-attachment-card--content">
             <div className="str-chat__message-attachment-card--text">
-              this content could not be displayed
+              {t('this content could not be displayed')}
             </div>
           </div>
         </div>
@@ -104,7 +106,11 @@ export class Card extends React.PureComponent<CardComponentProps, any> {
                 rel="noopener noreferrer"
                 className="str-chat__message-attachment-card--url"
               >
-                {title_link ? this.trimUrl(title_link) : og_scrape_url ?  this.trimUrl(og_scrape_url) : null}
+                {title_link
+                  ? this.trimUrl(title_link)
+                  : og_scrape_url
+                  ? this.trimUrl(og_scrape_url)
+                  : null}
               </SafeAnchor>
             )}
           </div>
@@ -120,3 +126,6 @@ export class Card extends React.PureComponent<CardComponentProps, any> {
     );
   }
 }
+
+Card = withTranslationContext(Card);
+export { Card };

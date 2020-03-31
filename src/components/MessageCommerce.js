@@ -7,9 +7,9 @@ import { ReactionSelector } from './ReactionSelector';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { isOnlyEmojis, renderText } from '../utils';
+import { withTranslationContext } from '../context';
 
 /**
  * MessageCommerce - Render component, should be used together with the Message component
@@ -17,7 +17,7 @@ import { isOnlyEmojis, renderText } from '../utils';
  * @example ./docs/MessageSimple.md
  * @extends PureComponent
  */
-export class MessageCommerce extends PureComponent {
+class MessageCommerce extends PureComponent {
   static propTypes = {
     /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
@@ -200,9 +200,11 @@ export class MessageCommerce extends PureComponent {
       unsafeHTML,
       threadList,
       handleOpenThread,
+      t,
+      tDateTimeParser,
     } = this.props;
 
-    const when = moment(message.created_at).format('LT');
+    const when = tDateTimeParser(message.created_at).format('LT');
 
     const messageClasses = this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
@@ -233,7 +235,7 @@ export class MessageCommerce extends PureComponent {
             key={message.id}
             className={`${messageClasses} str-chat__message--deleted`}
           >
-            This message was deleted...
+            {t('This message was deleted...')}
           </span>
           <div className="clearfix" />
         </React.Fragment>
@@ -318,7 +320,7 @@ export class MessageCommerce extends PureComponent {
                 >
                   {message.type === 'error' && (
                     <div className="str-chat__commerce-message--error-message">
-                      Error · Unsent
+                      {t('Error · Unsent')}
                     </div>
                   )}
 
@@ -377,3 +379,6 @@ export class MessageCommerce extends PureComponent {
     );
   }
 }
+
+MessageCommerce = withTranslationContext(MessageCommerce);
+export { MessageCommerce };

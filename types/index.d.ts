@@ -6,7 +6,8 @@ import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
-
+import * as i18next from 'i18next';
+import * as Dayjs from 'dayjs';
 export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
@@ -93,9 +94,12 @@ export interface ChatProps {
   // | 'livestream light'
   // | 'livestream dark'
   theme?: string;
+  i18nInstance?: Streami18n;
 }
 
-export interface ChannelProps extends ChatContextValue {
+export interface ChannelProps
+  extends ChatContextValue,
+    TranslationContextValue {
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
@@ -191,7 +195,7 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps {
+export interface ChannelPreviewProps extends TranslationContextValue {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -264,7 +268,7 @@ export interface LoadingIndicatorProps {
   color?: string;
 }
 
-export interface LoadingErrorIndicatorProps {
+export interface LoadingErrorIndicatorProps extends TranslationContextValue {
   error: boolean | object;
 }
 
@@ -279,7 +283,7 @@ export interface AvatarProps {
   size?: number;
 }
 
-export interface DateSeparatorProps {
+export interface DateSeparatorProps extends TranslationContextValue {
   /** The date to format */
   date: Date;
   /** Set the position of the date in the separator */
@@ -288,7 +292,7 @@ export interface DateSeparatorProps {
   formatDate?(date: Date): string;
 }
 
-export interface EmptyStateIndicatorProps {
+export interface EmptyStateIndicatorProps extends TranslationContextValue {
   /** List Type */
   listType: string;
 }
@@ -298,7 +302,9 @@ export interface SendButtonProps {
   sendMessage?(message: Client.Message): void;
 }
 
-export interface MessageListProps extends ChannelContextValue {
+export interface MessageListProps
+  extends ChannelContextValue,
+    TranslationContextValue {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList */
@@ -322,7 +328,9 @@ export interface MessageListProps extends ChannelContextValue {
   additionalMessageInputProps?: object;
 }
 
-export interface ChannelHeaderProps extends ChannelContextValue {
+export interface ChannelHeaderProps
+  extends ChannelContextValue,
+    TranslationContextValue {
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
@@ -356,6 +364,16 @@ export interface MessageInputProps {
 
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?(message: object, channelCid: string): void;
+  /**
+   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * e.g.
+   * <MessageInput
+   *  additionalTextareaProps={{
+   *    maxLength: 10,
+   *  }}
+   * />
+   */
+  additionalTextareaProps: object;
 }
 
 export type ImageUpload = {
@@ -391,7 +409,8 @@ export interface MessageInputState {
 }
 export interface MessageInputUIComponentProps
   extends MessageInputProps,
-    MessageInputState {
+    MessageInputState,
+    TranslationContextValue {
   uploadNewFiles?(files: File[]): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
@@ -404,7 +423,7 @@ export interface MessageInputUIComponentProps
   getUsers?(): Client.User[];
   getCommands?(): [];
   handleSubmit?(event: React.FormEvent): void;
-  handleChange?(event: React.ChangeEventHandler): void;
+  handleChange?(event: React.ChangeEvent<HTMLTextAreaElement>): void;
   onPaste?: React.ClipboardEventHandler;
   onSelectItem?(item: Client.UserResponse): void;
   openEmojiPicker?(): void;
@@ -424,7 +443,7 @@ export interface AttachmentUIComponentProps {
   ): void;
 }
 
-export interface MessageProps {
+export interface MessageProps extends TranslationContextValue {
   /** The message object */
   message: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
@@ -473,7 +492,9 @@ export interface MessageProps {
   clearEditingState?(e?: React.MouseEvent): void;
 }
 
-export interface MessageUIComponentProps extends MessageProps {
+export interface MessageUIComponentProps
+  extends MessageProps,
+    TranslationContextValue {
   actionsEnabled?: boolean;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -502,7 +523,9 @@ export interface MessageUIComponentProps extends MessageProps {
   additionalMessageInputProps?: object;
 }
 
-export interface ThreadProps extends ChannelContextValue {
+export interface ThreadProps
+  extends ChannelContextValue,
+    TranslationContextValue {
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** Make input focus on mounting thread */
@@ -617,7 +640,7 @@ export interface AudioProps {
   og: Client.Attachment;
 }
 
-export interface CardProps {
+export interface CardProps extends TranslationContextValue {
   title?: string;
   title_link?: string;
   og_scrape_url?: string;
@@ -642,9 +665,10 @@ export interface ChatAutoCompleteProps {
   commands: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
+  additionalTextareaProps: object;
 }
 
-export interface ChatDownProps {
+export interface ChatDownProps extends TranslationContextValue {
   image: string;
   type: string;
   text: string;
@@ -658,7 +682,9 @@ export interface CommandItemProps {
   };
 }
 
-export interface EditMessageFormProps extends MessageInputUIComponentProps {}
+export interface EditMessageFormProps
+  extends MessageInputUIComponentProps,
+    TranslationContextValue {}
 export interface EmoticonItemProps {
   entity: {
     name: string;
@@ -675,7 +701,7 @@ export interface UserItemProps {
   };
 }
 
-export interface EventComponentProps {
+export interface EventComponentProps extends TranslationContextValue {
   message: Client.MessageResponse;
 }
 
@@ -728,7 +754,7 @@ export interface LoadMoreButtonProps {
   refreshing: boolean;
 }
 export interface LoadingChannelsProps {}
-export interface MessageActionsProps {
+export interface MessageActionsProps extends TranslationContextValue {
   onClickReact: React.MouseEventHandler;
   /** If the message actions box should be open or not */
   open: boolean;
@@ -754,7 +780,8 @@ export interface MessageNotificationProps {
   showNotification: boolean;
   onClick: React.MouseEventHandler;
 }
-export interface MessageRepliesCountButtonProps {
+export interface MessageRepliesCountButtonProps
+  extends TranslationContextValue {
   labelSingle: string;
   labelPlural: string;
   reply_count: number;
@@ -1068,3 +1095,56 @@ export const ChannelContext: React.Context<ChannelContextValue>;
 export function withChannelContext<T>(
   OriginalComponent: React.ElementType<T>,
 ): React.ElementType<T>;
+
+declare function withTranslationContext<T>(
+  OriginalComponent: React.ElementType<T>,
+): React.ElementType<T>;
+export interface TranslationContext
+  extends React.Context<TranslationContextValue> {}
+export interface TranslationContextValue {
+  t?: i18next.TFunction;
+  tDateTimeParser?(datetime: string | number): object;
+}
+
+export interface Streami18nOptions {
+  language: string;
+  disableDateTimeTranslations?: boolean;
+  translationsForLanguage?: object;
+  debug?: boolean;
+  logger?(msg: string): any;
+  dayjsLocaleConfigForLanguage?: object;
+  DateTimeParser?(): object;
+}
+
+export interface Streami18nTranslators {
+  t: i18next.TFunction;
+  tDateTimeParser?(datetime?: string | number): object;
+}
+
+export class Streami18n {
+  constructor(options?: Streami18nOptions);
+
+  init(): Promise<Streami18nTranslators>;
+  validateCurrentLanguage(): void;
+  geti18Instance(): i18next.i18n;
+  getAvailableLanguages(): Array<string>;
+  getTranslations(): Array<string>;
+  getTranslators(): Promise<Streami18nTranslators>;
+  registerTranslation(
+    key: string,
+    translation: object,
+    customDayjsLocale?: Partial<ILocale>,
+  ): void;
+  addOrUpdateLocale(key: string, config: Partial<ILocale>): void;
+  setLanguage(language: string): Promise<void>;
+  localeExists(language: string): boolean;
+  registerSetLanguageCallback(callback: (t: i18next.TFunction) => void): void;
+}
+
+export const enTranslations: object;
+export const nlTranslations: object;
+export const ruTranslations: object;
+export const trTranslations: object;
+export const frTranslations: object;
+export const hiTranslations: object;
+export const itTranslations: object;

@@ -14,6 +14,9 @@
 - [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
 - [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
 - [Chat UI Kit](https://getstream.io/chat/ui-kit/)
+- [Example Apps](#example-apps)
+- [Component Docs](https://getstream.github.io/stream-chat-react/)
+- [Internationalisation](#internationalisation)
 
 With these chat components you can support any type of chat use case:
 
@@ -115,6 +118,47 @@ Common mistakes that hurt performance are:
 - Solution: Use a regular function
 - Mistake: Passing an object {} or an array [] that's not using seamless-immutable
 - Solution: Use an immutable type (ie a number or a string) or use a seamless immutable version of an object or an array
+
+## Internationalisation
+
+Instance of class `Streami18n` should be provided to Chat component to handle translations.
+Stream provides following list of in-built translations for components:
+
+1.  English (en)
+2.  Dutch (nl)
+3.  Russian (ru)
+4.  Turkish (tr)
+5.  French (fr)
+6.  Italian (it)
+7.  Hindi (hi)
+
+Default language is English. Simplest way to start using chat components in one of the in-built languages would be following:
+
+Simplest way to start using chat components in one of the in-built languages would be following:
+
+```js static
+const i18n = new Streami18n({ language: 'nl' });
+<Chat client={chatClient} i18nInstance={i18n}>
+  ...
+</Chat>;
+```
+
+If you would like to override certain keys in in-built translation:
+
+```js static
+const i18n = new Streami18n({
+  language: 'nl',
+  translationsForLanguage: {
+    'Nothing yet...': 'Nog Niet ...',
+    '{{ firstUser }} and {{ secondUser }} are typing...':
+      '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
+  },
+});
+```
+
+UI will be automatically updated in this case.
+
+Please read this docs on i18n for more details and further customizations - https://getstream.github.io/stream-chat-react/#section-streami18n
 
 ## Contributing
 

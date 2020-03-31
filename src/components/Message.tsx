@@ -7,6 +7,7 @@ import { Attachment } from './Attachment';
 import { MESSAGE_ACTIONS } from '../utils';
 import { MessageUIComponentProps } from '../../types';
 import * as Client from 'stream-chat';
+import { withTranslationContext } from '../context';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -15,7 +16,7 @@ import * as Client from 'stream-chat';
  * @example ./docs/Message.md
  * @extends Component
  */
-export class Message extends Component<MessageUIComponentProps> {
+class Message extends Component<MessageUIComponentProps> {
   constructor(props: MessageUIComponentProps) {
     super(props);
     this.state = {
@@ -207,7 +208,7 @@ export class Message extends Component<MessageUIComponentProps> {
   isModerator = () =>
     this.props.members &&
     this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].role === 'moderator';
+    this.props.members[this.props.client.user.id].is_moderator;
 
   canEditMessage = (message: Client.MessageResponse) =>
     this.isMyMessage(message) ||
@@ -247,6 +248,7 @@ export class Message extends Component<MessageUIComponentProps> {
       message,
       client,
       addNotification,
+      t,
     } = this.props;
 
     try {
@@ -258,7 +260,7 @@ export class Message extends Component<MessageUIComponentProps> {
       addNotification(
         successMessage
           ? successMessage
-          : 'Message has been successfully flagged',
+          : t('Message has been successfully flagged'),
         'success',
       );
     } catch (e) {
@@ -269,7 +271,9 @@ export class Message extends Component<MessageUIComponentProps> {
       addNotification(
         errorMessage
           ? errorMessage
-          : 'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+          : t(
+              'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+            ),
         'error',
       );
     }
@@ -285,6 +289,7 @@ export class Message extends Component<MessageUIComponentProps> {
       message,
       client,
       addNotification,
+      t,
     } = this.props;
 
     if (!message.user || message.user.id) {
@@ -301,7 +306,9 @@ export class Message extends Component<MessageUIComponentProps> {
       addNotification(
         successMessage
           ? successMessage
-          : `User with id ${message.user.id} has been muted`,
+          : t(`{{ user }} has been muted`, {
+              user: message.user.name || message.user.id,
+            }),
         'success',
       );
     } catch (e) {
@@ -311,7 +318,7 @@ export class Message extends Component<MessageUIComponentProps> {
       );
 
       addNotification(
-        errorMessage ? errorMessage : 'Error muting a user ...',
+        errorMessage ? errorMessage : t('Error muting a user ...'),
         'error',
       );
     }
@@ -516,3 +523,7 @@ export class Message extends Component<MessageUIComponentProps> {
     );
   }
 }
+
+Message = withTranslationContext(Message);
+
+export { Message };

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 import { ChatAutoComplete } from './ChatAutoComplete';
 
 import {
@@ -8,6 +9,7 @@ import {
   FilePreviewer,
   FileUploadButton,
 } from 'react-file-utils';
+import { filterEmoji } from '../utils';
 
 import { Picker } from 'emoji-mart';
 
@@ -15,7 +17,7 @@ import { Picker } from 'emoji-mart';
  * MessageInputFlat - Large Message Input to be used for the MessageInput.
  * @example ./docs/MessageInputFlat.md
  */
-export class MessageInputFlat extends PureComponent {
+class MessageInputFlat extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool,
@@ -74,7 +76,7 @@ export class MessageInputFlat extends PureComponent {
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     multipleUploads: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
-    maxNumberOfFiles: PropTypes.object,
+    maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
     /**
@@ -83,6 +85,10 @@ export class MessageInputFlat extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -133,6 +139,7 @@ export class MessageInputFlat extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
@@ -140,6 +147,7 @@ export class MessageInputFlat extends PureComponent {
   };
 
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div
@@ -168,11 +176,12 @@ export class MessageInputFlat extends PureComponent {
                 value={this.props.text}
                 rows={1}
                 maxRows={this.props.maxRows}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 onFocus={this.props.onFocus}
                 disabled={this.props.disabled}
+                additionalTextareaProps={this.props.additionalTextareaProps}
               />
 
               <span
@@ -217,3 +226,7 @@ export class MessageInputFlat extends PureComponent {
     );
   }
 }
+
+const MessageInputFlatWithContext = withTranslationContext(MessageInputFlat);
+
+export { MessageInputFlatWithContext as MessageInputFlat };
