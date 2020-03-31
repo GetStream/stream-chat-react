@@ -8,8 +8,10 @@ import url from 'rollup-plugin-url';
 import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
-import globals from 'rollup-plugin-node-globals';
 import typescript from '@rollup/plugin-typescript';
+
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import process from 'process';
 
 // eslint-disable-next-line
 // import { terser } from 'rollup-plugin-terser';
@@ -19,7 +21,6 @@ import replace from 'rollup-plugin-replace';
 
 import pkg from './package.json';
 
-import process from 'process';
 process.env.NODE_ENV = 'production';
 
 const baseConfig = {
@@ -113,14 +114,15 @@ const fullBrowserBundle = {
       },
     }),
     json(),
-    globals({
+    // globals({
+    //   globals: false,
+    //   dirname: false,
+    //   filename: false,
+    // }),
+    nodePolyfills({
       process: true,
-      globals: false,
       buffer: true,
-      dirname: false,
-      filename: false,
     }),
-    // terser(),
   ],
 };
 
