@@ -425,6 +425,8 @@ class Message extends Component {
 
   getMessageActions = () => {
     const { message, messageActions: messageActionsProps } = this.props;
+    const { mutes } = this.props.channel.getConfig();
+
     const messageActionsAfterPermission = [];
     let messageActions = [];
 
@@ -460,7 +462,8 @@ class Message extends Component {
 
     if (
       !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1
+      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 &&
+      mutes
     ) {
       messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
     }
