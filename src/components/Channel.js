@@ -111,6 +111,10 @@ class Channel extends PureComponent {
      * @param {Object} updatedMessage
      */
     doUpdateMessageRequest: PropTypes.func,
+    /** Hides the child MessageInput component if channel is frozen */
+    hideMessageInputIfFrozenChannel: PropTypes.bool,
+    /** Disables the child MessageInput component if channel is frozen */
+    disableMessageInputIfFrozenChannel: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -119,6 +123,8 @@ class Channel extends PureComponent {
     LoadingErrorIndicator,
     Message: MessageSimple,
     Attachment,
+    hideMessageInputIfFrozenChannel: false,
+    disableMessageInputIfFrozenChannel: true,
   };
 
   render() {
@@ -658,6 +664,9 @@ class ChannelInner extends PureComponent {
     loadMoreThread: this.loadMoreThread,
     onMentionsClick: this._onMentionsHoverOrClick,
     onMentionsHover: this._onMentionsHoverOrClick,
+    hideMessageInputIfFrozenChannel: this.props.hideMessageInputIfFrozenChannel,
+    disableMessageInputIfFrozenChannel: this.props
+      .disableMessageInputIfFrozenChannel,
   });
 
   renderComponent = () => this.props.children;

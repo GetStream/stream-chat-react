@@ -130,6 +130,10 @@ class MessageInput extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Hides the child MessageInput component if channel is frozen */
+    hideMessageInputIfFrozenChannel: PropTypes.bool,
+    /** Disables the child MessageInput component if channel is frozen */
+    disableMessageInputIfFrozenChannel: PropTypes.bool,
     /**
      * Any additional attrubutes that you may want to add for underlying HTML textarea element.
      * e.g.
@@ -154,7 +158,7 @@ class MessageInput extends PureComponent {
 
   componentDidMount() {
     if (this.props.focus) {
-      this.textareaRef.current.focus();
+      this.textareaRef.current && this.textareaRef.current.focus();
     }
   }
 
@@ -620,7 +624,25 @@ class MessageInput extends PureComponent {
   };
 
   render() {
-    const { Input } = this.props;
+    const {
+      Input,
+      channel: { data: channelData },
+      disableMessageInputIfFrozenChannel,
+      hideMessageInputIfFrozenChannel,
+    } = this.props;
+    const isFrozen = channelData ? channelData.frozen : false;
+
+    if (isFrozen && hideMessageInputIfFrozenChannel) return null;
+
+    let additionalTextareaProps = this.props.additionalTextareaProps || {};
+
+    if (isFrozen && disableMessageInputIfFrozenChannel) {
+      additionalTextareaProps = {
+        disabled: true,
+        ...additionalTextareaProps,
+      };
+    }
+
     const handlers = {
       uploadNewFiles: this._uploadNewFiles,
       removeImage: this._removeImage,
@@ -639,7 +661,14 @@ class MessageInput extends PureComponent {
       onSelectItem: this._onSelectItem,
       openEmojiPicker: this.openEmojiPicker,
     };
-    return <Input {...this.props} {...this.state} {...handlers} />;
+    return (
+      <Input
+        {...this.props}
+        {...this.state}
+        {...handlers}
+        additionalTextareaProps={additionalTextareaProps}
+      />
+    );
   }
 }
 

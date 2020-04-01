@@ -76,6 +76,10 @@ class Thread extends React.PureComponent {
         ```
     */
     MessageInput: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /** Hides the child MessageInput component if channel is frozen */
+    hideMessageInputIfFrozenChannel: PropTypes.bool,
+    /** Disables the child MessageInput component if channel is frozen */
+    disableMessageInputIfFrozenChannel: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -83,6 +87,8 @@ class Thread extends React.PureComponent {
     threadLoadingMore: true,
     fullWidth: false,
     autoFocus: true,
+    hideMessageInputIfFrozenChannel: false,
+    disableMessageInputIfFrozenChannel: true,
     MessageInput,
   };
 
@@ -216,6 +222,10 @@ class ThreadInner extends React.PureComponent {
             MessageInputSmall,
             parent: this.props.thread,
             focus: this.props.autoFocus,
+            hideMessageInputIfFrozenChannel: this.props
+              .hideMessageInputIfFrozenChannel,
+            disableMessageInputIfFrozenChannel: this.props
+              .disableMessageInputIfFrozenChannel,
             ...this.props.additionalMessageInputProps,
           })}
         </div>

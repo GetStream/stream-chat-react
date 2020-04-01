@@ -78,6 +78,10 @@ export interface ChannelContextValue extends ChatContextValue {
 
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
+  /** Hides the child MessageInput component if channel is frozen */
+  hideMessageInputIfFrozenChannel: boolean;
+  /** Disables the child MessageInput component if channel is frozen */
+  disableMessageInputIfFrozenChannel: boolean;
 }
 
 export interface ChatProps {
@@ -125,6 +129,10 @@ export interface ChannelProps
     channelId: string,
     updatedMessage: Client.Message,
   ): Promise<Client.MessageResponse> | void;
+  /** Hides the child MessageInput component if channel is frozen */
+  hideMessageInputIfFrozenChannel: boolean;
+  /** Disables the child MessageInput component if channel is frozen */
+  disableMessageInputIfFrozenChannel: boolean;
 }
 
 export interface ChannelListProps extends ChatContextValue {
