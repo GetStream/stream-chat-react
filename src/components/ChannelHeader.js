@@ -1,7 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
-import { withChannelContext, withTranslationContext } from '../context';
+import {
+  withChatContext,
+  withChannelContext,
+  withTranslationContext,
+} from '../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel
@@ -26,6 +30,14 @@ class ChannelHeader extends PureComponent {
 
     return (
       <div className="str-chat__header-livestream">
+        <div
+          className="str-chat__header-hamburger"
+          onClick={this.props.openMobileNav}
+        >
+          <span className="str-chat__header-hamburger--line"></span>
+          <span className="str-chat__header-hamburger--line"></span>
+          <span className="str-chat__header-hamburger--line"></span>
+        </div>
         {channel.data.image && (
           <Avatar
             image={channel.data.image}
@@ -81,5 +93,7 @@ class ChannelHeader extends PureComponent {
   }
 }
 
-ChannelHeader = withChannelContext(withTranslationContext(ChannelHeader));
+ChannelHeader = withChatContext(
+  withChannelContext(withTranslationContext(ChannelHeader)),
+);
 export { ChannelHeader };

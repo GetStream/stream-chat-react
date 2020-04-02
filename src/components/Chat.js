@@ -72,6 +72,7 @@ export class Chat extends PureComponent {
     this.state = {
       // currently active channel
       channel: {},
+      navOpen: true,
       error: false,
     };
   }
@@ -104,12 +105,32 @@ export class Chat extends PureComponent {
     this.setState(() => ({
       channel,
     }));
+    if (this.state.navOpen) {
+      this.closeMobileNav();
+    }
+  };
+
+  openMobileNav = () => {
+    setTimeout(() => {
+      this.setState({
+        navOpen: true,
+      });
+    }, 100);
+  };
+
+  closeMobileNav = () => {
+    this.setState({
+      navOpen: false,
+    });
   };
 
   getContext = () => ({
     client: this.props.client,
     channel: this.state.channel,
     setActiveChannel: this.setActiveChannel,
+    openMobileNav: this.openMobileNav,
+    closeMobileNav: this.closeMobileNav,
+    navOpen: this.state.navOpen,
     theme: this.props.theme,
   });
 

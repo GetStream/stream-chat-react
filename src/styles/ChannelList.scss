@@ -53,7 +53,7 @@
   top: 0;
   right: 0;
   z-index: 100001;
-  display: none;
+  // display: none;
 }
 .str-chat-channel-list-burger {
   width: 10px;
@@ -75,7 +75,7 @@
     border-radius: 3px;
     background: rgba(0, 0, 0, 0.08);
   }
-  display: none;
+  // display: none;
 }
 
 @media screen and (max-width: 960px) {
@@ -98,13 +98,11 @@
     }
   }
 
-  .str-chat-channel-checkbox:checked {
-    & ~ .str-chat-channel-list {
-      &.messaging,
-      &.team,
-      &.commerce {
-        left: 0px;
-      }
+  .str-chat-channel-list--open {
+    &.messaging,
+    &.team,
+    &.commerce {
+      left: 0px;
     }
   }
 }
