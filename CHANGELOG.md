@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.4](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.4) 2020-04-02
+
+- Reworked the mobile nav behaviour to be more flexible
+
 ## [0.11.3](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.3) 2020-04-02
 
 - Have the mute action respect channel settings
