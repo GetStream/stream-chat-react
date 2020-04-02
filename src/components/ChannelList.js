@@ -210,6 +210,7 @@ class ChannelList extends PureComponent {
 
   async componentDidMount() {
     await this.queryChannels();
+    document.addEventListener('click', this._handleClickOutside);
     this.listenToChanges();
   }
 
@@ -226,6 +227,7 @@ class ChannelList extends PureComponent {
   }
 
   componentWillUnmount() {
+    document.removeEventListener('click', this._handleClickOutside);
     this.props.client.off(this.handleEvent);
   }
 
@@ -466,10 +468,6 @@ class ChannelList extends PureComponent {
     this.queryChannels();
   };
 
-  closeMenu = () => {
-    this.menuButton.current.checked = false;
-  };
-
   // new channel list // *********************************
 
   _renderChannel = (item) => {
@@ -478,7 +476,6 @@ class ChannelList extends PureComponent {
     const props = {
       channel: item,
       activeChannel: channel,
-      closeMenu: this.closeMenu,
       Preview,
       setActiveChannel,
       watchers,
@@ -490,28 +487,26 @@ class ChannelList extends PureComponent {
     return smartRender(ChannelPreview, { ...props });
   };
 
+  _handleClickOutside = (e) => {
+    if (
+      this.channelListRef &&
+      !this.channelListRef.contains(e.target) &&
+      this.props.navOpen
+    ) {
+      this.props.closeMobileNav();
+    }
+  };
+
   render() {
     const { List, Paginator, EmptyStateIndicator } = this.props;
     const { channels, loadingChannels, refreshing, hasNextPage } = this.state;
     return (
       <React.Fragment>
-        <input
-          type="checkbox"
-          id="str-chat-channel-checkbox"
-          ref={this.menuButton}
-          className="str-chat-channel-checkbox"
-        />
-        <label
-          htmlFor="str-chat-channel-checkbox"
-          className="str-chat-channel-list-burger"
-        >
-          <div />
-        </label>
         <div
           className={`str-chat str-chat-channel-list ${this.props.theme} ${
-            this.props.open ? 'str-chat-channel-list--open' : ''
+            this.props.navOpen ? 'str-chat-channel-list--open' : ''
           }`}
-          ref={this.channelList}
+          ref={(ref) => (this.channelListRef = ref)}
         >
           <List
             loading={loadingChannels}
