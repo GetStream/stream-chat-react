@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.3](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.3) 2020-04-02
+
+- Have the mute action respect channel settings
+- Add supported markdown to docs
+
 ## [0.11.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.1) 2020-03-27
 
 - Reverting optimistic reaction UI related changes
