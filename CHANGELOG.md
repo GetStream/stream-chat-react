@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.6) 2020-04-04
+
+**NOTE** Please make sure to use `stream-chat@^1.7.0`
+
+- Fixing moderator, owner, admin checks for message actions [71b3309](https://github.com/GetStream/stream-chat-react/commit/71b3309f53edd03a9eded293b3d77093be6359d5)
+
+## [0.11.5](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.5) 2020-04-03
+
+- Open url attachments in new tab [e6436fe](https://github.com/GetStream/stream-chat-react/commit/e6436fe2c8c09bba42ec3677771191e5acbf5d93)
+
 ## [0.11.4](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.4) 2020-04-02
 
 - Reworked the mobile nav behaviour to be more flexible
