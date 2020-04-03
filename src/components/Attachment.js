@@ -110,7 +110,7 @@ export class Attachment extends PureComponent {
               size={30}
             />
             <div className="str-chat__message-attachment-file--item-text">
-              <SafeAnchor href={a.asset_url} download>
+              <SafeAnchor href={a.asset_url} target="_blank" download>
                 {a.title}
               </SafeAnchor>
               {a.file_size && <span>{prettybytes(a.file_size)}</span>}
