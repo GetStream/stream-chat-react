@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
 
 import truncate from 'lodash/truncate';
+import { withTranslationContext } from '../context';
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  * Its best suited for messenger type chat.
@@ -11,56 +12,58 @@ import truncate from 'lodash/truncate';
  * @example ./docs/ChannelPreviewMessenger.md
  * @extends PureComponent
  */
-export const ChannelPreviewMessenger = ({
-  channel,
-  emptyMessageText = 'Nothing yet...',
-  latestMessageLength = 14,
-  unread,
-  latestMessage,
-  activeChannel,
-  setActiveChannel = () => {},
-  watchers,
-  closeMenu,
-}) => {
-  const channelPreviewButton = React.createRef();
-  const unreadClass =
-    unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
-  const activeClass =
-    activeChannel.cid === channel.cid
-      ? 'str-chat__channel-preview-messenger--active'
-      : '';
+export const ChannelPreviewMessenger = withTranslationContext(
+  ({
+    channel,
+    latestMessageLength = 14,
+    unread,
+    latestMessage,
+    activeChannel,
+    setActiveChannel = () => {},
+    watchers,
+    closeMenu,
+    t,
+  }) => {
+    const channelPreviewButton = React.createRef();
+    const unreadClass =
+      unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
+    const activeClass =
+      activeChannel.cid === channel.cid
+        ? 'str-chat__channel-preview-messenger--active'
+        : '';
 
-  const onSelectChannel = () => {
-    setActiveChannel(channel, watchers);
-    channelPreviewButton.current.blur();
-    closeMenu();
-  };
+    const onSelectChannel = () => {
+      setActiveChannel(channel, watchers);
+      channelPreviewButton.current.blur();
+      closeMenu();
+    };
 
-  return (
-    <button
-      onClick={onSelectChannel}
-      ref={channelPreviewButton}
-      className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
-      role="listitem"
-    >
-      <div className="str-chat__channel-preview-messenger--left">
-        {<Avatar image={channel.data.image} size={40} />}
-      </div>
-      <div className="str-chat__channel-preview-messenger--right">
-        <div className="str-chat__channel-preview-messenger--name">
-          <span>{channel.data.name}</span>
+    return (
+      <button
+        onClick={onSelectChannel}
+        ref={channelPreviewButton}
+        className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
+        role="listitem"
+      >
+        <div className="str-chat__channel-preview-messenger--left">
+          {<Avatar image={channel.data.image} size={40} />}
         </div>
-        <div className="str-chat__channel-preview-messenger--last-message">
-          {!latestMessage
-            ? emptyMessageText
-            : truncate(latestMessage, {
-                length: latestMessageLength,
-              })}
+        <div className="str-chat__channel-preview-messenger--right">
+          <div className="str-chat__channel-preview-messenger--name">
+            <span>{channel.data.name}</span>
+          </div>
+          <div className="str-chat__channel-preview-messenger--last-message">
+            {!latestMessage
+              ? t('Nothing yet...')
+              : truncate(latestMessage, {
+                  length: latestMessageLength,
+                })}
+          </div>
         </div>
-      </div>
-    </button>
-  );
-};
+      </button>
+    );
+  },
+);
 
 ChannelPreviewMessenger.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */

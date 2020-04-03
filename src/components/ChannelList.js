@@ -158,6 +158,10 @@ class ChannelList extends PureComponent {
      * */
     customAciveChannel: PropTypes.string,
     /**
+     * Last channel will be set as active channel if true, defaults to true
+     */
+    setActiveChannelOnMount: PropTypes.bool,
+    /**
      * If true, channels won't be dynamically sorted by most recent message.
      */
     lockChannelOrder: PropTypes.bool,
@@ -170,6 +174,7 @@ class ChannelList extends PureComponent {
     List: ChannelListTeam,
     Paginator: LoadMorePaginator,
     EmptyStateIndicator,
+    setActiveChannelOnMount: true,
     filters: {},
     options: {},
     sort: {},
@@ -205,6 +210,7 @@ class ChannelList extends PureComponent {
 
   async componentDidMount() {
     await this.queryChannels();
+    document.addEventListener('click', this._handleClickOutside);
     this.listenToChanges();
   }
 
@@ -221,11 +227,12 @@ class ChannelList extends PureComponent {
   }
 
   componentWillUnmount() {
+    document.removeEventListener('click', this._handleClickOutside);
     this.props.client.off(this.handleEvent);
   }
 
   queryChannels = async () => {
-    const { options, filters, sort } = this.props;
+    const { options, filters, sort, setActiveChannelOnMount } = this.props;
     const { offset } = this.state;
 
     this.setState({ refreshing: true });
@@ -267,7 +274,11 @@ class ChannelList extends PureComponent {
           this.props.setActiveChannel(customActiveChannel, this.props.watchers);
           this.moveChannelUp(customActiveChannel.cid);
         }
-      } else if (offset === 0 && this.state.channels.length >= 1) {
+      } else if (
+        setActiveChannelOnMount &&
+        offset === 0 &&
+        this.state.channels.length
+      ) {
         this.props.setActiveChannel(
           this.state.channels[0],
           this.props.watchers,
@@ -368,12 +379,14 @@ class ChannelList extends PureComponent {
       const channelIndex = channels.findIndex(
         (channel) => channel.cid === e.channel.cid,
       );
-      channels[channelIndex].data = Immutable(e.channel);
+      if (channelIndex > -1) {
+        channels[channelIndex].data = Immutable(e.channel);
 
-      this.setState({
-        channels: [...channels],
-        channelUpdateCount: this.state.channelUpdateCount + 1,
-      });
+        this.setState({
+          channels: [...channels],
+          channelUpdateCount: this.state.channelUpdateCount + 1,
+        });
+      }
 
       if (
         this.props.onChannelUpdated &&
@@ -395,6 +408,9 @@ class ChannelList extends PureComponent {
         const channelIndex = channels.findIndex(
           (channel) => channel.cid === e.channel.cid,
         );
+
+        if (channelIndex < 0) return;
+
         // Remove the deleted channel from the list.s
         channels.splice(channelIndex, 1);
         this.setState({
@@ -452,10 +468,6 @@ class ChannelList extends PureComponent {
     this.queryChannels();
   };
 
-  closeMenu = () => {
-    this.menuButton.current.checked = false;
-  };
-
   // new channel list // *********************************
 
   _renderChannel = (item) => {
@@ -464,7 +476,6 @@ class ChannelList extends PureComponent {
     const props = {
       channel: item,
       activeChannel: channel,
-      closeMenu: this.closeMenu,
       Preview,
       setActiveChannel,
       watchers,
@@ -476,28 +487,26 @@ class ChannelList extends PureComponent {
     return smartRender(ChannelPreview, { ...props });
   };
 
+  _handleClickOutside = (e) => {
+    if (
+      this.channelListRef &&
+      !this.channelListRef.contains(e.target) &&
+      this.props.navOpen
+    ) {
+      this.props.closeMobileNav();
+    }
+  };
+
   render() {
     const { List, Paginator, EmptyStateIndicator } = this.props;
     const { channels, loadingChannels, refreshing, hasNextPage } = this.state;
     return (
       <React.Fragment>
-        <input
-          type="checkbox"
-          id="str-chat-channel-checkbox"
-          ref={this.menuButton}
-          className="str-chat-channel-checkbox"
-        />
-        <label
-          htmlFor="str-chat-channel-checkbox"
-          className="str-chat-channel-list-burger"
-        >
-          <div />
-        </label>
         <div
           className={`str-chat str-chat-channel-list ${this.props.theme} ${
-            this.props.open ? 'str-chat-channel-list--open' : ''
+            this.props.navOpen ? 'str-chat-channel-list--open' : ''
           }`}
-          ref={this.channelList}
+          ref={(ref) => (this.channelListRef = ref)}
         >
           <List
             loading={loadingChannels}

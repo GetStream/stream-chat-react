@@ -1,5 +1,9 @@
 import React, { PureComponent } from 'react';
-import { withChatContext, ChannelContext } from '../context';
+import {
+  withChatContext,
+  ChannelContext,
+  withTranslationContext,
+} from '../context';
 
 import { LoadingIndicator } from './LoadingIndicator';
 import { LoadingErrorIndicator } from './LoadingErrorIndicator';
@@ -32,6 +36,13 @@ class Channel extends PureComponent {
     }).isRequired,
     /** Client is passed automatically via the Chat Context */
     client: PropTypes.object.isRequired,
+    /**
+     * Empty channel UI component. This will be shown on the screen if there is no active channel.
+     *
+     * Defaults to null which skips rendering the Channel
+     *
+     * */
+    EmptyPlaceholder: PropTypes.node,
     /**
      * Error indicator UI component. This will be shown on the screen if channel query fails.
      *
@@ -103,6 +114,7 @@ class Channel extends PureComponent {
   };
 
   static defaultProps = {
+    EmptyPlaceholder: null,
     LoadingIndicator,
     LoadingErrorIndicator,
     Message: MessageSimple,
@@ -111,7 +123,7 @@ class Channel extends PureComponent {
 
   render() {
     if (!this.props.channel.cid) {
-      return null; // <div>Select a channel</div>;
+      return this.props.EmptyPlaceholder;
     }
     // We use a wrapper to make sure the key variable is set.
     // this ensures that if you switch channel the component is recreated
@@ -321,7 +333,12 @@ class ChannelInner extends PureComponent {
   removeMessage = (message) => {
     const channel = this.props.channel;
     channel.state.removeMessage(message);
-    this.setState({ messages: channel.state.messages });
+    const threadMessages = channel.state.threads[message.parent_id] || [];
+    this.setState({
+      messages: channel.state.messages,
+      threads: channel.state.threads,
+      threadMessages,
+    });
   };
 
   removeEphemeralMessages() {
@@ -646,6 +663,8 @@ class ChannelInner extends PureComponent {
   renderComponent = () => this.props.children;
 
   render() {
+    const { t } = this.props;
+
     let core;
     const LoadingIndicator = this.props.LoadingIndicator;
     const LoadingErrorIndicator = this.props.LoadingErrorIndicator;
@@ -657,7 +676,7 @@ class ChannelInner extends PureComponent {
     } else if (this.state.loading) {
       core = <LoadingIndicator size={25} isLoading={true} />;
     } else if (!this.props.channel || !this.props.channel.watch) {
-      core = <div>Channel Missing</div>;
+      core = <div>{t('Channel Missing')}</div>;
     } else {
       core = (
         <ChannelContext.Provider value={this.getContext()}>
@@ -674,6 +693,6 @@ class ChannelInner extends PureComponent {
   }
 }
 
-Channel = withChatContext(Channel);
+Channel = withChatContext(withTranslationContext(Channel));
 
 export { Channel };

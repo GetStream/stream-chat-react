@@ -1,8 +1,9 @@
 import React from 'react';
 
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
-export class MessageRepliesCountButton extends React.PureComponent {
+class MessageRepliesCountButton extends React.PureComponent {
   static propTypes = {
     /** Label for number of replies, when count is 1 */
     labelSingle: PropTypes.string,
@@ -18,13 +19,32 @@ export class MessageRepliesCountButton extends React.PureComponent {
     onClick: PropTypes.func,
   };
   static defaultProps = {
-    labelSingle: 'reply',
-    labelPlural: 'replies',
     reply_count: 0,
   };
 
   render() {
-    const { reply_count, labelSingle, labelPlural } = this.props;
+    const { reply_count, labelSingle, labelPlural, t } = this.props;
+    let singleReplyText;
+    let pluralReplyText;
+
+    if (reply_count === 1) {
+      if (labelSingle) {
+        singleReplyText = `1 ${labelSingle}`;
+      } else {
+        singleReplyText = t('1 reply');
+      }
+    }
+
+    if (reply_count > 1) {
+      if (labelPlural) {
+        pluralReplyText = `${reply_count} ${labelPlural}`;
+      } else {
+        pluralReplyText = t('{{ replyCount }} replies', {
+          replyCount: reply_count,
+        });
+      }
+    }
+
     if (reply_count && reply_count !== 0) {
       return (
         <button
@@ -37,10 +57,13 @@ export class MessageRepliesCountButton extends React.PureComponent {
               fillRule="nonzero"
             />
           </svg>
-          {reply_count} {reply_count === 1 ? labelSingle : labelPlural}
+          {reply_count === 1 ? singleReplyText : pluralReplyText}
         </button>
       );
     }
     return null;
   }
 }
+
+MessageRepliesCountButton = withTranslationContext(MessageRepliesCountButton);
+export { MessageRepliesCountButton };

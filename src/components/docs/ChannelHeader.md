@@ -4,7 +4,12 @@ The channel header component renders some basic information about a channel:
 const data = require('./data');
 import { ChannelHeader } from '../ChannelHeader';
 
-<ChannelHeader channel={data.channel} online={23} live={true} />;
+<ChannelHeader
+  channel={data.channel}
+  online={23}
+  live={true}
+  {...data.translationContext}
+/>;
 ```
 
 Example of ChannelHeader component usage:
@@ -39,21 +44,22 @@ around your custom component.
 
 E.g.,
 
-```json
+```js static
 const CustomChannelHeader = withChannelContext(
-    class CustomChannelHeader extends React.PureComponent {
+  class CustomChannelHeader extends React.PureComponent {
     render() {
-        return (
+      return (
         <div>
-            There are currently {this.props.watcher_count} people online in channel
-            {this.props.channel.cid}. These users are typing:
-            <span className="str-chat__input-footer--typing">
+          There are currently {this.props.watcher_count} people online in
+          channel
+          {this.props.channel.cid}. These users are typing:
+          <span className="str-chat__input-footer--typing">
             {ChatComponents.formatArray(Object.keys(this.props.typing))}
-            </span>
+          </span>
         </div>
-        );
+      );
     }
-    }
+  },
 );
 
 <div className="str-chat" style={{ height: 'unset' }}>

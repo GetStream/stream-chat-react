@@ -21,17 +21,26 @@ export class InfiniteScrollPaginator extends React.Component {
   };
 
   static defaultProps = {
-    LoadingIndicator: <LoadingIndicator />,
+    LoadingIndicator,
   };
 
   render() {
+    const {
+      LoadingIndicator,
+      loadNextPage,
+      hasNextPage,
+      refreshing,
+      reverse,
+      threshold,
+    } = this.props;
+
     return (
       <InfiniteScroll
-        loadMore={this.props.loadNextPage}
-        hasMore={this.props.hasNextPage}
-        isLoading={this.props.refreshing}
-        isReverse={this.props.reverse}
-        threshold={this.props.threshold}
+        loadMore={loadNextPage}
+        hasMore={hasNextPage}
+        isLoading={refreshing}
+        isReverse={reverse}
+        threshold={threshold}
         useWindow={false}
         loader={
           <div

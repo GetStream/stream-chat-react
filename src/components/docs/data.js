@@ -1,7 +1,7 @@
 /* eslint sonarjs/no-duplicate-string: 0 */
 
 const StreamChat = require('stream-chat').StreamChat;
-
+const Dayjs = require('dayjs');
 export const client = new StreamChat('qk4nn7rpcn75');
 
 client.setUser(
@@ -31,6 +31,10 @@ export const channelContext = {
   loadMoreThread: () => {},
   onMentionsClick: () => {},
   onMentionsHover: () => {},
+};
+export const translationContext = {
+  t: (msg) => msg,
+  tDateTimeParser: (date) => Dayjs(date),
 };
 
 const filters = { type: 'team', example: 1 };

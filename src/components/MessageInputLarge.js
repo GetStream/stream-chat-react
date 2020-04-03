@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ChatAutoComplete } from './ChatAutoComplete';
-import { formatArray } from '../utils';
-
+import { withTranslationContext } from '../context';
+import { filterEmoji } from '../utils';
 import {
   ImageDropzone,
   ImagePreviewer,
@@ -16,7 +16,7 @@ import { Picker } from 'emoji-mart';
  * MessageInputLarge - Large Message Input to be used for the MessageInput.
  * @example ./docs/MessageInputLarge.md
  */
-export class MessageInputLarge extends PureComponent {
+class MessageInputLarge extends PureComponent {
   static propTypes = {
     /** Set focus to the text input if this is enabled */
     focus: PropTypes.bool.isRequired,
@@ -77,7 +77,7 @@ export class MessageInputLarge extends PureComponent {
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     multipleUploads: PropTypes.object,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
-    maxNumberOfFiles: PropTypes.object,
+    maxNumberOfFiles: PropTypes.number,
     /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channel) doc */
     acceptedFiles: PropTypes.object,
     /**
@@ -86,6 +86,10 @@ export class MessageInputLarge extends PureComponent {
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
     SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    /**
+     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+     */
+    additionalTextareaProps: PropTypes.object,
   };
 
   renderUploads = () => (
@@ -131,13 +135,49 @@ export class MessageInputLarge extends PureComponent {
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
+            useButton={true}
+            emojisToShowFilter={filterEmoji}
           />
         </div>
       );
     }
   };
 
+  constructTypingString = (dict) => {
+    const { t } = this.props;
+    const arr2 = Object.keys(dict);
+    const arr3 = [];
+    arr2.forEach((item, i) => {
+      if (this.props.client.user.id === dict[arr2[i]].user.id) {
+        return;
+      }
+      arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id);
+    });
+    let outStr = '';
+    if (arr3.length === 1) {
+      outStr = t('{{ user }} is typing...', { user: arr3[0] });
+      dict;
+    } else if (arr3.length === 2) {
+      //joins all with "and" but =no commas
+      //example: "bob and sam"
+      outStr = t('{{ firstUser }} and {{ secondUser }} are typing...', {
+        firstUser: arr3[0],
+        secondUser: arr3[1],
+      });
+    } else if (arr3.length > 2) {
+      //joins all with commas, but last one gets ", and" (oxford comma!)
+      //example: "bob, joe, and sam"
+      outStr = t('{{ commaSeparatedUsers }} and {{ lastUser }} are typing...', {
+        commaSeparatedUsers: arr3.slice(0, -1).join(', '),
+        lastUser: arr3.slice(-1),
+      });
+    }
+
+    return outStr;
+  };
+
   render() {
+    const { t } = this.props;
     const SendButton = this.props.SendButton;
     return (
       <div className="str-chat__input-large">
@@ -165,10 +205,11 @@ export class MessageInputLarge extends PureComponent {
                 value={this.props.text}
                 rows={1}
                 maxRows={this.props.maxRows}
-                placeholder="Type your message"
+                placeholder={t('Type your message')}
                 onPaste={this.props.onPaste}
                 grow={this.props.grow}
                 disabled={this.props.disabled}
+                additionalTextareaProps={this.props.additionalTextareaProps}
               />
 
               <span
@@ -220,10 +261,12 @@ export class MessageInputLarge extends PureComponent {
                     : ''
                 }`}
               >
-                {this.props.watcher_count} online
+                {t('{{ watcherCount }} online', {
+                  watcherCount: this.props.watcher_count,
+                })}
               </span>
               <span className="str-chat__input-footer--typing">
-                {formatArray(this.props.typing)}
+                {this.constructTypingString(this.props.typing)}
               </span>
             </div>
           </div>
@@ -232,3 +275,7 @@ export class MessageInputLarge extends PureComponent {
     );
   }
 }
+
+const MessageInputLargeWithContext = withTranslationContext(MessageInputLarge);
+
+export { MessageInputLargeWithContext as MessageInputLarge };

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { MESSAGE_ACTIONS } from '../utils';
+import { withTranslationContext } from '../context';
 
 /**
  * MessageActionsBox - A component for taking action on a message
@@ -8,7 +9,7 @@ import { MESSAGE_ACTIONS } from '../utils';
  * @example ./docs/MessageActionsBox.md
  * @extends PureComponent
  */
-export class MessageActionsBox extends React.Component {
+class MessageActionsBox extends React.Component {
   static propTypes = {
     /** If the message actions box should be open or not */
     open: PropTypes.bool.isRequired,
@@ -103,6 +104,7 @@ export class MessageActionsBox extends React.Component {
       handleEdit,
       handleDelete,
       getMessageActions,
+      t,
     } = this.props;
     const messageActions = getMessageActions();
 
@@ -118,24 +120,30 @@ export class MessageActionsBox extends React.Component {
         <ul className="str-chat__message-actions-list">
           {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
             <button onClick={handleFlag}>
-              <li className="str-chat__message-actions-list-item">Flag</li>
+              <li className="str-chat__message-actions-list-item">
+                {t('Flag')}
+              </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
             <button onClick={handleMute}>
-              <li className="str-chat__message-actions-list-item">Mute</li>
+              <li className="str-chat__message-actions-list-item">
+                {t('Mute')}
+              </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
             <button onClick={handleEdit}>
               <li className="str-chat__message-actions-list-item">
-                Edit Message
+                {t('Edit Message')}
               </li>
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
             <button onClick={handleDelete}>
-              <li className="str-chat__message-actions-list-item">Delete</li>
+              <li className="str-chat__message-actions-list-item">
+                {t('Delete')}
+              </li>
             </button>
           )}
         </ul>
@@ -143,3 +151,6 @@ export class MessageActionsBox extends React.Component {
     );
   }
 }
+
+MessageActionsBox = withTranslationContext(MessageActionsBox);
+export { MessageActionsBox };

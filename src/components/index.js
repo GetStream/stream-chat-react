@@ -1,3 +1,5 @@
+export * from '../Streami18n';
+
 export { Attachment } from './Attachment';
 export { AttachmentActions } from './AttachmentActions';
 export { Audio } from './Audio';
