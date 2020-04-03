@@ -91,6 +91,16 @@ describe('ChannelList', () => {
       const channel = await createChannel();
       channels.push(channel);
     }
+
+    return {
+      chatClient,
+      chatClientVishal,
+      userId,
+      userIdVishal,
+      userToken,
+      userTokenVishal,
+      channels,
+    };
   };
 
   const createChannel = async () => {
@@ -105,7 +115,15 @@ describe('ChannelList', () => {
     return channel;
   };
 
-  beforeEach(setupChat);
+  const waitForTwoSec = () =>
+    new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+
+  beforeEach(async () => {
+    await waitForTwoSec();
+    await setupChat();
+  });
 
   // TODO: Fix this test
   it.skip('should render LoadingIndicator in the begining', () => {
@@ -329,13 +347,11 @@ describe('ChannelList', () => {
 
   describe('when new message is added to channel (which is not in the list)', () => {
     const onMessageNew = jest.fn();
-    let Render, newChannel;
+    let Render;
 
     const createNewChannelAndSendMessage = async () => {
-      newChannel = await createChannel();
-
       const newMessage = `${uuidv4()}`;
-      newChannel.sendMessage({
+      channels[2].sendMessage({
         text: newMessage,
       });
 
@@ -350,7 +366,10 @@ describe('ChannelList', () => {
       Render = render(
         <Chat client={chatClient}>
           <ChannelList
-            filters={{ members: { $in: [userId] } }}
+            filters={{
+              members: { $in: [userId] },
+              id: { $in: [channels[0].id, channels[1].id] },
+            }}
             Preview={ChannelPreviewComponent}
             List={ChannelListComponent}
             options={{ state: true, watch: true, presence: true, limit: 10 }}
@@ -372,25 +391,31 @@ describe('ChannelList', () => {
       const { getByText, getByTestId, getAllByRole } = render(
         <Chat client={chatClient}>
           <ChannelList
-            filters={{ members: { $in: [userId] } }}
+            filters={{
+              members: { $in: [userId] },
+              id: { $in: [channels[0].id, channels[1].id] },
+            }}
             Preview={ChannelPreviewComponent}
             List={ChannelListComponent}
-            options={{ state: true, watch: true, presence: true }}
+            options={{ state: true, watch: true, presence: true, limit: 10 }}
             onAddedToChannel={() => {}}
           />
         </Chat>,
       );
+      await wait(() => {
+        Render.getByRole('list');
+      });
 
       await createNewChannelAndSendMessage();
 
       await wait(() => {
-        getByTestId(newChannel.id);
+        getByTestId(channels[2].id);
       });
 
       const items = getAllByRole('listitem');
 
       // Get the closes listitem to the channel that received new message.
-      const channelPreview = getByText(newChannel.data.name).closest(
+      const channelPreview = getByText(channels[2].data.name).closest(
         '[role="listitem"]',
       );
       expect(channelPreview.isEqualNode(items[0])).toBeTruthy();
@@ -479,12 +504,12 @@ describe('ChannelList', () => {
       await wait(() => {
         getByRole('list');
       });
-      const channelIndexToBeDeleted = 1;
+      const channelIndexToBeDeleted = 0;
       await deleteChannel(channelIndexToBeDeleted);
 
       expect(onChannelDeleted).toHaveBeenCalledTimes(1);
     });
-    test('if `onChannelDeleted` function prop not is provided, it should remove channel from list', async () => {
+    test('if `onChannelDeleted` function prop not is provided, it should be removed channel from list', async () => {
       const { getByRole, queryByTestId } = render(
         <Chat client={chatClient}>
           <ChannelList
@@ -498,7 +523,7 @@ describe('ChannelList', () => {
       await wait(() => {
         getByRole('list');
       });
-      const channelIndexToBeDeleted = 1;
+      const channelIndexToBeDeleted = 0;
       await deleteChannel(channelIndexToBeDeleted);
 
       expect(queryByTestId(channels[channelIndexToBeDeleted].id)).toBeNull();
