@@ -12,44 +12,10 @@ const ChannelPreview = withTranslationContext(
     closeMenu,
     t,
   }) => {
-    const [unread, setUnread] = useState(0);
-    const [lastRead, setLastRead] = useState(new Date());
-    const [lastMessage, setLastMessage] = useState({});
-
-    useEffect(() => {
-      const handleEvent = (event) => {
-        setLastMessage(event.message);
-        if (!isActive()) {
-          const unread = channel.countUnread(lastRead);
-          setUnread(unread);
-        } else {
-          setUnread(0);
-        }
-      };
-
-      const unread = channel.countUnread(lastRead);
-      setUnread(unread);
-
-      channel.on('message.new', handleEvent);
-      channel.on('message.updated', handleEvent);
-      channel.on('message.deleted', handleEvent);
-
-      return () => {
-        channel.off('message.new', handleEvent);
-        channel.off('message.updated', handleEvent);
-        channel.off('message.deleted', handleEvent);
-      };
-    }, [channel]);
-
-    useEffect(() => {
-      // listen to change...
-      if (isActive()) {
-        setLastRead(new Date());
-        setUnread(0);
-      }
-    }, [channel, activeChannel, isActive]);
-
-    const isActive = () => activeChannel.cid === channel.cid;
+    const [unread, lastMessage] = usePreviewReadStateHandler(
+      channel,
+      activeChannel,
+    );
 
     return (
       <Preview
@@ -67,7 +33,50 @@ const ChannelPreview = withTranslationContext(
   },
 );
 
-export const getPreviewLatestMessage = (channel, t) => {
+export const usePreviewReadStateHandler = (channel, activeChannel) => {
+  const [unread, setUnread] = useState(0);
+  const [lastRead, setLastRead] = useState(new Date());
+  const [lastMessage, setLastMessage] = useState({});
+
+  const isActive = () => activeChannel.cid === channel.cid;
+
+  useEffect(() => {
+    const handleEvent = (event) => {
+      setLastMessage(event.message);
+      if (!isActive()) {
+        const unread = channel.countUnread(lastRead);
+        setUnread(unread);
+      } else {
+        setUnread(0);
+      }
+    };
+
+    const unread = channel.countUnread(lastRead);
+    setUnread(unread);
+
+    channel.on('message.new', handleEvent);
+    channel.on('message.updated', handleEvent);
+    channel.on('message.deleted', handleEvent);
+
+    return () => {
+      channel.off('message.new', handleEvent);
+      channel.off('message.updated', handleEvent);
+      channel.off('message.deleted', handleEvent);
+    };
+  }, [channel]);
+
+  useEffect(() => {
+    // listen to change...
+    if (isActive()) {
+      setLastRead(new Date());
+      setUnread(0);
+    }
+  }, [channel, activeChannel, isActive]);
+
+  return [unread, lastMessage];
+};
+
+export const getPreviewLatestMessage = (channel, t = (msg) => msg) => {
   const latestMessage =
     channel.state.messages[channel.state.messages.length - 1];
 
