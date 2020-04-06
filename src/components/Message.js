@@ -195,17 +195,18 @@ class Message extends Component {
   isMyMessage = (message) => this.props.client.user.id === message.user.id;
   isAdmin = () =>
     this.props.client.user.role === 'admin' ||
-    (this.props.members &&
-      this.props.members[this.props.client.user.id] &&
-      this.props.members[this.props.client.user.id].role === 'admin');
+    (this.props.channel.state &&
+      this.props.channel.state.membership &&
+      this.props.channel.state.membership.role === 'admin');
   isOwner = () =>
-    this.props.members &&
-    this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].role === 'owner';
+    this.props.channel.state &&
+    this.props.channel.state.membership &&
+    this.props.channel.state.membership.role === 'owner';
   isModerator = () =>
-    this.props.members &&
-    this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].is_moderator;
+    this.props.channel.state &&
+    this.props.channel.state.membership &&
+    (this.props.channel.state.membership.role === 'channel_moderator' ||
+      this.props.channel.state.membership.role === 'moderator');
 
   canEditMessage = (message) =>
     this.isMyMessage(message) ||
