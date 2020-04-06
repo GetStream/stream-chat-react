@@ -39,6 +39,11 @@ const config = {
         exclude: /node_modules/,
       },
       {
+        test: /(\.tsx|\.ts)$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.(pdf|jpg|png|gif|svg|ico)$/,
         use: [
           {
@@ -54,7 +59,7 @@ const config = {
   },
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js'],
+    extensions: ['.json', '.js', '.ts', '.tsx'],
   },
   externals: {
     react: 'React',

@@ -258,25 +258,29 @@ class Message extends Component<MessageUIComponentProps> {
         getFlagMessageSuccessNotification,
         [message],
       );
-      addNotification(
-        successMessage
-          ? successMessage
-          : t('Message has been successfully flagged'),
-        'success',
-      );
+      if (addNotification !== undefined) {
+        addNotification(
+          successMessage
+            ? successMessage
+            : t('Message has been successfully flagged'),
+          'success',
+        );
+      }
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getFlagMessageErrorNotification,
         [message],
       );
-      addNotification(
-        errorMessage
-          ? errorMessage
-          : t(
-              'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-            ),
-        'error',
-      );
+      if (addNotification !== undefined) {
+        addNotification(
+          errorMessage
+            ? errorMessage
+            : t(
+                'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+              ),
+          'error',
+        );
+      }
     }
   };
 
@@ -302,29 +306,31 @@ class Message extends Component<MessageUIComponentProps> {
         getMuteUserSuccessNotification,
         [message.user],
       );
-
-      addNotification(
-        successMessage
-          ? successMessage
-          : t(`{{ user }} has been muted`, {
-              user: message.user.name || message.user.id,
-            }),
-        'success',
-      );
+      if (addNotification !== undefined) {
+        addNotification(
+          successMessage
+            ? successMessage
+            : t(`{{ user }} has been muted`, {
+                user: message.user.name || message.user.id,
+              }),
+          'success',
+        );
+      }
     } catch (e) {
       const errorMessage = this.validateAndGetNotificationMessage(
         getMuteUserErrorNotification,
         [message.user],
       );
-
-      addNotification(
-        errorMessage ? errorMessage : t('Error muting a user ...'),
-        'error',
-      );
+      if (addNotification !== undefined) {
+        addNotification(
+          errorMessage ? errorMessage : t('Error muting a user ...'),
+          'error',
+        );
+      }
     }
   };
 
-  handleEdit = (event) => {
+  handleEdit = (event: MouseEvent) => {
     const { setEditingState, message } = this.props;
 
     if (event !== undefined && event.preventDefault) {
@@ -356,9 +362,18 @@ class Message extends Component<MessageUIComponentProps> {
     for (const reaction of this.props.message.own_reactions || []) {
       // own user should only ever contain the current user id
       // just in case we check to prevent bugs with message updates from breaking reactions
-      if (currentUser === reaction.user.id && reaction.type === reactionType) {
+      if (
+        reaction &&
+        reaction.user &&
+        currentUser === reaction.user.id &&
+        reaction.type === reactionType
+      ) {
         userExistingReaction = reaction;
-      } else if (currentUser !== reaction.user.id) {
+      } else if (
+        reaction &&
+        reaction.user &&
+        currentUser !== reaction.user.id
+      ) {
         console.warn(
           `message.own_reactions contained reactions from a different user, this indicates a bug`,
         );

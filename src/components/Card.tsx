@@ -12,6 +12,7 @@ export interface CardComponentProps {
   thumb_url?: string;
   text?: string;
   type?: string;
+  t?: any;
 }
 
 import { withTranslationContext } from '../context';

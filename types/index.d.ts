@@ -474,8 +474,8 @@ export interface MessageProps extends TranslationContextValue {
   messageListRect?: DOMRect;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
   watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
-  addNotification?(notificationText: string, type: string): any;
-  setEditingState?(message: Client.MessageResponse): any;
+  addNotification(notificationText: string, type: string): any;
+  setEditingState(message: Client.MessageResponse): any;
   updateMessage(
     updatedMessage: Client.MessageResponse,
     extraState?: object,
@@ -1105,7 +1105,7 @@ declare function withTranslationContext<T>(
 export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
-  t?: i18next.TFunction;
+  t: i18next.TFunction;
   tDateTimeParser?(datetime: string | number): object;
 }
 

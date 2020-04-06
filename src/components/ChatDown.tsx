@@ -13,6 +13,7 @@ export interface ChatDownProps {
   type: string;
   /** The error message to show */
   text: string;
+  t?: any;
 }
 
 /**

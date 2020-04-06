@@ -7,6 +7,9 @@ module.exports = {
   styleguideDir: 'docs',
   assetsDir: 'src/assets',
   sortProps: (props) => props,
+  propsParser: require('react-docgen-typescript').withCustomConfig(
+    './tsconfig.json',
+  ).parse,
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./webpack.config.styleguidist.js'),
   serverPort: 6068,
