@@ -1,16 +1,18 @@
 // @flow
 import babel from 'rollup-plugin-babel';
 import external from 'rollup-plugin-peer-deps-external';
-import commonjs from 'rollup-plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
 import scss from 'rollup-plugin-scss';
-import json from 'rollup-plugin-json';
-import url from 'rollup-plugin-url';
+import json from '@rollup/plugin-json';
+import url from '@rollup/plugin-url';
 import copy from 'rollup-plugin-copy-glob';
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
+
 import typescript from '@rollup/plugin-typescript';
 
-import nodePolyfills from 'rollup-plugin-node-polyfills';
+// import nodePolyfills from 'rollup-plugin-node-polyfills';
 import process from 'process';
 
 // eslint-disable-next-line
@@ -95,6 +97,7 @@ const fullBrowserBundle = {
       },
     },
   ],
+  // external: ['process', 'buffer'],
   plugins: [
     typescript({ noEmitOnError: true }),
     replace({
@@ -121,15 +124,17 @@ const fullBrowserBundle = {
       },
     }),
     json(),
-    // globals({ . replaced with node-po
-    //   globals: false,
-    //   dirname: false,
-    //   filename: false,
-    // }),
-    nodePolyfills({
+    globals({
+      globals: false,
+      dirname: false,
+      filename: false,
       process: true,
       buffer: true,
     }),
+    // nodePolyfills({
+    //   process: true,
+    //   buffer: true,
+    // }),
     copy([{ files: 'src/i18n/*.json', dest: 'dist/i18n' }]),
     // terser(),
   ],
