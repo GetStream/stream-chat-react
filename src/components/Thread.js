@@ -72,7 +72,7 @@ class Thread extends React.PureComponent {
     /** Customized MessageInput component to used within Thread instead of default MessageInput 
         Useable as follows:
         ```
-        <Thread MessageInput={<MessageInput Input={MessageInputSmall} /> }/>
+        <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
         ```
     */
     MessageInput: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
