@@ -34,7 +34,6 @@ class ChannelPreviewMessenger extends PureComponent {
     latestMessage: PropTypes.string,
     /** Length of latest message to truncate at */
     latestMessageLength: PropTypes.number,
-    closeMenu: PropTypes.func,
   };
 
   static defaultProps = {
@@ -46,7 +45,6 @@ class ChannelPreviewMessenger extends PureComponent {
   onSelectChannel = () => {
     this.props.setActiveChannel(this.props.channel, this.props.watchers);
     this.channelPreviewButton.current.blur();
-    this.props.closeMenu();
   };
 
   render() {

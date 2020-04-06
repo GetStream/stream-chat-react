@@ -110,7 +110,7 @@ const fullBrowserBundle = {
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
       load: (id) => (id.match(/.s?css$/) ? '' : null),
     },
-    builtins(),
+    builtins(), // removed to fix build not sure if neccesary
     resolve({
       browser: true,
     }),
@@ -121,7 +121,7 @@ const fullBrowserBundle = {
       },
     }),
     json(),
-    // globals({
+    // globals({ . replaced with node-po
     //   globals: false,
     //   dirname: false,
     //   filename: false,

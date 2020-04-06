@@ -198,17 +198,18 @@ class Message extends Component<MessageUIComponentProps> {
     message.user ? this.props.client.user.id === message.user.id : false;
   isAdmin = () =>
     this.props.client.user.role === 'admin' ||
-    (this.props.members &&
-      this.props.members[this.props.client.user.id] &&
-      this.props.members[this.props.client.user.id].role === 'admin');
+    (this.props.channel.state &&
+      this.props.channel.state.membership &&
+      this.props.channel.state.membership.role === 'admin');
   isOwner = () =>
-    this.props.members &&
-    this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].role === 'owner';
+    this.props.channel.state &&
+    this.props.channel.state.membership &&
+    this.props.channel.state.membership.role === 'owner';
   isModerator = () =>
-    this.props.members &&
-    this.props.members[this.props.client.user.id] &&
-    this.props.members[this.props.client.user.id].is_moderator;
+    this.props.channel.state &&
+    this.props.channel.state.membership &&
+    (this.props.channel.state.membership.role === 'channel_moderator' ||
+      this.props.channel.state.membership.role === 'moderator');
 
   canEditMessage = (message: Client.MessageResponse) =>
     this.isMyMessage(message) ||
@@ -281,7 +282,6 @@ class Message extends Component<MessageUIComponentProps> {
 
   handleMute = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    const { addNotification } = this.props;
 
     const {
       getMuteUserSuccessNotification,
@@ -448,6 +448,8 @@ class Message extends Component<MessageUIComponentProps> {
 
   getMessageActions = () => {
     const { message, messageActions: messageActionsProps } = this.props;
+    const { mutes } = this.props.channel.getConfig();
+
     const messageActionsAfterPermission = [];
     let messageActions = [];
 
@@ -483,7 +485,8 @@ class Message extends Component<MessageUIComponentProps> {
 
     if (
       !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1
+      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 &&
+      mutes
     ) {
       messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
     }

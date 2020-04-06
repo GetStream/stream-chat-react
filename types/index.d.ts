@@ -12,6 +12,9 @@ export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
+  openNav: boolean;
+  openMobileNav(): void;
+  closeMobileNav(): void;
   theme?: string;
 }
 
@@ -211,7 +214,6 @@ export interface ChannelPreviewProps extends TranslationContextValue {
    * */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
   key: string;
-  closeMenu?(): void;
   /** Setter for selected channel */
   setActiveChannel(
     channel: Client.Channel,
@@ -330,7 +332,8 @@ export interface MessageListProps
 
 export interface ChannelHeaderProps
   extends ChannelContextValue,
-    TranslationContextValue {
+    TranslationContextValue,
+    ChatContextValue {
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */

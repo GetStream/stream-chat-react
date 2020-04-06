@@ -1,7 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar } from './Avatar';
-import { withChannelContext, withTranslationContext } from '../context';
+import {
+  withChatContext,
+  withChannelContext,
+  withTranslationContext,
+} from '../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel
@@ -26,6 +30,14 @@ class ChannelHeader extends PureComponent {
 
     return (
       <div className="str-chat__header-livestream">
+        <div
+          className="str-chat__header-hamburger"
+          onClick={this.props.openMobileNav}
+        >
+          <span className="str-chat__header-hamburger--line"></span>
+          <span className="str-chat__header-hamburger--line"></span>
+          <span className="str-chat__header-hamburger--line"></span>
+        </div>
         {channel.data.image && (
           <Avatar
             image={channel.data.image}
@@ -59,27 +71,12 @@ class ChannelHeader extends PureComponent {
             {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
           </p>
         </div>
-        <div className="str-chat__header-livestream-right">
-          <div className="str-chat__header-livestream-right-button-wrapper">
-            <a
-              href="https://getstream.io/chat/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="str-chat__square-button str-chat__header-livestream-right-button--info"
-            >
-              <svg width="4" height="14" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M3 13h1v.5H0V13h1V5.5H0V5h3v8zM1.994 3.516A1.507 1.507 0 1 1 1.995.502a1.507 1.507 0 0 1-.001 3.014z"
-                  fillRule="evenodd"
-                />
-              </svg>
-            </a>
-          </div>
-        </div>
       </div>
     );
   }
 }
 
-ChannelHeader = withChannelContext(withTranslationContext(ChannelHeader));
+ChannelHeader = withChatContext(
+  withChannelContext(withTranslationContext(ChannelHeader)),
+);
 export { ChannelHeader };
