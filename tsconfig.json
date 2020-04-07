@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "baseUrl": ".",
+    "noEmitOnError": true,
     "lib": ["es2015", "dom"],
     "paths": {
       "*": ["src/@types/*"]

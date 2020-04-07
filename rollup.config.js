@@ -52,15 +52,16 @@ const normalBundle = {
     ...Object.keys(pkg.peerDependencies || {}),
   ],
   plugins: [
-    typescript({ noEmitOnError: true }),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     external(),
     babel({
       runtimeHelpers: true,
+      extensions: ['.js', '.jsx', '.md', '.ts', '.tsx'],
       exclude: 'node_modules/**',
     }),
+    typescript({ noEmitOnError: true }),
     scss({
       output: pkg.style,
       prefix: `@import "./variables.scss";`,
@@ -97,9 +98,7 @@ const fullBrowserBundle = {
       },
     },
   ],
-  // external: ['process', 'buffer'],
   plugins: [
-    typescript({ noEmitOnError: true }),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
@@ -107,7 +106,9 @@ const fullBrowserBundle = {
     babel({
       runtimeHelpers: true,
       exclude: 'node_modules/**',
+      extensions: ['.js', '.jsx', '.md', '.ts', '.tsx'],
     }),
+    typescript({ noEmitOnError: true }),
     {
       name: 'ignore-css-and-scss',
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
@@ -131,12 +132,7 @@ const fullBrowserBundle = {
       process: true,
       buffer: true,
     }),
-    // nodePolyfills({
-    //   process: true,
-    //   buffer: true,
-    // }),
     copy([{ files: 'src/i18n/*.json', dest: 'dist/i18n' }]),
-    // terser(),
   ],
 };
 
