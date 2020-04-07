@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { LoadingChannels } from './LoadingChannels';
-import { ChatDown } from './ChatDown';
+import ChatDown from './ChatDown';
 import { withChatContext } from '../context';
 
 /**

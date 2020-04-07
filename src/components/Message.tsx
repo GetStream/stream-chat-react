@@ -464,7 +464,6 @@ class Message extends Component<MessageUIComponentProps> {
   getMessageActions = () => {
     const { message, messageActions: messageActionsProps } = this.props;
     const { mutes } = this.props.channel.getConfig();
-
     const messageActionsAfterPermission = [];
     let messageActions = [];
 
@@ -542,6 +541,4 @@ class Message extends Component<MessageUIComponentProps> {
   }
 }
 
-Message = withTranslationContext(Message);
-
-export { Message };
+export default withTranslationContext(Message);

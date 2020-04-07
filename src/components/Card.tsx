@@ -128,5 +128,4 @@ class Card extends React.PureComponent<CardComponentProps, any> {
   }
 }
 
-Card = withTranslationContext(Card);
-export { Card };
+export default withTranslationContext(Card);

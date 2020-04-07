@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Message } from './Message';
+import Message from './Message';
 import { withChannelContext, withTranslationContext } from '../context';
 import PropTypes from 'prop-types';
 import { EmptyStateIndicator } from './EmptyStateIndicator';

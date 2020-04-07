@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { LoadingChannels } from './LoadingChannels';
 import { Avatar } from './Avatar';
-import { ChatDown } from './ChatDown';
+import ChatDown from './ChatDown';
 import { withChatContext } from '../context';
 
 import chevrondown from '../assets/str-chat__icon-chevron-down.svg';

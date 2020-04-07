@@ -56,5 +56,4 @@ class ChatDown extends React.PureComponent<ChatDownProps> {
   }
 }
 
-ChatDown = withTranslationContext(ChatDown);
-export { ChatDown };
+export default withTranslationContext(ChatDown);

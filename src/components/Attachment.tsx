@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import * as Client from 'stream-chat';
 import ReactPlayer from 'react-player';
-import { Card } from './Card';
+import Card from './Card';
 import { Image } from './Image';
 import { AttachmentActions } from './AttachmentActions';
 import { FileIcon } from 'react-file-utils';
@@ -18,9 +18,12 @@ export interface AttachmentUIComponentProps {
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
   */
-  actionHandler: (name: string, value: string | undefined, event: React.BaseSyntheticEvent)=> void;
+  actionHandler: (
+    name: string,
+    value: string | undefined,
+    event: React.BaseSyntheticEvent,
+  ) => void;
 }
-
 
 /**
  * Attachment - The message attachment
@@ -28,7 +31,9 @@ export interface AttachmentUIComponentProps {
  * @example ./docs/Attachment.md
  * @extends PureComponent
  */
-export class Attachment extends React.PureComponent<AttachmentUIComponentProps> {
+export class Attachment extends React.PureComponent<
+  AttachmentUIComponentProps
+> {
   attachmentRef: React.RefObject<HTMLDivElement> = React.createRef();
 
   static propTypes = {

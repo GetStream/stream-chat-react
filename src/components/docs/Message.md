@@ -22,7 +22,7 @@ The Message component provides the following functions to the rendered component
 - **openThread** Handler to open the thread on current message.
 
 ```js
-import { Message } from '../Message';
+import Message from '../Message';
 import { MessageSimple } from '../MessageSimple';
 
 const data = require('./data');
@@ -42,7 +42,7 @@ const data = require('./data');
 Use the team messaging render component and set readBy
 
 ```js
-import { Message } from '../Message';
+import Message from '../Message';
 import { MessageTeam } from '../MessageTeam';
 
 const data = require('./data');

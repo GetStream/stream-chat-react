@@ -13,7 +13,7 @@ import { ChannelListTeam } from './ChannelListTeam';
 import { smartRender } from '../utils';
 import uniqBy from 'lodash.uniqby';
 import deepequal from 'deep-equal';
-import { ChatDown } from './ChatDown';
+import ChatDown from './ChatDown';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open

@@ -5,7 +5,7 @@ import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
 
-import { Message } from './Message';
+import Message from './Message';
 import { MessageInputSmall } from './MessageInputSmall';
 import { smartRender } from '../utils';
 

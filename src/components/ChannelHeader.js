@@ -27,7 +27,7 @@ class ChannelHeader extends PureComponent {
 
   render() {
     const { t, channel, title, live, watcher_count } = this.props;
-
+    console.log(this.props);
     return (
       <div className="str-chat__header-livestream">
         <div
@@ -38,7 +38,7 @@ class ChannelHeader extends PureComponent {
           <span className="str-chat__header-hamburger--line"></span>
           <span className="str-chat__header-hamburger--line"></span>
         </div>
-        {channel.data.image && (
+        {channel.data && channel.data.image && (
           <Avatar
             image={channel.data.image}
             shape="rounded"
