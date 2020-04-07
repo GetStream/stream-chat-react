@@ -7,4 +7,5 @@ examples/*/src/serviceWorker.js
 /bin/
 /include/
 /build/
+/built/
 build

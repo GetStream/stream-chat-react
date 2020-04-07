@@ -8,6 +8,7 @@ examples/*/src/serviceWorker.js
 /bin/
 /include/
 /build/
+/built/
 *.test.js
 dist
 *dist*
