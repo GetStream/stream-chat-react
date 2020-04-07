@@ -12,9 +12,9 @@ export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
-  openNav: boolean;
-  openMobileNav(): void;
-  closeMobileNav(): void;
+  openNav?: boolean;
+  openMobileNav?(): void;
+  closeMobileNav?(): void;
   theme?: string;
 }
 
