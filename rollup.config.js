@@ -50,6 +50,15 @@ const normalBundle = {
   external: [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
+    'react-markdown/with-html',
+    'emoji-mart/data/all.json',
+    'dayjs/plugin/calendar',
+    'dayjs/plugin/updateLocale',
+    'dayjs/plugin/localizedFormat',
+    'dayjs/plugin/localeData',
+    'dayjs/plugin/relativeTime',
+    'uuid/v4',
+    'regenerator-runtime',
   ],
   plugins: [
     replace({

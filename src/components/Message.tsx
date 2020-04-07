@@ -540,5 +540,5 @@ class Message extends Component<MessageUIComponentProps> {
     );
   }
 }
-Message = Message;
+
 export default withTranslationContext(Message);
