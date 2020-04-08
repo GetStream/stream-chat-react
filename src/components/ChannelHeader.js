@@ -76,7 +76,6 @@ class ChannelHeader extends PureComponent {
   }
 }
 
-ChannelHeader = withChatContext(
-  withChannelContext(withTranslationContext(ChannelHeader)),
-);
+ChannelHeader = withChatContext(ChannelHeader);
+ChannelHeader = withChannelContext(withTranslationContext(ChannelHeader));
 export { ChannelHeader };
