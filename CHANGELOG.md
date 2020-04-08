@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.8](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.8) 2020-04-08
+
+- Fix bug in ChannelHeader caused in version `0.11.4`
+
 ## [0.11.6](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.6) 2020-04-04
 
 **NOTE** Please make sure to use `stream-chat@^1.7.0`
