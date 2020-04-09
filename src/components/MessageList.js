@@ -335,10 +335,10 @@ class MessageList extends PureComponent {
         newMessages.push(message);
         continue;
       }
-      const messageDate = message.created_at.getDay();
+      const messageDate = message.created_at.toDateString();
       let prevMessageDate = messageDate;
       if (i > 0) {
-        prevMessageDate = messages[i - 1].created_at.getDay();
+        prevMessageDate = messages[i - 1].created_at.toDateString();
       }
 
       if (i === 0 || messageDate !== prevMessageDate) {
