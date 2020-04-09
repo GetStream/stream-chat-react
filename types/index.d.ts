@@ -203,7 +203,7 @@ export interface ChannelPreviewProps extends TranslationContextValue {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
-  activeChannel: Client.Channel;
+  activeChannel?: Client.Channel;
   /**
    * Available built-in options (also accepts the same props as):
    *

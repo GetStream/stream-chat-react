@@ -13,7 +13,7 @@ export class ChannelPreviewCompact extends React.PureComponent {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     channel: PropTypes.object.isRequired,
     /** Current selected channel object */
-    activeChannel: PropTypes.object.isRequired,
+    activeChannel: PropTypes.object,
     /** Setter for selected channel */
     setActiveChannel: PropTypes.func.isRequired,
     /**

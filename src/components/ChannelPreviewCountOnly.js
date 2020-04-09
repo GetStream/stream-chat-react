@@ -6,7 +6,7 @@ export class ChannelPreviewCountOnly extends PureComponent {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     channel: PropTypes.object.isRequired,
     /** Current selected channel object */
-    activeChannel: PropTypes.object.isRequired,
+    activeChannel: PropTypes.object,
     /** @see See [chat context](https://getstream.github.io/stream-chat-react/#chat) for doc */
     setActiveChannel: PropTypes.func.isRequired,
     /**

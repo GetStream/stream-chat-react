@@ -19,7 +19,7 @@ class ChannelPreview extends PureComponent {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     channel: PropTypes.object.isRequired,
     /** Current selected channel object */
-    activeChannel: PropTypes.object.isRequired,
+    activeChannel: PropTypes.object,
     /** Setter for selected channel */
     setActiveChannel: PropTypes.func.isRequired,
     /**
@@ -73,7 +73,11 @@ class ChannelPreview extends PureComponent {
   };
 
   componentDidUpdate(prevProps) {
-    if (this.props.activeChannel.cid !== prevProps.activeChannel.cid) {
+    if (
+      this.props.activeChannel &&
+      prevProps.activeChannel &&
+      this.props.activeChannel.cid !== prevProps.activeChannel.cid
+    ) {
       const isActive = this.props.activeChannel.cid === this.props.channel.cid;
       if (isActive) {
         this.setState({ unread: 0, lastRead: new Date() });
@@ -114,7 +118,10 @@ class ChannelPreview extends PureComponent {
       <Preview
         {...props}
         latestMessage={this.getLatestMessage()}
-        active={this.props.activeChannel.cid === this.props.channel.cid}
+        active={
+          this.props.activeChannel &&
+          this.props.activeChannel.cid === this.props.channel.cid
+        }
       />
     );
   }
