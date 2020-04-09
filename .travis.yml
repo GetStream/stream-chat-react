@@ -10,9 +10,9 @@ matrix:
   - TSX=1
   - TSX=0
 script:
-  - '[ "$TSX" != "1" ] || yarn lint'
-  - '[ "$TSX" != "1" ] || yarn test'
-  - '[ "$TSX" != "1" ] || yarn docs'
-  - '[ "$TSX" != "1" ] || yarn docs'
-  - '[ "$TSX" != "1" ] || yarn validate-translations'
-  - '[ "$TSX" == "1" ] || tsc --strict'
+  - if [ "$TSX" == 0 ]; then yarn lint
+  - if [ "$TSX" == 0 ]; then yarn test
+  - if [ "$TSX" == 0 ]; then yarn docs
+  - if [ "$TSX" == 0 ]; then yarn docs
+  - if [ "$TSX" == 0 ]; then yarn validate-translations
+  - if [ "$TSX" == 1 ]; then tsc --strict
