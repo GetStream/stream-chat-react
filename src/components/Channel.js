@@ -33,7 +33,7 @@ class Channel extends PureComponent {
     /** Which channel to connect to, will initialize the channel if it's not initialized yet */
     channel: PropTypes.shape({
       watch: PropTypes.func,
-    }).isRequired,
+    }),
     /** Client is passed automatically via the Chat Context */
     client: PropTypes.object.isRequired,
     /**
@@ -122,7 +122,7 @@ class Channel extends PureComponent {
   };
 
   render() {
-    if (!this.props.channel.cid) {
+    if (!this.props.channel || !this.props.channel.cid) {
       return this.props.EmptyPlaceholder;
     }
     // We use a wrapper to make sure the key variable is set.
