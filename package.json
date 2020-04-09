@@ -76,7 +76,6 @@
     "@types/braintree__sanitize-url": "^4.0.0",
     "@types/seamless-immutable": "7.1.11",
     "@types/uuid": "^3.4.5",
-    "@types/vfile-message": "^2.0.0",
     "autoprefixer": "^9.4.3",
     "babel-eslint": "^10.0.1",
     "babel-loader": "8.0.6",
