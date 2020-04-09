@@ -138,7 +138,7 @@
   "scripts": {
     "test": "jest",
     "start": "mkdir -p dist/assets assets && yarn build-translations && rollup -c -w",
-    "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c && tsc --strict && rm -rf built/",
+    "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
     "watch-styles": "sass --watch src/styles/index.scss dist/styles/styles.css",

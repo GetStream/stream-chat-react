@@ -6,9 +6,13 @@ node_js:
   - 13
 before_install:
   - npm install -g yarn
+matrix:
+  - TSX=1
+  - TSX=0
 script:
-  - yarn lint
-  - yarn test
-  - yarn docs
-  - yarn docs
-  - yarn validate-translations
+  - '[ "$TSX" != "1" ] || yarn lint'
+  - '[ "$TSX" != "1" ] || yarn test'
+  - '[ "$TSX" != "1" ] || yarn docs'
+  - '[ "$TSX" != "1" ] || yarn docs'
+  - '[ "$TSX" != "1" ] || yarn validate-translations'
+  - '[ "$TSX" == "1" ] || tsc --strict'
