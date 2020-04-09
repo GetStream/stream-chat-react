@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.10](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.10) 2020-04-09
+
+- Fix crashing app when there's no active channel
+
+## [0.11.9](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.9) 2020-04-09
+
+- Fix issue with DateSeparator
+- added type definition for setActiveChannelOnMount
+
 ## [0.11.8](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.8) 2020-04-08
 
 - Fix bug in ChannelHeader caused in version `0.11.4`
