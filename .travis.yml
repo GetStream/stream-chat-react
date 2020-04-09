@@ -1,18 +1,22 @@
 language: node_js
 node_js:
   - 10
-  - 11
   - 12
   - 13
-before_install:
-  - npm install -g yarn
+
+env:
+  - TYPESCRIPT="no"
+
 matrix:
-  - TSX=1
-  - TSX=0
+  include:
+    - node_js: node
+      env: TYPESCRIPT="no"
+    - node_js: node
+      env: TYPESCRIPT="yes"
+
 script:
-  - if [ "$TSX" == 0 ]; then yarn lint
-  - if [ "$TSX" == 0 ]; then yarn test
-  - if [ "$TSX" == 0 ]; then yarn docs
-  - if [ "$TSX" == 0 ]; then yarn docs
-  - if [ "$TSX" == 0 ]; then yarn validate-translations
-  - if [ "$TSX" == 1 ]; then tsc --strict
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn test; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn docs; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
+  - if [ "$TYPESCRIPT" == "yes" ]; then tsc --strict
