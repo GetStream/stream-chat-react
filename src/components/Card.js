@@ -1,14 +1,16 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SafeAnchor } from './SafeAnchor';
-
+// @ts-ignore
 import giphyLogo from '../assets/Poweredby_100px-White_VertText.png';
 import { withTranslationContext } from '../context';
+
 /**
  * Card - Simple Card Layout
  *
  * @example ./docs/Card.md
- * @extends PureComponent
+ * @type Card { import("../../types/index.d.ts").CardProps }
  */
 class Card extends React.PureComponent {
   static propTypes = {
@@ -26,6 +28,7 @@ class Card extends React.PureComponent {
     text: PropTypes.string,
   };
 
+  /** @type {(url: string) => any} Typescript syntax */
   trimUrl = (url) => {
     let trimmedUrl;
     if (url !== undefined && url !== null) {
@@ -112,5 +115,4 @@ class Card extends React.PureComponent {
   }
 }
 
-Card = withTranslationContext(Card);
-export { Card };
+export default withTranslationContext(Card);

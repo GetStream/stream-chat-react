@@ -4,7 +4,7 @@ export { Attachment } from './Attachment';
 export { AttachmentActions } from './AttachmentActions';
 export { Audio } from './Audio';
 export { Avatar } from './Avatar';
-export { Card } from './Card';
+export { default as Card } from './Card';
 export { Channel } from './Channel';
 export { ChannelHeader } from './ChannelHeader';
 export { ChannelList } from './ChannelList';

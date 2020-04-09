@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es5",
+    "jsx": "react",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "baseUrl": ".",
+    "noEmitOnError": true,
+    "lib": ["es2015", "dom"],
+    "paths": {
+      "*": ["src/@types/*"]
+    }
+  },
+  "include": ["./src/**/*"]
+}
