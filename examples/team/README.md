@@ -6,7 +6,6 @@ Increase engagement in your community or replace email for your team with chat i
 - Threads keep the discussion organized
 - Direct and Group Chats
 - Link previews help users share information
-- Push & Email notifications
 - Search your messages & conversations
 
 To run this example on your machine simply run:
