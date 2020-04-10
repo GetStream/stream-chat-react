@@ -9,7 +9,7 @@ import placeholder from '../../assets/str-chat__connection-error.svg';
 /**
  * ChatDown - Indicator that chat is down or your network isn't working
  *
- * @example ./docs/ChatDown.md
+ * @example ../docs/ChatDown.md
  * @extends PureComponent
  */
 const ChatDown = ({ image, type, text, t }) => (

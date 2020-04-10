@@ -28,7 +28,7 @@ const optionsSvg =
  * MessageTeam - Render component, should be used together with the Message component
  * Implements the look and feel for a team style collaboration environment
  *
- * @example ./docs/MessageTeam.md
+ * @example ../docs/MessageTeam.md
  * @extends PureComponent
  */
 class MessageTeam extends PureComponent {

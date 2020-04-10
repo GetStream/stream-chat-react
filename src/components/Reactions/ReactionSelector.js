@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { NimbleEmoji } from 'emoji-mart';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
-import { Avatar } from '../';
+import { Avatar } from '..';
 
 /**
  * ReactionSelector - A component for selecting a reaction. Examples are love, wow, like etc.
  *
- * @example ./docs/ReactionSelector.md
+ * @example ../docs/ReactionSelector.md
  * @extends PureComponent
  */
 class ReactionSelector extends PureComponent {

@@ -1,7 +1,6 @@
 ```js
-import { Chat } from '../Chat';
-import { ChannelList } from '../ChannelList';
-import { ChannelPreviewCompact } from '../ChannelPreviewCompact';
+import { Chat, ChannelList, ChannelPreviewCompact } from '../';
+
 const data = require('./data');
 const filters = { type: 'team', example: 1 };
 const sort = {

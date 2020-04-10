@@ -1,9 +1,11 @@
 ```js
-import { Chat } from '../Chat';
-import { MessageTeam } from '../MessageTeam';
-import { Channel } from '../Channel';
-import { MessageInput } from '../MessageInput';
-import { MessageInputSmall } from '../MessageInputSmall';
+import {
+  Chat,
+  Channel,
+  MessageTeam,
+  MessageInput,
+  MessageInputSmall,
+} from '../';
 
 const data = require('./data');
 

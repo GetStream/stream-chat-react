@@ -2,7 +2,7 @@ The date separator between messages.
 Here's what it looks like for today.
 
 ```js
-import { DateSeparator } from '../DateSeparator';
+import { DateSeparator } from '../';
 const data = require('./data');
 
 const date = new Date();
@@ -16,7 +16,7 @@ const date = new Date();
 and for a date in the past:
 
 ```js
-import { DateSeparator } from '../DateSeparator';
+import { DateSeparator } from '../';
 const data = require('./data');
 
 const date = new Date('December 17, 1995 03:24:00');
@@ -30,7 +30,7 @@ const date = new Date('December 17, 1995 03:24:00');
 and adding custom date formatting:
 
 ```js
-import { DateSeparator } from '../DateSeparator';
+import { DateSeparator } from '../';
 const data = require('./data');
 
 const date = new Date('December 17, 1995 03:24:00');

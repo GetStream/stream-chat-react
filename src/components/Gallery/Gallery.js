@@ -4,7 +4,7 @@ import Carousel, { Modal, ModalGateway } from 'react-images';
 
 /**
  * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
- * @example ./docs/Gallery.md
+ * @example ../docs/Gallery.md
  * @extends PureComponent
  */
 class Gallery extends React.PureComponent {

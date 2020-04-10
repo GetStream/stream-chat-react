@@ -4,8 +4,7 @@ It's normally triggered when the network is completely down or the Chat API is u
 Here's an example with a customized error message
 
 ```js
-import { Chat } from '../Chat';
-import { ChatDown } from '../ChatDown';
+import { Chat, ChatDown } from '../';
 
 const image =
   'https://images.unsplash.com/photo-1527974349915-0d7b47258c02?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=120&q=80';
@@ -22,8 +21,8 @@ const text =
 And here's a version using defaults:
 
 ```js
-import { Chat } from '../Chat';
-import { ChatDown } from '../ChatDown';
+import { Chat, ChatDown } from '../';
+
 const data = require('./data');
 
 <div className="str-chat">

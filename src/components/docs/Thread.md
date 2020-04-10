@@ -3,10 +3,7 @@ The Thread renders a parent message with a list of replies.
 The threadHasMore={false} disables pagination for this example.
 
 ```js
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { Thread } from '../Thread';
-import { MessageTeam } from '../MessageTeam';
+import { Chat, Channel, Thread, MessageTeam } from '../';
 
 const data = require('./data');
 

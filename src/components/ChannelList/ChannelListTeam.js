@@ -8,7 +8,7 @@ import chevrondown from '../../assets/str-chat__icon-chevron-down.svg';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
- * @example ./examples/ChannelList.md
+ * @example ../docs/ChannelList.md
  */
 class ChannelListTeam extends PureComponent {
   static propTypes = {

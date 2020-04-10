@@ -24,4 +24,4 @@ CommandItem.propTypes = {
   }),
 };
 
-export default React.useMemo(CommandItem);
+export default React.memo(CommandItem);

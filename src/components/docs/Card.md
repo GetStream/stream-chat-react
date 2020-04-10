@@ -1,7 +1,7 @@
 Card style layout for displaying links. For different message styles, we customized this component with css.
 
 ```js
-import Card from '../Card';
+import Card from '../';
 
 const url = 'https://www.google.com/';
 const image_url =

@@ -9,7 +9,7 @@ import { withTranslationContext } from '../../context';
 /**
  * Card - Simple Card Layout
  *
- * @example ./docs/Card.md
+ * @example ../docs/Card.md
  * @type Card { import("../../types/index.d.ts").CardProps }
  */
 class Card extends React.PureComponent {

@@ -37,7 +37,7 @@ const Notification = ({ children, active, type }) => {
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
- * @example ./docs/MessageList.md
+ * @example ../docs/MessageList.md
  * @extends PureComponent
  */
 class MessageList extends PureComponent {

@@ -1,7 +1,7 @@
 The default circle style Avatar
 
 ```js
-import { Avatar } from '../Avatar';
+import { Avatar } from '../';
 const image =
   'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
 const name = 'uthred';
@@ -12,7 +12,7 @@ const name = 'uthred';
 A rounded Avatar
 
 ```js
-import { Avatar } from '../Avatar';
+import { Avatar } from '../';
 const image =
   'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
 const name = 'uthred';
@@ -23,7 +23,7 @@ const name = 'uthred';
 And a square variation
 
 ```js
-import { Avatar } from '../Avatar';
+import { Avatar } from '../';
 const image =
   'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
 const name = 'uthred';
@@ -34,7 +34,7 @@ const name = 'uthred';
 An example of how the fallback looks
 
 ```js
-import { Avatar } from '../Avatar';
+import { Avatar } from '../';
 const name = 'username';
 
 <Avatar name={name} shape={'circle'} size={35} />;

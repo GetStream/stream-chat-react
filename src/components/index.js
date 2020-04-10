@@ -31,7 +31,7 @@ export * from './MessageActions';
 export * from './MessageInput';
 export * from './MessageList';
 export * from './Modal';
-export * from './ReactionsList';
+export * from './Reactions';
 export * from './SafeAnchor';
 export * from './Thread';
 export * from './Tooltip';

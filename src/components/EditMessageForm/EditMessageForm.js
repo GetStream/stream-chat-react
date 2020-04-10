@@ -13,7 +13,7 @@ import { ChatAutoComplete } from '../';
 import { filterEmoji } from '../../utils';
 
 /**
- * @example ./docs/EditMessageForm.md
+ * @example ../docs/EditMessageForm.md
  */
 class EditMessageForm extends React.Component {
   static propTypes = {

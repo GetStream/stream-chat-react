@@ -19,4 +19,4 @@ const ChannelSearch = () => (
   </div>
 );
 
-export default React.useMemo(ChannelSearch);
+export default React.memo(ChannelSearch);

@@ -136,10 +136,7 @@ Both functions have access to the selected file and the channel object and expec
 - stikethrough
 
 ```js
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { MessageTeam } from '../MessageTeam';
-import { MessageInput } from '../MessageInput';
+import { Chat, Channel, MessageTeam, MessageInput } from '../';
 
 const data = require('./data');
 <div className="str-chat" style={{ height: 'unset' }}>

@@ -9,7 +9,7 @@ import { withTranslationContext } from '../../context';
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  * Its best suited for messenger type chat.
  *
- * @example ./docs/ChannelPreviewMessenger.md
+ * @example ../docs/ChannelPreviewMessenger.md
  * @extends PureComponent
  */
 class ChannelPreviewMessenger extends PureComponent {

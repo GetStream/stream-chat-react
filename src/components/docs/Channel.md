@@ -1,9 +1,7 @@
 ```js
 const data = require('./data');
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { MessageList } from '../MessageList';
-import { MessageInput } from '../MessageInput';
+import { Chat, Channel, MessageList, MessageInput, MessageList } from '../';
+
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
     <Channel channel={data.channel}>
@@ -22,12 +20,14 @@ You can test threads and replies by clicking the reply button on the message.
 
 ```js
 const data = require('./data');
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { ChannelHeader } from '../ChannelHeader';
-import { MessageList } from '../MessageList';
-import { MessageInput } from '../MessageInput';
-import { Thread } from '../Thread';
+import {
+  Chat,
+  Channel,
+  ChannelHeader,
+  MessageList,
+  MessageInput,
+  Thread,
+} from '../';
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
@@ -48,13 +48,15 @@ Note how we are not setting the <Channel channel={} /> property, but instead are
 
 ```js
 const data = require('./data');
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { ChannelList } from '../ChannelList';
-import { ChannelListMessenger } from '../ChannelListMessenger';
-import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
-import { MessageList } from '../MessageList';
-import { MessageInput } from '../MessageInput';
+import {
+  Chat,
+  Channel,
+  ChannelList,
+  ChannelListMessenger,
+  ChannelPreviewMessenger,
+  MessageList,
+  MessageInput,
+} from '../';
 
 const filters = { type: 'team', example: 1 };
 const sort = {

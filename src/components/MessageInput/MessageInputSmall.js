@@ -14,7 +14,7 @@ import { ChatAutoComplete } from '../';
 
 /**
  * MessageInputSmall - compact design to be used for the MessageInput. It has all the features of MessageInput minus the typing indicator.
- * @example ./docs/MessageInputSmall.md
+ * @example ../docs/MessageInputSmall.md
  */
 class MessageInputSmall extends PureComponent {
   static propTypes = {

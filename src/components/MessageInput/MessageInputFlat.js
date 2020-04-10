@@ -14,7 +14,7 @@ import { ChatAutoComplete } from '../';
 
 /**
  * MessageInputFlat - Large Message Input to be used for the MessageInput.
- * @example ./docs/MessageInputFlat.md
+ * @example ../docs/MessageInputFlat.md
  */
 class MessageInputFlat extends PureComponent {
   static propTypes = {

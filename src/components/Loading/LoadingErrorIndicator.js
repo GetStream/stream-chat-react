@@ -6,7 +6,7 @@ import { withTranslationContext } from '../../context';
 /**
  * LoadingErrorIndicator - UI component for error indicator in Channel.
  *
- * @example ./docs/LoadingErrorIndicator.md
+ * @example ../docs/LoadingErrorIndicator.md
  * @extends PureComponent
  */
 const LoadingErrorIndicator = ({ error, t }) => {

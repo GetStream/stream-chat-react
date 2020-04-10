@@ -1,7 +1,7 @@
 Image example:
 
 ```js
-import { Image } from '../Image';
+import { Image } from '../';
 const full =
   'https://images.unsplash.com/photo-1517976487492-5750f3195933?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3000&q=80';
 

@@ -11,7 +11,7 @@ import { withTranslationContext } from '../../context';
  * Message - A high level component which implements all the logic required for a message.
  * The actual rendering of the message is delegated via the "Message" property
  *
- * @example ./docs/Message.md
+ * @example ../docs/Message.md
  * @extends Component
  */
 class Message extends Component {

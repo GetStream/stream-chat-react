@@ -1,13 +1,16 @@
 Team Style Example
 
 ```jsx
-import { Chat } from '../Chat';
-import { Channel } from '../Channel';
-import { MessageTeam } from '../MessageTeam';
-import { ChannelHeader } from '../ChannelHeader';
-import { MessageList } from '../MessageList';
-import { MessageInput } from '../MessageInput';
-import { Thread } from '../Thread';
+import {
+  Chat,
+  Channel,
+  MessageTeam,
+  ChannelHeader,
+  MessageList,
+  MessageInput,
+  Thread,
+} from '../';
+
 const StreamChat = require('stream-chat').StreamChat;
 
 chatClient = new StreamChat('qk4nn7rpcn75');

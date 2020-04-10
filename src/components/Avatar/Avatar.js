@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * Avatar - A round avatar image with fallback to username's first letter
  *
- * @example ./docs/Avatar.md
+ * @example ../docs/Avatar.md
  * @extends PureComponent
  */
 class Avatar extends React.PureComponent {

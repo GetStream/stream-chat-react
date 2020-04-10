@@ -1,7 +1,5 @@
 ```js
-import { Chat } from '../Chat';
-import { ChannelList } from '../ChannelList';
-import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
+import { Chat, ChannelList, ChannelPreviewMessenger } from '../';
 
 const data = require('./data');
 const filters = { type: 'team', example: 1 };

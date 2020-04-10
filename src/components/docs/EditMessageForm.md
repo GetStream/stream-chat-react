@@ -1,9 +1,5 @@
 ```js
-import { Chat } from '../Chat';
-import { MessageTeam } from '../MessageTeam';
-import { Channel } from '../Channel';
-import { MessageInput } from '../MessageInput';
-import { EditMessageForm } from '../EditMessageForm';
+import { Chat, Channel, MessageTeam, MessageInput, EditMessageForm } from '../';
 
 const StreamChat = require('stream-chat').StreamChat;
 
