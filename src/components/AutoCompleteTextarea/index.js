@@ -1,4 +1,4 @@
-export { default } from './Textarea';
+export { default as AutoCompleteTextarea } from './Textarea';
 export { KEY_CODES } from './listener';
 export { Item } from './Item';
 export { List } from './List';
