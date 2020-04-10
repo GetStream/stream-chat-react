@@ -1,15 +1,19 @@
 import React from 'react';
+import Dayjs from 'dayjs';
 
-export const ChannelContext = React.createContext({});
+export const TranslationContext = React.createContext({
+  t: (msg) => msg,
+  tDateTimeParser: (input) => Dayjs(input),
+});
 
-export function withChannelContext(OriginalComponent) {
+export function withTranslationContext(OriginalComponent) {
   const ContextAwareComponent = function ContextComponent(props) {
     return (
-      <ChannelContext.Consumer>
-        {(channelContext) => (
-          <OriginalComponent {...channelContext} {...props} />
+      <TranslationContext.Consumer>
+        {(translationContext) => (
+          <OriginalComponent {...translationContext} {...props} />
         )}
-      </ChannelContext.Consumer>
+      </TranslationContext.Consumer>
     );
   };
   ContextAwareComponent.displayName =
