@@ -13,3 +13,5 @@ dist
 *dist*
 /src/styles/vendor/
 *.md
+babel.i18next-extract.js
+/built

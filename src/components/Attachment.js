@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import ReactPlayer from 'react-player';
-import { Card } from './Card';
+import Card from './Card';
 import { Image } from './Image';
 import { AttachmentActions } from './AttachmentActions';
 import { FileIcon } from 'react-file-utils';

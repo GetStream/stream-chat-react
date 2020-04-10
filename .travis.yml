@@ -4,11 +4,20 @@ node_js:
   - 11
   - 12
   - 13
-before_install:
-  - npm install -g yarn
+
+env:
+  - TYPESCRIPT="no"
+
+matrix:
+  include:
+    - node_js: node
+      env: TYPESCRIPT="no"
+    - node_js: node
+      env: TYPESCRIPT="yes"
+
 script:
-  - yarn lint
-  - yarn test
-  - yarn docs
-  - yarn docs
-  - yarn validate-translations
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn test; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn docs; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
+  - if [ "$TYPESCRIPT" == "yes" ]; then tsc --strict; fi
