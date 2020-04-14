@@ -13,7 +13,7 @@ import { Message, MessageList, MessageInput, MessageInputSmall } from '../';
  * - additionalMessageListProps
  * - additionalMessageInputProps
  *
- * @example ../docs/Thread.md
+ * @example ../../docs/Thread.md
  * @extends Component
  */
 class Thread extends React.PureComponent {

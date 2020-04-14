@@ -8,7 +8,7 @@ import { withTranslationContext } from '../../context';
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  *
- * @example ../docs/ChannelPreviewLastMessage.md
+ * @example ../../docs/ChannelPreviewLastMessage.md
  * @extends PureComponent
  */
 

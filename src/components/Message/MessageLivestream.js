@@ -26,7 +26,7 @@ const optionsSvg =
  * MessageLivestream - Render component, should be used together with the Message component
  * Implements the look and feel for a livestream use case.
  *
- * @example ../docs/MessageLivestream.md
+ * @example ../../docs/MessageLivestream.md
  * @extends PureComponent
  */
 class MessageLivestream extends React.PureComponent {

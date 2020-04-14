@@ -6,7 +6,7 @@ import Carousel, { Modal, ModalGateway } from 'react-images';
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
  *
- * @example ../docs/Image.md
+ * @example ../../docs/Image.md
  * @extends PureComponent
  */
 class Image extends React.PureComponent {

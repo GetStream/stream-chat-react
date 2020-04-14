@@ -5,7 +5,7 @@ import { Avatar } from '../';
 
 /**
  *
- * @example ../docs/ChannelPreviewCompact.md
+ * @example ../../docs/ChannelPreviewCompact.md
  * @extends PureComponent
  *
  */

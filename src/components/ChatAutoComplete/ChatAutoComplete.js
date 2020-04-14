@@ -12,7 +12,7 @@ import {
 
 /**
  * Textarea component with included autocomplete options. You can set your own commands and
- * @example ../docs/ChatAutoComplete.md
+ * @example ../../docs/ChatAutoComplete.md
  */
 class ChatAutoComplete extends PureComponent {
   static propTypes = {

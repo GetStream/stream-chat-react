@@ -21,7 +21,7 @@ import {
 /**
  * MessageSimple - Render component, should be used together with the Message component
  *
- * @example ../docs/MessageSimple.md
+ * @example ../../docs/MessageSimple.md
  * @extends PureComponent
  */
 class MessageSimple extends PureComponent {

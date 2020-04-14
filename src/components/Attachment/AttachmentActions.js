@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 /**
  * AttachmentActions - The actions you can take on an attachment
  *
- * @example ../docs/AttachmentActions.md
+ * @example ../../docs/AttachmentActions.md
  * @extends PureComponent
  */
 const AttachmentActions = ({ text, id, actions, actionHandler }) => (

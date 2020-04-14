@@ -80,7 +80,7 @@ module.exports = {
       sections: [
         {
           name: 'Streami18n',
-          content: 'src/components/docs/Streami18n.md',
+          content: 'src/docs/Streami18n.md',
         },
       ],
       exampleMode: 'collapse',
@@ -91,19 +91,19 @@ module.exports = {
       sections: [
         {
           name: 'ChatContext',
-          content: 'src/components/docs/ChatContext.md',
+          content: 'src/docs/ChatContext.md',
         },
         {
           name: 'withChatContext',
-          content: 'src/components/docs/withChatContext.md',
+          content: 'src/docs/withChatContext.md',
         },
         {
           name: 'ChannelContext',
-          content: 'src/components/docs/ChannelContext.md',
+          content: 'src/docs/ChannelContext.md',
         },
         {
           name: 'withChannelContext',
-          content: 'src/components/docs/withChannelContext.md',
+          content: 'src/docs/withChannelContext.md',
         },
       ],
       exampleMode: 'collapse',

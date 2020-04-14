@@ -16,7 +16,7 @@ import { Streami18n } from '../../Streami18n';
  *
  * It also exposes the withChatContext HOC which you can use to consume the ChatContext
  *
- * @example ../docs/Chat.md
+ * @example ../../docs/Chat.md
  * @extends PureComponent
  */
 class Chat extends PureComponent {

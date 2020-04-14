@@ -8,7 +8,7 @@ import { Avatar } from '..';
 /**
  * ReactionSelector - A component for selecting a reaction. Examples are love, wow, like etc.
  *
- * @example ../docs/ReactionSelector.md
+ * @example ../../docs/ReactionSelector.md
  * @extends PureComponent
  */
 class ReactionSelector extends PureComponent {

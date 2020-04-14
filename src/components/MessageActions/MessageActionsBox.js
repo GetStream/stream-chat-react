@@ -7,7 +7,7 @@ import { withTranslationContext } from '../../context';
 /**
  * MessageActionsBox - A component for taking action on a message
  *
- * @example ../docs/MessageActionsBox.md
+ * @example ../../docs/MessageActionsBox.md
  * @extends PureComponent
  */
 class MessageActionsBox extends React.Component {

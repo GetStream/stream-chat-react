@@ -10,7 +10,7 @@ import {
 /**
  * ChannelHeader - Render some basic information about this channel
  *
- * @example ../docs/ChannelHeader.md
+ * @example ../../docs/ChannelHeader.md
  * @extends PureComponent
  */
 const ChannelHeader = ({

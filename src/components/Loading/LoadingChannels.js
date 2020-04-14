@@ -13,7 +13,7 @@ const LoadingItems = () => (
 /**
  * LoadingChannels - Fancy loading indicator for the channel list
  *
- * @example ../docs/LoadingChannels.md
+ * @example ../../docs/LoadingChannels.md
  */
 const LoadingChannels = () => (
   <div className="str-chat__loading-channels">

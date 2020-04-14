@@ -21,7 +21,7 @@ if (!Element.prototype.matches) {
 
 /**
  * MessageInput - Input a new message, support for all the rich features such as image uploads, @mentions, emoticons etc.
- * @example ../docs/MessageInput.md
+ * @example ../../docs/MessageInput.md
  * @extends PureComponent
  */
 class MessageInput extends PureComponent {

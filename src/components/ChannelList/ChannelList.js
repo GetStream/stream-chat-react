@@ -19,7 +19,7 @@ import { ChannelListTeam } from './';
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
  * @extends PureComponent
- * @example ../docs/ChannelList.md
+ * @example ../../docs/ChannelList.md
  */
 
 class ChannelList extends PureComponent {

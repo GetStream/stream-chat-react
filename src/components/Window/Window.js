@@ -6,7 +6,7 @@ import { withChannelContext } from '../../context';
 /**
  * Window - A UI component for conditionally displaying thread or channel.
  *
- * @example ../docs/Window.md
+ * @example ../../docs/Window.md
  * @extends PureComponent
  */
 
