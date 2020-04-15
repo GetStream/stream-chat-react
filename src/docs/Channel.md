@@ -1,12 +1,6 @@
 ```js
 const data = require('./data');
-import {
-  Chat,
-  Channel,
-  MessageList,
-  MessageInput,
-  MessageList,
-} from '../components';
+import { Chat, Channel, MessageList, MessageInput } from '../components';
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
