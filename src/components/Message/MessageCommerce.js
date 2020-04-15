@@ -1,16 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { MessageRepliesCountButton } from './';
-import {
-  Attachment,
-  Avatar,
-  ReactionsList,
-  Gallery,
-  ReactionSelector,
-} from '../';
+import { Attachment } from '../Attachment';
+import { Avatar } from '../Avatar';
+import { Gallery } from '../Gallery';
+import { ReactionsList, ReactionSelector } from '../Reactions';
 
 /**
  * MessageCommerce - Render component, should be used together with the Message component

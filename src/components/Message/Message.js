@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
 
-import { MessageSimple } from './';
-import { Attachment } from '../';
+import MessageSimple from './MessageSimple';
+import { Attachment } from '../Attachment';
 import { MESSAGE_ACTIONS } from '../../utils';
 import { withTranslationContext } from '../../context';
 

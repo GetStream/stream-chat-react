@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 import { smartRender } from '../../utils';
 import { withChannelContext, withTranslationContext } from '../../context';
-import { Message, MessageList, MessageInput, MessageInputSmall } from '../';
+import { Message } from '../Message';
+import { MessageList } from '../MessageList';
+import { MessageInput, MessageInputSmall } from '../MessageInput';
 
 /**
  * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.

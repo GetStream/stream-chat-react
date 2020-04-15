@@ -10,7 +10,7 @@ import {
 
 import { filterEmoji } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { ChatAutoComplete } from '../';
+import { ChatAutoComplete } from '../ChatAutoComplete';
 
 /**
  * MessageInputSmall - compact design to be used for the MessageInput. It has all the features of MessageInput minus the typing indicator.

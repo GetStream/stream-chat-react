@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { LoadingChannels } from '../';
+import { LoadingChannels } from '../Loading';
 import { withTranslationContext } from '../../context';
 
 import placeholder from '../../assets/str-chat__connection-error.svg';

@@ -12,12 +12,9 @@ import {
   ChannelContext,
   withTranslationContext,
 } from '../../context';
-import {
-  Attachment,
-  MessageSimple,
-  LoadingIndicator,
-  LoadingErrorIndicator,
-} from '../';
+import { Attachment } from '../Attachment';
+import { MessageSimple } from '../Message';
+import { LoadingIndicator, LoadingErrorIndicator } from '../Loading';
 
 /**
  * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.

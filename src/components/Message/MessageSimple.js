@@ -1,22 +1,19 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { MessageRepliesCountButton } from './';
-import {
-  Attachment,
-  Avatar,
-  Modal,
-  MessageInput,
-  EditMessageForm,
-  MessageActionsBox,
-  ReactionSelector,
-  ReactionsList,
-  Gallery,
-  Tooltip,
-  LoadingIndicator,
-} from '../';
+import { Attachment } from '../Attachment';
+import { Avatar } from '../Avatar';
+import { Gallery } from '../Gallery';
+import { Modal } from '../Modal';
+import { MessageInput } from '../MessageInput';
+import { EditMessageForm } from '../EditMessageForm';
+import { MessageActionsBox } from '../MessageActions';
+import { Tooltip } from '../Tooltip';
+import { LoadingIndicator } from '../Loading';
+import { ReactionsList, ReactionSelector } from '../Reactions';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component

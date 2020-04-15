@@ -8,9 +8,10 @@ import {
   dataTransferItemsToFiles,
 } from 'react-file-utils';
 
+import MessageInputLarge from './MessageInputLarge';
+import SendButton from './SendButton';
 import { generateRandomId } from '../../utils';
 import { withChannelContext } from '../../context';
-import { MessageInputLarge, SendButton } from './';
 
 // polyfill for IE11 to make MessageInput functional
 if (!Element.prototype.matches) {

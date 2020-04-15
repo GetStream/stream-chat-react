@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LoadingIndicator } from 'react-file-utils';
 
-import { InfiniteScroll } from './';
+import InfiniteScroll from './InfiniteScroll';
 
 const InfiniteScrollPaginator = ({
   LoadingIndicator,

@@ -2,20 +2,18 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
 
+import MessageNotification from './MessageNotification';
 import { MESSAGE_ACTIONS } from '../../utils';
 import { withChannelContext, withTranslationContext } from '../../context';
-import {
-  Attachment,
-  Message,
-  EmptyStateIndicator,
-  ReverseInfiniteScroll,
-  MessageNotification,
-  MessageSimple,
-  LoadingIndicator,
-  EventComponent,
-  DateSeparator,
-  KEY_CODES,
-} from '../';
+import { Attachment } from '../Attachment';
+import { Message } from '../Message';
+import { EmptyStateIndicator } from '../EmptyStateIndicator';
+import { ReverseInfiniteScroll } from '../InfiniteScrollPaginator';
+import { MessageSimple } from '../Message';
+import { LoadingIndicator } from '../Loading';
+import { EventComponent } from '../EventComponent';
+import { DateSeparator } from '../DateSeparator';
+import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /* eslint sonarjs/no-duplicate-string: 0 */
 

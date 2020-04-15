@@ -9,7 +9,7 @@ import {
 } from 'react-file-utils';
 
 import { withTranslationContext } from '../../context';
-import { ChatAutoComplete } from '../';
+import { ChatAutoComplete } from '../ChatAutoComplete';
 import { filterEmoji } from '../../utils';
 
 /**

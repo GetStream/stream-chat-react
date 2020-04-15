@@ -2,13 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { emojiIndex } from 'emoji-mart';
 
-import {
-  AutoCompleteTextarea,
-  LoadingIndicator,
-  EmoticonItem,
-  UserItem,
-  CommandItem,
-} from '../';
+import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
+import { LoadingIndicator } from '../Loading';
+import { EmoticonItem } from '../EmoticonItem';
+import { UserItem } from '../UserItem';
+import { CommandItem } from '../CommandItem';
 
 /**
  * Textarea component with included autocomplete options. You can set your own commands and

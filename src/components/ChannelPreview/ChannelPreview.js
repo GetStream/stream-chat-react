@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { ChannelPreviewCountOnly } from './';
+import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
 import { withTranslationContext } from '../../context';
 
 class ChannelPreview extends PureComponent {

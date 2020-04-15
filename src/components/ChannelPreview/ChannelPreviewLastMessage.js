@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import truncate from 'lodash/truncate';
 
-import { Avatar } from '../';
+import { Avatar } from '../Avatar';
 import { withTranslationContext } from '../../context';
 
 /**

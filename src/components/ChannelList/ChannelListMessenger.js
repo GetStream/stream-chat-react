@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { withChatContext } from '../../context';
-import { LoadingChannels, ChatDown } from '../';
+import { ChatDown } from '../ChatDown';
+import { LoadingChannels } from '../Loading';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open

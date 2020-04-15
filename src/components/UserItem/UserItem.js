@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Avatar } from '../';
+import { Avatar } from '../Avatar';
 
 const UserItem = ({ entity }) => (
   <div className="str-chat__user-item">

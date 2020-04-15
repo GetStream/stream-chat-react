@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { MessageActionsBox } from './';
+import MessageActionsBox from './MessageActionsBox';
 
 class MessageActions extends PureComponent {
   constructor(props) {

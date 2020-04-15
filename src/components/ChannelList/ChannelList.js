@@ -4,17 +4,14 @@ import Immutable from 'seamless-immutable';
 import uniqBy from 'lodash.uniqby';
 import deepequal from 'deep-equal';
 
-import {
-  LoadMorePaginator,
-  LoadingChannels,
-  EmptyStateIndicator,
-  ChannelPreviewLastMessage,
-  ChatDown,
-  ChannelPreview,
-} from '../';
+import ChannelListTeam from './ChannelListTeam';
+import { LoadMorePaginator } from '../LoadMore';
+import { LoadingChannels } from '../Loading';
+import { EmptyStateIndicator } from '../EmptyStateIndicator';
+import { ChannelPreview, ChannelPreviewLastMessage } from '../ChannelPreview';
+import { ChatDown } from '../ChatDown';
 import { withChatContext } from '../../context';
 import { isPromise, smartRender } from '../../utils';
-import { ChannelListTeam } from './';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open

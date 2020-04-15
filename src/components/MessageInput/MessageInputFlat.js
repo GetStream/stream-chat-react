@@ -10,7 +10,7 @@ import {
 
 import { filterEmoji } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { ChatAutoComplete } from '../';
+import { ChatAutoComplete } from '../ChatAutoComplete';
 
 /**
  * MessageInputFlat - Large Message Input to be used for the MessageInput.

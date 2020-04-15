@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Avatar } from '../';
+import { Avatar } from '../Avatar';
 import { withTranslationContext } from '../../context';
 
 class EventComponent extends React.PureComponent {

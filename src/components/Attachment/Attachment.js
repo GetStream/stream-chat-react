@@ -4,8 +4,11 @@ import prettybytes from 'pretty-bytes';
 import PropTypes from 'prop-types';
 import { FileIcon } from 'react-file-utils';
 
-import { Audio, Image, Card, SafeAnchor } from '../';
-import { AttachmentActions } from './';
+import AttachmentActions from './AttachmentActions';
+import { Audio } from '../Audio';
+import { Image } from '../Image';
+import { Card } from '../Card';
+import { SafeAnchor } from '../SafeAnchor';
 
 /**
  * Attachment - The message attachment
