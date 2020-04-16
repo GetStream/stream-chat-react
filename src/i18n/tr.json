@@ -35,6 +35,7 @@
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} ve {{ moreCount }} daha",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} ve {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} ve {{ secondUser }} yazıyor...",
+  "{{ imageCount }} more": "{{ imageCount }} adet daha",
   "{{ memberCount }} members": "{{ memberCount }} üyeler",
   "{{ replyCount }} replies": "{{ replyCount }} cevaplar",
   "{{ user }} has been muted": "{{ user }} sessize alındı",
