@@ -35,6 +35,7 @@
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} and {{ moreCount }} more",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} and {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} and {{ secondUser }} are typing...",
+  "{{ imageCount }} more": "{{ imageCount }} more",
   "{{ memberCount }} members": "{{ memberCount }} members",
   "{{ replyCount }} replies": "{{ replyCount }} replies",
   "{{ user }} has been muted": "{{ user }} has been muted",

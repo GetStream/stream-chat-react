@@ -35,6 +35,7 @@
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} en {{ moreCount }} meer",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} en {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} en {{ secondUser }} zijn aan het typen ...",
+  "{{ imageCount }} more": "+{{ imageCount }}",
   "{{ memberCount }} members": "{{ memberCount }} deelnemers",
   "{{ replyCount }} replies": "{{ replyCount }} antwoorden",
   "{{ user }} has been muted": "{{ user }} is gedempt",

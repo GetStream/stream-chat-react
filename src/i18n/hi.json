@@ -35,6 +35,7 @@
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} और {{ moreCount }} और",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} और {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} और {{ secondUser }} टाइप कर रहे हैं...",
+  "{{ imageCount }} more": "{{ imageCount }} और",
   "{{ memberCount }} members": "{{ memberCount }} मेंबर्स",
   "{{ replyCount }} replies": "{{ replyCount }} रिप्लाई",
   "{{ user }} has been muted": "{{ user }} को म्यूट कर दिया गया है",
