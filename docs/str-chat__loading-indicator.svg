@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="30px" viewBox="0 0 28 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>Combined Shape</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#000000" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Messenger-Chat" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="LIGHT_03-Messenger-Chat" transform="translate(-707.000000, -100.000000)" fill="url(#linearGradient-1)">
+            <g id="Chat" transform="translate(300.000000, 20.000000)">
+                <g id="Reverse-Pagination" transform="translate(40.000000, 80.000000)">
+                    <g id="Loading" transform="translate(365.000000, 0.000000)">
+                        <path d="M2.51792449,23.3213837 L4.18220122,22.2118659 C6.51334745,25.7016346 10.4882677,28 15,28 C22.1797017,28 28,22.1797017 28,15 C28,7.82029825 22.1797017,2 15,2 L15,0 C23.2842712,0 30,6.71572875 30,15 C30,23.2842712 23.2842712,30 15,30 C9.79415507,30 5.2077086,27.3480399 2.51792449,23.3213837 Z" id="Combined-Shape"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
