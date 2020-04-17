@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.11](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.11) 2020-04-15
+
+- Adding missing translation key `{{ imageCount }} more` in Gallery component [5cea938](https://github.com/GetStream/stream-chat-react/commit/5cea938c5e80e781ae815f461e833f0b61b1a110)
+
 ## [0.11.10](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.10) 2020-04-09
 
 - Fix crashing app when there's no active channel
