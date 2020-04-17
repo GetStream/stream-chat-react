@@ -377,7 +377,7 @@ export interface MessageInputProps {
    *  }}
    * />
    */
-  additionalTextareaProps: object;
+  additionalTextareaProps?: object;
 }
 
 export type ImageUpload = {
@@ -669,7 +669,7 @@ export interface ChatAutoCompleteProps {
   commands: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
-  additionalTextareaProps: object;
+  additionalTextareaProps?: object;
 }
 
 export interface ChatDownProps extends TranslationContextValue {
