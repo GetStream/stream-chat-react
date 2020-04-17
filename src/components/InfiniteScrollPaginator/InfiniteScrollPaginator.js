@@ -49,7 +49,7 @@ InfiniteScrollPaginator.propTypes = {
   /** Offset from when to start the loadNextPage call */
   threshold: PropTypes.number,
   /** The loading indicator to use */
-  LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  LoadingIndicator: PropTypes.elementType,
 };
 
 export default InfiniteScrollPaginator;

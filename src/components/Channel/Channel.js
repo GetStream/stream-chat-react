@@ -59,7 +59,7 @@ class Channel extends PureComponent {
      *
      * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
      */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    LoadingIndicator: PropTypes.elementType,
     /**
      * Message UI component to display a message in message list.
      *
@@ -187,7 +187,7 @@ class ChannelInner extends PureComponent {
     /** Client is passed via the Chat Context */
     client: PropTypes.object.isRequired,
     /** The loading indicator to use */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    LoadingIndicator: PropTypes.elementType,
     LoadingErrorIndicator: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.func,

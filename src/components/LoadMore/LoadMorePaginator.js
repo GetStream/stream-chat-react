@@ -24,7 +24,7 @@ LoadMorePaginator.defaultProps = {
 };
 
 LoadMorePaginator.propTypes = {
-  LoadMoreButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  LoadMoreButton: PropTypes.elementType,
   /** callback to load the next page */
   loadNextPage: PropTypes.func,
   /** indicates if there is a next page to load */

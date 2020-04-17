@@ -47,7 +47,7 @@ class ChannelList extends PureComponent {
      * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
      *
      */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    LoadingIndicator: PropTypes.elementType,
     /**
      * Error indicator UI Component. It will be displayed if there is any error if loading the channels.
      * This error could be related to network or failing API.
@@ -88,7 +88,7 @@ class ChannelList extends PureComponent {
      * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMorePaginator.js)
      * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator.js)
      */
-    Paginator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Paginator: PropTypes.elementType,
     /**
      * Function that overrides default behaviour when new message is received on channel that is not being watched
      *

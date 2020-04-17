@@ -60,7 +60,7 @@ class MessageList extends PureComponent {
      *
      * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
      * */
-    TypingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    TypingIndicator: PropTypes.elementType,
     /**
      * Date separator UI component to render
      *
@@ -823,7 +823,7 @@ class MessageList extends PureComponent {
 
           <MessageNotification
             showNotification={this.state.newMessagesNotification}
-            onClick={() => this.goToNewMessages()}
+            onClick={this.goToNewMessages}
           >
             {t('New Messages!')}
           </MessageNotification>

@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const MessageNotification = (showNotification, onClick, children) => {
+const MessageNotification = ({ showNotification, onClick, children }) => {
   if (!showNotification) return null;
-
   return (
     <button className="str-chat__message-notification" onClick={onClick}>
       {children}

@@ -110,6 +110,7 @@ const normalBundle = {
     '@babel/runtime/helpers/classCallCheck',
     '@babel/runtime/helpers/slicedToArray',
     '@babel/runtime/helpers/typeof',
+    'react-is',
   ],
   plugins: [
     replace({
@@ -178,6 +179,7 @@ const fullBrowserBundle = {
     commonjs({
       namedExports: {
         'prop-types': Object.keys(PropTypes),
+        'node_modules/react-is/index.js': ['isValidElementType'],
       },
     }),
     json(),

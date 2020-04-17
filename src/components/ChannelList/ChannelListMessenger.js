@@ -22,7 +22,7 @@ class ChannelListMessenger extends PureComponent {
      * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
      *
      */
-    LoadingIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    LoadingIndicator: PropTypes.elementType,
     /**
      * Error indicator UI Component. It will be displayed if `error` prop is true
      *

@@ -83,7 +83,7 @@ class MessageInputFlat extends PureComponent {
      *
      * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
      * */
-    SendButton: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    SendButton: PropTypes.elementType,
     /**
      * Any additional attrubutes that you may want to add for underlying HTML textarea element.
      */
