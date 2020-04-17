@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Carousel, { Modal, ModalGateway } from 'react-images';
-import { withTranslationContext } from '../context';
+import { withTranslationContext } from '../../context';
 
 /**
  * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
@@ -87,6 +87,4 @@ class Gallery extends React.PureComponent {
   }
 }
 
-Gallery = withTranslationContext(Gallery);
-
-export { Gallery };
+export default withTranslationContext(Gallery);
