@@ -21,7 +21,7 @@ export * from './AutoCompleteTextarea';
 export { ChatAutoComplete } from './ChatAutoComplete';
 export { ChatDown } from './ChatDown';
 export { CommandItem } from './CommandItem';
-export { DateSeparator } from './DateSeparator';
+export { default as DateSeparator } from './DateSeparator';
 export { EditMessageForm } from './EditMessageForm';
 export { EmoticonItem } from './EmoticonItem';
 export { EmptyStateIndicator } from './EmptyStateIndicator';

@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTranslationContext } from '../context';
@@ -6,7 +7,7 @@ import { withTranslationContext } from '../context';
  * DateSeparator - A simple date separator
  *
  * @example ./docs/DateSeparator.md
- * @extends PureComponent
+ * @type DateSeparator { import("../../types/index.d.ts").DateSeparator }
  */
 class DateSeparator extends React.PureComponent {
   static propTypes = {
@@ -44,6 +45,4 @@ class DateSeparator extends React.PureComponent {
   }
 }
 
-DateSeparator = withTranslationContext(DateSeparator);
-
-export { DateSeparator };
+export default withTranslationContext(DateSeparator);
