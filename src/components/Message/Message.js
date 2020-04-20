@@ -39,12 +39,12 @@ class Message extends Component {
      * Message UI component to display a message in message list.
      * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
      * */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Message: PropTypes.elementType,
     /**
      * Attachment UI component to display attachment in individual message.
      * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
      * */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Attachment: PropTypes.elementType,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
     /**

@@ -36,7 +36,7 @@ class MessageTeam extends PureComponent {
      * The attachment UI component.
      * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Attachment: PropTypes.elementType,
     /**
      *
      * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

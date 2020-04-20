@@ -71,13 +71,13 @@ class Channel extends PureComponent {
      * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
      *
      * */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Message: PropTypes.elementType,
     /**
      * Attachment UI component to display attachment in individual message.
      *
      * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Attachment: PropTypes.elementType,
     /**
      * Handle for click on @mention in message
      *

@@ -26,7 +26,7 @@ class ChannelList extends PureComponent {
      *
      * Indicator for Empty State
      * */
-    EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    EmptyStateIndicator: PropTypes.elementType,
     /**
      * Available built-in options (also accepts the same props as):
      *
@@ -36,7 +36,7 @@ class ChannelList extends PureComponent {
      *
      * The Preview to use, defaults to ChannelPreviewLastMessage
      * */
-    Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Preview: PropTypes.elementType,
 
     /**
      * Loading indicator UI Component. It will be displayed until the channels are
@@ -76,7 +76,7 @@ class ChannelList extends PureComponent {
      * - `activeChannel` Currently active channel object
      * - `channels` {array} List of channels in channel list
      */
-    List: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    List: PropTypes.elementType,
     /**
      * Paginator component for channels. It contains all the pagination logic such as
      * - fetching next page of results when needed e.g., when scroll reaches the end of list
