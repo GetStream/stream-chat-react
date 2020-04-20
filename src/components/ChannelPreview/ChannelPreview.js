@@ -31,7 +31,7 @@ class ChannelPreview extends PureComponent {
      *
      * The Preview to use, defaults to ChannelPreviewLastMessage
      * */
-    Preview: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Preview: PropTypes.elementType,
     /**
      * Object containing watcher parameters
      * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.

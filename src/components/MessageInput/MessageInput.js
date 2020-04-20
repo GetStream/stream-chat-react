@@ -118,7 +118,7 @@ class MessageInput extends PureComponent {
      * 3. [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInputFlat.js)
      *
      * */
-    Input: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Input: PropTypes.elementType,
 
     /** Override image upload request */
     doImageUploadRequest: PropTypes.func,

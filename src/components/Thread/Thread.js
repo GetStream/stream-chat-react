@@ -27,7 +27,7 @@ class Thread extends React.PureComponent {
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     channel: PropTypes.object.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Message: PropTypes.elementType,
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
@@ -73,7 +73,7 @@ class Thread extends React.PureComponent {
         <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
         ```
     */
-    MessageInput: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    MessageInput: PropTypes.elementType,
   };
 
   static defaultProps = {

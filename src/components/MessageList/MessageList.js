@@ -66,7 +66,7 @@ class MessageList extends PureComponent {
      *
      * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
      * */
-    dateSeparator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    dateSeparator: PropTypes.elementType,
     /** Turn off grouping of messages by user */
     noGroupByUser: PropTypes.bool,
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -121,23 +121,23 @@ class MessageList extends PureComponent {
     /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
     client: PropTypes.object,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Attachment: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Attachment: PropTypes.elementType,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Message: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    Message: PropTypes.elementType,
     /**
      * Custom UI component to display system messages.
      *
      * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
      */
-    MessageSystem: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    MessageSystem: PropTypes.elementType,
     /**
      * The UI Indicator to use when MessagerList or ChannelList is empty
      * */
-    EmptyStateIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    EmptyStateIndicator: PropTypes.elementType,
     /**
      * Component to render at the top of the MessageList
      * */
-    HeaderComponent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    HeaderComponent: PropTypes.elementType,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     messages: PropTypes.array.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
