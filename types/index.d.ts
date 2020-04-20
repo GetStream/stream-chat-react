@@ -815,7 +815,7 @@ export interface SimpleReactionsListProps {
 }
 export interface TooltipProps {}
 
-export class AttachmentActions extends React.PureComponent<
+export class AttachmentActions extends React.FunctionComponent<
   AttachmentActionsProps,
   any
 > {}
