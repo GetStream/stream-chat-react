@@ -1,8 +1,12 @@
 # Changelog
 
-## [0.11.12](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.12) 2020-04-20
+## [0.11.13](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.13) 2020-04-20
 
 - Add check to fix optional activeChannel in ChannelPreview.
+
+## [0.11.12](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.12) 2020-04-17
+
+- Fixing typescript issue with `MessageInput` component prop - `additionalTextAreaProps` [92f2ae2](https://github.com/GetStream/stream-chat-react/commit/92f2ae29a3c66a683ea2b1ebd1c85854cfa41446)
 
 ## [0.11.11](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.11) 2020-04-15
 
