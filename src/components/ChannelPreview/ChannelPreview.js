@@ -63,7 +63,8 @@ class ChannelPreview extends PureComponent {
 
   handleEvent = (event) => {
     const channel = this.props.channel;
-    const isActive = this.props.activeChannel.cid === channel.cid;
+    const isActive =
+      this.props.activeChannel && this.props.activeChannel.cid === channel.cid;
     if (!isActive) {
       const unread = channel.countUnread(this.state.lastRead);
       this.setState({ lastMessage: event.message, unread });
