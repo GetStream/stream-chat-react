@@ -10,6 +10,7 @@ import svg from '../../assets/str-chat__loading-indicator.svg';
  *
  * @example ../../docs/LoadingIndicator.md
  * @type LoadingIndicator { import("../../types/index.d.ts").LoadingIndicator }
+ * @return {React.ReactElement}
  */
 
 const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (
