@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import React from 'react';
 import {
   Chat,
@@ -32,14 +33,13 @@ class MyAttachment extends React.Component {
           </a>
         </div>
       );
-    } else {
-      return (
-        <div>
-          testing
-          <Attachment {...this.props} />
-        </div>
-      );
     }
+    return (
+      <div>
+        testing
+        <Attachment {...this.props} />
+      </div>
+    );
   }
 }
 

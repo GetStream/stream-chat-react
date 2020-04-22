@@ -1,10 +1,10 @@
-import enTranslations from '../i18n/en.json';
-import nlTranslations from '../i18n/nl.json';
-import ruTranslations from '../i18n/ru.json';
-import trTranslations from '../i18n/tr.json';
-import frTranslations from '../i18n/fr.json';
-import hiTranslations from '../i18n/hi.json';
-import itTranslations from '../i18n/it.json';
+import enTranslations from './en.json';
+import nlTranslations from './nl.json';
+import ruTranslations from './ru.json';
+import trTranslations from './tr.json';
+import frTranslations from './fr.json';
+import hiTranslations from './hi.json';
+import itTranslations from './it.json';
 
 export {
   enTranslations,

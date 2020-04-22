@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const KEY_CODES = {
   ESC: 27,
   UP: 38,

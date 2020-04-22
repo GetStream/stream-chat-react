@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { PureComponent } from 'react';
 import ReactPlayer from 'react-player';
 import prettybytes from 'pretty-bytes';
