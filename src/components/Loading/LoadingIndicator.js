@@ -1,17 +1,18 @@
 /* eslint-disable */
+// @ts-check
 import React from 'react';
-import PropTypes from 'prop-types';
 
+// @ts-ignore
 import svg from '../../assets/str-chat__loading-indicator.svg';
 
 /**
  * LoadingIndicator - Just a simple loading spinner..
  *
  * @example ../../docs/LoadingIndicator.md
- * @extends PureComponent
+ * @type LoadingIndicator { import("../../types/index.d.ts").LoadingIndicator }
  */
 
-const LoadingIndicator = ({ size, color }) => (
+const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (
   <div
     className={'str-chat__loading-indicator ' + color}
     style={{ width: size, height: size }}
@@ -41,17 +42,4 @@ const LoadingIndicator = ({ size, color }) => (
     </svg>
   </div>
 );
-
-LoadingIndicator.defaultProps = {
-  size: 15,
-  color: '#006CFF',
-};
-
-LoadingIndicator.propTypes = {
-  /** The size of the loading icon */
-  size: PropTypes.number,
-  /** Set the color of the LoadingIndicator */
-  color: PropTypes.string,
-};
-
 export default React.memo(LoadingIndicator);

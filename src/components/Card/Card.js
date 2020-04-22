@@ -12,7 +12,7 @@ import { SafeAnchor } from '../SafeAnchor';
  * Card - Simple Card Layout
  *
  * @example ../../docs/Card.md
- * @type Card { import("../../types/index.d.ts").CardProps }
+ * @type Card { import("../../types/index.d.ts").Card }
  */
 class Card extends React.PureComponent {
   static propTypes = {
