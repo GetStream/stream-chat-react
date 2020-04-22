@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* global require */
 /* eslint sonarjs/no-duplicate-string: 0 */
 

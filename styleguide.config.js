@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @noflow
 /* eslint-env commonjs */
 const path = require('path');

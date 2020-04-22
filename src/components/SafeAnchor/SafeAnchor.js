@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @ts-check
 import React from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';

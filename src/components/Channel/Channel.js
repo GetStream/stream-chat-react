@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { PureComponent } from 'react';
 import uuidv4 from 'uuid/v4';
 import PropTypes from 'prop-types';
