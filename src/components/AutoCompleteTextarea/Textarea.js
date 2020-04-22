@@ -713,9 +713,9 @@ class ReactTextareaAutocomplete extends React.Component {
 
     return (
       <div
-        className={`rta ${
-          dataLoading === true ? 'rta--loading' : ''
-        } ${containerClassName || ''}`}
+        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${
+          containerClassName || ''
+        }`}
         style={containerStyle}
       >
         {(dataLoading || suggestionData) && currentTrigger && (

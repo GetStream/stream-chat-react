@@ -6,12 +6,12 @@ const i18nDirectoryRelativePath = '../src/i18n/';
 const directoryPath = path.join(__dirname, i18nDirectoryRelativePath);
 let countMissingTranslations = 0;
 
-fs.readdir(directoryPath, function(err, files) {
+fs.readdir(directoryPath, function (err, files) {
   if (err) {
     return console.log('Unable to scan directory: ' + err);
   }
 
-  files.forEach(function(file) {
+  files.forEach(function (file) {
     if (file === 'index.js') return;
     // Do whatever you want to do with the file
     const data = require(i18nDirectoryRelativePath + file);
