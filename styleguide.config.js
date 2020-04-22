@@ -1,5 +1,6 @@
+/* eslint-disable */
 // @noflow
-/* eslint-env commonjs*/
+/* eslint-env commonjs */
 const path = require('path');
 
 module.exports = {
@@ -11,13 +12,13 @@ module.exports = {
   webpackConfig: require('./webpack.config.styleguidist.js'),
   serverPort: 6068,
 
-  /*getExampleFilename(componentPath) {
+  /* getExampleFilename(componentPath) {
 		componentPath = componentPath
 			.replace('src/components/', 'src/components/docs/')
 			.replace('.js', '.md');
 		console.log('componentPath', componentPath);
 		return componentPath;
-	},*/
+	}, */
   sections: [
     {
       name: 'Top Level Components',

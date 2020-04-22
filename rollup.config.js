@@ -13,9 +13,9 @@ import PropTypes from 'prop-types';
 
 import replace from 'rollup-plugin-replace';
 
+import process from 'process';
 import pkg from './package.json';
 
-import process from 'process';
 process.env.NODE_ENV = 'production';
 
 const baseConfig = {

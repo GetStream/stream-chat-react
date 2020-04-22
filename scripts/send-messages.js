@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* globals process */
 import dotenv from 'dotenv';
 dotenv.config();
