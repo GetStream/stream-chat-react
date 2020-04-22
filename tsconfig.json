@@ -9,6 +9,10 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "./built/types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
     "noEmitOnError": true,
     "lib": ["es2015", "dom"],
     "paths": {
