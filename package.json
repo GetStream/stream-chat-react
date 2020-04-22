@@ -37,7 +37,7 @@
     "dayjs": "^1.8.25",
     "deep-equal": "^2.0.2",
     "emoji-mart": "3.0.0",
-    "emoji-regex": "^8.0.0",
+    "emoji-regex": "^9.0.0",
     "i18next": "^19.4.3",
     "isomorphic-ws": "^4.0.1",
     "lodash.uniqby": "^4.7.0",
