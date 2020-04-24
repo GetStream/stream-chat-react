@@ -16,11 +16,15 @@ export class ChannelPreviewCountOnly extends PureComponent {
     watchers: PropTypes.object,
     /** Number of unread messages */
     unread: PropTypes.number,
+    /** Title of channel to display */
+    displayTitle: PropTypes.string,
+    /** Image of channel to display */
+    displayImage: PropTypes.string,
   };
 
   render() {
+    const { displayTitle } = this.props;
     const unreadClass = this.props.unread >= 1 ? 'unread' : '';
-    const name = this.props.channel.data.name || this.props.channel.cid;
 
     return (
       <div className={unreadClass}>
@@ -28,7 +32,7 @@ export class ChannelPreviewCountOnly extends PureComponent {
           onClick={this.props.setActiveChannel.bind(this, this.props.channel)}
         >
           {' '}
-          {name} <span>{this.props.unread}</span>
+          {displayTitle} <span>{this.props.unread}</span>
         </button>
       </div>
     );
