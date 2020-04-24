@@ -32,6 +32,10 @@ class ChannelPreviewLastMessage extends PureComponent {
     latestMessage: PropTypes.string,
     /** Length of latest message to truncate at */
     latestMessageLength: PropTypes.number,
+    /** Title of channel to display */
+    displayTitle: PropTypes.string,
+    /** Image of channel to display */
+    displayImage: PropTypes.string,
   };
 
   static defaultProps = {
@@ -46,14 +50,14 @@ class ChannelPreviewLastMessage extends PureComponent {
   };
 
   render() {
-    const { t } = this.props;
+    const { t, displayTitle, displayImage } = this.props;
 
     const unreadClass =
       this.props.unread >= 1 ? 'str-chat__channel-preview--unread' : '';
     const activeClass = this.props.active
       ? 'str-chat__channel-preview--active'
       : '';
-    const name = this.props.channel.data.name || this.props.channel.cid;
+
     return (
       <div
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
@@ -62,9 +66,11 @@ class ChannelPreviewLastMessage extends PureComponent {
           {this.props.unread >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
-          <Avatar image={this.props.channel.data.image} />
+          <Avatar image={displayImage} />
           <div className="str-chat__channel-preview-info">
-            <span className="str-chat__channel-preview-title">{name}</span>
+            <span className="str-chat__channel-preview-title">
+              {displayTitle}
+            </span>
             <span className="str-chat__channel-preview-last-message">
               {!this.props.channel.state.messages[0]
                 ? t('Nothing yet...')

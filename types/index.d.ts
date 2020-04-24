@@ -199,7 +199,9 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps extends TranslationContextValue {
+export interface ChannelPreviewProps
+  extends TranslationContextValue,
+    ChatContextValue {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -228,6 +230,10 @@ export interface ChannelPreviewProps extends TranslationContextValue {
 }
 
 export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
+  /** Title of channel to display */
+  displayTitle?: string;
+  /** Image of channel to display */
+  displayImage?: string;
   /** Latest message's text. */
   latestMessage?: string;
   /** Length of latest message to truncate at */

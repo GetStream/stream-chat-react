@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
-import { withTranslationContext } from '../context';
+import { withTranslationContext, withChatContext } from '../context';
 
 class ChannelPreview extends PureComponent {
   constructor(props) {
@@ -111,6 +111,32 @@ class ChannelPreview extends PureComponent {
     }
   };
 
+  getDisplayTitle = () => {
+    const { channel, client } = this.props;
+    let title = channel.data.name;
+    const members = Object.values(channel.state.members);
+
+    if (!title && members.length === 2) {
+      const otherMember = members.find((m) => m.user.id !== client.user.id);
+      title = otherMember.user.name;
+    }
+
+    return title;
+  };
+
+  getDisplayImage = () => {
+    const { channel, client } = this.props;
+    let image = channel.data.image;
+    const members = Object.values(channel.state.members);
+
+    if (!image && members.length === 2) {
+      const otherMember = members.find((m) => m.user.id !== client.user.id);
+      image = otherMember.user.image;
+    }
+
+    return image;
+  };
+
   render() {
     const props = { ...this.state, ...this.props };
 
@@ -119,6 +145,8 @@ class ChannelPreview extends PureComponent {
       <Preview
         {...props}
         latestMessage={this.getLatestMessage()}
+        displayTitle={this.getDisplayTitle()}
+        displayImage={this.getDisplayImage()}
         active={
           this.props.activeChannel &&
           this.props.activeChannel.cid === this.props.channel.cid
@@ -128,6 +156,6 @@ class ChannelPreview extends PureComponent {
   }
 }
 
-ChannelPreview = withTranslationContext(ChannelPreview);
+ChannelPreview = withTranslationContext(withChatContext(ChannelPreview));
 
 export { ChannelPreview };

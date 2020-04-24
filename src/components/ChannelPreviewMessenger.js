@@ -34,6 +34,10 @@ class ChannelPreviewMessenger extends PureComponent {
     latestMessage: PropTypes.string,
     /** Length of latest message to truncate at */
     latestMessageLength: PropTypes.number,
+    /** Title of channel to display */
+    displayTitle: PropTypes.string,
+    /** Image of channel to display */
+    displayImage: PropTypes.string,
   };
 
   static defaultProps = {
@@ -56,7 +60,7 @@ class ChannelPreviewMessenger extends PureComponent {
       ? 'str-chat__channel-preview-messenger--active'
       : '';
 
-    const { channel, t } = this.props;
+    const { channel, displayTitle, displayImage, t } = this.props;
 
     return (
       <button
@@ -65,11 +69,11 @@ class ChannelPreviewMessenger extends PureComponent {
         className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-messenger--left">
-          {<Avatar image={channel.data.image} size={40} />}
+          {<Avatar image={displayImage} size={40} />}
         </div>
         <div className="str-chat__channel-preview-messenger--right">
           <div className="str-chat__channel-preview-messenger--name">
-            <span>{channel.data.name}</span>
+            <span>{displayTitle}</span>
           </div>
           <div className="str-chat__channel-preview-messenger--last-message">
             {!channel.state.messages[0]
