@@ -40,12 +40,14 @@ class EventComponent extends React.PureComponent {
 
       switch (message.event.type) {
         case 'member.removed':
-          sentence = `${message.event.user.name ||
-            message.event.user.id} was removed from the chat`;
+          sentence = `${
+            message.event.user.name || message.event.user.id
+          } was removed from the chat`;
           break;
         case 'member.added':
-          sentence = `${message.event.user.name ||
-            message.event.user.id} has joined the chat`;
+          sentence = `${
+            message.event.user.name || message.event.user.id
+          } has joined the chat`;
           break;
         default:
           break;
