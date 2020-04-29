@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.14](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.14) 2020-04-29
+
+- Adding direct messaging support for channel preview [b394079](https://github.com/GetStream/stream-chat-react/commit/b39407960fa908dc55b8ea48625f3c7095c37b56)
+- Fixed typescript for ChannelList component [576f5c8](https://github.com/GetStream/stream-chat-react/commit/576f5c85919bccf21fc803e917581e373dd241d5)
+- Fixed french translation file [308fcab](https://github.com/GetStream/stream-chat-react/commit/308fcab5fa891aad527cf94aeed8353a99d7dcb8)
+- Adding extra check for channel connection to avoid failing markRead call [317fb1f](https://github.com/GetStream/stream-chat-react/commit/317fb1fe31e21e253cdce95bfb5d19932f098e2b)
+
 ## [0.11.13](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.13) 2020-04-20
 
 - Add check to fix optional activeChannel in ChannelPreview.
