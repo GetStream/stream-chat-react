@@ -316,8 +316,7 @@ class MessageInput extends PureComponent {
         // TODO: show error to user that they should wait until image is uploaded
         return;
       }
-      const dupes = attachments.filter(() => upload.asset_url === upload.url);
-      if (dupes.length >= 1) continue;
+
       attachments.push({
         type: 'file',
         asset_url: upload.url,
