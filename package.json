@@ -22,16 +22,28 @@
   "jest": {
     "verbose": true,
     "maxConcurrency": 1,
+    "testRegex": [
+      "src/components/ChannelList/__tests__/ChannelList.test.js",
+      "src/components/MessageList/__tests__/MessageList.test.js"
+    ],
     "transformIgnorePatterns": [
       "/node_modules"
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/examples/"
-    ]
+    ],
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/assetsTransformer.js",
+      "\\.(css|less)$": "<rootDir>/assetsTransformer.js"
+    }
   },
   "dependencies": {
     "@braintree/sanitize-url": "^4.0.1",
+    "@testing-library/react": "^10.0.3",
     "@webscopeio/react-textarea-autocomplete": "^4.6.3",
     "anchorme": "^1.1.2",
     "dayjs": "^1.8.25",
@@ -41,6 +53,7 @@
     "i18next": "^19.4.3",
     "isomorphic-ws": "^4.0.1",
     "lodash.uniqby": "^4.7.0",
+    "mockttp": "^0.20.0",
     "pretty-bytes": "^5.3.0",
     "prop-types": "^15.7.2",
     "react-file-utils": "0.3.14",
@@ -51,8 +64,9 @@
     "react-textarea-autosize": "^7.1.2",
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
+    "sinon": "^9.0.2",
     "stream-browserify": "^2.0.2",
-    "stream-chat": "^1.7.4",
+    "stream-chat": "link:../../stream-chat-js",
     "uuid": "^7.0.3",
     "visibilityjs": "^2.0.2"
   },
@@ -75,6 +89,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
+    "@testing-library/jest-dom": "^5.5.0",
     "@types/braintree__sanitize-url": "^4.0.0",
     "@types/seamless-immutable": "7.1.12",
     "@types/uuid": "^7.0.2",
@@ -150,6 +165,7 @@
     "build-styles": "sass src/styles/index.scss dist/styles/styles.css --style compressed",
     "prettier": "prettier --list-different '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc",
     "prettier-fix": "prettier --write '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc",
+    "generate-mocked-data": "node scripts/generate-mock-data.js  && prettier --write 'src/__testUtils__/mocked-data/**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc",
     "eslint": "eslint '**/*.{js,md}' --max-warnings 0",
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
     "lint": "prettier --list-different '**/*.{js,ts,md,json}' .eslintrc.json .prettierrc .babelrc && eslint '**/*.{js,md}' --max-warnings 0 && stylelint '**/*.{css,scss}'",
