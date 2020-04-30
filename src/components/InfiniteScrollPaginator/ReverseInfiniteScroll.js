@@ -224,7 +224,7 @@ class ReverseInfiniteScroll extends Component {
       this.scrollComponent = node;
     };
 
-    props.role = 'list';
+    props['data-testid'] = 'message-list';
 
     const childrenArray = [children];
     if (isLoading) {

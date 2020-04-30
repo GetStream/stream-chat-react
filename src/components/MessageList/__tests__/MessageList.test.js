@@ -1,54 +1,26 @@
-/**
- * STILL WORK IN PROGRESS
- */
-
 /* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
-import { cleanup, render, wait, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClient, createUserToken } from '../../../__testUtils__/index';
+import {
+  getTestClient,
+  useMockedApis,
+  getOrCreateChannelApi,
+  generateChannel,
+  generateMessage,
+  generateMember,
+  generateUser,
+  dispatchMessageNewEvent,
+} from '../../../__mocks__';
 
 import { Chat } from '../../Chat';
 import MessageList from '../MessageList';
 import { Channel } from '../../Channel';
-import {
-  useMockedApis,
-  queryChannels,
-  sendMessage,
-  getOrCreateChannel,
-} from '../../../__testUtils__/api-mocks';
-import { dispatchMessageNewEvent } from '../../../__testUtils__/event-mocks';
 import axios from 'axios';
-
-import * as mockedData from '../../../__testUtils__/mocked-data';
 
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
-
-/**
- * We are gonna use following custom UI components for preview and list.
- * If we use ChannelPreviewMessanger or ChannelPreviewLastmessage here, then changes
- * to those components might endup breaking tests for ChannelList, which will be quite painful
- * to debug then.
- */
-const ChannelPreviewComponent = ({ channel, latestMessage }) => (
-  <div role="listitem" data-testid={channel.id}>
-    <div>{channel.data.name}</div>
-    <div>{latestMessage}</div>
-  </div>
-);
-
-const ChannelListComponent = (props) => {
-  const { error, loading, LoadingErrorIndicator, LoadingIndicator } = props;
-  if (error) {
-    return <LoadingErrorIndicator type="Connection Error" />;
-  } else if (loading) {
-    return <LoadingIndicator />;
-  } else {
-    return <div role="list">{props.children}</div>;
-  }
-};
 
 jest.mock('axios');
 
@@ -56,17 +28,26 @@ describe('MessageList', () => {
   let chatClientVishal;
 
   it('should add new message at bottom of the list', async () => {
-    useMockedApis(axios, [
-      getOrCreateChannelApi({
-        withUsers: [mockedData.user0, mockedData.user1],
-      }),
-    ]);
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      messages: [
+        generateMessage({ user: user1 }),
+        generateMessage({ user: user1 }),
+      ],
+      members: [
+        generateMember({ user: user1 }),
+        generateMember({ user: user1 }),
+      ],
+    });
 
-    chatClientVishal = await getTestClient(axios, 'vishal');
-    const channel = chatClientVishal.channel('messaging', 'id');
+    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
+
+    chatClientVishal = await getTestClient({ id: 'vishal' });
+    const channel = chatClientVishal.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const { getByText, getByRole, getAllByRole } = render(
+    const { getByTestId, getByText } = render(
       <Chat client={chatClientVishal}>
         <Channel channel={channel}>
           <MessageList />
@@ -74,7 +55,18 @@ describe('MessageList', () => {
       </Chat>,
     );
     await waitFor(() => {
-      expect(getByRole('list')).toBeInTheDocument();
+      expect(getByTestId('message-list')).toBeInTheDocument();
+    });
+
+    const newMessage = generateMessage({ user: user2 });
+    dispatchMessageNewEvent(
+      chatClientVishal,
+      newMessage,
+      mockedChannel.channel,
+    );
+
+    await waitFor(() => {
+      expect(getByText(newMessage.text)).toBeInTheDocument();
     });
   });
 });

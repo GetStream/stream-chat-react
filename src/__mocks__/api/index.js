@@ -1,3 +1,9 @@
+/**
+ * Hook to mock the calls made through axios module.
+ *
+ * @param {*} axios
+ * @param {*} apiResponses
+ */
 export const useMockedApis = (axios, apiResponses) => {
   let getMock = axios.get;
   let deleteMock = axios.delete;
@@ -20,5 +26,6 @@ export const useMockedApis = (axios, apiResponses) => {
   });
 };
 
-export { queryChannelsApi, getOrCreateChannelApi } from './channel';
-export { sendMessageApi } from './message';
+export * from './queryChannels';
+export * from './getOrCreateChannel';
+export * from './sendMessage';
