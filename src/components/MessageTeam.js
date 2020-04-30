@@ -11,7 +11,7 @@ import { Tooltip } from './Tooltip';
 import { Gallery } from './Gallery';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, getReadByTooltipText } from '../utils';
 import { withTranslationContext } from '../context';
 
 const reactionSvg =
@@ -179,37 +179,6 @@ class MessageTeam extends PureComponent {
     );
   };
 
-  // https://stackoverflow.com/a/29234240/7625485
-  formatArray = (arr) => {
-    const { t, client } = this.props;
-    let outStr = '';
-    const slicedArr = arr
-      .filter((item) => item.id !== client.user.id)
-      .map((item) => item.name || item.id)
-      .slice(0, 5);
-    const restLength = arr.length - slicedArr.length;
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = t('{{ firstUser }} and {{ secondUser }}', {
-        firstUser: slicedArr[0],
-        secondUser: slicedArr[1],
-      });
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, sam and 4 more"
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
-    }
-
-    return outStr;
-  };
-
   isMine() {
     return this.props.isMyMessage(this.props.message);
   }
@@ -240,7 +209,9 @@ class MessageTeam extends PureComponent {
       )[0];
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>{this.formatArray(readBy)}</Tooltip>
+          <Tooltip>
+            {getReadByTooltipText(readBy, this.props.t, this.props.client)}
+          </Tooltip>
           <Avatar
             name={lastReadUser.name || lastReadUser.id}
             image={lastReadUser.image}

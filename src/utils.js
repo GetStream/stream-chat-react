@@ -242,3 +242,43 @@ export const filterEmoji = (emoji) => {
   }
   return true;
 };
+
+export const getReadByTooltipText = (users, t, client) => {
+  let outStr = '';
+  // first filter out client user, so restLength won't count it
+  const otherUsers = users
+    .filter((item) => item.id !== client.user.id)
+    .map((item) => item.name || item.id);
+
+  const slicedArr = otherUsers.slice(0, 5);
+  const restLength = otherUsers.length - slicedArr.length;
+
+  if (slicedArr.length === 1) {
+    outStr = slicedArr[0] + ' ';
+  } else if (slicedArr.length === 2) {
+    //joins all with "and" but =no commas
+    //example: "bob and sam"
+    outStr = t('{{ firstUser }} and {{ secondUser }}', {
+      firstUser: slicedArr[0],
+      secondUser: slicedArr[1],
+    });
+  } else if (slicedArr.length > 2) {
+    //joins all with commas, but last one gets ", and" (oxford comma!)
+    //example: "bob, joe, sam and 4 more"
+    if (restLength === 0) {
+      // mutate slicedArr to remove last user to display it separately
+      const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
+      outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
+        commaSeparatedUsers: slicedArr.join(', '),
+        lastUser,
+      });
+    } else {
+      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
+        commaSeparatedUsers: slicedArr.join(', '),
+        moreCount: restLength,
+      });
+    }
+  }
+
+  return outStr;
+};
