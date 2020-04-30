@@ -195,7 +195,8 @@ class MessageTeam extends PureComponent {
     if (!this.isMine() || message.type === 'error') {
       return null;
     }
-    const justReadByMe = readBy.length === 1 && readBy[0].id === client.user.id;
+    const justReadByMe =
+      readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
         <span className="str-chat__message-team-status">
