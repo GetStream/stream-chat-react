@@ -131,11 +131,13 @@ export interface ChannelProps
 }
 
 export interface ChannelListProps extends ChatContextValue {
+  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
 
@@ -199,7 +201,9 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps extends TranslationContextValue {
+export interface ChannelPreviewProps
+  extends TranslationContextValue,
+    ChatContextValue {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -228,6 +232,10 @@ export interface ChannelPreviewProps extends TranslationContextValue {
 }
 
 export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
+  /** Title of channel to display */
+  displayTitle?: string;
+  /** Image of channel to display */
+  displayImage?: string;
   /** Latest message's text. */
   latestMessage?: string;
   /** Length of latest message to truncate at */

@@ -11,7 +11,7 @@
   "Error connecting to chat, refresh the page to try again.": "Erreur de connexion au chat, rafraîchissez la page pour réessayer.",
   "Error muting a user ...": "Erreur de mise en sourdine d'un utilisateur ...",
   "Error · Unsent": "Erreur - Non envoyé",
-  "Error: {{ errorMessage }}": "Erreur : {{ errorMessage}}",
+  "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Flag": "Signaler",
   "Message Failed · Click to try again": "Échec de l'envoi du message - Cliquez pour réessayer",
   "Message deleted": "Message supprimé",
@@ -38,8 +38,8 @@
   "{{ imageCount }} more": "{{ imageCount }} supplémentaires",
   "{{ memberCount }} members": "{{ memberCount }} membres",
   "{{ replyCount }} replies": "{{ replyCount }} réponses",
-  "{{ user }} has been muted": "{{{utilisateur}} a été mis en sourdine",
+  "{{ user }} has been muted": "{{ user }} a été mis en sourdine",
   "{{ user }} is typing...": "{{ user }} est en train d'écrire...",
-  "{{ watcherCount }} online": "{{{watcherCount}} en ligne",
+  "{{ watcherCount }} online": "{{ watcherCount }} en ligne",
   "🏙 Attachment...": "🏙 Pièce jointe..."
 }

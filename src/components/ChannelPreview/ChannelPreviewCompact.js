@@ -29,6 +29,10 @@ class ChannelPreviewCompact extends React.PureComponent {
     active: PropTypes.bool,
     /** Latest message's text. */
     latestMessage: PropTypes.string,
+    /** Title of channel to display */
+    displayTitle: PropTypes.string,
+    /** Image of channel to display */
+    displayImage: PropTypes.string,
   };
 
   channelPreviewButton = React.createRef();
@@ -38,6 +42,7 @@ class ChannelPreviewCompact extends React.PureComponent {
     this.channelPreviewButton.current.blur();
   };
   render() {
+    const { displayTitle, displayImage } = this.props;
     const unreadClass =
       this.props.unread_count >= 1
         ? 'str-chat__channel-preview-compact--unread'
@@ -45,7 +50,7 @@ class ChannelPreviewCompact extends React.PureComponent {
     const activeClass = this.props.active
       ? 'str-chat__channel-preview-compact--active'
       : '';
-    const name = this.props.channel.data.name || this.props.channel.cid;
+
     return (
       <button
         onClick={this.onSelectChannel}
@@ -53,9 +58,11 @@ class ChannelPreviewCompact extends React.PureComponent {
         className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
       >
         <div className="str-chat__channel-preview-compact--left">
-          <Avatar image={this.props.channel.data.image} size={20} />
+          <Avatar image={displayImage} size={20} />
         </div>
-        <div className="str-chat__channel-preview-compact--right">{name}</div>
+        <div className="str-chat__channel-preview-compact--right">
+          {displayTitle}
+        </div>
       </button>
     );
   }
