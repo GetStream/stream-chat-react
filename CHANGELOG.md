@@ -4,6 +4,7 @@
 
 - Fixed an issue where the read by tooltip said: "x, x, and 0 more"
 - Fixed an issue where app might crash due to faulty read state
+- Fixed an issue where file attachments didn't get uploaded when also uploading images
 
 ## [0.11.14](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.14) 2020-04-29
 
