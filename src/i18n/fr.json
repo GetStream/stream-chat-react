@@ -33,7 +33,7 @@
   "this content could not be displayed": "ce contenu n'a pu être affiché",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} et {{ lastUser }} sont en train d'écrire...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} et {{ moreCount }} autres",
-  "{{ commaSeparatedUsers }}, and {{ lastUser }}": "",
+  "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} et {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} et {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} et {{ secondUser }} sont en train d'écrire...",
   "{{ imageCount }} more": "{{ imageCount }} supplémentaires",
