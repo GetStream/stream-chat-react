@@ -14,7 +14,7 @@ import { EditMessageForm } from './EditMessageForm';
 
 import PropTypes from 'prop-types';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, getReadByTooltipText } from '../utils';
 import { withTranslationContext } from '../context';
 
 /**
@@ -193,48 +193,6 @@ class MessageSimple extends PureComponent {
     return this.props.isMyMessage(this.props.message);
   }
 
-  formatArray = (arr) => {
-    const { t, client } = this.props;
-    let outStr = '';
-
-    // first filter out client user, so restLength won't count it
-    const otherUsers = arr
-      .filter((item) => item.id !== client.user.id)
-      .map((item) => item.name || item.id);
-
-    const slicedArr = otherUsers.slice(0, 5);
-    const restLength = otherUsers.length - slicedArr.length;
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = t('{{ firstUser }} and {{ secondUser }}', {
-        firstUser: slicedArr[0],
-        secondUser: slicedArr[1],
-      });
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, sam and 4 more"
-      if (restLength === 0) {
-        // mutate slicedArr to remove last user to display it separately
-        const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
-        outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
-          commaSeparatedUsers: slicedArr.join(', '),
-          lastUser,
-        });
-      } else {
-        outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-          commaSeparatedUsers: slicedArr.join(', '),
-          moreCount: restLength,
-        });
-      }
-    }
-
-    return outStr;
-  };
-
   renderStatus = () => {
     const {
       readBy,
@@ -261,7 +219,9 @@ class MessageSimple extends PureComponent {
       )[0];
       return (
         <span className="str-chat__message-simple-status">
-          <Tooltip>{this.formatArray(readBy)}</Tooltip>
+          <Tooltip>
+            {getReadByTooltipText(readBy, this.props.t, this.props.client)}
+          </Tooltip>
           <Avatar
             name={lastReadUser.name || lastReadUser.id}
             image={lastReadUser.image}
