@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.15) 2020-04-30
+
+- Fixed an issue where the read by tooltip said: "x, x, and 0 more"
+- Fixed an issue where app might crash due to faulty read state
+
 ## [0.11.14](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.14) 2020-04-29
 
 - Adding direct messaging support for channel preview [b394079](https://github.com/GetStream/stream-chat-react/commit/b39407960fa908dc55b8ea48625f3c7095c37b56)
