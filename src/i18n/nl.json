@@ -33,6 +33,7 @@
   "this content could not be displayed": "Deze inhoud kan niet weergegeven worden",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} en {{ lastUser }} zijn aan het typen ...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} en {{ moreCount }} meer",
+  "{{ commaSeparatedUsers }}, and {{ lastUser }}": "",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} en {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} en {{ secondUser }} zijn aan het typen ...",
   "{{ imageCount }} more": "+{{ imageCount }}",

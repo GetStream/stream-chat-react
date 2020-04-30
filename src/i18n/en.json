@@ -33,6 +33,7 @@
   "this content could not be displayed": "this content could not be displayed",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} and {{ moreCount }} more",
+  "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, and {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} and {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} and {{ secondUser }} are typing...",
   "{{ imageCount }} more": "{{ imageCount }} more",
