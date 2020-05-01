@@ -116,10 +116,31 @@ class MessageSimple extends PureComponent {
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.func,
   };
 
   static defaultProps = {
     Attachment,
+    MessageDeleted: ({ message, t, isMyMessage }) => {
+      const messageClasses = isMyMessage(message)
+        ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
+        : 'str-chat__message str-chat__message-simple';
+
+      return (
+        <div
+          key={message.id}
+          className={`${messageClasses} str-chat__message--deleted ${message.type} `}
+        >
+          <div className="str-chat__message--deleted-inner">
+            {t('This message was deleted...')}
+          </div>
+        </div>
+      );
+    },
   };
 
   state = {
@@ -413,6 +434,7 @@ class MessageSimple extends PureComponent {
       handleOpenThread,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
 
     const when = tDateTimeParser(message.created_at).calendar();
@@ -436,18 +458,7 @@ class MessageSimple extends PureComponent {
     }
 
     if (message.deleted_at) {
-      return (
-        <React.Fragment>
-          <div
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
-          >
-            <div className="str-chat__message--deleted-inner">
-              {t('This message was deleted...')}
-            </div>
-          </div>
-        </React.Fragment>
-      );
+      return <MessageDeleted {...this.props} />; // MessageDeleted is always defined because it has a default value
     }
 
     return (

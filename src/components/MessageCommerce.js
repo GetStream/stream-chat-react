@@ -86,10 +86,32 @@ class MessageCommerce extends PureComponent {
     onMentionsClickMessage: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.func,
   };
 
   static defaultProps = {
     Attachment,
+    MessageDeleted: ({ message, t, isMyMessage }) => {
+      const messageClasses = isMyMessage(message)
+        ? 'str-chat__message-commerce str-chat__message-commerce--left'
+        : 'str-chat__message-commerce str-chat__message-commerce--right';
+
+      return (
+        <React.Fragment>
+          <span
+            key={message.id}
+            className={`${messageClasses} str-chat__message--deleted`}
+          >
+            {t('This message was deleted...')}
+          </span>
+          <div className="clearfix" />
+        </React.Fragment>
+      );
+    },
   };
 
   state = {
@@ -202,6 +224,7 @@ class MessageCommerce extends PureComponent {
       handleOpenThread,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
 
     const when = tDateTimeParser(message.created_at).format('LT');
@@ -220,27 +243,14 @@ class MessageCommerce extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.read' ||
-      message.deleted_at ||
-      message.type === 'message.date'
-    ) {
+    if (message.deleted_at) {
+      return <MessageDeleted {...this.props} />; // MessageDeleted is always defined because it has a default value
+    }
+
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
-    if (message.deleted_at) {
-      return (
-        <React.Fragment>
-          <span
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted`}
-          >
-            {t('This message was deleted...')}
-          </span>
-          <div className="clearfix" />
-        </React.Fragment>
-      );
-    }
     return (
       <React.Fragment>
         <div

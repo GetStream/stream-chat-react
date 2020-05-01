@@ -116,6 +116,11 @@ class MessageTeam extends PureComponent {
     onMentionsClickMessage: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.func,
   };
 
   static defaultProps = {
@@ -289,6 +294,7 @@ class MessageTeam extends PureComponent {
       handleDelete,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -298,7 +304,7 @@ class MessageTeam extends PureComponent {
     );
 
     if (message.deleted_at) {
-      return null;
+      return MessageDeleted ? <MessageDeleted {...this.props} /> : null;
     }
 
     let galleryImages =

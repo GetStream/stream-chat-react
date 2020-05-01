@@ -115,6 +115,11 @@ class MessageLivestream extends React.PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.func,
   };
 
   static defaultProps = {
@@ -215,6 +220,7 @@ class MessageLivestream extends React.PureComponent {
       handleDelete,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -239,7 +245,7 @@ class MessageLivestream extends React.PureComponent {
     }
 
     if (message.deleted_at) {
-      return null;
+      return MessageDeleted ? <MessageDeleted {...this.props} /> : null;
     }
 
     if (editing) {

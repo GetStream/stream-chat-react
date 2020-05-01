@@ -122,6 +122,11 @@ class Message extends Component {
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All props are passed into this component.
+     */
+    MessageDeleted: PropTypes.func,
   };
 
   static defaultProps = {
