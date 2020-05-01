@@ -654,7 +654,11 @@ class MessageList extends PureComponent {
     allMessages.sort((a, b) => a.created_at - b.created_at);
 
     // get the readData, but only for messages submitted by the user themselves
-    const readData = this.getReadStates(allMessages.filter(({ user }) => user && user.id === this.props.client.userID));
+    const readData = this.getReadStates(
+      allMessages.filter(
+        ({ user }) => user && user.id === this.props.client.userID,
+      ),
+    );
 
     const lastReceivedId = this.getLastReceived(allMessages);
     const elements = [];

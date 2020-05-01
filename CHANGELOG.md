@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.16) 2020-05-01
+
+- Fixed an where read state indicators dissapeared
+
 ## [0.11.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.15) 2020-04-30
 
 - Fixed an issue where the read by tooltip said: "x, x, and 0 more"
