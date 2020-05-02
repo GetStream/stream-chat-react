@@ -19,28 +19,6 @@
     "getstream",
     "getstream.io"
   ],
-  "jest": {
-    "verbose": true,
-    "maxConcurrency": 1,
-    "testRegex": [
-      "src/components/ChannelList/__tests__/ChannelList.test.js",
-      "src/components/MessageList/__tests__/MessageList.test.js"
-    ],
-    "transformIgnorePatterns": [
-      "/node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/examples/"
-    ],
-    "transform": {
-      "^.+\\.jsx?$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/assetsTransformer.js",
-      "\\.(css|less)$": "<rootDir>/assetsTransformer.js"
-    }
-  },
   "dependencies": {
     "@braintree/sanitize-url": "^4.0.1",
     "@testing-library/react": "^10.0.3",

@@ -1,5 +1,12 @@
 import { mockedApiResponse } from './utils.js';
 
+/**
+ * Returns the api response for queryChannels api
+ *
+ * api - /channels
+ *
+ * @param {*} channels Array of channel objects.
+ */
 export const queryChannelsApi = (channels = []) => {
   const result = {
     channels,

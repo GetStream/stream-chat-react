@@ -1,10 +1,12 @@
 /* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
+import axios from 'axios';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Chat } from '../../Chat';
 import ChannelList from '../ChannelList';
+
 import {
   getTestClient,
   useMockedApis,
@@ -15,11 +17,16 @@ import {
   getOrCreateChannelApi,
   dispatchMessageNewEvent,
   dispatchNotificationAddedToChannelEvent,
-} from '../../../__mocks__';
-import axios from 'axios';
+  getTestClientWithUser,
+  erroredGetApi,
+} from '__mocks__';
 
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
+
+// Wierd hack to avoid big warnings
+// Maybe better to find a better solution for it.
+console.warn = () => null;
 
 /**
  * We are gonna use following custom UI components for preview and list.
@@ -35,20 +42,43 @@ const ChannelPreviewComponent = ({ channel, latestMessage }) => (
 );
 
 const ChannelListComponent = (props) => {
-  const { error, loading, LoadingErrorIndicator, LoadingIndicator } = props;
+  const { error, loading, LoadingIndicator } = props;
   if (error) {
-    return <LoadingErrorIndicator type="Connection Error" />;
-  } else if (loading) {
-    return <LoadingIndicator />;
-  } else {
-    return <div role="list">{props.children}</div>;
+    return <div data-testid="error-indicator" />;
   }
+
+  if (loading) {
+    return <div data-testid="loading-indicator" />;
+  }
+
+  return <div role="list">{props.children}</div>;
 };
 
 jest.mock('axios');
 
 describe('ChannelList', () => {
-  let chatClientVishal;
+  it('should render error indicator if queryChannels api fail', async () => {
+    useMockedApis(axios, [erroredGetApi()]);
+
+    const chatClientVishal = getTestClient();
+    await chatClientVishal.setUser({ id: 'vishal' });
+
+    const { getByTestId } = render(
+      <Chat client={chatClientVishal}>
+        <ChannelList
+          filters={{}}
+          Preview={ChannelPreviewComponent}
+          List={ChannelListComponent}
+          options={{ state: true, watch: true, presence: true }}
+        />
+      </Chat>,
+    );
+
+    // Wait for list of channels to load in DOM.
+    await waitFor(() => {
+      expect(getByTestId('error-indicator')).toBeInTheDocument();
+    });
+  });
 
   it('should move the channel to top if new message is received', async () => {
     const channel1 = generateChannel();
@@ -57,7 +87,8 @@ describe('ChannelList', () => {
 
     useMockedApis(axios, [queryChannelsApi([channel1, channel2, channel3])]);
 
-    chatClientVishal = await getTestClient({ id: 'vishal' });
+    const chatClientVishal = getTestClient();
+    await chatClientVishal.setUser({ id: 'vishal' });
 
     const { getByText, getByRole, getAllByRole } = render(
       <Chat client={chatClientVishal}>
@@ -104,7 +135,7 @@ describe('ChannelList', () => {
       getOrCreateChannelApi(channel3),
     ]);
 
-    chatClientVishal = await getTestClient({ id: 'vishal' });
+    const chatClientVishal = await getTestClientWithUser({ id: 'vishal' });
 
     const { getByText, getByRole, getByTestId, getAllByRole } = render(
       <Chat client={chatClientVishal}>

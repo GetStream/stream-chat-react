@@ -4,7 +4,6 @@ build
 /public/static/styles.js
 examples/*/src/serviceWorker.js
 scripts/
-src/__mocks__
 /dist/
 /lib/
 /bin/

@@ -9,8 +9,8 @@ export const generateChannel = (options = { channel: {} }) => {
     members: [],
     ...optionsBesidesChannel,
     channel: {
-      id: id,
-      type: type,
+      id,
+      type,
       cid: `${type}:${id}`,
       created_at: '2020-04-28T11:20:48.578147Z',
       updated_at: '2020-04-28T11:20:48.578147Z',

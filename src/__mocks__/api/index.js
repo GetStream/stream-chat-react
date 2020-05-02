@@ -1,5 +1,8 @@
 /**
  * Hook to mock the calls made through axios module.
+ * You should provide the responses of Apis in order that they will be called.
+ * You should use api functions from current directory to build these responses.
+ * e.g., queryChannelsApi, sendMessageApi
  *
  * @param {*} axios
  * @param {*} apiResponses
@@ -29,3 +32,4 @@ export const useMockedApis = (axios, apiResponses) => {
 export * from './queryChannels';
 export * from './getOrCreateChannel';
 export * from './sendMessage';
+export * from './error';

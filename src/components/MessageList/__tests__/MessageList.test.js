@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
+import axios from 'axios';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  getTestClient,
   useMockedApis,
   getOrCreateChannelApi,
   generateChannel,
@@ -12,12 +12,12 @@ import {
   generateMember,
   generateUser,
   dispatchMessageNewEvent,
-} from '../../../__mocks__';
+  getTestClientWithUser,
+} from '__mocks__';
 
 import { Chat } from '../../Chat';
 import MessageList from '../MessageList';
 import { Channel } from '../../Channel';
-import axios from 'axios';
 
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
@@ -43,7 +43,7 @@ describe('MessageList', () => {
 
     useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
 
-    chatClientVishal = await getTestClient({ id: 'vishal' });
+    chatClientVishal = await getTestClientWithUser({ id: 'vishal' });
     const channel = chatClientVishal.channel('messaging', mockedChannel.id);
     await channel.query();
 
@@ -55,7 +55,7 @@ describe('MessageList', () => {
       </Chat>,
     );
     await waitFor(() => {
-      expect(getByTestId('message-list')).toBeInTheDocument();
+      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
     });
 
     const newMessage = generateMessage({ user: user2 });

@@ -1,7 +1,7 @@
-export const mockedApiResponse = (response, type = 'get') => ({
+export const mockedApiResponse = (response, type = 'get', status = 200) => ({
   type,
   response: {
     data: response,
-    status: 200,
+    status,
   },
 });
