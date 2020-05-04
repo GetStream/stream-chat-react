@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.17) 2020-05-04
+
+- Added prop MessageDeleted on Message components to override the default component displayed for deleted messages.
+
 ## [0.11.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.16) 2020-05-01
 
 - Fixed an where read state indicators dissapeared
