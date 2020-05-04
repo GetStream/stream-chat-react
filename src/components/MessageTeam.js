@@ -11,7 +11,12 @@ import { Tooltip } from './Tooltip';
 import { Gallery } from './Gallery';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
-import { isOnlyEmojis, renderText, getReadByTooltipText } from '../utils';
+import {
+  isOnlyEmojis,
+  renderText,
+  getReadByTooltipText,
+  smartRender,
+} from '../utils';
 import { withTranslationContext } from '../context';
 
 const reactionSvg =
@@ -116,6 +121,11 @@ class MessageTeam extends PureComponent {
     onMentionsClickMessage: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -289,6 +299,7 @@ class MessageTeam extends PureComponent {
       handleDelete,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -298,7 +309,7 @@ class MessageTeam extends PureComponent {
     );
 
     if (message.deleted_at) {
-      return null;
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     let galleryImages =

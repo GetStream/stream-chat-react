@@ -11,7 +11,7 @@ import { EditMessageForm } from './EditMessageForm';
 import { Gallery } from './Gallery';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../utils';
 import { withTranslationContext } from '../context';
 
 const reactionSvg =
@@ -115,6 +115,11 @@ class MessageLivestream extends React.PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -215,6 +220,7 @@ class MessageLivestream extends React.PureComponent {
       handleDelete,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
     const hasAttachment = Boolean(
       message.attachments && message.attachments.length,
@@ -239,7 +245,7 @@ class MessageLivestream extends React.PureComponent {
     }
 
     if (message.deleted_at) {
-      return null;
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     if (editing) {
