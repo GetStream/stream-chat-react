@@ -8,7 +8,7 @@ import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import PropTypes from 'prop-types';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../utils';
 import { withTranslationContext } from '../context';
 
 /**
@@ -95,23 +95,6 @@ class MessageCommerce extends PureComponent {
 
   static defaultProps = {
     Attachment,
-    MessageDeleted: ({ message, t, isMyMessage }) => {
-      const messageClasses = isMyMessage(message)
-        ? 'str-chat__message-commerce str-chat__message-commerce--left'
-        : 'str-chat__message-commerce str-chat__message-commerce--right';
-
-      return (
-        <React.Fragment>
-          <span
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted`}
-          >
-            {t('This message was deleted...')}
-          </span>
-          <div className="clearfix" />
-        </React.Fragment>
-      );
-    },
   };
 
   state = {
@@ -244,7 +227,7 @@ class MessageCommerce extends PureComponent {
     );
 
     if (message.deleted_at) {
-      return <MessageDeleted {...this.props} />; // MessageDeleted is always defined because it has a default value
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     if (message.type === 'message.read' || message.type === 'message.date') {
