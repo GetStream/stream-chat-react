@@ -90,7 +90,7 @@ class MessageCommerce extends PureComponent {
      * The component that will be rendered if the message has been deleted.
      * All of Message's props are passed into this component.
      */
-    MessageDeleted: PropTypes.func,
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
