@@ -11,10 +11,16 @@ import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { Modal } from './Modal';
 import { MessageInput } from './MessageInput';
 import { EditMessageForm } from './EditMessageForm';
+import { MessageDeleted } from './MessageDeleted';
 
 import PropTypes from 'prop-types';
 
-import { isOnlyEmojis, renderText, getReadByTooltipText } from '../utils';
+import {
+  isOnlyEmojis,
+  renderText,
+  getReadByTooltipText,
+  smartRender,
+} from '../utils';
 import { withTranslationContext } from '../context';
 
 /**
@@ -125,22 +131,7 @@ class MessageSimple extends PureComponent {
 
   static defaultProps = {
     Attachment,
-    MessageDeleted: ({ message, t, isMyMessage }) => {
-      const messageClasses = isMyMessage(message)
-        ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
-        : 'str-chat__message str-chat__message-simple';
-
-      return (
-        <div
-          key={message.id}
-          className={`${messageClasses} str-chat__message--deleted ${message.type} `}
-        >
-          <div className="str-chat__message--deleted-inner">
-            {t('This message was deleted...')}
-          </div>
-        </div>
-      );
-    },
+    MessageDeleted,
   };
 
   state = {
@@ -458,7 +449,7 @@ class MessageSimple extends PureComponent {
     }
 
     if (message.deleted_at) {
-      return <MessageDeleted {...this.props} />; // MessageDeleted is always defined because it has a default value
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     return (

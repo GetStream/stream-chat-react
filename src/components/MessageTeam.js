@@ -11,7 +11,12 @@ import { Tooltip } from './Tooltip';
 import { Gallery } from './Gallery';
 import { MessageInput } from './MessageInput';
 import PropTypes from 'prop-types';
-import { isOnlyEmojis, renderText, getReadByTooltipText } from '../utils';
+import {
+  isOnlyEmojis,
+  renderText,
+  getReadByTooltipText,
+  smartRender,
+} from '../utils';
 import { withTranslationContext } from '../context';
 
 const reactionSvg =
@@ -304,7 +309,7 @@ class MessageTeam extends PureComponent {
     );
 
     if (message.deleted_at) {
-      return MessageDeleted ? <MessageDeleted {...this.props} /> : null;
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     let galleryImages =

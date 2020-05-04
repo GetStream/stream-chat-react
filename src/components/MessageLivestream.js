@@ -11,7 +11,7 @@ import { EditMessageForm } from './EditMessageForm';
 import { Gallery } from './Gallery';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../utils';
 import { withTranslationContext } from '../context';
 
 const reactionSvg =
@@ -245,7 +245,7 @@ class MessageLivestream extends React.PureComponent {
     }
 
     if (message.deleted_at) {
-      return MessageDeleted ? <MessageDeleted {...this.props} /> : null;
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     if (editing) {
