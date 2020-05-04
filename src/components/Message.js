@@ -126,7 +126,7 @@ class Message extends Component {
      * The component that will be rendered if the message has been deleted.
      * All props are passed into this component.
      */
-    MessageDeleted: PropTypes.func,
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
