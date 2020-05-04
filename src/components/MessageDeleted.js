@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withTranslationContext } from '../context';
 
 class MessageDeleted extends React.PureComponent {
   static propTypes = {
@@ -27,5 +28,7 @@ class MessageDeleted extends React.PureComponent {
     );
   }
 }
+
+MessageDeleted = withTranslationContext(MessageDeleted);
 
 export { MessageDeleted };
