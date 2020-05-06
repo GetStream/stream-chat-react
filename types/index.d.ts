@@ -474,6 +474,8 @@ export interface MessageProps extends TranslationContextValue {
   editing?: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
   Message?: React.ElementType<MessageUIComponentProps>;
+  /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
+  MessageDeleted?: React.ElementType<MessageDeletedProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -543,6 +545,12 @@ export interface MessageUIComponentProps
   channelConfig?: object;
   threadList?: boolean;
   additionalMessageInputProps?: object;
+}
+
+export interface MessageDeletedProps extends TranslationContextValue {
+  /** The message object */
+  message: Client.MessageResponse;
+  isMyMessage(message: Client.MessageResponse): boolean;
 }
 
 export interface ThreadProps
@@ -1000,6 +1008,10 @@ export class MessageTeam extends React.PureComponent<
 > {}
 export class MessageSimple extends React.PureComponent<
   MessageUIComponentProps,
+  any
+> {}
+export class MessageDeleted extends React.PureComponent<
+  MessageDeletedProps,
   any
 > {}
 

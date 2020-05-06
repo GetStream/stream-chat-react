@@ -8,7 +8,7 @@ import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 
 import PropTypes from 'prop-types';
 
-import { isOnlyEmojis, renderText } from '../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../utils';
 import { withTranslationContext } from '../context';
 
 /**
@@ -98,6 +98,10 @@ class MessageCommerce extends PureComponent {
      * @param event Dom mouseOver event which triggered handler.
      */
     onUserHover: PropTypes.func,
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -216,6 +220,7 @@ class MessageCommerce extends PureComponent {
       handleOpenThread,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
 
     const when = tDateTimeParser(message.created_at).format('LT');
@@ -234,27 +239,14 @@ class MessageCommerce extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.read' ||
-      message.deleted_at ||
-      message.type === 'message.date'
-    ) {
+    if (message.deleted_at) {
+      return smartRender(MessageDeleted, this.props, null);
+    }
+
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
-    if (message.deleted_at) {
-      return (
-        <React.Fragment>
-          <span
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted`}
-          >
-            {t('This message was deleted...')}
-          </span>
-          <div className="clearfix" />
-        </React.Fragment>
-      );
-    }
     return (
       <React.Fragment>
         <div
