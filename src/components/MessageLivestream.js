@@ -127,7 +127,7 @@ class MessageLivestream extends React.PureComponent {
      * @param event Dom mouseOver event which triggered handler.
      */
     onUserHover: PropTypes.func,
-    /** 
+    /**
      * The component that will be rendered if the message has been deleted.
      * All of Message's props are passed into this component.
      */
