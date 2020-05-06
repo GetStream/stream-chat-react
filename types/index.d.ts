@@ -497,7 +497,7 @@ export interface MessageProps extends TranslationContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
-  /** Function to be called when clicking an avatar. Function has access to the DOM event and the target user object */
+  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
   onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   openThread?(
     message: Client.MessageResponse,

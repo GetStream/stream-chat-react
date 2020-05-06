@@ -114,7 +114,7 @@ class Message extends Component {
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     onMentionsHover: PropTypes.func,
     /**
-     * The handler for click event on the avatar
+     * The handler for click event on the user that posted the message
      *
      * @param event Dom click event which triggered handler.
      */

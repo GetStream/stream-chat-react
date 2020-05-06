@@ -115,7 +115,7 @@ class MessageTeam extends PureComponent {
      */
     onMentionsClickMessage: PropTypes.func,
     /**
-     * The handler for click event on the avatar
+     * The handler for click event on the user that posted the message
      *
      * @param event Dom click event which triggered handler.
      */

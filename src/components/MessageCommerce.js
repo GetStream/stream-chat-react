@@ -87,7 +87,7 @@ class MessageCommerce extends PureComponent {
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
     /**
-     * The handler for click event on the avatar
+     * The handler for click event on the user that posted the message
      *
      * @param event Dom click event which triggered handler.
      */
