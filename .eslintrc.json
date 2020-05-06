@@ -1,10 +1,18 @@
 {
-  "plugins": ["babel", "markdown", "sonarjs", "prettier", "react-hooks"],
+  "plugins": [
+    "babel",
+    "markdown",
+    "sonarjs",
+    "prettier",
+    "react-hooks",
+    "jest"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
     "airbnb-base",
     "plugin:prettier/recommended",
+    "plugin:jest/all",
     "plugin:sonarjs/recommended"
   ],
   "rules": {
