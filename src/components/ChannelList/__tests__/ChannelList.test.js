@@ -19,7 +19,7 @@ import {
   dispatchNotificationAddedToChannelEvent,
   getTestClientWithUser,
   erroredGetApi,
-} from '__mocks__';
+} from 'mock-builders';
 
 // eslint-disable-next-line no-undef
 afterEach(cleanup);
