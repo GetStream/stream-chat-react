@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
  * AttachmentActions - The actions you can take on an attachment
  *
  * @example ../../docs/AttachmentActions.md
- * @extends PureComponent
  */
 const AttachmentActions = ({ text, id, actions, actionHandler }) => (
   <div className="str-chat__message-attachment-actions">
@@ -16,7 +15,7 @@ const AttachmentActions = ({ text, id, actions, actionHandler }) => (
           className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
           key={`${id}-${action.value}`}
           data-value={action.value}
-          onClick={() => actionHandler(action.name, action.value)}
+          onClick={(e) => actionHandler(action.name, action.value, e)}
         >
           {action.text}
         </button>
