@@ -1,6 +1,8 @@
-# React Chat Components
+# Official React SDK for [Stream Chat](https://getstream.io/chat/)
 
-<a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" /></a>
+<p align="center">
+  <a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" width="60%" /></a>
+</p>
 
 > The official React components for Stream Chat, a service for
 > building chat applications.
@@ -8,6 +10,8 @@
 [![NPM](https://img.shields.io/npm/v/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
 [![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
+
+<img align="right" src="https://getstream.imgix.net/images/chat/chattutorialart@3x.png?auto=format,enhance" width="50%" />
 
 **Quick Links**
 
@@ -18,7 +22,7 @@
 - [Component Docs](https://getstream.github.io/stream-chat-react/)
 - [Internationalisation](#internationalisation)
 
-With these chat components you can support any type of chat use case:
+With these chat components, you can support any chat use case:
 
 - Livestreams like Twitch or Youtube
 - In-Game chat like Overwatch or Fortnite
@@ -28,7 +32,7 @@ With these chat components you can support any type of chat use case:
 
 ## React Chat Tutorial
 
-The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make common changes.
+The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make frequently required changes.
 
 ## Example Apps
 
@@ -41,13 +45,13 @@ yarn
 yarn start
 ```
 
-The 4 examples are `messaging`, `team`, `commerce` and `livestream`. You can also preview these demos online in the [Chat Demos](https://getstream.io/chat/demos/)
+The four examples are `messaging`, `team`, `commerce` and `livestream`. You can also preview these demos online in the [Chat Demos](https://getstream.io/chat/demos/)
 
 ## Docs
 
 The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream-chat-react/) document how all the components work.
 
-The React components are created using the stream-chat-js library. If you're customizing the components it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
+The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
 
 ## Commands
 
@@ -57,13 +61,9 @@ The React components are created using the stream-chat-js library. If you're cus
 
 ## Component Reusability
 
-1.  If a component implements a ton of logic it's nice if you split it out into 2 Components
-    The top level component which handles all the logic, and a lower level component which just handles rendering.
-    This makes it easy to change the rendering without having to touch the other stuff.
-    Have a look at Message and MessageTeam to see how this approach works.
+1.  If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageTeam to see how this approach works.
 
-2.  Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children approach.
-    Have a look at how flexible the channel layout is due to this approach:
+2.  Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children. Have a look at how flexible the channel layout is due to this approach:
 
 ```jsx
 <Channel>
@@ -78,21 +78,21 @@ The React components are created using the stream-chat-js library. If you're cus
 
 ### Customizing styles
 
-`stream-chat-react` uses scss for styling. There may be times when you want to make simple changes to our stylesheets and don't want to manually override classes and styles. To make these customizations you can do the following:
+`stream-chat-react` uses SCSS for styling. There may be times when you want to make simple changes to our stylesheets and don't want to override classes and styles manually. To make these customizations, you can do the following:
 
 - Clone this repository
-- Make the changes you want in the scss files
+- Make the changes you want in the SCSS files
 - Run `yarn build-styles` or `yarn watch-styles`
 
 ## Performance
 
-Since chat can get pretty active it's important to pay attention to performance.
+Since chat can get pretty active, it's essential to pay attention to performance.
 For every component either:
 
 - Implement shouldComponentUpdate
 - Extend PureComponent
 
-You can verify if the update behaviour is correct by sticking this code in your component:
+You can verify if the update behavior is correct by sticking this code in your component:
 
 ```js
 import React from 'react';
@@ -106,23 +106,23 @@ export default class MyComponent extends React.Component {
 ```
 
 Note that the PureComponent uses a shallow diff to determine if a component should rerender upon state change.
-The regular Component simply always rerenders when there is a state change.
+The regular component simply always rerenders when there is a state change.
 
 You can read more about PureComponents and common gotchas here:
 https://codeburst.io/when-to-use-component-or-purecomponent-a60cfad01a81
 
-You want the shallow diff to only be true if something actually changed.
+You want the shallow diff only to be true if something changed.
 Common mistakes that hurt performance are:
 
 - Mistake: Passing anonymous functions (those are different every time)
 - Solution: Use a regular function
 - Mistake: Passing an object {} or an array [] that's not using seamless-immutable
-- Solution: Use an immutable type (ie a number or a string) or use a seamless immutable version of an object or an array
+- Solution: Use an immutable type (i.e., a number or a string) or use a seamless immutable version of an object or an array
 
 ## Internationalisation
 
-Instance of class `Streami18n` should be provided to Chat component to handle translations.
-Stream provides following list of in-built translations for components:
+Instance of class `Streami18n` should be provided to the Chat component to handle translations.
+Stream provides the following list of in-built translations for components:
 
 1.  English (en)
 2.  Dutch (nl)
@@ -132,7 +132,7 @@ Stream provides following list of in-built translations for components:
 6.  Italian (it)
 7.  Hindi (hi)
 
-Default language is English. Simplest way to start using chat components in one of the in-built languages would be following:
+The default language is English. The simplest way to start using chat components in one of the in-built languages would be the following:
 
 Simplest way to start using chat components in one of the in-built languages would be following:
 
@@ -158,7 +158,7 @@ const i18n = new Streami18n({
 
 You can find all the available keys here: https://github.com/GetStream/stream-chat-react/tree/master/src/i18n
 
-They are also exported as json object from the library.
+They are also exported as a JSON object from the library.
 
 ```js static
 import {
@@ -177,4 +177,4 @@ Please read this docs on i18n for more details and further customizations - http
 
 ## Contributing
 
-We welcome code changes that improve this library or fix a problem, please make sure to follow all best practices and add tests if applicable before submitting a Pull Request on Github. We are very happy to merge your code in the official repository. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
+We welcome code changes that improve this library or fix a problem. Please make sure to follow all best practices and add tests if applicable before submitting a Pull Request on Github. We are pleased to merge your code into the official repository. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
