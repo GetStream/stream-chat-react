@@ -118,6 +118,18 @@ class MessageSimple extends PureComponent {
      */
     onMentionsClickMessage: PropTypes.func,
     /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
+    /**
      * Additional props for underlying MessageInput component.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
@@ -420,6 +432,8 @@ class MessageSimple extends PureComponent {
       handleAction,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       threadList,
       handleOpenThread,
@@ -483,6 +497,8 @@ class MessageSimple extends PureComponent {
           <Avatar
             image={message.user.image}
             name={message.user.name || message.user.id}
+            onClick={onUserClick}
+            onMouseOver={onUserHover}
           />
           <div
             className="str-chat__message-inner"

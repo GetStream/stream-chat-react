@@ -119,6 +119,18 @@ class MessageTeam extends PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
     /**
@@ -289,6 +301,8 @@ class MessageTeam extends PureComponent {
       messageListRect,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       handleRetry,
       getMessageActions,
@@ -337,6 +351,8 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             </div>
           )}
@@ -368,6 +384,8 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             ) : (
               <div style={{ width: 40, marginRight: 0 }} />
@@ -382,7 +400,10 @@ class MessageTeam extends PureComponent {
             {(groupStyles[0] === 'top' ||
               groupStyles[0] === 'single' ||
               initialMessage) && (
-              <div className="str-chat__message-team-author">
+              <div
+                className="str-chat__message-team-author"
+                onClick={onUserClick}
+              >
                 <strong>{message.user.name || message.user.id}</strong>
                 {message.type === 'error' && (
                   <div className="str-chat__message-team-error-header">

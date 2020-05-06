@@ -116,6 +116,18 @@ class MessageLivestream extends React.PureComponent {
      */
     onMentionsClickMessage: PropTypes.func,
     /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
+    /**
      * The component that will be rendered if the message has been deleted.
      * All of Message's props are passed into this component.
      */
@@ -209,6 +221,8 @@ class MessageLivestream extends React.PureComponent {
       Message,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       handleRetry,
       handleAction,
@@ -260,6 +274,8 @@ class MessageLivestream extends React.PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             </div>
           )}
@@ -355,6 +371,8 @@ class MessageLivestream extends React.PureComponent {
               image={message.user.image}
               name={message.user.name || message.user.id}
               size={30}
+              onClick={onUserClick}
+              onMouseOver={onUserHover}
             />
           </div>
           <div className={`str-chat__message-livestream-right`}>

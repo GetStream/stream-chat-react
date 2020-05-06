@@ -87,7 +87,18 @@ class MessageCommerce extends PureComponent {
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
     /**
-     * The component that will be rendered if the message has been deleted.
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
+    /** The component that will be rendered if the message has been deleted.
      * All of Message's props are passed into this component.
      */
     MessageDeleted: PropTypes.elementType,
@@ -202,6 +213,8 @@ class MessageCommerce extends PureComponent {
       actionsEnabled,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       threadList,
       handleOpenThread,
@@ -258,6 +271,8 @@ class MessageCommerce extends PureComponent {
               image={message.user.image}
               size={32}
               name={message.user.name || message.user.id}
+              onClick={onUserClick}
+              onMouseOver={onUserHover}
             />
           )}
           <div className="str-chat__message-commerce-inner">
