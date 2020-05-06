@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.18](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.18) 2020-05-06
+
+- Better fallback avatar in ReactionSelector
+- Better scrolling after assets finish loading
+- Disabled truncation of email links
+- New props `onUserClick` and `onUserHover` on `Message` components
+
 ## [0.11.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.17) 2020-05-04
 
 - Added prop MessageDeleted on Message components to override the default component displayed for deleted messages.
