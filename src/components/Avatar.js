@@ -17,11 +17,14 @@ export class Avatar extends React.PureComponent {
     shape: PropTypes.oneOf(['circle', 'rounded', 'square']),
     /** size in pixels */
     size: PropTypes.number,
+    /** click event handler */
+    onClick: PropTypes.func,
   };
 
   static defaultProps = {
     size: 32,
     shape: 'circle',
+    onClick: () => {},
   };
 
   state = {
@@ -52,7 +55,7 @@ export class Avatar extends React.PureComponent {
   }
 
   render() {
-    const { size, name, shape, image } = this.props;
+    const { size, name, shape, image, onClick } = this.props;
     const initials = this.getInitials(name);
     return (
       <div
@@ -65,6 +68,7 @@ export class Avatar extends React.PureComponent {
           lineHeight: size + 'px',
           fontSize: size / 2,
         }}
+        onClick={onClick}
       >
         {image && !this.state.errored ? (
           <img

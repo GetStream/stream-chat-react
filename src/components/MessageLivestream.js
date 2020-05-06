@@ -115,6 +115,12 @@ class MessageLivestream extends React.PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The handler for click event on the avatar
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
   };
 
   static defaultProps = {
@@ -204,6 +210,7 @@ class MessageLivestream extends React.PureComponent {
       Message,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
       unsafeHTML,
       handleRetry,
       handleAction,
@@ -254,6 +261,7 @@ class MessageLivestream extends React.PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
               />
             </div>
           )}
@@ -349,6 +357,7 @@ class MessageLivestream extends React.PureComponent {
               image={message.user.image}
               name={message.user.name || message.user.id}
               size={30}
+              onClick={onUserClick}
             />
           </div>
           <div className={`str-chat__message-livestream-right`}>

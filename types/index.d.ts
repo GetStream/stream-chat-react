@@ -292,6 +292,7 @@ export interface AvatarProps {
   shape?: 'circle' | 'rounded' | 'square';
   /** size in pixels */
   size?: number;
+  onClick?(e: React.MouseEvent): void;
 }
 
 export interface DateSeparatorProps extends TranslationContextValue {
@@ -496,6 +497,8 @@ export interface MessageProps extends TranslationContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  /** Function to be called when clicking an avatar. Function has access to the DOM event and the target user object */
+  onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -529,6 +532,7 @@ export interface MessageUIComponentProps
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
+  onUserClick(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
   channelConfig?: object;
   threadList?: boolean;

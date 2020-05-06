@@ -113,6 +113,12 @@ class Message extends Component {
     onMentionsClick: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     onMentionsHover: PropTypes.func,
+    /**
+     * The handler for click event on the avatar
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     openThread: PropTypes.func,
     /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
@@ -424,6 +430,14 @@ class Message extends Component {
     onMentionsHover(e, message.mentioned_users);
   };
 
+  onUserClick = (e) => {
+    if (typeof this.props.onUserClick !== 'function') {
+      return;
+    }
+
+    this.props.onUserClick(e, this.props.message.user);
+  };
+
   getMessageActions = () => {
     const { message, messageActions: messageActionsProps } = this.props;
     const { mutes } = this.props.channel.getConfig();
@@ -500,6 +514,7 @@ class Message extends Component {
         channelConfig={config}
         onMentionsClickMessage={this.onMentionsClick}
         onMentionsHoverMessage={this.onMentionsHover}
+        onUserClick={this.onUserClick}
       />
     );
   }

@@ -86,6 +86,12 @@ class MessageCommerce extends PureComponent {
     onMentionsClickMessage: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The handler for click event on the avatar
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
   };
 
   static defaultProps = {
@@ -197,6 +203,7 @@ class MessageCommerce extends PureComponent {
       actionsEnabled,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
       unsafeHTML,
       threadList,
       handleOpenThread,
@@ -265,6 +272,7 @@ class MessageCommerce extends PureComponent {
               image={message.user.image}
               size={32}
               name={message.user.name || message.user.id}
+              onClick={onUserClick}
             />
           )}
           <div className="str-chat__message-commerce-inner">

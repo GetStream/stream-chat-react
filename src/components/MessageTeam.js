@@ -114,6 +114,12 @@ class MessageTeam extends PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The handler for click event on the avatar
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
   };
@@ -279,6 +285,7 @@ class MessageTeam extends PureComponent {
       messageListRect,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
       unsafeHTML,
       handleRetry,
       getMessageActions,
@@ -326,6 +333,7 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
               />
             </div>
           )}
@@ -357,6 +365,7 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
               />
             ) : (
               <div style={{ width: 40, marginRight: 0 }} />
@@ -371,7 +380,10 @@ class MessageTeam extends PureComponent {
             {(groupStyles[0] === 'top' ||
               groupStyles[0] === 'single' ||
               initialMessage) && (
-              <div className="str-chat__message-team-author">
+              <div
+                className="str-chat__message-team-author"
+                onClick={onUserClick}
+              >
                 <strong>{message.user.name || message.user.id}</strong>
                 {message.type === 'error' && (
                   <div className="str-chat__message-team-error-header">
