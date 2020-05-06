@@ -1,7 +1,7 @@
 .str-chat__gallery {
   display: inline-flex;
   flex-wrap: wrap;
-  justify-content: end;
+  justify-content: flex-end;
   overflow: hidden;
 
   &-image {
