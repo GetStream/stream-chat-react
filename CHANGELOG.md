@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.11.18](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.18) 2020-05-06
+
+- Better fallback avatar in ReactionSelector
+- Better scrolling after assets finish loading
+- Disabled truncation of email links
+- New props `onUserClick` and `onUserHover` on `Message` components
+
+## [0.11.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.17) 2020-05-04
+
+- Added prop MessageDeleted on Message components to override the default component displayed for deleted messages.
+
+## [0.11.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.16) 2020-05-01
+
+- Fixed an where read state indicators dissapeared
+
+## [0.11.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.15) 2020-04-30
+
+- Fixed an issue where the read by tooltip said: "x, x, and 0 more"
+- Fixed an issue where app might crash due to faulty read state
+- Fixed an issue where file attachments didn't get uploaded when also uploading images
+
 ## [0.11.14](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.14) 2020-04-29
 
 - Adding direct messaging support for channel preview [b394079](https://github.com/GetStream/stream-chat-react/commit/b39407960fa908dc55b8ea48625f3c7095c37b56)

@@ -256,8 +256,6 @@ class MessageList extends PureComponent {
 
     if (scrollToBottom) {
       this.scrollToBottom();
-      // Scroll further once attachments are laoded.
-      setTimeout(this.scrollToBottom, 100);
 
       // remove the scroll notification if we already scrolled down...
       this.state.newMessagesNotification &&
@@ -445,6 +443,9 @@ class MessageList extends PureComponent {
     // create object with empty array for each message id
     const readData = {};
     for (const message of messages) {
+      if (!message || !message.id) {
+        continue;
+      }
       readData[message.id] = [];
     }
 
@@ -458,13 +459,14 @@ class MessageList extends PureComponent {
           userLastReadMsgId = msg.id;
         }
       }
-      if (userLastReadMsgId != null) {
+      if (userLastReadMsgId) {
         readData[userLastReadMsgId] = [
           ...readData[userLastReadMsgId],
           readState.user,
         ];
       }
     }
+
     return readData;
   };
 
@@ -645,6 +647,14 @@ class MessageList extends PureComponent {
       ? this.props.loadMore(this.props.messageLimit)
       : this.props.loadMore();
 
+  _onMessageLoadCaptured = () => {
+    // A load event (emitted by e.g. an <img>) was captured on a message.
+    // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
+    if (!this.userScrolledUp()) {
+      this.scrollToBottom();
+    }
+  };
+
   // eslint-disable-next-line
   render() {
     let allMessages = [...this.props.messages];
@@ -666,8 +676,12 @@ class MessageList extends PureComponent {
     // sort by date
     allMessages.sort((a, b) => a.created_at - b.created_at);
 
-    // get the readData
-    const readData = this.getReadStates(allMessages);
+    // get the readData, but only for messages submitted by the user themselves
+    const readData = this.getReadStates(
+      allMessages.filter(
+        ({ user }) => user && user.id === this.props.client.userID,
+      ),
+    );
 
     const lastReceivedId = this.getLastReceived(allMessages);
     const elements = [];
@@ -723,6 +737,7 @@ class MessageList extends PureComponent {
             className={`str-chat__li str-chat__li--${groupStyles}`}
             key={message.id || message.created_at}
             ref={this.messageRefs[message.id]}
+            onLoadCapture={this._onMessageLoadCaptured}
           >
             <Message
               client={this.props.client}

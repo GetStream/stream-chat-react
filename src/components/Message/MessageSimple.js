@@ -3,7 +3,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { isOnlyEmojis, renderText } from '../../utils';
+import {
+  isOnlyEmojis,
+  renderText,
+  getReadByTooltipText,
+  smartRender,
+} from '../../utils';
 import { withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Avatar } from '../Avatar';
@@ -15,6 +20,7 @@ import { MessageActionsBox } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
+import MessageDeleted from '../MessageDeleted';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -111,14 +117,32 @@ class MessageSimple extends PureComponent {
      */
     onMentionsClickMessage: PropTypes.func,
     /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
+    /**
      * Additional props for underlying MessageInput component.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
     Attachment,
+    MessageDeleted,
   };
 
   state = {
@@ -192,36 +216,6 @@ class MessageSimple extends PureComponent {
     return this.props.isMyMessage(this.props.message);
   }
 
-  formatArray = (arr) => {
-    const { t } = this.props;
-    let outStr = '';
-    const slicedArr = arr
-      .filter((item) => item.id !== this.props.client.user.id)
-      .map((item) => item.name || item.id)
-      .slice(0, 5);
-    const restLength = arr.length - slicedArr.length;
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = t('{{ firstUser }} and {{ secondUser }}', {
-        firstUser: slicedArr[0],
-        secondUser: slicedArr[1],
-      });
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, sam and 4 more"
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
-    }
-
-    return outStr;
-  };
-
   renderStatus = () => {
     const {
       readBy,
@@ -234,7 +228,8 @@ class MessageSimple extends PureComponent {
     if (!this.isMine() || message.type === 'error') {
       return null;
     }
-    const justReadByMe = readBy.length === 1 && readBy[0].id === client.user.id;
+    const justReadByMe =
+      readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
         <span className="str-chat__message-simple-status">
@@ -248,7 +243,9 @@ class MessageSimple extends PureComponent {
       )[0];
       return (
         <span className="str-chat__message-simple-status">
-          <Tooltip>{this.formatArray(readBy)}</Tooltip>
+          <Tooltip>
+            {getReadByTooltipText(readBy, this.props.t, this.props.client)}
+          </Tooltip>
           <Avatar
             name={lastReadUser.name || lastReadUser.id}
             image={lastReadUser.image}
@@ -434,11 +431,14 @@ class MessageSimple extends PureComponent {
       handleAction,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       threadList,
       handleOpenThread,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
 
     const when = tDateTimeParser(message.created_at).calendar();
@@ -462,18 +462,7 @@ class MessageSimple extends PureComponent {
     }
 
     if (message.deleted_at) {
-      return (
-        <React.Fragment>
-          <div
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted ${message.type} `}
-          >
-            <div className="str-chat__message--deleted-inner">
-              {t('This message was deleted...')}
-            </div>
-          </div>
-        </React.Fragment>
-      );
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     return (
@@ -507,6 +496,8 @@ class MessageSimple extends PureComponent {
           <Avatar
             image={message.user.image}
             name={message.user.name || message.user.id}
+            onClick={onUserClick}
+            onMouseOver={onUserHover}
           />
           <div
             className="str-chat__message-inner"

@@ -3,12 +3,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { isOnlyEmojis, renderText } from '../../utils';
-import { withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { ReactionsList, ReactionSelector } from '../Reactions';
+import { isOnlyEmojis, renderText, smartRender } from '../../utils';
+import { withTranslationContext } from '../../context';
 
 /**
  * MessageCommerce - Render component, should be used together with the Message component
@@ -85,6 +85,22 @@ class MessageCommerce extends PureComponent {
     onMentionsClickMessage: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
+    /** The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -196,11 +212,14 @@ class MessageCommerce extends PureComponent {
       actionsEnabled,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       threadList,
       handleOpenThread,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
 
     const when = tDateTimeParser(message.created_at).format('LT');
@@ -219,27 +238,14 @@ class MessageCommerce extends PureComponent {
       message.latest_reactions && message.latest_reactions.length,
     );
 
-    if (
-      message.type === 'message.read' ||
-      message.deleted_at ||
-      message.type === 'message.date'
-    ) {
+    if (message.deleted_at) {
+      return smartRender(MessageDeleted, this.props, null);
+    }
+
+    if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
     }
 
-    if (message.deleted_at) {
-      return (
-        <React.Fragment>
-          <span
-            key={message.id}
-            className={`${messageClasses} str-chat__message--deleted`}
-          >
-            {t('This message was deleted...')}
-          </span>
-          <div className="clearfix" />
-        </React.Fragment>
-      );
-    }
     return (
       <React.Fragment>
         <div
@@ -264,6 +270,8 @@ class MessageCommerce extends PureComponent {
               image={message.user.image}
               size={32}
               name={message.user.name || message.user.id}
+              onClick={onUserClick}
+              onMouseOver={onUserHover}
             />
           )}
           <div className="str-chat__message-commerce-inner">
