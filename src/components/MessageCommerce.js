@@ -92,6 +92,12 @@ class MessageCommerce extends PureComponent {
      * @param event Dom click event which triggered handler.
      */
     onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
   };
 
   static defaultProps = {
@@ -204,6 +210,7 @@ class MessageCommerce extends PureComponent {
       onMentionsHoverMessage,
       onMentionsClickMessage,
       onUserClick,
+      onUserHover,
       unsafeHTML,
       threadList,
       handleOpenThread,
@@ -273,6 +280,7 @@ class MessageCommerce extends PureComponent {
               size={32}
               name={message.user.name || message.user.id}
               onClick={onUserClick}
+              onMouseOver={onUserHover}
             />
           )}
           <div className="str-chat__message-commerce-inner">

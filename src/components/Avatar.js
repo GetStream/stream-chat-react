@@ -19,12 +19,15 @@ export class Avatar extends React.PureComponent {
     size: PropTypes.number,
     /** click event handler */
     onClick: PropTypes.func,
+    /** mouseOver event handler */
+    onMouseOver: PropTypes.func,
   };
 
   static defaultProps = {
     size: 32,
     shape: 'circle',
     onClick: () => {},
+    onMouseOver: () => {},
   };
 
   state = {
@@ -55,7 +58,7 @@ export class Avatar extends React.PureComponent {
   }
 
   render() {
-    const { size, name, shape, image, onClick } = this.props;
+    const { size, name, shape, image, onClick, onMouseOver } = this.props;
     const initials = this.getInitials(name);
     return (
       <div
@@ -69,6 +72,7 @@ export class Avatar extends React.PureComponent {
           fontSize: size / 2,
         }}
         onClick={onClick}
+        onMouseOver={onMouseOver}
       >
         {image && !this.state.errored ? (
           <img

@@ -120,6 +120,12 @@ class MessageTeam extends PureComponent {
      * @param event Dom click event which triggered handler.
      */
     onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
   };
@@ -286,6 +292,7 @@ class MessageTeam extends PureComponent {
       onMentionsHoverMessage,
       onMentionsClickMessage,
       onUserClick,
+      onUserHover,
       unsafeHTML,
       handleRetry,
       getMessageActions,
@@ -334,6 +341,7 @@ class MessageTeam extends PureComponent {
                 name={message.user.name || message.user.id}
                 size={40}
                 onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             </div>
           )}
@@ -366,6 +374,7 @@ class MessageTeam extends PureComponent {
                 name={message.user.name || message.user.id}
                 size={40}
                 onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             ) : (
               <div style={{ width: 40, marginRight: 0 }} />

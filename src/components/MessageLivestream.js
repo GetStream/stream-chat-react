@@ -121,6 +121,12 @@ class MessageLivestream extends React.PureComponent {
      * @param event Dom click event which triggered handler.
      */
     onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
   };
 
   static defaultProps = {
@@ -211,6 +217,7 @@ class MessageLivestream extends React.PureComponent {
       onMentionsHoverMessage,
       onMentionsClickMessage,
       onUserClick,
+      onUserHover,
       unsafeHTML,
       handleRetry,
       handleAction,
@@ -262,6 +269,7 @@ class MessageLivestream extends React.PureComponent {
                 name={message.user.name || message.user.id}
                 size={40}
                 onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             </div>
           )}
@@ -358,6 +366,7 @@ class MessageLivestream extends React.PureComponent {
               name={message.user.name || message.user.id}
               size={30}
               onClick={onUserClick}
+              onMouseOver={onUserHover}
             />
           </div>
           <div className={`str-chat__message-livestream-right`}>
