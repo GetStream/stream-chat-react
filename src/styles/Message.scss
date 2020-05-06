@@ -963,6 +963,11 @@
       }
     }
   }
+  a[href^="mailto:"] {
+    -webkit-hyphens: none;
+   -moz-hyphens: none;
+    hyphens: none;
+  }
 }
 
 @media screen and (max-width: 375px) {

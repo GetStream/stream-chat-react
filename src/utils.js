@@ -162,10 +162,13 @@ export const renderText = (message) => {
     list: true,
   });
   for (const urlInfo of urls) {
-    const displayLink = truncate(urlInfo.encoded.replace(/^(www\.)/, ''), {
-      length: 20,
-      omission: '...',
-    });
+    const isEmail = urlInfo.reason === 'email';
+    const displayLink = !isEmail
+      ? truncate(urlInfo.encoded.replace(/^(www\.)/, ''), {
+          length: 20,
+          omission: '...',
+        })
+      : urlInfo.encoded;
     const mkdown = `[${displayLink}](${urlInfo.protocol}${urlInfo.encoded})`;
     text = text.replace(urlInfo.raw, mkdown);
   }
