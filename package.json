@@ -19,19 +19,9 @@
     "getstream",
     "getstream.io"
   ],
-  "jest": {
-    "verbose": true,
-    "maxConcurrency": 1,
-    "transformIgnorePatterns": [
-      "/node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/examples/"
-    ]
-  },
   "dependencies": {
     "@braintree/sanitize-url": "^4.0.1",
+    "@testing-library/react": "^10.0.3",
     "@webscopeio/react-textarea-autocomplete": "^4.6.3",
     "anchorme": "^1.1.2",
     "dayjs": "^1.8.25",
@@ -75,6 +65,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
+    "@testing-library/jest-dom": "^5.5.0",
     "@types/braintree__sanitize-url": "^4.0.0",
     "@types/seamless-immutable": "7.1.12",
     "@types/uuid": "^7.0.2",

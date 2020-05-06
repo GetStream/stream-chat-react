@@ -224,6 +224,8 @@ class ReverseInfiniteScroll extends Component {
       this.scrollComponent = node;
     };
 
+    props['data-testid'] = 'reverse-infinite-scroll';
+
     const childrenArray = [children];
     if (isLoading) {
       if (loader) {

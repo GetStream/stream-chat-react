@@ -7125,22 +7125,6 @@ node-notifier@^5.2.1:
     shellwords "^0.1.1"
     which "^1.3.0"
 
-node-pre-gyp@*:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.14.0.tgz#9a0596533b877289bcad4e143982ca3d904ddc83"
-  integrity sha512-+CvDC7ZttU/sSt9rFjix/P05iS43qHCOOGzcr3Ry99bXG7VX953+vFyEuph/tfqoYu8dttBkE86JSKBO2OzcxA==
-  dependencies:
-    detect-libc "^1.0.2"
-    mkdirp "^0.5.1"
-    needle "^2.2.1"
-    nopt "^4.0.1"
-    npm-packlist "^1.1.6"
-    npmlog "^4.0.2"
-    rc "^1.2.7"
-    rimraf "^2.6.1"
-    semver "^5.3.0"
-    tar "^4.4.2"
-
 node-pre-gyp@^0.10.0:
   version "0.10.3"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.10.3.tgz#3070040716afdc778747b61b6887bf78880b80fc"
@@ -9984,9 +9968,9 @@ stream-chat-react@0.7.12:
     ws "^6.1.3"
 
 stream-chat@^1.1.4:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.7.3.tgz#1f30f40da4cc8d582771b8f1636167e10688af53"
-  integrity sha512-kKLM+AkLqqmd9DFDtotzWieiru19JOmsWz/mo72TcX2pksduBasIIeNbGGTqNxwoJ3y55PgCvvPKzSq+duIOEg==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.8.0.tgz#e03330ffb464ae70878608e73f244da1c7904659"
+  integrity sha512-n2ot4Skcaz/RZQOTYwduC87llBdjomhHXn4fAgpXaH9TUzIYBXE+iyfddPj7Wda5tdhg8frq3nWXYLHq45qjyQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
     "@types/seamless-immutable" "7.1.10"
@@ -10274,7 +10258,7 @@ tapable@^1.0.0, tapable@^1.1.0:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
   integrity sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==
 
-tar@^4, tar@^4.4.2:
+tar@^4:
   version "4.4.13"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.13.tgz#43b364bc52888d555298637b10d60790254ab525"
   integrity sha512-w2VwSrBoHa5BsSyH+KxEqeQBAllHhccyMFVHtGtdMpF4W7IRWfZjFiQceJPChOeTsSDVUpER2T8FA93pr0L+QA==

@@ -240,7 +240,6 @@ class ChannelList extends PureComponent {
       ...options,
     };
     if (!options.limit) newOptions.limit = 30;
-
     const channelPromise = this.props.client.queryChannels(filters, sort, {
       ...newOptions,
       offset,
