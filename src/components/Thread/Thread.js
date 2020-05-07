@@ -211,13 +211,13 @@ class ThreadInner extends React.PureComponent {
             Message={this.props.Message}
             {...this.props.additionalMessageListProps}
           />
-          {smartRender(this.props.MessageInput, {
-            MessageInputSmall,
-            parent: this.props.thread,
-            focus: this.props.autoFocus,
-            ...this.props.additionalMessageInputProps,
-          })}
         </div>
+        {smartRender(this.props.MessageInput, {
+          MessageInputSmall,
+          parent: this.props.thread,
+          focus: this.props.autoFocus,
+          ...this.props.additionalMessageInputProps,
+        })}
       </div>
     );
   }
