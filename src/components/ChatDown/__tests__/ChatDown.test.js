@@ -1,0 +1,48 @@
+import React from 'react';
+import renderer from 'react-test-renderer';
+import { cleanup, render, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+
+import ChatDown from '../ChatDown';
+
+afterEach(cleanup); // eslint-disable-line
+
+const t = (text) => text;
+
+describe('ChatDown', () => {
+  it('should render component with its default props', () => {
+    const tree = renderer.create(<ChatDown t={t} />).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('should render component with custom text', async () => {
+    const text = 'custom text';
+    const { getByText } = render(<ChatDown t={t} text={text} />);
+
+    await waitFor(() => {
+      expect(getByText(text)).toBeInTheDocument();
+    });
+  });
+
+  it('should render component with custom image url', async () => {
+    const image = 'https://random.url/image.png';
+    const Component = <ChatDown t={t} image={image} />;
+    const { getByTestId } = render(Component);
+
+    await waitFor(() => {
+      expect(getByTestId('chatdown-img')).toHaveAttribute('src', image);
+    });
+
+    const tree = renderer.create(Component).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('should render component with custom type', async () => {
+    const type = 'Warning';
+    const { getByText } = render(<ChatDown t={t} type={type} />);
+
+    await waitFor(() => {
+      expect(getByText(type)).toBeInTheDocument();
+    });
+  });
+});
