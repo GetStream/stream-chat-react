@@ -16,7 +16,7 @@ const ChatDown = ({ image, type, text, t }) => (
   <div className="str-chat__down">
     <LoadingChannels />
     <div className="str-chat__down-main">
-      <img src={image || placeholder} />
+      <img data-testid="chatdown-img" src={image || placeholder} />
       <h1>{type}</h1>
       <h3>
         {text || t('Error connecting to chat, refresh the page to try again.')}
