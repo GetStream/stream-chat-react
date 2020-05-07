@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChatDown should render component with custom image url 1`] = `
+<div
+  className="str-chat__down"
+>
+  <div
+    className="str-chat__loading-channels"
+  >
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="str-chat__down-main"
+  >
+    <img
+      data-testid="chatdown-img"
+      src="https://random.url/image.png"
+    />
+    <h1>
+      Error
+    </h1>
+    <h3>
+      Error connecting to chat, refresh the page to try again.
+    </h3>
+  </div>
+</div>
+`;
+
+exports[`ChatDown should render component with its default props 1`] = `
+<div
+  className="str-chat__down"
+>
+  <div
+    className="str-chat__loading-channels"
+  >
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+    <div
+      className="str-chat__loading-channels-item"
+    >
+      <div
+        className="str-chat__loading-channels-avatar"
+      />
+      <div
+        className="str-chat__loading-channels-meta"
+      >
+        <div
+          className="str-chat__loading-channels-username"
+        />
+        <div
+          className="str-chat__loading-channels-status"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="str-chat__down-main"
+  >
+    <img
+      data-testid="chatdown-img"
+      src={
+        Object {
+          "process": [Function],
+        }
+      }
+    />
+    <h1>
+      Error
+    </h1>
+    <h3>
+      Error connecting to chat, refresh the page to try again.
+    </h3>
+  </div>
+</div>
+`;
