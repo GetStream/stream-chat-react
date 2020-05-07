@@ -16,7 +16,7 @@ const Avatar = ({ size, name, shape, image, onClick, onMouseOver }) => {
     setError(false);
   }, [image]);
 
-  const initials = (name || '').charAt(0) || null;
+  const initials = (name || '').charAt(0);
 
   return (
     <div

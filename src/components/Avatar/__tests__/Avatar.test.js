@@ -54,7 +54,7 @@ describe('Avatar', () => {
         }
       >
         <img
-          alt={null}
+          alt=""
           className="str-chat__avatar-image"
           data-testid="avatar-img"
           onError={[Function]}
