@@ -63,6 +63,7 @@ class Avatar extends React.PureComponent {
     const initials = this.getInitials(name);
     return (
       <div
+        data-testid="avatar"
         className={`str-chat__avatar str-chat__avatar--${shape}`}
         title={name}
         style={{
@@ -77,6 +78,7 @@ class Avatar extends React.PureComponent {
       >
         {image && !this.state.errored ? (
           <img
+            data-testid="avatar-img"
             src={image}
             alt={initials}
             className={
@@ -93,7 +95,12 @@ class Avatar extends React.PureComponent {
             onError={this.onError}
           />
         ) : (
-          <div className="str-chat__avatar-fallback">{initials}</div>
+          <div
+            data-testid="avatar-fallback"
+            className="str-chat__avatar-fallback"
+          >
+            {initials}
+          </div>
         )}
       </div>
     );
