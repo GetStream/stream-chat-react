@@ -416,6 +416,11 @@ class ChannelList extends PureComponent {
           channels: [...channels],
           channelUpdateCount: this.state.channelUpdateCount + 1,
         });
+
+        // Unset active channel if it was the deleted one
+        if (e.channel.cid === this.props.channel.cid) {
+          this.props.setActiveChannel({});
+        }
       }
     }
 
