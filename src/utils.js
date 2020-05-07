@@ -1,3 +1,4 @@
+/* eslint-disable */
 import anchorme from 'anchorme';
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown/with-html';

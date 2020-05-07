@@ -13,9 +13,9 @@ import PropTypes from 'prop-types';
 
 import replace from 'rollup-plugin-replace';
 
+import process from 'process';
 import pkg from './package.json';
 
-import process from 'process';
 process.env.NODE_ENV = 'production';
 
 const baseConfig = {
@@ -110,6 +110,7 @@ const normalBundle = {
     '@babel/runtime/helpers/classCallCheck',
     '@babel/runtime/helpers/slicedToArray',
     '@babel/runtime/helpers/typeof',
+    'react-is',
   ],
   plugins: [
     replace({
@@ -178,6 +179,7 @@ const fullBrowserBundle = {
     commonjs({
       namedExports: {
         'prop-types': Object.keys(PropTypes),
+        'node_modules/react-is/index.js': ['isValidElementType'],
       },
     }),
     json(),

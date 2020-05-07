@@ -29,6 +29,4 @@ class MessageDeleted extends React.PureComponent {
   }
 }
 
-MessageDeleted = withTranslationContext(MessageDeleted);
-
-export { MessageDeleted };
+export default withTranslationContext(MessageDeleted);

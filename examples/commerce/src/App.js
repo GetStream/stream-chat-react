@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { StreamChat } from 'stream-chat';
 import {

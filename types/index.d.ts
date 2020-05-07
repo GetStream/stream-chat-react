@@ -841,34 +841,23 @@ export interface SimpleReactionsListProps {
 }
 export interface TooltipProps {}
 
-export class AttachmentActions extends React.PureComponent<
-  AttachmentActionsProps,
-  any
-> {}
+export const AttachmentActions: React.FC<AttachmentActionsProps>;
 export class Audio extends React.PureComponent<AudioProps, any> {}
 export class Card extends React.PureComponent<CardProps, any> {}
 export class ChatAutoComplete extends React.PureComponent<
   ChatAutoCompleteProps,
   any
 > {}
-export class ChatDown extends React.PureComponent<ChatDownProps, any> {}
-
-export class CommandItem extends React.PureComponent<CommandItemProps, any> {}
-export class UserItem extends React.PureComponent<UserItemProps, any> {}
-
-export class DateSeparator extends React.PureComponent<
-  DateSeparatorProps,
-  any
-> {}
+export const ChatDown: React.FC<ChatDownProps>;
+export const CommandItem: React.FC<CommandItemProps>;
+export const UserItem: React.FC<UserItemProps>;
+export const DateSeparator: React.FC<DateSeparatorProps>;
 export class EditMessageForm extends React.PureComponent<
   EditMessageFormProps,
   any
 > {}
-export class EmoticonItem extends React.PureComponent<EmoticonItemProps, any> {}
-export class EmptyStateIndicator extends React.PureComponent<
-  EmptyStateIndicatorProps,
-  any
-> {}
+export const EmoticonItem: React.FC<EmoticonItemProps>;
+export const EmptyStateIndicator: React.FC<EmptyStateIndicatorProps>;
 export class EventComponent extends React.PureComponent<
   EventComponentProps,
   any
@@ -879,18 +868,10 @@ export class InfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
 > {}
-export class LoadMoreButton extends React.PureComponent<
-  LoadMoreButtonProps,
-  any
-> {}
-export class LoadingChannels extends React.PureComponent<
-  LoadingChannelsProps,
-  any
-> {}
-export class LoadingErrorIndicator extends React.PureComponent<
-  LoadingErrorIndicatorProps,
-  any
-> {}
+
+export const LoadMoreButton: React.FC<LoadMoreButtonProps, any>;
+export const LoadingChannels: React.FC<LoadingChannelsProps>;
+export const LoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps>;
 export class MessageActions extends React.PureComponent<
   MessageActionsProps,
   any
@@ -899,36 +880,26 @@ export class MessageActionsBox extends React.PureComponent<
   MessageActionsBoxProps,
   any
 > {}
-export class MessageNotification extends React.PureComponent<
-  MessageNotificationProps,
-  any
-> {}
-export class MessageRepliesCountButton extends React.PureComponent<
-  MessageRepliesCountButtonProps,
-  any
-> {}
+export const MessageNotification: React.FC<MessageNotificationProps>;
+export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
 export class ReverseInfiniteScroll extends React.PureComponent<
   ReverseInfiniteScrollProps,
   any
 > {}
 export class SafeAnchor extends React.PureComponent<SafeAnchorProps, any> {}
-export class SendButton extends React.PureComponent<SendButtonProps, any> {}
+export const SendButton: React.FC<SendButtonProps>;
 export class SimpleReactionsList extends React.PureComponent<
   SimpleReactionsListProps,
   any
 > {}
-export class Tooltip extends React.PureComponent<TooltipProps, any> {}
-
+export const Tooltip: React.FC<TooltipProps>;
 export class Chat extends React.PureComponent<ChatProps, any> {}
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
 export class Message extends React.PureComponent<MessageProps, any> {}
 export class MessageList extends React.PureComponent<MessageListProps, any> {}
-export class ChannelHeader extends React.PureComponent<
-  ChannelHeaderProps,
-  any
-> {}
+export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
   MessageInputUIComponentProps,
@@ -970,30 +941,15 @@ export class ChannelPreviewMessenger extends React.PureComponent<
   ChannelPreviewUIComponentProps,
   any
 > {}
-
-export class ChannelPreviewCountOnly extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
+export const ChannelPreviewCountOnly: React.FC<ChannelPreviewUIComponentProps>;
 export class ChannelPreviewLastMessage extends React.PureComponent<
   ChannelPreviewUIComponentProps,
   any
 > {}
-
-export class LoadMorePaginator extends React.PureComponent<
-  LoadMorePaginatorProps,
-  any
-> {}
-export class InfiniteScrollPaginator extends React.PureComponent<
-  InfiniteScrollPaginatorProps,
-  any
-> {}
-
-export class LoadingIndicator extends React.PureComponent<
-  LoadingIndicatorProps,
-  any
-> {}
-
+export const ChannelSearch: React.FC<any>;
+export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
+export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
+export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
 export class MessageCommerce extends React.PureComponent<
   MessageUIComponentProps,
   any
@@ -1016,11 +972,7 @@ export class MessageDeleted extends React.PureComponent<
 > {}
 
 export class Thread extends React.PureComponent<ThreadProps, any> {}
-export class TypingIndicator extends React.PureComponent<
-  TypingIndicatorProps,
-  any
-> {}
-
+export const TypingIndicator: React.FC<TypingIndicatorProps>;
 export class ReactionSelector extends React.PureComponent<
   ReactionSelectorProps,
   any
@@ -1029,8 +981,7 @@ export class ReactionsList extends React.PureComponent<
   ReactionsListProps,
   any
 > {}
-
-export class Window extends React.PureComponent<WindowProps, any> {}
+export const Window: React.FC<WindowProps>;
 
 /** Utils */
 export const emojiSetDef: emojiSetDefInterface;

@@ -3,6 +3,7 @@ build
 /.cache/
 /public/static/styles.js
 examples/*/src/serviceWorker.js
+scripts/
 /dist/
 /lib/
 /bin/

@@ -1,5 +1,4 @@
-//
-
+/* eslint-disable */
 import React from 'react';
 
 import Listeners, { KEY_CODES } from './listener';

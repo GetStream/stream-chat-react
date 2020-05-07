@@ -1,5 +1,5 @@
 import { Streami18n } from '../src/Streami18n';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { default as Dayjs } from 'dayjs';
 import { nlTranslations, frTranslations } from '../src/i18n';
 import 'dayjs/locale/nl';
@@ -57,7 +57,7 @@ const customDayjsLocaleConfig = {
 };
 
 describe('Streami18n instance - default', () => {
-  const streami18nOptions = {};
+  const streami18nOptions = { logger: () => null };
   const streami18n = new Streami18n(streami18nOptions);
 
   it('should provide default english translator', async () => {

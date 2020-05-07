@@ -1,9 +1,9 @@
-//
-
+/* eslint-disable */
 import React from 'react';
 import PropTypes from 'prop-types';
 import getCaretCoordinates from 'textarea-caret';
 import CustomEvent from 'custom-event';
+import { isValidElementType } from 'react-is';
 
 import Listeners, { KEY_CODES } from './listener';
 import List from './List';
@@ -385,7 +385,7 @@ class ReactTextareaAutocomplete extends React.Component {
           throw new Error('Trigger provider has to provide an array!');
         }
 
-        if (typeof component !== 'function') {
+        if (!isValidElementType(component)) {
           throw new Error('Component should be defined!');
         }
 
@@ -713,9 +713,9 @@ class ReactTextareaAutocomplete extends React.Component {
 
     return (
       <div
-        className={`rta ${
-          dataLoading === true ? 'rta--loading' : ''
-        } ${containerClassName || ''}`}
+        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${
+          containerClassName || ''
+        }`}
         style={containerStyle}
       >
         {(dataLoading || suggestionData) && currentTrigger && (
@@ -808,7 +808,7 @@ const triggerPropsCheck = ({ trigger }) => {
       allowWhitespace,
     } = triggerSetting;
 
-    if (!component || typeof component !== 'function') {
+    if (!isValidElementType(component)) {
       return Error('Invalid prop trigger: component should be defined.');
     }
 
@@ -835,7 +835,7 @@ const triggerPropsCheck = ({ trigger }) => {
 };
 
 ReactTextareaAutocomplete.propTypes = {
-  loadingComponent: PropTypes.func.isRequired,
+  loadingComponent: PropTypes.elementType,
   minChar: PropTypes.number,
   onChange: PropTypes.func,
   onSelect: PropTypes.func,

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import i18n from 'i18next';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
