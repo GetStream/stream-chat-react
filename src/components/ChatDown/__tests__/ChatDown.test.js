@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 import ChatDown from '../ChatDown';
 
-afterEach(cleanup);
+afterEach(cleanup); // eslint-disable-line
 
 const t = (text) => text;
 
