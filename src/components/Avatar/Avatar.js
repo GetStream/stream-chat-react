@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
  * Avatar - A round avatar image with fallback to username's first letter
  *
  * @example ../../docs/Avatar.md
- * @extends PureComponent
  */
 const Avatar = ({ size, name, shape, image, onClick, onMouseOver }) => {
   const [loaded, setLoaded] = useState(false);
