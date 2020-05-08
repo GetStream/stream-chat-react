@@ -93,6 +93,7 @@ const normalBundle = {
     'react-file-utils',
     'react-file-utils/dist/index.css',
     'uuid/v4',
+    'uuid',
     '@fortawesome/react-fontawesome',
     '@fortawesome/free-regular-svg-icons',
     '@babel/runtime/regenerator',
@@ -150,7 +151,6 @@ const fullBrowserBundle = {
       sourcemap: true,
       name: 'window', // write all exported values to window
       extend: true, // extend window, not overwrite it
-      browser: true,
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
