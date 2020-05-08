@@ -239,7 +239,7 @@ class MessageSimple extends PureComponent {
       );
     } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
-        (item) => item.id !== client.user.id,
+        (item) => item && item.id !== client.user.id,
       )[0];
       return (
         <span className="str-chat__message-simple-status">
