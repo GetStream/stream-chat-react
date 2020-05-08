@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import CommandItem from '../CommandItem';
@@ -28,16 +28,14 @@ describe('commandItem', () => {
     `);
   });
 
-  it('should render component with custom entity prop', async () => {
+  it('should render component with custom entity prop', () => {
     const entity = { name: 'name', args: 'args', description: 'description' };
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);
-    await waitFor(() => {
-      expect(getByText(entity.name)).toBeInTheDocument();
-      expect(getByText(entity.args)).toBeInTheDocument();
-      expect(getByText(entity.description)).toBeInTheDocument();
-    });
+    expect(getByText(entity.name)).toBeInTheDocument();
+    expect(getByText(entity.args)).toBeInTheDocument();
+    expect(getByText(entity.description)).toBeInTheDocument();
 
     const tree = renderer.create(Component).toJSON();
     expect(tree).toMatchInlineSnapshot(`
