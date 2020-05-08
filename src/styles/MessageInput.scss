@@ -1,6 +1,7 @@
 .str-chat__input {
   background: #fff;
   box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.05), 0 -1px 0 0 rgba(0, 0, 0, 0.07);
+  display: flex;
   padding: 10px;
   position: relative;
   font-family: $second-font;
@@ -21,6 +22,8 @@
 
   &--textarea-wrapper {
     display: flex;
+    flex: 1 0;
+    position: relative;
     .str-chat__textarea {
       textarea {
         padding-right: 70px;
@@ -28,19 +31,10 @@
     }
   }
 
-  &-emojiselect {
-    right: 20px;
-  }
-
-  .rfu-file-upload-button {
-    right: 46px;
-  }
-
   &-emojiselect,
   .rfu-file-upload-button {
     position: absolute;
     cursor: pointer;
-    top: calc(100% - 35px);
     width: 22px;
     height: 22px;
     display: inline-flex;
@@ -52,6 +46,16 @@
     &:hover {
       fill: rgba(0, 0, 0, 1);
     }
+  }
+
+  &-emojiselect {
+    right: 20px;
+    top: calc(100% - 35px);
+  }
+
+  .rfu-file-upload-button {
+    right: 46px;
+    top: calc(100% - 34px);
   }
 
   &-footer {
