@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.12.0) 2020-05-08
+
+- First message in thread doesn't have a fixed position anymore
+- Upon if the active channel get's deleted, we now set the active channel to be empty
+- Removed some unused css
+- Fix for read indicators
+
 ## [0.11.18](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.18) 2020-05-06
 
 - Better fallback avatar in ReactionSelector
