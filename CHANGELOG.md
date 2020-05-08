@@ -2,6 +2,7 @@
 
 ## [0.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.12.0) 2020-05-08
 
+- Refactor
 - First message in thread doesn't have a fixed position anymore
 - Upon if the active channel get's deleted, we now set the active channel to be empty
 - Removed some unused css
