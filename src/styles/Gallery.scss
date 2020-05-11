@@ -1,8 +1,7 @@
 .str-chat__gallery {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  width: 100%;
-  max-width: 304px;
+  justify-content: flex-end;
   overflow: hidden;
 
   &-image {
@@ -24,6 +23,14 @@
       height: inherit;
       object-fit: cover;
     }
+  }
+
+  &--square {
+    max-width: 301px; // 300px + 1px margin between images
+  }
+
+  &--square &-image:nth-child(even) {
+    margin-right: 0;
   }
 }
 

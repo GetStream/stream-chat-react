@@ -15,13 +15,13 @@
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
-        .str-chat__message-attachment-card,
-        .str-chat__gallery {
+        .str-chat__message-attachment-card {
           border-radius: $border-radius $border-radius $border-radius 2px;
         }
       }
 
       &--me {
+        text-align: right; // for inline(-flex/block) elements, e.g. gallery
         .str-chat__message {
           &-attachment--img,
           &-attachment-card {
@@ -266,6 +266,7 @@
     justify-content: flex-start;
     padding: 0 0 0 0;
     position: relative;
+    width: 100%;
 
     &-inner {
       position: relative;
@@ -961,6 +962,11 @@
         border-radius: $border-radius $border-radius $border-radius 2px;
       }
     }
+  }
+  a[href^="mailto:"] {
+    -webkit-hyphens: none;
+   -moz-hyphens: none;
+    hyphens: none;
   }
 }
 

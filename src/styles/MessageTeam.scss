@@ -54,10 +54,6 @@
             text-align: center;
           }
 
-          > &:not(:last-of-type) {
-            border-right: 1px solid $actionsBorderColor;
-          }
-
           svg {
             fill: #000;
             opacity: 0.5;

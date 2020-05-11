@@ -1,4 +1,5 @@
 .str-chat__small-message-input {
+  display: flex;
   margin: 10px;
   position: relative;
   z-index: 1000;
@@ -9,26 +10,24 @@
     width: 100%;
   }
 
-  .str-chat__textarea {
-    flex: 1;
-  }
-
   &-emojiselect {
+    bottom: 10px;
     right: 6px;
   }
   .rfu-file-upload-button {
+    bottom: 9px;
     right: 26px;
   }
 
   &--textarea-wrapper {
-    display: flex;
+    flex: 1 0;
+    position: relative;
   }
 
   &-emojiselect,
   .rfu-file-upload-button {
     position: absolute;
     cursor: pointer;
-    bottom: 10px;
     width: 22px;
     height: 22px;
     display: inline-flex;
@@ -54,6 +53,7 @@
     background: none;
     border: none;
     cursor: pointer;
+    flex: 0 1;
     outline: 0;
     &:hover {
       opacity: 0.69;
@@ -88,15 +88,6 @@
     right: 28px;
   }
 
-  &--send-button-active {
-    .rfu-file-upload-button {
-      right: 70px;
-    }
-    .str-chat__small-message-input-emojiselect {
-      right: 50px;
-    }
-  }
-
   .rfu-dropzone .rfu-dropzone__notifier {
     z-index: 1000;
   }
@@ -114,39 +105,6 @@
     .str-chat__small-message-input-emojiselect {
       svg {
         fill: white;
-      }
-    }
-  }
-}
-
-.livestream.str-chat {
-  .str-chat__small-message-input {
-    &-emojiselect {
-      @media screen and(min-width: 768px) {
-        right: 16px;
-      }
-    }
-    .rfu-file-upload-button {
-      @media screen and(min-width: 768px) {
-        right: 36px;
-      }
-    }
-  }
-}
-
-.team.str-chat,
-.messaging.str-chat {
-  .str-chat__small-message-input {
-    &-emojiselect {
-      right: 50px;
-      @media screen and(min-width: 768px) {
-        right: 10px;
-      }
-    }
-    .rfu-file-upload-button {
-      right: 70px;
-      @media screen and(min-width: 768px) {
-        right: 35px;
       }
     }
   }

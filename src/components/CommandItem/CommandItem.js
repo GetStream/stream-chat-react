@@ -21,7 +21,7 @@ CommandItem.propTypes = {
     args: PropTypes.string,
     /** Description of command */
     description: PropTypes.string,
-  }),
+  }).isRequired,
 };
 
 export default React.memo(CommandItem);

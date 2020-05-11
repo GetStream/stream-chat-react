@@ -7,7 +7,6 @@ import { withTranslationContext } from '../../context';
  * DateSeparator - A simple date separator
  *
  * @example ../../docs/DateSeparator.md
- * @extends PureComponent
  */
 const DateSeparator = ({ position, tDateTimeParser, formatDate, date }) => {
   if (!Date.parse(date)) return null;

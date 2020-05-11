@@ -152,10 +152,11 @@ class ChannelList extends PureComponent {
      * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
      * */
     watchers: PropTypes.object,
+
     /**
      * Set a Channel to be active and move it to the top of the list of channels by ID.
      * */
-    customAciveChannel: PropTypes.string,
+    customActiveChannel: PropTypes.string,
     /**
      * Last channel will be set as active channel if true, defaults to true
      */
@@ -415,6 +416,11 @@ class ChannelList extends PureComponent {
           channels: [...channels],
           channelUpdateCount: this.state.channelUpdateCount + 1,
         });
+
+        // Unset active channel if it was the deleted one
+        if (e.channel.cid === this.props.channel.cid) {
+          this.props.setActiveChannel({});
+        }
       }
     }
 

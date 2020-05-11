@@ -19,6 +19,10 @@ export const channel = client.channel('team', 'docs', {
   name: 'Talk about the documentation',
 });
 
+channel.getConfig = () => ({
+  mutes: true,
+});
+
 export const channelContext = {
   client,
   channel,

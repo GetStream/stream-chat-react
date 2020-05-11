@@ -37,8 +37,11 @@ class Gallery extends React.PureComponent {
     const formattedArray = images.map((image) => ({
       src: image.image_url || image.thumb_url,
     }));
+
+    const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
+
     return (
-      <div className="str-chat__gallery">
+      <div className={`str-chat__gallery ${squareClass}`}>
         {images.slice(0, 3).map((image, i) => (
           <div
             className="str-chat__gallery-image"

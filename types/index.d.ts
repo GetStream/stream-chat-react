@@ -131,11 +131,13 @@ export interface ChannelProps
 }
 
 export interface ChannelListProps extends ChatContextValue {
+  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
 
@@ -199,7 +201,9 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps extends TranslationContextValue {
+export interface ChannelPreviewProps
+  extends TranslationContextValue,
+    ChatContextValue {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -228,6 +232,10 @@ export interface ChannelPreviewProps extends TranslationContextValue {
 }
 
 export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
+  /** Title of channel to display */
+  displayTitle?: string;
+  /** Image of channel to display */
+  displayImage?: string;
   /** Latest message's text. */
   latestMessage?: string;
   /** Length of latest message to truncate at */
@@ -284,6 +292,10 @@ export interface AvatarProps {
   shape?: 'circle' | 'rounded' | 'square';
   /** size in pixels */
   size?: number;
+  /** onClick handler  */
+  onClick?(e: React.MouseEvent): void;
+  /** onMouseOver handler */
+  onMouseOver?(e: React.MouseEvent): void;
 }
 
 export interface DateSeparatorProps extends TranslationContextValue {
@@ -462,6 +474,8 @@ export interface MessageProps extends TranslationContextValue {
   editing?: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
   Message?: React.ElementType<MessageUIComponentProps>;
+  /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
+  MessageDeleted?: React.ElementType<MessageDeletedProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -488,6 +502,10 @@ export interface MessageProps extends TranslationContextValue {
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
   onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserHover?(e: React.MouseEvent, user: Client.UserResponse): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -521,10 +539,18 @@ export interface MessageUIComponentProps
     event: React.MouseEvent,
     user: Client.UserResponse,
   ): void;
+  onUserClick(e: React.MouseEvent): void;
+  onUserHover(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
   channelConfig?: object;
   threadList?: boolean;
   additionalMessageInputProps?: object;
+}
+
+export interface MessageDeletedProps extends TranslationContextValue {
+  /** The message object */
+  message: Client.MessageResponse;
+  isMyMessage(message: Client.MessageResponse): boolean;
 }
 
 export interface ThreadProps
@@ -938,6 +964,10 @@ export class MessageTeam extends React.PureComponent<
 > {}
 export class MessageSimple extends React.PureComponent<
   MessageUIComponentProps,
+  any
+> {}
+export class MessageDeleted extends React.PureComponent<
+  MessageDeletedProps,
   any
 > {}
 

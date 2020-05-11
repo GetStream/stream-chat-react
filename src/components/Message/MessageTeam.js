@@ -3,7 +3,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { isOnlyEmojis, renderText } from '../../utils';
+import {
+  isOnlyEmojis,
+  renderText,
+  getReadByTooltipText,
+  smartRender,
+} from '../../utils';
 import { withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Avatar } from '../Avatar';
@@ -115,8 +120,25 @@ class MessageTeam extends PureComponent {
      * @param user Target user object
      */
     onMentionsClickMessage: PropTypes.func,
+    /**
+     * The handler for click event on the user that posted the message
+     *
+     * @param event Dom click event which triggered handler.
+     */
+    onUserClick: PropTypes.func,
+    /**
+     * The handler for mouseOver event on the user that posted the message
+     *
+     * @param event Dom mouseOver event which triggered handler.
+     */
+    onUserHover: PropTypes.func,
     /** Position of message in group. Possible values: top, bottom, middle, single */
     groupStyles: PropTypes.array,
+    /**
+     * The component that will be rendered if the message has been deleted.
+     * All of Message's props are passed into this component.
+     */
+    MessageDeleted: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -180,37 +202,6 @@ class MessageTeam extends PureComponent {
     );
   };
 
-  // https://stackoverflow.com/a/29234240/7625485
-  formatArray = (arr) => {
-    const { t, client } = this.props;
-    let outStr = '';
-    const slicedArr = arr
-      .filter((item) => item.id !== client.user.id)
-      .map((item) => item.name || item.id)
-      .slice(0, 5);
-    const restLength = arr.length - slicedArr.length;
-
-    if (slicedArr.length === 1) {
-      outStr = slicedArr[0] + ' ';
-    } else if (slicedArr.length === 2) {
-      //joins all with "and" but =no commas
-      //example: "bob and sam"
-      outStr = t('{{ firstUser }} and {{ secondUser }}', {
-        firstUser: slicedArr[0],
-        secondUser: slicedArr[1],
-      });
-    } else if (slicedArr.length > 2) {
-      //joins all with commas, but last one gets ", and" (oxford comma!)
-      //example: "bob, joe, sam and 4 more"
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
-    }
-
-    return outStr;
-  };
-
   isMine() {
     return this.props.isMyMessage(this.props.message);
   }
@@ -227,7 +218,8 @@ class MessageTeam extends PureComponent {
     if (!this.isMine() || message.type === 'error') {
       return null;
     }
-    const justReadByMe = readBy.length === 1 && readBy[0].id === client.user.id;
+    const justReadByMe =
+      readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
         <span className="str-chat__message-team-status">
@@ -237,14 +229,18 @@ class MessageTeam extends PureComponent {
       );
     } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
-        (item) => item.id !== client.user.id,
+        (item) => item && item.id !== client.user.id,
       )[0];
       return (
         <span className="str-chat__message-team-status">
-          <Tooltip>{this.formatArray(readBy)}</Tooltip>
+          <Tooltip>
+            {getReadByTooltipText(readBy, this.props.t, this.props.client)}
+          </Tooltip>
           <Avatar
-            name={lastReadUser.name || lastReadUser.id}
-            image={lastReadUser.image}
+            name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
+            image={
+              lastReadUser && lastReadUser.image ? lastReadUser.image : null
+            }
             size={15}
           />
           {readBy.length - 1 > 1 && (
@@ -308,6 +304,8 @@ class MessageTeam extends PureComponent {
       messageListRect,
       onMentionsHoverMessage,
       onMentionsClickMessage,
+      onUserClick,
+      onUserHover,
       unsafeHTML,
       handleRetry,
       getMessageActions,
@@ -318,6 +316,7 @@ class MessageTeam extends PureComponent {
       handleDelete,
       t,
       tDateTimeParser,
+      MessageDeleted,
     } = this.props;
     if (message.type === 'message.read') {
       return null;
@@ -327,7 +326,7 @@ class MessageTeam extends PureComponent {
     );
 
     if (message.deleted_at) {
-      return null;
+      return smartRender(MessageDeleted, this.props, null);
     }
 
     let galleryImages =
@@ -355,6 +354,8 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             </div>
           )}
@@ -386,6 +387,8 @@ class MessageTeam extends PureComponent {
                 image={message.user.image}
                 name={message.user.name || message.user.id}
                 size={40}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
               />
             ) : (
               <div style={{ width: 40, marginRight: 0 }} />
@@ -400,7 +403,10 @@ class MessageTeam extends PureComponent {
             {(groupStyles[0] === 'top' ||
               groupStyles[0] === 'single' ||
               initialMessage) && (
-              <div className="str-chat__message-team-author">
+              <div
+                className="str-chat__message-team-author"
+                onClick={onUserClick}
+              >
                 <strong>{message.user.name || message.user.id}</strong>
                 {message.type === 'error' && (
                   <div className="str-chat__message-team-error-header">

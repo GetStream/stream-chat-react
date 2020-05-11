@@ -1,8 +1,48 @@
 # Changelog
 
-## [0.11.12](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.12) 2020-04-20
+## [0.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.12.0) 2020-05-08
+
+- Refactor
+- First message in thread doesn't have a fixed position anymore
+- Upon if the active channel get's deleted, we now set the active channel to be empty
+- Removed some unused css
+- Fix for read indicators
+
+## [0.11.18](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.18) 2020-05-06
+
+- Better fallback avatar in ReactionSelector
+- Better scrolling after assets finish loading
+- Disabled truncation of email links
+- New props `onUserClick` and `onUserHover` on `Message` components
+
+## [0.11.17](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.17) 2020-05-04
+
+- Added prop MessageDeleted on Message components to override the default component displayed for deleted messages.
+
+## [0.11.16](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.16) 2020-05-01
+
+- Fixed an where read state indicators dissapeared
+
+## [0.11.15](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.15) 2020-04-30
+
+- Fixed an issue where the read by tooltip said: "x, x, and 0 more"
+- Fixed an issue where app might crash due to faulty read state
+- Fixed an issue where file attachments didn't get uploaded when also uploading images
+
+## [0.11.14](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.14) 2020-04-29
+
+- Adding direct messaging support for channel preview [b394079](https://github.com/GetStream/stream-chat-react/commit/b39407960fa908dc55b8ea48625f3c7095c37b56)
+- Fixed typescript for ChannelList component [576f5c8](https://github.com/GetStream/stream-chat-react/commit/576f5c85919bccf21fc803e917581e373dd241d5)
+- Fixed french translation file [308fcab](https://github.com/GetStream/stream-chat-react/commit/308fcab5fa891aad527cf94aeed8353a99d7dcb8)
+- Adding extra check for channel connection to avoid failing markRead call [317fb1f](https://github.com/GetStream/stream-chat-react/commit/317fb1fe31e21e253cdce95bfb5d19932f098e2b)
+
+## [0.11.13](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.13) 2020-04-20
 
 - Add check to fix optional activeChannel in ChannelPreview.
+
+## [0.11.12](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.12) 2020-04-17
+
+- Fixing typescript issue with `MessageInput` component prop - `additionalTextAreaProps` [92f2ae2](https://github.com/GetStream/stream-chat-react/commit/92f2ae29a3c66a683ea2b1ebd1c85854cfa41446)
 
 ## [0.11.11](https://github.com/GetStream/stream-chat-react/releases/tag/v0.11.11) 2020-04-15
 

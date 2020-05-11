@@ -33,6 +33,7 @@
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} и {{ lastUser }} пишут...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} и {{ moreCount }} еще",
+  "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} и {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} и {{ secondUser }}",
   "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} и {{ secondUser }} пишут...",
   "{{ imageCount }} more": "Ещё {{ imageCount }}",

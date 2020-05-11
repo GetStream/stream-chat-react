@@ -147,7 +147,7 @@ class ReactionSelector extends PureComponent {
       const latestUser = this.getLatestUser(latest_reactions, reaction.id);
 
       const count = reaction_counts && reaction_counts[reaction.id];
-
+      console.log(latestUser);
       return (
         <li
           key={`item-${reaction.id}`}
@@ -165,9 +165,9 @@ class ReactionSelector extends PureComponent {
                 {latestUser !== 'NotFound' ? (
                   <Avatar
                     image={latestUser.image}
-                    alt={latestUser.id}
+                    alt={latestUser.name || null}
                     size={20}
-                    name={latestUser.id}
+                    name={latestUser.name || null}
                   />
                 ) : (
                   <div className="latest-user-not-found" />
