@@ -244,11 +244,14 @@ class MessageSimple extends PureComponent {
       return (
         <span className="str-chat__message-simple-status">
           <Tooltip>
-            {getReadByTooltipText(readBy, this.props.t, this.props.client)}
+            {readBy &&
+              getReadByTooltipText(readBy, this.props.t, this.props.client)}
           </Tooltip>
           <Avatar
-            name={lastReadUser.name || lastReadUser.id}
-            image={lastReadUser.image}
+            name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
+            image={
+              lastReadUser && lastReadUser.image ? lastReadUser.image : null
+            }
             size={15}
           />
           {readBy.length > 2 && (
@@ -441,7 +444,9 @@ class MessageSimple extends PureComponent {
       MessageDeleted,
     } = this.props;
 
-    const when = tDateTimeParser(message.created_at).calendar();
+    const when =
+      tDateTimeParser(message.created_at).calendar &&
+      tDateTimeParser(message.created_at).calendar();
 
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'

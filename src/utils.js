@@ -251,7 +251,7 @@ export const getReadByTooltipText = (users, t, client) => {
   let outStr = '';
   // first filter out client user, so restLength won't count it
   const otherUsers = users
-    .filter((item) => item.id !== client.user.id)
+    .filter((item) => item && item.id !== client.user.id)
     .map((item) => item.name || item.id);
 
   const slicedArr = otherUsers.slice(0, 5);

@@ -237,8 +237,10 @@ class MessageTeam extends PureComponent {
             {getReadByTooltipText(readBy, this.props.t, this.props.client)}
           </Tooltip>
           <Avatar
-            name={lastReadUser.name || lastReadUser.id}
-            image={lastReadUser.image}
+            name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
+            image={
+              lastReadUser && lastReadUser.image ? lastReadUser.image : null
+            }
             size={15}
           />
           {readBy.length - 1 > 1 && (
