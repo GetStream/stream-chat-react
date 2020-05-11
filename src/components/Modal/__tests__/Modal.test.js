@@ -1,5 +1,6 @@
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, render, fireEvent } from '@testing-library/react';
+import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import Modal from '../Modal';
@@ -21,7 +22,6 @@ describe('Modal', () => {
 
   it('should render what is passed as props.children', () => {
     const textContent = 'some text';
-
     const { queryByText } = render(<Modal>{textContent}</Modal>);
 
     expect(queryByText(textContent)).toBeInTheDocument();
@@ -29,7 +29,6 @@ describe('Modal', () => {
 
   it('should call the onClose prop function if the escape key is pressed', () => {
     const onClose = jest.fn();
-
     render(<Modal open onClose={onClose} />);
 
     fireEvent(
@@ -42,61 +41,54 @@ describe('Modal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  describe('clicking on the Modal', () => {
+  it('should clean up the escape keypress handler on unmount', () => {
     const onClose = jest.fn();
+    const { unmount } = render(<Modal open onClose={onClose} />);
+
+    unmount();
+    fireEvent(
+      document,
+      new KeyboardEvent('keyPress', {
+        keyCode: 27,
+      }),
+    );
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  describe('clicking on the Modal', () => {
     const textContent = 'Some text';
 
-    const { container, queryByText } = render(
-      <Modal open onClose={onClose}>
-        {textContent}
-      </Modal>,
-    );
-    const textContainer = queryByText(textContent);
-
     it('should not call onClose if the inside of the modal was clicked', () => {
-      fireEvent(textContainer, new MouseEvent('click'));
+      const onClose = jest.fn();
+      const { queryByText } = render(
+        <Modal open onClose={onClose}>
+          {textContent}
+        </Modal>,
+      );
+      const textContainer = queryByText(textContent);
+
+      fireEvent.click(textContainer);
+
       expect(onClose).not.toHaveBeenCalled();
     });
 
     it('should call onClose if the outer part of the modal is clicked', () => {
-      fireEvent(container.firstChild, new MouseEvent('click'));
-      expect(onClose).toHaveBeenCalled();
+      const onClose = jest.fn();
+      const { container } = render(
+        <Modal open onClose={onClose}>
+          {textContent}
+        </Modal>,
+      );
+
+      fireEvent.click(container.firstChild);
+
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 
-  // it('should render component with its default props', () => {
-  //   const tree = renderer.create(<ChatDown t={t} />).toJSON();
-  //   expect(tree).toMatchSnapshot();
-  // });
-
-  // it('should render component with custom text', async () => {
-  //   const text = 'custom text';
-  //   const { getByText } = render(<ChatDown t={t} text={text} />);
-
-  //   await waitFor(() => {
-  //     expect(getByText(text)).toBeInTheDocument();
-  //   });
-  // });
-
-  // it('should render component with custom image url', async () => {
-  //   const image = 'https://random.url/image.png';
-  //   const Component = <ChatDown t={t} image={image} />;
-  //   const { getByTestId } = render(Component);
-
-  //   await waitFor(() => {
-  //     expect(getByTestId('chatdown-img')).toHaveAttribute('src', image);
-  //   });
-
-  //   const tree = renderer.create(Component).toJSON();
-  //   expect(tree).toMatchSnapshot();
-  // });
-
-  // it('should render component with custom type', async () => {
-  //   const type = 'Warning';
-  //   const { getByText } = render(<ChatDown t={t} type={type} />);
-
-  //   await waitFor(() => {
-  //     expect(getByText(type)).toBeInTheDocument();
-  //   });
-  // });
+  it('should render the expected html', () => {
+    const tree = renderer.create(<Modal />).toJSON();
+    expect(tree).toMatchInlineSnapshot();
+  });
 });
