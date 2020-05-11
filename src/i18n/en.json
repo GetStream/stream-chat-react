@@ -1,5 +1,6 @@
 {
   "1 reply": "1 reply",
+  "Attach files": "Attach files",
   "Cancel": "Cancel",
   "Channel Missing": "Channel Missing",
   "Connection failure, reconnecting now...": "Connection failure, reconnecting now...",
@@ -21,6 +22,7 @@
   "New Messages!": "New Messages!",
   "Nothing yet...": "Nothing yet...",
   "Only visible to you": "Only visible to you",
+  "Open emoji picker": "Open emoji picker",
   "Pick your emoji": "Pick your emoji",
   "Send": "Send",
   "Sending...": "Sending...",

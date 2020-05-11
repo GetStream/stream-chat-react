@@ -147,7 +147,6 @@ class ReactionSelector extends PureComponent {
       const latestUser = this.getLatestUser(latest_reactions, reaction.id);
 
       const count = reaction_counts && reaction_counts[reaction.id];
-      console.log(latestUser);
       return (
         <li
           key={`item-${reaction.id}`}

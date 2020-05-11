@@ -1,5 +1,6 @@
 {
   "1 reply": "1 cevap",
+  "Attach files": "Dosya ekle",
   "Cancel": "İptal",
   "Channel Missing": "Kanal bulunamıyor",
   "Connection failure, reconnecting now...": "Bağlantı hatası, tekrar bağlanılıyor...",
@@ -21,6 +22,7 @@
   "New Messages!": "Yeni Mesajlar!",
   "Nothing yet...": "Şimdilik hiçbir şey...",
   "Only visible to you": "Sadece size görünür",
+  "Open emoji picker": "Emoji klavyesini aç",
   "Pick your emoji": "Emoji seçin",
   "Send": "Gönder",
   "Sending...": "Gönderiliyor...",

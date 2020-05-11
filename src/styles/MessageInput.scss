@@ -29,6 +29,7 @@
         padding-right: 70px;
       }
     }
+
   }
 
   &-emojiselect,
@@ -253,27 +254,6 @@
     &__input {
       padding: 10px 40px;
 
-      &-emojiselect,
-      .rfu-file-upload-button {
-        top: calc(100% - 44px);
-      }
-
-      &-emojiselect {
-        right: 90px;
-        @media screen and (min-width: 768px) {
-          right: 50px;
-        }
-      }
-
-      .rfu-file-upload-button {
-        right: 116px;
-        top: calc(100% - 43px);
-
-        @media screen and (min-width: 768px) {
-          right: 76px;
-        }
-      }
-
       &-footer {
         padding: 0 40px 10px;
       }
@@ -297,25 +277,6 @@
           border: 1px solid rgba(0, 0, 0, 0.2);
           font-size: 13px;
           padding: 12px;
-        }
-        &-emojiselect,
-        .rfu-file-upload-button {
-          top: calc(100% - 40px);
-        }
-
-        &-emojiselect {
-          right: 68px;
-          @media screen and (min-width: 768px) {
-            right: 30px;
-          }
-        }
-
-        .rfu-file-upload-button {
-          right: 90px;
-          top: calc(100% - 39px);
-          @media screen and (min-width: 768px) {
-            right: 56px;
-          }
         }
         &-footer {
           padding: 0 20px 10px;
@@ -358,6 +319,47 @@
       svg {
         fill: white;
       }
+    }
+  }
+}
+
+.str-chat__fileupload-wrapper {
+  .str-chat__tooltip {
+    display: none;
+    bottom: 35px;
+    right: 50px;
+  }
+
+  &:hover {
+    .str-chat__tooltip {
+      display: block;
+    }
+  }
+}
+
+.str-chat__emojiselect-wrapper {
+  .str-chat__tooltip {
+    display: none;
+    bottom: 35px;
+    right: 24px;
+  }
+  &:hover {
+    .str-chat__tooltip {
+      display: block;
+    }
+  }
+}
+.str-chat__small-message-input--textarea-wrapper {
+  .str-chat__fileupload-wrapper {
+    .str-chat__tooltip {
+      bottom: 32px;
+      right: 32px;
+    }
+  }
+  .str-chat__emojiselect-wrapper {
+    .str-chat__tooltip {
+      bottom: 32px;
+      right: 10px;
     }
   }
 }

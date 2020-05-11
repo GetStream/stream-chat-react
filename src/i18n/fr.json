@@ -1,5 +1,6 @@
 {
   "1 reply": "1 réponse",
+  "Attach files": "Pièces jointes",
   "Cancel": "Annuler",
   "Channel Missing": "Canal Manquant",
   "Connection failure, reconnecting now...": "Échec de la connexion, reconnexion en cours...",
@@ -21,6 +22,7 @@
   "New Messages!": "Nouveaux Messages!",
   "Nothing yet...": "Aucun message...",
   "Only visible to you": "Visible uniquement pour vous",
+  "Open emoji picker": "Ouvrez le sélecteur d'emoji",
   "Pick your emoji": "Choisissez votre emoji",
   "Send": "Envoyer",
   "Sending...": "Envoi en cours...",
