@@ -29,6 +29,7 @@
         padding-right: 70px;
       }
     }
+
   }
 
   &-emojiselect,
@@ -318,6 +319,47 @@
       svg {
         fill: white;
       }
+    }
+  }
+}
+
+.str-chat__fileupload-wrapper {
+  .str-chat__tooltip {
+    display: none;
+    bottom: 35px;
+    right: 50px;
+  }
+
+  &:hover {
+    .str-chat__tooltip {
+      display: block;
+    }
+  }
+}
+
+.str-chat__emojiselect-wrapper {
+  .str-chat__tooltip {
+    display: none;
+    bottom: 35px;
+    right: 24px;
+  }
+  &:hover {
+    .str-chat__tooltip {
+      display: block;
+    }
+  }
+}
+.str-chat__small-message-input--textarea-wrapper {
+  .str-chat__fileupload-wrapper {
+    .str-chat__tooltip {
+      bottom: 32px;
+      right: 32px;
+    }
+  }
+  .str-chat__emojiselect-wrapper {
+    .str-chat__tooltip {
+      bottom: 32px;
+      right: 10px;
     }
   }
 }

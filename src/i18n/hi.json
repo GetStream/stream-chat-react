@@ -1,5 +1,6 @@
 {
   "1 reply": "1 रिप्लाई",
+  "Attach files": "फाइल्स अटैच करे",
   "Cancel": "रद्द करें",
   "Channel Missing": "चैनल उपलब्ध नहीं है",
   "Connection failure, reconnecting now...": "कनेक्शन विफल रहा, अब पुनः कनेक्ट हो रहा है ...",
@@ -21,6 +22,7 @@
   "New Messages!": "नए मैसेज!",
   "Nothing yet...": "कोई मैसेज नहीं है",
   "Only visible to you": "सिर्फ आपको दिखाई दे रहा है",
+  "Open emoji picker": "इमोजी पिकर खोलिये",
   "Pick your emoji": "इमोजी चूस करे",
   "Send": "भेजे",
   "Sending...": "भेजा जा रहा है",

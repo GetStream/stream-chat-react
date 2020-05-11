@@ -1,5 +1,6 @@
 {
   "1 reply": "1 ответ",
+  "Attach files": "Прикрепить файлы",
   "Cancel": "Отмена",
   "Channel Missing": "Канал не найден",
   "Connection failure, reconnecting now...": "Ошибка соединения, переподключение...",
@@ -21,6 +22,7 @@
   "New Messages!": "Новые сообщения!",
   "Nothing yet...": "Пока ничего нет...",
   "Only visible to you": "Только видно для вас",
+  "Open emoji picker": "Выбрать emoji",
   "Pick your emoji": "Выберите свой emoji",
   "Send": "Отправить",
   "Sending...": "Отправка...",
