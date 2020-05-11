@@ -4,6 +4,11 @@
   position: relative;
   z-index: 1;
   width: 100%;
+
+  &-wrapper {
+    display: flex;
+  }
+
   .str-chat__textarea {
     flex: 1;
   }
@@ -43,6 +48,26 @@
 
   &--textarea-wrapper {
     display: flex;
+    flex: 1 0;
+    position: relative;
+
+    .str-chat__fileupload-wrapper {
+      .str-chat__tooltip {
+        bottom: 45px;
+        right: 25px;
+      }
+    }
+    .str-chat__emojiselect-wrapper {
+      .str-chat__tooltip {
+        bottom: 50px;
+        left: 32px;
+        right: unset;
+        &:after {
+          left: 5px;
+          right: unset;
+        }
+      }
+    }
   }
 
   &--emojipicker {
@@ -53,7 +78,7 @@
   .rfu-file-upload-button {
     position: absolute;
     top: calc(100% - 40px);
-    right: 55px;
+    right: 25px;
 
     svg {
       fill: #000;
@@ -61,9 +86,6 @@
       &:hover {
         opacity: 1;
       }
-    }
-    @media screen and (min-width: 768px) {
-      right: 25px;
     }
   }
 }
