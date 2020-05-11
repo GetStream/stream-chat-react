@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Tooltip should render as expected 1`] = `
-<div
-  className="str-chat__tooltip"
-/>
-`;
