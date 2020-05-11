@@ -3,7 +3,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
 
+import Center from './Center';
 import MessageNotification from './MessageNotification';
+import CustomNotification from './CustomNotification';
 import { MESSAGE_ACTIONS } from '../../utils';
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
@@ -15,23 +17,6 @@ import { LoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator } from '../DateSeparator';
 import { KEY_CODES } from '../AutoCompleteTextarea';
-
-/* eslint sonarjs/no-duplicate-string: 0 */
-
-const Center = ({ children }) => (
-  <div className="str-chat__list__center">{children}</div>
-);
-
-const Notification = ({ children, active, type }) => {
-  if (active) {
-    return (
-      <div className={`str-chat__custom-notification notification-${type}`}>
-        {children}
-      </div>
-    );
-  }
-  return null;
-};
 
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -825,17 +810,17 @@ class MessageList extends PureComponent {
 
         <div className="str-chat__list-notifications">
           {this.state.notifications.map((notification) => (
-            <Notification
+            <CustomNotification
               active={true}
               key={notification.id}
               type={notification.type}
             >
               {notification.text}
-            </Notification>
+            </CustomNotification>
           ))}
-          <Notification active={!this.state.online} type="error">
+          <CustomNotification active={!this.state.online} type="error">
             {t('Connection failure, reconnecting now...')}
-          </Notification>
+          </CustomNotification>
 
           <MessageNotification
             showNotification={this.state.newMessagesNotification}
