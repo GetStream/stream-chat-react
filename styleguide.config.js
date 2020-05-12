@@ -11,6 +11,9 @@ module.exports = {
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./webpack.config.styleguidist.js'),
   serverPort: 6068,
+  styleguideComponents: {
+    PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
+  },
 
   /* getExampleFilename(componentPath) {
 		componentPath = componentPath
