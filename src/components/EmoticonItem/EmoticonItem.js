@@ -17,7 +17,7 @@ EmoticonItem.propTypes = {
     native: PropTypes.string,
     /** Representative character for emoticon */
     char: PropTypes.string,
-  }),
+  }).isRequired,
 };
 
 export default React.memo(EmoticonItem);
