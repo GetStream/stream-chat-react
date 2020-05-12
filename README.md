@@ -84,6 +84,17 @@ The React components are created using the [stream-chat-js](https://github.com/g
 - Make the changes you want in the SCSS files
 - Run `yarn build-styles` or `yarn watch-styles`
 
+Alternatively, if you're also using SCSS for styling, you can import component styles directly in your .scss files. For example:
+
+```scss
+// customChatDownComponent.scss
+@import 'node_modules/stream-chat-react/dist/scss/ChatDown.scss';
+
+.myCustomChatDown {
+  background: rgba(blue, 0.7);
+}
+```
+
 ## Performance
 
 Since chat can get pretty active, it's essential to pay attention to performance.
