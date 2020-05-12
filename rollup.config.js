@@ -128,6 +128,7 @@ const normalBundle = {
     }),
     copy(
       [
+        { files: 'src/styles/**/*', dest: 'dist/scss' },
         { files: 'src/assets/*', dest: 'dist/assets' },
         { files: 'src/i18n/*.json', dest: 'dist/i18n' },
       ],
