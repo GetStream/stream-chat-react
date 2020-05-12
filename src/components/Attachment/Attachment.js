@@ -49,7 +49,6 @@ class Attachment extends PureComponent {
     } else if (a.type === 'image') {
       type = 'image';
     } else if (a.type === 'video' || a.mime_type.indexOf('video/') !== -1) {
-      console.log('video');
       type = 'media';
     } else if (a.type === 'file') {
       type = 'file';
