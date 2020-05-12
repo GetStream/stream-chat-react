@@ -7,6 +7,7 @@
 
   &-wrapper {
     display: flex;
+    flex-wrap: wrap;
   }
 
   .str-chat__textarea {
@@ -91,6 +92,7 @@
 }
 
 .rfu-image-previewer {
+  flex: 1 1 100%;
   &__image {
     width: 60px !important;
     height: 60px !important;

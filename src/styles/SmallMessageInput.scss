@@ -1,8 +1,17 @@
 .str-chat__small-message-input {
   display: flex;
+  flex-wrap: wrap;
   margin: 10px;
   position: relative;
   z-index: 1000;
+
+  .rfu-file-previewer {
+    flex: 1 1 100%;
+  }
+
+  .rfu-image-previewer {
+    flex: 1 1 100%;
+  }
 
   &__wrapper {
     position: relative;
