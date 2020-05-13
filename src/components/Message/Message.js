@@ -304,32 +304,60 @@ class Message extends Component {
       addNotification,
       t,
     } = this.props;
+    if (!this.isUserMuted()) {
+      try {
+        await client.muteUser(message.user.id);
+        const successMessage = this.validateAndGetNotificationMessage(
+          getMuteUserSuccessNotification,
+          [message.user],
+        );
 
-    try {
-      await client.muteUser(message.user.id);
-      const successMessage = this.validateAndGetNotificationMessage(
-        getMuteUserSuccessNotification,
-        [message.user],
-      );
+        addNotification(
+          successMessage
+            ? successMessage
+            : t(`{{ user }} has been muted`, {
+                user: message.user.name || message.user.id,
+              }),
+          'success',
+        );
+      } catch (e) {
+        const errorMessage = this.validateAndGetNotificationMessage(
+          getMuteUserErrorNotification,
+          [message.user],
+        );
 
-      addNotification(
-        successMessage
-          ? successMessage
-          : t(`{{ user }} has been muted`, {
-              user: message.user.name || message.user.id,
-            }),
-        'success',
-      );
-    } catch (e) {
-      const errorMessage = this.validateAndGetNotificationMessage(
-        getMuteUserErrorNotification,
-        [message.user],
-      );
+        addNotification(
+          errorMessage ? errorMessage : t('Error muting a user ...'),
+          'error',
+        );
+      }
+    } else {
+      try {
+        await client.unmuteUser(message.user.id);
+        const successMessage = this.validateAndGetNotificationMessage(
+          getMuteUserSuccessNotification,
+          [message.user],
+        );
 
-      addNotification(
-        errorMessage ? errorMessage : t('Error muting a user ...'),
-        'error',
-      );
+        addNotification(
+          successMessage
+            ? successMessage
+            : t(`{{ user }} has been unmuted`, {
+                user: message.user.name || message.user.id,
+              }),
+          'success',
+        );
+      } catch (e) {
+        const errorMessage = this.validateAndGetNotificationMessage(
+          getMuteUserErrorNotification,
+          [message.user],
+        );
+
+        addNotification(
+          errorMessage ? errorMessage : t('Error unmuting a user ...'),
+          'error',
+        );
+      }
     }
   };
 
@@ -460,6 +488,14 @@ class Message extends Component {
     this.props.onUserHover(e, this.props.message.user);
   };
 
+  isUserMuted = () => {
+    const userMuted = this.props.mutes.filter(
+      (el) => el.target.id === this.props.message.user.id,
+    );
+    return !!userMuted.length;
+    return false;
+  };
+
   getMessageActions = () => {
     const { message, messageActions: messageActionsProps } = this.props;
     const { mutes } = this.props.channel.getConfig();
@@ -532,6 +568,7 @@ class Message extends Component {
         handleOpenThread={
           this.props.openThread && this.props.openThread.bind(this, message)
         }
+        isUserMuted={this.isUserMuted}
         isMyMessage={this.isMyMessage}
         channelConfig={config}
         onMentionsClickMessage={this.onMentionsClick}
