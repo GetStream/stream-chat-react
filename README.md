@@ -95,6 +95,16 @@ Alternatively, if you're also using SCSS for styling, you can import component s
 }
 ```
 
+Depending on your build system configuration, you might have issues importing SCSS files that require images from our provided assets. For example, if you're using `create-react-app` and you try to introduce one of those SCSS files, you'll see an error telling you that `Relative imports outside of src/ are not supported.`
+
+You can work around this kind of issue by overwriting the `$assetsPath` variable and making sure you provide the necessary assets accordingly:
+
+```scss
+@import 'node_modules/stream-chat-react/dist/scss/_variables.scss';
+$assetsPath: '/img'; // This will make url(..) calls compiles to url('/img/<asset-name>.png').
+@import 'node_modules/stream-chat-react/dist/scss/index.scss';
+```
+
 ## Performance
 
 Since chat can get pretty active, it's essential to pay attention to performance.
