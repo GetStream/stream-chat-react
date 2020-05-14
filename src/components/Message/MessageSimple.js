@@ -292,6 +292,7 @@ class MessageSimple extends PureComponent {
       handleMute,
       handleEdit,
       handleDelete,
+      isUserMuted,
     } = this.props;
     const messageActions = getMessageActions();
 
@@ -310,6 +311,7 @@ class MessageSimple extends PureComponent {
           open={this.state.actionsBoxOpen}
           messageListRect={messageListRect}
           handleFlag={handleFlag}
+          isUserMuted={isUserMuted}
           handleMute={handleMute}
           handleEdit={handleEdit}
           handleDelete={handleDelete}

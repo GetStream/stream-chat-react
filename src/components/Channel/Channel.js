@@ -645,6 +645,7 @@ class ChannelInner extends PureComponent {
     multipleUploads: this.props.multipleUploads,
     acceptedFiles: this.props.acceptedFiles,
     maxNumberOfFiles: this.props.maxNumberOfFiles,
+    mutes: this.props.mutes,
     updateMessage: this.updateMessage,
     removeMessage: this.removeMessage,
     sendMessage: this.sendMessage,

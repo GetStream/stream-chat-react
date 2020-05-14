@@ -107,9 +107,9 @@ class MessageActionsBox extends React.Component {
       handleDelete,
       getMessageActions,
       t,
+      isUserMuted,
     } = this.props;
     const messageActions = getMessageActions();
-
     return (
       <div
         className={`str-chat__message-actions-box
@@ -130,7 +130,7 @@ class MessageActionsBox extends React.Component {
           {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
             <button onClick={handleMute}>
               <li className="str-chat__message-actions-list-item">
-                {t('Mute')}
+                {isUserMuted() ? t('Unmute') : t('Mute')}
               </li>
             </button>
           )}
