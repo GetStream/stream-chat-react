@@ -108,7 +108,7 @@ export interface ChannelProps
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-  mutes: Array<{}>;
+  mutes: Client.Mute[];
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
@@ -336,7 +336,7 @@ export interface MessageListProps
   unsafeHTML?: boolean;
   messageLimit?: number;
   messageActions?: Array<string>;
-  mutes: Array<{}>;
+  mutes: Client.Mute[];
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
@@ -533,7 +533,7 @@ export interface MessageUIComponentProps
   isMyMessage?(message: Client.MessageResponse): boolean;
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  mutes: Array<{}>;
+  mutes: Client.Mute[];
   onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
@@ -801,7 +801,7 @@ export interface MessageActionsProps extends TranslationContextValue {
   /** If message belongs to current user. */
   mine?: boolean;
   isUserMuted?(): boolean;
-  mutes: Array<{}>;
+  mutes: Client.Mute[];
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   handleEdit?(event?: React.BaseSyntheticEvent): void;

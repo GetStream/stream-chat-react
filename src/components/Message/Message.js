@@ -493,7 +493,6 @@ class Message extends Component {
       (el) => el.target.id === this.props.message.user.id,
     );
     return !!userMuted.length;
-    return false;
   };
 
   getMessageActions = () => {
