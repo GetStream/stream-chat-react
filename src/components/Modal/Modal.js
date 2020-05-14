@@ -18,12 +18,12 @@ class Modal extends React.PureComponent {
     document.removeEventListener('keyPress', this.handleEscKey, false);
   }
 
-  handleEscKey(e) {
+  handleEscKey = (e) => {
     if (e.keyCode === 27) {
       this.props.onClose();
       document.removeEventListener('keyPress', this.handleEscKey, false);
     }
-  }
+  };
 
   handleClick = (e) => {
     if (!this.innerRef.current.contains(e.target)) {
