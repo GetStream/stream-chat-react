@@ -310,6 +310,7 @@ class MessageTeam extends PureComponent {
       handleRetry,
       getMessageActions,
       isMyMessage,
+      isUserMuted,
       handleFlag,
       handleMute,
       handleEdit,
@@ -470,6 +471,7 @@ class MessageTeam extends PureComponent {
                           getMessageActions={getMessageActions}
                           Message={Message}
                           open={this.state.actionsBoxOpen}
+                          isUserMuted={isUserMuted}
                           message={message}
                           messageListRect={messageListRect}
                           mine={isMyMessage(message)}
