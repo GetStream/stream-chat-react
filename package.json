@@ -48,8 +48,8 @@
     "visibilityjs": "^2.0.2"
   },
   "peerDependencies": {
-    "react": "^16.x",
-    "react-dom": "^16.x"
+    "react": "^16.8.x",
+    "react-dom": "^16.8.x"
   },
   "files": [
     "dist",
