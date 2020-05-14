@@ -11,7 +11,11 @@ import * as Dayjs from 'dayjs';
 export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
-  setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
+  setActiveChannel?(
+    channel: Client.Channel,
+    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    event?: React.SyntheticEvent,
+  ): void;
   openNav?: boolean;
   openMobileNav?(): void;
   closeMobileNav?(): void;
@@ -869,7 +873,7 @@ export class InfiniteScroll extends React.PureComponent<
   any
 > {}
 
-export const LoadMoreButton: React.FC<LoadMoreButtonProps, any>;
+export const LoadMoreButton: React.FC<LoadMoreButtonProps>;
 export const LoadingChannels: React.FC<LoadingChannelsProps>;
 export const LoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps>;
 export class MessageActions extends React.PureComponent<
