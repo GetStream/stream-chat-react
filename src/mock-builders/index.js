@@ -10,6 +10,7 @@ const setUser = (client, user) => {
     const token = 'dummy_token';
     client.connectionId = 'dumm_connection_id';
     client.user = user;
+    client.user.mutes = [];
     client._user = { ...user };
     client.userID = user.id;
     client.userToken = token;
