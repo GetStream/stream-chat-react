@@ -11,6 +11,7 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Error adding flag: Either the flag already exist or there is issue with network connection ...",
   "Error connecting to chat, refresh the page to try again.": "Error connecting to chat, refresh the page to try again.",
   "Error muting a user ...": "Error muting a user ...",
+  "Error unmuting a user ...": "Error unmuting a user ...",
   "Error · Unsent": "Error · Unsent",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
   "Flag": "Flag",
@@ -30,6 +31,7 @@
   "This message was deleted...": "This message was deleted...",
   "Thread": "Thread",
   "Type your message": "Type your message",
+  "Unmute": "Unmute",
   "You have no channels currently": "You have no channels currently",
   "live": "live",
   "this content could not be displayed": "this content could not be displayed",
@@ -42,6 +44,7 @@
   "{{ memberCount }} members": "{{ memberCount }} members",
   "{{ replyCount }} replies": "{{ replyCount }} replies",
   "{{ user }} has been muted": "{{ user }} has been muted",
+  "{{ user }} has been unmuted": "{{ user }} has been unmuted",
   "{{ user }} is typing...": "{{ user }} is typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Attachment..."
