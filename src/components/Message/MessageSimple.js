@@ -232,7 +232,10 @@ class MessageSimple extends PureComponent {
       readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-sending"
+        >
           <Tooltip>{t('Sending...')}</Tooltip>
           <LoadingIndicator />
         </span>
@@ -242,7 +245,10 @@ class MessageSimple extends PureComponent {
         (item) => item && item.id !== client.user.id,
       )[0];
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-read-by"
+        >
           <Tooltip>
             {readBy &&
               getReadByTooltipText(readBy, this.props.t, this.props.client)}
@@ -255,7 +261,10 @@ class MessageSimple extends PureComponent {
             size={15}
           />
           {readBy.length > 2 && (
-            <span className="str-chat__message-simple-status-number">
+            <span
+              className="str-chat__message-simple-status-number"
+              data-testid="message-status-read-by-many"
+            >
               {readBy.length - 1}
             </span>
           )}
@@ -267,7 +276,10 @@ class MessageSimple extends PureComponent {
       !threadList
     ) {
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-received"
+        >
           <Tooltip>{t('Delivered')}</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -302,6 +314,7 @@ class MessageSimple extends PureComponent {
 
     return (
       <div
+        data-testid="message-actions"
         onClick={this._onClickOptionsAction}
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
       >
@@ -355,6 +368,7 @@ class MessageSimple extends PureComponent {
           {this.renderMessageActions()}
           {!threadList && channelConfig && channelConfig.replies && (
             <div
+              data-testid="thread-action"
               onClick={handleOpenThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
             >
@@ -368,6 +382,7 @@ class MessageSimple extends PureComponent {
           )}
           {channelConfig && channelConfig.reactions && (
             <div
+              data-testid="simple-message-reaction-action"
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
             >
@@ -445,7 +460,6 @@ class MessageSimple extends PureComponent {
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
-
     const when =
       tDateTimeParser(message.created_at).calendar &&
       tDateTimeParser(message.created_at).calendar();
@@ -460,6 +474,7 @@ class MessageSimple extends PureComponent {
     const images =
       hasAttachment &&
       message.attachments.filter((item) => item.type === 'image');
+
     const hasReactions = Boolean(
       message.latest_reactions && message.latest_reactions.length,
     );
@@ -471,7 +486,6 @@ class MessageSimple extends PureComponent {
     if (message.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
-
     return (
       <React.Fragment>
         {editing && (
@@ -507,6 +521,7 @@ class MessageSimple extends PureComponent {
             onMouseOver={onUserHover}
           />
           <div
+            data-testid="message-inner"
             className="str-chat__message-inner"
             onClick={
               message.status === 'failed'
@@ -559,6 +574,7 @@ class MessageSimple extends PureComponent {
             {message.text && (
               <div className="str-chat__message-text">
                 <div
+                  data-testid="message-simple-inner-wrapper"
                   className={`
 									str-chat__message-text-inner str-chat__message-simple-text-inner
 									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}

@@ -20,6 +20,7 @@ class MessageDeleted extends React.PureComponent {
       <div
         key={message.id}
         className={`${messageClasses} str-chat__message--deleted ${message.type} `}
+        data-testid={'message-deleted-component'}
       >
         <div className="str-chat__message--deleted-inner">
           {t('This message was deleted...')}

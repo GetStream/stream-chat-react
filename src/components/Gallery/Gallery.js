@@ -44,6 +44,7 @@ class Gallery extends React.PureComponent {
       <div className={`str-chat__gallery ${squareClass}`}>
         {images.slice(0, 3).map((image, i) => (
           <div
+            data-testid="gallery-image"
             className="str-chat__gallery-image"
             key={`gallery-image-${i}`}
             onClick={() => this.toggleModal(i)}
