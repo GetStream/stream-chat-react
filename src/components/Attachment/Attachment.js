@@ -48,7 +48,10 @@ class Attachment extends PureComponent {
       type = 'card';
     } else if (a.type === 'image') {
       type = 'image';
-    } else if (a.type === 'video' || a?.mime_type?.indexOf('video/') !== -1) {
+    } else if (
+      a.type === 'video' ||
+      (a.mime_type && a.mime_type.indexOf('video/') !== -1)
+    ) {
       type = 'media';
     } else if (a.type === 'file') {
       type = 'file';
