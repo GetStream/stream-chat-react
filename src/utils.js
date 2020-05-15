@@ -1,10 +1,10 @@
 /* eslint-disable */
-import anchorme from 'anchorme';
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown/with-html';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
+import { find as linkifyFind } from 'linkifyjs';
 
 export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
@@ -135,12 +135,8 @@ export const formatArray = (dict, currentUserId) => {
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
-  let { text } = message;
-  const { mentioned_users } = message;
-
-  if (!text) {
-    return;
-  }
+  const { text, mentioned_users } = message;
+  if (!text) return null;
 
   const allowed = [
     'html',
@@ -159,21 +155,19 @@ export const renderText = (message) => {
     'delete',
   ];
 
-  const urls = anchorme(text, {
-    list: true,
+  let newText = message.text;
+
+  linkifyFind(newText).forEach(({ type, href, value }) => {
+    const displayLink =
+      type === 'email'
+        ? value
+        : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), {
+            length: 20,
+          });
+
+    newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
-  for (const urlInfo of urls) {
-    const isEmail = urlInfo.reason === 'email';
-    const displayLink = !isEmail
-      ? truncate(urlInfo.encoded.replace(/^(www\.)/, ''), {
-          length: 20,
-          omission: '...',
-        })
-      : urlInfo.encoded;
-    const mkdown = `[${displayLink}](${urlInfo.protocol}${urlInfo.encoded})`;
-    text = text.replace(urlInfo.raw, mkdown);
-  }
-  let newText = text;
+
   if (mentioned_users && mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
       const username = mentioned_users[i].name || mentioned_users[i].id;
