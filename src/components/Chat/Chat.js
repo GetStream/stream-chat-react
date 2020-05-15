@@ -97,7 +97,7 @@ class Chat extends PureComponent {
     this.setState({
       t,
       tDateTimeParser,
-      mutes: this.props.client.user.mutes || [],
+      mutes: this.props.client?.user?.mutes || [],
     });
     this.props.client.on(this.handleEvent);
   }

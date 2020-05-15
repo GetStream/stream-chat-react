@@ -21,6 +21,7 @@ const readBy = [
     readBy={readBy}
     groupStyles={['bottom']}
     editing={false}
+    mutes={[]}
     {...data.channelContext}
     {...data.translationContext}
   />
