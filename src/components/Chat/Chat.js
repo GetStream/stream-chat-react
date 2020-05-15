@@ -94,13 +94,17 @@ class Chat extends PureComponent {
     });
 
     const { t, tDateTimeParser } = await streami18n.getTranslators();
-    this.setState({ t, tDateTimeParser, mutes: this.props.client.user.mutes });
+    this.setState({
+      t,
+      tDateTimeParser,
+      mutes: this.props.client.user.mutes || [],
+    });
     this.props.client.on(this.handleEvent);
   }
 
   handleEvent = (e) => {
     if (e.type === 'notification.mutes_updated') {
-      this.setState({ mutes: e.me.mutes });
+      this.setState({ mutes: e.me.mutes || [] });
     }
   };
 
