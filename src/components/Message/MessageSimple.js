@@ -214,6 +214,18 @@ class MessageSimple extends PureComponent {
     return this.props.isMyMessage(this.props.message);
   }
 
+  hasReactions = () => {
+    const { message } = this.props;
+    return Boolean(message.latest_reactions && message.latest_reactions.length);
+  };
+
+  hasAttachment = () => {
+    const { message } = this.props;
+    return Boolean(
+      message && message.attachments && message.attachments.length,
+    );
+  };
+
   renderStatus = () => {
     const {
       readBy,
@@ -436,7 +448,93 @@ class MessageSimple extends PureComponent {
     );
   }
 
-  // eslint-disable-next-line
+  renderMessageText = () => {
+    const {
+      actionsEnabled,
+      message,
+      unsafeHTML,
+      handleReaction,
+      onMentionsHoverMessage,
+      onMentionsClickMessage,
+      messageListRect,
+      t,
+    } = this.props;
+    const hasReactions = this.hasReactions();
+    const hasAttachment = this.hasAttachment();
+
+    if (!message.text) {
+      return null;
+    }
+
+    return (
+      <div className="str-chat__message-text">
+        <div
+          data-testid="message-simple-inner-wrapper"
+          className={`
+            str-chat__message-text-inner str-chat__message-simple-text-inner
+            ${
+              this.state.isFocused
+                ? 'str-chat__message-text-inner--focused'
+                : ''
+            }
+            ${
+              hasAttachment
+                ? 'str-chat__message-text-inner--has-attachment'
+                : ''
+            }
+            ${
+              isOnlyEmojis(message.text)
+                ? 'str-chat__message-simple-text-inner--is-emoji'
+                : ''
+            }
+          `.trim()}
+          onMouseOver={onMentionsHoverMessage}
+          onClick={onMentionsClickMessage}
+        >
+          {message.type === 'error' && (
+            <div className="str-chat__simple-message--error-message">
+              {t('Error · Unsent')}
+            </div>
+          )}
+          {message.status === 'failed' && (
+            <div className="str-chat__simple-message--error-message">
+              {t('Message Failed · Click to try again')}
+            </div>
+          )}
+
+          {unsafeHTML ? (
+            <div dangerouslySetInnerHTML={{ __html: message.html }} />
+          ) : (
+            renderText(message)
+          )}
+
+          {/* if reactions show them */}
+          {hasReactions && !this.state.showDetailedReactions && (
+            <ReactionsList
+              reactions={message.latest_reactions}
+              reaction_counts={message.reaction_counts}
+              onClick={this._clickReactionList}
+              reverse={true}
+            />
+          )}
+          {this.state.showDetailedReactions && (
+            <ReactionSelector
+              mine={this.isMine()}
+              handleReaction={handleReaction}
+              actionsEnabled={actionsEnabled}
+              detailedView
+              reaction_counts={message.reaction_counts}
+              latest_reactions={message.latest_reactions}
+              messageList={messageListRect}
+              ref={this.reactionSelectorRef}
+            />
+          )}
+        </div>
+        {this.renderOptions()}
+      </div>
+    );
+  };
+
   render() {
     const {
       message,
@@ -446,38 +544,28 @@ class MessageSimple extends PureComponent {
       handleRetry,
       updateMessage,
       handleReaction,
-      actionsEnabled,
       messageListRect,
       handleAction,
-      onMentionsHoverMessage,
-      onMentionsClickMessage,
       onUserClick,
       onUserHover,
-      unsafeHTML,
       threadList,
       handleOpenThread,
-      t,
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
     const when =
       tDateTimeParser(message.created_at).calendar &&
       tDateTimeParser(message.created_at).calendar();
+    const hasReactions = this.hasReactions();
+    const hasAttachment = this.hasAttachment();
 
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
       : 'str-chat__message str-chat__message-simple';
 
-    const hasAttachment = Boolean(
-      message && message.attachments && message.attachments.length,
-    );
     const images =
       hasAttachment &&
       message.attachments.filter((item) => item.type === 'image');
-
-    const hasReactions = Boolean(
-      message.latest_reactions && message.latest_reactions.length,
-    );
 
     if (message.type === 'message.read' || message.type === 'message.date') {
       return null;
@@ -570,67 +658,7 @@ class MessageSimple extends PureComponent {
                 })}
             </div>
             {images.length > 1 && <Gallery images={images} />}
-
-            {message.text && (
-              <div className="str-chat__message-text">
-                <div
-                  data-testid="message-simple-inner-wrapper"
-                  className={`
-									str-chat__message-text-inner str-chat__message-simple-text-inner
-									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
-									${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
-									${
-                    isOnlyEmojis(message.text)
-                      ? 'str-chat__message-simple-text-inner--is-emoji'
-                      : ''
-                  }
-                `.trim()}
-                  onMouseOver={onMentionsHoverMessage}
-                  onClick={onMentionsClickMessage}
-                >
-                  {message.type === 'error' && (
-                    <div className="str-chat__simple-message--error-message">
-                      {t('Error · Unsent')}
-                    </div>
-                  )}
-                  {message.status === 'failed' && (
-                    <div className="str-chat__simple-message--error-message">
-                      {t('Message Failed · Click to try again')}
-                    </div>
-                  )}
-
-                  {unsafeHTML ? (
-                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                  ) : (
-                    renderText(message)
-                  )}
-
-                  {/* if reactions show them */}
-                  {hasReactions && !this.state.showDetailedReactions && (
-                    <ReactionsList
-                      reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts}
-                      onClick={this._clickReactionList}
-                      reverse={true}
-                    />
-                  )}
-                  {this.state.showDetailedReactions && (
-                    <ReactionSelector
-                      mine={this.isMine()}
-                      handleReaction={handleReaction}
-                      actionsEnabled={actionsEnabled}
-                      detailedView
-                      reaction_counts={message.reaction_counts}
-                      latest_reactions={message.latest_reactions}
-                      messageList={messageListRect}
-                      ref={this.reactionSelectorRef}
-                    />
-                  )}
-                </div>
-
-                {message.text && this.renderOptions()}
-              </div>
-            )}
+            {message.text && this.renderMessageText()}
             {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
