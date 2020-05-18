@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown/with-html';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
-import * as linkify from 'linkifyjs';
+import { find as linkifyFind } from 'linkifyjs/lib/linkify';
 
 export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
@@ -158,7 +158,7 @@ export const renderText = (message) => {
   let newText = message.text;
 
   // extract all valid links/emails within text and replace it with proper markup
-  linkify.find(newText).forEach(({ type, href, value }) => {
+  linkifyFind(newText).forEach(({ type, href, value }) => {
     const displayLink =
       type === 'email'
         ? value

@@ -42,6 +42,7 @@ const normalBundle = {
   ],
   external: [
     'linkifyjs',
+    'linkifyjs/lib/linkify',
     'dayjs',
     'dayjs/plugin/calendar',
     'dayjs/plugin/updateLocale',
