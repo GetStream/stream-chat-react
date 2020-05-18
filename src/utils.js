@@ -132,28 +132,28 @@ export const formatArray = (dict, currentUserId) => {
   return outStr;
 };
 
+const allowedMarkups = [
+  'html',
+  'root',
+  'text',
+  'break',
+  'paragraph',
+  'emphasis',
+  'strong',
+  'link',
+  'list',
+  'listItem',
+  'code',
+  'inlineCode',
+  'blockquote',
+  'delete',
+];
+
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
   const { text, mentioned_users } = message;
   if (!text) return null;
-
-  const allowed = [
-    'html',
-    'root',
-    'text',
-    'break',
-    'paragraph',
-    'emphasis',
-    'strong',
-    'link',
-    'list',
-    'listItem',
-    'code',
-    'inlineCode',
-    'blockquote',
-    'delete',
-  ];
 
   let newText = message.text;
 
@@ -180,7 +180,7 @@ export const renderText = (message) => {
 
   return (
     <ReactMarkdown
-      allowedTypes={allowed}
+      allowedTypes={allowedMarkups}
       source={newText}
       linkTarget="_blank"
       plugins={[]}
