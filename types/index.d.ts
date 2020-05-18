@@ -544,20 +544,15 @@ export interface MessageUIComponentProps
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute[];
-  onMentionsClickMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
-  onMentionsHoverMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
+  onMentionsClickMessage?(event: React.MouseEvent): void;
+  onMentionsHoverMessage?(event: React.MouseEvent): void;
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: object;
+  channelConfig?: Client.ChannelConfig;
   threadList?: boolean;
   additionalMessageInputProps?: object;
+  initialMessage?: boolean;
 }
 
 export interface MessageDeletedProps extends TranslationContextValue {
