@@ -972,10 +972,24 @@ export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   any
 > {}
+
+export interface MessageSimpleProps extends MessageUIComponentProps {
+  isMyMessage(message: Client.MessageResponse): boolean;
+  t: i18next.TFunction;
+  tDateTimeParser: (datetime: string | number) => { calendar: () => string };
+}
+
+export type MessageSimpleState = {
+  isFocused: boolean;
+  actionsBoxOpen: boolean;
+  showDetailedReactions: boolean;
+};
+
 export class MessageSimple extends React.PureComponent<
-  MessageUIComponentProps,
-  any
+  MessageSimpleProps,
+  MessageSimpleState
 > {}
+
 export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
   any
