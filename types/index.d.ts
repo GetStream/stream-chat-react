@@ -112,7 +112,7 @@ export interface ChannelProps
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-  mutes: Client.Mute[];
+  mutes?: Client.Mute[];
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
@@ -340,7 +340,7 @@ export interface MessageListProps
   unsafeHTML?: boolean;
   messageLimit?: number;
   messageActions?: Array<string>;
-  mutes: Client.Mute[];
+  mutes?: Client.Mute[];
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
@@ -537,7 +537,7 @@ export interface MessageUIComponentProps
   isMyMessage?(message: Client.MessageResponse): boolean;
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  mutes: Client.Mute[];
+  mutes?: Client.Mute[];
   onMentionsClickMessage?(
     event: React.MouseEvent,
     user: Client.UserResponse,
