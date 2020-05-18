@@ -41,7 +41,8 @@ const normalBundle = {
     },
   ],
   external: [
-    'anchorme',
+    'linkifyjs',
+    'linkifyjs/lib/linkify',
     'dayjs',
     'dayjs/plugin/calendar',
     'dayjs/plugin/updateLocale',
