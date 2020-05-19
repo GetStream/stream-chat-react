@@ -169,7 +169,7 @@ class MessageCommerce extends PureComponent {
   }
 
   isMine() {
-    return !this.props.isMyMessage(this.props.message);
+    return this.props.isMyMessage(this.props.message);
   }
 
   renderOptions() {
@@ -186,7 +186,10 @@ class MessageCommerce extends PureComponent {
     }
 
     return (
-      <div className="str-chat__message-commerce__actions">
+      <div
+        data-testid="message-commerce-actions"
+        className="str-chat__message-commerce__actions"
+      >
         <div
           className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
           onClick={this._clickReactionList}
@@ -224,7 +227,7 @@ class MessageCommerce extends PureComponent {
 
     const when = tDateTimeParser(message.created_at).format('LT');
 
-    const messageClasses = this.isMine()
+    const messageClasses = !this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
       : 'str-chat__message-commerce str-chat__message-commerce--right';
 
@@ -249,6 +252,7 @@ class MessageCommerce extends PureComponent {
     return (
       <React.Fragment>
         <div
+          data-testid={'message-commerce-wrapper'}
           key={message.id}
           className={`
 						${messageClasses}
@@ -314,6 +318,7 @@ class MessageCommerce extends PureComponent {
             {message.text && (
               <div className="str-chat__message-commerce-text">
                 <div
+                  data-testid="message-commerce-text-inner-wrapper"
                   className={`str-chat__message-commerce-text-inner
 									${hasAttachment ? 'str-chat__message-commerce-text-inner--has-attachment' : ''}
 									${
@@ -371,7 +376,7 @@ class MessageCommerce extends PureComponent {
               </div>
             )}
             <div className={`str-chat__message-commerce-data`}>
-              {this.isMine() ? (
+              {!this.isMine() ? (
                 <span className="str-chat__message-commerce-name">
                   {message.user.name || message.user.id}
                 </span>
