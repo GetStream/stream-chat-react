@@ -1,9 +1,7 @@
-/* eslint-disable */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { ReactionsList, ReactionSelector } from '../Reactions';
@@ -104,33 +102,17 @@ class MessageCommerce extends PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
   };
 
   state = {
     isFocused: false,
-    actionsBoxOpen: false,
     showDetailedReactions: false,
   };
 
   messageActionsRef = React.createRef();
+
   reactionSelectorRef = React.createRef();
-
-  _onClickOptionsAction = () => {
-    this.setState(
-      {
-        actionsBoxOpen: true,
-      },
-      () => document.addEventListener('click', this.hideOptions, false),
-    );
-  };
-
-  _hideOptions = () => {
-    this.setState({
-      actionsBoxOpen: false,
-    });
-    document.removeEventListener('click', this.hideOptions, false);
-  };
 
   _clickReactionList = () => {
     this.setState(
@@ -157,8 +139,6 @@ class MessageCommerce extends PureComponent {
           document.removeEventListener('click', this._closeDetailedReactions);
         },
       );
-    } else {
-      return {};
     }
   };
 
@@ -182,7 +162,7 @@ class MessageCommerce extends PureComponent {
       !this.props.channelConfig.reactions ||
       this.props.initialMessage
     ) {
-      return;
+      return null;
     }
 
     return (
@@ -266,8 +246,6 @@ class MessageCommerce extends PureComponent {
 						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
 						${`str-chat__message-commerce--${groupStyles[0]}`}
 					`.trim()}
-          onMouseLeave={this._hideOptions}
-          ref={this.messageRef}
         >
           {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
             <Avatar
