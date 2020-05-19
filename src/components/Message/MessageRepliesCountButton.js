@@ -34,6 +34,7 @@ const MessageRepliesCountButton = ({
   if (reply_count && reply_count !== 0) {
     return (
       <button
+        data-testid="replies-count-button"
         className="str-chat__message-replies-count-button"
         onClick={onClick}
       >

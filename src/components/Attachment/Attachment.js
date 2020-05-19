@@ -105,6 +105,7 @@ class Attachment extends PureComponent {
       a.asset_url &&
         results.push(
           <div
+            data-testid="attachment-file"
             className="str-chat__message-attachment-file--item"
             key={`key-file-${a.id}`}
           >

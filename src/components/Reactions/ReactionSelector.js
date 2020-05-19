@@ -202,6 +202,7 @@ class ReactionSelector extends PureComponent {
   render() {
     return (
       <div
+        data-testid="reaction-selector"
         className={`str-chat__reaction-selector ${
           this.props.reverse ? 'str-chat__reaction-selector--reverse' : ''
         }`}

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -10,7 +9,7 @@ import {
   smartRender,
 } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
@@ -20,7 +19,7 @@ import { MessageActionsBox } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
-import MessageDeleted from '../MessageDeleted';
+import DefaultMessageDeleted from '../MessageDeleted';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -141,8 +140,8 @@ class MessageSimple extends PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
-    MessageDeleted,
+    Attachment: DefaultAttachment,
+    MessageDeleted: DefaultMessageDeleted,
   };
 
   state = {
@@ -152,6 +151,7 @@ class MessageSimple extends PureComponent {
   };
 
   messageActionsRef = React.createRef();
+
   reactionSelectorRef = React.createRef();
 
   _onClickOptionsAction = () => {
@@ -200,8 +200,6 @@ class MessageSimple extends PureComponent {
           );
         },
       );
-    } else {
-      return {};
     }
   };
 
@@ -232,17 +230,24 @@ class MessageSimple extends PureComponent {
       readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-sending"
+        >
           <Tooltip>{t('Sending...')}</Tooltip>
           <LoadingIndicator />
         </span>
       );
-    } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
+    }
+    if (readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
         (item) => item && item.id !== client.user.id,
       )[0];
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-read-by"
+        >
           <Tooltip>
             {readBy &&
               getReadByTooltipText(readBy, this.props.t, this.props.client)}
@@ -255,19 +260,26 @@ class MessageSimple extends PureComponent {
             size={15}
           />
           {readBy.length > 2 && (
-            <span className="str-chat__message-simple-status-number">
+            <span
+              className="str-chat__message-simple-status-number"
+              data-testid="message-status-read-by-many"
+            >
               {readBy.length - 1}
             </span>
           )}
         </span>
       );
-    } else if (
+    }
+    if (
       message.status === 'received' &&
       message.id === lastReceivedId &&
       !threadList
     ) {
       return (
-        <span className="str-chat__message-simple-status">
+        <span
+          className="str-chat__message-simple-status"
+          data-testid="message-status-received"
+        >
           <Tooltip>{t('Delivered')}</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -278,9 +290,8 @@ class MessageSimple extends PureComponent {
           </svg>
         </span>
       );
-    } else {
-      return null;
     }
+    return null;
   };
 
   renderMessageActions = () => {
@@ -297,11 +308,12 @@ class MessageSimple extends PureComponent {
     const messageActions = getMessageActions();
 
     if (messageActions.length === 0) {
-      return;
+      return null;
     }
 
     return (
       <div
+        data-testid="message-actions"
         onClick={this._onClickOptionsAction}
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
       >
@@ -331,6 +343,7 @@ class MessageSimple extends PureComponent {
       </div>
     );
   };
+
   renderOptions() {
     const {
       message,
@@ -347,7 +360,7 @@ class MessageSimple extends PureComponent {
       message.status === 'sending' ||
       initialMessage
     ) {
-      return;
+      return null;
     }
     if (this.isMine()) {
       return (
@@ -355,6 +368,7 @@ class MessageSimple extends PureComponent {
           {this.renderMessageActions()}
           {!threadList && channelConfig && channelConfig.replies && (
             <div
+              data-testid="thread-action"
               onClick={handleOpenThread}
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
             >
@@ -368,6 +382,7 @@ class MessageSimple extends PureComponent {
           )}
           {channelConfig && channelConfig.reactions && (
             <div
+              data-testid="simple-message-reaction-action"
               className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
               onClick={this._clickReactionList}
             >
@@ -386,39 +401,39 @@ class MessageSimple extends PureComponent {
           )}
         </div>
       );
-    } else {
-      return (
-        <div className="str-chat__message-simple__actions">
-          {channelConfig && channelConfig.reactions && (
-            <div
-              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
-              onClick={this._clickReactionList}
-            >
-              <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
-                  fillRule="evenodd"
-                />
-              </svg>
-            </div>
-          )}
-          {!threadList && channelConfig && channelConfig.replies && (
-            <div
-              onClick={handleOpenThread}
-              className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
-            >
-              <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                  fillRule="evenodd"
-                />
-              </svg>
-            </div>
-          )}
-          {this.renderMessageActions()}
-        </div>
-      );
     }
+
+    return (
+      <div className="str-chat__message-simple__actions">
+        {channelConfig && channelConfig.reactions && (
+          <div
+            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+            onClick={this._clickReactionList}
+          >
+            <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
+                fillRule="evenodd"
+              />
+            </svg>
+          </div>
+        )}
+        {!threadList && channelConfig && channelConfig.replies && (
+          <div
+            onClick={handleOpenThread}
+            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+          >
+            <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
+                fillRule="evenodd"
+              />
+            </svg>
+          </div>
+        )}
+        {this.renderMessageActions()}
+      </div>
+    );
   }
 
   // eslint-disable-next-line
@@ -445,7 +460,6 @@ class MessageSimple extends PureComponent {
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
-
     const when =
       tDateTimeParser(message.created_at).calendar &&
       tDateTimeParser(message.created_at).calendar();
@@ -460,6 +474,7 @@ class MessageSimple extends PureComponent {
     const images =
       hasAttachment &&
       message.attachments.filter((item) => item.type === 'image');
+
     const hasReactions = Boolean(
       message.latest_reactions && message.latest_reactions.length,
     );
@@ -471,7 +486,6 @@ class MessageSimple extends PureComponent {
     if (message.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
-
     return (
       <React.Fragment>
         {editing && (
@@ -507,6 +521,7 @@ class MessageSimple extends PureComponent {
             onMouseOver={onUserHover}
           />
           <div
+            data-testid="message-inner"
             className="str-chat__message-inner"
             onClick={
               message.status === 'failed'
@@ -559,6 +574,7 @@ class MessageSimple extends PureComponent {
             {message.text && (
               <div className="str-chat__message-text">
                 <div
+                  data-testid="message-simple-inner-wrapper"
                   className={`
 									str-chat__message-text-inner str-chat__message-simple-text-inner
 									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
