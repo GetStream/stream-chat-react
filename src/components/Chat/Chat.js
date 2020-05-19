@@ -69,11 +69,14 @@ class Chat extends PureComponent {
 
   constructor(props) {
     super(props);
-
+    this.isCustomNavOpen =
+      this.props.navOpen !== undefined &&
+      this.props.navOpen !== null &&
+      typeof this.props.navOpen === 'boolean';
     this.state = {
       // currently active channel
       channel: {},
-      navOpen: true,
+      navOpen: this.isCustomNavOpen ? this.props.navOpen : true,
       error: false,
       mutes: [],
     };
@@ -126,14 +129,14 @@ class Chat extends PureComponent {
   openMobileNav = () => {
     setTimeout(() => {
       this.setState({
-        navOpen: true,
+        navOpen: this.isCustomNavOpen ? this.props.navOpen : true,
       });
     }, 100);
   };
 
   closeMobileNav = () => {
     this.setState({
-      navOpen: false,
+      navOpen: this.isCustomNavOpen ? this.props.navOpen : false,
     });
   };
 
