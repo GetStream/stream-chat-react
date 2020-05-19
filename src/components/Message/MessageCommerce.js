@@ -161,6 +161,29 @@ class MessageCommerce extends PureComponent {
     return isMyMessage(message);
   };
 
+  hasAttachments = () => {
+    const { message } = this.props;
+    return message && !!message.attachments && !!message.attachments.length;
+  };
+
+  hasReactions = () => {
+    const { message } = this.props;
+    return (
+      message && !!message.latest_reactions && !!message.latest_reactions.length
+    );
+  };
+
+  getImages = () => {
+    const { message } = this.props;
+    return (
+      message?.attachments &&
+      message.attachments.filter(
+        /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+        (item) => item.type === 'image',
+      )
+    );
+  };
+
   renderOptions = () => {
     const { message, channelConfig, initialMessage } = this.props;
     if (
@@ -197,6 +220,81 @@ class MessageCommerce extends PureComponent {
     );
   };
 
+  renderMessageText = () => {
+    const {
+      actionsEnabled,
+      handleReaction,
+      message,
+      onMentionsClickMessage,
+      onMentionsHoverMessage,
+      unsafeHTML,
+      t,
+    } = this.props;
+    const hasAttachment = this.hasAttachments();
+    const hasReactions = this.hasReactions();
+
+    if (!message) {
+      return null;
+    }
+
+    return (
+      <div className="str-chat__message-commerce-text">
+        <div
+          data-testid="message-commerce-text-inner-wrapper"
+          className={`str-chat__message-commerce-text-inner
+            ${
+              hasAttachment
+                ? 'str-chat__message-commerce-text-inner--has-attachment'
+                : ''
+            }
+            ${
+              isOnlyEmojis(message.text)
+                ? 'str-chat__message-commerce-text-inner--is-emoji'
+                : ''
+            }
+          `.trim()}
+          onMouseOver={onMentionsHoverMessage}
+          onClick={onMentionsClickMessage}
+        >
+          {message.type === 'error' && (
+            <div className="str-chat__commerce-message--error-message">
+              {t && t('Error · Unsent')}
+            </div>
+          )}
+
+          {unsafeHTML ? (
+            <div dangerouslySetInnerHTML={{ __html: message.html }} />
+          ) : (
+            renderText(message)
+          )}
+
+          {/* if reactions show them */}
+          {hasReactions && !this.state.showDetailedReactions && (
+            <ReactionsList
+              reverse
+              reactions={message.latest_reactions}
+              reaction_counts={message.reaction_counts}
+              onClick={this._clickReactionList}
+            />
+          )}
+          {this.state.showDetailedReactions && (
+            <ReactionSelector
+              reverse={false}
+              handleReaction={handleReaction}
+              actionsEnabled={actionsEnabled}
+              detailedView
+              reaction_counts={message.reaction_counts}
+              latest_reactions={message.latest_reactions}
+              ref={this.reactionSelectorRef}
+            />
+          )}
+        </div>
+
+        {message.text && this.renderOptions()}
+      </div>
+    );
+  };
+
   // eslint-disable-next-line sonarjs/cognitive-complexity
   render() {
     const {
@@ -206,14 +304,10 @@ class MessageCommerce extends PureComponent {
       handleReaction,
       handleAction,
       actionsEnabled,
-      onMentionsHoverMessage,
-      onMentionsClickMessage,
       onUserClick,
       onUserHover,
-      unsafeHTML,
       threadList,
       handleOpenThread,
-      t,
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
@@ -227,18 +321,11 @@ class MessageCommerce extends PureComponent {
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
       : 'str-chat__message-commerce str-chat__message-commerce--right';
 
-    const hasAttachment =
-      message && !!message.attachments && !!message.attachments.length;
-    const images =
-      message?.attachments &&
-      message.attachments.filter(
-        /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
-        (item) => item.type === 'image',
-      );
-    const hasReactions =
-      !!message?.latest_reactions && !!message.latest_reactions.length;
+    const hasAttachment = this.hasAttachments();
+    const images = this.getImages();
+    const hasReactions = this.hasReactions();
 
-    const firstGroupStyle = groupStyles ? groupStyles[0] : null;
+    const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
     if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
@@ -319,58 +406,7 @@ class MessageCommerce extends PureComponent {
               )}
             {images && images.length > 1 && <Gallery images={images} />}
 
-            {message?.text && (
-              <div className="str-chat__message-commerce-text">
-                <div
-                  data-testid="message-commerce-text-inner-wrapper"
-                  className={`str-chat__message-commerce-text-inner
-									${hasAttachment ? 'str-chat__message-commerce-text-inner--has-attachment' : ''}
-									${
-                    isOnlyEmojis(message.text)
-                      ? 'str-chat__message-commerce-text-inner--is-emoji'
-                      : ''
-                  }
-                `.trim()}
-                  onMouseOver={onMentionsHoverMessage}
-                  onClick={onMentionsClickMessage}
-                >
-                  {message.type === 'error' && (
-                    <div className="str-chat__commerce-message--error-message">
-                      {t('Error · Unsent')}
-                    </div>
-                  )}
-
-                  {unsafeHTML ? (
-                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                  ) : (
-                    renderText(message)
-                  )}
-
-                  {/* if reactions show them */}
-                  {hasReactions && !this.state.showDetailedReactions && (
-                    <ReactionsList
-                      reverse
-                      reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts}
-                      onClick={this._clickReactionList}
-                    />
-                  )}
-                  {this.state.showDetailedReactions && (
-                    <ReactionSelector
-                      reverse={false}
-                      handleReaction={handleReaction}
-                      actionsEnabled={actionsEnabled}
-                      detailedView
-                      reaction_counts={message.reaction_counts}
-                      latest_reactions={message.latest_reactions}
-                      ref={this.reactionSelectorRef}
-                    />
-                  )}
-                </div>
-
-                {message.text && this.renderOptions()}
-              </div>
-            )}
+            {message?.text && this.renderMessageText()}
             {!threadList && (
               <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
