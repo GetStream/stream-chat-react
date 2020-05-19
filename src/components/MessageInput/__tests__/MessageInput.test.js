@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  cleanup,
-  render,
-  waitFor,
-  fireEvent,
-  findAllByPlaceholderText,
-} from '@testing-library/react';
+import { cleanup, render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 import MessageInput from '../MessageInput';
-import MessageInputLarge from '../MessageInputLarge';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import {
@@ -28,6 +21,9 @@ let chatClient, channel;
 // mock i18n
 const t = (t) => t;
 
+// silence console.warn because some components log large warnings in catch statements
+console.warn = () => {};
+
 // MessageInput components rely on ChannelContext.
 // ChannelContext is created by Channel component,
 // Which relies on ChatContext, created by Chat component.
@@ -42,9 +38,12 @@ const renderComponent = (props = {}) =>
 
 describe('MessageInput', () => {
   const inputPlaceholder = 'Type your message';
+  const username = 'username';
+  const userid = 'userid';
+
   // First, set up a client and channel, so we can properly set up the context etc.
   beforeAll(async () => {
-    const user1 = generateUser();
+    const user1 = generateUser({ name: username, id: userid });
     const message1 = generateMessage({ user: user1 });
     const mockedChannel = generateChannel({
       messages: [message1],
@@ -55,7 +54,30 @@ describe('MessageInput', () => {
     channel = chatClient.channel('messaging', mockedChannel.id);
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+  });
+
+  function dropFile(file, formElement) {
+    fireEvent.drop(formElement, {
+      dataTransfer: {
+        files: [file],
+      },
+    });
+  }
+
+  const filename = 'some.txt';
+  const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+
+  const mockUploadApi = () =>
+    jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        file: fileUploadUrl,
+      }),
+    );
+
+  const mockFaultyUploadApi = (cause) =>
+    jest.fn().mockImplementation(() => Promise.reject(cause));
 
   it('Should shift focus to the textarea if the `focus` prop is true', async () => {
     const { getByPlaceholderText } = renderComponent({
@@ -96,36 +118,11 @@ describe('MessageInput', () => {
   });
 
   describe('Attachments', () => {
-    const filename = 'some.txt';
-    const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
-
-    const mockUploadApi = () =>
-      jest.fn().mockResolvedValue(
-        Promise.resolve({
-          file: fileUploadUrl,
-        }),
-      );
-
-    // const mockFaultyUploadApi = () => jest.fn().mockResolvedValue(
-    //   Promise.reject()
-    // );
-
-    function dropFile(file, formElement) {
-      fireEvent.drop(formElement, {
-        dataTransfer: {
-          files: [file],
-        },
-      });
-    }
-
-    it('Pasting images and files should work', async () => {
+    it('Pasting images and files should result in uploading the files and showing previewers', async () => {
       const doImageUploadRequest = mockUploadApi();
-      const {
-        findByPlaceholderText,
-        findByText,
-        findByDisplayValue,
-      } = renderComponent({
-        doFileUploadRequest: mockUploadApi(),
+      const doFileUploadRequest = mockUploadApi();
+      const { findByPlaceholderText, findByText } = renderComponent({
+        doFileUploadRequest,
         doImageUploadRequest,
       });
 
@@ -151,10 +148,21 @@ describe('MessageInput', () => {
       const formElement = await findByPlaceholderText(inputPlaceholder);
       formElement.dispatchEvent(clipboardEvent);
       const filenameText = await findByText(filename);
-
-      expect(filenameText).toBeInTheDocument();
-      expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
-      await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
+      await waitFor(() => {
+        expect(doFileUploadRequest).toHaveBeenCalledWith(
+          file,
+          expect.any(Object),
+        );
+        expect(filenameText).toBeInTheDocument();
+        expect(filenameText.closest('a')).toHaveAttribute(
+          'href',
+          fileUploadUrl,
+        );
+        expect(doImageUploadRequest).toHaveBeenCalledWith(
+          image,
+          expect.any(Object),
+        );
+      });
     });
 
     it('Should upload an image when it is dropped on the dropzone', async () => {
@@ -164,27 +172,18 @@ describe('MessageInput', () => {
       });
       // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      dropFile(
-        new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' }),
-        formElement,
-      );
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', {
+        type: 'image/png',
+      });
+      dropFile(file, formElement);
 
-      await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
+      await waitFor(() => {
+        expect(doImageUploadRequest).toHaveBeenCalledWith(
+          file,
+          expect.any(Object),
+        );
+      });
     });
-
-    // it('Should call error handler if an image failed to upload', async () => {
-    //   const doImageUploadRequest = mockFaultyUploadApi();
-    //   const errorHandler = jest.fn();
-    //   const { findByPlaceholderText } = renderComponent({
-    //     doImageUploadRequest,
-    //     errorHandler,
-    //   });
-
-    //   const formElement = await findByPlaceholderText(inputPlaceholder);
-    //   dropFile(new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' }), formElement);
-
-    //   await waitFor(() => expect(errorHandler).toHaveBeenCalled());
-    // });
 
     it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
       const filename = 'some.txt';
@@ -224,54 +223,96 @@ describe('MessageInput', () => {
       expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
     });
 
-    // TODO: Check if pasting plaintext is not prevented
-    // TODO: Failed image/file uploads -> ImagePreview throws error
+    it('Should call error handler if an image failed to upload', async () => {
+      const cause = new Error('failed to upload');
+      const doImageUploadRequest = mockFaultyUploadApi(cause);
+      const errorHandler = jest.fn();
+      const { findByPlaceholderText } = renderComponent({
+        doImageUploadRequest,
+        errorHandler,
+      });
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', {
+        type: 'image/png',
+      });
+      dropFile(file, formElement);
+
+      await waitFor(() => {
+        expect(errorHandler).toHaveBeenCalledWith(
+          cause,
+          'upload-image',
+          expect.any(Object),
+        );
+        expect(doImageUploadRequest).toHaveBeenCalledWith(
+          file,
+          expect.any(Object),
+        );
+      });
+    });
+
+    it('Should call error handler if a file failed to upload', async () => {
+      const cause = new Error('failed to upload');
+      const doFileUploadRequest = mockFaultyUploadApi(cause);
+      const errorHandler = jest.fn();
+
+      const { findByPlaceholderText } = renderComponent({
+        doFileUploadRequest,
+        errorHandler,
+      });
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = new File(['content'], 'chucknorris.txt', {
+        type: 'text/plain',
+      });
+      dropFile(file, formElement);
+
+      await waitFor(() => {
+        expect(errorHandler).toHaveBeenCalledWith(
+          cause,
+          'upload-file',
+          expect.any(Object),
+        );
+        expect(doFileUploadRequest).toHaveBeenCalledWith(
+          file,
+          expect.any(Object),
+        );
+      });
+    });
+
+    // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
     // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
   });
 
   describe('Submitting', () => {
-    function setMessage(message, input) {
-      fireEvent.change(input, {
-        target: {
-          value: message,
-        },
-      });
-    }
-
     it('Should submit the input value when clicking the submit button', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
-      const { findByTitle, findByPlaceholderText } = renderComponent({
-        sendMessage: submitMock,
-      });
-      const submitButton = await findByTitle('Send');
-
-      const messageText = 'Some text';
-      setMessage(messageText, await findByPlaceholderText(inputPlaceholder));
-      fireEvent.click(submitButton);
-
-      expect(submitMock).toHaveBeenCalled();
-      expect(
-        submitMock.mock.calls[submitMock.mock.calls.length - 1][0].text,
-      ).toEqual(messageText);
-    });
-
-    it('Should use overrideSubmitHandler if specified', async () => {
       const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
       const { findByTitle, findByPlaceholderText } = renderComponent({
         overrideSubmitHandler: submitMock,
       });
       const submitButton = await findByTitle('Send');
 
-      setMessage('something', await findByPlaceholderText(inputPlaceholder));
+      const messageText = 'Some text';
+
+      fireEvent.change(await findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: messageText,
+        },
+      });
       fireEvent.click(submitButton);
 
-      expect(submitMock).toHaveBeenCalled();
+      expect(submitMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: messageText,
+        }),
+        channel.cid,
+      );
     });
 
     it('Should not do anything if the message is empty and has no files', async () => {
       const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
       const { findByTitle } = renderComponent({
-        sendMessage: submitMock,
+        overrideSubmitHandler: submitMock,
       });
       const submitButton = await findByTitle('Send');
 
@@ -280,8 +321,61 @@ describe('MessageInput', () => {
       expect(submitMock).not.toHaveBeenCalled();
     });
 
-    // TODO: Submitting with images?
-    // TODO: Submitting with files?
+    it('should add image as attachment if a message is submitted with an image', async () => {
+      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
+      const doImageUploadRequest = mockUploadApi();
+      const { findByTitle, findByPlaceholderText } = renderComponent({
+        overrideSubmitHandler: submitMock,
+        doImageUploadRequest,
+      });
+      const submitButton = await findByTitle('Send');
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = new File(['(⌐□_□)'], 'chucknorris.png', {
+        type: 'image/png',
+      });
+      dropFile(file, formElement);
+
+      await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
+      fireEvent.click(submitButton);
+      expect(submitMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              image_url: fileUploadUrl,
+            }),
+          ]),
+        }),
+        channel.cid,
+      );
+    });
+
+    it('should add file as attachment if a message is submitted with an file', async () => {
+      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
+      const doFileUploadRequest = mockUploadApi();
+      const { findByTitle, findByPlaceholderText } = renderComponent({
+        overrideSubmitHandler: submitMock,
+        doFileUploadRequest,
+      });
+      const submitButton = await findByTitle('Send');
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = new File(['content'], 'file.txt', { type: 'text/plain' });
+      dropFile(file, formElement);
+
+      await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+      fireEvent.click(submitButton);
+      expect(submitMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              asset_url: fileUploadUrl,
+            }),
+          ]),
+        }),
+        channel.cid,
+      );
+    });
   });
 
   describe('Editing', () => {
@@ -338,5 +432,31 @@ describe('MessageInput', () => {
     });
   });
 
-  // TODO: mentioned users
+  it('Should add a mentioned user if @ is typed and a user is selected', async () => {
+    const submitMock = jest.fn().mockImplementation(() => Promise.resolve());
+    const { findByPlaceholderText, findByText, findByTitle } = renderComponent({
+      overrideSubmitHandler: submitMock,
+    });
+
+    const formElement = await findByPlaceholderText(inputPlaceholder);
+    fireEvent.change(formElement, {
+      target: {
+        value: '@',
+        selectionEnd: 1,
+      },
+    });
+    const usernameListItem = await findByText(username);
+    expect(usernameListItem).toBeInTheDocument();
+
+    fireEvent.click(usernameListItem);
+    const submitButton = await findByTitle('Send');
+
+    fireEvent.click(submitButton);
+    expect(submitMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mentioned_users: expect.arrayContaining([userid]),
+      }),
+      channel.cid,
+    );
+  });
 });
