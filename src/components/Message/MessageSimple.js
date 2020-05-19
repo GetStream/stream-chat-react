@@ -1,3 +1,4 @@
+// @ts-check
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -25,7 +26,9 @@ import DefaultMessageDeleted from '../MessageDeleted';
  * MessageSimple - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @extends PureComponent
+ * @typedef { import('../../../types').MessageSimpleProps } Props
+ * @typedef { import('../../../types').MessageSimpleState } State
+ * @extends PureComponent<Props, State>
  */
 class MessageSimple extends PureComponent {
   static propTypes = {
@@ -154,22 +157,25 @@ class MessageSimple extends PureComponent {
 
   reactionSelectorRef = React.createRef();
 
+  /** @type {() => void} Typescript syntax */
   _onClickOptionsAction = () => {
     this.setState(
       {
         actionsBoxOpen: true,
       },
-      () => document.addEventListener('click', this.hideOptions, false),
+      () => document.addEventListener('click', this._hideOptions, false),
     );
   };
 
+  /** @type {() => void} Typescript syntax */
   _hideOptions = () => {
     this.setState({
       actionsBoxOpen: false,
     });
-    document.removeEventListener('click', this.hideOptions, false);
+    document.removeEventListener('click', this._hideOptions, false);
   };
 
+  /** @type {() => void} Typescript syntax */
   _clickReactionList = () => {
     this.setState(
       () => ({
@@ -182,6 +188,7 @@ class MessageSimple extends PureComponent {
     );
   };
 
+  /** @type {EventListener} Typescript syntax */
   _closeDetailedReactions = (e) => {
     if (
       !this.reactionSelectorRef.current.reactionSelector.current.contains(
@@ -204,15 +211,34 @@ class MessageSimple extends PureComponent {
   };
 
   componentWillUnmount() {
-    if (!this.props.message.deleted_at) {
+    if (!this.props.message?.deleted_at) {
       document.removeEventListener('click', this._closeDetailedReactions);
       document.removeEventListener('touchend', this._closeDetailedReactions);
     }
   }
 
   isMine() {
-    return this.props.isMyMessage(this.props.message);
+    const { message } = this.props;
+    if (!message) {
+      return false;
+    }
+    return this.props.isMyMessage(message);
   }
+
+  hasReactions = () => {
+    const { message } = this.props;
+    if (!message) {
+      return false;
+    }
+    return Boolean(message.latest_reactions && message.latest_reactions.length);
+  };
+
+  hasAttachment = () => {
+    const { message } = this.props;
+    return Boolean(
+      message && message.attachments && message.attachments.length,
+    );
+  };
 
   renderStatus = () => {
     const {
@@ -223,12 +249,16 @@ class MessageSimple extends PureComponent {
       lastReceivedId,
       t,
     } = this.props;
-    if (!this.isMine() || message.type === 'error') {
+    if (!this.isMine() || message?.type === 'error') {
       return null;
     }
     const justReadByMe =
-      readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
-    if (message.status === 'sending') {
+      readBy &&
+      readBy.length === 1 &&
+      readBy[0] &&
+      client &&
+      readBy[0].id === client.user.id;
+    if (message && message.status === 'sending') {
       return (
         <span
           className="str-chat__message-simple-status"
@@ -239,9 +269,10 @@ class MessageSimple extends PureComponent {
         </span>
       );
     }
-    if (readBy.length !== 0 && !threadList && !justReadByMe) {
+    if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
-        (item) => item && item.id !== client.user.id,
+        /** @type {(item: import('stream-chat').UserResponse) => boolean} Typescript syntax */
+        (item) => !!item && !!client && item.id !== client.user.id,
       )[0];
       return (
         <span
@@ -271,6 +302,7 @@ class MessageSimple extends PureComponent {
       );
     }
     if (
+      message &&
       message.status === 'received' &&
       message.id === lastReceivedId &&
       !threadList
@@ -353,6 +385,7 @@ class MessageSimple extends PureComponent {
       handleOpenThread,
     } = this.props;
     if (
+      !message ||
       message.type === 'error' ||
       message.type === 'system' ||
       message.type === 'ephemeral' ||
@@ -436,7 +469,93 @@ class MessageSimple extends PureComponent {
     );
   }
 
-  // eslint-disable-next-line
+  renderMessageText = () => {
+    const {
+      actionsEnabled,
+      message,
+      unsafeHTML,
+      handleReaction,
+      onMentionsHoverMessage,
+      onMentionsClickMessage,
+      messageListRect,
+      t,
+    } = this.props;
+    const hasReactions = this.hasReactions();
+    const hasAttachment = this.hasAttachment();
+
+    if (!message || !message.text) {
+      return null;
+    }
+
+    return (
+      <div className="str-chat__message-text">
+        <div
+          data-testid="message-simple-inner-wrapper"
+          className={`
+            str-chat__message-text-inner str-chat__message-simple-text-inner
+            ${
+              this.state.isFocused
+                ? 'str-chat__message-text-inner--focused'
+                : ''
+            }
+            ${
+              hasAttachment
+                ? 'str-chat__message-text-inner--has-attachment'
+                : ''
+            }
+            ${
+              isOnlyEmojis(message.text)
+                ? 'str-chat__message-simple-text-inner--is-emoji'
+                : ''
+            }
+          `.trim()}
+          onMouseOver={onMentionsHoverMessage}
+          onClick={onMentionsClickMessage}
+        >
+          {message.type === 'error' && (
+            <div className="str-chat__simple-message--error-message">
+              {t('Error · Unsent')}
+            </div>
+          )}
+          {message.status === 'failed' && (
+            <div className="str-chat__simple-message--error-message">
+              {t('Message Failed · Click to try again')}
+            </div>
+          )}
+
+          {unsafeHTML ? (
+            <div dangerouslySetInnerHTML={{ __html: message.html }} />
+          ) : (
+            renderText(message)
+          )}
+
+          {/* if reactions show them */}
+          {hasReactions && !this.state.showDetailedReactions && (
+            <ReactionsList
+              reactions={message.latest_reactions}
+              reaction_counts={message.reaction_counts}
+              onClick={this._clickReactionList}
+              reverse={true}
+            />
+          )}
+          {this.state.showDetailedReactions && (
+            <ReactionSelector
+              mine={this.isMine()}
+              handleReaction={handleReaction}
+              actionsEnabled={actionsEnabled}
+              detailedView
+              reaction_counts={message.reaction_counts}
+              latest_reactions={message.latest_reactions}
+              messageList={messageListRect}
+              ref={this.reactionSelectorRef}
+            />
+          )}
+        </div>
+        {this.renderOptions()}
+      </div>
+    );
+  };
+
   render() {
     const {
       message,
@@ -446,44 +565,39 @@ class MessageSimple extends PureComponent {
       handleRetry,
       updateMessage,
       handleReaction,
-      actionsEnabled,
       messageListRect,
       handleAction,
-      onMentionsHoverMessage,
-      onMentionsClickMessage,
       onUserClick,
       onUserHover,
-      unsafeHTML,
       threadList,
       handleOpenThread,
-      t,
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
     const when =
+      tDateTimeParser &&
+      message &&
       tDateTimeParser(message.created_at).calendar &&
       tDateTimeParser(message.created_at).calendar();
+    const hasReactions = this.hasReactions();
+    const hasAttachment = this.hasAttachment();
 
     const messageClasses = this.isMine()
       ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
       : 'str-chat__message str-chat__message-simple';
 
-    const hasAttachment = Boolean(
-      message && message.attachments && message.attachments.length,
-    );
     const images =
       hasAttachment &&
-      message.attachments.filter((item) => item.type === 'image');
+      message?.attachments?.filter(
+        /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+        (item) => item.type === 'image',
+      );
 
-    const hasReactions = Boolean(
-      message.latest_reactions && message.latest_reactions.length,
-    );
-
-    if (message.type === 'message.read' || message.type === 'message.date') {
+    if (message?.type === 'message.read' || message?.type === 'message.date') {
       return null;
     }
 
-    if (message.deleted_at) {
+    if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
     return (
@@ -499,9 +613,10 @@ class MessageSimple extends PureComponent {
             />
           </Modal>
         )}
-        <div
-          key={message.id}
-          className={`
+        {message && (
+          <div
+            key={message.id || ''}
+            className={`
 						${messageClasses}
 						str-chat__message--${message.type}
 						str-chat__message--${message.status}
@@ -509,102 +624,30 @@ class MessageSimple extends PureComponent {
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message--with-reactions' : ''}
 					`.trim()}
-          onMouseLeave={this._hideOptions}
-          ref={this.messageRef}
-        >
-          {this.renderStatus()}
-
-          <Avatar
-            image={message.user.image}
-            name={message.user.name || message.user.id}
-            onClick={onUserClick}
-            onMouseOver={onUserHover}
-          />
-          <div
-            data-testid="message-inner"
-            className="str-chat__message-inner"
-            onClick={
-              message.status === 'failed'
-                ? handleRetry.bind(this, message)
-                : null
-            }
+            onMouseLeave={this._hideOptions}
           >
-            {!message.text && (
-              <React.Fragment>
-                {this.renderOptions()}
-                {/* if reactions show them */}
-                {hasReactions && !this.state.showDetailedReactions && (
-                  <ReactionsList
-                    reactions={message.latest_reactions}
-                    reaction_counts={message.reaction_counts}
-                    onClick={this._clickReactionList}
-                    reverse={true}
-                  />
-                )}
-                {this.state.showDetailedReactions && (
-                  <ReactionSelector
-                    handleReaction={handleReaction}
-                    detailedView
-                    reaction_counts={message.reaction_counts}
-                    latest_reactions={message.latest_reactions}
-                    messageList={messageListRect}
-                    ref={this.reactionSelectorRef}
-                  />
-                )}
-              </React.Fragment>
+            {this.renderStatus()}
+
+            {message.user && (
+              <Avatar
+                image={message.user.image}
+                name={message.user.name || message.user.id}
+                onClick={onUserClick}
+                onMouseOver={onUserHover}
+              />
             )}
-
-            <div className="str-chat__message-attachment-container">
-              {hasAttachment &&
-                message.attachments.map((attachment, index) => {
-                  if (attachment.type === 'image' && images.length > 1)
-                    return null;
-
-                  return (
-                    <Attachment
-                      key={`${message.id}-${index}`}
-                      attachment={attachment}
-                      actionHandler={handleAction}
-                    />
-                  );
-                })}
-            </div>
-            {images.length > 1 && <Gallery images={images} />}
-
-            {message.text && (
-              <div className="str-chat__message-text">
-                <div
-                  data-testid="message-simple-inner-wrapper"
-                  className={`
-									str-chat__message-text-inner str-chat__message-simple-text-inner
-									${this.state.isFocused ? 'str-chat__message-text-inner--focused' : ''}
-									${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
-									${
-                    isOnlyEmojis(message.text)
-                      ? 'str-chat__message-simple-text-inner--is-emoji'
-                      : ''
-                  }
-                `.trim()}
-                  onMouseOver={onMentionsHoverMessage}
-                  onClick={onMentionsClickMessage}
-                >
-                  {message.type === 'error' && (
-                    <div className="str-chat__simple-message--error-message">
-                      {t('Error · Unsent')}
-                    </div>
-                  )}
-                  {message.status === 'failed' && (
-                    <div className="str-chat__simple-message--error-message">
-                      {t('Message Failed · Click to try again')}
-                    </div>
-                  )}
-
-                  {unsafeHTML ? (
-                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                  ) : (
-                    renderText(message)
-                  )}
-
+            <div
+              data-testid="message-inner"
+              className="str-chat__message-inner"
+              onClick={
+                message.status === 'failed' && handleRetry
+                  ? handleRetry.bind(this, message)
+                  : () => {}
+              }
+            >
+              {!message.text && (
+                <React.Fragment>
+                  {this.renderOptions()}
                   {/* if reactions show them */}
                   {hasReactions && !this.state.showDetailedReactions && (
                     <ReactionsList
@@ -616,9 +659,7 @@ class MessageSimple extends PureComponent {
                   )}
                   {this.state.showDetailedReactions && (
                     <ReactionSelector
-                      mine={this.isMine()}
                       handleReaction={handleReaction}
-                      actionsEnabled={actionsEnabled}
                       detailedView
                       reaction_counts={message.reaction_counts}
                       latest_reactions={message.latest_reactions}
@@ -626,31 +667,56 @@ class MessageSimple extends PureComponent {
                       ref={this.reactionSelectorRef}
                     />
                   )}
-                </div>
+                </React.Fragment>
+              )}
 
-                {message.text && this.renderOptions()}
+              <div className="str-chat__message-attachment-container">
+                {hasAttachment &&
+                  message.attachments?.map(
+                    /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
+                    (attachment, index) => {
+                      if (
+                        attachment.type === 'image' &&
+                        images &&
+                        images.length > 1
+                      )
+                        return null;
+                      return (
+                        // @ts-ignore Attachment is not yet typed
+                        <Attachment
+                          key={`${message.id}-${index}`}
+                          attachment={attachment}
+                          actionHandler={handleAction}
+                        />
+                      );
+                    },
+                  )}
               </div>
-            )}
-            {!threadList && message.reply_count !== 0 && (
-              <div className="str-chat__message-simple-reply-button">
-                <MessageRepliesCountButton
-                  onClick={handleOpenThread}
-                  reply_count={message.reply_count}
-                />
-              </div>
-            )}
-            <div
-              className={`str-chat__message-data str-chat__message-simple-data`}
-            >
-              {!this.isMine() ? (
-                <span className="str-chat__message-simple-name">
-                  {message.user.name || message.user.id}
+              {images && images.length > 1 && <Gallery images={images} />}
+              {message.text && this.renderMessageText()}
+              {!threadList && message.reply_count !== 0 && (
+                <div className="str-chat__message-simple-reply-button">
+                  <MessageRepliesCountButton
+                    onClick={handleOpenThread}
+                    reply_count={message.reply_count}
+                  />
+                </div>
+              )}
+              <div
+                className={`str-chat__message-data str-chat__message-simple-data`}
+              >
+                {!this.isMine() && message.user ? (
+                  <span className="str-chat__message-simple-name">
+                    {message.user.name || message.user.id}
+                  </span>
+                ) : null}
+                <span className="str-chat__message-simple-timestamp">
+                  {when}
                 </span>
-              ) : null}
-              <span className="str-chat__message-simple-timestamp">{when}</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </React.Fragment>
     );
   }

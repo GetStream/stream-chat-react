@@ -544,20 +544,15 @@ export interface MessageUIComponentProps
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute[];
-  onMentionsClickMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
-  onMentionsHoverMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
+  onMentionsClickMessage?(event: React.MouseEvent): void;
+  onMentionsHoverMessage?(event: React.MouseEvent): void;
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: object;
+  channelConfig?: Client.ChannelConfig;
   threadList?: boolean;
   additionalMessageInputProps?: object;
+  initialMessage?: boolean;
 }
 
 export interface MessageDeletedProps extends TranslationContextValue {
@@ -977,10 +972,24 @@ export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   any
 > {}
+
+export interface MessageSimpleProps extends MessageUIComponentProps {
+  isMyMessage(message: Client.MessageResponse): boolean;
+  t: i18next.TFunction;
+  tDateTimeParser: (datetime: string | number) => { calendar: () => string };
+}
+
+export type MessageSimpleState = {
+  isFocused: boolean;
+  actionsBoxOpen: boolean;
+  showDetailedReactions: boolean;
+};
+
 export class MessageSimple extends React.PureComponent<
-  MessageUIComponentProps,
-  any
+  MessageSimpleProps,
+  MessageSimpleState
 > {}
+
 export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
   any
