@@ -21,13 +21,6 @@ import {
   erroredGetApi,
 } from 'mock-builders';
 
-// eslint-disable-next-line no-undef
-afterEach(cleanup);
-
-// Wierd hack to avoid big warnings
-// Maybe better to find a better solution for it.
-console.warn = () => null;
-
 /**
  * We are gonna use following custom UI components for preview and list.
  * If we use ChannelPreviewMessanger or ChannelPreviewLastmessage here, then changes
@@ -57,9 +50,11 @@ const ChannelListComponent = (props) => {
 jest.mock('axios');
 
 describe('ChannelList', () => {
+  afterEach(cleanup);
+
   it('should render error indicator if queryChannels api fail', async () => {
     useMockedApis(axios, [erroredGetApi()]);
-
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const chatClientVishal = getTestClient();
     await chatClientVishal.setUser({ id: 'vishal' });
 
@@ -80,7 +75,7 @@ describe('ChannelList', () => {
     });
   });
 
-  it.skip('should move the channel to top if new message is received', async () => {
+  it('should move the channel to top if new message is received', async () => {
     const channel1 = generateChannel();
     const channel2 = generateChannel();
     const channel3 = generateChannel();
@@ -125,7 +120,7 @@ describe('ChannelList', () => {
     expect(channelPreview.isEqualNode(items[0])).toBeTruthy();
   });
 
-  it.skip('should move the new channel to top of list if notification.added_to_channel is received', async () => {
+  it('should move the new channel to top of list if notification.added_to_channel is received', async () => {
     const channel1 = generateChannel();
     const channel2 = generateChannel();
     const channel3 = generateChannel();
