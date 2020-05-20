@@ -24,13 +24,20 @@ const t = (t) => t;
 // silence console.warn because some components log large warnings in catch statements
 console.warn = () => {};
 
+const submitMock = jest.fn();
+const editMock = jest.fn();
+
 // MessageInput components rely on ChannelContext.
 // ChannelContext is created by Channel component,
 // Which relies on ChatContext, created by Chat component.
 const renderComponent = (props = {}) =>
   render(
     <Chat client={chatClient}>
-      <Channel channel={channel}>
+      <Channel
+        channel={channel}
+        doSendMessageRequest={submitMock}
+        doUpdateMessageRequest={editMock}
+      >
         <MessageInput {...props} t={t} />
       </Channel>
     </Chat>,
@@ -52,10 +59,12 @@ describe('MessageInput', () => {
     useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
     chatClient = await getTestClientWithUser({ id: user1.id });
     channel = chatClient.channel('messaging', mockedChannel.id);
+    channel.editMessage = jest.fn();
   });
 
   afterEach(() => {
     cleanup();
+    jest.clearAllMocks();
   });
 
   function dropFile(file, formElement) {
@@ -286,10 +295,7 @@ describe('MessageInput', () => {
 
   describe('Submitting', () => {
     it('Should submit the input value when clicking the submit button', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
-      const { findByTitle, findByPlaceholderText } = renderComponent({
-        overrideSubmitHandler: submitMock,
-      });
+      const { findByTitle, findByPlaceholderText } = renderComponent();
       const submitButton = await findByTitle('Send');
 
       const messageText = 'Some text';
@@ -302,18 +308,35 @@ describe('MessageInput', () => {
       fireEvent.click(submitButton);
 
       expect(submitMock).toHaveBeenCalledWith(
+        channel.cid,
         expect.objectContaining({
           text: messageText,
         }),
-        channel.cid,
       );
     });
 
     it('Should not do anything if the message is empty and has no files', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
-      const { findByTitle } = renderComponent({
-        overrideSubmitHandler: submitMock,
+      const overrideMock = jest
+        .fn()
+        .mockImplementation(() => Promise.resolve());
+      const { findByTitle, findByPlaceholderText } = renderComponent({
+        overrideSubmitHandler: overrideMock,
       });
+      const submitButton = await findByTitle('Send');
+      const messageText = 'Some text';
+
+      fireEvent.change(await findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: messageText,
+        },
+      });
+      fireEvent.click(submitButton);
+
+      expect(overrideMock).toHaveBeenCalled();
+    });
+
+    it('Should use overrideSubmitHandler prop if it is defined', async () => {
+      const { findByTitle } = renderComponent();
       const submitButton = await findByTitle('Send');
 
       fireEvent.click(submitButton);
@@ -322,10 +345,8 @@ describe('MessageInput', () => {
     });
 
     it('should add image as attachment if a message is submitted with an image', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
       const doImageUploadRequest = mockUploadApi();
       const { findByTitle, findByPlaceholderText } = renderComponent({
-        overrideSubmitHandler: submitMock,
         doImageUploadRequest,
       });
       const submitButton = await findByTitle('Send');
@@ -339,6 +360,7 @@ describe('MessageInput', () => {
       await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
       fireEvent.click(submitButton);
       expect(submitMock).toHaveBeenCalledWith(
+        channel.cid,
         expect.objectContaining({
           attachments: expect.arrayContaining([
             expect.objectContaining({
@@ -346,15 +368,12 @@ describe('MessageInput', () => {
             }),
           ]),
         }),
-        channel.cid,
       );
     });
 
     it('should add file as attachment if a message is submitted with an file', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
       const doFileUploadRequest = mockUploadApi();
       const { findByTitle, findByPlaceholderText } = renderComponent({
-        overrideSubmitHandler: submitMock,
         doFileUploadRequest,
       });
       const submitButton = await findByTitle('Send');
@@ -366,6 +385,7 @@ describe('MessageInput', () => {
       await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
       fireEvent.click(submitButton);
       expect(submitMock).toHaveBeenCalledWith(
+        channel.cid,
         expect.objectContaining({
           attachments: expect.arrayContaining([
             expect.objectContaining({
@@ -373,17 +393,13 @@ describe('MessageInput', () => {
             }),
           ]),
         }),
-        channel.cid,
       );
     });
   });
 
   describe('Editing', () => {
     it('Should edit a message if it is passed through the message prop', async () => {
-      const submitMock = jest.fn().mockResolvedValue(Promise.resolve());
-
       const { findByTitle } = renderComponent({
-        editMessage: submitMock,
         clearEditingState: () => {},
         message: generateMessage({
           mentioned_users: [],
@@ -392,7 +408,7 @@ describe('MessageInput', () => {
       const submitButton = await findByTitle('Send');
       fireEvent.click(submitButton);
 
-      expect(submitMock).toHaveBeenCalled();
+      expect(editMock).toHaveBeenCalled();
     });
 
     it('Should take file attachments from the Message object in props and pass them down to the Input', () => {
@@ -433,10 +449,11 @@ describe('MessageInput', () => {
   });
 
   it('Should add a mentioned user if @ is typed and a user is selected', async () => {
-    const submitMock = jest.fn().mockImplementation(() => Promise.resolve());
-    const { findByPlaceholderText, findByText, findByTitle } = renderComponent({
-      overrideSubmitHandler: submitMock,
-    });
+    const {
+      findByPlaceholderText,
+      findByText,
+      findByTitle,
+    } = renderComponent();
 
     const formElement = await findByPlaceholderText(inputPlaceholder);
     fireEvent.change(formElement, {
@@ -453,10 +470,10 @@ describe('MessageInput', () => {
 
     fireEvent.click(submitButton);
     expect(submitMock).toHaveBeenCalledWith(
+      channel.cid,
       expect.objectContaining({
         mentioned_users: expect.arrayContaining([userid]),
       }),
-      channel.cid,
     );
   });
 });
