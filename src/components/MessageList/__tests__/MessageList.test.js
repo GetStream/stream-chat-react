@@ -27,7 +27,7 @@ jest.mock('axios');
 describe('MessageList', () => {
   let chatClientVishal;
 
-  it('should add new message at bottom of the list', async () => {
+  it.skip('should add new message at bottom of the list', async () => {
     const user1 = generateUser();
     const user2 = generateUser();
     const mockedChannel = generateChannel({
