@@ -1,11 +1,8 @@
-/* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-
-import { Chat } from '../../Chat';
-import ChannelList from '../ChannelList';
 
 import {
   getTestClient,
@@ -19,7 +16,9 @@ import {
   dispatchNotificationAddedToChannelEvent,
   getTestClientWithUser,
   erroredGetApi,
-} from 'mock-builders';
+} from '../../../mock-builders';
+import { Chat } from '../../Chat';
+import ChannelList from '../ChannelList';
 
 /**
  * We are gonna use following custom UI components for preview and list.
@@ -35,7 +34,7 @@ const ChannelPreviewComponent = ({ channel, latestMessage }) => (
 );
 
 const ChannelListComponent = (props) => {
-  const { error, loading, LoadingIndicator } = props;
+  const { error, loading } = props;
   if (error) {
     return <div data-testid="error-indicator" />;
   }
@@ -117,7 +116,7 @@ describe('ChannelList', () => {
     const channelPreview = getByText(newMessage.text).closest(
       '[role="listitem"]',
     );
-    expect(channelPreview.isEqualNode(items[0])).toBeTruthy();
+    expect(channelPreview.isEqualNode(items[0])).toBe(true);
   });
 
   it('should move the new channel to top of list if notification.added_to_channel is received', async () => {
@@ -132,7 +131,7 @@ describe('ChannelList', () => {
 
     const chatClientVishal = await getTestClientWithUser({ id: 'vishal' });
 
-    const { getByText, getByRole, getByTestId, getAllByRole } = render(
+    const { getByRole, getByTestId, getAllByRole } = render(
       <Chat client={chatClientVishal}>
         <ChannelList
           filters={{}}
@@ -148,10 +147,6 @@ describe('ChannelList', () => {
       expect(getByRole('list')).toBeInTheDocument();
     });
 
-    const newMessage = generateMessage({
-      user: generateUser(),
-    });
-
     dispatchNotificationAddedToChannelEvent(chatClientVishal, channel3.channel);
 
     await waitFor(() => {
@@ -162,6 +157,6 @@ describe('ChannelList', () => {
 
     // Get the closes listitem to the channel that received new message.
     const channelPreview = getByTestId(channel3.channel.id);
-    expect(channelPreview.isEqualNode(items[0])).toBeTruthy();
+    expect(channelPreview.isEqualNode(items[0])).toBe(true);
   });
 });

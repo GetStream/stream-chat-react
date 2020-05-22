@@ -32,9 +32,10 @@
     "camelcase": 0,
     "react-hooks/rules-of-hooks": 2,
     "react-hooks/exhaustive-deps": 1,
-    "jest/prefer-inline-snapshots": 1,
+    "jest/prefer-inline-snapshots": 0,
     "jest/lowercase-name": 0,
     "jest/prefer-expect-assertions": 0,
+    "jest/no-hooks": 0,
     "sonarjs/cognitive-complexity": ["error", 30]
   },
   "env": {

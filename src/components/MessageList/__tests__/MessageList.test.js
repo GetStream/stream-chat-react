@@ -1,5 +1,5 @@
-/* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -13,18 +13,17 @@ import {
   generateUser,
   dispatchMessageNewEvent,
   getTestClientWithUser,
-} from 'mock-builders';
+} from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import MessageList from '../MessageList';
 import { Channel } from '../../Channel';
 
-// eslint-disable-next-line no-undef
-afterEach(cleanup);
-
 jest.mock('axios');
 
 describe('MessageList', () => {
+  afterEach(cleanup);
+
   let chatClientVishal;
 
   it('should add new message at bottom of the list', async () => {

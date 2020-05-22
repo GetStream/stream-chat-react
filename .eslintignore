@@ -9,7 +9,6 @@ scripts/
 /bin/
 /include/
 /build/
-*.test.js
 dist
 *dist*
 /src/styles/vendor/

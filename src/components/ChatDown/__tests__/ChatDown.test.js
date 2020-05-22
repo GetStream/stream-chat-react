@@ -5,9 +5,8 @@ import '@testing-library/jest-dom';
 
 import ChatDown from '../ChatDown';
 
-afterEach(cleanup); // eslint-disable-line
-
 describe('ChatDown', () => {
+  afterEach(cleanup);
   it('should render component with its default props', () => {
     const tree = renderer.create(<ChatDown />).toJSON();
     expect(tree).toMatchSnapshot();
