@@ -214,6 +214,7 @@ class MessageSimple extends PureComponent {
     if (!this.props.message?.deleted_at) {
       document.removeEventListener('click', this._closeDetailedReactions);
       document.removeEventListener('touchend', this._closeDetailedReactions);
+      document.removeEventListener('click', this._hideOptions);
     }
   }
 
