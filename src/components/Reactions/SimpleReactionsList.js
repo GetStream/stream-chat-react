@@ -149,6 +149,7 @@ class SimpleReactionsList extends React.PureComponent {
     }
     return (
       <ul
+        data-testid="simple-reaction-list"
         className="str-chat__simple-reactions-list"
         onMouseLeave={this.hideTooltip}
       >

@@ -267,6 +267,7 @@ class MessageLivestream extends React.PureComponent {
     if (editing) {
       return (
         <div
+          data-testid={'message-livestream-edit'}
           className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
@@ -294,6 +295,7 @@ class MessageLivestream extends React.PureComponent {
     return (
       <React.Fragment>
         <div
+          data-testid="message-livestream"
           className={`str-chat__message-livestream str-chat__message-livestream--${
             groupStyles[0]
           } str-chat__message-livestream--${
@@ -323,12 +325,18 @@ class MessageLivestream extends React.PureComponent {
             message.type !== 'ephemeral' &&
             message.status !== 'failed' &&
             message.status !== 'sending' && (
-              <div className={`str-chat__message-livestream-actions`}>
+              <div
+                data-testid={'message-livestream-actions'}
+                className={`str-chat__message-livestream-actions`}
+              >
                 <span className={`str-chat__message-livestream-time`}>
                   {tDateTimeParser(message.created_at).format('h:mmA')}
                 </span>
                 {channelConfig && channelConfig.reactions && (
-                  <span onClick={this.onClickReactionsAction}>
+                  <span
+                    onClick={this.onClickReactionsAction}
+                    data-testid="message-livestream-reactions-action"
+                  >
                     <span
                       dangerouslySetInnerHTML={{
                         __html: reactionSvg,
@@ -338,6 +346,7 @@ class MessageLivestream extends React.PureComponent {
                 )}
                 {!threadList && channelConfig && channelConfig.replies && (
                   <span
+                    data-testid="message-livestream-thread-action"
                     dangerouslySetInnerHTML={{
                       __html: threadSvg,
                     }}
@@ -390,6 +399,7 @@ class MessageLivestream extends React.PureComponent {
               </div>
 
               <div
+                data-testid="message-livestream-text"
                 className={
                   isOnlyEmojis(message.text)
                     ? 'str-chat__message-livestream-text--is-emoji'
@@ -410,7 +420,7 @@ class MessageLivestream extends React.PureComponent {
                   )}
 
                 {message.type === 'error' && !message.command && (
-                  <p>
+                  <p data-testid="message-livestream-error">
                     <svg
                       width="14"
                       height="14"
@@ -427,7 +437,7 @@ class MessageLivestream extends React.PureComponent {
                 )}
 
                 {message.type === 'error' && message.command && (
-                  <p>
+                  <p data-testid="message-livestream-command-error">
                     <svg
                       width="14"
                       height="14"
