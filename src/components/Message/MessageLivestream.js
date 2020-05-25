@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -8,7 +7,7 @@ import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { withTranslationContext } from '../../context';
 
 import { Avatar } from '../Avatar';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Gallery } from '../Gallery';
 import { MessageActionsBox } from '../MessageActions';
 import { EditMessageForm } from '../EditMessageForm';
@@ -136,7 +135,7 @@ class MessageLivestream extends React.PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
   };
 
   state = {
@@ -145,6 +144,7 @@ class MessageLivestream extends React.PureComponent {
   };
 
   reactionSelectorRef = React.createRef();
+
   editMessageFormRef = React.createRef();
 
   isMine() {
@@ -245,7 +245,7 @@ class MessageLivestream extends React.PureComponent {
     let galleryImages = message.attachments.filter(
       (item) => item.type === 'image',
     );
-    let attachments = message.attachments;
+    let { attachments } = message;
     if (galleryImages.length > 1) {
       attachments = message.attachments.filter((item) => item.type !== 'image');
     } else {
