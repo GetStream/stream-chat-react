@@ -142,6 +142,11 @@ class MessageInput extends PureComponent {
      * />
      */
     additionalTextareaProps: PropTypes.object,
+    /**
+     * @param message: the Message object to be sent
+     * @param cid: the channel id
+     */
+    overrideSubmitHandler: PropTypes.func,
   };
 
   static defaultProps = {
