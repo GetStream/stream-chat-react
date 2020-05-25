@@ -222,7 +222,10 @@ class MessageTeam extends PureComponent {
       readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
     if (message.status === 'sending') {
       return (
-        <span className="str-chat__message-team-status">
+        <span
+          className="str-chat__message-team-status"
+          data-testid="message-team-sending"
+        >
           <Tooltip>{t('Sending...')}</Tooltip>
           <LoadingIndicator isLoading />
         </span>
@@ -244,7 +247,10 @@ class MessageTeam extends PureComponent {
             size={15}
           />
           {readBy.length - 1 > 1 && (
-            <span className="str-chat__message-team-status-number">
+            <span
+              data-testid="message-team-read-by-count"
+              className="str-chat__message-team-status-number"
+            >
               {readBy.length - 1}
             </span>
           )}
@@ -256,7 +262,10 @@ class MessageTeam extends PureComponent {
       !threadList
     ) {
       return (
-        <span className="str-chat__message-team-status">
+        <span
+          data-testid="message-team-received"
+          className="str-chat__message-team-status"
+        >
           <Tooltip>{t('Delivered')}</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -346,6 +355,7 @@ class MessageTeam extends PureComponent {
     if (editing) {
       return (
         <div
+          data-testid="message-team-edit"
           className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
@@ -369,10 +379,10 @@ class MessageTeam extends PureComponent {
         </div>
       );
     }
-
     return (
       <React.Fragment>
         <div
+          data-testid="message-team"
           className={`str-chat__message-team str-chat__message-team--${
             groupStyles[0]
           } str-chat__message-team--${message.type} ${
@@ -392,7 +402,10 @@ class MessageTeam extends PureComponent {
                 onMouseOver={onUserHover}
               />
             ) : (
-              <div style={{ width: 40, marginRight: 0 }} />
+              <div
+                data-testid="team-meta-spacer"
+                style={{ width: 40, marginRight: 0 }}
+              />
             )}
 
             <time dateTime={message.created_at} title={message.created_at}>
@@ -405,6 +418,7 @@ class MessageTeam extends PureComponent {
               groupStyles[0] === 'single' ||
               initialMessage) && (
               <div
+                data-testid="message-team-author"
                 className="str-chat__message-team-author"
                 onClick={onUserClick}
               >
@@ -417,6 +431,7 @@ class MessageTeam extends PureComponent {
               </div>
             )}
             <div
+              data-testid="message-team-content"
               className={`str-chat__message-team-content str-chat__message-team-content--${
                 groupStyles[0]
               } str-chat__message-team-content--${
@@ -429,7 +444,10 @@ class MessageTeam extends PureComponent {
                 message.type !== 'system' &&
                 message.type !== 'ephemeral' &&
                 message.type !== 'error' && (
-                  <div className={`str-chat__message-team-actions`}>
+                  <div
+                    data-testid="message-team-actions"
+                    className={`str-chat__message-team-actions`}
+                  >
                     {this.state.reactionSelectorOpen && (
                       <ReactionSelector
                         handleReaction={handleReaction}
@@ -443,6 +461,7 @@ class MessageTeam extends PureComponent {
 
                     {channelConfig && channelConfig.reactions && (
                       <span
+                        data-testid="message-team-reaction-icon"
                         title="Reactions"
                         dangerouslySetInnerHTML={{
                           __html: reactionSvg,
@@ -452,11 +471,12 @@ class MessageTeam extends PureComponent {
                     )}
                     {!threadList && channelConfig && channelConfig.replies && (
                       <span
+                        data-testid="message-team-thread-icon"
                         title="Start a thread"
                         dangerouslySetInnerHTML={{
                           __html: threadSvg,
                         }}
-                        onClick={(e) => handleOpenThread(e, message)}
+                        onClick={handleOpenThread}
                       />
                     )}
                     {getMessageActions().length > 0 && (
@@ -485,6 +505,7 @@ class MessageTeam extends PureComponent {
                   </div>
                 )}
               <span
+                data-testid="message-team-message"
                 className={
                   isOnlyEmojis(message.text)
                     ? 'str-chat__message-team-text--is-emoji'
@@ -515,6 +536,7 @@ class MessageTeam extends PureComponent {
                 )}
               {message.status === 'failed' && (
                 <button
+                  data-testid="message-team-failed"
                   className="str-chat__message-team-failed"
                   onClick={handleRetry.bind(this, message)}
                 >
