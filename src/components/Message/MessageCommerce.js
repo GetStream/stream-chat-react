@@ -1,3 +1,4 @@
+// @ts-check
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -12,7 +13,9 @@ import { withTranslationContext } from '../../context';
  * MessageCommerce - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @extends PureComponent
+ * @typedef { import('../../../types').MessageCommerceProps } Props
+ * @typedef { import('../../../types').MessageCommerceState } State
+ * @extends PureComponent<Props, State>
  */
 class MessageCommerce extends PureComponent {
   static propTypes = {
@@ -125,6 +128,7 @@ class MessageCommerce extends PureComponent {
     );
   };
 
+  /** @type {EventListener} Typescript syntax */
   _closeDetailedReactions = (e) => {
     if (
       !this.reactionSelectorRef.current.reactionSelector.current.contains(
@@ -143,24 +147,32 @@ class MessageCommerce extends PureComponent {
   };
 
   componentWillUnmount() {
-    if (!this.props.message.deleted_at) {
+    const { message } = this.props;
+    if (message && !message.deleted_at) {
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }
 
-  isMine() {
-    return this.props.isMyMessage(this.props.message);
-  }
+  isMine = () => {
+    const { message, isMyMessage } = this.props;
+    if (!message || !isMyMessage) {
+      return false;
+    }
+    return isMyMessage(message);
+  };
 
-  renderOptions() {
+  renderOptions = () => {
+    const { message, channelConfig, initialMessage } = this.props;
     if (
-      this.props.message.type === 'error' ||
-      this.props.message.type === 'system' ||
-      this.props.message.type === 'ephemeral' ||
-      this.props.message.status === 'sending' ||
-      this.props.message.status === 'failed' ||
-      !this.props.channelConfig.reactions ||
-      this.props.initialMessage
+      !message ||
+      message.type === 'error' ||
+      message.type === 'system' ||
+      message.type === 'ephemeral' ||
+      message.status === 'sending' ||
+      message.status === 'failed' ||
+      !channelConfig ||
+      !channelConfig.reactions ||
+      initialMessage
     ) {
       return null;
     }
@@ -183,8 +195,9 @@ class MessageCommerce extends PureComponent {
         </div>
       </div>
     );
-  }
+  };
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   render() {
     const {
       message,
@@ -205,27 +218,36 @@ class MessageCommerce extends PureComponent {
       MessageDeleted,
     } = this.props;
 
-    const when = tDateTimeParser(message.created_at).format('LT');
+    const when =
+      message &&
+      tDateTimeParser &&
+      tDateTimeParser(message.created_at).format('LT');
 
     const messageClasses = !this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
       : 'str-chat__message-commerce str-chat__message-commerce--right';
 
-    const hasAttachment = Boolean(
-      message.attachments && message.attachments.length,
-    );
+    const hasAttachment =
+      message && !!message.attachments && !!message.attachments.length;
     const images =
-      hasAttachment &&
-      message.attachments.filter((item) => item.type === 'image');
-    const hasReactions = Boolean(
-      message.latest_reactions && message.latest_reactions.length,
-    );
+      message?.attachments &&
+      message.attachments.filter(
+        /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+        (item) => item.type === 'image',
+      );
+    const hasReactions =
+      !!message?.latest_reactions && !!message.latest_reactions.length;
 
-    if (message.deleted_at) {
+    const firstGroupStyle = groupStyles ? groupStyles[0] : null;
+
+    if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
 
-    if (message.type === 'message.read' || message.type === 'message.date') {
+    if (
+      message &&
+      (message.type === 'message.read' || message.type === 'message.date')
+    ) {
       return null;
     }
 
@@ -233,31 +255,31 @@ class MessageCommerce extends PureComponent {
       <React.Fragment>
         <div
           data-testid={'message-commerce-wrapper'}
-          key={message.id}
+          key={message?.id || ''}
           className={`
 						${messageClasses}
-						str-chat__message-commerce--${message.type}
+						str-chat__message-commerce--${message?.type}
 						${
-              message.text
+              message?.text
                 ? 'str-chat__message-commerce--has-text'
                 : 'str-chat__message-commerce--has-no-text'
             }
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
-						${`str-chat__message-commerce--${groupStyles[0]}`}
+						${`str-chat__message-commerce--${firstGroupStyle}`}
 					`.trim()}
         >
-          {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
+          {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
             <Avatar
-              image={message.user.image}
+              image={message?.user?.image}
               size={32}
-              name={message.user.name || message.user.id}
+              name={message?.user?.name || message?.user?.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
             />
           )}
           <div className="str-chat__message-commerce-inner">
-            {!message.text && (
+            {message && !message.text && (
               <React.Fragment>
                 {this.renderOptions()}
                 {/* if reactions show them */}
@@ -282,18 +304,22 @@ class MessageCommerce extends PureComponent {
               </React.Fragment>
             )}
 
-            {hasAttachment &&
-              images.length <= 1 &&
-              message.attachments.map((attachment, index) => (
-                <Attachment
-                  key={`${message.id}-${index}`}
-                  attachment={attachment}
-                  actionHandler={handleAction}
-                />
-              ))}
-            {images.length > 1 && <Gallery images={images} />}
+            {message?.attachments &&
+              (!images || images.length <= 1) &&
+              message.attachments.map(
+                /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
+                (attachment, index) => (
+                  // @ts-ignore Attachment is not yet typed
+                  <Attachment
+                    key={`${message.id}-${index}`}
+                    attachment={attachment}
+                    actionHandler={handleAction}
+                  />
+                ),
+              )}
+            {images && images.length > 1 && <Gallery images={images} />}
 
-            {message.text && (
+            {message?.text && (
               <div className="str-chat__message-commerce-text">
                 <div
                   data-testid="message-commerce-text-inner-wrapper"
@@ -349,14 +375,14 @@ class MessageCommerce extends PureComponent {
               <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
                   onClick={handleOpenThread}
-                  reply_count={message.reply_count}
+                  reply_count={message?.reply_count}
                 />
               </div>
             )}
             <div className={`str-chat__message-commerce-data`}>
               {!this.isMine() ? (
                 <span className="str-chat__message-commerce-name">
-                  {message.user.name || message.user.id}
+                  {message?.user?.name || message?.user?.id}
                 </span>
               ) : null}
               <span className="str-chat__message-commerce-timestamp">
