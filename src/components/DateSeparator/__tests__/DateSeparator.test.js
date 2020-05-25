@@ -53,18 +53,60 @@ describe('DateSeparator', () => {
 
     it('should render correctly with position==="right", and it should match the default', () => {
       const tree = renderer.create(renderWithPosition('right')).toJSON();
-      expect(tree).toMatchSnapshot();
-      expect(defaultPosition).toEqual(tree);
+      expect(tree).toMatchInlineSnapshot(`
+        <div
+          className="str-chat__date-separator"
+        >
+          <hr
+            className="str-chat__date-separator-line"
+          />
+          <div
+            className="str-chat__date-separator-date"
+          >
+            the date
+          </div>
+        </div>
+      `);
+      expect(defaultPosition).toStrictEqual(tree);
     });
 
     it('should render correctly with position==="left"', () => {
       const tree = renderer.create(renderWithPosition('left')).toJSON();
-      expect(tree).toMatchSnapshot();
+      expect(tree).toMatchInlineSnapshot(`
+        <div
+          className="str-chat__date-separator"
+        >
+          <div
+            className="str-chat__date-separator-date"
+          >
+            the date
+          </div>
+          <hr
+            className="str-chat__date-separator-line"
+          />
+        </div>
+      `);
     });
 
     it('should render correctly with position==="center"', () => {
       const tree = renderer.create(renderWithPosition('center')).toJSON();
-      expect(tree).toMatchSnapshot();
+      expect(tree).toMatchInlineSnapshot(`
+        <div
+          className="str-chat__date-separator"
+        >
+          <hr
+            className="str-chat__date-separator-line"
+          />
+          <div
+            className="str-chat__date-separator-date"
+          >
+            the date
+          </div>
+          <hr
+            className="str-chat__date-separator-line"
+          />
+        </div>
+      `);
     });
   });
 });

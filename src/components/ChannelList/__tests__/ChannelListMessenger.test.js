@@ -5,9 +5,6 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { ChannelListMessenger } from '..';
 
-// eslint-disable-next-line no-undef
-afterEach(cleanup);
-
 // Wierd hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
@@ -27,15 +24,17 @@ const Component = ({ loading = false, error = false }) => (
 );
 
 describe('ChannelListMessenger', () => {
-  test('by default, children should be rendered', () => {
+  afterEach(cleanup);
+
+  it('by default, children should be rendered', () => {
     const tree = renderer.create(<Component />).toJSON();
     expect(tree).toMatchSnapshot();
   });
-  test('when `error` prop is true, `LoadingErrorIndicator` should be rendered', () => {
+  it('when `error` prop is true, `LoadingErrorIndicator` should be rendered', () => {
     const tree = renderer.create(<Component error={true} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
-  test('when `loading` prop is true, `LoadingIndicator` should be rendered', () => {
+  it('when `loading` prop is true, `LoadingIndicator` should be rendered', () => {
     const tree = renderer.create(<Component loading={true} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
