@@ -11,7 +11,11 @@ import * as Dayjs from 'dayjs';
 export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
-  setActiveChannel?(channel: Client.Channel, event: React.SyntheticEvent): void;
+  setActiveChannel?(
+    channel: Client.Channel,
+    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    event?: React.SyntheticEvent,
+  ): void;
   openNav?: boolean;
   openMobileNav?(): void;
   closeMobileNav?(): void;
@@ -108,7 +112,7 @@ export interface ChannelProps
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-
+  mutes?: Client.Mute[];
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
@@ -336,6 +340,7 @@ export interface MessageListProps
   unsafeHTML?: boolean;
   messageLimit?: number;
   messageActions?: Array<string>;
+  mutes?: Client.Mute[];
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
@@ -459,13 +464,12 @@ export interface AttachmentUIComponentProps {
   ): void;
 }
 
+// MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
 export interface MessageProps extends TranslationContextValue {
   /** The message object */
   message?: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
   client?: Client.StreamChat;
-  /** The current channel this message is displayed in */
-  channel?: Client.Channel;
   /** A list of users that have read this message **/
   readBy?: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
@@ -480,24 +484,22 @@ export interface MessageProps extends TranslationContextValue {
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
-  messageActions?: Array<string>;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
   lastReceivedId?: string | null;
   messageListRect?: DOMRect;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
-  addNotification?(notificationText: string, type: string): any;
-  setEditingState?(message: Client.MessageResponse): any;
   updateMessage?(
     updatedMessage: Client.MessageResponse,
     extraState: object,
   ): void;
-  /** Function executed when user clicks on link to open thread */
-  retrySendMessage?(message: Client.Message): void;
-  removeMessage?(updatedMessage: Client.MessageResponse): void;
+  additionalMessageInputProps?: object;
+  clearEditingState?(e?: React.MouseEvent): void;
+}
+
+// MessageComponentProps defines the props for the Message component
+export interface MessageComponentProps
+  extends MessageProps,
+    TranslationContextValue {
+  /** The current channel this message is displayed in */
+  channel?: Client.Channel;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
@@ -506,14 +508,23 @@ export interface MessageProps extends TranslationContextValue {
   onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  messageActions?: Array<string>;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  addNotification?(notificationText: string, type: string): any;
+  setEditingState?(message: Client.MessageResponse): any;
+  retrySendMessage?(message: Client.Message): void;
+  removeMessage?(updatedMessage: Client.MessageResponse): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
   ): void;
-  additionalMessageInputProps?: object;
-  clearEditingState?(e?: React.MouseEvent): void;
 }
 
+// MessageUIComponentProps defines the props for the Message UI components (e.g. MessageSimple)
 export interface MessageUIComponentProps
   extends MessageProps,
     TranslationContextValue {
@@ -530,21 +541,18 @@ export interface MessageUIComponentProps
   ): void;
   handleRetry?(message: Client.Message): void;
   isMyMessage?(message: Client.MessageResponse): boolean;
+  isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  onMentionsClickMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
-  onMentionsHoverMessage?(
-    event: React.MouseEvent,
-    user: Client.UserResponse,
-  ): void;
-  onUserClick(e: React.MouseEvent): void;
-  onUserHover(e: React.MouseEvent): void;
+  mutes?: Client.Mute[];
+  onMentionsClickMessage?(event: React.MouseEvent): void;
+  onMentionsHoverMessage?(event: React.MouseEvent): void;
+  onUserClick?(e: React.MouseEvent): void;
+  onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: object;
+  channelConfig?: Client.ChannelConfig;
   threadList?: boolean;
   additionalMessageInputProps?: object;
+  initialMessage?: boolean;
 }
 
 export interface MessageDeletedProps extends TranslationContextValue {
@@ -797,6 +805,8 @@ export interface MessageActionsProps extends TranslationContextValue {
   Message?: React.ElementType<MessageProps>;
   /** If message belongs to current user. */
   mine?: boolean;
+  isUserMuted?(): boolean;
+  mutes: Client.Mute[];
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -869,7 +879,7 @@ export class InfiniteScroll extends React.PureComponent<
   any
 > {}
 
-export const LoadMoreButton: React.FC<LoadMoreButtonProps, any>;
+export const LoadMoreButton: React.FC<LoadMoreButtonProps>;
 export const LoadingChannels: React.FC<LoadingChannelsProps>;
 export const LoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps>;
 export class MessageActions extends React.PureComponent<
@@ -897,7 +907,7 @@ export const Tooltip: React.FC<TooltipProps>;
 export class Chat extends React.PureComponent<ChatProps, any> {}
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
-export class Message extends React.PureComponent<MessageProps, any> {}
+export class Message extends React.PureComponent<MessageComponentProps, any> {}
 export class MessageList extends React.PureComponent<MessageListProps, any> {}
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
@@ -962,10 +972,24 @@ export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   any
 > {}
+
+export interface MessageSimpleProps extends MessageUIComponentProps {
+  isMyMessage(message: Client.MessageResponse): boolean;
+  t: i18next.TFunction;
+  tDateTimeParser: (datetime: string | number) => { calendar: () => string };
+}
+
+export type MessageSimpleState = {
+  isFocused: boolean;
+  actionsBoxOpen: boolean;
+  showDetailedReactions: boolean;
+};
+
 export class MessageSimple extends React.PureComponent<
-  MessageUIComponentProps,
-  any
+  MessageSimpleProps,
+  MessageSimpleState
 > {}
+
 export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
   any

@@ -1,5 +1,6 @@
 {
   "1 reply": "1 cevap",
+  "Attach files": "Dosya ekle",
   "Cancel": "İptal",
   "Channel Missing": "Kanal bulunamıyor",
   "Connection failure, reconnecting now...": "Bağlantı hatası, tekrar bağlanılıyor...",
@@ -10,6 +11,7 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Bayraklama hatası: Bayrak zaten var veya bağlantı sorunlu",
   "Error connecting to chat, refresh the page to try again.": "Bağlantı hatası, sayfayı yenileyip tekrar deneyin.",
   "Error muting a user ...": "Kullanıcıyı sessize alırken hata oluştu ...",
+  "Error unmuting a user ...": "Kullanıcının sesini açarken hata oluştu ...",
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
   "Flag": "Bayrak",
@@ -21,6 +23,7 @@
   "New Messages!": "Yeni Mesajlar!",
   "Nothing yet...": "Şimdilik hiçbir şey...",
   "Only visible to you": "Sadece size görünür",
+  "Open emoji picker": "Emoji klavyesini aç",
   "Pick your emoji": "Emoji seçin",
   "Send": "Gönder",
   "Sending...": "Gönderiliyor...",
@@ -28,6 +31,7 @@
   "This message was deleted...": "Bu mesaj silindi",
   "Thread": "Konu",
   "Type your message": "Mesajınızı yazın",
+  "Unmute": "Sesini aç",
   "You have no channels currently": "Henüz kanalınız yok",
   "live": "canlı",
   "this content could not be displayed": "bu içerik gösterilemiyor",
@@ -40,6 +44,7 @@
   "{{ memberCount }} members": "{{ memberCount }} üyeler",
   "{{ replyCount }} replies": "{{ replyCount }} cevaplar",
   "{{ user }} has been muted": "{{ user }} sessize alındı",
+  "{{ user }} has been unmuted": "{{ user }} sesi açıldı",
   "{{ user }} is typing...": "{{ user }} yazıyor...",
   "{{ watcherCount }} online": "{{ watcherCount }} çevrimiçi",
   "🏙 Attachment...": "🏙 Ek..."

@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.12.0",
+  "version": "1.0.1",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -23,13 +23,13 @@
     "@braintree/sanitize-url": "^4.0.1",
     "@testing-library/react": "^10.0.3",
     "@webscopeio/react-textarea-autocomplete": "^4.6.3",
-    "anchorme": "^1.1.2",
     "dayjs": "^1.8.25",
     "deep-equal": "^2.0.2",
     "emoji-mart": "3.0.0",
     "emoji-regex": "^9.0.0",
     "i18next": "^19.4.3",
     "isomorphic-ws": "^4.0.1",
+    "linkifyjs": "^2.1.9",
     "lodash.uniqby": "^4.7.0",
     "pretty-bytes": "^5.3.0",
     "prop-types": "^15.7.2",
@@ -43,13 +43,13 @@
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
     "stream-browserify": "^2.0.2",
-    "stream-chat": "^1.7.4",
+    "stream-chat": "^1.10.2",
     "uuid": "^7.0.3",
     "visibilityjs": "^2.0.2"
   },
   "peerDependencies": {
-    "react": "^16.x",
-    "react-dom": "^16.x"
+    "react": "^16.8.x",
+    "react-dom": "^16.8.x"
   },
   "files": [
     "dist",
@@ -138,6 +138,7 @@
     "test": "jest",
     "start": "mkdir -p dist/assets assets && yarn build-translations && rollup -c -w",
     "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c",
+    "types": "tsc --strict",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
     "watch-styles": "sass --watch src/styles/index.scss dist/styles/styles.css",

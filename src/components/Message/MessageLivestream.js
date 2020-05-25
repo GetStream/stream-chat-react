@@ -231,6 +231,7 @@ class MessageLivestream extends React.PureComponent {
       isMyMessage,
       handleFlag,
       handleMute,
+      isUserMuted,
       handleEdit,
       handleDelete,
       t,
@@ -357,6 +358,7 @@ class MessageLivestream extends React.PureComponent {
                       message={message}
                       messageListRect={messageListRect}
                       mine={isMyMessage(message)}
+                      isUserMuted={isUserMuted}
                       handleFlag={handleFlag}
                       handleMute={handleMute}
                       handleEdit={handleEdit}

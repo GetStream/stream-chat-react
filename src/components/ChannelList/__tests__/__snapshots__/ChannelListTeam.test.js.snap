@@ -15,6 +15,7 @@ exports[`ChannelListTeam by default, should render sidebar, userbar and children
       >
         <div
           className="str-chat__avatar str-chat__avatar--circle"
+          data-testid="avatar"
           onClick={[Function]}
           onMouseOver={[Function]}
           style={
@@ -30,6 +31,7 @@ exports[`ChannelListTeam by default, should render sidebar, userbar and children
         >
           <div
             className="str-chat__avatar-fallback"
+            data-testid="avatar-fallback"
           >
             v
           </div>

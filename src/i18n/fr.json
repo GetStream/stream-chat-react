@@ -1,5 +1,6 @@
 {
   "1 reply": "1 réponse",
+  "Attach files": "Pièces jointes",
   "Cancel": "Annuler",
   "Channel Missing": "Canal Manquant",
   "Connection failure, reconnecting now...": "Échec de la connexion, reconnexion en cours...",
@@ -10,6 +11,7 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Erreur d'ajout du flag : le flag existe déjà ou vous rencontrez un problème de connexion au réseau ...",
   "Error connecting to chat, refresh the page to try again.": "Erreur de connexion au chat, rafraîchissez la page pour réessayer.",
   "Error muting a user ...": "Erreur de mise en sourdine d'un utilisateur ...",
+  "Error unmuting a user ...": "Erreur de désactivation de la fonction sourdine pour un utilisateur ...",
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Flag": "Signaler",
@@ -21,6 +23,7 @@
   "New Messages!": "Nouveaux Messages!",
   "Nothing yet...": "Aucun message...",
   "Only visible to you": "Visible uniquement pour vous",
+  "Open emoji picker": "Ouvrez le sélecteur d'emoji",
   "Pick your emoji": "Choisissez votre emoji",
   "Send": "Envoyer",
   "Sending...": "Envoi en cours...",
@@ -28,6 +31,7 @@
   "This message was deleted...": "Ce message a été supprimé...",
   "Thread": "Fil de discussion",
   "Type your message": "Saisissez votre message",
+  "Unmute": "Désactiver muet",
   "You have no channels currently": "Vous n'avez actuellement aucun canal",
   "live": "en direct",
   "this content could not be displayed": "ce contenu n'a pu être affiché",
@@ -40,6 +44,7 @@
   "{{ memberCount }} members": "{{ memberCount }} membres",
   "{{ replyCount }} replies": "{{ replyCount }} réponses",
   "{{ user }} has been muted": "{{ user }} a été mis en sourdine",
+  "{{ user }} has been unmuted": "{{ user }} n'est plus en sourdine",
   "{{ user }} is typing...": "{{ user }} est en train d'écrire...",
   "{{ watcherCount }} online": "{{ watcherCount }} en ligne",
   "🏙 Attachment...": "🏙 Pièce jointe..."

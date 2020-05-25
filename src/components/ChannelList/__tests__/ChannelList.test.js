@@ -21,13 +21,6 @@ import {
   erroredGetApi,
 } from 'mock-builders';
 
-// eslint-disable-next-line no-undef
-afterEach(cleanup);
-
-// Wierd hack to avoid big warnings
-// Maybe better to find a better solution for it.
-console.warn = () => null;
-
 /**
  * We are gonna use following custom UI components for preview and list.
  * If we use ChannelPreviewMessanger or ChannelPreviewLastmessage here, then changes
@@ -55,6 +48,7 @@ const ChannelListComponent = (props) => {
 };
 
 jest.mock('axios');
+afterEach(cleanup);
 
 describe('ChannelList', () => {
   test('when `document` is clicked, `closeMobileNav` prop function should be called', () => {
@@ -63,7 +57,7 @@ describe('ChannelList', () => {
 
   test('when queryChannels api throws error, `LoadingErrorIndicator` should be rendered', async () => {
     useMockedApis(axios, [erroredGetApi()]);
-
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const chatClientVishal = getTestClient();
     await chatClientVishal.setUser({ id: 'vishal' });
 

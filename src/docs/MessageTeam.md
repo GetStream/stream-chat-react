@@ -20,6 +20,7 @@ const readBy = [
   readBy={readBy}
   groupStyles={['single']}
   editing={false}
+  mutes={[]}
   {...data.channelContext}
   {...data.translationContext}
 />;

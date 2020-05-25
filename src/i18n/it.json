@@ -1,5 +1,6 @@
 {
   "1 reply": "Una risposta",
+  "Attach files": "Allega file",
   "Cancel": "Annulla",
   "Channel Missing": "Il canale non esiste",
   "Connection failure, reconnecting now...": "Connessione fallitta, riconnessione in corso...",
@@ -10,6 +11,7 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Errore durante la segnalazione: la segnalazione esiste giá o c'é un problema di connessione ...",
   "Error connecting to chat, refresh the page to try again.": "Errore di connessione alla chat, aggiorna la pagina per riprovare",
   "Error muting a user ...": "Errore silenziando un utente ...",
+  "Error unmuting a user ...": "Errore riattivando le notifiche per l'utente ...",
   "Error · Unsent": "Errore · Non inviato",
   "Error: {{ errorMessage }}": "Errore: {{ errorMessage }}",
   "Flag": "Segnala",
@@ -21,6 +23,7 @@
   "New Messages!": "Nuovo messaggio!",
   "Nothing yet...": "Ancora niente...",
   "Only visible to you": "Visibile soltanto da te",
+  "Open emoji picker": "Apri il selettore dellle emoji",
   "Pick your emoji": "Scegli la tua emoji",
   "Send": "Invia",
   "Sending...": "Invio in corso...",
@@ -28,6 +31,7 @@
   "This message was deleted...": "Questo messaggio é stato cancellato",
   "Thread": "Thread",
   "Type your message": "Scrivi il tuo messaggio",
+  "Unmute": "Riattiva le notifiche",
   "You have no channels currently": "Al momento non sono presenti canali",
   "live": "live",
   "this content could not be displayed": "questo contenuto non puó essere mostrato",
@@ -40,6 +44,7 @@
   "{{ memberCount }} members": "{{ memberCount }} membri",
   "{{ replyCount }} replies": "{{ replyCount }} risposte",
   "{{ user }} has been muted": "{{ user }} é stato silenziato",
+  "{{ user }} has been unmuted": "Notifiche riattivate per {{ user }}",
   "{{ user }} is typing...": "{{ user }} sta scrivendo...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Allegato..."

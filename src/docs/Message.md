@@ -32,6 +32,7 @@ const data = require('./data');
     readBy={[]}
     groupStyles={['top']}
     editing={false}
+    mutes={[]}
     {...data.channelContext}
     {...data.translationContext}
   />
@@ -64,6 +65,7 @@ const readBy = [
   readBy={readBy}
   groupStyles={['single']}
   editing={false}
+  mutes={[]}
   {...data.channelContext}
   {...data.translationContext}
 />;

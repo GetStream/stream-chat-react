@@ -48,12 +48,15 @@ class Attachment extends PureComponent {
       type = 'card';
     } else if (a.type === 'image') {
       type = 'image';
+    } else if (
+      a.type === 'video' ||
+      (a.mime_type && a.mime_type.indexOf('video/') !== -1)
+    ) {
+      type = 'media';
     } else if (a.type === 'file') {
       type = 'file';
     } else if (a.type === 'audio') {
       type = 'audio';
-    } else if (a.type === 'video') {
-      type = 'media';
     } else {
       type = 'card';
       extra = 'no-image';
@@ -102,6 +105,7 @@ class Attachment extends PureComponent {
       a.asset_url &&
         results.push(
           <div
+            data-testid="attachment-file"
             className="str-chat__message-attachment-file--item"
             key={`key-file-${a.id}`}
           >
@@ -128,7 +132,10 @@ class Attachment extends PureComponent {
     } else if (type === 'media') {
       if (a.actions && a.actions.length) {
         results.push(
-          <div className="str-chat__attachment" key={`key-video-${a.id}`}>
+          <div
+            className="str-chat__attachment str-chat__attachment-media"
+            key={`key-video-${a.id}`}
+          >
             <div className="str-chat__player-wrapper">
               <ReactPlayer
                 className="react-player"

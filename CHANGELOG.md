@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.0.0) 2020-05-15
+
+We've already been on a v1 release for a while but never updated our versioning. Right now we're in the process of rewriting our components to be more future proof and we started using hooks, hence the v1.0.0 today.
+
+**Breaking change:** `stream-chat-react` no relies on hooks and will need at least `v16.8.x` of `react` to work.
+
+- Fixed some issues with mutes
+- Fixed issues with attachments
+- Added tests
+
+## [0.12.1](https://github.com/GetStream/stream-chat-react/releases/tag/v0.12.1) 2020-05-12
+
+- Render video uploads as videos, not files
+- Added tooltip to emoji and attachment buttons
+- Fix file/image upload preview layout
+- Added tests
+
 ## [0.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v0.12.0) 2020-05-08
 
 - Refactor

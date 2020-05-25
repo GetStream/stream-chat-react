@@ -1,103 +1,86 @@
-/* eslint-disable */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 /**
  * Avatar - A round avatar image with fallback to username's first letter
  *
  * @example ../../docs/Avatar.md
- * @extends PureComponent
  */
-class Avatar extends React.PureComponent {
-  static propTypes = {
-    /** image url */
-    image: PropTypes.string,
-    /** name of the picture, used for title tag fallback */
-    name: PropTypes.string,
-    /** shape of the avatar, circle, rounded or square */
-    shape: PropTypes.oneOf(['circle', 'rounded', 'square']),
-    /** size in pixels */
-    size: PropTypes.number,
-    /** click event handler */
-    onClick: PropTypes.func,
-    /** mouseOver event handler */
-    onMouseOver: PropTypes.func,
-  };
+const Avatar = ({ size, name, shape, image, onClick, onMouseOver }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
-  static defaultProps = {
-    size: 32,
-    shape: 'circle',
-    onClick: () => {},
-    onMouseOver: () => {},
-  };
+  useEffect(() => {
+    setLoaded(false);
+    setError(false);
+  }, [image]);
 
-  state = {
-    errored: false,
-    loaded: false,
-  };
+  const initials = (name || '').charAt(0);
 
-  getInitials = (name) =>
-    name
-      ? name
-          .split(' ')
-          .slice(0, 1)
-          .map((name) => name.charAt(0))
-      : null;
+  return (
+    <div
+      data-testid="avatar"
+      className={`str-chat__avatar str-chat__avatar--${shape}`}
+      title={name}
+      style={{
+        width: size,
+        height: size,
+        flexBasis: size,
+        lineHeight: `${size}px`,
+        fontSize: size / 2,
+      }}
+      onClick={onClick}
+      onMouseOver={onMouseOver}
+    >
+      {image && !error ? (
+        <img
+          data-testid="avatar-img"
+          src={image}
+          alt={initials}
+          className={`str-chat__avatar-image${
+            loaded ? ' str-chat__avatar-image--loaded' : ''
+          }`}
+          style={{
+            width: size,
+            height: size,
+            flexBasis: size,
+            objectFit: 'cover',
+          }}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+        />
+      ) : (
+        <div
+          data-testid="avatar-fallback"
+          className="str-chat__avatar-fallback"
+        >
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+};
 
-  onLoad = () => {
-    this.setState({ loaded: true });
-  };
+Avatar.defaultProps = {
+  size: 32,
+  shape: 'circle',
+  onClick: () => {},
+  onMouseOver: () => {},
+};
 
-  onError = () => {
-    this.setState({ errored: true });
-  };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.image !== this.props.image) {
-      this.setState({ loaded: false, errored: false });
-    }
-  }
-
-  render() {
-    const { size, name, shape, image, onClick, onMouseOver } = this.props;
-    const initials = this.getInitials(name);
-    return (
-      <div
-        className={`str-chat__avatar str-chat__avatar--${shape}`}
-        title={name}
-        style={{
-          width: size,
-          height: size,
-          flexBasis: size,
-          lineHeight: size + 'px',
-          fontSize: size / 2,
-        }}
-        onClick={onClick}
-        onMouseOver={onMouseOver}
-      >
-        {image && !this.state.errored ? (
-          <img
-            src={image}
-            alt={initials}
-            className={
-              'str-chat__avatar-image' +
-              (this.state.loaded ? ' str-chat__avatar-image--loaded' : '')
-            }
-            style={{
-              width: size,
-              height: size,
-              flexBasis: size,
-              objectFit: 'cover',
-            }}
-            onLoad={this.onLoad}
-            onError={this.onError}
-          />
-        ) : (
-          <div className="str-chat__avatar-fallback">{initials}</div>
-        )}
-      </div>
-    );
-  }
-}
+Avatar.propTypes = {
+  /** image url */
+  image: PropTypes.string,
+  /** name of the picture, used for title tag fallback */
+  name: PropTypes.string,
+  /** shape of the avatar, circle, rounded or square */
+  shape: PropTypes.oneOf(['circle', 'rounded', 'square']),
+  /** size in pixels */
+  size: PropTypes.number,
+  /** click event handler */
+  onClick: PropTypes.func,
+  /** mouseOver event handler */
+  onMouseOver: PropTypes.func,
+};
 
 export default Avatar;

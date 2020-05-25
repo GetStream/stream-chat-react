@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
+import { v4 as uuidv4 } from 'uuid';
 
 import Center from './Center';
 import MessageNotification from './MessageNotification';
@@ -599,7 +600,7 @@ class MessageList extends PureComponent {
     if (typeof notificationText !== 'string') return;
     if (type !== 'success' && type !== 'error') return;
 
-    const nextIndex = new Date();
+    const nextIndex = uuidv4();
 
     const newNotifications = [...this.state.notifications];
     newNotifications.push({
@@ -748,6 +749,7 @@ class MessageList extends PureComponent {
               updateMessage={this.props.updateMessage}
               removeMessage={this.props.removeMessage}
               Message={this.props.Message}
+              mutes={this.props.mutes}
               unsafeHTML={this.props.unsafeHTML}
               Attachment={this.props.Attachment}
               onMentionsClick={this.props.onMentionsClick}

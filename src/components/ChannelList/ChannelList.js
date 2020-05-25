@@ -60,6 +60,7 @@ class ChannelList extends PureComponent {
     LoadingErrorIndicator: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.func,
+      PropTypes.elementType,
     ]),
     /**
      * Custom UI Component for container of list of channels. Note that, list (UI component) of channels is passed

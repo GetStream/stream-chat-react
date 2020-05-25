@@ -1,15 +1,15 @@
 %background-reaction-list {
-  background: url('../assets/str-chat__reaction-list-sprite@1x.png') no-repeat;
+  background: url('#{$assetsPath}/str-chat__reaction-list-sprite@1x.png') no-repeat;
   background-size: 59px 101px;
 
   @media only screen and (-webkit-min-device-pixel-ratio: 2),
     only screen and (min-resolution: 2dppx) {
-    background-image: url('../assets/str-chat__reaction-list-sprite@2x.png');
+    background-image: url('#{$assetsPath}/str-chat__reaction-list-sprite@2x.png');
   }
 
   @media only screen and (-webkit-min-device-pixel-ratio: 3),
     only screen and (min-resolution: 3dppx) {
-    background-image: url('../assets/str-chat__reaction-list-sprite@3x.png');
+    background-image: url('#{$assetsPath}/str-chat__reaction-list-sprite@3x.png');
   }
 }
 

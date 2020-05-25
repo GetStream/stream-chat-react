@@ -79,6 +79,7 @@ class ReactionsList extends React.Component {
   render() {
     return (
       <div
+        data-testid="reaction-list"
         className={`str-chat__reaction-list ${
           this.props.reverse ? 'str-chat__reaction-list--reverse' : ''
         }`}

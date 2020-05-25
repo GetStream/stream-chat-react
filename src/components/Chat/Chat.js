@@ -75,6 +75,7 @@ class Chat extends PureComponent {
       channel: {},
       navOpen: true,
       error: false,
+      mutes: [],
     };
   }
 
@@ -93,8 +94,19 @@ class Chat extends PureComponent {
     });
 
     const { t, tDateTimeParser } = await streami18n.getTranslators();
-    this.setState({ t, tDateTimeParser });
+    this.setState({
+      t,
+      tDateTimeParser,
+      mutes: this.props.client?.user?.mutes || [],
+    });
+    this.props.client.on(this.handleEvent);
   }
+
+  handleEvent = (e) => {
+    if (e.type === 'notification.mutes_updated') {
+      this.setState({ mutes: e.me.mutes || [] });
+    }
+  };
 
   setActiveChannel = async (channel, watchers = {}, e) => {
     if (e !== undefined && e.preventDefault) {
@@ -131,6 +143,7 @@ class Chat extends PureComponent {
     setActiveChannel: this.setActiveChannel,
     openMobileNav: this.openMobileNav,
     closeMobileNav: this.closeMobileNav,
+    mutes: this.state.mutes,
     navOpen: this.state.navOpen,
     theme: this.props.theme,
   });
