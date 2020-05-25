@@ -53,6 +53,12 @@
   "settings": {
     "react": {
       "version": "detect"
+    },
+    "import/resolver": {
+      "alias": {
+        "map": [["mock-builders", "./src/mock-builders"]],
+        "extensions": [".js"]
+      }
     }
   },
   "overrides": [

@@ -16,7 +16,7 @@ import {
   dispatchNotificationAddedToChannelEvent,
   getTestClientWithUser,
   erroredGetApi,
-} from '../../../mock-builders';
+} from 'mock-builders';
 import { Chat } from '../../Chat';
 import ChannelList from '../ChannelList';
 

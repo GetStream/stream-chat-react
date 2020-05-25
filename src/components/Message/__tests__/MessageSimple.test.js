@@ -1,6 +1,12 @@
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import {
+  generateChannel,
+  getTestClientWithUser,
+  generateUser,
+  generateMessage,
+} from 'mock-builders';
 import Message from '../Message';
 import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
@@ -8,12 +14,6 @@ import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
 import { EditMessageForm } from '../../EditMessageForm';
-import {
-  generateChannel,
-  getTestClientWithUser,
-  generateUser,
-  generateMessage,
-} from '../../../mock-builders';
 
 const alice = generateUser();
 const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
