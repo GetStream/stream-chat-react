@@ -973,11 +973,7 @@ export class MessageTeam extends React.PureComponent<
   any
 > {}
 
-export interface MessageSimpleProps extends MessageUIComponentProps {
-  isMyMessage(message: Client.MessageResponse): boolean;
-  t: i18next.TFunction;
-  tDateTimeParser: (datetime: string | number) => { calendar: () => string };
-}
+export interface MessageSimpleProps extends MessageUIComponentProps {}
 
 export type MessageSimpleState = {
   isFocused: boolean;
@@ -1105,7 +1101,7 @@ export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
   t?: i18next.TFunction;
-  tDateTimeParser?(datetime: string | number): object;
+  tDateTimeParser?: (input: string | number) => Dayjs.Dayjs;
 }
 
 export interface Streami18nOptions {
