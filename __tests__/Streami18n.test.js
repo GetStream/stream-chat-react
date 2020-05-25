@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Streami18n } from '../src/Streami18n';
 import { v4 as uuidv4 } from 'uuid';
 import { default as Dayjs } from 'dayjs';
