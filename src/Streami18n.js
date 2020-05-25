@@ -357,8 +357,7 @@ export class Streami18n {
       }
     } catch (error) {
       throw Error(
-        `Streami18n: Looks like you wanted to provide Dayjs instance, but something went wrong while adding plugins`,
-        error,
+        `Streami18n: Looks like you wanted to provide Dayjs instance, but something went wrong while adding plugins ${error}`,
       );
     }
 
