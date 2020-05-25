@@ -960,20 +960,25 @@ export const ChannelSearch: React.FC<any>;
 export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
-export interface MessageCommerceProps extends MessageUIComponentProps {}
 
+export interface MessageCommerceProps extends MessageUIComponentProps {}
 export type MessageCommerceState = {
   isFocused: boolean;
   showDetailedReactions: boolean;
 };
-
 export class MessageCommerce extends React.PureComponent<
   MessageCommerceProps,
   MessageCommerceState
 > {}
+
+export interface MessageLivestreamProps extends MessageUIComponentProps {}
+export type MessageLivestreamState = {
+  actionsBoxOpen: boolean;
+  reactionSelectorOpen: boolean;
+};
 export class MessageLivestream extends React.PureComponent<
-  MessageUIComponentProps,
-  any
+  MessageLivestreamProps,
+  MessageLivestreamState
 > {}
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
@@ -981,13 +986,11 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-
 export type MessageSimpleState = {
   isFocused: boolean;
   actionsBoxOpen: boolean;
   showDetailedReactions: boolean;
 };
-
 export class MessageSimple extends React.PureComponent<
   MessageSimpleProps,
   MessageSimpleState

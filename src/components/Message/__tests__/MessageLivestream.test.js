@@ -1,17 +1,18 @@
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Message from '../Message';
-import MessageLivestream from '../MessageLivestream';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
-import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
 import {
   generateChannel,
   getTestClientWithUser,
   generateUser,
   generateMessage,
-} from '../../../mock-builders';
+} from 'mock-builders';
+
+import Message from '../Message';
+import MessageLivestream from '../MessageLivestream';
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageInput as MessageInputMock } from '../../MessageInput';
+import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -280,7 +281,6 @@ describe('<MessageLivestream />', () => {
     expect(openThread).toHaveBeenCalledWith(
       message,
       expect.any(Object), // THe click event
-      message,
     );
   });
 
