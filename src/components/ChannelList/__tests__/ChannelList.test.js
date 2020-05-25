@@ -1,6 +1,8 @@
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { getNodeText } from '@testing-library/dom';
 import { cleanup, render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -35,7 +37,7 @@ import ChannelList from '../ChannelList';
 const ChannelPreviewComponent = ({ channel, latestMessage }) => (
   <div role="listitem" data-testid={channel.id}>
     <div>{channel.data.name}</div>
-    <div data-testid={latestMessage}>{latestMessage}</div>
+    <div>{latestMessage}</div>
   </div>
 );
 
@@ -679,7 +681,7 @@ describe('ChannelList', () => {
       });
 
       it('should remove latest message', async () => {
-        const { getByRole, getByTestId } = render(
+        const { getByRole, getByText } = render(
           <Chat client={chatClientVishal}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -690,14 +692,15 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const latestMessageNode = getByTestId(message2.text);
+        const latestMessageNode = getByText(message2.text);
 
         dispatchChannelTruncatedEvent(chatClientVishal, channel1.channel);
 
         await waitFor(() => {
-          expect(latestMessageNode).not.toBe(message2.text);
+          expect(getNodeText(latestMessageNode)).not.toBe(message2.text);
         });
       });
+
       it('should call `onChannelTruncated` function prop, if provided', async () => {
         const onChannelTruncated = jest.fn();
         const { getByRole } = render(
