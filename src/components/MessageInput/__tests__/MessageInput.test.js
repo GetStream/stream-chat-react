@@ -13,8 +13,9 @@ import {
   useMockedApis,
   getOrCreateChannelApi,
   getTestClientWithUser,
-} from '../../../mock-builders';
+} from '/mock-builders';
 
+// mock image loader fn used by ImagePreview
 jest.mock('blueimp-load-image/js/load-image-fetch', () => {
   return jest.fn().mockImplementation(() => Promise.resolve());
 });
@@ -24,9 +25,6 @@ let chatClient, channel;
 
 // mock i18n
 const t = (t) => t;
-
-// silence console.warn because some components log large warnings in catch statements
-console.warn = () => {};
 
 const submitMock = jest.fn();
 const editMock = jest.fn();
@@ -244,7 +242,7 @@ describe('MessageInput', () => {
         doImageUploadRequest,
         errorHandler,
       });
-
+      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
       const formElement = await findByPlaceholderText(inputPlaceholder);
       const file = new File(['(⌐□_□)'], 'chucknorris.png', {
         type: 'image/png',
@@ -273,7 +271,7 @@ describe('MessageInput', () => {
         doFileUploadRequest,
         errorHandler,
       });
-
+      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
       const formElement = await findByPlaceholderText(inputPlaceholder);
       const file = new File(['content'], 'chucknorris.txt', {
         type: 'text/plain',
