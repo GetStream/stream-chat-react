@@ -218,11 +218,11 @@ class MessageSimple extends PureComponent {
   }
 
   isMine() {
-    const { message } = this.props;
-    if (!message) {
+    const { message, isMyMessage } = this.props;
+    if (!message || !isMyMessage) {
       return false;
     }
-    return this.props.isMyMessage(message);
+    return isMyMessage(message);
   }
 
   hasReactions = () => {
@@ -264,7 +264,7 @@ class MessageSimple extends PureComponent {
           className="str-chat__message-simple-status"
           data-testid="message-status-sending"
         >
-          <Tooltip>{t('Sending...')}</Tooltip>
+          <Tooltip>{t && t('Sending...')}</Tooltip>
           <LoadingIndicator />
         </span>
       );
@@ -312,7 +312,7 @@ class MessageSimple extends PureComponent {
           className="str-chat__message-simple-status"
           data-testid="message-status-received"
         >
-          <Tooltip>{t('Delivered')}</Tooltip>
+          <Tooltip>{t && t('Delivered')}</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.72 6.633a.955.955 0 1 0-1.352-1.352L6.986 8.663 5.633 7.31A.956.956 0 1 0 4.28 8.663l2.029 2.028a.956.956 0 0 0 1.353 0l4.058-4.058z"
@@ -514,12 +514,12 @@ class MessageSimple extends PureComponent {
         >
           {message.type === 'error' && (
             <div className="str-chat__simple-message--error-message">
-              {t('Error · Unsent')}
+              {t && t('Error · Unsent')}
             </div>
           )}
           {message.status === 'failed' && (
             <div className="str-chat__simple-message--error-message">
-              {t('Message Failed · Click to try again')}
+              {t && t('Message Failed · Click to try again')}
             </div>
           )}
 
