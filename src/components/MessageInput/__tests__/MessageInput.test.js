@@ -15,6 +15,10 @@ import {
   getTestClientWithUser,
 } from '../../../mock-builders';
 
+jest.mock('blueimp-load-image/js/load-image-fetch', () => {
+  return jest.fn().mockImplementation(() => Promise.resolve());
+});
+
 jest.mock('axios');
 let chatClient, channel;
 
