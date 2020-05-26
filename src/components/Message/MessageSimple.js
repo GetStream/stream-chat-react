@@ -26,8 +26,8 @@ import DefaultMessageDeleted from '../MessageDeleted';
  * MessageSimple - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @typedef { import('../../../types').MessageSimpleProps } Props
- * @typedef { import('../../../types').MessageSimpleState } State
+ * @typedef { import('types').MessageSimpleProps } Props
+ * @typedef { import('types').MessageSimpleState } State
  * @extends PureComponent<Props, State>
  */
 class MessageSimple extends PureComponent {

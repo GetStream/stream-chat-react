@@ -16,7 +16,8 @@
     "noEmitOnError": true,
     "lib": ["es2015", "dom"],
     "paths": {
-      "*": ["src/@types/*"]
+      "*": ["src/@types/*"],
+      "types": ["types/index.d.ts"]
     }
   },
   "include": ["./src/**/*"]
