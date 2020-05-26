@@ -640,11 +640,15 @@ class MessageSimple extends PureComponent {
             <div
               data-testid="message-inner"
               className="str-chat__message-inner"
-              onClick={
-                message.status === 'failed' && handleRetry
-                  ? handleRetry.bind(this, message)
-                  : () => {}
-              }
+              onClick={() => {
+                if (message.status === 'failed' && handleRetry) {
+                  // FIXME: type checking fails here because in the case of a failed message,
+                  // `message` is of type Client.Message (i.e. request object)
+                  // instead of Client.MessageResponse (i.e. server response object)
+                  // @ts-ignore
+                  handleRetry(message);
+                }
+              }}
             >
               {!message.text && (
                 <React.Fragment>

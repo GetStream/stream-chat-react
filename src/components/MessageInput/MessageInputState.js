@@ -1,21 +1,40 @@
+// @ts-check
 import { useReducer, useEffect, useContext, useRef, useCallback } from 'react';
 import Immutable from 'seamless-immutable';
 import { logChatPromiseExecution } from 'stream-chat';
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
+  // @ts-ignore
 } from 'react-file-utils';
 import { ChannelContext } from '../../context/ChannelContext';
 import { generateRandomId } from '../../utils';
 
+/**
+ * @typedef {import("types").MessageInputState} State
+ * @typedef {import("types").MessageInputProps} Props
+ * @typedef {import('types').ChannelContextValue} ChannelContextValue
+ * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
+ */
+
+/** @type {{ [id: string]: import('types').FileUpload }} */
+const emptyFileUploads = {};
+/** @type {{ [id: string]: import('types').ImageUpload }} */
+const emptyImageUploads = {};
+
+/**
+ * Initializes the state. Empty if the message prop is falsy.
+ * @param {import("stream-chat").MessageResponse | undefined} message
+ * @returns {State}
+ */
 function initState(message) {
   if (!message) {
     return {
       text: '',
       imageOrder: [],
-      imageUploads: Immutable({}),
+      imageUploads: Immutable(emptyImageUploads),
       fileOrder: [],
-      fileUploads: Immutable({}),
+      fileUploads: Immutable(emptyFileUploads),
       numberOfUploads: 0,
       attachments: [],
       mentioned_users: [],
@@ -24,45 +43,48 @@ function initState(message) {
   }
 
   // if message prop is defined, get imageuploads, fileuploads, text, etc. from it
-  const imageUploads = message.attachments
-    .filter(({ type }) => type === 'image')
-    .reduce((acc, attachment) => {
-      const id = generateRandomId();
-      return acc.setIn([id], {
-        id,
-        url: attachment.image_url,
-        state: 'finished',
-        file: {
-          name: attachment.fallback,
-        },
-      });
-    }, Immutable({}));
+  const imageUploads =
+    message.attachments
+      ?.filter(({ type }) => type === 'image')
+      .reduce((acc, attachment) => {
+        const id = generateRandomId();
+        return acc.setIn([id], {
+          id,
+          url: attachment.image_url,
+          state: 'finished',
+          file: {
+            name: attachment.fallback,
+          },
+        });
+      }, Immutable(emptyImageUploads)) || Immutable(emptyImageUploads);
   const imageOrder = Object.keys(imageUploads);
 
-  const fileUploads = message.attachments
-    .filter(({ type }) => type === 'file')
-    .reduce((acc, attachment) => {
-      const id = generateRandomId();
-      return acc.setIn([id], {
-        id,
-        url: attachment.asset_url,
-        state: 'finished',
-        file: {
-          name: attachment.title,
-          type: attachment.mime_type,
-          size: attachment.file_size,
-        },
-      });
-    }, Immutable({}));
+  const fileUploads =
+    message.attachments
+      ?.filter(({ type }) => type === 'file')
+      .reduce((acc, attachment) => {
+        const id = generateRandomId();
+        return acc.setIn([id], {
+          id,
+          url: attachment.asset_url,
+          state: 'finished',
+          file: {
+            name: attachment.title,
+            type: attachment.mime_type,
+            size: attachment.file_size,
+          },
+        });
+      }, Immutable(emptyFileUploads)) || Immutable(emptyFileUploads);
   const fileOrder = Object.keys(fileUploads);
 
   const numberOfUploads = fileOrder.length + imageOrder.length;
 
-  const attachments = message.attachments.filter(
-    ({ type }) => type !== 'file' && type !== 'image',
-  );
+  const attachments =
+    message.attachments?.filter(
+      ({ type }) => type !== 'file' && type !== 'image',
+    ) || [];
 
-  const mentioned_users = message.mentioned_users.map(({ id }) => id);
+  const mentioned_users = message.mentioned_users?.map(({ id }) => id) || [];
 
   return {
     text: message.text || '',
@@ -76,80 +98,87 @@ function initState(message) {
     emojiPickerIsOpen: false,
   };
 }
-
+/**
+ * MessageInput state reducer
+ * @param {State} state
+ * @param {import("./MessageInputTypes").MessageInputReducerAction} action
+ * @returns {State}
+ */
 function messageInputReducer(state, action) {
-  const { type, ...payload } = action;
   switch (action.type) {
     case 'setEmojiPickerIsOpen':
-      return { ...state, emojiPickerIsOpen: payload.value };
+      return { ...state, emojiPickerIsOpen: action.value };
     case 'setText':
-      return { ...state, text: payload.getNewText(state.text) };
+      return { ...state, text: action.getNewText(state.text) };
     case 'clear':
       return {
         ...state,
         text: '',
         mentioned_users: [],
         imageOrder: [],
-        imageUploads: Immutable({}),
+        imageUploads: Immutable(emptyImageUploads),
         fileOrder: [],
-        fileUploads: Immutable({}),
+        fileUploads: Immutable(emptyFileUploads),
       };
     case 'setImageUpload': {
-      const imageAlreadyExists = state.imageUploads[payload.id];
+      const imageAlreadyExists = state.imageUploads[action.id];
       const imageOrder = imageAlreadyExists
         ? state.imageOrder
-        : state.imageOrder.concat(payload.id);
+        : state.imageOrder.concat(action.id);
       return {
         ...state,
         imageOrder,
-        imageUploads: state.imageUploads.setIn([payload.id], payload),
+        imageUploads: state.imageUploads.setIn([action.id], action),
         numberOfUploads: imageAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
       };
     }
     case 'setFileUpload': {
-      const fileAlreadyExists = state.fileUploads[payload.id];
+      const fileAlreadyExists = state.fileUploads[action.id];
       const fileOrder = fileAlreadyExists
         ? state.fileOrder
-        : state.fileOrder.concat(payload.id);
+        : state.fileOrder.concat(action.id);
       return {
         ...state,
         fileOrder,
-        fileUploads: state.fileUploads.setIn([payload.id], payload),
+        fileUploads: state.fileUploads.setIn([action.id], action),
         numberOfUploads: fileAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
       };
     }
     case 'removeImageUpload':
-      if (!state.imageUploads[payload.id]) return state; // cannot remove anything
+      if (!state.imageUploads[action.id]) return state; // cannot remove anything
       return {
         ...state,
         numberOfUploads: state.numberOfUploads - 1,
-        imageOrder: state.imageOrder.filter((_id) => _id !== payload.id),
-        imageUploads: state.imageUploads.without(payload.id),
+        imageOrder: state.imageOrder.filter((_id) => _id !== action.id),
+        imageUploads: state.imageUploads.without(action.id),
       };
     case 'removeFileUpload':
-      if (!state.fileUploads[payload.id]) return state; // cannot remove anything
+      if (!state.fileUploads[action.id]) return state; // cannot remove anything
       return {
         ...state,
         numberOfUploads: state.numberOfUploads - 1,
-        fileOrder: state.fileOrder.filter((_id) => _id !== payload.id),
-        fileUploads: state.fileUploads.without(payload.id),
+        fileOrder: state.fileOrder.filter((_id) => _id !== action.id),
+        fileUploads: state.fileUploads.without(action.id),
       };
     case 'reduceNumberOfUploads': // TODO: figure out if we can just use uploadOrder instead
       return { ...state, numberOfUploads: state.numberOfUploads - 1 };
     case 'addMentionedUser':
       return {
         ...state,
-        mentioned_users: state.mentioned_users.concat(payload.userId),
+        mentioned_users: state.mentioned_users.concat(action.userId),
       };
     default:
       return state;
   }
 }
-
+/**
+ * hook for MessageInput state
+ * @param {Props} props
+ */
 export default function useMessageInputState(props) {
   const {
     doImageUploadRequest,
@@ -164,9 +193,11 @@ export default function useMessageInputState(props) {
   } = props;
 
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
+  /** @type {{ current: HTMLTextAreaElement | undefined }} */
   const textareaRef = useRef();
+  /** @type {{ current: HTMLElement | undefined }} */
   const emojiPickerRef = useRef();
-  const panelRef = useRef();
+  /** @type {ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
   const {
     text,
@@ -190,6 +221,7 @@ export default function useMessageInputState(props) {
 
   // Text + cursor position
 
+  /** @type {React.MutableRefObject<number | null>} */
   const newCursorPosition = useRef(null);
   const insertText = useCallback(
     (textToInsert) => {
@@ -216,10 +248,10 @@ export default function useMessageInputState(props) {
   );
 
   useEffect(() => {
-    if (newCursorPosition.current !== null) {
-      const textareaElement = textareaRef.current;
-      textareaElement.selectionStart = newCursorPosition;
-      textareaElement.selectionEnd = newCursorPosition;
+    const textareaElement = textareaRef.current;
+    if (textareaElement && newCursorPosition.current !== null) {
+      textareaElement.selectionStart = newCursorPosition.current;
+      textareaElement.selectionEnd = newCursorPosition.current;
       newCursorPosition.current = null;
     }
   }, [text, newCursorPosition]);
@@ -236,7 +268,7 @@ export default function useMessageInputState(props) {
         type: 'setText',
         getNewText: () => newText,
       });
-      if (newText) {
+      if (newText && channel) {
         logChatPromiseExecution(channel.keystroke(), 'start typing event');
       }
     },
@@ -275,17 +307,19 @@ export default function useMessageInputState(props) {
 
   // Commands / mentions
 
-  const getCommands = useCallback(() => channel.getConfig().commands, [
-    channel,
-  ]);
+  const getCommands = useCallback(
+    () => channel && channel.getConfig().commands,
+    [channel],
+  );
 
   const getUsers = useCallback(() => {
+    if (!channel) return [];
     return [
       ...Object.values(channel.state.members).map(({ user }) => user),
       ...Object.values(channel.state.watchers),
     ].filter(
-      ({ id }, index, self) =>
-        self.findIndex((user) => user.id === id) === index, // filter out non-unique ids
+      (_user, index, self) =>
+        self.findIndex((user) => user?.id === _user?.id) === index, // filter out non-unique ids
     );
   }, [channel]);
 
@@ -328,9 +362,11 @@ export default function useMessageInputState(props) {
     ];
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
+  /**
+   * @param {React.FormEvent<HTMLInputElement>} event
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
-    const editing = !!message;
     const trimmedMessage = text.trim();
     const isEmptyMessage =
       trimmedMessage === '' ||
@@ -360,15 +396,12 @@ export default function useMessageInputState(props) {
     const updatedMessage = {
       text,
       attachments: newAttachments,
-      mentioned_users: mentioned_users.filter(
-        (user, index, self) =>
-          self.findIndex(({ id }) => user.id === id) === index,
-      ),
+      mentioned_users: Array.from(new Set(mentioned_users)),
     };
 
-    if (editing) {
+    if (!!message && editMessage) {
       // TODO: Remove this line and show an error when submit fails
-      clearEditingState();
+      if (clearEditingState) clearEditingState();
 
       const updateMessagePromise = editMessage({
         ...updatedMessage,
@@ -378,7 +411,8 @@ export default function useMessageInputState(props) {
       logChatPromiseExecution(updateMessagePromise, 'update message');
     } else if (
       overrideSubmitHandler &&
-      typeof overrideSubmitHandler === 'function'
+      typeof overrideSubmitHandler === 'function' &&
+      channel
     ) {
       overrideSubmitHandler(
         {
@@ -388,7 +422,7 @@ export default function useMessageInputState(props) {
         channel.cid,
       );
       dispatch({ type: 'clear' });
-    } else {
+    } else if (sendMessage) {
       const sendMessagePromise = sendMessage({
         ...updatedMessage,
         parent,
@@ -396,7 +430,7 @@ export default function useMessageInputState(props) {
       logChatPromiseExecution(sendMessagePromise, 'send message');
       dispatch({ type: 'clear' });
     }
-    logChatPromiseExecution(channel.stopTyping(), 'stop typing');
+    if (channel) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
   };
 
   // Attachments
@@ -409,13 +443,15 @@ export default function useMessageInputState(props) {
 
   useEffect(() => {
     (async () => {
+      if (!channel) return;
       const upload = Object.values(fileUploads).find(
         (fileUpload) => fileUpload.state === 'uploading' && fileUpload.file,
       );
       if (!upload) return;
 
       const { id, file } = upload;
-      let response = {};
+      /** @type FileUploadAPIResponse */
+      let response;
       try {
         if (doFileUploadRequest) {
           response = await doFileUploadRequest(file, channel);
@@ -434,10 +470,7 @@ export default function useMessageInputState(props) {
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the paramaters passed to the error handler actually make sense
-          errorHandler(e, 'upload-file', {
-            id,
-            file,
-          });
+          errorHandler(e, 'upload-file', file);
         }
         return;
       }
@@ -461,15 +494,13 @@ export default function useMessageInputState(props) {
   const uploadImage = useCallback(
     async (id) => {
       const img = imageUploads[id];
-      if (!img) {
-        return;
-      }
+      if (!img || !channel) return;
       const { file } = img;
       if (img.state !== 'uploading') {
         dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
       }
-
-      let response = {};
+      /** @type FileUploadAPIResponse */
+      let response;
       try {
         if (doImageUploadRequest) {
           response = await doImageUploadRequest(file, channel);
@@ -520,6 +551,7 @@ export default function useMessageInputState(props) {
         // to release the previews when not used anymore though.
         const reader = new FileReader();
         reader.onload = (event) => {
+          if (typeof event.target?.result !== 'string') return;
           dispatch({
             type: 'setImageUpload',
             id,
@@ -544,6 +576,9 @@ export default function useMessageInputState(props) {
   }, []);
 
   const uploadNewFiles = useCallback(
+    /**
+     * @param {File[]} files
+     */
     (files) => {
       files.forEach((file) => {
         const id = generateRandomId();
@@ -571,6 +606,7 @@ export default function useMessageInputState(props) {
         // found. This needs to be done here because chrome cleans
         // up the DataTransferItems after resolving of a promise.
         let plainTextPromise;
+        /** @type {DataTransferItem} */
         const plainTextItem = [...items].find(
           ({ kind, type }) => kind === 'string' && type === 'text/plain',
         );
@@ -603,7 +639,6 @@ export default function useMessageInputState(props) {
     // refs
     textareaRef,
     emojiPickerRef,
-    panelRef,
     // handlers
     uploadNewFiles,
     removeImage,
