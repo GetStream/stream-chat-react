@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -10,7 +9,7 @@ import {
   smartRender,
 } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { MessageInput } from '../MessageInput';
@@ -142,7 +141,7 @@ class MessageTeam extends PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
     groupStyles: ['single'],
   };
 
@@ -152,6 +151,7 @@ class MessageTeam extends PureComponent {
   };
 
   reactionSelectorRef = React.createRef();
+
   editMessageFormRef = React.createRef();
 
   onClickReactionsAction = () => {
@@ -230,7 +230,8 @@ class MessageTeam extends PureComponent {
           <LoadingIndicator isLoading />
         </span>
       );
-    } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
+    }
+    if (readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
         (item) => item && item.id !== client.user.id,
       )[0];
@@ -256,7 +257,8 @@ class MessageTeam extends PureComponent {
           )}
         </span>
       );
-    } else if (
+    }
+    if (
       message.status === 'received' &&
       message.id === lastReceivedId &&
       !threadList
@@ -276,10 +278,10 @@ class MessageTeam extends PureComponent {
           </svg>
         </span>
       );
-    } else {
-      return null;
     }
+    return null;
   };
+
   componentWillUnmount() {
     document.removeEventListener('click', this.hideOptions, false);
     document.removeEventListener('click', this.hideReactions, false);
@@ -342,7 +344,7 @@ class MessageTeam extends PureComponent {
     let galleryImages =
       message.attachments &&
       message.attachments.filter((item) => item.type === 'image');
-    let attachments = message.attachments;
+    let { attachments } = message;
     if (galleryImages && galleryImages.length > 1) {
       attachments = message.attachments.filter((item) => item.type !== 'image');
     } else {
