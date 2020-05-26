@@ -980,9 +980,14 @@ export class MessageLivestream extends React.PureComponent<
   MessageLivestreamProps,
   MessageLivestreamState
 > {}
+export type MessageTeamState = {
+  actionsBoxOpen: boolean;
+  reactionSelectorOpen: boolean;
+};
+export interface MessageTeamProps extends MessageUIComponentProps {}
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
-  any
+  MessageTeamState
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
