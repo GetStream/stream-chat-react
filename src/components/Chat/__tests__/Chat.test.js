@@ -110,7 +110,9 @@ describe('Chat', () => {
       await waitFor(() => expect(context.navOpen).toBe(true));
       act(() => context.closeMobileNav());
       await waitFor(() => expect(context.navOpen).toBe(false));
-      act(() => context.openMobileNav());
+      act(() => {
+        context.openMobileNav();
+      });
 
       await waitFor(() => expect(context.navOpen).toBe(true));
     });
@@ -264,50 +266,48 @@ describe('Chat', () => {
       });
     });
 
-    // TODO: enable when switched to hook
-    // eslint-disable-next-line jest/no-commented-out-tests
-    // it('props change should update the context', async () => {
-    //   const i18nInstance = new Streami18n();
-    //   await i18nInstance.getTranslators();
-    //   i18nInstance.t = 't';
-    //   i18nInstance.tDateTimeParser = 'tDateTimeParser';
+    it('props change should update the context', async () => {
+      const i18nInstance = new Streami18n();
+      await i18nInstance.getTranslators();
+      i18nInstance.t = 't';
+      i18nInstance.tDateTimeParser = 'tDateTimeParser';
 
-    //   let context;
-    //   const { rerender } = render(
-    //     <Chat client={chatClient} i18nInstance={i18nInstance}>
-    //       <TranslationContextConsumer
-    //         fn={(ctx) => {
-    //           context = ctx;
-    //         }}
-    //       ></TranslationContextConsumer>
-    //     </Chat>,
-    //   );
+      let context;
+      const { rerender } = render(
+        <Chat client={chatClient} i18nInstance={i18nInstance}>
+          <TranslationContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          ></TranslationContextConsumer>
+        </Chat>,
+      );
 
-    //   await waitFor(() => {
-    //     expect(context.t).toBe(i18nInstance.t);
-    //     expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
-    //   });
+      await waitFor(() => {
+        expect(context.t).toBe(i18nInstance.t);
+        expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
+      });
 
-    //   const newI18nInstance = new Streami18n();
-    //   await newI18nInstance.getTranslators();
-    //   newI18nInstance.t = 'newT';
-    //   newI18nInstance.tDateTimeParser = 'newtDateTimeParser';
+      const newI18nInstance = new Streami18n();
+      await newI18nInstance.getTranslators();
+      newI18nInstance.t = 'newT';
+      newI18nInstance.tDateTimeParser = 'newtDateTimeParser';
 
-    //   rerender(
-    //     <Chat client={chatClient} i18nInstance={newI18nInstance}>
-    //       <TranslationContextConsumer
-    //         fn={(ctx) => {
-    //           context = ctx;
-    //         }}
-    //       ></TranslationContextConsumer>
-    //     </Chat>,
-    //   );
-    //   await waitFor(() => {
-    //     expect(context.t).toBe(newI18nInstance.t);
-    //     expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
-    //     expect(context.t).not.toBe(i18nInstance.t);
-    //     expect(context.tDateTimeParser).not.toBe(i18nInstance.tDateTimeParser);
-    //   });
-    // });
+      rerender(
+        <Chat client={chatClient} i18nInstance={newI18nInstance}>
+          <TranslationContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          ></TranslationContextConsumer>
+        </Chat>,
+      );
+      await waitFor(() => {
+        expect(context.t).toBe(newI18nInstance.t);
+        expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
+        expect(context.t).not.toBe(i18nInstance.t);
+        expect(context.tDateTimeParser).not.toBe(i18nInstance.tDateTimeParser);
+      });
+    });
   });
 });
