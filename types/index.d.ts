@@ -904,7 +904,7 @@ export class SimpleReactionsList extends React.PureComponent<
   any
 > {}
 export const Tooltip: React.FC<TooltipProps>;
-export class Chat extends React.PureComponent<ChatProps, any> {}
+export const Chat: React.FC<ChatProps>;
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
 export class Message extends React.PureComponent<MessageComponentProps, any> {}
