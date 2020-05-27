@@ -112,6 +112,7 @@ class MessageActionsBox extends React.Component {
     const messageActions = getMessageActions();
     return (
       <div
+        data-testid="message-actions-box"
         className={`str-chat__message-actions-box
           ${this.props.open ? 'str-chat__message-actions-box--open' : ''}
           ${this.props.mine ? 'str-chat__message-actions-box--mine' : ''}

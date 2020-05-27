@@ -1,5 +1,5 @@
-/* eslint-disable */
-import React from 'react';
+// @ts-check
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -8,7 +8,7 @@ import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { withTranslationContext } from '../../context';
 
 import { Avatar } from '../Avatar';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Gallery } from '../Gallery';
 import { MessageActionsBox } from '../MessageActions';
 import { EditMessageForm } from '../EditMessageForm';
@@ -27,9 +27,11 @@ const optionsSvg =
  * Implements the look and feel for a livestream use case.
  *
  * @example ../../docs/MessageLivestream.md
- * @extends PureComponent
+ * @typedef { import('../../../types').MessageLivestreamProps } Props
+ * @typedef { import('../../../types').MessageLivestreamState } State
+ * @extends PureComponent<Props, State>
  */
-class MessageLivestream extends React.PureComponent {
+class MessageLivestream extends PureComponent {
   static propTypes = {
     /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
@@ -136,7 +138,7 @@ class MessageLivestream extends React.PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
   };
 
   state = {
@@ -145,10 +147,15 @@ class MessageLivestream extends React.PureComponent {
   };
 
   reactionSelectorRef = React.createRef();
+
   editMessageFormRef = React.createRef();
 
   isMine() {
-    return this.props.isMyMessage(this.props.message);
+    const { isMyMessage, message } = this.props;
+    if (!isMyMessage || !message) {
+      return false;
+    }
+    return isMyMessage(message);
   }
 
   onClickReactionsAction = () => {
@@ -176,6 +183,7 @@ class MessageLivestream extends React.PureComponent {
     document.removeEventListener('click', this.hideOptions, false);
   };
 
+  /** @type {EventListener} Typescript syntax */
   hideReactions = (e) => {
     if (
       !this.reactionSelectorRef.current.reactionSelector.current.contains(
@@ -204,6 +212,113 @@ class MessageLivestream extends React.PureComponent {
     document.removeEventListener('click', this.hideReactions, false);
   }
 
+  hasAttachments = () => {
+    const { message } = this.props;
+    return (
+      message && Boolean(message.attachments && message.attachments.length)
+    );
+  };
+
+  getAttachments = () => {
+    const { message } = this.props;
+    if (!message || !message.attachments) {
+      return { galleryImages: [], attachments: [] };
+    }
+    let galleryImages = message.attachments.filter(
+      (item) => item.type === 'image',
+    );
+    let { attachments } = message;
+    if (galleryImages.length > 1) {
+      attachments = message.attachments.filter((item) => item.type !== 'image');
+    } else {
+      galleryImages = [];
+    }
+    return { galleryImages, attachments };
+  };
+
+  renderActions() {
+    const {
+      initialMessage,
+      message,
+      tDateTimeParser,
+      channelConfig,
+      threadList,
+      handleOpenThread,
+      getMessageActions,
+      Message,
+      messageListRect,
+      isMyMessage,
+      isUserMuted,
+      handleFlag,
+      handleMute,
+      handleEdit,
+      handleDelete,
+    } = this.props;
+
+    return (
+      !initialMessage &&
+      message &&
+      message.type !== 'error' &&
+      message.type !== 'system' &&
+      message.type !== 'ephemeral' &&
+      message.status !== 'failed' &&
+      message.status !== 'sending' && (
+        <div
+          data-testid={'message-livestream-actions'}
+          className={`str-chat__message-livestream-actions`}
+        >
+          <span className={`str-chat__message-livestream-time`}>
+            {tDateTimeParser &&
+              tDateTimeParser(message.created_at).format('h:mmA')}
+          </span>
+          {channelConfig && channelConfig.reactions && (
+            <span
+              onClick={this.onClickReactionsAction}
+              data-testid="message-livestream-reactions-action"
+            >
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: reactionSvg,
+                }}
+              />
+            </span>
+          )}
+          {!threadList && channelConfig && channelConfig.replies && (
+            <span
+              data-testid="message-livestream-thread-action"
+              dangerouslySetInnerHTML={{
+                __html: threadSvg,
+              }}
+              onClick={handleOpenThread}
+            />
+          )}
+          {getMessageActions().length > 0 && (
+            <span onClick={this.onClickOptionsAction}>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: optionsSvg,
+                }}
+              />
+              <MessageActionsBox
+                getMessageActions={getMessageActions}
+                open={this.state.actionsBoxOpen}
+                Message={Message}
+                message={message}
+                messageListRect={messageListRect}
+                mine={isMyMessage && isMyMessage(message)}
+                isUserMuted={isUserMuted}
+                handleFlag={handleFlag}
+                handleMute={handleMute}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
+            </span>
+          )}
+        </div>
+      )
+    );
+  }
+
   render() {
     const {
       Attachment,
@@ -216,10 +331,7 @@ class MessageLivestream extends React.PureComponent {
       handleReaction,
       actionsEnabled,
       messageListRect,
-      channelConfig,
-      threadList,
       handleOpenThread,
-      Message,
       onMentionsHoverMessage,
       onMentionsClickMessage,
       onUserClick,
@@ -227,54 +339,37 @@ class MessageLivestream extends React.PureComponent {
       unsafeHTML,
       handleRetry,
       handleAction,
-      getMessageActions,
-      isMyMessage,
-      handleFlag,
-      handleMute,
-      isUserMuted,
-      handleEdit,
-      handleDelete,
       t,
-      tDateTimeParser,
       MessageDeleted,
     } = this.props;
-    const hasAttachment = Boolean(
-      message.attachments && message.attachments.length,
-    );
+    const hasAttachment = this.hasAttachments();
+    const { galleryImages, attachments } = this.getAttachments();
+    const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
-    let galleryImages = message.attachments.filter(
-      (item) => item.type === 'image',
-    );
-    let attachments = message.attachments;
-    if (galleryImages.length > 1) {
-      attachments = message.attachments.filter((item) => item.type !== 'image');
-    } else {
-      galleryImages = [];
-    }
-
-    if (message.type === 'message.read') {
+    if (
+      !message ||
+      message.type === 'message.read' ||
+      message.type === 'message.date'
+    ) {
       return null;
     }
 
-    if (message.type === 'message.date') {
-      return null;
-    }
-
-    if (message.deleted_at) {
+    if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
 
     if (editing) {
       return (
         <div
-          className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
+          data-testid={'message-livestream-edit'}
+          className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
-          {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (
+          {(firstGroupStyle === 'top' || firstGroupStyle === 'single') && (
             <div className="str-chat__message-team-meta">
               <Avatar
-                image={message.user.image}
-                name={message.user.name || message.user.id}
+                image={message?.user?.image}
+                name={message?.user?.name || message?.user?.id}
                 size={40}
                 onClick={onUserClick}
                 onMouseOver={onUserHover}
@@ -294,11 +389,10 @@ class MessageLivestream extends React.PureComponent {
     return (
       <React.Fragment>
         <div
-          className={`str-chat__message-livestream str-chat__message-livestream--${
-            groupStyles[0]
-          } str-chat__message-livestream--${
-            message.type
-          } str-chat__message-livestream--${message.status} ${
+          data-testid="message-livestream"
+          className={`str-chat__message-livestream str-chat__message-livestream--${firstGroupStyle} str-chat__message-livestream--${
+            message?.type
+          } str-chat__message-livestream--${message?.status} ${
             initialMessage
               ? 'str-chat__message-livestream--initial-message'
               : ''
@@ -311,68 +405,18 @@ class MessageLivestream extends React.PureComponent {
               handleReaction={handleReaction}
               actionsEnabled={actionsEnabled}
               detailedView
-              latest_reactions={message.latest_reactions}
-              reaction_counts={message.reaction_counts}
+              latest_reactions={message?.latest_reactions}
+              reaction_counts={message?.reaction_counts}
               messageList={messageListRect}
               ref={this.reactionSelectorRef}
             />
           )}
-          {!initialMessage &&
-            message.type !== 'error' &&
-            message.type !== 'system' &&
-            message.type !== 'ephemeral' &&
-            message.status !== 'failed' &&
-            message.status !== 'sending' && (
-              <div className={`str-chat__message-livestream-actions`}>
-                <span className={`str-chat__message-livestream-time`}>
-                  {tDateTimeParser(message.created_at).format('h:mmA')}
-                </span>
-                {channelConfig && channelConfig.reactions && (
-                  <span onClick={this.onClickReactionsAction}>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: reactionSvg,
-                      }}
-                    />
-                  </span>
-                )}
-                {!threadList && channelConfig && channelConfig.replies && (
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: threadSvg,
-                    }}
-                    onClick={(e) => handleOpenThread(e, message)}
-                  />
-                )}
-                {getMessageActions().length > 0 && (
-                  <span onClick={this.onClickOptionsAction}>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: optionsSvg,
-                      }}
-                    />
-                    <MessageActionsBox
-                      getMessageActions={getMessageActions}
-                      open={this.state.actionsBoxOpen}
-                      Message={Message}
-                      message={message}
-                      messageListRect={messageListRect}
-                      mine={isMyMessage(message)}
-                      isUserMuted={isUserMuted}
-                      handleFlag={handleFlag}
-                      handleMute={handleMute}
-                      handleEdit={handleEdit}
-                      handleDelete={handleDelete}
-                    />
-                  </span>
-                )}
-              </div>
-            )}
+          {this.renderActions()}
 
           <div className={`str-chat__message-livestream-left`}>
             <Avatar
-              image={message.user.image}
-              name={message.user.name || message.user.id}
+              image={message?.user?.image}
+              name={message?.user?.name || message?.user?.id}
               size={30}
               onClick={onUserClick}
               onMouseOver={onUserHover}
@@ -381,36 +425,39 @@ class MessageLivestream extends React.PureComponent {
           <div className={`str-chat__message-livestream-right`}>
             <div className={`str-chat__message-livestream-content`}>
               <div className="str-chat__message-livestream-author">
-                <strong>{message.user.name || message.user.id}</strong>
-                {message.type === 'error' && (
+                <strong>{message?.user?.name || message?.user?.id}</strong>
+                {message?.type === 'error' && (
                   <div className="str-chat__message-team-error-header">
-                    {t('Only visible to you')}
+                    {t && t('Only visible to you')}
                   </div>
                 )}
               </div>
 
               <div
+                data-testid="message-livestream-text"
                 className={
-                  isOnlyEmojis(message.text)
+                  isOnlyEmojis(message?.text)
                     ? 'str-chat__message-livestream-text--is-emoji'
                     : ''
                 }
                 onMouseOver={onMentionsHoverMessage}
                 onClick={onMentionsClickMessage}
               >
-                {message.type !== 'error' &&
+                {message &&
+                  message.type !== 'error' &&
                   message.status !== 'failed' &&
                   !unsafeHTML &&
                   renderText(message)}
 
-                {message.type !== 'error' &&
+                {message &&
+                  message.type !== 'error' &&
                   message.status !== 'failed' &&
                   unsafeHTML && (
                     <div dangerouslySetInnerHTML={{ __html: message.html }} />
                   )}
 
-                {message.type === 'error' && !message.command && (
-                  <p>
+                {message && message.type === 'error' && !message.command && (
+                  <p data-testid="message-livestream-error">
                     <svg
                       width="14"
                       height="14"
@@ -426,8 +473,8 @@ class MessageLivestream extends React.PureComponent {
                   </p>
                 )}
 
-                {message.type === 'error' && message.command && (
-                  <p>
+                {message && message.type === 'error' && message.command && (
+                  <p data-testid="message-livestream-command-error">
                     <svg
                       width="14"
                       height="14"
@@ -443,8 +490,12 @@ class MessageLivestream extends React.PureComponent {
                     <strong>/{message.command}</strong> is not a valid command
                   </p>
                 )}
-                {message.status === 'failed' && (
-                  <p onClick={handleRetry.bind(this, message)}>
+                {message && message.status === 'failed' && (
+                  <p
+                    onClick={
+                      handleRetry ? handleRetry.bind(this, message) : () => {}
+                    }
+                  >
                     <svg
                       width="14"
                       height="14"
@@ -456,29 +507,35 @@ class MessageLivestream extends React.PureComponent {
                         fillRule="evenodd"
                       />
                     </svg>
-                    {t('Message failed. Click to try again.')}
+                    {t && t('Message failed. Click to try again.')}
                   </p>
                 )}
               </div>
 
               {hasAttachment &&
-                attachments.map((attachment, index) => (
-                  <Attachment
-                    key={`${message.id}-${index}`}
-                    attachment={attachment}
-                    actionHandler={handleAction}
-                  />
-                ))}
+                Attachment &&
+                attachments.map(
+                  /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
+                  (attachment, index) => (
+                    <Attachment
+                      key={`${message?.id}-${index}`}
+                      attachment={attachment}
+                      actionHandler={handleAction}
+                    />
+                  ),
+                )}
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
-              <SimpleReactionsList
-                reaction_counts={message.reaction_counts}
-                reactions={message.latest_reactions}
-                handleReaction={handleReaction}
-              />
+              {message && (
+                <SimpleReactionsList
+                  reaction_counts={message.reaction_counts}
+                  reactions={message.latest_reactions}
+                  handleReaction={handleReaction}
+                />
+              )}
 
-              {!initialMessage && (
+              {!initialMessage && message && (
                 <MessageRepliesCountButton
                   onClick={handleOpenThread}
                   reply_count={message.reply_count}
