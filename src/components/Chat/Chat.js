@@ -20,7 +20,7 @@ import { Streami18n } from '../../Streami18n';
  * @example ../../docs/Chat.md
  */
 const Chat = ({ client, theme, i18nInstance, children }) => {
-  const [translators, setTtranslators] = useState({});
+  const [translators, setTranslators] = useState({});
   const [mutes, setMutes] = useState([]);
   const [navOpen, setNavOpen] = useState(true);
   const [channel, setChannel] = useState({});
@@ -45,9 +45,9 @@ const Chat = ({ client, theme, i18nInstance, children }) => {
     else streami18n = new Streami18n({ language: 'en' });
 
     streami18n.registerSetLanguageCallback((t) =>
-      setTtranslators((prevTranslator) => ({ ...prevTranslator, t })),
+      setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
-    streami18n.getTranslators().then(setTtranslators);
+    streami18n.getTranslators().then(setTranslators);
   }, [i18nInstance]);
 
   const setActiveChannel = useCallback(
