@@ -29,12 +29,14 @@ const Chat = ({ client, theme, i18nInstance, children }) => {
   const closeMobileNav = () => setNavOpen(false);
 
   useEffect(() => {
+    setMutes(client?.user?.mutes || []);
+
     const handleEvent = (e) => {
       if (e.type === 'notification.mutes_updated') setMutes(e.me.mutes || []);
     };
 
     client.on(handleEvent);
-    setMutes(client?.user?.mutes || []);
+    return () => client.off(handleEvent);
   }, [client]);
 
   useEffect(() => {
