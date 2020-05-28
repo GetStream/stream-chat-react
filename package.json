@@ -43,7 +43,7 @@
     "seamless-immutable": "^7.1.4",
     "shallow-diff": "^0.0.5",
     "stream-browserify": "^2.0.2",
-    "stream-chat": "^1.10.2",
+    "stream-chat": "^1.10.3",
     "uuid": "^7.0.3",
     "visibilityjs": "^2.0.2"
   },

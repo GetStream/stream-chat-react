@@ -3,11 +3,15 @@
 /** Components */
 import * as React from 'react';
 import * as Client from 'stream-chat';
-import SeamlessImmutable from 'seamless-immutable';
+import SeamlessImmutable, {
+  ImmutableArray,
+  ImmutableObject,
+} from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
+
 export interface ChatContextValue {
   client?: Client.StreamChat;
   channel?: Client.Channel;
@@ -59,8 +63,8 @@ export interface ChannelContextValue extends ChatContextValue {
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
-  sendMessage?(message: Client.Message): void;
-  editMessage?(updatedMessage: Client.Message): void;
+  sendMessage?(message: Client.Message): Promise<any>;
+  editMessage?(updatedMessage: Client.Message): Promise<any>;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
     updatedMessage: Client.MessageResponse,
@@ -378,13 +382,22 @@ export interface MessageInputProps {
   SendButton?: React.ElementType<SendButtonProps>;
 
   /** Override image upload request */
-  doImageUploadRequest?(file: object, channel: Client.Channel): void;
+  doImageUploadRequest?(
+    file: object,
+    channel: Client.Channel,
+  ): Promise<Client.FileUploadAPIResponse>;
 
   /** Override file upload request */
-  doFileUploadRequest?(file: object, channel: Client.Channel): void;
+  doFileUploadRequest?(
+    file: File,
+    channel: Client.Channel,
+  ): Promise<Client.FileUploadAPIResponse>;
 
   /** Completely override the submit handler (advanced usage only) */
-  overrideSubmitHandler?(message: object, channelCid: string): void;
+  overrideSubmitHandler?(
+    message: object,
+    channelCid: string,
+  ): Promise<any> | void;
   /**
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    * e.g.
@@ -395,39 +408,46 @@ export interface MessageInputProps {
    * />
    */
   additionalTextareaProps?: object;
+  /** Message object. If defined, the message passed will be edited, instead of a new message being created */
+  message?: Client.MessageResponse;
+  /** Callback to clear editing state in parent component */
+  clearEditingState?: () => void;
+  /** If true, file uploads are disabled. Default: false */
+  noFiles?: boolean;
+  /** Custom error handler, called when file/image uploads fail. */
+  errorHandler?: (e: Error, type: string, file: object) => Promise<any> | void;
 }
 
 export type ImageUpload = {
   id: string;
-  url: string;
+  file: File;
   state: 'finished' | 'failed' | 'uploading';
-  file: { name: string };
+  previewUri?: string;
+  url?: string;
 };
 
 export type FileUpload = {
   id: string;
   url: string;
   state: 'finished' | 'failed' | 'uploading';
-  file: {
-    name: string;
-    type: string;
-    size: string;
-  };
+  file: File;
 };
 
 export interface MessageInputState {
-  text?: string;
-  attachments?: Client.Attachment[];
-  imageOrder?: string[];
-  imageUploads?: SeamlessImmutable.Immutable<ImageUpload[]>;
-  fileOrder?: string[];
-  fileUploads?: SeamlessImmutable.Immutable<FileUpload[]>;
-  emojiPickerIsOpen?: boolean;
-  filePanelIsOpen?: boolean;
+  text: string;
+  attachments: Client.Attachment[];
+  imageOrder: string[];
+  imageUploads: SeamlessImmutable.ImmutableObject<{
+    [id: string]: ImageUpload;
+  }>;
+  fileOrder: string[];
+  fileUploads: SeamlessImmutable.ImmutableObject<{ [id: string]: FileUpload }>;
+  emojiPickerIsOpen: boolean;
   // ids of users mentioned in message
-  mentioned_users?: string[];
-  numberOfUploads?: number;
+  mentioned_users: string[];
+  numberOfUploads: number;
 }
+
 export interface MessageInputUIComponentProps
   extends MessageInputProps,
     MessageInputState,
@@ -986,6 +1006,7 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
+
 export type MessageSimpleState = {
   isFocused: boolean;
   actionsBoxOpen: boolean;
@@ -1111,7 +1132,7 @@ export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
   t?: i18next.TFunction;
-  tDateTimeParser?: (input: string | number) => Dayjs.Dayjs;
+  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
 }
 
 export interface Streami18nOptions {
