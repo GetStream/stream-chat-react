@@ -76,11 +76,12 @@ describe('Audio', () => {
   it('should poll for progress every 500ms if the file is played, and stop doing that when it is paused', () => {
     const { getByTestId } = renderComponent();
 
-    let callback;
+    let intervalId;
     const setIntervalSpy = jest
       .spyOn(window, 'setInterval')
-      .mockImplementationOnce((fn) => {
-        callback = fn;
+      .mockImplementationOnce(() => {
+        intervalId = 'something';
+        return intervalId;
       });
     const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
 
@@ -88,15 +89,16 @@ describe('Audio', () => {
     expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 500);
 
     fireEvent.click(getByTestId(pauseButtonTestId));
-    expect(clearIntervalSpy).toHaveBeenCalledWith(callback);
+    expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
   });
 
   it('should clean up the progress interval if the component is unmounted while the file is playing', () => {
     const { getByTestId, unmount = cleanup } = renderComponent();
 
-    let callback;
-    jest.spyOn(window, 'setInterval').mockImplementationOnce((fn) => {
-      callback = fn;
+    let intervalId;
+    jest.spyOn(window, 'setInterval').mockImplementationOnce(() => {
+      intervalId = 'something';
+      return intervalId;
     });
     fireEvent.click(getByTestId(playButtonTestId));
 
@@ -104,7 +106,7 @@ describe('Audio', () => {
 
     unmount();
 
-    expect(clearIntervalSpy).toHaveBeenCalledWith(callback);
+    expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
   });
 
   it('should show the correct progress', async () => {
