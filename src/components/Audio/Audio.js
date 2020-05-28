@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 class Audio extends React.Component {
   static propTypes = {
     /** Attachment object of audio type */
-    og: PropTypes.object,
+    og: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -37,7 +37,7 @@ class Audio extends React.Component {
       this.audioRef.current.pause();
     }
     this.setState({ playing: false });
-    window.clearInterval(this.state.updateProgress);
+    window.clearInterval(this.updateProgress);
   };
 
   updateProgress = () => {
@@ -55,7 +55,7 @@ class Audio extends React.Component {
   };
 
   componentWillUnmount() {
-    window.clearInterval(this.state.updateProgress);
+    window.clearInterval(this.updateProgress);
   }
 
   render() {
@@ -67,7 +67,7 @@ class Audio extends React.Component {
       <div className="str-chat__audio">
         <div className="str-chat__audio__wrapper">
           <audio ref={this.audioRef}>
-            <source src={url} type="audio/mp3" />
+            <source src={url} type="audio/mp3" data-testid="audio-source" />
           </audio>
           <div className="str-chat__audio__image">
             <div className="str-chat__audio__image--overlay">
@@ -75,6 +75,7 @@ class Audio extends React.Component {
                 <div
                   onClick={() => this.playAudio()}
                   className="str-chat__audio__image--button"
+                  data-testid="play-audio"
                 >
                   <svg
                     width="40"
@@ -92,6 +93,7 @@ class Audio extends React.Component {
                 <div
                   onClick={() => this.pauseAudio()}
                   className="str-chat__audio__image--button"
+                  data-testid="pause-audio"
                 >
                   <svg
                     width="40"
@@ -117,7 +119,10 @@ class Audio extends React.Component {
               {og.text}
             </span>
             <div className="str-chat__audio__content--progress">
-              <div style={{ width: `${this.state.progress}%` }} />
+              <div
+                style={{ width: `${this.state.progress}%` }}
+                data-testid="audio-progress"
+              />
             </div>
           </div>
         </div>
