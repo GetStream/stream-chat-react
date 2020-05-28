@@ -1,9 +1,8 @@
-/* eslint-disable */
+// @ts-check
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { ReactionsList, ReactionSelector } from '../Reactions';
@@ -14,7 +13,9 @@ import { withTranslationContext } from '../../context';
  * MessageCommerce - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @extends PureComponent
+ * @typedef { import('../../../types').MessageCommerceProps } Props
+ * @typedef { import('../../../types').MessageCommerceState } State
+ * @extends PureComponent<Props, State>
  */
 class MessageCommerce extends PureComponent {
   static propTypes = {
@@ -104,33 +105,17 @@ class MessageCommerce extends PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
   };
 
   state = {
     isFocused: false,
-    actionsBoxOpen: false,
     showDetailedReactions: false,
   };
 
   messageActionsRef = React.createRef();
+
   reactionSelectorRef = React.createRef();
-
-  _onClickOptionsAction = () => {
-    this.setState(
-      {
-        actionsBoxOpen: true,
-      },
-      () => document.addEventListener('click', this.hideOptions, false),
-    );
-  };
-
-  _hideOptions = () => {
-    this.setState({
-      actionsBoxOpen: false,
-    });
-    document.removeEventListener('click', this.hideOptions, false);
-  };
 
   _clickReactionList = () => {
     this.setState(
@@ -143,6 +128,7 @@ class MessageCommerce extends PureComponent {
     );
   };
 
+  /** @type {EventListener} Typescript syntax */
   _closeDetailedReactions = (e) => {
     if (
       !this.reactionSelectorRef.current.reactionSelector.current.contains(
@@ -157,36 +143,68 @@ class MessageCommerce extends PureComponent {
           document.removeEventListener('click', this._closeDetailedReactions);
         },
       );
-    } else {
-      return {};
     }
   };
 
   componentWillUnmount() {
-    if (!this.props.message.deleted_at) {
+    const { message } = this.props;
+    if (message && !message.deleted_at) {
       document.removeEventListener('click', this._closeDetailedReactions);
     }
   }
 
-  isMine() {
-    return !this.props.isMyMessage(this.props.message);
-  }
+  isMine = () => {
+    const { message, isMyMessage } = this.props;
+    if (!message || !isMyMessage) {
+      return false;
+    }
+    return isMyMessage(message);
+  };
 
-  renderOptions() {
+  hasAttachments = () => {
+    const { message } = this.props;
+    return message && !!message.attachments && !!message.attachments.length;
+  };
+
+  hasReactions = () => {
+    const { message } = this.props;
+    return (
+      message && !!message.latest_reactions && !!message.latest_reactions.length
+    );
+  };
+
+  getImages = () => {
+    const { message } = this.props;
+    return (
+      message?.attachments &&
+      message.attachments.filter(
+        /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+        (item) => item.type === 'image',
+      )
+    );
+  };
+
+  renderOptions = () => {
+    const { message, channelConfig, initialMessage } = this.props;
     if (
-      this.props.message.type === 'error' ||
-      this.props.message.type === 'system' ||
-      this.props.message.type === 'ephemeral' ||
-      this.props.message.status === 'sending' ||
-      this.props.message.status === 'failed' ||
-      !this.props.channelConfig.reactions ||
-      this.props.initialMessage
+      !message ||
+      message.type === 'error' ||
+      message.type === 'system' ||
+      message.type === 'ephemeral' ||
+      message.status === 'sending' ||
+      message.status === 'failed' ||
+      !channelConfig ||
+      !channelConfig.reactions ||
+      initialMessage
     ) {
-      return;
+      return null;
     }
 
     return (
-      <div className="str-chat__message-commerce__actions">
+      <div
+        data-testid="message-commerce-actions"
+        className="str-chat__message-commerce__actions"
+      >
         <div
           className="str-chat__message-commerce__actions__action str-chat__message-commerce__actions__action--reactions"
           onClick={this._clickReactionList}
@@ -200,8 +218,84 @@ class MessageCommerce extends PureComponent {
         </div>
       </div>
     );
-  }
+  };
 
+  renderMessageText = () => {
+    const {
+      actionsEnabled,
+      handleReaction,
+      message,
+      onMentionsClickMessage,
+      onMentionsHoverMessage,
+      unsafeHTML,
+      t,
+    } = this.props;
+    const hasAttachment = this.hasAttachments();
+    const hasReactions = this.hasReactions();
+
+    if (!message) {
+      return null;
+    }
+
+    return (
+      <div className="str-chat__message-commerce-text">
+        <div
+          data-testid="message-commerce-text-inner-wrapper"
+          className={`str-chat__message-commerce-text-inner
+            ${
+              hasAttachment
+                ? 'str-chat__message-commerce-text-inner--has-attachment'
+                : ''
+            }
+            ${
+              isOnlyEmojis(message.text)
+                ? 'str-chat__message-commerce-text-inner--is-emoji'
+                : ''
+            }
+          `.trim()}
+          onMouseOver={onMentionsHoverMessage}
+          onClick={onMentionsClickMessage}
+        >
+          {message.type === 'error' && (
+            <div className="str-chat__commerce-message--error-message">
+              {t && t('Error · Unsent')}
+            </div>
+          )}
+
+          {unsafeHTML ? (
+            <div dangerouslySetInnerHTML={{ __html: message.html }} />
+          ) : (
+            renderText(message)
+          )}
+
+          {/* if reactions show them */}
+          {hasReactions && !this.state.showDetailedReactions && (
+            <ReactionsList
+              reverse
+              reactions={message.latest_reactions}
+              reaction_counts={message.reaction_counts}
+              onClick={this._clickReactionList}
+            />
+          )}
+          {this.state.showDetailedReactions && (
+            <ReactionSelector
+              reverse={false}
+              handleReaction={handleReaction}
+              actionsEnabled={actionsEnabled}
+              detailedView
+              reaction_counts={message.reaction_counts}
+              latest_reactions={message.latest_reactions}
+              ref={this.reactionSelectorRef}
+            />
+          )}
+        </div>
+
+        {message.text && this.renderOptions()}
+      </div>
+    );
+  };
+
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   render() {
     const {
       message,
@@ -210,72 +304,69 @@ class MessageCommerce extends PureComponent {
       handleReaction,
       handleAction,
       actionsEnabled,
-      onMentionsHoverMessage,
-      onMentionsClickMessage,
       onUserClick,
       onUserHover,
-      unsafeHTML,
       threadList,
       handleOpenThread,
-      t,
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
 
-    const when = tDateTimeParser(message.created_at).format('LT');
+    const when =
+      message &&
+      tDateTimeParser &&
+      tDateTimeParser(message.created_at).format('LT');
 
-    const messageClasses = this.isMine()
+    const messageClasses = !this.isMine()
       ? 'str-chat__message-commerce str-chat__message-commerce--left'
       : 'str-chat__message-commerce str-chat__message-commerce--right';
 
-    const hasAttachment = Boolean(
-      message.attachments && message.attachments.length,
-    );
-    const images =
-      hasAttachment &&
-      message.attachments.filter((item) => item.type === 'image');
-    const hasReactions = Boolean(
-      message.latest_reactions && message.latest_reactions.length,
-    );
+    const hasAttachment = this.hasAttachments();
+    const images = this.getImages();
+    const hasReactions = this.hasReactions();
 
-    if (message.deleted_at) {
+    const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+
+    if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
 
-    if (message.type === 'message.read' || message.type === 'message.date') {
+    if (
+      message &&
+      (message.type === 'message.read' || message.type === 'message.date')
+    ) {
       return null;
     }
 
     return (
       <React.Fragment>
         <div
-          key={message.id}
+          data-testid={'message-commerce-wrapper'}
+          key={message?.id || ''}
           className={`
 						${messageClasses}
-						str-chat__message-commerce--${message.type}
+						str-chat__message-commerce--${message?.type}
 						${
-              message.text
+              message?.text
                 ? 'str-chat__message-commerce--has-text'
                 : 'str-chat__message-commerce--has-no-text'
             }
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
-						${`str-chat__message-commerce--${groupStyles[0]}`}
+						${`str-chat__message-commerce--${firstGroupStyle}`}
 					`.trim()}
-          onMouseLeave={this._hideOptions}
-          ref={this.messageRef}
         >
-          {(groupStyles[0] === 'bottom' || groupStyles[0] === 'single') && (
+          {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
             <Avatar
-              image={message.user.image}
+              image={message?.user?.image}
               size={32}
-              name={message.user.name || message.user.id}
+              name={message?.user?.name || message?.user?.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
             />
           )}
           <div className="str-chat__message-commerce-inner">
-            {!message.text && (
+            {message && !message.text && (
               <React.Fragment>
                 {this.renderOptions()}
                 {/* if reactions show them */}
@@ -300,80 +391,34 @@ class MessageCommerce extends PureComponent {
               </React.Fragment>
             )}
 
-            {hasAttachment &&
-              images.length <= 1 &&
-              message.attachments.map((attachment, index) => (
-                <Attachment
-                  key={`${message.id}-${index}`}
-                  attachment={attachment}
-                  actionHandler={handleAction}
-                />
-              ))}
-            {images.length > 1 && <Gallery images={images} />}
+            {message?.attachments &&
+              (!images || images.length <= 1) &&
+              message.attachments.map(
+                /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
+                (attachment, index) => (
+                  // @ts-ignore Attachment is not yet typed
+                  <Attachment
+                    key={`${message.id}-${index}`}
+                    attachment={attachment}
+                    actionHandler={handleAction}
+                  />
+                ),
+              )}
+            {images && images.length > 1 && <Gallery images={images} />}
 
-            {message.text && (
-              <div className="str-chat__message-commerce-text">
-                <div
-                  className={`str-chat__message-commerce-text-inner
-									${hasAttachment ? 'str-chat__message-commerce-text-inner--has-attachment' : ''}
-									${
-                    isOnlyEmojis(message.text)
-                      ? 'str-chat__message-commerce-text-inner--is-emoji'
-                      : ''
-                  }
-                `.trim()}
-                  onMouseOver={onMentionsHoverMessage}
-                  onClick={onMentionsClickMessage}
-                >
-                  {message.type === 'error' && (
-                    <div className="str-chat__commerce-message--error-message">
-                      {t('Error · Unsent')}
-                    </div>
-                  )}
-
-                  {unsafeHTML ? (
-                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                  ) : (
-                    renderText(message)
-                  )}
-
-                  {/* if reactions show them */}
-                  {hasReactions && !this.state.showDetailedReactions && (
-                    <ReactionsList
-                      reverse
-                      reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts}
-                      onClick={this._clickReactionList}
-                    />
-                  )}
-                  {this.state.showDetailedReactions && (
-                    <ReactionSelector
-                      reverse={false}
-                      handleReaction={handleReaction}
-                      actionsEnabled={actionsEnabled}
-                      detailedView
-                      reaction_counts={message.reaction_counts}
-                      latest_reactions={message.latest_reactions}
-                      ref={this.reactionSelectorRef}
-                    />
-                  )}
-                </div>
-
-                {message.text && this.renderOptions()}
-              </div>
-            )}
+            {message?.text && this.renderMessageText()}
             {!threadList && (
               <div className="str-chat__message-commerce-reply-button">
                 <MessageRepliesCountButton
                   onClick={handleOpenThread}
-                  reply_count={message.reply_count}
+                  reply_count={message?.reply_count}
                 />
               </div>
             )}
             <div className={`str-chat__message-commerce-data`}>
-              {this.isMine() ? (
+              {!this.isMine() ? (
                 <span className="str-chat__message-commerce-name">
-                  {message.user.name || message.user.id}
+                  {message?.user?.name || message?.user?.id}
                 </span>
               ) : null}
               <span className="str-chat__message-commerce-timestamp">
