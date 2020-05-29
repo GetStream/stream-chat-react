@@ -106,6 +106,7 @@ export interface ChatProps {
   // | 'livestream dark'
   theme?: string;
   i18nInstance?: Streami18n;
+  initialNavOpen?: boolean;
 }
 
 export interface ChannelProps
