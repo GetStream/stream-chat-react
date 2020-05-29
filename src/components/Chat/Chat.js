@@ -19,10 +19,10 @@ import { Streami18n } from '../../Streami18n';
  *
  * @example ../../docs/Chat.md
  */
-const Chat = ({ client, theme, i18nInstance, children }) => {
+const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
   const [translators, setTranslators] = useState({});
   const [mutes, setMutes] = useState([]);
-  const [navOpen, setNavOpen] = useState(true);
+  const [navOpen, setNavOpen] = useState(initialNavOpen);
   const [channel, setChannel] = useState({});
 
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
@@ -86,6 +86,7 @@ const Chat = ({ client, theme, i18nInstance, children }) => {
 };
 
 Chat.defaultProps = {
+  initialNavOpen: true,
   theme: 'messaging light',
 };
 
@@ -130,6 +131,8 @@ Chat.propTypes = {
    *  - `livestream dark`
    */
   theme: PropTypes.string,
+  /** navOpen initial status */
+  initialNavOpen: PropTypes.bool,
 };
 
 export default Chat;
