@@ -17,6 +17,17 @@ import { generateRandomId } from '../../utils';
  * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
  */
 
+/**
+ * Get attachment type from MIME type
+ * @param {string} mime
+ * @returns {string}
+ */
+const getAttachmentTypeFromMime = (mime) => {
+  if (mime.includes('video/')) return 'media';
+  if (mime.includes('audio/')) return 'audio';
+  return 'file';
+};
+
 /** @type {{ [id: string]: import('types').FileUpload }} */
 const emptyFileUploads = {};
 /** @type {{ [id: string]: import('types').ImageUpload }} */
@@ -70,7 +81,7 @@ function initState(message) {
           state: 'finished',
           file: {
             name: attachment.title,
-            type: attachment.mime_type,
+            type: getAttachmentTypeFromMime(attachment.mime_type),
             size: attachment.file_size,
           },
         });
@@ -356,7 +367,7 @@ export default function useMessageInputState(props) {
       .map((id) => fileUploads[id])
       .filter((upload) => upload.state !== 'failed')
       .map((upload) => ({
-        type: 'file',
+        type: getAttachmentTypeFromMime(upload.file.type),
         asset_url: upload.url,
         title: upload.file.name,
         mime_type: upload.file.type,

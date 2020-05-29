@@ -47,6 +47,8 @@
 }
 
 .str-chat__message-attachment {
+  overflow: hidden;
+
   &:hover {
     background: transparent;
   }
