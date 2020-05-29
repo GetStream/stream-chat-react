@@ -570,7 +570,11 @@ class MessageTeam extends PureComponent {
                   data-testid="message-team-failed"
                   className="str-chat__message-team-failed"
                   onClick={() => {
-                    if (handleRetry) {
+                    if (message.status === 'failed' && handleRetry) {
+                      // FIXME: type checking fails here because in the case of a failed message,
+                      // `message` is of type Client.Message (i.e. request object)
+                      // instead of Client.MessageResponse (i.e. server response object)
+                      // @ts-ignore
                       handleRetry(message);
                     }
                   }}
