@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
@@ -30,7 +29,7 @@ class Message extends Component {
     client: PropTypes.object.isRequired,
     /** The current channel this message is displayed in */
     channel: PropTypes.object.isRequired,
-    /** A list of users that have read this message **/
+    /** A list of users that have read this message */
     readBy: PropTypes.array,
     /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
     groupStyles: PropTypes.array,
@@ -210,15 +209,18 @@ class Message extends Component {
   }
 
   isMyMessage = (message) => this.props.client.user.id === message.user.id;
+
   isAdmin = () =>
     this.props.client.user.role === 'admin' ||
     (this.props.channel.state &&
       this.props.channel.state.membership &&
       this.props.channel.state.membership.role === 'admin');
+
   isOwner = () =>
     this.props.channel.state &&
     this.props.channel.state.membership &&
     this.props.channel.state.membership.role === 'owner';
+
   isModerator = () =>
     this.props.channel.state &&
     this.props.channel.state.membership &&
@@ -243,7 +245,7 @@ class Message extends Component {
   validateAndGetNotificationMessage = (func, args) => {
     if (!func || typeof func !== 'function') return false;
 
-    const returnValue = func.apply(null, args);
+    const returnValue = func(...args);
 
     if (typeof returnValue !== 'string') return false;
 
@@ -269,9 +271,7 @@ class Message extends Component {
         [message],
       );
       addNotification(
-        successMessage
-          ? successMessage
-          : t('Message has been successfully flagged'),
+        successMessage || t('Message has been successfully flagged'),
         'success',
       );
     } catch (e) {
@@ -280,11 +280,10 @@ class Message extends Component {
         [message],
       );
       addNotification(
-        errorMessage
-          ? errorMessage
-          : t(
-              'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-            ),
+        errorMessage ||
+          t(
+            'Error adding flag: Either the flag already exist or there is issue with network connection ...',
+          ),
         'error',
       );
     }
@@ -310,11 +309,10 @@ class Message extends Component {
         );
 
         addNotification(
-          successMessage
-            ? successMessage
-            : t(`{{ user }} has been muted`, {
-                user: message.user.name || message.user.id,
-              }),
+          successMessage ||
+            t(`{{ user }} has been muted`, {
+              user: message.user.name || message.user.id,
+            }),
           'success',
         );
       } catch (e) {
@@ -323,10 +321,7 @@ class Message extends Component {
           [message.user],
         );
 
-        addNotification(
-          errorMessage ? errorMessage : t('Error muting a user ...'),
-          'error',
-        );
+        addNotification(errorMessage || t('Error muting a user ...'), 'error');
       }
     } else {
       try {
@@ -337,11 +332,10 @@ class Message extends Component {
         );
 
         addNotification(
-          successMessage
-            ? successMessage
-            : t(`{{ user }} has been unmuted`, {
-                user: message.user.name || message.user.id,
-              }),
+          successMessage ||
+            t(`{{ user }} has been unmuted`, {
+              user: message.user.name || message.user.id,
+            }),
           'success',
         );
       } catch (e) {
@@ -351,7 +345,7 @@ class Message extends Component {
         );
 
         addNotification(
-          errorMessage ? errorMessage : t('Error unmuting a user ...'),
+          errorMessage || t('Error unmuting a user ...'),
           'error',
         );
       }
@@ -383,8 +377,7 @@ class Message extends Component {
     let userExistingReaction = null;
 
     const currentUser = this.props.client.userID;
-
-    for (const reaction of this.props.message.own_reactions) {
+    this.props.message.own_reactions.forEach((reaction) => {
       // own user should only ever contain the current user id
       // just in case we check to prevent bugs with message updates from breaking reactions
       if (currentUser === reaction.user.id && reaction.type === reactionType) {
@@ -394,7 +387,7 @@ class Message extends Component {
           `message.own_reactions contained reactions from a different user, this indicates a bug`,
         );
       }
-    }
+    });
 
     const originalMessage = this.props.message;
     let reactionChangePromise;
@@ -547,9 +540,9 @@ class Message extends Component {
     const actionsEnabled =
       message.type === 'regular' && message.status === 'received';
 
-    const Component = this.props.Message;
+    const MessageUIComponent = this.props.Message;
     return (
-      <Component
+      <MessageUIComponent
         {...this.props}
         actionsEnabled={actionsEnabled}
         Message={this}
