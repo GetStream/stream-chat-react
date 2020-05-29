@@ -125,10 +125,14 @@ function messageInputReducer(state, action) {
       const imageOrder = imageAlreadyExists
         ? state.imageOrder
         : state.imageOrder.concat(action.id);
+      const { type, ...newUploadFields } = action;
       return {
         ...state,
         imageOrder,
-        imageUploads: state.imageUploads.setIn([action.id], action),
+        imageUploads: state.imageUploads.setIn([action.id], {
+          ...state.imageUploads[action.id],
+          ...newUploadFields,
+        }),
         numberOfUploads: imageAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
@@ -139,10 +143,14 @@ function messageInputReducer(state, action) {
       const fileOrder = fileAlreadyExists
         ? state.fileOrder
         : state.fileOrder.concat(action.id);
+      const { type, ...newUploadFields } = action;
       return {
         ...state,
         fileOrder,
-        fileUploads: state.fileUploads.setIn([action.id], action),
+        fileUploads: state.fileUploads.setIn([action.id], {
+          ...state.fileUploads[action.id],
+          ...newUploadFields,
+        }),
         numberOfUploads: fileAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
@@ -466,7 +474,7 @@ export default function useMessageInputState(props) {
         if (!fileUploads[id]) {
           alreadyRemoved = true;
         } else {
-          dispatch({ type: 'setFileUpload', file, id, state: 'failed' });
+          dispatch({ type: 'setFileUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the paramaters passed to the error handler actually make sense
@@ -477,7 +485,6 @@ export default function useMessageInputState(props) {
       dispatch({
         type: 'setFileUpload',
         id,
-        file,
         state: 'finished',
         url: response.file,
       });
@@ -497,7 +504,7 @@ export default function useMessageInputState(props) {
       if (!img || !channel) return;
       const { file } = img;
       if (img.state !== 'uploading') {
-        dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
+        dispatch({ type: 'setImageUpload', id, state: 'uploading' });
       }
       /** @type FileUploadAPIResponse */
       let response;
@@ -514,7 +521,7 @@ export default function useMessageInputState(props) {
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {
-          dispatch({ type: 'setImageUpload', id, file, state: 'failed' });
+          dispatch({ type: 'setImageUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the paramaters passed to the error handler actually make sense
@@ -529,7 +536,6 @@ export default function useMessageInputState(props) {
       dispatch({
         type: 'setImageUpload',
         id,
-        file,
         state: 'finished',
         url: response.file,
       });
@@ -540,10 +546,10 @@ export default function useMessageInputState(props) {
   useEffect(() => {
     if (FileReader) {
       const upload = Object.values(imageUploads).find(
-        (fileUpload) =>
-          fileUpload.state === 'uploading' &&
-          !!fileUpload.file &&
-          !fileUpload.previewUri,
+        (imageUpload) =>
+          imageUpload.state === 'uploading' &&
+          !!imageUpload.file &&
+          !imageUpload.previewUri,
       );
       if (upload) {
         const { id, file } = upload;
@@ -555,12 +561,10 @@ export default function useMessageInputState(props) {
           dispatch({
             type: 'setImageUpload',
             id,
-            file,
             previewUri: event.target.result,
-            state: 'uploading',
           });
         };
-        reader.readAsDataURL(upload.file);
+        reader.readAsDataURL(file);
         uploadImage(id);
         return () => {
           reader.onload = null;

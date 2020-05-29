@@ -256,12 +256,12 @@ describe('MessageInput', () => {
       });
     });
 
-    it('Should call error handler if a file failed to upload', async () => {
+    it('Should call error handler if a file failed to upload and allow retrying', async () => {
       const cause = new Error('failed to upload');
       const doFileUploadRequest = mockFaultyUploadApi(cause);
       const errorHandler = jest.fn();
 
-      const { findByPlaceholderText } = renderComponent({
+      const { findByPlaceholderText, findByText } = renderComponent({
         doFileUploadRequest,
         errorHandler,
       });
@@ -281,6 +281,19 @@ describe('MessageInput', () => {
           expect.any(Object),
         );
       });
+
+      doFileUploadRequest.mockImplementationOnce(() =>
+        Promise.resolve({ file }),
+      );
+
+      fireEvent.click(await findByText('retry'));
+
+      await waitFor(() =>
+        expect(doFileUploadRequest).toHaveBeenCalledWith(
+          file,
+          expect.any(Object),
+        ),
+      );
     });
 
     // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
