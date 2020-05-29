@@ -183,13 +183,11 @@ class Message extends Component {
       reason = 'lastReceivedId';
     }
 
-    // editing is the last one which can trigger a change..
     if (!shouldUpdate && nextProps.editing !== this.props.editing) {
       shouldUpdate = true;
       reason = 'editing';
     }
 
-    // editing is the last one which can trigger a change..
     if (
       !shouldUpdate &&
       nextProps.messageListRect !== this.props.messageListRect
@@ -208,7 +206,6 @@ class Message extends Component {
       // );
       // console.log(reason, diff(this.props, nextProps));
     }
-
     return shouldUpdate;
   }
 
