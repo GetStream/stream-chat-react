@@ -6,7 +6,9 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
+
 import Message from '../Message';
 import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
@@ -444,12 +446,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-12T03:33:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
@@ -458,12 +455,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-28T12:39:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });

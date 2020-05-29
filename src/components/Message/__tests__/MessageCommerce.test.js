@@ -6,6 +6,7 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
 
 import Message from '../Message';
@@ -141,12 +142,7 @@ describe('<MessageCommerce />', () => {
   });
 
   it('should set correct css class modifier if message has reactions', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-02T03:34:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
@@ -199,12 +195,7 @@ describe('<MessageCommerce />', () => {
   );
 
   it('should show the reaction list when message has no text', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-29T13:24:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
       text: undefined,
@@ -214,12 +205,7 @@ describe('<MessageCommerce />', () => {
   });
 
   it('should show the reaction selector when message has no text and user clicks on the reaction list', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-01T01:59:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
       text: undefined,
@@ -352,12 +338,7 @@ describe('<MessageCommerce />', () => {
   });
 
   it('should display the reaction list when message has text and reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-17T03:24:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
       text: 'hello world',
@@ -367,12 +348,7 @@ describe('<MessageCommerce />', () => {
   });
 
   it('should display detailed reactions when message has text, reactions and user clicks on the reaction list', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-17T03:24:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });

@@ -6,6 +6,7 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
 
 import Message from '../Message';
@@ -73,7 +74,7 @@ const messageTeamReactionIcon = 'message-team-reaction-icon';
 const reactionSelectorTestId = 'reaction-selector';
 const messageTeamMessageTestId = 'message-team-message';
 
-describe('<MessageLivestream />', () => {
+describe('<MessageTeam />', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
 
@@ -411,12 +412,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should display the reaction list when message has reactions and text is not empty', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-05-21T13:34:10'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
       text: 'Welcome, bob!',
@@ -484,12 +480,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should display the reaction list when message has reactions and text is empty', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-11-30T04:21:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
       text: '',
