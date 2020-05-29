@@ -95,6 +95,46 @@ describe('Chat', () => {
   });
 
   describe('mobile nav', () => {
+    it('initialNavOpen prop should set navOpen', async () => {
+      let context;
+      render(
+        <Chat client={chatClient} initialNavOpen={false}>
+          <ChatContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          ></ChatContextConsumer>
+        </Chat>,
+      );
+
+      await waitFor(() => expect(context.navOpen).toBe(false));
+    });
+
+    it('initialNavOpen prop update should be ignored', async () => {
+      let context;
+      const { rerender } = render(
+        <Chat client={chatClient} initialNavOpen={false}>
+          <ChatContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          ></ChatContextConsumer>
+        </Chat>,
+      );
+      await waitFor(() => expect(context.navOpen).toBe(false));
+
+      rerender(
+        <Chat client={chatClient} initialNavOpen={true}>
+          <ChatContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          ></ChatContextConsumer>
+        </Chat>,
+      );
+      await waitFor(() => expect(context.navOpen).toBe(false));
+    });
+
     it('open/close fn updates the nav state', async () => {
       let context;
       render(
