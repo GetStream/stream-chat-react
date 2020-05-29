@@ -72,7 +72,7 @@ It provides following state values as well:
 - **panelRef**
 - **textareaRef**
 - **text** Current text in input box
-- **attachments** Array of [attachemts](https://getstream.io/chat/docs/#message_format) in message
+- **attachments** Array of [attachments](https://getstream.io/chat/docs/#message_format) in message
 - **imageOrder** Array of ids of objects in `imageUploads` array in sequence in which they were uploaded
 - **imageUploads** Its an object/map of id vs image objects which are set for upload. It has following structure:
 
@@ -111,7 +111,7 @@ It provides following state values as well:
 
 - **emojiPickerIsOpen**
 - **filePanelIsOpen**
-- **mentioned_users** Aray of users mentioned in message text.
+- **mentioned_users** Array of users mentioned in message text.
 - **numberOfUploads** Total number of uploads (image + file)
 
 ### Overriding Core Functions
@@ -133,7 +133,7 @@ Both functions have access to the selected file and the channel object and expec
 - code blocks
 - inline code
 - blockquote
-- stikethrough
+- strikethrough
 
 ```js
 import { Chat, Channel, MessageTeam, MessageInput } from '../components';
