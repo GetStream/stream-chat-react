@@ -405,10 +405,21 @@ export default function useMessageInputState(props) {
 
     const newAttachments = getAttachmentsFromUploads();
 
+    // Instead of checking if a user is still mentioned every time the text changes,
+    // just filter out non-mentioned users before submit, which is cheaper
+    // and allows users to easily undo any accidental deletion
+    const actualMentionedUsers = Array.from(
+      new Set(
+        mentioned_users
+          .filter(({ name }) => text.includes(`@${name}`))
+          .map(({ id }) => id),
+      ),
+    );
+
     const updatedMessage = {
       text,
       attachments: newAttachments,
-      mentioned_users: Array.from(new Set(mentioned_users.map(({ id }) => id))),
+      mentioned_users: actualMentionedUsers,
     };
 
     if (!!message && editMessage) {
