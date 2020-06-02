@@ -84,7 +84,7 @@ const Audio = ({ og }) => {
               </div>
             )}
           </div>
-          <img src={image_url} alt={`${description}`} />
+          {image_url && <img src={image_url} alt={`${description}`} />}
         </div>
         <div className="str-chat__audio__content">
           <span className="str-chat__audio__content--title">

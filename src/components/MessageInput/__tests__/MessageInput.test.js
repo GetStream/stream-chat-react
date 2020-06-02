@@ -376,6 +376,7 @@ describe('MessageInput', () => {
         expect.objectContaining({
           attachments: expect.arrayContaining([
             expect.objectContaining({
+              type: 'image',
               image_url: fileUploadUrl,
             }),
           ]),
@@ -403,6 +404,37 @@ describe('MessageInput', () => {
         expect.objectContaining({
           attachments: expect.arrayContaining([
             expect.objectContaining({
+              type: 'file',
+              asset_url: fileUploadUrl,
+            }),
+          ]),
+        }),
+      );
+    });
+
+    it('should an audio attachment if an audio file is dropped into the input', async () => {
+      const doFileUploadRequest = mockUploadApi();
+      const { findByTitle, findByPlaceholderText } = renderComponent({
+        doFileUploadRequest,
+      });
+      const submitButton = await findByTitle('Send');
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = new File(['Message in a bottle'], 'the-police.mp3', {
+        type: 'audio/mp3',
+      });
+      dropFile(file, formElement);
+
+      // wait for file uploading to complete before trying to send the message
+      // eslint-disable-next-line jest/prefer-called-with
+      await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+      fireEvent.click(submitButton);
+      expect(submitMock).toHaveBeenCalledWith(
+        channel.cid,
+        expect.objectContaining({
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'audio',
               asset_url: fileUploadUrl,
             }),
           ]),
