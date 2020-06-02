@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Carousel, { Modal, ModalGateway } from 'react-images';
 import { withTranslationContext } from '../../context';
+import ImageModal from './ImageModal';
 
 /**
  * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
@@ -67,25 +67,12 @@ class Gallery extends React.PureComponent {
             </p>
           </div>
         )}
-        {/* <Lightbox
+        <ImageModal
           images={formattedArray}
-          isOpen={this.state.lightboxIsOpen}
-          onClickPrev={this.gotoPrevLightboxImage}
-          onClickNext={this.gotoNextLightboxImage}
-          onClose={this.closeLightbox}
-          backdropClosesModal
-          currentImage={this.state.imageIndex}
-        /> */}
-        <ModalGateway>
-          {this.state.modalIsOpen ? (
-            <Modal onClose={this.toggleModal} closeOnBackdropClick={true}>
-              <Carousel
-                views={formattedArray}
-                currentIndex={this.state.currentIndex}
-              />
-            </Modal>
-          ) : null}
-        </ModalGateway>
+          index={this.state.currentIndex}
+          toggleModal={this.toggleModal}
+          modalIsOpen={this.state.modalIsOpen}
+        />
       </div>
     );
   }

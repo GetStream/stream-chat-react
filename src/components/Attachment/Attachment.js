@@ -7,7 +7,7 @@ import { FileIcon } from 'react-file-utils';
 
 import AttachmentActions from './AttachmentActions';
 import { Audio } from '../Audio';
-import { Image } from '../Image';
+import { Image } from '../Gallery';
 import { Card } from '../Card';
 import { SafeAnchor } from '../SafeAnchor';
 

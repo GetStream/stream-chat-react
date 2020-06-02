@@ -18,7 +18,6 @@ export * from './EmoticonItem';
 export * from './EmptyStateIndicator';
 export * from './EventComponent';
 export * from './Gallery';
-export * from './Image';
 export * from './InfiniteScrollPaginator';
 export * from './Loading';
 export * from './LoadMore';

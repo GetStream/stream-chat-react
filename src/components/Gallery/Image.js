@@ -1,8 +1,9 @@
 /* eslint-disable */
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
+import { default as ImageModal } from './ImageModal';
 
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
@@ -34,21 +35,20 @@ class Image extends React.PureComponent {
     const { image_url, thumb_url, fallback } = this.props;
     const formattedArray = [{ src: image_url || thumb_url }];
     return (
-      <React.Fragment>
+      <Fragment>
         <img
           className="str-chat__message-attachment--img"
           onClick={this.toggleModal}
           src={thumb_url || image_url}
           alt={fallback}
         />
-        <ModalGateway>
-          {this.state.modalIsOpen ? (
-            <Modal onClose={this.toggleModal}>
-              <Carousel views={formattedArray} />
-            </Modal>
-          ) : null}
-        </ModalGateway>
-      </React.Fragment>
+        <ImageModal
+          images={formattedArray}
+          index={this.state.currentIndex}
+          toggleModal={this.toggleModal}
+          modalIsOpen={this.state.modalIsOpen}
+        />
+      </Fragment>
     );
   }
 }
