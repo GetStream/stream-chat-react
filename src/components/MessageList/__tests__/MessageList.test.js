@@ -13,7 +13,7 @@ import {
   generateUser,
   dispatchMessageNewEvent,
   getTestClientWithUser,
-} from 'mock-builders';
+} from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import MessageList from '../MessageList';

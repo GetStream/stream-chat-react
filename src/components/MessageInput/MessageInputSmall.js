@@ -217,10 +217,7 @@ class MessageInputSmall extends PureComponent {
                   accepts={this.props.acceptedFiles}
                   handleFiles={this.props.uploadNewFiles}
                 >
-                  <span
-                    className="str-chat__small-message-input-fileupload"
-                    onClick={this.props.openFilePanel}
-                  >
+                  <span className="str-chat__small-message-input-fileupload">
                     <svg
                       width="14"
                       height="14"

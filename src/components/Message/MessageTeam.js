@@ -1,5 +1,5 @@
-/* eslint-disable */
-import React, { PureComponent } from 'react';
+// @ts-check
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -10,7 +10,7 @@ import {
   smartRender,
 } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { Attachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { MessageInput } from '../MessageInput';
@@ -32,7 +32,9 @@ const optionsSvg =
  * Implements the look and feel for a team style collaboration environment
  *
  * @example ../../docs/MessageTeam.md
- * @extends PureComponent
+ * @typedef { import('../../../types').MessageTeamProps } Props
+ * @typedef { import('../../../types').MessageTeamState } State
+ * @extends PureComponent<Props, State>
  */
 class MessageTeam extends PureComponent {
   static propTypes = {
@@ -142,7 +144,7 @@ class MessageTeam extends PureComponent {
   };
 
   static defaultProps = {
-    Attachment,
+    Attachment: DefaultAttachment,
     groupStyles: ['single'],
   };
 
@@ -152,6 +154,7 @@ class MessageTeam extends PureComponent {
   };
 
   reactionSelectorRef = React.createRef();
+
   editMessageFormRef = React.createRef();
 
   onClickReactionsAction = () => {
@@ -179,6 +182,7 @@ class MessageTeam extends PureComponent {
     document.removeEventListener('click', this.hideOptions, false);
   };
 
+  /** @type {EventListener} Typescript syntax */
   hideReactions = (e) => {
     if (
       !this.reactionSelectorRef.current.reactionSelector.current.contains(
@@ -203,7 +207,11 @@ class MessageTeam extends PureComponent {
   };
 
   isMine() {
-    return this.props.isMyMessage(this.props.message);
+    const { isMyMessage, message } = this.props;
+    if (!isMyMessage || !message) {
+      return false;
+    }
+    return isMyMessage(message);
   }
 
   renderStatus = () => {
@@ -215,21 +223,29 @@ class MessageTeam extends PureComponent {
       lastReceivedId,
       t,
     } = this.props;
-    if (!this.isMine() || message.type === 'error') {
+    if (!this.isMine() || message?.type === 'error') {
       return null;
     }
     const justReadByMe =
-      readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
-    if (message.status === 'sending') {
+      readBy &&
+      client?.user &&
+      readBy.length === 1 &&
+      readBy[0] &&
+      readBy[0].id === client.user.id;
+    if (message && message.status === 'sending') {
       return (
-        <span className="str-chat__message-team-status">
-          <Tooltip>{t('Sending...')}</Tooltip>
+        <span
+          className="str-chat__message-team-status"
+          data-testid="message-team-sending"
+        >
+          <Tooltip>{t && t('Sending...')}</Tooltip>
           <LoadingIndicator isLoading />
         </span>
       );
-    } else if (readBy.length !== 0 && !threadList && !justReadByMe) {
+    }
+    if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
       const lastReadUser = readBy.filter(
-        (item) => item && item.id !== client.user.id,
+        (item) => item && client?.user && item.id !== client.user.id,
       )[0];
       return (
         <span className="str-chat__message-team-status">
@@ -244,20 +260,28 @@ class MessageTeam extends PureComponent {
             size={15}
           />
           {readBy.length - 1 > 1 && (
-            <span className="str-chat__message-team-status-number">
+            <span
+              data-testid="message-team-read-by-count"
+              className="str-chat__message-team-status-number"
+            >
               {readBy.length - 1}
             </span>
           )}
         </span>
       );
-    } else if (
+    }
+    if (
+      message &&
       message.status === 'received' &&
       message.id === lastReceivedId &&
       !threadList
     ) {
       return (
-        <span className="str-chat__message-team-status">
-          <Tooltip>{t('Delivered')}</Tooltip>
+        <span
+          data-testid="message-team-received"
+          className="str-chat__message-team-status"
+        >
+          <Tooltip>{t && t('Delivered')}</Tooltip>
           <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.72 6.633a.955.955 0 1 0-1.352-1.352L6.986 8.663 5.633 7.31A.956.956 0 1 0 4.28 8.663l2.029 2.028a.956.956 0 0 0 1.353 0l4.058-4.058z"
@@ -267,24 +291,35 @@ class MessageTeam extends PureComponent {
           </svg>
         </span>
       );
-    } else {
-      return null;
     }
+    return null;
   };
+
   componentWillUnmount() {
     document.removeEventListener('click', this.hideOptions, false);
     document.removeEventListener('click', this.hideReactions, false);
   }
 
+  /** @type {(attachment: Array<import('stream-chat').Attachment>) => React.ReactElement | null} Typescript syntax */
   renderAttachments(attachments) {
     const { Attachment, message, handleAction } = this.props;
-    return attachments.map((attachment, index) => (
-      <Attachment
-        key={`${message.id}-${index}`}
-        attachment={attachment}
-        actionHandler={handleAction}
-      />
-    ));
+    if (Attachment) {
+      return (
+        <Fragment>
+          {attachments.map(
+            /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
+            (attachment, index) => (
+              <Attachment
+                key={`${message?.id}-${index}`}
+                attachment={attachment}
+                actionHandler={handleAction}
+              />
+            ),
+          )}
+        </Fragment>
+      );
+    }
+    return null;
   }
 
   // eslint-disable-next-line
@@ -319,41 +354,40 @@ class MessageTeam extends PureComponent {
       tDateTimeParser,
       MessageDeleted,
     } = this.props;
-    if (message.type === 'message.read') {
+    if (message?.type === 'message.read') {
       return null;
     }
-    const hasAttachment = Boolean(
-      message.attachments && message.attachments.length,
-    );
 
-    if (message.deleted_at) {
+    if (message?.deleted_at) {
       return smartRender(MessageDeleted, this.props, null);
     }
 
     let galleryImages =
-      message.attachments &&
+      message?.attachments &&
       message.attachments.filter((item) => item.type === 'image');
-    let attachments = message.attachments;
-    if (galleryImages && galleryImages.length > 1) {
+    let attachments = message?.attachments;
+    if (message?.attachments && galleryImages && galleryImages.length > 1) {
       attachments = message.attachments.filter((item) => item.type !== 'image');
     } else {
       galleryImages = [];
     }
 
+    const firstGroupStyle = groupStyles ? groupStyles[0] : '';
     // determine reaction selector alignment
     const reactionDirection = 'left';
 
     if (editing) {
       return (
         <div
-          className={`str-chat__message-team str-chat__message-team--${groupStyles[0]} str-chat__message-team--editing`}
+          data-testid="message-team-edit"
+          className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--editing`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
-          {(groupStyles[0] === 'top' || groupStyles[0] === 'single') && (
+          {(firstGroupStyle === 'top' || firstGroupStyle === 'single') && (
             <div className="str-chat__message-team-meta">
               <Avatar
-                image={message.user.image}
-                name={message.user.name || message.user.id}
+                image={message?.user?.image}
+                name={message?.user?.name || message?.user?.id}
                 size={40}
                 onClick={onUserClick}
                 onMouseOver={onUserHover}
@@ -369,68 +403,78 @@ class MessageTeam extends PureComponent {
         </div>
       );
     }
-
     return (
       <React.Fragment>
         <div
-          className={`str-chat__message-team str-chat__message-team--${
-            groupStyles[0]
-          } str-chat__message-team--${message.type} ${
-            threadList ? 'thread-list' : ''
-          } str-chat__message-team--${message.status}`}
+          data-testid="message-team"
+          className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
+            message?.type
+          } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
+            message?.status
+          }`}
           onMouseLeave={this.onMouseLeaveMessage}
         >
           <div className="str-chat__message-team-meta">
-            {groupStyles[0] === 'top' ||
-            groupStyles[0] === 'single' ||
+            {firstGroupStyle === 'top' ||
+            firstGroupStyle === 'single' ||
             initialMessage ? (
               <Avatar
-                image={message.user.image}
-                name={message.user.name || message.user.id}
+                image={message?.user?.image}
+                name={message?.user?.name || message?.user?.id}
                 size={40}
                 onClick={onUserClick}
                 onMouseOver={onUserHover}
               />
             ) : (
-              <div style={{ width: 40, marginRight: 0 }} />
+              <div
+                data-testid="team-meta-spacer"
+                style={{ width: 40, marginRight: 0 }}
+              />
             )}
 
-            <time dateTime={message.created_at} title={message.created_at}>
-              {Boolean(Date.parse(message.created_at)) &&
+            <time dateTime={message?.created_at} title={message?.created_at}>
+              {message &&
+                tDateTimeParser &&
+                Boolean(Date.parse(message.created_at)) &&
                 tDateTimeParser(message.created_at).format('h:mmA')}
             </time>
           </div>
           <div className="str-chat__message-team-group">
-            {(groupStyles[0] === 'top' ||
-              groupStyles[0] === 'single' ||
-              initialMessage) && (
-              <div
-                className="str-chat__message-team-author"
-                onClick={onUserClick}
-              >
-                <strong>{message.user.name || message.user.id}</strong>
-                {message.type === 'error' && (
-                  <div className="str-chat__message-team-error-header">
-                    {t('Only visible to you')}
-                  </div>
-                )}
-              </div>
-            )}
+            {message &&
+              (firstGroupStyle === 'top' ||
+                firstGroupStyle === 'single' ||
+                initialMessage) && (
+                <div
+                  data-testid="message-team-author"
+                  className="str-chat__message-team-author"
+                  onClick={onUserClick}
+                >
+                  <strong>{message.user?.name || message.user?.id}</strong>
+                  {message.type === 'error' && (
+                    <div className="str-chat__message-team-error-header">
+                      {t && t('Only visible to you')}
+                    </div>
+                  )}
+                </div>
+              )}
             <div
-              className={`str-chat__message-team-content str-chat__message-team-content--${
-                groupStyles[0]
-              } str-chat__message-team-content--${
-                message.text === '' ? 'image' : 'text'
+              data-testid="message-team-content"
+              className={`str-chat__message-team-content str-chat__message-team-content--${firstGroupStyle} str-chat__message-team-content--${
+                message?.text === '' ? 'image' : 'text'
               }`}
             >
               {!initialMessage &&
+                message &&
                 message.status !== 'sending' &&
                 message.status !== 'failed' &&
                 message.type !== 'system' &&
                 message.type !== 'ephemeral' &&
                 message.type !== 'error' && (
-                  <div className={`str-chat__message-team-actions`}>
-                    {this.state.reactionSelectorOpen && (
+                  <div
+                    data-testid="message-team-actions"
+                    className={`str-chat__message-team-actions`}
+                  >
+                    {message && this.state.reactionSelectorOpen && (
                       <ReactionSelector
                         handleReaction={handleReaction}
                         latest_reactions={message.latest_reactions}
@@ -443,6 +487,7 @@ class MessageTeam extends PureComponent {
 
                     {channelConfig && channelConfig.reactions && (
                       <span
+                        data-testid="message-team-reaction-icon"
                         title="Reactions"
                         dangerouslySetInnerHTML={{
                           __html: reactionSvg,
@@ -452,14 +497,15 @@ class MessageTeam extends PureComponent {
                     )}
                     {!threadList && channelConfig && channelConfig.replies && (
                       <span
+                        data-testid="message-team-thread-icon"
                         title="Start a thread"
                         dangerouslySetInnerHTML={{
                           __html: threadSvg,
                         }}
-                        onClick={(e) => handleOpenThread(e, message)}
+                        onClick={handleOpenThread}
                       />
                     )}
-                    {getMessageActions().length > 0 && (
+                    {message && getMessageActions().length > 0 && (
                       <span onClick={this.onClickOptionsAction}>
                         <span
                           title="Message actions"
@@ -474,7 +520,7 @@ class MessageTeam extends PureComponent {
                           isUserMuted={isUserMuted}
                           message={message}
                           messageListRect={messageListRect}
-                          mine={isMyMessage(message)}
+                          mine={isMyMessage && isMyMessage(message)}
                           handleFlag={handleFlag}
                           handleMute={handleMute}
                           handleEdit={handleEdit}
@@ -484,27 +530,33 @@ class MessageTeam extends PureComponent {
                     )}
                   </div>
                 )}
-              <span
-                className={
-                  isOnlyEmojis(message.text)
-                    ? 'str-chat__message-team-text--is-emoji'
-                    : ''
-                }
-                onMouseOver={onMentionsHoverMessage}
-                onClick={onMentionsClickMessage}
-              >
-                {unsafeHTML ? (
-                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                ) : (
-                  renderText(message)
-                )}
-              </span>
+              {message && (
+                <span
+                  data-testid="message-team-message"
+                  className={
+                    isOnlyEmojis(message.text)
+                      ? 'str-chat__message-team-text--is-emoji'
+                      : ''
+                  }
+                  onMouseOver={onMentionsHoverMessage}
+                  onClick={onMentionsClickMessage}
+                >
+                  {unsafeHTML ? (
+                    <div dangerouslySetInnerHTML={{ __html: message.html }} />
+                  ) : (
+                    renderText(message)
+                  )}
+                </span>
+              )}
 
               {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
-              {message.text === '' && this.renderAttachments(attachments)}
+              {message &&
+                message.text === '' &&
+                attachments &&
+                this.renderAttachments(attachments)}
 
-              {message.latest_reactions &&
+              {message?.latest_reactions &&
                 message.latest_reactions.length !== 0 &&
                 message.text !== '' && (
                   <SimpleReactionsList
@@ -513,10 +565,19 @@ class MessageTeam extends PureComponent {
                     reactions={message.latest_reactions}
                   />
                 )}
-              {message.status === 'failed' && (
+              {message?.status === 'failed' && (
                 <button
+                  data-testid="message-team-failed"
                   className="str-chat__message-team-failed"
-                  onClick={handleRetry.bind(this, message)}
+                  onClick={() => {
+                    if (message.status === 'failed' && handleRetry) {
+                      // FIXME: type checking fails here because in the case of a failed message,
+                      // `message` is of type Client.Message (i.e. request object)
+                      // instead of Client.MessageResponse (i.e. server response object)
+                      // @ts-ignore
+                      handleRetry(message);
+                    }
+                  }}
                 >
                   <svg
                     width="14"
@@ -529,15 +590,16 @@ class MessageTeam extends PureComponent {
                       fillRule="evenodd"
                     />
                   </svg>
-                  {t('Message failed. Click to try again.')}
+                  {t && t('Message failed. Click to try again.')}
                 </button>
               )}
             </div>
             {this.renderStatus()}
-            {message.text !== '' &&
-              hasAttachment &&
+            {message &&
+              message.text !== '' &&
+              attachments &&
               this.renderAttachments(attachments)}
-            {message.latest_reactions &&
+            {message?.latest_reactions &&
               message.latest_reactions.length !== 0 &&
               message.text === '' && (
                 <SimpleReactionsList
@@ -546,7 +608,7 @@ class MessageTeam extends PureComponent {
                   reactions={message.latest_reactions}
                 />
               )}
-            {!threadList && (
+            {!threadList && message && (
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
                 reply_count={message.reply_count}
