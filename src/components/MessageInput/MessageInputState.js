@@ -15,6 +15,7 @@ import { generateRandomId } from '../../utils';
  * @typedef {import("types").MessageInputProps} Props
  * @typedef {import('types').ChannelContextValue} ChannelContextValue
  * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
+ * @typedef {import('stream-chat').UserResponse} UserResponse
  */
 
 /** @type {{ [id: string]: import('types').FileUpload }} */
@@ -84,8 +85,7 @@ function initState(message) {
       ({ type }) => type !== 'file' && type !== 'image',
     ) || [];
 
-  const mentioned_users =
-    message.mentioned_users?.map(({ name, id }) => ({ name, id })) || [];
+  const mentioned_users = message.mentioned_users || [];
 
   return {
     text: message.text || '',
@@ -178,10 +178,7 @@ function messageInputReducer(state, action) {
     case 'addMentionedUser':
       return {
         ...state,
-        mentioned_users: state.mentioned_users.concat({
-          name: action.name,
-          id: action.id,
-        }),
+        mentioned_users: state.mentioned_users.concat(action.user),
       };
     default:
       return state;
@@ -335,9 +332,13 @@ export default function useMessageInputState(props) {
     );
   }, [channel]);
 
-  const onSelectItem = useCallback((item) => {
-    dispatch({ type: 'addMentionedUser', id: item.id, name: item.name });
-  }, []);
+  const onSelectItem = useCallback(
+    /** @param {UserResponse} item */
+    (item) => {
+      dispatch({ type: 'addMentionedUser', user: item });
+    },
+    [],
+  );
 
   // Submitting
 
@@ -411,7 +412,10 @@ export default function useMessageInputState(props) {
     const actualMentionedUsers = Array.from(
       new Set(
         mentioned_users
-          .filter(({ name }) => text.includes(`@${name}`))
+          .filter(
+            ({ name, id }) =>
+              text.includes(`@${id}`) || text.includes(`@${name}`),
+          )
           .map(({ id }) => id),
       ),
     );
