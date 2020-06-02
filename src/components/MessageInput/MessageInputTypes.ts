@@ -37,7 +37,8 @@ type ReduceNumberOfUploadsAction = {
 };
 type AddMentionedUserAction = {
   type: 'addMentionedUser';
-  userId: string;
+  id: string;
+  name: string;
 };
 
 export type MessageInputReducerAction =

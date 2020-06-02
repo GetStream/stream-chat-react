@@ -84,7 +84,8 @@ function initState(message) {
       ({ type }) => type !== 'file' && type !== 'image',
     ) || [];
 
-  const mentioned_users = message.mentioned_users?.map(({ id }) => id) || [];
+  const mentioned_users =
+    message.mentioned_users?.map(({ name, id }) => ({ name, id })) || [];
 
   return {
     text: message.text || '',
@@ -177,7 +178,10 @@ function messageInputReducer(state, action) {
     case 'addMentionedUser':
       return {
         ...state,
-        mentioned_users: state.mentioned_users.concat(action.userId),
+        mentioned_users: state.mentioned_users.concat({
+          name: action.name,
+          id: action.id,
+        }),
       };
     default:
       return state;
@@ -332,7 +336,7 @@ export default function useMessageInputState(props) {
   }, [channel]);
 
   const onSelectItem = useCallback((item) => {
-    dispatch({ type: 'addMentionedUser', userId: item.id });
+    dispatch({ type: 'addMentionedUser', id: item.id, name: item.name });
   }, []);
 
   // Submitting
@@ -404,7 +408,7 @@ export default function useMessageInputState(props) {
     const updatedMessage = {
       text,
       attachments: newAttachments,
-      mentioned_users: Array.from(new Set(mentioned_users)),
+      mentioned_users: Array.from(new Set(mentioned_users.map(({ id }) => id))),
     };
 
     if (!!message && editMessage) {
