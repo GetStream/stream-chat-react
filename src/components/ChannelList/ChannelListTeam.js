@@ -95,7 +95,7 @@ ChannelListTeam.propTypes = {
    * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js)
    *
    */
-  LoadingErrorIndicator: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  LoadingErrorIndicator: PropTypes.elementType,
 };
 
 ChannelListTeam.defaultProps = {
