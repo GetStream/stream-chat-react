@@ -290,8 +290,8 @@ describe('<MessageCommerce />', () => {
     );
   });
 
-  it('should trigger on message hover event handler when the user hovers a message text', async () => {
-    const message = generateAliceMessage();
+  it('should trigger on mention hover event handler when the user hovers a message mention', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsHover = jest.fn();
     const { getByTestId } = await renderMessageCommerce(message, {
       onMentionsHover,
@@ -301,8 +301,8 @@ describe('<MessageCommerce />', () => {
     expect(onMentionsHover).toHaveBeenCalledTimes(1);
   });
 
-  it('should trigger on message click event handler on message click when message has text', async () => {
-    const message = generateAliceMessage();
+  it('should trigger on mention click event handler on message click when message has text', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsClick = jest.fn();
     const { getByTestId } = await renderMessageCommerce(message, {
       onMentionsClick,

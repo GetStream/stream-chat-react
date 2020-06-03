@@ -1,4 +1,7 @@
-import React, { Component } from 'react';
+// @ts-check
+// Typescript uses MouseEvent, but ESLint does not recognize it.
+// eslint-disable-next-line no-unused-vars
+import React, { Component, MouseEvent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
 
@@ -12,9 +15,15 @@ import { withTranslationContext } from '../../context';
  * The actual rendering of the message is delegated via the "Message" property
  *
  * @example ../../docs/Message.md
- * @extends Component
+ * @typedef { import('types').MessageComponentProps } Props
+ * @typedef { import('types').MessageComponentState } State
+ * @extends { Component<Props, State> }
  */
 class Message extends Component {
+  /**
+   * @constructor
+   * @param {Props} props
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -152,6 +161,7 @@ class Message extends Component {
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
+  /** @type {(nextProps: Props) => boolean} Typescript syntax */
   shouldComponentUpdate(nextProps) {
     // since there are many messages its important to only rerender messages when needed.
     let shouldUpdate = nextProps.message !== this.props.message;
@@ -208,31 +218,30 @@ class Message extends Component {
     return shouldUpdate;
   }
 
-  isMyMessage = (message) => this.props.client.user.id === message.user.id;
+  /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
+  isMyMessage = (message) =>
+    !!message?.user &&
+    !!this.props.client?.user &&
+    this.props.client.user.id === message.user.id;
 
   isAdmin = () =>
-    this.props.client.user.role === 'admin' ||
-    (this.props.channel.state &&
-      this.props.channel.state.membership &&
-      this.props.channel.state.membership.role === 'admin');
+    this.props.client?.user?.role === 'admin' ||
+    this.props.channel?.state?.membership?.role === 'admin';
 
-  isOwner = () =>
-    this.props.channel.state &&
-    this.props.channel.state.membership &&
-    this.props.channel.state.membership.role === 'owner';
+  isOwner = () => this.props.channel?.state?.membership?.role === 'owner';
 
   isModerator = () =>
-    this.props.channel.state &&
-    this.props.channel.state.membership &&
-    (this.props.channel.state.membership.role === 'channel_moderator' ||
-      this.props.channel.state.membership.role === 'moderator');
+    this.props.channel?.state?.membership?.role === 'channel_moderator' ||
+    this.props.channel?.state?.membership?.role === 'moderator';
 
+  /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
   canEditMessage = (message) =>
     this.isMyMessage(message) ||
     this.isModerator() ||
     this.isOwner() ||
     this.isAdmin();
 
+  /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
   canDeleteMessage = (message) => this.canEditMessage(message);
 
   /**
@@ -240,7 +249,7 @@ class Message extends Component {
    * It validates if the first parameter is function and also if return value of function is string or no.
    *
    * @param func {Function}
-   * @param args {Array} Arguments to be provided to func while executing.
+   * @param args {any[]} Arguments to be provided to func while executing.
    */
   validateAndGetNotificationMessage = (func, args) => {
     if (!func || typeof func !== 'function') return false;
@@ -252,6 +261,7 @@ class Message extends Component {
     return returnValue;
   };
 
+  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleFlag = async (event) => {
     event.preventDefault();
 
@@ -263,22 +273,28 @@ class Message extends Component {
       addNotification,
       t,
     } = this.props;
-
+    if (!client || !t || !addNotification || !message) {
+      return;
+    }
     try {
       await client.flagMessage(message.id);
-      const successMessage = this.validateAndGetNotificationMessage(
-        getFlagMessageSuccessNotification,
-        [message],
-      );
+      const successMessage =
+        getFlagMessageSuccessNotification &&
+        this.validateAndGetNotificationMessage(
+          getFlagMessageSuccessNotification,
+          [message],
+        );
       addNotification(
         successMessage || t('Message has been successfully flagged'),
         'success',
       );
     } catch (e) {
-      const errorMessage = this.validateAndGetNotificationMessage(
-        getFlagMessageErrorNotification,
-        [message],
-      );
+      const errorMessage =
+        getFlagMessageErrorNotification &&
+        this.validateAndGetNotificationMessage(
+          getFlagMessageErrorNotification,
+          [message],
+        );
       addNotification(
         errorMessage ||
           t(
@@ -289,6 +305,7 @@ class Message extends Component {
     }
   };
 
+  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleMute = async (event) => {
     event.preventDefault();
 
@@ -300,13 +317,21 @@ class Message extends Component {
       addNotification,
       t,
     } = this.props;
+    if (!t || !message || !addNotification || !client) {
+      return;
+    }
     if (!this.isUserMuted()) {
       try {
+        if (!message.user) {
+          return;
+        }
         await client.muteUser(message.user.id);
-        const successMessage = this.validateAndGetNotificationMessage(
-          getMuteUserSuccessNotification,
-          [message.user],
-        );
+        const successMessage =
+          getMuteUserSuccessNotification &&
+          this.validateAndGetNotificationMessage(
+            getMuteUserSuccessNotification,
+            [message.user],
+          );
 
         addNotification(
           successMessage ||
@@ -316,45 +341,56 @@ class Message extends Component {
           'success',
         );
       } catch (e) {
-        const errorMessage = this.validateAndGetNotificationMessage(
-          getMuteUserErrorNotification,
-          [message.user],
-        );
+        const errorMessage =
+          getMuteUserErrorNotification &&
+          this.validateAndGetNotificationMessage(getMuteUserErrorNotification, [
+            message.user,
+          ]);
 
         addNotification(errorMessage || t('Error muting a user ...'), 'error');
       }
     } else {
       try {
+        if (!message.user) {
+          return;
+        }
         await client.unmuteUser(message.user.id);
-        const successMessage = this.validateAndGetNotificationMessage(
-          getMuteUserSuccessNotification,
-          [message.user],
-        );
+        const fallbackMessage = t(`{{ user }} has been unmuted`, {
+          user: message.user.name || message.user.id,
+        });
+        const successMessage =
+          (getMuteUserSuccessNotification &&
+            this.validateAndGetNotificationMessage(
+              getMuteUserSuccessNotification,
+              [message.user],
+            )) ||
+          fallbackMessage;
 
-        addNotification(
-          successMessage ||
-            t(`{{ user }} has been unmuted`, {
-              user: message.user.name || message.user.id,
-            }),
-          'success',
-        );
+        if (typeof successMessage === 'string') {
+          addNotification(successMessage, 'success');
+        }
       } catch (e) {
-        const errorMessage = this.validateAndGetNotificationMessage(
-          getMuteUserErrorNotification,
-          [message.user],
-        );
-
-        addNotification(
-          errorMessage || t('Error unmuting a user ...'),
-          'error',
-        );
+        const errorMessage =
+          (getMuteUserErrorNotification &&
+            this.validateAndGetNotificationMessage(
+              getMuteUserErrorNotification,
+              [message.user],
+            )) ||
+          t('Error unmuting a user ...');
+        if (typeof errorMessage === 'string') {
+          addNotification(errorMessage, 'error');
+        }
       }
     }
   };
 
+  /** @type {(event: MouseEvent<HTMLElement>) => void} Typescript syntax */
   handleEdit = (event) => {
     const { setEditingState, message } = this.props;
 
+    if (!message || !setEditingState) {
+      return;
+    }
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
@@ -362,34 +398,50 @@ class Message extends Component {
     setEditingState(message);
   };
 
+  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleDelete = async (event) => {
     event.preventDefault();
     const { message, client, updateMessage } = this.props;
+    if (!message || !client || !updateMessage) {
+      return;
+    }
     const data = await client.deleteMessage(message.id);
     updateMessage(data.message);
   };
 
+  /** @type {(reactionType: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleReaction = async (reactionType, event) => {
+    const { updateMessage, message, client, channel } = this.props;
+
+    if (!updateMessage || !message || !channel || !client) {
+      return;
+    }
     if (event !== undefined && event.preventDefault) {
       event.preventDefault();
     }
 
     let userExistingReaction = null;
 
-    const currentUser = this.props.client.userID;
-    this.props.message.own_reactions.forEach((reaction) => {
-      // own user should only ever contain the current user id
-      // just in case we check to prevent bugs with message updates from breaking reactions
-      if (currentUser === reaction.user.id && reaction.type === reactionType) {
-        userExistingReaction = reaction;
-      } else if (currentUser !== reaction.user.id) {
-        console.warn(
-          `message.own_reactions contained reactions from a different user, this indicates a bug`,
-        );
-      }
-    });
+    const currentUser = client.userID;
+    if (message.own_reactions) {
+      message.own_reactions.forEach((reaction) => {
+        // own user should only ever contain the current user id
+        // just in case we check to prevent bugs with message updates from breaking reactions
+        if (
+          reaction.user &&
+          currentUser === reaction.user.id &&
+          reaction.type === reactionType
+        ) {
+          userExistingReaction = reaction;
+        } else if (reaction.user && currentUser !== reaction.user.id) {
+          console.warn(
+            `message.own_reactions contained reactions from a different user, this indicates a bug`,
+          );
+        }
+      });
+    }
 
-    const originalMessage = this.props.message;
+    const originalMessage = message;
     let reactionChangePromise;
 
     /*
@@ -398,23 +450,19 @@ class Message extends Component {
     - If it fails, revert to the old message...
      */
     if (userExistingReaction) {
-      // this.props.channel.state.removeReaction(userExistingReaction);
-
-      reactionChangePromise = this.props.channel.deleteReaction(
-        this.props.message.id,
+      reactionChangePromise = channel.deleteReaction(
+        message.id,
+        // @ts-ignore Typescript doesn't understand that the userExistingReaction variable might have been mutated inside the foreach loop
         userExistingReaction.type,
       );
     } else {
       // add the reaction
-      const messageID = this.props.message.id;
+      const messageID = message.id;
 
       const reaction = { type: reactionType };
 
       // this.props.channel.state.addReaction(tmpReaction, this.props.message);
-      reactionChangePromise = this.props.channel.sendReaction(
-        messageID,
-        reaction,
-      );
+      reactionChangePromise = channel.sendReaction(messageID, reaction);
     }
 
     try {
@@ -422,72 +470,100 @@ class Message extends Component {
       await reactionChangePromise;
     } catch (e) {
       // revert to the original message if the API call fails
-      this.props.updateMessage(originalMessage);
+      updateMessage(originalMessage);
     }
   };
 
+  /** @type {(name: string, value: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleAction = async (name, value, event) => {
     event.preventDefault();
-    const messageID = this.props.message.id;
-    const formData = {};
-    formData[name] = value;
-
-    const data = await this.props.channel.sendAction(messageID, formData);
-
-    if (data && data.message) {
-      this.props.updateMessage(data.message);
-    } else {
-      this.props.removeMessage(this.props.message);
-    }
-  };
-
-  handleRetry = async (message) => {
-    await this.props.retrySendMessage(message);
-  };
-
-  onMentionsClick = (e) => {
-    if (typeof this.props.onMentionsClick !== 'function') {
+    const { channel, message, updateMessage, removeMessage } = this.props;
+    if (!message || !updateMessage || !removeMessage || !channel) {
       return;
     }
-    this.props.onMentionsClick(e, this.props.message.mentioned_users);
+    const messageID = message.id;
+    const formData = {
+      [name]: value,
+    };
+
+    const data = await channel.sendAction(messageID, formData);
+
+    if (data && data.message) {
+      updateMessage(data.message);
+    } else {
+      removeMessage(message);
+    }
   };
 
+  /** @type {(message: import('stream-chat').Message) => Promise<void>} Typescript syntax */
+  handleRetry = async (message) => {
+    const { retrySendMessage } = this.props;
+    if (!retrySendMessage) {
+      return;
+    }
+    await retrySendMessage(message);
+  };
+
+  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  onMentionsClick = (e) => {
+    const { onMentionsClick, message } = this.props;
+    if (typeof onMentionsClick !== 'function' || !message?.mentioned_users) {
+      return;
+    }
+    onMentionsClick(e, message.mentioned_users);
+  };
+
+  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
   onMentionsHover = (e) => {
     const { onMentionsHover, message } = this.props;
 
-    if (typeof onMentionsHover !== 'function') {
+    if (typeof onMentionsHover !== 'function' || !message?.mentioned_users) {
       return;
     }
 
     onMentionsHover(e, message.mentioned_users);
   };
 
+  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserClick = (e) => {
-    if (typeof this.props.onUserClick !== 'function') {
+    const { onUserClick, message } = this.props;
+    if (typeof onUserClick !== 'function' || !message?.user) {
       return;
     }
 
-    this.props.onUserClick(e, this.props.message.user);
+    onUserClick(e, message.user);
   };
 
+  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserHover = (e) => {
-    if (typeof this.props.onUserHover !== 'function') {
+    const { message, onUserHover } = this.props;
+    if (typeof onUserHover !== 'function' || !message?.user) {
       return;
     }
 
-    this.props.onUserHover(e, this.props.message.user);
+    onUserHover(e, message.user);
   };
 
   isUserMuted = () => {
-    const userMuted = this.props.mutes.filter(
-      (el) => el.target.id === this.props.message.user.id,
+    const { mutes, message } = this.props;
+    if (!mutes || !message) {
+      return false;
+    }
+
+    const userMuted = mutes.filter(
+      /** @type {(el: import('stream-chat').Mute) => boolean} Typescript syntax */
+      (el) => el.target.id === message.user?.id,
     );
     return !!userMuted.length;
   };
 
   getMessageActions = () => {
-    const { message, messageActions: messageActionsProps } = this.props;
-    const { mutes } = this.props.channel.getConfig();
+    const {
+      channel,
+      message,
+      messageActions: messageActionsProps,
+    } = this.props;
+    const channelConfig = channel && channel.getConfig();
 
     const messageActionsAfterPermission = [];
     let messageActions = [];
@@ -502,6 +578,7 @@ class Message extends Component {
     }
 
     if (
+      message &&
       this.canEditMessage(message) &&
       messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1
     ) {
@@ -509,6 +586,7 @@ class Message extends Component {
     }
 
     if (
+      message &&
       this.canDeleteMessage(message) &&
       messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1
     ) {
@@ -516,6 +594,7 @@ class Message extends Component {
     }
 
     if (
+      message &&
       !this.isMyMessage(message) &&
       messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1
     ) {
@@ -523,9 +602,11 @@ class Message extends Component {
     }
 
     if (
+      message &&
       !this.isMyMessage(message) &&
       messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 &&
-      mutes
+      channelConfig &&
+      channelConfig.mutes
     ) {
       messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
     }
@@ -534,37 +615,41 @@ class Message extends Component {
   };
 
   render() {
-    const config = this.props.channel.getConfig();
-    const { message } = this.props;
+    const { channel, message } = this.props;
+    const config = channel?.getConfig && channel.getConfig();
 
     const actionsEnabled =
-      message.type === 'regular' && message.status === 'received';
+      message && message.type === 'regular' && message.status === 'received';
 
     const MessageUIComponent = this.props.Message;
     return (
-      <MessageUIComponent
-        {...this.props}
-        actionsEnabled={actionsEnabled}
-        Message={this}
-        handleReaction={this.handleReaction}
-        getMessageActions={this.getMessageActions}
-        handleFlag={this.handleFlag}
-        handleMute={this.handleMute}
-        handleAction={this.handleAction}
-        handleDelete={this.handleDelete}
-        handleEdit={this.handleEdit}
-        handleRetry={this.handleRetry}
-        handleOpenThread={
-          this.props.openThread && this.props.openThread.bind(this, message)
-        }
-        isUserMuted={this.isUserMuted}
-        isMyMessage={this.isMyMessage}
-        channelConfig={config}
-        onMentionsClickMessage={this.onMentionsClick}
-        onMentionsHoverMessage={this.onMentionsHover}
-        onUserClick={this.onUserClick}
-        onUserHover={this.onUserHover}
-      />
+      MessageUIComponent && (
+        <MessageUIComponent
+          {...this.props}
+          actionsEnabled={actionsEnabled}
+          Message={MessageUIComponent}
+          handleReaction={this.handleReaction}
+          getMessageActions={this.getMessageActions}
+          handleFlag={this.handleFlag}
+          handleMute={this.handleMute}
+          handleAction={this.handleAction}
+          handleDelete={this.handleDelete}
+          handleEdit={this.handleEdit}
+          handleRetry={this.handleRetry}
+          handleOpenThread={
+            message &&
+            this.props?.openThread &&
+            this.props.openThread.bind(this, message)
+          }
+          isUserMuted={this.isUserMuted}
+          isMyMessage={this.isMyMessage}
+          channelConfig={config}
+          onMentionsClickMessage={this.onMentionsClick}
+          onMentionsHoverMessage={this.onMentionsHover}
+          onUserClick={this.onUserClick}
+          onUserHover={this.onUserHover}
+        />
+      )
     );
   }
 }

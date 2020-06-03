@@ -393,7 +393,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should handle message mention mouse hover event', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsHover = jest.fn();
     const { getByTestId } = await renderMessageSimple(message, {
       onMentionsHover,
@@ -404,7 +404,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should handle message mentions mouse click event', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsClick = jest.fn();
     const { getByTestId } = await renderMessageSimple(message, {
       onMentionsClick,

@@ -341,7 +341,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should trigger mentions hover handler when user hovers message text', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsHover = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       onMentionsHover,
@@ -352,7 +352,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should trigger mentions click handler when user clicks message text', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsClick = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       onMentionsClick,

@@ -50,6 +50,8 @@ async function renderComponent(
       message={message}
       typing={false}
       Message={CustomMessageUIComponent}
+      updateMessage={jest.fn()}
+      removeMessage={jest.fn()}
       {...props}
     />,
   );
@@ -69,8 +71,8 @@ function getRenderedProps() {
 }
 
 describe('<Message /> component', () => {
-  afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
+  afterEach(cleanup);
 
   it('should pass custom props to its Message child component', async () => {
     await renderComponentWithMessage({
@@ -162,7 +164,7 @@ describe('<Message /> component', () => {
 
   it('should fallback to original message after an action fails', async () => {
     const removeMessage = jest.fn();
-    const currentMessage = generateMessage();
+    const currentMessage = generateMessage({ user: bob });
     const action = {
       name: 'action',
       value: 'value',
@@ -215,7 +217,7 @@ describe('<Message /> component', () => {
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
-    const message = generateMessage();
+    const message = generateMessage({ user: bob });
     const onUserClickMock = jest.fn(() => {});
     await renderComponent(message, { onUserClick: onUserClickMock });
     const { onUserClick } = getRenderedProps();
@@ -224,7 +226,7 @@ describe('<Message /> component', () => {
   });
 
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
-    const message = generateMessage();
+    const message = generateMessage({ user: bob });
     const onUserHoverMock = jest.fn(() => {});
     await renderComponent(message, { onUserHover: onUserHoverMock });
     const { onUserHover } = getRenderedProps();
