@@ -528,4 +528,33 @@ describe('MessageInput', () => {
       }),
     );
   });
+
+  it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
+    const { findByPlaceholderText, findByTitle } = renderComponent({
+      message: {
+        text: `@${username}`,
+        mentioned_users: [{ id: userid, name: username }],
+      },
+    });
+    // remove all text from input
+    const formElement = await findByPlaceholderText(inputPlaceholder);
+    fireEvent.change(formElement, {
+      target: {
+        value: 'no mentioned users',
+        selectionEnd: 1,
+      },
+    });
+
+    const submitButton = await findByTitle('Send');
+    fireEvent.click(submitButton);
+
+    await waitFor(() =>
+      expect(editMock).toHaveBeenCalledWith(
+        channel.cid,
+        expect.objectContaining({
+          mentioned_users: [],
+        }),
+      ),
+    );
+  });
 });
