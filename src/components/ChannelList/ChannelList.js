@@ -2,14 +2,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { withChatContext } from '../../context';
+import { smartRender } from '../../utils';
+
 import ChannelListTeam from './ChannelListTeam';
 import { LoadMorePaginator } from '../LoadMore';
 import { LoadingChannels } from '../Loading';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { ChannelPreview, ChannelPreviewLastMessage } from '../ChannelPreview';
 import { ChatDown } from '../ChatDown';
-import { withChatContext } from '../../context';
-import { smartRender } from '../../utils';
+
 import { useMessageNewListener } from './hooks/useMessageNewListener';
 import { useNotificationMessageNewListener } from './hooks/useNotificationMessageNewListener';
 import { useNotificationAddedToChannelListener } from './hooks/useNotificationAddedToChannelListener';
@@ -20,46 +22,38 @@ import { useChannelUpdatedListener } from './hooks/useChannelUpdatedListener';
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 import { useMobileNavigation } from './hooks/useMobileNavigation';
+
+import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
  * @extends PureComponent
  * @example ../../docs/ChannelList.md
  */
-const ChannelList = ({
-  filters,
-  sort,
-  options,
-  watchers,
-  client,
-  theme,
-  navOpen,
-  closeMobileNav,
-  setActiveChannel,
-  setActiveChannelOnMount,
-  showSidebar,
-  LoadingIndicator,
-  EmptyStateIndicator,
-  LoadingErrorIndicator,
-  customActiveChannel,
-  lockChannelOrder,
-  List,
-  Preview,
-  Paginator,
-  channel,
-  onMessageNew,
-  onAddedToChannel,
-  onRemovedFromChannel,
-  onChannelUpdated,
-  onChannelDeleted,
-  onChannelTruncated,
-}) => {
+const ChannelList = (props) => {
   const channelListRef = useRef(null);
+
+  // Set a channel with id {customActiveChannel} as active and move it to the top of the list.
+  // Of customActiveChannel prop is absent, then set the first channel in list as active channel.
   const activeChannelHandler = (channels) => {
-    // Set a channel as active and move it to the top of the list.
-    if (channels && customActiveChannel) {
+    const {
+      setActiveChannel,
+      setActiveChannelOnMount,
+      customActiveChannel,
+      watchers,
+      options,
+    } = props;
+
+    if (
+      !channels ||
+      channels.length === 0 ||
+      channels.length > (options.limit || MAX_QUERY_CHANNELS_LIMIT)
+    ) {
+      return;
+    }
+
+    if (customActiveChannel) {
       const _customActiveChannel = channels.filter(
         (channel) => channel.id === customActiveChannel,
       )[0];
@@ -68,21 +62,26 @@ const ChannelList = ({
         const newChannels = moveChannelUp(_customActiveChannel.cid, channels);
         setChannels(newChannels);
       }
-    } else if (
-      setActiveChannelOnMount &&
-      channels &&
-      channels.length > 0 &&
-      channels.length <= (options.limit || MAX_QUERY_CHANNELS_LIMIT)
-    ) {
+
+      return;
+    }
+
+    if (setActiveChannelOnMount) {
       setActiveChannel(channels[0], watchers);
     }
   };
 
+  // When channel list (channels array) is updated without any shallow changes (or with only deep changes), then we want
+  // to force the channel preview to re-render.
+  // This happens in case of event channel.updated, channel.truncated etc. Inner properties of channel is updated but
+  // react renderer will only make shallow comparison and choose tonot to re-render the UI.
+  // By updating the dummy prop - channelUpdateCount, we can force this re-render.
   const forceUpdate = () => {
     setChannelUpdateCount((count) => count + 1);
   };
 
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
+
   const {
     channels,
     loadNextPage,
@@ -90,26 +89,37 @@ const ChannelList = ({
     status,
     setChannels,
   } = usePaginatedChannels(
-    client,
-    filters,
-    sort,
-    options,
+    props.client,
+    props.filters,
+    props.sort,
+    props.options,
     activeChannelHandler,
   );
-  useMobileNavigation(channelListRef, navOpen, closeMobileNav);
+
+  useMobileNavigation(channelListRef, props.navOpen, props.closeMobileNav);
 
   // All the event listeners
-  !lockChannelOrder && useMessageNewListener(setChannels);
-  useNotificationMessageNewListener(setChannels, onMessageNew);
-  useNotificationAddedToChannelListener(setChannels, onAddedToChannel);
-  useNotificationRemovedFromChannelListener(setChannels, onRemovedFromChannel);
-  useChannelDeletedListener(setChannels, onChannelDeleted);
-  useChannelTruncatedListener(setChannels, onChannelTruncated, forceUpdate);
-  useChannelUpdatedListener(setChannels, onChannelUpdated, forceUpdate);
+  !props.lockChannelOrder && useMessageNewListener(setChannels);
+  useNotificationMessageNewListener(setChannels, props.onMessageNew);
+  useNotificationAddedToChannelListener(setChannels, props.onAddedToChannel);
+  useNotificationRemovedFromChannelListener(
+    setChannels,
+    props.onRemovedFromChannel,
+  );
+  useChannelDeletedListener(setChannels, props.onChannelDeleted);
+  useChannelTruncatedListener(
+    setChannels,
+    props.onChannelTruncated,
+    forceUpdate,
+  );
+  useChannelUpdatedListener(setChannels, props.onChannelUpdated, forceUpdate);
   useConnectionRecoveredListener(forceUpdate);
   useUserPresenceChangedListener(setChannels);
 
+  // If the active channel is deleted, then unset the active channel.
   useEffect(() => {
+    const { client, setActiveChannel, channel } = props;
+
     client.on('channel.deleted', (e) => {
       if (e.channel.cid === channel.cid) {
         setActiveChannel({});
@@ -121,50 +131,75 @@ const ChannelList = ({
     };
   }, []);
 
+  // renders the channel preview or item
   const renderChannel = (item) => {
     if (!item) return;
-    const props = {
+
+    const { channel, Preview, setActiveChannel, watchers } = props;
+    const previewProps = {
       channel: item,
-      activeChannel: channel,
       Preview,
-      setActiveChannel,
-      watchers,
+      activeChannel: channel,
+      setActiveChannel: setActiveChannel,
+      watchers: watchers,
       key: item.id,
       // To force the update of preview component upon channel update.
       channelUpdateCount,
     };
-    return smartRender(ChannelPreview, { ...props });
+    return smartRender(ChannelPreview, { ...previewProps });
+  };
+
+  // renders the empty state indicator (when there are no channels)
+  const renderEmptyStateIndicator = () => {
+    const { EmptyStateIndicator } = props;
+
+    return <EmptyStateIndicator listType="channel" />;
+  };
+
+  // renders the list.
+  const renderList = () => {
+    const {
+      List,
+      Paginator,
+      setActiveChannel,
+      channel,
+      showSidebar,
+      LoadingIndicator,
+      LoadingErrorIndicator,
+    } = props;
+
+    return (
+      <List
+        loading={status.loadingChannels}
+        error={status.error}
+        channels={channels}
+        setActiveChannel={setActiveChannel}
+        activeChannel={channel}
+        showSidebar={showSidebar}
+        LoadingIndicator={LoadingIndicator}
+        LoadingErrorIndicator={LoadingErrorIndicator}
+      >
+        {!channels || channels.length === 0
+          ? renderEmptyStateIndicator()
+          : smartRender(Paginator, {
+              loadNextPage: loadNextPage,
+              hasNextPage,
+              refreshing: status.refreshing,
+              children: channels.map((item) => renderChannel(item)),
+            })}
+      </List>
+    );
   };
 
   return (
     <React.Fragment>
       <div
-        className={`str-chat str-chat-channel-list ${theme} ${
-          navOpen ? 'str-chat-channel-list--open' : ''
+        className={`str-chat str-chat-channel-list ${props.theme} ${
+          props.navOpen ? 'str-chat-channel-list--open' : ''
         }`}
         ref={channelListRef}
       >
-        <List
-          loading={status.loadingChannels}
-          error={status.error}
-          channels={channels}
-          setActiveChannel={setActiveChannel}
-          activeChannel={channel}
-          showSidebar={showSidebar}
-          LoadingIndicator={LoadingIndicator}
-          LoadingErrorIndicator={LoadingErrorIndicator}
-        >
-          {!channels || channels.length === 0 ? (
-            <EmptyStateIndicator listType="channel" />
-          ) : (
-            smartRender(Paginator, {
-              loadNextPage: loadNextPage,
-              hasNextPage,
-              refreshing: status.refreshing,
-              children: channels.map((item) => renderChannel(item)),
-            })
-          )}
-        </List>
+        {renderList()}
       </div>
     </React.Fragment>
   );
@@ -296,7 +331,7 @@ ChannelList.propTypes = {
   watchers: PropTypes.object,
 
   /**
-   * Set a Channel to be active and move it to the top of the list of channels by ID.
+   * Set a Channel (of this id) to be active and move it to the top of the list of channels by ID.
    * */
   customActiveChannel: PropTypes.string,
   /**
