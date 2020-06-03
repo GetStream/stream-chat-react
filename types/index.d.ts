@@ -445,7 +445,7 @@ export interface MessageInputState {
   fileUploads: SeamlessImmutable.ImmutableObject<{ [id: string]: FileUpload }>;
   emojiPickerIsOpen: boolean;
   // ids of users mentioned in message
-  mentioned_users: string[];
+  mentioned_users: Client.UserResponse[];
   numberOfUploads: number;
 }
 

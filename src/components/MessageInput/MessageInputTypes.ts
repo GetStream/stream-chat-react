@@ -1,3 +1,5 @@
+import { UserResponse } from 'stream-chat';
+
 type SetEmojiPickerIsOpenAction = {
   type: 'setEmojiPickerIsOpen';
   value: boolean;
@@ -37,7 +39,7 @@ type ReduceNumberOfUploadsAction = {
 };
 type AddMentionedUserAction = {
   type: 'addMentionedUser';
-  userId: string;
+  user: UserResponse;
 };
 
 export type MessageInputReducerAction =

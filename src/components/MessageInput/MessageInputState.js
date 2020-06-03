@@ -15,6 +15,7 @@ import { generateRandomId } from '../../utils';
  * @typedef {import("types").MessageInputProps} Props
  * @typedef {import('types').ChannelContextValue} ChannelContextValue
  * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
+ * @typedef {import('stream-chat').UserResponse} UserResponse
  */
 
 /**
@@ -95,7 +96,7 @@ function initState(message) {
       ({ type }) => type !== 'file' && type !== 'image',
     ) || [];
 
-  const mentioned_users = message.mentioned_users?.map(({ id }) => id) || [];
+  const mentioned_users = message.mentioned_users || [];
 
   return {
     text: message.text || '',
@@ -188,7 +189,7 @@ function messageInputReducer(state, action) {
     case 'addMentionedUser':
       return {
         ...state,
-        mentioned_users: state.mentioned_users.concat(action.userId),
+        mentioned_users: state.mentioned_users.concat(action.user),
       };
     default:
       return state;
@@ -342,9 +343,13 @@ export default function useMessageInputState(props) {
     );
   }, [channel]);
 
-  const onSelectItem = useCallback((item) => {
-    dispatch({ type: 'addMentionedUser', userId: item.id });
-  }, []);
+  const onSelectItem = useCallback(
+    /** @param {UserResponse} item */
+    (item) => {
+      dispatch({ type: 'addMentionedUser', user: item });
+    },
+    [],
+  );
 
   // Submitting
 
@@ -412,10 +417,24 @@ export default function useMessageInputState(props) {
 
     const newAttachments = getAttachmentsFromUploads();
 
+    // Instead of checking if a user is still mentioned every time the text changes,
+    // just filter out non-mentioned users before submit, which is cheaper
+    // and allows users to easily undo any accidental deletion
+    const actualMentionedUsers = Array.from(
+      new Set(
+        mentioned_users
+          .filter(
+            ({ name, id }) =>
+              text.includes(`@${id}`) || text.includes(`@${name}`),
+          )
+          .map(({ id }) => id),
+      ),
+    );
+
     const updatedMessage = {
       text,
       attachments: newAttachments,
-      mentioned_users: Array.from(new Set(mentioned_users)),
+      mentioned_users: actualMentionedUsers,
     };
 
     if (!!message && editMessage) {
