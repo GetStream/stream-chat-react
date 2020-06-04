@@ -768,9 +768,9 @@ export interface GalleryProps {
 }
 
 export interface ImageProps {
-  image_url: string;
-  thumb_url: string;
-  fallback: string;
+  image_url?: string;
+  thumb_url?: string;
+  fallback?: string;
 }
 
 export interface ImageModalProps {
