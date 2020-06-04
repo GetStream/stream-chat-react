@@ -35,7 +35,7 @@ const ChannelList = (props) => {
   const channelListRef = useRef(null);
 
   // Set a channel with id {customActiveChannel} as active and move it to the top of the list.
-  // Of customActiveChannel prop is absent, then set the first channel in list as active channel.
+  // If customActiveChannel prop is absent, then set the first channel in list as active channel.
   const activeChannelHandler = (channels) => {
     const {
       setActiveChannel,
