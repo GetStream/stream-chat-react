@@ -19,4 +19,5 @@ module.exports = {
       '<rootDir>/assetsTransformer.js',
     'mock-builders(.*)$': '<rootDir>/src/mock-builders$1',
   },
+  coveragePathIgnorePatterns: ['/node_modules/'],
 };

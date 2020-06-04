@@ -135,7 +135,7 @@
     }
   },
   "scripts": {
-    "test": "jest",
+    "test": "rm -rf built && jest",
     "start": "mkdir -p dist/assets assets && yarn build-translations && rollup -c -w",
     "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c",
     "types": "tsc --strict",
