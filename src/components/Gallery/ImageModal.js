@@ -22,7 +22,7 @@ const ImageModal = ({ images, toggleModal, index, modalIsOpen }) => (
 
 ImageModal.propTypes = {
   images: PropTypes.array,
-  toggleModal: PropTypes.function,
+  toggleModal: PropTypes.func,
   index: PropTypes.number,
   modalIsOpen: PropTypes.bool,
 };
