@@ -794,6 +794,10 @@ export interface InfiniteScrollProps {
   threshold?: number;
 }
 
+export interface ModalImageProps {
+  data: { src: string };
+}
+
 export interface ReverseInfiniteScrollProps {
   loadMore(): any;
   hasMore?: boolean;
@@ -921,6 +925,8 @@ export class MessageActionsBox extends React.PureComponent<
 export const MessageNotification: React.FC<MessageNotificationProps>;
 export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
+export const ModalImage: React.FC<ModalImageProps>;
+
 export class ReverseInfiniteScroll extends React.PureComponent<
   ReverseInfiniteScrollProps,
   any

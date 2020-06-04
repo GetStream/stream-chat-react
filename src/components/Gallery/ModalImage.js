@@ -1,8 +1,9 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * ImageModal - Small modal component
+ * Modal - Custom Image component used in modal
  * @type import('types').ModalImage
  */
 const ModalImage = ({ data }) => (
@@ -12,7 +13,7 @@ const ModalImage = ({ data }) => (
 );
 
 ModalImage.propTypes = {
-  data: PropTypes.string,
+  data: PropTypes.object,
 };
 
 export default ModalImage;
