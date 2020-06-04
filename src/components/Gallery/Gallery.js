@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslationContext } from '../../context';
 import ImageModal from './ImageModal';
@@ -8,74 +8,72 @@ import ImageModal from './ImageModal';
  * @example ../../docs/Gallery.md
  * @extends PureComponent
  */
-class Gallery extends React.PureComponent {
-  static propTypes = {
-    images: PropTypes.arrayOf(
-      PropTypes.shape({
-        /** Url of the image */
-        image_url: PropTypes.string,
-        /** Url of thumbnail of image */
-        thumb_url: PropTypes.string,
-      }),
-    ),
+const Gallery = ({ images, t }) => {
+  const [index, setIndex] = useState(0);
+  const [modalIsOpen, setModalOpen] = useState(false);
+
+  const toggleModal = (selectedIndex) => {
+    if (modalIsOpen) {
+      setIndex(0);
+      setModalOpen(false);
+    } else {
+      setIndex(selectedIndex);
+      setModalOpen(true);
+    }
   };
 
-  state = {
-    modalIsOpen: false,
-    currentIndex: 0,
-  };
+  const formattedArray = images.map((image) => ({
+    src: image.image_url || image.thumb_url,
+  }));
 
-  toggleModal = (index) => {
-    this.setState((state) => ({
-      modalIsOpen: !state.modalIsOpen,
-      currentIndex: index,
-    }));
-  };
+  const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
 
-  render() {
-    const { images, t } = this.props;
-    const formattedArray = images.map((image) => ({
-      src: image.image_url || image.thumb_url,
-    }));
+  return (
+    <div className={`str-chat__gallery ${squareClass}`}>
+      {images.slice(0, 3).map((image, i) => (
+        <div
+          data-testid="gallery-image"
+          className="str-chat__gallery-image"
+          key={`gallery-image-${i}`}
+          onClick={() => toggleModal(i)}
+        >
+          <img src={image.image_url || image.thumb_url} />
+        </div>
+      ))}
+      {images.length > 3 && (
+        <div
+          className="str-chat__gallery-placeholder"
+          style={{
+            backgroundImage: `url(${images[3].image_url})`,
+          }}
+          onClick={() => toggleModal(3)}
+        >
+          <p>
+            {t('{{ imageCount }} more', {
+              imageCount: images.length - 3,
+            })}
+          </p>
+        </div>
+      )}
+      <ImageModal
+        images={formattedArray}
+        index={index}
+        toggleModal={toggleModal}
+        modalIsOpen={modalIsOpen}
+      />
+    </div>
+  );
+};
 
-    const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
+Gallery.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      /** Url of the image */
+      image_url: PropTypes.string,
+      /** Url of thumbnail of image */
+      thumb_url: PropTypes.string,
+    }),
+  ),
+};
 
-    return (
-      <div className={`str-chat__gallery ${squareClass}`}>
-        {images.slice(0, 3).map((image, i) => (
-          <div
-            data-testid="gallery-image"
-            className="str-chat__gallery-image"
-            key={`gallery-image-${i}`}
-            onClick={() => this.toggleModal(i)}
-          >
-            <img src={image.image_url || image.thumb_url} />
-          </div>
-        ))}
-        {images.length > 3 && (
-          <div
-            className="str-chat__gallery-placeholder"
-            style={{
-              backgroundImage: `url(${images[3].image_url})`,
-            }}
-            onClick={() => this.toggleModal(3)}
-          >
-            <p>
-              {t('{{ imageCount }} more', {
-                imageCount: images.length - 3,
-              })}
-            </p>
-          </div>
-        )}
-        <ImageModal
-          images={formattedArray}
-          index={this.state.currentIndex}
-          toggleModal={this.toggleModal}
-          modalIsOpen={this.state.modalIsOpen}
-        />
-      </div>
-    );
-  }
-}
-
-export default withTranslationContext(Gallery);
+export default withTranslationContext(React.memo(Gallery));
