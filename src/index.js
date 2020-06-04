@@ -39,6 +39,7 @@ import './styles/MessageTeam.scss';
 import './styles/MessageLivestream.scss';
 import './styles/MessageRepliesCountButton.scss';
 import './styles/Modal.scss';
+import './styles/ModalImage.scss';
 import './styles/NewChannel.scss';
 import './styles/ReactionList.scss';
 import './styles/ReactionSelector.scss';
