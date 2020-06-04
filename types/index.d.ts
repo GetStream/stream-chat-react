@@ -773,6 +773,13 @@ export interface ImageProps {
   fallback: string;
 }
 
+export interface ImageModalProps {
+  images: { src: string }[];
+  toggleModal: () => void;
+  index?: number;
+  modalIsOpen: boolean;
+}
+
 export interface InfiniteScrollProps {
   loadMore(): any;
   hasMore?: boolean;
@@ -894,6 +901,7 @@ export class EventComponent extends React.PureComponent<
 > {}
 export class Gallery extends React.PureComponent<GalleryProps, any> {}
 export const Image: React.FC<ImageProps>;
+export const ImageModal: React.FC<ImageModalProps>;
 export class InfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any

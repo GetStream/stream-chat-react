@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* @ts-check */
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -12,7 +12,6 @@ import ImageModal from './ImageModal';
  */
 const Image = ({ image_url, thumb_url, fallback }) => {
   const [modalIsOpen, setModalOpen] = useState(false);
-  const [index, setIndex] = useState(0);
   const formattedArray = [{ src: image_url || thumb_url }];
 
   const toggleModal = () => {
