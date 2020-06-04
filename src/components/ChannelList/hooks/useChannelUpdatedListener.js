@@ -38,5 +38,5 @@ export const useChannelUpdatedListener = (
       client.off('channel.updated');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [customHandler]);
 };

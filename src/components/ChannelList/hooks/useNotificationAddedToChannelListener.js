@@ -26,5 +26,5 @@ export const useNotificationAddedToChannelListener = (
       client.off('notification.added_to_channel');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [customHandler]);
 };

@@ -25,5 +25,5 @@ export const useNotificationRemovedFromChannelListener = (
       client.off('notification.removed_from_channel');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [customHandler]);
 };

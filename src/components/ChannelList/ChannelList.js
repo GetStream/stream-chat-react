@@ -54,9 +54,9 @@ const ChannelList = (props) => {
     }
 
     if (customActiveChannel) {
-      const _customActiveChannel = channels.filter(
+      const _customActiveChannel = channels.find(
         (channel) => channel.id === customActiveChannel,
-      )[0];
+      );
       if (_customActiveChannel) {
         setActiveChannel(_customActiveChannel, watchers);
         const newChannels = moveChannelUp(_customActiveChannel.cid, channels);
@@ -99,7 +99,7 @@ const ChannelList = (props) => {
   useMobileNavigation(channelListRef, props.navOpen, props.closeMobileNav);
 
   // All the event listeners
-  !props.lockChannelOrder && useMessageNewListener(setChannels);
+  useMessageNewListener(setChannels, props.lockChannelOrder);
   useNotificationMessageNewListener(setChannels, props.onMessageNew);
   useNotificationAddedToChannelListener(setChannels, props.onAddedToChannel);
   useNotificationRemovedFromChannelListener(

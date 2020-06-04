@@ -32,5 +32,5 @@ export const useNotificationMessageNewListener = (
       client.off('notification.message_new');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [customHandler]);
 };

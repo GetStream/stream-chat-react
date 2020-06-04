@@ -2,12 +2,16 @@ import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 import { moveChannelUp } from '../utils';
 
-export const useMessageNewListener = (setChannels) => {
+export const useMessageNewListener = (
+  setChannels,
+  lockChannelOrder = false,
+) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
     client.on('message.new', (e) => {
       setChannels((channels) => {
-        return moveChannelUp(e.cid, channels);
+        if (!lockChannelOrder) return moveChannelUp(e.cid, channels);
+        return channels;
       });
     });
 
@@ -15,5 +19,5 @@ export const useMessageNewListener = (setChannels) => {
       client.off('message.new');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [lockChannelOrder]);
 };

@@ -25,5 +25,5 @@ export const useChannelTruncatedListener = (
       client.off('channel.truncated');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [customHandler]);
 };

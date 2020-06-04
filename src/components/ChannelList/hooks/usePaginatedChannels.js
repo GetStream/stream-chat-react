@@ -18,7 +18,6 @@ export const usePaginatedChannels = (
   const [hasNextPage, setHasNextPage] = useState(true);
 
   const queryChannels = async (queryType) => {
-    // const { setActiveChannelOnMount } = this.props;
     if (queryType === 'reload') {
       setLoadingChannels(true);
     }
@@ -47,7 +46,11 @@ export const usePaginatedChannels = (
       setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
       setLoadingChannels(false);
-      activeChannelHandler(newChannels);
+
+      // Set active channel only after first page.
+      if (channels.length <= (options.limit || MAX_QUERY_CHANNELS_LIMIT)) {
+        activeChannelHandler(newChannels);
+      }
     } catch (e) {
       console.warn(e);
       setError(true);
