@@ -893,7 +893,7 @@ export class EventComponent extends React.PureComponent<
   any
 > {}
 export class Gallery extends React.PureComponent<GalleryProps, any> {}
-export class Image extends React.PureComponent<ImageProps, any> {}
+export const Image: React.FC<ImageProps>;
 export class InfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
