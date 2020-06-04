@@ -1,17 +1,21 @@
+// @ts-check
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslationContext } from '../../context';
 import ImageModal from './ImageModal';
 
 /**
- * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
+ * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ../../docs/Gallery.md
- * @extends PureComponent
+ * @type import('types').Gallery
  */
 const Gallery = ({ images, t }) => {
   const [index, setIndex] = useState(0);
   const [modalIsOpen, setModalOpen] = useState(false);
 
+  /**
+   * @param {number} selectedIndex Index of image clicked
+   */
   const toggleModal = (selectedIndex) => {
     if (modalIsOpen) {
       setIndex(0);
@@ -22,24 +26,29 @@ const Gallery = ({ images, t }) => {
     }
   };
 
+  // @ts-ignore
   const formattedArray = images.map((image) => ({
     src: image.image_url || image.thumb_url,
   }));
 
   const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
 
+  const renderImages = () =>
+    // @ts-ignore
+    images.slice(0, 3).map((image, i) => (
+      <div
+        data-testid="gallery-image"
+        className="str-chat__gallery-image"
+        key={`gallery-image-${i}`}
+        onClick={() => toggleModal(i)}
+      >
+        <img src={image.image_url || image.thumb_url} />
+      </div>
+    ));
+
   return (
     <div className={`str-chat__gallery ${squareClass}`}>
-      {images.slice(0, 3).map((image, i) => (
-        <div
-          data-testid="gallery-image"
-          className="str-chat__gallery-image"
-          key={`gallery-image-${i}`}
-          onClick={() => toggleModal(i)}
-        >
-          <img src={image.image_url || image.thumb_url} />
-        </div>
-      ))}
+      {renderImages()}
       {images.length > 3 && (
         <div
           className="str-chat__gallery-placeholder"

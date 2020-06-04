@@ -765,6 +765,7 @@ export interface EventComponentProps extends TranslationContextValue {
 
 export interface GalleryProps {
   images: Client.Attachment[];
+  t: i18next.TFunction;
 }
 
 export interface ImageProps {
@@ -903,7 +904,7 @@ export class EventComponent extends React.PureComponent<
   EventComponentProps,
   any
 > {}
-export class Gallery extends React.PureComponent<GalleryProps, any> {}
+export const Gallery: React.FC<GalleryProps>;
 export const Image: React.FC<ImageProps>;
 export const ImageModal: React.FC<ImageModalProps>;
 export class InfiniteScroll extends React.PureComponent<
