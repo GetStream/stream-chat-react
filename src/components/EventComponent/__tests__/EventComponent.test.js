@@ -52,7 +52,7 @@ describe('EventComponent', () => {
              
           </strong>
           at 
-          11:18 AM
+          10:18 AM
         </div>
       </div>
     `);
@@ -92,7 +92,7 @@ describe('EventComponent', () => {
             <div
               className="str-chat__event-component__channel-event__date"
             >
-              7:18 PM
+              6:18 PM
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ describe('EventComponent', () => {
             <div
               className="str-chat__event-component__channel-event__date"
             >
-              7:18 PM
+              6:18 PM
             </div>
           </div>
         </div>
