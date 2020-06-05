@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { TranslationContext } from '../../context';
 import ImageModal from './ImageModal';
@@ -11,15 +11,14 @@ import ImageModal from './ImageModal';
  */
 const Gallery = ({ images }) => {
   const [index, setIndex] = useState(0);
-  const [modalIsOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const { t } = useContext(TranslationContext);
 
   /**
    * @param {number} selectedIndex Index of image clicked
    */
   const toggleModal = (selectedIndex) => {
-    if (modalIsOpen) {
-      setIndex(0);
+    if (modalOpen) {
       setModalOpen(false);
     } else {
       setIndex(selectedIndex);
@@ -28,13 +27,15 @@ const Gallery = ({ images }) => {
   };
 
   // @ts-ignore
-  const formattedArray = images.map((image) => ({
-    src: image.image_url || image.thumb_url,
-  }));
+  const formattedArray = useMemo(
+    () =>
+      images.map((image) => ({
+        src: image.image_url || image.thumb_url,
+      })),
+    [images],
+  );
 
-  const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
-
-  const renderImages = () =>
+  const renderImages =
     // @ts-ignore
     images.slice(0, 3).map((image, i) => (
       <div
@@ -48,7 +49,11 @@ const Gallery = ({ images }) => {
     ));
 
   return (
-    <div className={`str-chat__gallery ${squareClass}`}>
+    <div
+      className={`str-chat__gallery ${
+        images.length > 3 ? 'str-chat__gallery--square' : ''
+      }`}
+    >
       {renderImages()}
       {images.length > 3 && (
         <div
@@ -69,7 +74,7 @@ const Gallery = ({ images }) => {
         images={formattedArray}
         index={index}
         toggleModal={toggleModal}
-        modalIsOpen={modalIsOpen}
+        modalIsOpen={modalOpen}
       />
     </div>
   );

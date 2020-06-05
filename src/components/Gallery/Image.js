@@ -11,10 +11,10 @@ import ImageModal from './ImageModal';
  * @type import('types').Image
  */
 const Image = ({ image_url, thumb_url, fallback }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const formattedArray = [{ src: image_url || thumb_url }];
 
-  const toggleModal = () => setModalOpen(!modalIsOpen);
+  const toggleModal = () => setModalOpen(!modalOpen);
 
   return (
     <Fragment>
@@ -28,7 +28,7 @@ const Image = ({ image_url, thumb_url, fallback }) => {
       <ImageModal
         images={formattedArray}
         toggleModal={toggleModal}
-        modalIsOpen={modalIsOpen}
+        modalIsOpen={modalOpen}
       />
     </Fragment>
   );

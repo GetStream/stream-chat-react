@@ -2,10 +2,14 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
-
 import '@testing-library/jest-dom';
 
+import { getTestClientWithUser } from '../../../mock-builders';
+
+import { Chat } from '../../Chat';
 import Gallery from '../Gallery';
+
+let chatClient;
 
 const mockGalleryAssets = [
   { src: 'https://placeimg.com/640/480/any' },
@@ -60,11 +64,14 @@ describe('Gallery', () => {
   });
 
   it('should display correct image count', async () => {
-    const translationMock = jest.fn((key) => key);
-    await render(<Gallery images={mockGalleryAssets} t={translationMock} />);
-
-    expect(translationMock).toHaveBeenCalledWith('{{ imageCount }} more', {
-      imageCount: 3,
+    chatClient = await getTestClientWithUser({ id: 'test' });
+    const { getByText } = await render(
+      <Chat client={chatClient}>
+        <Gallery images={mockGalleryAssets} />,
+      </Chat>,
+    );
+    waitFor(() => {
+      expect(getByText('3 more')).toBeInTheDocument();
     });
   });
 });
