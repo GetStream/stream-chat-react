@@ -765,7 +765,6 @@ export interface EventComponentProps extends TranslationContextValue {
 
 export interface GalleryProps {
   images: Client.Attachment[];
-  t: i18next.TFunction;
 }
 
 export interface ImageProps {

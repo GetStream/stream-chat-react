@@ -1,7 +1,7 @@
 // @ts-check
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { withTranslationContext } from '../../context';
+import { TranslationContext } from '../../context';
 import ImageModal from './ImageModal';
 
 /**
@@ -9,9 +9,10 @@ import ImageModal from './ImageModal';
  * @example ../../docs/Gallery.md
  * @type import('types').Gallery
  */
-const Gallery = ({ images, t }) => {
+const Gallery = ({ images }) => {
   const [index, setIndex] = useState(0);
   const [modalIsOpen, setModalOpen] = useState(false);
+  const { t } = useContext(TranslationContext);
 
   /**
    * @param {number} selectedIndex Index of image clicked
@@ -85,4 +86,4 @@ Gallery.propTypes = {
   ),
 };
 
-export default withTranslationContext(React.memo(Gallery));
+export default React.memo(Gallery);
