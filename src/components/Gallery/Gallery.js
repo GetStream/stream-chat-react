@@ -54,7 +54,7 @@ const Gallery = ({ images }) => {
         images.length > 3 ? 'str-chat__gallery--square' : ''
       }`}
     >
-      {renderImages()}
+      {renderImages}
       {images.length > 3 && (
         <div
           className="str-chat__gallery-placeholder"
