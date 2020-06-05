@@ -1,6 +1,7 @@
 module.exports = {
   verbose: true,
   maxConcurrency: 15,
+  globalSetup: './jest-global-setup.js',
   testRegex: [
     /**
      * If you want to test single file, mention it here
