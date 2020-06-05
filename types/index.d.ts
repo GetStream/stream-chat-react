@@ -874,7 +874,7 @@ export interface TooltipProps {}
 
 export const AttachmentActions: React.FC<AttachmentActionsProps>;
 export class Audio extends React.PureComponent<AudioProps, any> {}
-export class Card extends React.PureComponent<CardProps, any> {}
+export const Card: React.FC<CardProps>;
 export class ChatAutoComplete extends React.PureComponent<
   ChatAutoCompleteProps,
   any
