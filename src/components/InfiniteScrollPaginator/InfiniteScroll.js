@@ -1,5 +1,6 @@
 // @ts-check
 import React, { useCallback, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Prevents Chrome hangups
@@ -39,7 +40,7 @@ const calculateOffset = (el, scrollTop) => {
   );
 };
 
-/** @type {React.FC<import("types").InfiniteScrollProps>} */
+/** @param {import("types").InfiniteScrollProps} props */
 // eslint-disable-next-line sonarjs/cognitive-complexity
 const InfiniteScroll = (props) => {
   const {
@@ -54,6 +55,7 @@ const InfiniteScroll = (props) => {
     useCapture = false,
     useWindow = true,
     isLoading = false,
+    listenToScroll,
     ...elementProps
   } = props;
   /** @type {React.MutableRefObject<HTMLElement | null>} */
@@ -64,41 +66,37 @@ const InfiniteScroll = (props) => {
     if (!el) return;
     const { parentElement } = el;
 
-    const scrollEl = window;
-
     let offset = 0;
+    let reverseOffset = 0;
     if (useWindow) {
       const doc =
         document.documentElement || document.body.parentNode || document.body;
       const scrollTop =
-        scrollEl.pageYOffset !== undefined
-          ? scrollEl.pageYOffset
-          : doc.scrollTop;
-      offset = isReverse ? scrollTop : calculateOffset(el, scrollTop);
+        window.pageYOffset !== undefined ? window.pageYOffset : doc.scrollTop;
+      offset = calculateOffset(el, scrollTop);
+      reverseOffset = scrollTop;
     } else if (parentElement) {
-      offset = isReverse
-        ? parentElement.scrollTop
-        : el.scrollHeight -
-          parentElement.scrollTop -
-          parentElement.clientHeight;
+      offset =
+        el.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
+      reverseOffset = parentElement.scrollTop;
     }
+    if (listenToScroll) listenToScroll(offset, reverseOffset);
 
     // Here we make sure the element is visible as well as checking the offset
     if (
-      offset < Number(threshold) &&
+      (isReverse ? reverseOffset : offset) < Number(threshold) &&
       el.offsetParent !== null &&
       typeof loadMore === 'function'
     ) {
       loadMore();
     }
-  }, [isReverse, loadMore, threshold, useWindow]);
+  }, [useWindow, isReverse, threshold, listenToScroll, loadMore]);
 
-  const attachListeners = useCallback(() => {
-    if (!hasMore || isLoading || !scrollComponent.current?.parentNode) {
-      return;
-    }
-
+  useEffect(() => {
     const scrollEl = useWindow ? window : scrollComponent.current?.parentNode;
+    if (!hasMore || isLoading || !scrollEl) {
+      return () => {};
+    }
 
     scrollEl.addEventListener('scroll', scrollListener, useCapture);
     scrollEl.addEventListener('resize', scrollListener, useCapture);
@@ -106,20 +104,10 @@ const InfiniteScroll = (props) => {
     if (initialLoad) {
       scrollListener();
     }
-  }, [hasMore, initialLoad, scrollListener, isLoading, useCapture, useWindow]);
 
-  const detachScrollListeners = useCallback(() => {
-    const scrollEl = useWindow ? window : scrollComponent.current?.parentNode;
-    if (!scrollEl) return;
-
-    scrollEl.removeEventListener('scroll', scrollListener, useCapture);
-    scrollEl.removeEventListener('resize', scrollListener, useCapture);
-  }, [useCapture, useWindow, scrollListener]);
-
-  useEffect(() => {
-    attachListeners();
     return () => {
-      detachScrollListeners();
+      scrollEl.removeEventListener('scroll', scrollListener, useCapture);
+      scrollEl.removeEventListener('resize', scrollListener, useCapture);
     };
   });
 
@@ -149,6 +137,20 @@ const InfiniteScroll = (props) => {
     }
   }
   return React.createElement(element, elementProps, childrenArray);
+};
+
+InfiniteScroll.propTypes = {
+  element: PropTypes.elementType,
+  hasMore: PropTypes.bool,
+  initialLoad: PropTypes.bool,
+  isReverse: PropTypes.bool,
+  loader: PropTypes.node,
+  loadMore: PropTypes.func.isRequired,
+  pageStart: PropTypes.number,
+  isLoading: PropTypes.bool,
+  threshold: PropTypes.number,
+  useCapture: PropTypes.bool,
+  useWindow: PropTypes.bool,
 };
 
 export default InfiniteScroll;

@@ -12,7 +12,7 @@ import { withChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Message } from '../Message';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
-import { ReverseInfiniteScroll } from '../InfiniteScrollPaginator';
+import { InfiniteScroll } from '../InfiniteScrollPaginator';
 import { MessageSimple } from '../Message';
 import { LoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
@@ -786,7 +786,8 @@ class MessageList extends PureComponent {
           {!elements.length ? (
             <EmptyStateIndicator listType="message" />
           ) : (
-            <ReverseInfiniteScroll
+            <InfiniteScroll
+              isReverse
               loadMore={this._loadMore}
               hasMore={this.props.hasMore}
               isLoading={this.props.loadingMore}
@@ -797,6 +798,8 @@ class MessageList extends PureComponent {
                   <LoadingIndicator size={20} />
                 </Center>
               }
+              className="str-chat__reverse-infinite-scroll"
+              data-testid="reverse-infinite-scroll"
             >
               <ul className="str-chat__ul">{elements}</ul>
               {this.props.TypingIndicator && (
@@ -806,7 +809,7 @@ class MessageList extends PureComponent {
                 />
               )}
               <div key="bottom" ref={this.bottomRef} />
-            </ReverseInfiniteScroll>
+            </InfiniteScroll>
           )}
         </div>
 

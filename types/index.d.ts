@@ -786,6 +786,8 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
+  listenToScroll?(standardOffset: number, reverseOffset: number): any;
+  [elementAttribute: string]: any; // any other prop is applied as attribute to element
 }
 
 export interface ReverseInfiniteScrollProps {
