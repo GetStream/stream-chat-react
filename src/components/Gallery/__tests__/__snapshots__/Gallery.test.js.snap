@@ -3,13 +3,56 @@
 exports[`Gallery should render component with 3 images 1`] = `
 <div
   className="str-chat__gallery "
-/>
+>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+</div>
 `;
 
 exports[`Gallery should render component with 4 images 1`] = `
 <div
   className="str-chat__gallery str-chat__gallery--square"
 >
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
   <div
     className="str-chat__gallery-placeholder"
     onClick={[Function]}
@@ -31,6 +74,27 @@ exports[`Gallery should render component with 6 images 1`] = `
   className="str-chat__gallery str-chat__gallery--square"
 >
   <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
     className="str-chat__gallery-placeholder"
     onClick={[Function]}
     style={
@@ -49,5 +113,20 @@ exports[`Gallery should render component with 6 images 1`] = `
 exports[`Gallery should render component with default props 1`] = `
 <div
   className="str-chat__gallery "
-/>
+>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+  <div
+    className="str-chat__gallery-image"
+    data-testid="gallery-image"
+    onClick={[Function]}
+  >
+    <img />
+  </div>
+</div>
 `;

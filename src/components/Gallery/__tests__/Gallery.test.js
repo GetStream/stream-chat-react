@@ -53,6 +53,7 @@ describe('Gallery', () => {
 
   it('should open modal on image click', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => null);
+
     const { getByTestId } = render(
       <Gallery images={mockGalleryAssets.slice(0, 1)} />,
     );
