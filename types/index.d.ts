@@ -760,7 +760,7 @@ export interface UserItemProps {
   };
 }
 
-export interface EventComponentProps extends TranslationContextValue {
+export interface EventComponentProps {
   message: Client.MessageResponse;
 }
 
@@ -889,10 +889,7 @@ export class EditMessageForm extends React.PureComponent<
 > {}
 export const EmoticonItem: React.FC<EmoticonItemProps>;
 export const EmptyStateIndicator: React.FC<EmptyStateIndicatorProps>;
-export class EventComponent extends React.PureComponent<
-  EventComponentProps,
-  any
-> {}
+export const EventComponent: React.FC<EventComponentProps>;
 export class Gallery extends React.PureComponent<GalleryProps, any> {}
 export class Image extends React.PureComponent<ImageProps, any> {}
 export class InfiniteScroll extends React.PureComponent<

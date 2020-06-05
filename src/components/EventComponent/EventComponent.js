@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,6 +8,7 @@ import { TranslationContext } from '../../context';
 /**
  * EventComponent - Custom render component for system and channel event messages
  *
+ * @type import('types').EventComponent
  */
 const EventComponent = ({ message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
