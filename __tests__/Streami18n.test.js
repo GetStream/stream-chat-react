@@ -57,6 +57,12 @@ const customDayjsLocaleConfig = {
   },
 };
 
+describe('Jest Timezone', () => {
+  it('global config should set the timezone to UTC', () => {
+    expect(new Date().getTimezoneOffset()).toBe(0);
+  });
+});
+
 describe('Streami18n instance - default', () => {
   const streami18nOptions = { logger: () => null };
   const streami18n = new Streami18n(streami18nOptions);
