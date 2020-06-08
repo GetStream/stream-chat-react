@@ -66,6 +66,7 @@
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
     "@testing-library/jest-dom": "^5.5.0",
     "@types/braintree__sanitize-url": "^4.0.0",
+    "@types/deep-equal": "^1.0.1",
     "@types/seamless-immutable": "7.1.12",
     "@types/uuid": "^7.0.2",
     "autoprefixer": "^9.7.6",

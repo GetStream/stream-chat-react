@@ -509,12 +509,15 @@ export interface MessageProps extends TranslationContextValue {
   messageListRect?: DOMRect;
   updateMessage?(
     updatedMessage: Client.MessageResponse,
-    extraState: object,
+    extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
   clearEditingState?(e?: React.MouseEvent): void;
 }
 
+export type MessageComponentState = {
+  loading: boolean;
+};
 // MessageComponentProps defines the props for the Message component
 export interface MessageComponentProps
   extends MessageProps,
@@ -522,13 +525,19 @@ export interface MessageComponentProps
   /** The current channel this message is displayed in */
   channel?: Client.Channel;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(
+    e: React.MouseEvent,
+    mentioned_users: Client.UserResponse[],
+  ): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(
+    e: React.MouseEvent,
+    mentioned_users: Client.UserResponse[],
+  ): void;
   /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onUserClick?(e: React.MouseEvent, user: Client.User): void;
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
@@ -539,6 +548,7 @@ export interface MessageComponentProps
   setEditingState?(message: Client.MessageResponse): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
+  mutes?: Client.Mute[];
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
