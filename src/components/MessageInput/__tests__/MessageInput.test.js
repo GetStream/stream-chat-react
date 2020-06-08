@@ -7,9 +7,14 @@ import MessageInput from '../MessageInput';
 import MessageInputLarge from '../MessageInputLarge';
 import MessageInputSmall from '../MessageInputSmall';
 import MessageInputFlat from '../MessageInputFlat';
+<<<<<<< HEAD
 import EditMessageForm from '../EditMessageForm';
+=======
+import { EditMessageForm } from '../../EditMessageForm';
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { TranslationContext } from '../../../context/TranslationContext';
 import {
   generateChannel,
   generateMember,
@@ -33,16 +38,25 @@ const submitMock = jest.fn();
 const editMock = jest.fn();
 
 [
+<<<<<<< HEAD
   { InputComponent: MessageInputLarge, name: 'MessageInputLarge' },
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
 ].forEach(({ InputComponent, name }) => {
+=======
+  { InputProp: MessageInputLarge, name: 'MessageInputLarge' },
+  { InputProp: MessageInputSmall, name: 'MessageInputSmall' },
+  { InputProp: MessageInputFlat, name: 'MessageInputFlat' },
+  { InputProp: EditMessageForm, name: 'EditMessageForm' },
+].forEach(({ InputProp, name }) => {
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
   const renderComponent = (props = {}) => {
     // MessageInput components rely on ChannelContext.
     // ChannelContext is created by Channel component,
     // Which relies on ChatContext, created by Chat component.
     const renderResult = render(
+<<<<<<< HEAD
       <Chat client={chatClient}>
         <Channel
           channel={channel}
@@ -52,6 +66,19 @@ const editMock = jest.fn();
           <MessageInput Input={InputComponent} {...props} />
         </Channel>
       </Chat>,
+=======
+      <TranslationContext.Provider value={{ t }}>
+        <Chat client={chatClient}>
+          <Channel
+            channel={channel}
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+          >
+            <MessageInput Input={InputProp} {...props} />
+          </Channel>
+        </Chat>
+      </TranslationContext.Provider>,
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
     );
 
     const submit = async () => {
@@ -79,6 +106,10 @@ const editMock = jest.fn();
       useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
       chatClient = await getTestClientWithUser({ id: user1.id });
       channel = chatClient.channel('messaging', mockedChannel.id);
+<<<<<<< HEAD
+=======
+      // channel.editMessage = jest.fn();
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
     });
 
     afterEach(() => {
@@ -93,6 +124,7 @@ const editMock = jest.fn();
         },
       });
     }
+<<<<<<< HEAD
 
     const filename = 'some.txt';
     const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
@@ -102,6 +134,17 @@ const editMock = jest.fn();
     const getFile = () =>
       new File(['content'], filename, { type: 'text/plain' });
 
+=======
+
+    const filename = 'some.txt';
+    const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+
+    const getImage = () =>
+      new File(['content'], filename, { type: 'image/png' });
+    const getFile = () =>
+      new File(['content'], filename, { type: 'text/plain' });
+
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
     const mockUploadApi = () =>
       jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -369,12 +412,21 @@ const editMock = jest.fn();
           channel.cid,
         );
       });
+<<<<<<< HEAD
 
       it('Should not do anything if the message is empty and has no files', async () => {
         const { submit } = renderComponent();
 
         await submit();
 
+=======
+
+      it('Should not do anything if the message is empty and has no files', async () => {
+        const { submit } = renderComponent();
+
+        await submit();
+
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
         expect(submitMock).not.toHaveBeenCalled();
       });
 
@@ -432,7 +484,11 @@ const editMock = jest.fn();
         );
       });
 
+<<<<<<< HEAD
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
+=======
+      it('should an audio attachment if an audio file is dropped into the input', async () => {
+>>>>>>> Generalized MessageInput test for all MessageInput<Type> components, some small improvements to individual components
         const doFileUploadRequest = mockUploadApi();
         const { submit, findByPlaceholderText } = renderComponent({
           doFileUploadRequest,
