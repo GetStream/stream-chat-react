@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelListTeam by default, should render sidebar, userbar and children 1`] = `
+<div
+  className="str-chat__channel-list-team"
+>
+  <div
+    className="str-chat__channel-list-team__main"
+  >
+    <div
+      className="str-chat__channel-list-team__header"
+    >
+      <div
+        className="str-chat__channel-list-team__header--left"
+      >
+        <div
+          className="str-chat__avatar str-chat__avatar--circle"
+          data-testid="avatar"
+          onClick={[Function]}
+          onMouseOver={[Function]}
+          style={
+            Object {
+              "flexBasis": 40,
+              "fontSize": 20,
+              "height": 40,
+              "lineHeight": "40px",
+              "width": 40,
+            }
+          }
+          title="vishal"
+        >
+          <div
+            className="str-chat__avatar-fallback"
+            data-testid="avatar-fallback"
+          >
+            v
+          </div>
+        </div>
+      </div>
+      <div
+        className="str-chat__channel-list-team__header--middle"
+      >
+        <div
+          className="str-chat__channel-list-team__header--title"
+        >
+          vishal
+        </div>
+        <div
+          className="str-chat__channel-list-team__header--status undefined"
+        />
+      </div>
+      <div
+        className="str-chat__channel-list-team__header--right"
+      >
+        <button
+          className="str-chat__channel-list-team__header--button"
+        >
+          <img
+            src={
+              Object {
+                "process": [Function],
+              }
+            }
+          />
+        </button>
+      </div>
+    </div>
+    <div>
+      children 1
+    </div>
+    <div>
+      children 2
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ChannelListTeam when \`error\` prop is true, \`LoadingErrorIndicator\` should be rendered 1`] = `
+<div>
+  Loading Error Indicator
+</div>
+`;
+
+exports[`ChannelListTeam when \`loading\` prop is true, \`LoadingIndicator\` should be rendered 1`] = `
+<div>
+  Loading Indicator
+</div>
+`;
