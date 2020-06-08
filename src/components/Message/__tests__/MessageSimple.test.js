@@ -25,16 +25,13 @@ jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
 }));
 
-jest.mock('../../EditMessageForm', () => ({
-  EditMessageForm: jest.fn(() => <div />),
-}));
-
 jest.mock('../../MessageActions', () => ({
   MessageActionsBox: jest.fn(() => <div />),
 }));
 
 jest.mock('../../MessageInput', () => ({
   MessageInput: jest.fn(() => <div />),
+  EditMessageForm: jest.fn(() => <div />),
 }));
 
 jest.mock('../../Modal', () => ({
