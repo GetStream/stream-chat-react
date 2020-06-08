@@ -13,7 +13,6 @@ export * from './ChatAutoComplete';
 export * from './ChatDown';
 export * from './CommandItem';
 export * from './DateSeparator';
-export * from './EditMessageForm';
 export * from './EmoticonItem';
 export * from './EmptyStateIndicator';
 export * from './EventComponent';

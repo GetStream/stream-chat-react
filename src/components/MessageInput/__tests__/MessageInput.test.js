@@ -7,7 +7,7 @@ import MessageInput from '../MessageInput';
 import MessageInputLarge from '../MessageInputLarge';
 import MessageInputSmall from '../MessageInputSmall';
 import MessageInputFlat from '../MessageInputFlat';
-import { EditMessageForm } from '../../EditMessageForm';
+import EditMessageForm from '../EditMessageForm';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import { TranslationContext } from '../../../context/TranslationContext';
@@ -37,11 +37,11 @@ const submitMock = jest.fn();
 const editMock = jest.fn();
 
 [
-  { InputProp: MessageInputLarge, name: 'MessageInputLarge' },
-  { InputProp: MessageInputSmall, name: 'MessageInputSmall' },
-  { InputProp: MessageInputFlat, name: 'MessageInputFlat' },
-  { InputProp: EditMessageForm, name: 'EditMessageForm' },
-].forEach(({ InputProp, name }) => {
+  { InputComponent: MessageInputLarge, name: 'MessageInputLarge' },
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
+  { InputComponent: EditMessageForm, name: 'EditMessageForm' },
+].forEach(({ InputComponent, name }) => {
   const renderComponent = (props = {}) => {
     // MessageInput components rely on ChannelContext.
     // ChannelContext is created by Channel component,
@@ -54,7 +54,7 @@ const editMock = jest.fn();
             doSendMessageRequest={submitMock}
             doUpdateMessageRequest={editMock}
           >
-            <MessageInput Input={InputProp} {...props} />
+            <MessageInput Input={InputComponent} {...props} />
           </Channel>
         </Chat>
       </TranslationContext.Provider>,
