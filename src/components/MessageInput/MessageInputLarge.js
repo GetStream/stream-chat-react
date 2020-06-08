@@ -124,6 +124,7 @@ class MessageInputLarge extends PureComponent {
   );
 
   renderEmojiPicker = () => {
+    const { t } = this.props;
     if (this.props.emojiPickerIsOpen) {
       return (
         <div
@@ -133,7 +134,7 @@ class MessageInputLarge extends PureComponent {
           <Picker
             native
             emoji="point_up"
-            title="Pick your emoji…"
+            title={t('Pick your emoji')}
             onSelect={this.props.onSelectEmoji}
             color="#006CFF"
             showPreview={false}
