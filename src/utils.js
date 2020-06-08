@@ -149,6 +149,25 @@ const allowedMarkups = [
   'delete',
 ];
 
+const matchMarkdownLinks = (message) => {
+  const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm;
+  const matches = message.match(regexMdLinks);
+  // console.log('links', matches);
+
+  const singleMatch = /\[([^\[]+)\]\((.*)\)/;
+  var links = [];
+  if (matches) {
+    for (var i = 0; i < matches.length; i++) {
+      var text = singleMatch.exec(matches[i]);
+      // console.log(`Match #${i}:`, text);
+      // console.log(`Word  #${i}: ${text[1]}`);
+      // console.log(`Link  #${i}: ${text[2]}`);
+      links.push(text[2]);
+    }
+    return links;
+  }
+};
+
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -159,13 +178,18 @@ export const renderText = (message) => {
 
   // extract all valid links/emails within text and replace it with proper markup
   linkifyFind(newText).forEach(({ type, href, value }) => {
+    // check if message is already  markdown
+    const noParsingNeeded = matchMarkdownLinks(newText).find(
+      (text) => text.indexOf(href) !== -1,
+    );
+    if (noParsingNeeded) return;
+
     const displayLink =
       type === 'email'
         ? value
         : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), {
             length: 20,
           });
-
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
@@ -187,6 +211,7 @@ export const renderText = (message) => {
       escapeHtml={true}
       skipHtml={false}
       unwrapDisallowed={true}
+      transformLinkUri={null}
     />
   );
 };
