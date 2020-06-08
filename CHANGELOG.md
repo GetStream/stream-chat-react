@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.0) 2020-06-08
+
+**Breaking Change**
+
+- Migrated ChannelList component to functional component.
+
+  `ChannelList` component comes with some default handlers for following events. 
+
+  1. notification.message_new
+  2. notification.added_to_channel
+  3. notification.removed_from_channel
+  4. channel.updated
+  5. channel.deleted
+  6. channel.truncated
+
+  But these default event handlers can be overriden by providing corresponding
+  prop functions for handling the event. For example, to override `notification.message_new` event,
+  you can provide prop function - `onMessageNew`, to ChannelList component.
+
+  Until now, ChannelList component was class based, so function prop (e.g., `onMessageNew`) used to accept
+  following 2 parameters:
+
+  1. thisArg  - `this` reference of component. You could use this to update the state of the
+                component as well. e.g., `thisArg.setState({ ... })`
+  2. event    - Event object
+
+  In this release, we have migrated ChannelList component to functional component and thus
+  `thisArg` is no longer accessible. Instead we provide the setter (from `useState` hook) for channels.
+  So updated params to these custom event handlers (prop functions) is as follow:
+
+  1. setChannels  {function}  Setter for channels.
+  2. event        {object}    Event object
+
+  And same applies to all the rest of the custom event handlers:
+
+  - onMessageNew
+  - onAddedToChannel
+  - onRemovedFromChannel
+  - onChannelUpdated
+  - onChannelTruncated
+  - onChannelDeleted
+
 ## [1.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.0.0) 2020-05-15
 
 We've already been on a v1 release for a while but never updated our versioning. Right now we're in the process of rewriting our components to be more future proof and we started using hooks, hence the v1.0.0 today.
