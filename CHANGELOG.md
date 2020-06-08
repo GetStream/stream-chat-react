@@ -6,7 +6,7 @@
 
 - Migrated ChannelList component to functional component.
 
-  `ChannelList` component comes with some default handlers for following events. 
+  `ChannelList` component comes with some default handlers for following events.
 
   1. notification.message_new
   2. notification.added_to_channel
@@ -22,16 +22,16 @@
   Until now, ChannelList component was class based, so function prop (e.g., `onMessageNew`) used to accept
   following 2 parameters:
 
-  1. thisArg  - `this` reference of component. You could use this to update the state of the
-                component as well. e.g., `thisArg.setState({ ... })`
-  2. event    - Event object
+  1. thisArg - `this` reference of component. You could use this to update the state of the
+     component as well. e.g., `thisArg.setState({ ... })`
+  2. event - Event object
 
   In this release, we have migrated ChannelList component to functional component and thus
   `thisArg` is no longer accessible. Instead we provide the setter (from `useState` hook) for channels.
   So updated params to these custom event handlers (prop functions) is as follow:
 
-  1. setChannels  {function}  Setter for channels.
-  2. event        {object}    Event object
+  1. setChannels {function} Setter for channels.
+  2. event {object} Event object
 
   And same applies to all the rest of the custom event handlers:
 
@@ -41,6 +41,18 @@
   - onChannelUpdated
   - onChannelTruncated
   - onChannelDeleted
+
+**Fixes:**
+
+- Correctly set attachment type based on mime type
+- Fixes to audio component
+- Mentions: filter out no-longer-mentioned users on submit
+
+**Other:**
+
+- Type fixes
+- Tests
+- Refactors
 
 ## [1.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.0.0) 2020-05-15
 
