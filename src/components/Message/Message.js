@@ -7,7 +7,7 @@ import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
 import { MESSAGE_ACTIONS } from '../../utils';
 import { withTranslationContext } from '../../context';
-import { validateAndGetMessage } from './utils';
+import { isUserMuted, validateAndGetMessage } from './utils';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -515,15 +515,7 @@ class Message extends Component {
 
   isUserMuted = () => {
     const { mutes, message } = this.props;
-    if (!mutes || !message) {
-      return false;
-    }
-
-    const userMuted = mutes.filter(
-      /** @type {(el: import('stream-chat').Mute) => boolean} Typescript syntax */
-      (el) => el.target.id === message.user?.id,
-    );
-    return !!userMuted.length;
+    return isUserMuted(message, mutes);
   };
 
   getMessageActions = () => {
