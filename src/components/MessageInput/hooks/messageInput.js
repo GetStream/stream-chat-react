@@ -7,8 +7,8 @@ import {
   dataTransferItemsToFiles,
   // @ts-ignore
 } from 'react-file-utils';
-import { ChannelContext } from '../../context/ChannelContext';
-import { generateRandomId } from '../../utils';
+import { ChannelContext } from '../../../context/ChannelContext';
+import { generateRandomId } from '../../../utils';
 
 /**
  * @typedef {import("types").MessageInputState} State
@@ -113,7 +113,7 @@ function initState(message) {
 /**
  * MessageInput state reducer
  * @param {State} state
- * @param {import("./MessageInputTypes").MessageInputReducerAction} action
+ * @param {import("./types").MessageInputReducerAction} action
  * @returns {State}
  */
 function messageInputReducer(state, action) {

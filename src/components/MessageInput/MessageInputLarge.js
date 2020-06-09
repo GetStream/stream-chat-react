@@ -2,82 +2,28 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
-import { Picker } from 'emoji-mart';
 import {
   ImageDropzone,
-  ImagePreviewer,
-  FilePreviewer,
   FileUploadButton,
   // @ts-ignore
 } from 'react-file-utils';
 
-import { filterEmoji } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { ChatAutoComplete } from '../ChatAutoComplete';
 import { Tooltip } from '../Tooltip';
-import useMessageInputState from './MessageInputState';
+import useMessageInput from './hooks/messageInput';
+import EmojiPicker from './EmojiPicker';
+import Uploads from './Uploads';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputLarge = (props) => {
-  const messageInputState = useMessageInputState(props);
+  const messageInput = useMessageInput(props);
   /** @type {import("types").TranslationContextValue} */
   const translationContext = useContext(TranslationContext);
   const { t } = translationContext;
   /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
 
-  const renderUploads = () => (
-    <>
-      {messageInputState.imageOrder.length > 0 && (
-        <ImagePreviewer
-          imageUploads={messageInputState.imageOrder.map(
-            (id) => messageInputState.imageUploads[id],
-          )}
-          handleRemove={messageInputState.removeImage}
-          handleRetry={messageInputState.uploadImage}
-          handleFiles={messageInputState.uploadNewFiles}
-          multiple={messageInputState.multipleUploads}
-          disabled={
-            channelContext.maxNumberOfFiles !== undefined &&
-            messageInputState.numberOfUploads >= channelContext.maxNumberOfFiles
-          }
-        />
-      )}
-      {messageInputState.fileOrder.length > 0 && (
-        <FilePreviewer
-          uploads={messageInputState.fileOrder.map(
-            (id) => messageInputState.fileUploads[id],
-          )}
-          handleRemove={messageInputState.removeFile}
-          handleRetry={messageInputState.uploadFile}
-          handleFiles={messageInputState.uploadNewFiles}
-        />
-      )}
-    </>
-  );
-
-  const renderEmojiPicker = () => {
-    if (messageInputState.emojiPickerIsOpen) {
-      return (
-        <div
-          className="str-chat__input--emojipicker"
-          ref={messageInputState.emojiPickerRef}
-        >
-          <Picker
-            native
-            emoji="point_up"
-            title={t('Pick your emoji')}
-            onSelect={messageInputState.onSelectEmoji}
-            color="#006CFF"
-            showPreview={false}
-            useButton={true}
-            emojisToShowFilter={filterEmoji}
-          />
-        </div>
-      );
-    }
-    return null;
-  };
   /**
    * @typedef {import("stream-chat").Event} ClientEvent
    * @param {{ [userid: string]: ClientEvent } | {}} typingUsers
@@ -114,26 +60,26 @@ const MessageInputLarge = (props) => {
         multiple={channelContext.multipleUploads}
         disabled={
           channelContext.maxNumberOfFiles !== undefined &&
-          messageInputState.numberOfUploads >= channelContext.maxNumberOfFiles
+          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
         }
-        handleFiles={messageInputState.uploadNewFiles}
+        handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input">
-          {renderUploads()}
-          {renderEmojiPicker()}
+          <Uploads {...messageInput} />
+          <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
             <ChatAutoComplete
-              users={messageInputState.getUsers()}
-              commands={messageInputState.getCommands()}
-              innerRef={messageInputState.textareaRef}
-              handleSubmit={messageInputState.handleSubmit}
-              onChange={messageInputState.handleChange}
-              onSelectItem={messageInputState.onSelectItem}
-              value={messageInputState.text}
+              users={messageInput.getUsers()}
+              commands={messageInput.getCommands()}
+              innerRef={messageInput.textareaRef}
+              handleSubmit={messageInput.handleSubmit}
+              onChange={messageInput.handleChange}
+              onSelectItem={messageInput.onSelectItem}
+              value={messageInput.text}
               rows={1}
               maxRows={props.maxRows}
               placeholder={t('Type your message')}
-              onPaste={messageInputState.onPaste}
+              onPaste={messageInput.onPaste}
               grow={props.grow}
               disabled={props.disabled}
               additionalTextareaProps={props.additionalTextareaProps}
@@ -142,8 +88,8 @@ const MessageInputLarge = (props) => {
               <Tooltip>{t('Open emoji picker')}</Tooltip>
               <span
                 className="str-chat__input-emojiselect"
-                onClick={messageInputState.openEmojiPicker}
-                ref={messageInputState.emojiPickerRef}
+                onClick={messageInput.openEmojiPicker}
+                ref={messageInput.emojiPickerRef}
               >
                 <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
                   <title>{t('Open emoji picker')}</title>
@@ -163,11 +109,11 @@ const MessageInputLarge = (props) => {
                 multiple={channelContext.multipleUploads}
                 disabled={
                   channelContext.maxNumberOfFiles !== undefined &&
-                  messageInputState.numberOfUploads >=
+                  messageInput.numberOfUploads >=
                     channelContext.maxNumberOfFiles
                 }
                 accepts={channelContext.acceptedFiles}
-                handleFiles={messageInputState.uploadNewFiles}
+                handleFiles={messageInput.uploadNewFiles}
               >
                 <span className="str-chat__input-fileupload">
                   <svg
@@ -185,9 +131,7 @@ const MessageInputLarge = (props) => {
               </FileUploadButton>
             </div>
           </div>
-          {SendButton && (
-            <SendButton sendMessage={messageInputState.handleSubmit} />
-          )}
+          {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
         </div>
         <div>
           <div className="str-chat__input-footer">

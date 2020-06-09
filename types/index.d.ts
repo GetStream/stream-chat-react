@@ -323,7 +323,7 @@ export interface EmptyStateIndicatorProps extends TranslationContextValue {
 
 export interface SendButtonProps {
   /** Function that gets triggered on click */
-  sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void
+  sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void;
 }
 
 export interface MessageListProps
@@ -377,7 +377,7 @@ export interface MessageInputProps {
   parent?: Client.MessageResponse | null;
 
   /** The component handling how the input is rendered */
-  Input?: React.ElementType<MessageInputUIComponentProps>;
+  Input?: React.ElementType<MessageInputProps>;
 
   /** Change the SendButton component */
   SendButton?: React.ElementType<SendButtonProps>;
@@ -449,26 +449,17 @@ export interface MessageInputState {
   numberOfUploads: number;
 }
 
-export interface MessageInputUIComponentProps
-  extends MessageInputProps,
-    MessageInputState,
-    TranslationContextValue {
+export interface MessageInputUploadsProps extends MessageInputState {
   uploadNewFiles?(files: File[]): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
   removeFile?(id: string): void;
   uploadFile?(id: string): void;
-  emojiPickerRef?: React.RefObject<any>;
-  panelRef?: React.RefObject<any>;
-  textareaRef?: React.RefObject<any>;
-  onSelectEmoji?(emoji: object): void;
-  getUsers?(): Client.User[];
-  getCommands?(): [];
-  handleSubmit?(event: React.FormEvent): void;
-  handleChange?(event: React.ChangeEvent<HTMLTextAreaElement>): void;
-  onPaste?: React.ClipboardEventHandler;
-  onSelectItem?(item: Client.UserResponse): void;
-  openEmojiPicker?(): void;
+}
+
+export interface MessageInputEmojiPickerProps extends MessageInputState {
+  onSelectEmoji(emoji: object): void;
+  emojiPickerRef: React.RefObject<HTMLDivElement>;
 }
 
 export interface AttachmentUIComponentProps {
@@ -752,7 +743,7 @@ export interface CommandItemProps {
 }
 
 export interface EditMessageFormProps
-  extends MessageInputUIComponentProps,
+  extends MessageInputProps,
     TranslationContextValue {}
 export interface EmoticonItemProps {
   entity: {
@@ -940,15 +931,15 @@ export class MessageList extends React.PureComponent<MessageListProps, any> {}
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 export class MessageInputFlat extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 export class MessageInputSmall extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 
