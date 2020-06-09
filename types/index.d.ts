@@ -68,7 +68,7 @@ export interface ChannelContextValue extends ChatContextValue {
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
     updatedMessage: Client.MessageResponse,
-    extraState: object,
+    extraState?: object,
   ): void;
   /** Function executed when user clicks on link to open thread */
   retrySendMessage?(message: Client.Message): void;
