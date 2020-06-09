@@ -7,6 +7,7 @@ import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
 import { MESSAGE_ACTIONS } from '../../utils';
 import { withTranslationContext } from '../../context';
+import { validateAndGetMessage } from './utils';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -242,23 +243,6 @@ class Message extends Component {
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
   canDeleteMessage = (message) => this.canEditMessage(message);
 
-  /**
-   * Following function validates a function which returns notification message.
-   * It validates if the first parameter is function and also if return value of function is string or no.
-   *
-   * @param func {Function}
-   * @param args {any[]} Arguments to be provided to func while executing.
-   */
-  validateAndGetNotificationMessage = (func, args) => {
-    if (!func || typeof func !== 'function') return false;
-
-    const returnValue = func(...args);
-
-    if (typeof returnValue !== 'string') return false;
-
-    return returnValue;
-  };
-
   /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleFlag = async (event) => {
     event.preventDefault();
@@ -278,10 +262,7 @@ class Message extends Component {
       await client.flagMessage(message.id);
       const successMessage =
         getFlagMessageSuccessNotification &&
-        this.validateAndGetNotificationMessage(
-          getFlagMessageSuccessNotification,
-          [message],
-        );
+        validateAndGetMessage(getFlagMessageSuccessNotification, [message]);
       addNotification(
         successMessage || t('Message has been successfully flagged'),
         'success',
@@ -289,10 +270,7 @@ class Message extends Component {
     } catch (e) {
       const errorMessage =
         getFlagMessageErrorNotification &&
-        this.validateAndGetNotificationMessage(
-          getFlagMessageErrorNotification,
-          [message],
-        );
+        validateAndGetMessage(getFlagMessageErrorNotification, [message]);
       addNotification(
         errorMessage ||
           t(
@@ -326,10 +304,7 @@ class Message extends Component {
         await client.muteUser(message.user.id);
         const successMessage =
           getMuteUserSuccessNotification &&
-          this.validateAndGetNotificationMessage(
-            getMuteUserSuccessNotification,
-            [message.user],
-          );
+          validateAndGetMessage(getMuteUserSuccessNotification, [message.user]);
 
         addNotification(
           successMessage ||
@@ -341,9 +316,7 @@ class Message extends Component {
       } catch (e) {
         const errorMessage =
           getMuteUserErrorNotification &&
-          this.validateAndGetNotificationMessage(getMuteUserErrorNotification, [
-            message.user,
-          ]);
+          validateAndGetMessage(getMuteUserErrorNotification, [message.user]);
 
         addNotification(errorMessage || t('Error muting a user ...'), 'error');
       }
@@ -358,10 +331,9 @@ class Message extends Component {
         });
         const successMessage =
           (getMuteUserSuccessNotification &&
-            this.validateAndGetNotificationMessage(
-              getMuteUserSuccessNotification,
-              [message.user],
-            )) ||
+            validateAndGetMessage(getMuteUserSuccessNotification, [
+              message.user,
+            ])) ||
           fallbackMessage;
 
         if (typeof successMessage === 'string') {
@@ -370,10 +342,9 @@ class Message extends Component {
       } catch (e) {
         const errorMessage =
           (getMuteUserErrorNotification &&
-            this.validateAndGetNotificationMessage(
-              getMuteUserErrorNotification,
-              [message.user],
-            )) ||
+            validateAndGetMessage(getMuteUserErrorNotification, [
+              message.user,
+            ])) ||
           t('Error unmuting a user ...');
         if (typeof errorMessage === 'string') {
           addNotification(errorMessage, 'error');
