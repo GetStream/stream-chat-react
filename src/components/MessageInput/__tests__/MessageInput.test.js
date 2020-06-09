@@ -10,7 +10,6 @@ import MessageInputFlat from '../MessageInputFlat';
 import EditMessageForm from '../EditMessageForm';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import { TranslationContext } from '../../../context/TranslationContext';
 import {
   generateChannel,
   generateMember,
@@ -30,9 +29,6 @@ jest.mock('axios');
 let chatClient;
 let channel;
 
-// mock i18n
-const t = (key) => key;
-
 const submitMock = jest.fn();
 const editMock = jest.fn();
 
@@ -47,17 +43,15 @@ const editMock = jest.fn();
     // ChannelContext is created by Channel component,
     // Which relies on ChatContext, created by Chat component.
     const renderResult = render(
-      <TranslationContext.Provider value={{ t }}>
-        <Chat client={chatClient}>
-          <Channel
-            channel={channel}
-            doSendMessageRequest={submitMock}
-            doUpdateMessageRequest={editMock}
-          >
-            <MessageInput Input={InputComponent} {...props} />
-          </Channel>
-        </Chat>
-      </TranslationContext.Provider>,
+      <Chat client={chatClient}>
+        <Channel
+          channel={channel}
+          doSendMessageRequest={submitMock}
+          doUpdateMessageRequest={editMock}
+        >
+          <MessageInput Input={InputComponent} {...props} />
+        </Channel>
+      </Chat>,
     );
 
     const submit = async () => {

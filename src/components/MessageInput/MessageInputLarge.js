@@ -172,7 +172,7 @@ class MessageInputLarge extends PureComponent {
       //example: "bob, joe, and sam"
       outStr = t('{{ commaSeparatedUsers }} and {{ lastUser }} are typing...', {
         commaSeparatedUsers: arr3.slice(0, -1).join(', '),
-        lastUser: arr3.slice(-1),
+        lastUser: arr3.slice(-1)[0],
       });
     }
 
