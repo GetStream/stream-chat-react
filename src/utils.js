@@ -1,7 +1,6 @@
 /* eslint-disable */
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown/with-html';
-import { uriTransformer } from 'react-markdown';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
@@ -153,20 +152,12 @@ const allowedMarkups = [
 const matchMarkdownLinks = (message) => {
   const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm;
   const matches = message.match(regexMdLinks);
-  // console.log('links', matches);
-
   const singleMatch = /\[([^\[]+)\]\((.*)\)/;
-  let links = [];
-  if (matches) {
-    for (var i = 0; i < matches.length; i++) {
-      var text = singleMatch.exec(matches[i]);
-      // console.log(`Match #${i}:`, text);
-      // console.log(`Word  #${i}: ${text[1]}`);
-      // console.log(`Link  #${i}: ${text[2]}`);
-      links.push(text[2]);
-    }
-    return links;
-  }
+
+  const links = matches
+    ? matches.map((match) => singleMatch.exec(match)[2])
+    : [];
+  return links;
 };
 
 export const renderText = (message) => {
@@ -217,7 +208,7 @@ export const renderText = (message) => {
         if (uri.startsWith('app://')) {
           return uri;
         } else {
-          return uriTransformer(uri);
+          return require('react-markdown').uriTransformer(uri);
         }
       }}
     />
