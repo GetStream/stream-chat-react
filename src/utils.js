@@ -1,6 +1,7 @@
 /* eslint-disable */
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown/with-html';
+import { uriTransformer } from 'react-markdown';
 import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
@@ -155,7 +156,7 @@ const matchMarkdownLinks = (message) => {
   // console.log('links', matches);
 
   const singleMatch = /\[([^\[]+)\]\((.*)\)/;
-  var links = [];
+  let links = [];
   if (matches) {
     for (var i = 0; i < matches.length; i++) {
       var text = singleMatch.exec(matches[i]);
@@ -175,13 +176,14 @@ export const renderText = (message) => {
   if (!text) return null;
 
   let newText = message.text;
+  let markdownLinks = matchMarkdownLinks(newText);
 
   // extract all valid links/emails within text and replace it with proper markup
   linkifyFind(newText).forEach(({ type, href, value }) => {
     // check if message is already  markdown
-    const noParsingNeeded = matchMarkdownLinks(newText).find(
-      (text) => text.indexOf(href) !== -1,
-    );
+    const noParsingNeeded =
+      markdownLinks &&
+      markdownLinks.filter((text) => text.indexOf(href) !== -1);
     if (noParsingNeeded) return;
 
     const displayLink =
@@ -211,7 +213,13 @@ export const renderText = (message) => {
       escapeHtml={true}
       skipHtml={false}
       unwrapDisallowed={true}
-      transformLinkUri={null}
+      transformLinkUri={(uri) => {
+        if (uri.startsWith('app://')) {
+          return uri;
+        } else {
+          return uriTransformer(uri);
+        }
+      }}
     />
   );
 };
