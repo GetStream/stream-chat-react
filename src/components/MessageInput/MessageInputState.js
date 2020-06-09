@@ -215,8 +215,8 @@ export default function useMessageInputState(props) {
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
   /** @type {{ current: HTMLTextAreaElement | undefined }} */
   const textareaRef = useRef();
-  /** @type {{ current: HTMLElement | undefined }} */
-  const emojiPickerRef = useRef();
+  /** @type {{ current: HTMLDivElement | null }} */
+  const emojiPickerRef = useRef(null);
   /** @type {ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
   const {
@@ -387,7 +387,7 @@ export default function useMessageInputState(props) {
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
   /**
-   * @param {React.FormEvent<HTMLInputElement>} event
+   * @param {React.FormEvent | React.MouseEvent} event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
