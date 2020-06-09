@@ -1,7 +1,5 @@
 // @ts-check
-// Typescript uses MouseEvent, but ESLint does not recognize it.
-// eslint-disable-next-line no-unused-vars
-import React, { Component, MouseEvent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
 
@@ -261,7 +259,7 @@ class Message extends Component {
     return returnValue;
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleFlag = async (event) => {
     event.preventDefault();
 
@@ -305,7 +303,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleMute = async (event) => {
     event.preventDefault();
 
@@ -384,7 +382,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   handleEdit = (event) => {
     const { setEditingState, message } = this.props;
 
@@ -398,7 +396,7 @@ class Message extends Component {
     setEditingState(message);
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleDelete = async (event) => {
     event.preventDefault();
     const { message, client, updateMessage } = this.props;
@@ -409,7 +407,7 @@ class Message extends Component {
     updateMessage(data.message);
   };
 
-  /** @type {(reactionType: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(reactionType: string, event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleReaction = async (reactionType, event) => {
     const { updateMessage, message, client, channel } = this.props;
 
@@ -474,7 +472,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(name: string, value: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(name: string, value: string, event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleAction = async (name, value, event) => {
     event.preventDefault();
     const { channel, message, updateMessage, removeMessage } = this.props;
@@ -504,7 +502,7 @@ class Message extends Component {
     await retrySendMessage(message);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onMentionsClick = (e) => {
     const { onMentionsClick, message } = this.props;
     if (typeof onMentionsClick !== 'function' || !message?.mentioned_users) {
@@ -513,7 +511,7 @@ class Message extends Component {
     onMentionsClick(e, message.mentioned_users);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onMentionsHover = (e) => {
     const { onMentionsHover, message } = this.props;
 
@@ -524,7 +522,7 @@ class Message extends Component {
     onMentionsHover(e, message.mentioned_users);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserClick = (e) => {
     const { onUserClick, message } = this.props;
     if (typeof onUserClick !== 'function' || !message?.user) {
@@ -534,7 +532,7 @@ class Message extends Component {
     onUserClick(e, message.user);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserHover = (e) => {
     const { message, onUserHover } = this.props;
     if (typeof onUserHover !== 'function' || !message?.user) {
