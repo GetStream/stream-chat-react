@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.1) 2020-06-09
+
+- Fixes links when written as markdown
+- Allows app:// protocol in markdown links
+
 ## [1.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.0) 2020-06-08
 
 **Breaking Change**
