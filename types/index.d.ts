@@ -24,6 +24,7 @@ export interface ChatContextValue {
   openMobileNav?(): void;
   closeMobileNav?(): void;
   theme?: string;
+  mutes?: Client.Mute[];
 }
 
 export interface ChannelContextValue extends ChatContextValue {
