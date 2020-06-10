@@ -11,6 +11,8 @@ import { Image } from '../Image';
 import { Card } from '../Card';
 import { SafeAnchor } from '../SafeAnchor';
 
+const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm'];
+
 /**
  * Attachment - The message attachment
  *
@@ -50,7 +52,7 @@ class Attachment extends PureComponent {
       type = 'image';
     } else if (
       a.type === 'video' ||
-      (a.mime_type && a.mime_type.indexOf('video/') !== -1)
+      (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1)
     ) {
       type = 'media';
     } else if (a.type === 'file') {
