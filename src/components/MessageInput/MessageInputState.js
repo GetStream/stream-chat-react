@@ -82,7 +82,7 @@ function initState(message) {
           state: 'finished',
           file: {
             name: attachment.title,
-            type: getAttachmentTypeFromMime(attachment.mime_type),
+            type: attachment.mime_type,
             size: attachment.file_size,
           },
         });
