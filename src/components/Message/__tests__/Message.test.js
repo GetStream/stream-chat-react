@@ -86,7 +86,7 @@ describe('<Message /> component', () => {
     );
   });
 
-  it('should enable actions if message is of %s %s', async () => {
+  it('should enable actions if message is of type regular and status received', async () => {
     const message = generateMessage({ type: 'regular', status: 'received' });
     await renderComponent(message);
     expect(CustomMessageUIComponent).toHaveBeenCalledWith(
