@@ -1,10 +1,10 @@
 // @ts-check
-import React from 'react';
+import React, { useContext } from 'react';
 import { TranslationContext } from '../../context';
 
-/** @type {React.FC<import('types').SendButtonProps>} */
+/** @type {React.FC<import("types").SendButtonProps>} */
 const SendButton = ({ sendMessage }) => {
-  const { t } = React.useContext(TranslationContext);
+  const { t } = useContext(TranslationContext);
   return (
     <button className="str-chat__send-button" onClick={sendMessage}>
       <svg
