@@ -13,7 +13,8 @@ import { ChatAutoComplete } from '../ChatAutoComplete';
 import { Tooltip } from '../Tooltip';
 import useMessageInput from './hooks/messageInput';
 import EmojiPicker from './EmojiPicker';
-import Uploads from './Uploads';
+import UploadsPreview from './UploadsPreview';
+import SendButtonComponent from './SendButton';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputLarge = (props) => {
@@ -48,7 +49,7 @@ const MessageInputLarge = (props) => {
     // example: "bob, joe, and sam"
     return t('{{ commaSeparatedUsers }} and {{ lastUser }} are typing...', {
       commaSeparatedUsers: otherTypingUsers.slice(0, -1).join(', '),
-      lastUser: otherTypingUsers.slice(-1)[0],
+      lastUser: otherTypingUsers[otherTypingUsers.length - 1],
     });
   };
 
@@ -65,7 +66,7 @@ const MessageInputLarge = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input">
-          <Uploads {...messageInput} />
+          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
             <ChatAutoComplete
@@ -185,6 +186,16 @@ MessageInputLarge.propTypes = {
    * */
   // @ts-ignore
   SendButton: PropTypes.elementType,
+};
+
+MessageInputLarge.defaultProps = {
+  focus: false,
+  disabled: false,
+  grow: true,
+  maxRows: 10,
+  Input: MessageInputLarge,
+  SendButton: SendButtonComponent,
+  additionalTextareaProps: {},
 };
 
 export default MessageInputLarge;

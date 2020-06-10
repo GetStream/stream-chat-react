@@ -8,8 +8,9 @@ import { TranslationContext, ChannelContext } from '../../context';
 import { ChatAutoComplete } from '../ChatAutoComplete';
 import { Tooltip } from '../Tooltip';
 import useMessageInput from './hooks/messageInput';
-import Uploads from './Uploads';
+import UploadsPreview from './UploadsPreview';
 import EmojiPicker from './EmojiPicker';
+import SendButtonComponent from './SendButton';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputFlat = (props) => {
@@ -36,7 +37,7 @@ const MessageInputFlat = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input-flat-wrapper">
-          <Uploads {...messageInput} />
+          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} />
 
           <div className="str-chat__input-flat--textarea-wrapper">
@@ -139,6 +140,15 @@ MessageInputFlat.propTypes = {
    * */
   // @ts-ignore
   SendButton: PropTypes.elementType,
+};
+
+MessageInputFlat.defaultProps = {
+  focus: false,
+  disabled: false,
+  grow: true,
+  maxRows: 10,
+  SendButton: SendButtonComponent,
+  additionalTextareaProps: {},
 };
 
 export default MessageInputFlat;

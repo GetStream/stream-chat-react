@@ -5,7 +5,7 @@ import { ImagePreviewer, FilePreviewer } from 'react-file-utils';
 import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").MessageInputUploadsProps>} */
-const Uploads = ({
+const UploadsPreview = ({
   imageOrder,
   imageUploads,
   removeImage,
@@ -46,4 +46,4 @@ const Uploads = ({
   );
 };
 
-export default Uploads;
+export default UploadsPreview;

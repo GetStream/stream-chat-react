@@ -6,11 +6,20 @@ import { TranslationContext } from '../../context';
 import { filterEmoji } from '../../utils';
 
 /** @type {React.FC<import("types").MessageInputEmojiPickerProps>} */
-const EmojiPicker = ({ emojiPickerIsOpen, emojiPickerRef, onSelectEmoji }) => {
+const EmojiPicker = ({
+  emojiPickerIsOpen,
+  emojiPickerRef,
+  onSelectEmoji,
+  small,
+}) => {
   const { t } = useContext(TranslationContext);
   if (emojiPickerIsOpen) {
+    const className = small
+      ? 'str-chat__small-message-input-emojipicker'
+      : 'str-chat__input--emojipicker';
+
     return (
-      <div className="str-chat__input--emojipicker" ref={emojiPickerRef}>
+      <div className={className} ref={emojiPickerRef}>
         <Picker
           native
           emoji="point_up"

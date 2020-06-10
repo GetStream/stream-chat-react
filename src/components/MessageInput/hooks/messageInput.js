@@ -669,7 +669,6 @@ export default function useMessageInputState(props) {
 
   return {
     ...state,
-    ...channelContext,
     // refs
     textareaRef,
     emojiPickerRef,

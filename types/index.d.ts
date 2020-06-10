@@ -460,6 +460,7 @@ export interface MessageInputUploadsProps extends MessageInputState {
 export interface MessageInputEmojiPickerProps extends MessageInputState {
   onSelectEmoji(emoji: object): void;
   emojiPickerRef: React.RefObject<HTMLDivElement>;
+  small?: boolean;
 }
 
 export interface AttachmentUIComponentProps {
