@@ -79,7 +79,6 @@ const editMock = jest.fn();
       useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
       chatClient = await getTestClientWithUser({ id: user1.id });
       channel = chatClient.channel('messaging', mockedChannel.id);
-      // channel.editMessage = jest.fn();
     });
 
     afterEach(() => {
@@ -433,7 +432,7 @@ const editMock = jest.fn();
         );
       });
 
-      it('should an audio attachment if an audio file is dropped into the input', async () => {
+      it('should add audio as attachment if a message is submitted with an audio file', async () => {
         const doFileUploadRequest = mockUploadApi();
         const { submit, findByPlaceholderText } = renderComponent({
           doFileUploadRequest,
