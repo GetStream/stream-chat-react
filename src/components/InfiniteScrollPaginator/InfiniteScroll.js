@@ -41,23 +41,22 @@ const calculateOffset = (el, scrollTop) => {
 };
 
 /** @param {import("types").InfiniteScrollProps} props */
-// eslint-disable-next-line sonarjs/cognitive-complexity
-const InfiniteScroll = (props) => {
-  const {
-    children,
-    element = 'div',
-    hasMore = false,
-    initialLoad = true,
-    isReverse = false,
-    loader,
-    loadMore,
-    threshold = 250,
-    useCapture = false,
-    useWindow = true,
-    isLoading = false,
-    listenToScroll,
-    ...elementProps
-  } = props;
+const InfiniteScroll = ({
+  children,
+  element = 'div',
+  hasMore = false,
+  initialLoad = true,
+  isReverse = false,
+  loader,
+  loadMore,
+  threshold = 250,
+  useCapture = false,
+  useWindow = true,
+  isLoading = false,
+  listenToScroll,
+  ...elementProps
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+}) => {
   /** @type {React.MutableRefObject<HTMLElement | null>} */
   const scrollComponent = useRef(null);
 
@@ -109,7 +108,7 @@ const InfiniteScroll = (props) => {
       scrollEl.removeEventListener('scroll', scrollListener, useCapture);
       scrollEl.removeEventListener('resize', scrollListener, useCapture);
     };
-  });
+  }, [hasMore, initialLoad, isLoading, scrollListener, useCapture, useWindow]);
 
   useEffect(() => {
     const scrollEl = useWindow ? window : scrollComponent.current?.parentNode;
@@ -123,9 +122,12 @@ const InfiniteScroll = (props) => {
       );
   }, [useCapture, useWindow]);
 
-  /** @param {HTMLElement} e */
-  elementProps.ref = (e) => {
-    scrollComponent.current = e;
+  const attributes = {
+    ...elementProps,
+    /** @param {HTMLElement} e */
+    ref: (e) => {
+      scrollComponent.current = e;
+    },
   };
 
   const childrenArray = [children];
@@ -136,7 +138,7 @@ const InfiniteScroll = (props) => {
       childrenArray.push(loader);
     }
   }
-  return React.createElement(element, elementProps, childrenArray);
+  return React.createElement(element, attributes, childrenArray);
 };
 
 InfiniteScroll.propTypes = {

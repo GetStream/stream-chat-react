@@ -786,28 +786,8 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
-  listenToScroll?(standardOffset: number, reverseOffset: number): any;
+  listenToScroll?(standardOffset: number, reverseOffset: number): void;
   [elementAttribute: string]: any; // any other prop is applied as attribute to element
-}
-
-export interface ReverseInfiniteScrollProps {
-  loadMore(): any;
-  hasMore?: boolean;
-  initialLoad?: boolean;
-  isReverse?: boolean;
-  pageStart?: number;
-  isLoading?: boolean;
-  useCapture?: boolean;
-  useWindow?: boolean;
-  element?: React.ElementType;
-  loader?: React.ReactNode;
-  threshold?: number;
-  className?: string;
-  /** The function is called when the list scrolls */
-  listenToScroll?(
-    standardOffset: string | number,
-    reverseOffset: string | number,
-  ): any;
 }
 
 export interface LoadMoreButtonProps {
@@ -917,7 +897,7 @@ export const MessageNotification: React.FC<MessageNotificationProps>;
 export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
 export class ReverseInfiniteScroll extends React.PureComponent<
-  ReverseInfiniteScrollProps,
+  InfiniteScrollProps,
   any
 > {}
 export class SafeAnchor extends React.PureComponent<SafeAnchorProps, any> {}
