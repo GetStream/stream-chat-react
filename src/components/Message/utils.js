@@ -31,3 +31,54 @@ export const isUserMuted = (message, mutes) => {
   );
   return !!userMuted.length;
 };
+
+export const MESSAGE_ACTIONS = {
+  edit: 'edit',
+  delete: 'delete',
+  flag: 'flag',
+  mute: 'mute',
+};
+
+/**
+ * @typedef {{
+ *   canEdit: boolean;
+ *   canDelete: boolean;
+ *   canMute: boolean;
+ *   canFlag: boolean;
+ * }} Capabilities
+ * @type {(actions: string[] | boolean, capabilities: Capabilities) => string[]} Typescript syntax
+ */
+export const getMessageActions = (
+  actions,
+  { canDelete, canFlag, canEdit, canMute },
+) => {
+  const messageActionsAfterPermission = [];
+  let messageActions = [];
+
+  if (actions && typeof actions === 'boolean') {
+    // If value of actions is true, then populate all the possible values
+    messageActions = Object.keys(MESSAGE_ACTIONS);
+  } else if (actions && actions.length > 0) {
+    messageActions = [...actions];
+  } else {
+    return [];
+  }
+
+  if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
+  }
+
+  if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+  }
+
+  if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
+  }
+
+  if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
+  }
+
+  return messageActionsAfterPermission;
+};

@@ -5,9 +5,13 @@ import deepequal from 'deep-equal';
 
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
-import { MESSAGE_ACTIONS } from '../../utils';
+import {
+  MESSAGE_ACTIONS,
+  isUserMuted,
+  validateAndGetMessage,
+  getMessageActions,
+} from './utils';
 import { withTranslationContext } from '../../context';
-import { isUserMuted, validateAndGetMessage } from './utils';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -519,60 +523,18 @@ class Message extends Component {
   };
 
   getMessageActions = () => {
-    const {
-      channel,
-      message,
-      messageActions: messageActionsProps,
-    } = this.props;
+    const { channel, message, messageActions } = this.props;
     const channelConfig = channel && channel.getConfig();
-
-    const messageActionsAfterPermission = [];
-    let messageActions = [];
-
-    if (messageActionsProps && typeof messageActionsProps === 'boolean') {
-      // If value of messageActionsProps is true, then populate all the possible values
-      messageActions = Object.keys(MESSAGE_ACTIONS);
-    } else if (messageActionsProps && messageActionsProps.length > 0) {
-      messageActions = [...messageActionsProps];
-    } else {
+    if (!message || !messageActions) {
       return [];
     }
 
-    if (
-      message &&
-      this.canEditMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
-    }
-
-    if (
-      message &&
-      this.canDeleteMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
-    }
-
-    if (
-      message &&
-      !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
-    }
-
-    if (
-      message &&
-      !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 &&
-      channelConfig &&
-      channelConfig.mutes
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
-    }
-
-    return messageActionsAfterPermission;
+    return getMessageActions(messageActions, {
+      canDelete: this.canDeleteMessage(message),
+      canEdit: this.canEditMessage(message),
+      canFlag: !this.isMyMessage(message),
+      canMute: !this.isMyMessage(message) && !!channelConfig?.mutes,
+    });
   };
 
   render() {
