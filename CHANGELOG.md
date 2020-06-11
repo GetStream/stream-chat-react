@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.2) 2020-06-11
+
+- Fixes issue with File uploads on MessageInputLarge
+- Make sure to only render videos if the browser supports it
+
 ## [1.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.1) 2020-06-09
 
 - Fixes links when written as markdown
