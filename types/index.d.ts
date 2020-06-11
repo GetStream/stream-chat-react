@@ -450,7 +450,7 @@ export interface MessageInputState {
 }
 
 export interface MessageInputUploadsProps extends MessageInputState {
-  uploadNewFiles?(files: File[]): void;
+  uploadNewFiles?(files: FileList): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
   removeFile?(id: string): void;

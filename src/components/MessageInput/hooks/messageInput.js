@@ -611,10 +611,10 @@ export default function useMessageInputState(props) {
 
   const uploadNewFiles = useCallback(
     /**
-     * @param {File[]} files
+     * @param {FileList} files
      */
     (files) => {
-      [...files].forEach((file) => {
+      Array.from(files).forEach((file) => {
         const id = generateRandomId();
         if (file.type.startsWith('image/')) {
           dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
