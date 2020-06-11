@@ -1,6 +1,6 @@
 import { generateUser } from './user';
 
-export const generateReaction = (options) => {
+export const generateReaction = (options = {}) => {
   const user = options.user || generateUser();
   return {
     user,

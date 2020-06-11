@@ -51,8 +51,8 @@ describe('ReactionSelector', () => {
 
   it('should render each of reactionOptions if specified', () => {
     const reactionOptions = [
-      { name: 'angry', emoji: 'angry' },
-      { name: 'banana', emoji: 'banana' },
+      { id: 'angry', emoji: 'angry' },
+      { id: 'banana', emoji: 'banana' },
     ];
     renderComponent({ reactionOptions });
 

@@ -40,7 +40,7 @@ class ReactionSelector extends PureComponent {
     handleReaction: PropTypes.func.isRequired,
     /** Enable the avatar display */
     detailedView: PropTypes.bool,
-    /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+    /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
     /** If true, reaction list will be shown at trailing end of message bubble. */
     reverse: PropTypes.bool,
