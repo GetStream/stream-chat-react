@@ -1,4 +1,6 @@
 // @ts-check
+import deepequal from 'deep-equal';
+
 /**
  * Following function validates a function which returns notification message.
  * It validates if the first parameter is function and also if return value of function is string or no.
@@ -81,4 +83,25 @@ export const getMessageActions = (
   }
 
   return messageActionsAfterPermission;
+};
+
+/**
+ * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
+ */
+export const shouldMessageComponentUpdate = (nextProps, props) => {
+  // Component should only update if:
+  return (
+    // Message content is different
+    nextProps.message !== props.message ||
+    // Message was read by someone
+    !deepequal(nextProps.readBy, props.readBy) ||
+    // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
+    !deepequal(nextProps.groupStyles, props.groupStyles) ||
+    // Last message received in the channel changes
+    !deepequal(nextProps.lastReceivedId, props.lastReceivedId) ||
+    // User toggles edit state
+    nextProps.editing !== props.editing ||
+    // Message wrapper layout changes
+    nextProps.messageListRect !== props.messageListRect
+  );
 };
