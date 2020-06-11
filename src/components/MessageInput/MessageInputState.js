@@ -614,7 +614,7 @@ export default function useMessageInputState(props) {
      * @param {File[]} files
      */
     (files) => {
-      files.forEach((file) => {
+      [...files].forEach((file) => {
         const id = generateRandomId();
         if (file.type.startsWith('image/')) {
           dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
