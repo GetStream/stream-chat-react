@@ -7,5 +7,6 @@ export const generateReaction = (options) => {
     user_id: user.user_id,
     type: 'love',
     created_at: new Date(),
+    ...options,
   };
 };
