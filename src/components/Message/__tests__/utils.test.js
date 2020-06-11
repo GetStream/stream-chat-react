@@ -4,7 +4,11 @@ import {
   MESSAGE_ACTIONS,
   isUserMuted,
   validateAndGetMessage,
+  shouldMessageComponentUpdate,
 } from '../utils';
+
+const alice = generateUser({ name: 'alice' });
+const bob = generateUser({ name: 'bob' });
 
 describe('Message utils', () => {
   describe('validateAndGetMessage function', () => {
@@ -28,8 +32,6 @@ describe('Message utils', () => {
   });
 
   describe('isUserMuted function', () => {
-    const alice = generateUser({ name: 'alice' });
-    const bob = generateUser({ name: 'bob' });
     it('should return false if message is not defined', () => {
       const mutes = [
         {
@@ -111,5 +113,95 @@ describe('Message utils', () => {
         }
       },
     );
+  });
+
+  describe('shouldMessageComponentUpdate', () => {
+    it('should not update if rendered with the same message props', () => {
+      const message = generateMessage();
+      const currentProps = { message };
+      const nextProps = { message };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(false);
+    });
+
+    it('should update if rendered with a different message', () => {
+      const message1 = generateMessage({ id: 'message-1' });
+      const message2 = generateMessage({ id: 'message-2' });
+      const currentProps = { message: message1 };
+      const nextProps = { message: message2 };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should update if rendered with a different message is read by other users', () => {
+      const message = generateMessage();
+      const currentReadBy = [alice];
+      const currentProps = { message, readBy: currentReadBy };
+      const nextReadBy = [alice, bob];
+      const nextProps = { message, readBy: nextReadBy };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should update if rendered with different groupStyles', () => {
+      const message = generateMessage();
+      const currentGroupStyles = ['top'];
+      const currentProps = { message, groupStyles: currentGroupStyles };
+      const nextGroupStyles = ['bottom', 'right'];
+      const nextProps = { message, groupStyles: nextGroupStyles };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should update if last received message in the channel changes', () => {
+      const message = generateMessage();
+      const currentLastReceivedId = 'some-message';
+      const currentProps = { message, lastReceivedId: currentLastReceivedId };
+      const nextLastReceivedId = 'some-other-message';
+      const nextProps = { message, lastReceivedId: nextLastReceivedId };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should update if editing state changes', () => {
+      const message = generateMessage();
+      const currentEditing = true;
+      const currentProps = { message, editing: currentEditing };
+      const nextEditing = false;
+      const nextProps = { message, editing: nextEditing };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should update if wrapper layout changes', () => {
+      const message = generateMessage();
+      const currentMessageListRect = { x: 0, y: 0, width: 100, height: 100 };
+      const currentProps = { message, messageListRect: currentMessageListRect };
+      const nextMessageListRect = { x: 20, y: 20, width: 200, height: 200 };
+      const nextProps = { message, messageListRect: nextMessageListRect };
+      const shouldUpdate = shouldMessageComponentUpdate(
+        nextProps,
+        currentProps,
+      );
+      expect(shouldUpdate).toBe(true);
+    });
   });
 });

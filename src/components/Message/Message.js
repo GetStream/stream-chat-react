@@ -1,7 +1,6 @@
 // @ts-check
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import deepequal from 'deep-equal';
 
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
@@ -10,6 +9,7 @@ import {
   isUserMuted,
   validateAndGetMessage,
   getMessageActions,
+  shouldMessageComponentUpdate,
 } from './utils';
 import { withTranslationContext } from '../../context';
 
@@ -166,59 +166,7 @@ class Message extends Component {
 
   /** @type {(nextProps: Props) => boolean} Typescript syntax */
   shouldComponentUpdate(nextProps) {
-    // since there are many messages its important to only rerender messages when needed.
-    let shouldUpdate = nextProps.message !== this.props.message;
-    let reason = '';
-    if (shouldUpdate) {
-      reason = 'message';
-    }
-    // read state is the next most likely thing to change..
-    if (!shouldUpdate && !deepequal(nextProps.readBy, this.props.readBy)) {
-      shouldUpdate = true;
-      reason = 'readBy';
-    }
-    // group style often changes for the last 3 messages...
-    if (
-      !shouldUpdate &&
-      !deepequal(nextProps.groupStyles, this.props.groupStyles)
-    ) {
-      shouldUpdate = true;
-      reason = 'groupStyles';
-    }
-
-    // if lastreceivedId changesm, message should update.
-    if (
-      !shouldUpdate &&
-      !deepequal(nextProps.lastReceivedId, this.props.lastReceivedId)
-    ) {
-      shouldUpdate = true;
-      reason = 'lastReceivedId';
-    }
-
-    if (!shouldUpdate && nextProps.editing !== this.props.editing) {
-      shouldUpdate = true;
-      reason = 'editing';
-    }
-
-    if (
-      !shouldUpdate &&
-      nextProps.messageListRect !== this.props.messageListRect
-    ) {
-      shouldUpdate = true;
-      reason = 'messageListRect';
-    }
-
-    if (shouldUpdate && reason) {
-      // console.log(
-      //   'message',
-      //   nextProps.message.id,
-      //   'shouldUpdate',
-      //   shouldUpdate,
-      //   reason,
-      // );
-      // console.log(reason, diff(this.props, nextProps));
-    }
-    return shouldUpdate;
+    return shouldMessageComponentUpdate(nextProps, this.props);
   }
 
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
