@@ -8,7 +8,8 @@ import ImageModal from './ImageModal';
  * Image - Small wrapper around an image tag, supports thumbnails
  *
  * @example ../../docs/Image.md
- * @type import('types').Image
+ * @typedef { import('../../../types').ImageProps } Props
+ * @type React.FC<Props>
  */
 const Image = ({ image_url, thumb_url, fallback }) => {
   const [modalOpen, setModalOpen] = useState(false);

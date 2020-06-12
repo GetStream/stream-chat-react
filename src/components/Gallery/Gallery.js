@@ -7,7 +7,8 @@ import ImageModal from './ImageModal';
 /**
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ../../docs/Gallery.md
- * @type import('types').Gallery
+ * @typedef {import('types').GalleryProps} Props
+ * @type React.FC<Props>
  */
 const Gallery = ({ images }) => {
   const [index, setIndex] = useState(0);
@@ -81,14 +82,7 @@ const Gallery = ({ images }) => {
 };
 
 Gallery.propTypes = {
-  images: PropTypes.arrayOf(
-    PropTypes.shape({
-      /** Url of the image */
-      image_url: PropTypes.string,
-      /** Url of thumbnail of image */
-      thumb_url: PropTypes.string,
-    }),
-  ),
+  images: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
 };
 
 export default React.memo(Gallery);
