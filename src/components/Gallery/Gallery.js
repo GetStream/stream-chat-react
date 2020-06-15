@@ -2,7 +2,7 @@
 import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { TranslationContext } from '../../context';
-import ImageModal from './ImageModal';
+import ModalWrapper from './ModalWrapper';
 
 /**
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
@@ -68,7 +68,7 @@ const Gallery = ({ images }) => {
           </p>
         </div>
       )}
-      <ImageModal
+      <ModalWrapper
         images={formattedArray}
         index={index}
         toggleModal={toggleModal}

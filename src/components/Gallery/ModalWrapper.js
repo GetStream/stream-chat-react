@@ -8,7 +8,7 @@ import ModalImage from './ModalImage';
  * ImageModal - Small modal component
  * @type import('types').ImageModal
  */
-const ImageModal = ({ images, toggleModal, index, modalIsOpen }) => (
+const ModalComponent = ({ images, toggleModal, index, modalIsOpen }) => (
   <ModalGateway>
     {modalIsOpen ? (
       <Modal onClose={toggleModal}>
@@ -24,11 +24,11 @@ const ImageModal = ({ images, toggleModal, index, modalIsOpen }) => (
   </ModalGateway>
 );
 
-ImageModal.propTypes = {
+ModalComponent.propTypes = {
   images: PropTypes.array,
   toggleModal: PropTypes.func,
   index: PropTypes.number,
   modalIsOpen: PropTypes.bool,
 };
 
-export default ImageModal;
+export default ModalComponent;

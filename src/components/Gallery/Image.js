@@ -2,7 +2,7 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import ImageModal from './ImageModal';
+import ModalWrapper from './ModalWrapper';
 
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
@@ -26,7 +26,7 @@ const Image = ({ image_url, thumb_url, fallback }) => {
         src={thumb_url || image_url}
         alt={fallback}
       />
-      <ImageModal
+      <ModalWrapper
         images={formattedArray}
         toggleModal={toggleModal}
         modalIsOpen={modalOpen}
