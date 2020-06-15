@@ -6,6 +6,7 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
 
 import Message from '../Message';
@@ -340,7 +341,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should trigger mentions hover handler when user hovers message text', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsHover = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       onMentionsHover,
@@ -351,7 +352,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should trigger mentions click handler when user clicks message text', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsClick = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       onMentionsClick,
@@ -424,12 +425,7 @@ describe('<MessageLivestream />', () => {
   });
 
   it('should display the reaction list', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-17T03:24:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });

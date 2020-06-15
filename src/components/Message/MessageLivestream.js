@@ -11,8 +11,7 @@ import { Avatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Gallery } from '../Gallery';
 import { MessageActionsBox } from '../MessageActions';
-import { EditMessageForm } from '../EditMessageForm';
-import { MessageInput } from '../MessageInput';
+import { MessageInput, EditMessageForm } from '../MessageInput';
 import { SimpleReactionsList, ReactionSelector } from '../Reactions';
 
 const reactionSvg =

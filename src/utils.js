@@ -149,6 +149,17 @@ const allowedMarkups = [
   'delete',
 ];
 
+const matchMarkdownLinks = (message) => {
+  const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm;
+  const matches = message.match(regexMdLinks);
+  const singleMatch = /\[([^\[]+)\]\((.*)\)/;
+
+  const links = matches
+    ? matches.map((match) => singleMatch.exec(match)[2])
+    : [];
+  return links;
+};
+
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -156,16 +167,22 @@ export const renderText = (message) => {
   if (!text) return null;
 
   let newText = message.text;
+  let markdownLinks = matchMarkdownLinks(newText);
 
   // extract all valid links/emails within text and replace it with proper markup
   linkifyFind(newText).forEach(({ type, href, value }) => {
+    // check if message is already  markdown
+    const noParsingNeeded =
+      markdownLinks &&
+      markdownLinks.filter((text) => text.indexOf(href) !== -1);
+    if (noParsingNeeded) return;
+
     const displayLink =
       type === 'email'
         ? value
         : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), {
             length: 20,
           });
-
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
@@ -187,6 +204,13 @@ export const renderText = (message) => {
       escapeHtml={true}
       skipHtml={false}
       unwrapDisallowed={true}
+      transformLinkUri={(uri) => {
+        if (uri.startsWith('app://')) {
+          return uri;
+        } else {
+          return require('react-markdown').uriTransformer(uri);
+        }
+      }}
     />
   );
 };

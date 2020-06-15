@@ -1,10 +1,13 @@
 import React from 'react';
 import Dayjs from 'dayjs';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+
+const extendedDayjs = Dayjs.extend(LocalizedFormat);
 
 export const TranslationContext = React.createContext({
   // eslint-disable-next-line
   t: (msg, options) => msg,
-  tDateTimeParser: (input) => Dayjs(input),
+  tDateTimeParser: (input) => extendedDayjs(input),
 });
 
 export function withTranslationContext(OriginalComponent) {
