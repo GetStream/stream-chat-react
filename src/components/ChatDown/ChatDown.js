@@ -1,17 +1,20 @@
+// @ts-check
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { LoadingChannels } from '../Loading';
 import { TranslationContext } from '../../context';
 
+// @ts-ignore
 import placeholder from '../../assets/str-chat__connection-error.svg';
 
 /**
  * ChatDown - Indicator that chat is down or your network isn't working
- *
  * @example ../../docs/ChatDown.md
+ * @typedef {import('types').ChatDownProps} Props
+ * @type {React.FC<Props>}
  */
-const ChatDown = ({ image, type, text }) => {
+const ChatDown = ({ image, type = 'Error', text }) => {
   const { t } = useContext(TranslationContext);
 
   return (
@@ -29,15 +32,11 @@ const ChatDown = ({ image, type, text }) => {
   );
 };
 
-ChatDown.defaultProps = {
-  type: 'Error',
-};
-
 ChatDown.propTypes = {
   /** The image url for this error */
   image: PropTypes.string,
   /** The type of error */
-  type: PropTypes.string,
+  type: PropTypes.string.isRequired,
   /** The error message to show */
   text: PropTypes.string,
 };
