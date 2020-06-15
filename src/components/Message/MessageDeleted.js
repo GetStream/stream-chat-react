@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withTranslationContext } from '../context';
+import { withTranslationContext } from '../../context';
 
 class MessageDeleted extends React.PureComponent {
   static propTypes = {
