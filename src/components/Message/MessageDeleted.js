@@ -1,8 +1,13 @@
-import React from 'react';
+// @ts-check
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withTranslationContext } from '../context';
+import { withTranslationContext } from '../../context';
 
-class MessageDeleted extends React.PureComponent {
+/**
+ * @typedef { import('types').MessageDeletedProps } Props
+ * @extends PureComponent<Props>
+ */
+class MessageDeleted extends PureComponent {
   static propTypes = {
     /** The [message object](https://getstream.io/chat/docs/#message_format) */
     message: PropTypes.object,
@@ -23,7 +28,7 @@ class MessageDeleted extends React.PureComponent {
         data-testid={'message-deleted-component'}
       >
         <div className="str-chat__message--deleted-inner">
-          {t('This message was deleted...')}
+          {t && t('This message was deleted...')}
         </div>
       </div>
     );

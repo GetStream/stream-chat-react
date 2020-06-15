@@ -19,7 +19,7 @@ import { MessageActionsBox } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
-import DefaultMessageDeleted from '../MessageDeleted';
+import DefaultMessageDeleted from './MessageDeleted';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
