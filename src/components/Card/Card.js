@@ -11,8 +11,8 @@ import { SafeAnchor } from '../SafeAnchor';
  * Card - Simple Card Layout
  *
  * @example ../../docs/Card.md
- * @type Card { import("types").Card }
- * @return {React.ReactElement | null}
+ * @typedef {import('types').CardProps} Props
+ * @type React.FC<Props>
  */
 const Card = ({
   title,
@@ -26,7 +26,7 @@ const Card = ({
   const { t } = useContext(TranslationContext);
   const image = thumb_url || image_url;
 
-  /** @type {(url: string) => string | void} Typescript syntax */
+  /** @type {(url?: string) => string | null} Typescript syntax */
   const trimUrl = (url) => {
     if (url !== undefined && url !== null) {
       const [trimmedUrl] = url

@@ -706,6 +706,7 @@ export interface CardProps extends TranslationContextValue {
   image_url?: string;
   thumb_url?: string;
   text?: string;
+  type?: string;
 }
 
 export interface ChatAutoCompleteProps {
