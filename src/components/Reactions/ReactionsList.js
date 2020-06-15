@@ -1,102 +1,76 @@
-/* eslint-disable */
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
+// @ts-ignore
 import { NimbleEmoji } from 'emoji-mart';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
 
-class ReactionsList extends React.Component {
-  static propTypes = {
-    /** List of reactions */
-    reactions: PropTypes.array,
-    /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-    reactionOptions: PropTypes.array,
-    /** If true, reaction list will be shown at trailing end of message bubble. */
-    reverse: PropTypes.bool,
-    /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-    reaction_counts: PropTypes.object,
-  };
+/** @type {React.FC<import("types").ReactionsListProps>} */
+const ReactionsList = ({
+  reactions,
+  reaction_counts,
+  reactionOptions = defaultMinimalEmojis,
+  reverse = false,
+}) => {
+  const getTotalReactionCount = () =>
+    Object.values(reaction_counts || {}).reduce(
+      (total, count) => total + count,
+      0,
+    );
 
-  static defaultProps = {
-    reactionOptions: defaultMinimalEmojis,
-    emojiSetDef,
-    reverse: false,
-    reactions: [],
-  };
+  /** @param {string} type */
+  const getOptionForType = (type) =>
+    reactionOptions.find((option) => option.id === type);
 
-  constructor(props) {
-    super(props);
-  }
-
-  _renderReactions = (reactions) => {
-    const reactionsByType = {};
-    reactions.map((item) => {
-      if (reactions[item.type] === undefined) {
-        return (reactionsByType[item.type] = [item]);
-      } else {
-        return (reactionsByType[item.type] = [
-          ...reactionsByType[item.type],
-          item,
-        ]);
-      }
+  const getReactionTypes = () => {
+    if (!reactions) return [];
+    const allTypes = new Set();
+    reactions.forEach(({ type }) => {
+      allTypes.add(type);
     });
-    const reactionsEmojis = this.props.reactionOptions.reduce(
-      (acc, cur) => ({ ...acc, [cur.id]: cur }),
-      {},
-    );
+    return Array.from(allTypes);
+  };
 
-    return Object.keys(reactionsByType).map((type) =>
-      reactionsEmojis[type] ? (
-        <li key={reactionsEmojis[type].id}>
-          <NimbleEmoji
-            emoji={reactionsEmojis[type]}
-            {...emojiSetDef}
-            size={16}
-            data={emojiData}
-          />{' '}
-          &nbsp;
+  return (
+    <div
+      data-testid="reaction-list"
+      className={`str-chat__reaction-list ${
+        reverse ? 'str-chat__reaction-list--reverse' : ''
+      }`}
+    >
+      <ul>
+        {getReactionTypes().map((reactionType) => {
+          const emojiDefinition = getOptionForType(reactionType);
+          return emojiDefinition ? (
+            <li key={emojiDefinition.id}>
+              <NimbleEmoji
+                emoji={emojiDefinition}
+                {...emojiSetDef}
+                size={16}
+                data={emojiData}
+              />{' '}
+              &nbsp;
+            </li>
+          ) : null;
+        })}
+        <li>
+          <span className="str-chat__reaction-list--counter">
+            {getTotalReactionCount()}
+          </span>
         </li>
-      ) : null,
-    );
-  };
+      </ul>
+    </div>
+  );
+};
 
-  _getReactionCount = () => {
-    const reaction_counts = this.props.reaction_counts;
-    let count = null;
-    if (
-      reaction_counts !== null &&
-      reaction_counts !== undefined &&
-      Object.keys(reaction_counts).length > 0
-    ) {
-      count = 0;
-      Object.keys(reaction_counts).map(
-        (key) => (count += reaction_counts[key]),
-      );
-    }
-    return count;
-  };
+ReactionsList.propTypes = {
+  reactions: PropTypes.array,
+  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  reaction_counts: PropTypes.object,
+  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
+  reactionOptions: PropTypes.array,
+  reverse: PropTypes.bool,
+};
 
-  render() {
-    return (
-      <div
-        data-testid="reaction-list"
-        className={`str-chat__reaction-list ${
-          this.props.reverse ? 'str-chat__reaction-list--reverse' : ''
-        }`}
-        onClick={this.props.onClick}
-        ref={this.reactionList}
-      >
-        <ul>
-          {this._renderReactions(this.props.reactions)}
-          <li>
-            <span className="str-chat__reaction-list--counter">
-              {this._getReactionCount()}
-            </span>
-          </li>
-        </ul>
-      </div>
-    );
-  }
-}
-
-export default ReactionsList;
+export default React.memo(ReactionsList);

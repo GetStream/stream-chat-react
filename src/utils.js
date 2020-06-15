@@ -19,7 +19,7 @@ export const commonEmoji = {
   short_names: [],
   custom: true,
 };
-
+/** @type {import("types").MinimalEmojiInterface[]} */
 export const defaultMinimalEmojis = [
   {
     id: 'like',
