@@ -11,6 +11,13 @@ import { Image } from '../Image';
 import { Card } from '../Card';
 import { SafeAnchor } from '../SafeAnchor';
 
+const SUPPORTED_VIDEO_FORMATS = [
+  'video/mp4',
+  'video/ogg',
+  'video/webm',
+  'video/quicktime',
+];
+
 /**
  * Attachment - The message attachment
  *
@@ -49,14 +56,17 @@ class Attachment extends PureComponent {
     } else if (a.type === 'image') {
       type = 'image';
     } else if (
-      a.type === 'video' ||
-      (a.mime_type && a.mime_type.indexOf('video/') !== -1)
+      a.mime_type &&
+      SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1
     ) {
       type = 'media';
-    } else if (a.type === 'file') {
-      type = 'file';
     } else if (a.type === 'audio') {
       type = 'audio';
+    } else if (
+      a.type === 'file' ||
+      (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1)
+    ) {
+      type = 'file';
     } else {
       type = 'card';
       extra = 'no-image';

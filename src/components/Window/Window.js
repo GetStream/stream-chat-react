@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { withChannelContext } from '../../context';
+import { ChannelContext } from '../../context';
 
 /**
  * Window - A UI component for conditionally displaying thread or channel.
@@ -9,7 +9,8 @@ import { withChannelContext } from '../../context';
  * @example ../../docs/Window.md
  */
 
-const Window = ({ thread, hideOnThread, children }) => {
+const Window = ({ children }) => {
+  const { thread, hideOnThread } = useContext(ChannelContext);
   // If thread is active and window should hide on thread. Return null
   if (thread && hideOnThread) return null;
 
@@ -27,4 +28,4 @@ Window.propTypes = {
   thread: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
 };
 
-export default withChannelContext(React.memo(Window));
+export default React.memo(Window);

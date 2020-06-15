@@ -6,14 +6,18 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
+
 import Message from '../Message';
 import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
+import {
+  MessageInput as MessageInputMock,
+  EditMessageForm,
+} from '../../MessageInput';
 import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
-import { EditMessageForm } from '../../EditMessageForm';
 
 const alice = generateUser();
 const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
@@ -23,16 +27,13 @@ jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
 }));
 
-jest.mock('../../EditMessageForm', () => ({
-  EditMessageForm: jest.fn(() => <div />),
-}));
-
 jest.mock('../../MessageActions', () => ({
   MessageActionsBox: jest.fn(() => <div />),
 }));
 
 jest.mock('../../MessageInput', () => ({
   MessageInput: jest.fn(() => <div />),
+  EditMessageForm: jest.fn(() => <div />),
 }));
 
 jest.mock('../../Modal', () => ({
@@ -391,7 +392,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should handle message mention mouse hover event', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsHover = jest.fn();
     const { getByTestId } = await renderMessageSimple(message, {
       onMentionsHover,
@@ -402,7 +403,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should handle message mentions mouse click event', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ mentioned_users: [bob] });
     const onMentionsClick = jest.fn();
     const { getByTestId } = await renderMessageSimple(message, {
       onMentionsClick,
@@ -444,12 +445,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-12T03:33:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
@@ -458,12 +454,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
-    const bobReaction = {
-      type: 'love',
-      user_id: bob.user_id,
-      user: bob,
-      created_at: new Date('2019-12-28T12:39:00'),
-    };
+    const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });

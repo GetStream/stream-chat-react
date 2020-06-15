@@ -323,7 +323,7 @@ export interface EmptyStateIndicatorProps extends TranslationContextValue {
 
 export interface SendButtonProps {
   /** Function that gets triggered on click */
-  sendMessage?(message: Client.Message): void;
+  sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void;
 }
 
 export interface MessageListProps
@@ -377,7 +377,7 @@ export interface MessageInputProps {
   parent?: Client.MessageResponse | null;
 
   /** The component handling how the input is rendered */
-  Input?: React.ElementType<MessageInputUIComponentProps>;
+  Input?: React.ElementType<MessageInputProps>;
 
   /** Change the SendButton component */
   SendButton?: React.ElementType<SendButtonProps>;
@@ -449,26 +449,18 @@ export interface MessageInputState {
   numberOfUploads: number;
 }
 
-export interface MessageInputUIComponentProps
-  extends MessageInputProps,
-    MessageInputState,
-    TranslationContextValue {
-  uploadNewFiles?(files: File[]): void;
+export interface MessageInputUploadsProps extends MessageInputState {
+  uploadNewFiles?(files: FileList): void;
   removeImage?(id: string): void;
   uploadImage?(id: string): void;
   removeFile?(id: string): void;
   uploadFile?(id: string): void;
-  emojiPickerRef?: React.RefObject<any>;
-  panelRef?: React.RefObject<any>;
-  textareaRef?: React.RefObject<any>;
-  onSelectEmoji?(emoji: object): void;
-  getUsers?(): Client.User[];
-  getCommands?(): [];
-  handleSubmit?(event: React.FormEvent): void;
-  handleChange?(event: React.ChangeEvent<HTMLTextAreaElement>): void;
-  onPaste?: React.ClipboardEventHandler;
-  onSelectItem?(item: Client.UserResponse): void;
-  openEmojiPicker?(): void;
+}
+
+export interface MessageInputEmojiPickerProps extends MessageInputState {
+  onSelectEmoji(emoji: object): void;
+  emojiPickerRef: React.RefObject<HTMLDivElement>;
+  small?: boolean;
 }
 
 export interface AttachmentUIComponentProps {
@@ -509,12 +501,15 @@ export interface MessageProps extends TranslationContextValue {
   messageListRect?: DOMRect;
   updateMessage?(
     updatedMessage: Client.MessageResponse,
-    extraState: object,
+    extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
   clearEditingState?(e?: React.MouseEvent): void;
 }
 
+export type MessageComponentState = {
+  loading: boolean;
+};
 // MessageComponentProps defines the props for the Message component
 export interface MessageComponentProps
   extends MessageProps,
@@ -522,13 +517,19 @@ export interface MessageComponentProps
   /** The current channel this message is displayed in */
   channel?: Client.Channel;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(
+    e: React.MouseEvent,
+    mentioned_users: Client.UserResponse[],
+  ): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(
+    e: React.MouseEvent,
+    mentioned_users: Client.UserResponse[],
+  ): void;
   /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onUserClick?(e: React.MouseEvent, user: Client.User): void;
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
@@ -539,6 +540,7 @@ export interface MessageComponentProps
   setEditingState?(message: Client.MessageResponse): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
+  mutes?: Client.Mute[];
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -743,7 +745,7 @@ export interface CommandItemProps {
 }
 
 export interface EditMessageFormProps
-  extends MessageInputUIComponentProps,
+  extends MessageInputProps,
     TranslationContextValue {}
 export interface EmoticonItemProps {
   entity: {
@@ -761,7 +763,7 @@ export interface UserItemProps {
   };
 }
 
-export interface EventComponentProps extends TranslationContextValue {
+export interface EventComponentProps {
   message: Client.MessageResponse;
 }
 
@@ -890,10 +892,7 @@ export class EditMessageForm extends React.PureComponent<
 > {}
 export const EmoticonItem: React.FC<EmoticonItemProps>;
 export const EmptyStateIndicator: React.FC<EmptyStateIndicatorProps>;
-export class EventComponent extends React.PureComponent<
-  EventComponentProps,
-  any
-> {}
+export const EventComponent: React.FC<EventComponentProps>;
 export class Gallery extends React.PureComponent<GalleryProps, any> {}
 export class Image extends React.PureComponent<ImageProps, any> {}
 export class InfiniteScroll extends React.PureComponent<
@@ -934,15 +933,15 @@ export class MessageList extends React.PureComponent<MessageListProps, any> {}
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 export class MessageInputFlat extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 export class MessageInputSmall extends React.PureComponent<
-  MessageInputUIComponentProps,
+  MessageInputProps,
   any
 > {}
 
@@ -1138,8 +1137,8 @@ declare function withTranslationContext<T>(
 export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
-  t?: i18next.TFunction;
-  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  t: i18next.TFunction;
+  tDateTimeParser(datetime: string | number): Dayjs.Dayjs;
 }
 
 export interface Streami18nOptions {
