@@ -756,9 +756,9 @@ export interface EmoticonItemProps {
 
 export interface UserItemProps {
   entity: {
-    name: string;
-    id: string;
-    image: string;
+    name?: string | undefined | null;
+    id?: string | undefined | null;
+    image?: string | undefined | null;
   };
 }
 
