@@ -7,8 +7,8 @@ import {
   dataTransferItemsToFiles,
   // @ts-ignore
 } from 'react-file-utils';
-import { ChannelContext } from '../../context/ChannelContext';
-import { generateRandomId } from '../../utils';
+import { ChannelContext } from '../../../context/ChannelContext';
+import { generateRandomId } from '../../../utils';
 
 /**
  * @typedef {import("types").MessageInputState} State
@@ -113,7 +113,7 @@ function initState(message) {
 /**
  * MessageInput state reducer
  * @param {State} state
- * @param {import("./MessageInputTypes").MessageInputReducerAction} action
+ * @param {import("./types").MessageInputReducerAction} action
  * @returns {State}
  */
 function messageInputReducer(state, action) {
@@ -215,8 +215,8 @@ export default function useMessageInputState(props) {
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
   /** @type {{ current: HTMLTextAreaElement | undefined }} */
   const textareaRef = useRef();
-  /** @type {{ current: HTMLElement | undefined }} */
-  const emojiPickerRef = useRef();
+  /** @type {{ current: HTMLDivElement | null }} */
+  const emojiPickerRef = useRef(null);
   /** @type {ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
   const {
@@ -387,7 +387,7 @@ export default function useMessageInputState(props) {
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
   /**
-   * @param {React.FormEvent<HTMLInputElement>} event
+   * @param {React.FormEvent | React.MouseEvent} event
    */
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -611,10 +611,10 @@ export default function useMessageInputState(props) {
 
   const uploadNewFiles = useCallback(
     /**
-     * @param {File[]} files
+     * @param {FileList} files
      */
     (files) => {
-      [...files].forEach((file) => {
+      Array.from(files).forEach((file) => {
         const id = generateRandomId();
         if (file.type.startsWith('image/')) {
           dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
@@ -669,7 +669,6 @@ export default function useMessageInputState(props) {
 
   return {
     ...state,
-    ...channelContext,
     // refs
     textareaRef,
     emojiPickerRef,

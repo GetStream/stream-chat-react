@@ -1,12 +1,10 @@
 import React from 'react';
 import MessageInputLarge from './MessageInputLarge';
 import SendButton from './SendButton';
-import useMessageInputState from './MessageInputState';
 
 const MessageInput = (props) => {
-  const messageInputState = useMessageInputState(props);
   const { Input } = props;
-  return <Input {...props} {...messageInputState} />;
+  return <Input {...props} />;
 };
 
 MessageInput.defaultProps = {
