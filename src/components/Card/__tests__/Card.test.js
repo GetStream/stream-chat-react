@@ -78,10 +78,7 @@ describe('Card', () => {
               test
             </div>
             <a
-              className="str-chat__message-attachment-card--url"
               href="https://google.com"
-              rel="noopener noreferrer"
-              target="_blank"
             >
               google.com
             </a>
@@ -125,10 +122,7 @@ describe('Card', () => {
               test
             </div>
             <a
-              className="str-chat__message-attachment-card--url"
               href="https://google.com"
-              rel="noopener noreferrer"
-              target="_blank"
             >
               google.com
             </a>
@@ -178,10 +172,7 @@ describe('Card', () => {
               test text
             </div>
             <a
-              className="str-chat__message-attachment-card--url"
               href="https://google.com"
-              rel="noopener noreferrer"
-              target="_blank"
             >
               google.com
             </a>
