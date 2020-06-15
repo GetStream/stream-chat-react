@@ -5,14 +5,10 @@ import PropTypes from 'prop-types';
 import { Avatar } from '../Avatar';
 /**
  * TypingIndicator lists users currently typing
- * @typedef {import('types').TypingIndicatorProps}
- * @type {React.FC<import('types').TypingIndicatorProps>}
+ * @typedef {import('types').TypingIndicatorProps} Props
+ * @type {React.FC<Props>}
  */
 const TypingIndicator = (props) => {
-  // if (Object.keys(this.props.typing).length <= 0) {
-  //   return null;
-  // }
-
   const typing = Object.values(props.typing);
   let show;
   if (
