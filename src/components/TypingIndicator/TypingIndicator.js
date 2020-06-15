@@ -1,8 +1,13 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Avatar } from '../Avatar';
-
+/**
+ * TypingIndicator lists users currently typing
+ * @typedef {import('types').TypingIndicatorProps}
+ * @type {React.FC<import('types').TypingIndicatorProps>}
+ */
 const TypingIndicator = (props) => {
   // if (Object.keys(this.props.typing).length <= 0) {
   //   return null;
@@ -48,9 +53,10 @@ const TypingIndicator = (props) => {
 
 TypingIndicator.propTypes = {
   /** @see See [chat context](https://getstream.github.io/stream-chat-react/#chatcontext) doc */
+  // @ts-ignore
   client: PropTypes.object,
   /** @see See [channel context](https://getstream.github.io/stream-chat-react/#channelcontext) doc */
-  typing: PropTypes.object,
+  typing: PropTypes.object.isRequired,
 };
 
 export default React.memo(TypingIndicator);
