@@ -632,10 +632,9 @@ export interface ReactionSelectorProps {
   /** Enable the avatar display */
   detailedView?: boolean;
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface;
+  reactionOptions?: MinimalEmojiInterface[];
   reverse?: boolean;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
-  emojiSetDef?: EnojiSetDef;
 }
 
 export interface EnojiSetDef {
