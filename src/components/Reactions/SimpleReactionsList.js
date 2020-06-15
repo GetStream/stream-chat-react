@@ -11,7 +11,7 @@ class SimpleReactionsList extends React.PureComponent {
     /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
     reaction_counts: PropTypes.object,
     showTooltip: PropTypes.bool,
-    /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
+    /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
     reactionOptions: PropTypes.array,
     /**
      * Handler to set/unset reaction on message.

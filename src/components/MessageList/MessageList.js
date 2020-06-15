@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
-import { MESSAGE_ACTIONS } from '../../utils';
+import { MESSAGE_ACTIONS } from '../Message/utils';
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Message } from '../Message';

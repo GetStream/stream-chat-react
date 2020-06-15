@@ -8,7 +8,7 @@ import {
   generateMessage,
   generateReaction,
 } from 'mock-builders';
-import { MESSAGE_ACTIONS } from '../../../utils';
+import { MESSAGE_ACTIONS } from '../utils';
 import Message from '../Message';
 
 const alice = generateUser({
@@ -86,7 +86,7 @@ describe('<Message /> component', () => {
     );
   });
 
-  it('should enable actions if message is of %s %s', async () => {
+  it('should enable actions if message is of type regular and status received', async () => {
     const message = generateMessage({ type: 'regular', status: 'received' });
     await renderComponent(message);
     expect(CustomMessageUIComponent).toHaveBeenCalledWith(

@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { MESSAGE_ACTIONS } from '../../utils';
+import { MESSAGE_ACTIONS } from '../Message/utils';
 import { withTranslationContext } from '../../context';
 
 /**
