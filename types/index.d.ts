@@ -668,7 +668,7 @@ export interface ReactionsListProps {
    */
   reaction_counts?: {
     [reaction_type: string]: number;
-  };
+  } | {};
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmojiInterface[];
   onClick?(): void;
