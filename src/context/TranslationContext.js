@@ -2,7 +2,8 @@ import React from 'react';
 import Dayjs from 'dayjs';
 
 export const TranslationContext = React.createContext({
-  t: (msg) => msg,
+  // eslint-disable-next-line
+  t: (msg, options) => msg,
   tDateTimeParser: (input) => Dayjs(input),
 });
 

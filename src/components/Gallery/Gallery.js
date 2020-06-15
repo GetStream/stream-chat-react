@@ -27,7 +27,6 @@ const Gallery = ({ images }) => {
     }
   };
 
-  // @ts-ignore
   const formattedArray = useMemo(
     () =>
       images.map((image) => ({
@@ -36,18 +35,16 @@ const Gallery = ({ images }) => {
     [images],
   );
 
-  const renderImages =
-    // @ts-ignore
-    images.slice(0, 3).map((image, i) => (
-      <div
-        data-testid="gallery-image"
-        className="str-chat__gallery-image"
-        key={`gallery-image-${i}`}
-        onClick={() => toggleModal(i)}
-      >
-        <img src={image.image_url || image.thumb_url} />
-      </div>
-    ));
+  const renderImages = images.slice(0, 3).map((image, i) => (
+    <div
+      data-testid="gallery-image"
+      className="str-chat__gallery-image"
+      key={`gallery-image-${i}`}
+      onClick={() => toggleModal(i)}
+    >
+      <img src={image.image_url || image.thumb_url} />
+    </div>
+  ));
 
   return (
     <div
