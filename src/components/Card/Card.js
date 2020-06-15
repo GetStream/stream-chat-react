@@ -91,6 +91,7 @@ const Card = ({
         {type === 'giphy' && (
           <img
             className="str-chat__message-attachment-card__giphy-logo"
+            data-testid="card-giphy"
             src={giphyLogo}
             alt="giphy logo"
           />
