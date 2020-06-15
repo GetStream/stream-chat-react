@@ -1,13 +1,16 @@
 // @ts-check
-// Typescript uses MouseEvent, but ESLint does not recognize it.
-// eslint-disable-next-line no-unused-vars
-import React, { Component, MouseEvent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import deepequal from 'deep-equal';
 
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
-import { MESSAGE_ACTIONS } from '../../utils';
+import {
+  MESSAGE_ACTIONS,
+  isUserMuted,
+  validateAndGetMessage,
+  getMessageActions,
+  shouldMessageComponentUpdate,
+} from './utils';
 import { withTranslationContext } from '../../context';
 
 /**
@@ -163,59 +166,7 @@ class Message extends Component {
 
   /** @type {(nextProps: Props) => boolean} Typescript syntax */
   shouldComponentUpdate(nextProps) {
-    // since there are many messages its important to only rerender messages when needed.
-    let shouldUpdate = nextProps.message !== this.props.message;
-    let reason = '';
-    if (shouldUpdate) {
-      reason = 'message';
-    }
-    // read state is the next most likely thing to change..
-    if (!shouldUpdate && !deepequal(nextProps.readBy, this.props.readBy)) {
-      shouldUpdate = true;
-      reason = 'readBy';
-    }
-    // group style often changes for the last 3 messages...
-    if (
-      !shouldUpdate &&
-      !deepequal(nextProps.groupStyles, this.props.groupStyles)
-    ) {
-      shouldUpdate = true;
-      reason = 'groupStyles';
-    }
-
-    // if lastreceivedId changesm, message should update.
-    if (
-      !shouldUpdate &&
-      !deepequal(nextProps.lastReceivedId, this.props.lastReceivedId)
-    ) {
-      shouldUpdate = true;
-      reason = 'lastReceivedId';
-    }
-
-    if (!shouldUpdate && nextProps.editing !== this.props.editing) {
-      shouldUpdate = true;
-      reason = 'editing';
-    }
-
-    if (
-      !shouldUpdate &&
-      nextProps.messageListRect !== this.props.messageListRect
-    ) {
-      shouldUpdate = true;
-      reason = 'messageListRect';
-    }
-
-    if (shouldUpdate && reason) {
-      // console.log(
-      //   'message',
-      //   nextProps.message.id,
-      //   'shouldUpdate',
-      //   shouldUpdate,
-      //   reason,
-      // );
-      // console.log(reason, diff(this.props, nextProps));
-    }
-    return shouldUpdate;
+    return shouldMessageComponentUpdate(nextProps, this.props);
   }
 
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
@@ -244,24 +195,7 @@ class Message extends Component {
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
   canDeleteMessage = (message) => this.canEditMessage(message);
 
-  /**
-   * Following function validates a function which returns notification message.
-   * It validates if the first parameter is function and also if return value of function is string or no.
-   *
-   * @param func {Function}
-   * @param args {any[]} Arguments to be provided to func while executing.
-   */
-  validateAndGetNotificationMessage = (func, args) => {
-    if (!func || typeof func !== 'function') return false;
-
-    const returnValue = func(...args);
-
-    if (typeof returnValue !== 'string') return false;
-
-    return returnValue;
-  };
-
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleFlag = async (event) => {
     event.preventDefault();
 
@@ -280,10 +214,7 @@ class Message extends Component {
       await client.flagMessage(message.id);
       const successMessage =
         getFlagMessageSuccessNotification &&
-        this.validateAndGetNotificationMessage(
-          getFlagMessageSuccessNotification,
-          [message],
-        );
+        validateAndGetMessage(getFlagMessageSuccessNotification, [message]);
       addNotification(
         successMessage || t('Message has been successfully flagged'),
         'success',
@@ -291,10 +222,7 @@ class Message extends Component {
     } catch (e) {
       const errorMessage =
         getFlagMessageErrorNotification &&
-        this.validateAndGetNotificationMessage(
-          getFlagMessageErrorNotification,
-          [message],
-        );
+        validateAndGetMessage(getFlagMessageErrorNotification, [message]);
       addNotification(
         errorMessage ||
           t(
@@ -305,7 +233,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleMute = async (event) => {
     event.preventDefault();
 
@@ -328,10 +256,7 @@ class Message extends Component {
         await client.muteUser(message.user.id);
         const successMessage =
           getMuteUserSuccessNotification &&
-          this.validateAndGetNotificationMessage(
-            getMuteUserSuccessNotification,
-            [message.user],
-          );
+          validateAndGetMessage(getMuteUserSuccessNotification, [message.user]);
 
         addNotification(
           successMessage ||
@@ -343,9 +268,7 @@ class Message extends Component {
       } catch (e) {
         const errorMessage =
           getMuteUserErrorNotification &&
-          this.validateAndGetNotificationMessage(getMuteUserErrorNotification, [
-            message.user,
-          ]);
+          validateAndGetMessage(getMuteUserErrorNotification, [message.user]);
 
         addNotification(errorMessage || t('Error muting a user ...'), 'error');
       }
@@ -360,10 +283,9 @@ class Message extends Component {
         });
         const successMessage =
           (getMuteUserSuccessNotification &&
-            this.validateAndGetNotificationMessage(
-              getMuteUserSuccessNotification,
-              [message.user],
-            )) ||
+            validateAndGetMessage(getMuteUserSuccessNotification, [
+              message.user,
+            ])) ||
           fallbackMessage;
 
         if (typeof successMessage === 'string') {
@@ -372,10 +294,9 @@ class Message extends Component {
       } catch (e) {
         const errorMessage =
           (getMuteUserErrorNotification &&
-            this.validateAndGetNotificationMessage(
-              getMuteUserErrorNotification,
-              [message.user],
-            )) ||
+            validateAndGetMessage(getMuteUserErrorNotification, [
+              message.user,
+            ])) ||
           t('Error unmuting a user ...');
         if (typeof errorMessage === 'string') {
           addNotification(errorMessage, 'error');
@@ -384,7 +305,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   handleEdit = (event) => {
     const { setEditingState, message } = this.props;
 
@@ -398,7 +319,7 @@ class Message extends Component {
     setEditingState(message);
   };
 
-  /** @type {(event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleDelete = async (event) => {
     event.preventDefault();
     const { message, client, updateMessage } = this.props;
@@ -409,7 +330,7 @@ class Message extends Component {
     updateMessage(data.message);
   };
 
-  /** @type {(reactionType: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(reactionType: string, event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleReaction = async (reactionType, event) => {
     const { updateMessage, message, client, channel } = this.props;
 
@@ -474,7 +395,7 @@ class Message extends Component {
     }
   };
 
-  /** @type {(name: string, value: string, event: MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
+  /** @type {(name: string, value: string, event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   handleAction = async (name, value, event) => {
     event.preventDefault();
     const { channel, message, updateMessage, removeMessage } = this.props;
@@ -504,7 +425,7 @@ class Message extends Component {
     await retrySendMessage(message);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onMentionsClick = (e) => {
     const { onMentionsClick, message } = this.props;
     if (typeof onMentionsClick !== 'function' || !message?.mentioned_users) {
@@ -513,7 +434,7 @@ class Message extends Component {
     onMentionsClick(e, message.mentioned_users);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onMentionsHover = (e) => {
     const { onMentionsHover, message } = this.props;
 
@@ -524,7 +445,7 @@ class Message extends Component {
     onMentionsHover(e, message.mentioned_users);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserClick = (e) => {
     const { onUserClick, message } = this.props;
     if (typeof onUserClick !== 'function' || !message?.user) {
@@ -534,7 +455,7 @@ class Message extends Component {
     onUserClick(e, message.user);
   };
 
-  /** @type {(e: MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
   onUserHover = (e) => {
     const { message, onUserHover } = this.props;
     if (typeof onUserHover !== 'function' || !message?.user) {
@@ -546,72 +467,22 @@ class Message extends Component {
 
   isUserMuted = () => {
     const { mutes, message } = this.props;
-    if (!mutes || !message) {
-      return false;
-    }
-
-    const userMuted = mutes.filter(
-      /** @type {(el: import('stream-chat').Mute) => boolean} Typescript syntax */
-      (el) => el.target.id === message.user?.id,
-    );
-    return !!userMuted.length;
+    return isUserMuted(message, mutes);
   };
 
   getMessageActions = () => {
-    const {
-      channel,
-      message,
-      messageActions: messageActionsProps,
-    } = this.props;
+    const { channel, message, messageActions } = this.props;
     const channelConfig = channel && channel.getConfig();
-
-    const messageActionsAfterPermission = [];
-    let messageActions = [];
-
-    if (messageActionsProps && typeof messageActionsProps === 'boolean') {
-      // If value of messageActionsProps is true, then populate all the possible values
-      messageActions = Object.keys(MESSAGE_ACTIONS);
-    } else if (messageActionsProps && messageActionsProps.length > 0) {
-      messageActions = [...messageActionsProps];
-    } else {
+    if (!message || !messageActions) {
       return [];
     }
 
-    if (
-      message &&
-      this.canEditMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
-    }
-
-    if (
-      message &&
-      this.canDeleteMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
-    }
-
-    if (
-      message &&
-      !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
-    }
-
-    if (
-      message &&
-      !this.isMyMessage(message) &&
-      messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 &&
-      channelConfig &&
-      channelConfig.mutes
-    ) {
-      messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
-    }
-
-    return messageActionsAfterPermission;
+    return getMessageActions(messageActions, {
+      canDelete: this.canDeleteMessage(message),
+      canEdit: this.canEditMessage(message),
+      canFlag: !this.isMyMessage(message),
+      canMute: !this.isMyMessage(message) && !!channelConfig?.mutes,
+    });
   };
 
   render() {
