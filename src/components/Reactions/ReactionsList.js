@@ -12,6 +12,7 @@ const ReactionsList = ({
   reaction_counts,
   reactionOptions = defaultMinimalEmojis,
   reverse = false,
+  onClick,
 }) => {
   const getTotalReactionCount = () =>
     Object.values(reaction_counts || {}).reduce(
@@ -38,6 +39,7 @@ const ReactionsList = ({
       className={`str-chat__reaction-list ${
         reverse ? 'str-chat__reaction-list--reverse' : ''
       }`}
+      onClick={onClick}
     >
       <ul>
         {getReactionTypes().map((reactionType) => {
@@ -71,6 +73,7 @@ ReactionsList.propTypes = {
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions: PropTypes.array,
   reverse: PropTypes.bool,
+  onClick: PropTypes.func,
 };
 
 export default React.memo(ReactionsList);
