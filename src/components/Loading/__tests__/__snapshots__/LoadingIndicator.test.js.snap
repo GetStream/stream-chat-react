@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadingIndicator should render with default props 1`] = `
+<div
+  className="str-chat__loading-indicator #006CFF"
+  data-testid="loading-indicator-wrapper"
+  style={
+    Object {
+      "height": 15,
+      "width": 15,
+    }
+  }
+>
+  <svg
+    height={15}
+    viewBox="0 0 30 30"
+    width={15}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient
+        id="a"
+        x1="50%"
+        x2="50%"
+        y1="0%"
+        y2="100%"
+      >
+        <stop
+          offset="0%"
+          stopColor="#FFF"
+          stopOpacity="0"
+        />
+        <stop
+          data-testid="loading-indicator-circle"
+          offset="100%"
+          stopColor="#006CFF"
+          stopOpacity="1"
+          style={
+            Object {
+              "stopColor": "#006CFF",
+            }
+          }
+        />
+      </linearGradient>
+    </defs>
+    <path
+      d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+      fill="url(#a)"
+      fillRule="evenodd"
+    />
+  </svg>
+</div>
+`;
