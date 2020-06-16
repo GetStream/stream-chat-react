@@ -1,9 +1,14 @@
-import React from 'react';
+// @ts-check
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { withTranslationContext } from '../../context';
+import { TranslationContext } from '../../context';
 
-const EmptyStateIndicator = ({ listType, t }) => {
+/**
+ * @type {React.FC<import('types').EmptyStateIndicatorProps>} param0
+ */
+const EmptyStateIndicator = ({ listType }) => {
+  const { t } = useContext(TranslationContext);
   if (listType === 'channel')
     return <p>{t('You have no channels currently')}</p>;
 
@@ -14,7 +19,7 @@ const EmptyStateIndicator = ({ listType, t }) => {
 
 EmptyStateIndicator.propTypes = {
   /** channel | message */
-  listType: PropTypes.string,
+  listType: PropTypes.string.isRequired,
 };
 
-export default withTranslationContext(React.memo(EmptyStateIndicator));
+export default React.memo(EmptyStateIndicator);
