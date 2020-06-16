@@ -737,9 +737,9 @@ export interface ChatDownProps extends TranslationContextValue {
 
 export interface CommandItemProps {
   entity: {
-    name: string;
-    args: string;
-    description: string;
+    name?: string | undefined | null;
+    args?: string | undefined | null;
+    description?: string | undefined | null;
   };
 }
 
