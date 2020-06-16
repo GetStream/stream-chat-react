@@ -7,8 +7,7 @@ import { TranslationContext } from '../../context';
 
 /**
  * EventComponent - Custom render component for system and channel event messages
- *
- * @type import('types').EventComponent
+ * @type {React.FC<import('types').EventComponentProps>}
  */
 const EventComponent = ({ message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
@@ -60,6 +59,7 @@ const EventComponent = ({ message }) => {
 
 EventComponent.propTypes = {
   /** Message object */
+  // @ts-ignore
   message: PropTypes.object.isRequired,
 };
 
