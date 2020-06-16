@@ -67,7 +67,7 @@ const ReactionsList = ({
 ReactionsList.propTypes = {
   reactions: PropTypes.array,
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-  reaction_counts: PropTypes.object,
+  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions: PropTypes.array,
   reverse: PropTypes.bool,

@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
 import { NimbleEmoji } from 'emoji-mart';
@@ -13,7 +13,6 @@ const SimpleReactionsList = ({
   handleReaction,
 }) => {
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
-  const reactionSelectorTooltip = useRef(null);
 
   /** @param {string | null} type */
   const getUsersPerReactionType = (type) =>
@@ -70,10 +69,7 @@ const SimpleReactionsList = ({
             </span>
 
             {tooltipReactionType === getOptionForType(reactionType)?.id && (
-              <div
-                className="str-chat__simple-reactions-list-tooltip"
-                ref={reactionSelectorTooltip}
-              >
+              <div className="str-chat__simple-reactions-list-tooltip">
                 <div className="arrow" />
                 {getUsersPerReactionType(tooltipReactionType)?.join(', ')}
               </div>
@@ -93,7 +89,7 @@ const SimpleReactionsList = ({
 SimpleReactionsList.propTypes = {
   reactions: PropTypes.array,
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-  reaction_counts: PropTypes.object,
+  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions: PropTypes.array,
   /**
