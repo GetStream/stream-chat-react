@@ -530,7 +530,7 @@ class ReactTextareaAutocomplete extends React.Component {
     } else {
       let tokenMatch = value
         .slice(0, selectionEnd)
-        .match(/(?!^|\W)?[:@]\w*\s?\w*$/g);
+        .match(/(?!^|\W)?[:@][^\s]*\s?[^\s]*$/g);
 
       lastToken = tokenMatch && tokenMatch[tokenMatch.length - 1].trim();
 
