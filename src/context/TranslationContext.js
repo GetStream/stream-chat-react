@@ -5,7 +5,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 const extendedDayjs = Dayjs.extend(LocalizedFormat);
 
 export const TranslationContext = React.createContext({
-  t: (msg) => msg,
+  t: (msg) => msg, // eslint-disable-line
   tDateTimeParser: (input) => extendedDayjs(input),
 });
 
