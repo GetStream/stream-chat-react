@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.0) 2020-06-16
+
+- @mentions now use the queryMembers endpoint enabling mentions in channels of more that 100 members
+- Fix for .mov videos
+- Refactors and a lot of new tests
+- Some small bug fixes
+
 ## [1.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v1.1.2) 2020-06-11
 
 - Fixes issue with File uploads on MessageInputLarge
