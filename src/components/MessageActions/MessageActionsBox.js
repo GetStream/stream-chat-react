@@ -89,7 +89,8 @@ MessageActionsBox.propTypes = {
   /** If message belongs to current user. */
   mine: PropTypes.bool,
   /** DOMRect object for parent MessageList component */
-  messageListRect: PropTypes.instanceOf(DOMRect),
+  // @ts-ignore (using PropTypes.instanceOf(DOMRect) throws a referenceError in jest)
+  messageListRect: PropTypes.object,
   /**
    * Handler for flaging a current message
    *
