@@ -15,17 +15,6 @@ class MessageActionsBox extends React.Component {
   static propTypes = {
     /** If the message actions box should be open or not */
     open: PropTypes.bool.isRequired,
-    /**
-     * @deprecated
-     *
-     *  The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitly:
-     *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessage`, `canEditMessage`, `isMyMessage`, `isAdmin`
-     */
-    Message: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-      PropTypes.object,
-    ]).isRequired,
     /** If message belongs to current user. */
     mine: PropTypes.bool,
     /** DOMRect object for parent MessageList component */
