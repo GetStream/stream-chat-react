@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,9 +8,15 @@ import { withTranslationContext } from '../../context';
  * DateSeparator - A simple date separator
  *
  * @example ../../docs/DateSeparator.md
+ * @type {React.FC<import('types').DateSeparatorProps>}
  */
-const DateSeparator = ({ position, tDateTimeParser, formatDate, date }) => {
-  if (!Date.parse(date)) return null;
+const DateSeparator = ({
+  position = 'right',
+  tDateTimeParser,
+  formatDate,
+  date,
+}) => {
+  if (typeof date === 'string') return null;
 
   return (
     <div className="str-chat__date-separator">
@@ -28,13 +35,9 @@ const DateSeparator = ({ position, tDateTimeParser, formatDate, date }) => {
   );
 };
 
-DateSeparator.defaultProps = {
-  position: 'right',
-};
-
 DateSeparator.propTypes = {
   /** The date to format */
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.instanceOf(Date).isRequired,
   /** Set the position of the date in the separator */
   position: PropTypes.oneOf(['left', 'center', 'right']),
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
