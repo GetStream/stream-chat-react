@@ -238,7 +238,7 @@ class MessageTeam extends PureComponent {
           data-testid="message-team-sending"
         >
           <Tooltip>{t && t('Sending...')}</Tooltip>
-          <LoadingIndicator isLoading />
+          <LoadingIndicator />
         </span>
       );
     }
