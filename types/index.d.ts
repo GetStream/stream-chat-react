@@ -828,6 +828,7 @@ export interface MessageActionsProps extends TranslationContextValue {
   Message?: React.ElementType<MessageProps>;
   /** If message belongs to current user. */
   mine?: boolean;
+  reverse: boolean;
   isUserMuted?(): boolean;
   mutes: Client.Mute[];
   /** DOMRect object for parent MessageList component */
