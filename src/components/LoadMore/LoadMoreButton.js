@@ -12,6 +12,7 @@ const LoadMoreButton = ({ onClick, refreshing, children = 'Load more' }) => (
     <button
       className="str-chat__load-more-button__button"
       onClick={onClick}
+      data-testid="load-more-button"
       disabled={refreshing}
     >
       {refreshing ? <LoadingIndicator /> : children}
