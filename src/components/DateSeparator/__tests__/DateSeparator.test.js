@@ -16,13 +16,6 @@ const getTDateTimeParserMock = (string) => () => ({
 const now = new Date();
 
 describe('DateSeparator', () => {
-  it('should render nothing if the date prop is not provided', () => {
-    const { queryByText } = render(
-      <DateSeparator formatDate={() => 'the date'} date={null} />,
-    );
-    expect(queryByText('the date')).toBeNull();
-  });
-
   it('should use formatDate if it is provided', () => {
     const { queryByText } = render(
       <DateSeparator formatDate={() => 'the date'} date={now} />,
