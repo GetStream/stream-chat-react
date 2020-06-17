@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { LoadingChannels } from '../Loading';
 import { TranslationContext } from '../../context';
 
-// @ts-ignore
 import placeholder from '../../assets/str-chat__connection-error.svg';
 
 /**
