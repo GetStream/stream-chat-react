@@ -354,10 +354,7 @@ export interface MessageListProps
   additionalMessageInputProps?: object;
 }
 
-export interface ChannelHeaderProps
-  extends ChannelContextValue,
-    TranslationContextValue,
-    ChatContextValue {
+export interface ChannelHeaderProps {
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
