@@ -3,7 +3,8 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => { onMentionsClick: React.EventHandler<React.SyntheticEvent>, onMentionsHover: React.EventHandler<React.SyntheticEvent> }}
+ * @typedef {React.EventHandler<React.SyntheticEvent>} Handler
+ * @type {(message: import('stream-chat').MessageResponse | undefined) => { onMentionsClick: Handler, onMentionsHover: Handler }}
  */
 export const useMentionsHandler = (message) => {
   /**

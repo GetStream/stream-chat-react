@@ -30,7 +30,7 @@ function renderUseOpenThreadHandlerHook(
 
 describe('useOpenThreadHandler custom hook', () => {
   afterEach(jest.clearAllMocks);
-  it('should return generate function that handles mutes', () => {
+  it('should return a function', () => {
     const handleOpenThread = renderUseOpenThreadHandlerHook();
     expect(typeof handleOpenThread).toBe('function');
   });

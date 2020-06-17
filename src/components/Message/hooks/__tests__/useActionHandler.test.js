@@ -40,7 +40,7 @@ async function renderUseHandleActionHook(message = generateMessage()) {
 
 describe('useHandleAction custom hook', () => {
   afterEach(jest.clearAllMocks);
-  it('should return generate function that handles reactions', async () => {
+  it('should return function that handles actions', async () => {
     const handleAction = await renderUseHandleActionHook();
     expect(typeof handleAction).toBe('function');
   });

@@ -42,7 +42,7 @@ async function renderUseHandleFlagHook(
 }
 describe('useHandleFlag custom hook', () => {
   afterEach(jest.clearAllMocks);
-  it('should return generate function that handles mutes', async () => {
+  it('should generate function that handles mutes', async () => {
     const handleFlag = await renderUseHandleFlagHook();
     expect(typeof handleFlag).toBe('function');
   });
