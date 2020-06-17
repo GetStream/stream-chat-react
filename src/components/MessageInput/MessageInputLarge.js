@@ -21,7 +21,9 @@ const MessageInputLarge = (props) => {
   const messageInput = useMessageInput(props);
   /** @type {import("types").TranslationContextValue} */
   const translationContext = useContext(TranslationContext);
-  const { t } = translationContext;
+  const {
+    t = /** @type {(key: string) => string} */ (key) => key,
+  } = translationContext;
   /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
 
