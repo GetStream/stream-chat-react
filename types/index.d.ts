@@ -582,7 +582,7 @@ export interface MessageUIComponentProps
 export interface MessageDeletedProps extends TranslationContextValue {
   /** The message object */
   message: Client.MessageResponse;
-  isMyMessage(message: Client.MessageResponse): boolean;
+  isMyMessage?(message: Client.MessageResponse): boolean;
 }
 
 export interface ThreadProps
