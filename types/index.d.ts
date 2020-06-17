@@ -827,9 +827,9 @@ export interface MessageNotificationProps {
 }
 export interface MessageRepliesCountButtonProps
   extends TranslationContextValue {
-  labelSingle: string;
-  labelPlural: string;
-  reply_count: number;
+  labelSingle?: string;
+  labelPlural?: string;
+  reply_count?: number;
   onClick: React.MouseEventHandler;
 }
 export interface ModalProps {
