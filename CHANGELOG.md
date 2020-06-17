@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.1) 2020-06-17
+
+- Fixed an issue with our type definitions introduced in `1.2.0`
+
 ## [1.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.0) 2020-06-16
 
 - @mentions now use the queryMembers endpoint enabling mentions in channels of more that 100 members
