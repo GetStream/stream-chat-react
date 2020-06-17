@@ -68,7 +68,7 @@ MessageRepliesCountButton.propTypes = {
    * @param event React's MouseEventHandler event
    * @returns void
    * */
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
 };
 
 export default React.memo(MessageRepliesCountButton);

@@ -830,7 +830,7 @@ export interface MessageRepliesCountButtonProps
   labelSingle?: string;
   labelPlural?: string;
   reply_count?: number;
-  onClick: React.MouseEventHandler;
+  onClick?: React.MouseEventHandler;
 }
 export interface ModalProps {
   onClose(): void;
