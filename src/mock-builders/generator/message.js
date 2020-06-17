@@ -5,6 +5,7 @@ export const generateMessage = (options) => {
     id: uuidv4(),
     text: uuidv4(),
     type: 'regular',
+    html: '<p>regular</p>',
     attachments: [],
     created_at: new Date(),
     updated_at: new Date(),
