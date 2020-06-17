@@ -3,7 +3,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// @ts-ignore
 import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 import { withTranslationContext } from '../../context';
 import { SafeAnchor } from '../SafeAnchor';

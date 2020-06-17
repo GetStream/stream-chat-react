@@ -730,9 +730,9 @@ export interface ChatAutoCompleteProps {
 }
 
 export interface ChatDownProps extends TranslationContextValue {
-  image: string;
+  image?: string;
   type: string;
-  text: string;
+  text?: string;
 }
 
 export interface CommandItemProps {
