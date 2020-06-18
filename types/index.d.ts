@@ -797,21 +797,12 @@ export interface LoadMoreButtonProps {
   refreshing: boolean;
 }
 export interface LoadingChannelsProps {}
-export interface MessageActionsProps extends TranslationContextValue {
-  onClickReact: React.MouseEventHandler;
+export interface MessageActionsBoxProps {
   /** If the message actions box should be open or not */
-  open: boolean;
-  /**
-   * @deprecated
-   *
-   *  The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitly:
-   *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessage`, `canEditMessage`, `isMyMessage`, `isAdmin`
-   */
-  Message?: React.ElementType<MessageProps>;
+  open?: boolean;
   /** If message belongs to current user. */
   mine?: boolean;
   isUserMuted?(): boolean;
-  mutes: Client.Mute[];
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -820,7 +811,6 @@ export interface MessageActionsProps extends TranslationContextValue {
   handleMute?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
-export interface MessageActionsBoxProps extends MessageActionsProps {}
 export interface MessageNotificationProps {
   showNotification: boolean;
   onClick: React.MouseEventHandler;
@@ -884,10 +874,7 @@ export class InfiniteScroll extends React.PureComponent<
 export const LoadMoreButton: React.FC<LoadMoreButtonProps>;
 export const LoadingChannels: React.FC<LoadingChannelsProps>;
 export const LoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps>;
-export class MessageActions extends React.PureComponent<
-  MessageActionsProps,
-  any
-> {}
+
 export class MessageActionsBox extends React.PureComponent<
   MessageActionsBoxProps,
   any
