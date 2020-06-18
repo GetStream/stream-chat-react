@@ -89,22 +89,29 @@ export const getMessageActions = (
 /**
  * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
  */
-export const shouldMessageComponentUpdate = (nextProps, props) => {
-  // Component should only update if:
+export const areMessagePropsEqual = (props, nextProps) => {
   return (
-    // Message content is different
-    nextProps.message !== props.message ||
+    // Message content is equal
+    nextProps.message === props.message &&
     // Message was read by someone
-    !deepequal(nextProps.readBy, props.readBy) ||
+    deepequal(nextProps.readBy, props.readBy) &&
     // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
-    !deepequal(nextProps.groupStyles, props.groupStyles) ||
+    deepequal(nextProps.groupStyles, props.groupStyles) &&
     // Last message received in the channel changes
-    !deepequal(nextProps.lastReceivedId, props.lastReceivedId) ||
+    deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
     // User toggles edit state
-    nextProps.editing !== props.editing ||
+    nextProps.editing === props.editing &&
     // Message wrapper layout changes
-    nextProps.messageListRect !== props.messageListRect
+    nextProps.messageListRect === props.messageListRect
   );
+};
+
+/**
+ * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
+ */
+export const shouldMessageComponentUpdate = (props, nextProps) => {
+  // Component should only update if:
+  return !areMessagePropsEqual(props, nextProps);
 };
 
 export const MessagePropTypes = PropTypes.shape({
