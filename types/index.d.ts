@@ -72,12 +72,12 @@ export interface ChannelContextValue extends ChatContextValue {
     extraState?: object,
   ): void;
   /** Function executed when user clicks on link to open thread */
-  retrySendMessage?(message: Client.Message): void;
+  retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -506,6 +506,11 @@ export interface MessageProps extends TranslationContextValue {
   ): void;
   additionalMessageInputProps?: object;
   clearEditingState?(e?: React.MouseEvent): void;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  setEditingState?(message: Client.MessageResponse): any;
 }
 
 export type MessageComponentState = {
@@ -532,13 +537,8 @@ export interface MessageComponentProps
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
   addNotification?(notificationText: string, type: string): any;
-  setEditingState?(message: Client.MessageResponse): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -980,16 +980,28 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-
-export type MessageSimpleState = {
-  isFocused: boolean;
+export interface MessageSimpleTextProps extends MessageSimpleProps {
   actionsBoxOpen: boolean;
+  onReactionListClick: () => void;
   showDetailedReactions: boolean;
-};
-export class MessageSimple extends React.PureComponent<
-  MessageSimpleProps,
-  MessageSimpleState
-> {}
+  reactionSelectorRef: React.RefObject<ReactionSelector>;
+  setActionsBoxOpen: (state: boolean) => void;
+  hideOptions: () => void;
+}
+export interface MessageSimpleOptionsProps extends MessageSimpleProps {
+  actionsBoxOpen: boolean;
+  hideOptions: () => void;
+  setActionsBoxOpen: (state: boolean) => void;
+  onReactionListClick: () => void;
+}
+export interface MessageSimpleActionsProps extends MessageSimpleProps {
+  addNotification?(notificationText: string, type: string): any;
+  actionsBoxOpen: boolean;
+  hideOptions: () => void;
+  setActionsBoxOpen: (state: boolean) => void;
+}
+
+export const MessageSimple: React.FC<MessageSimpleProps>;
 
 export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
