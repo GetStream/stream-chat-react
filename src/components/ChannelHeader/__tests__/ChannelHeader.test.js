@@ -21,7 +21,6 @@ async function renderComponent(props, channelData) {
   testChannel1 = generateChannel(channelData);
   const t = jest.fn((key) => key);
   const client = await getTestClientWithUser(alice);
-  console.log(testChannel1);
   return render(
     <ChatContext.Provider value={{ client, channel: testChannel1 }}>
       <ChannelContext.Provider value={{ client }}>
