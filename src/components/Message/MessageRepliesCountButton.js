@@ -1,15 +1,16 @@
-import React from 'react';
+// @ts-check
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { TranslationContext } from '../../context';
 
-import { withTranslationContext } from '../../context';
-
+/** @type {React.FC<import("types").MessageRepliesCountButtonProps>} */
 const MessageRepliesCountButton = ({
   reply_count,
   labelSingle,
   labelPlural,
   onClick,
-  t,
 }) => {
+  const { t } = useContext(TranslationContext);
   let singleReplyText;
   let pluralReplyText;
 
@@ -21,7 +22,7 @@ const MessageRepliesCountButton = ({
     }
   }
 
-  if (reply_count > 1) {
+  if (reply_count && reply_count > 1) {
     if (labelPlural) {
       pluralReplyText = `${reply_count} ${labelPlural}`;
     } else {
@@ -70,4 +71,4 @@ MessageRepliesCountButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-export default withTranslationContext(React.memo(MessageRepliesCountButton));
+export default React.memo(MessageRepliesCountButton);

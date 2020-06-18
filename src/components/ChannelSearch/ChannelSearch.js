@@ -1,5 +1,9 @@
+// @ts-check
 import React from 'react';
 
+/**
+ * @type {React.FC}
+ */
 const ChannelSearch = () => (
   <div className="str-chat__channel-search">
     <input type="text" placeholder="Search" />

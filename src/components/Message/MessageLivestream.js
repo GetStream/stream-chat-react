@@ -244,7 +244,6 @@ class MessageLivestream extends PureComponent {
       threadList,
       handleOpenThread,
       getMessageActions,
-      Message,
       messageListRect,
       isMyMessage,
       isUserMuted,
@@ -301,8 +300,6 @@ class MessageLivestream extends PureComponent {
               <MessageActionsBox
                 getMessageActions={getMessageActions}
                 open={this.state.actionsBoxOpen}
-                Message={Message}
-                message={message}
                 messageListRect={messageListRect}
                 mine={isMyMessage && isMyMessage(message)}
                 isUserMuted={isUserMuted}
