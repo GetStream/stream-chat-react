@@ -1,176 +1,103 @@
-/* eslint-disable */
-import React from 'react';
+// @ts-check
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+// @ts-ignore
 import { NimbleEmoji } from 'emoji-mart';
-
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
 
-class SimpleReactionsList extends React.PureComponent {
-  static propTypes = {
-    reactions: PropTypes.array,
-    /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-    reaction_counts: PropTypes.object,
-    showTooltip: PropTypes.bool,
-    /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-    reactionOptions: PropTypes.array,
-    /**
-     * Handler to set/unset reaction on message.
-     *
-     * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-     * */
-    handleReaction: PropTypes.func,
-  };
+/** @type {React.FC<import("types").SimpleReactionsListProps>} */
+const SimpleReactionsList = ({
+  reactions,
+  reaction_counts,
+  reactionOptions = defaultMinimalEmojis,
+  handleReaction,
+}) => {
+  const [tooltipReactionType, setTooltipReactionType] = useState(null);
 
-  static defaultProps = {
-    showTooltip: true,
-    reactionOptions: defaultMinimalEmojis,
-    emojiSetDef,
-  };
+  /** @param {string | null} type */
+  const getUsersPerReactionType = (type) =>
+    reactions
+      ?.map((reaction) => {
+        if (reaction.type === type) {
+          return reaction.user?.name || reaction.user?.id;
+        }
+        return null;
+      })
+      .filter(Boolean);
 
-  state = {
-    showTooltip: false,
-    users: [],
-  };
-
-  showTooltip = () => {
-    this.setState({
-      showTooltip: true,
-    });
-  };
-
-  hideTooltip = () => {
-    this.setState({
-      showTooltip: false,
-    });
-  };
-
-  handleReaction = (e, type) => {
-    if (e !== undefined && e.preventDefault) {
-      e.preventDefault();
-    }
-    this.props.handleReaction(type);
-    this.setUsernames(type);
-  };
-
-  getReactionCount = () => {
-    const reaction_counts = this.props.reaction_counts;
-    let count = null;
-    if (
-      reaction_counts !== null &&
-      reaction_counts !== undefined &&
-      Object.keys(reaction_counts).length > 0
-    ) {
-      count = 0;
-      Object.keys(reaction_counts).map(
-        (key) => (count += reaction_counts[key]),
-      );
-    }
-    return count;
-  };
-
-  renderUsers = (users) =>
-    users.map((user, i) => {
-      let text = user;
-      if (i + 1 < users.length) {
-        text += ', ';
-      }
-      return (
-        <span className="latest-user-username" key={`key-${i}-${user}`}>
-          {text}
-        </span>
-      );
-    });
-
-  getReactionsByType = (reactions) => {
-    const reactionsByType = {};
-    reactions.map((item) => {
-      if (reactionsByType[item.type] === undefined) {
-        return (reactionsByType[item.type] = [item]);
-      } else {
-        return (reactionsByType[item.type] = [
-          ...reactionsByType[item.type],
-          item,
-        ]);
-      }
-    });
-    return reactionsByType;
-  };
-
-  renderReactions = (reactions) => {
-    const reactionsByType = this.getReactionsByType(reactions);
-    const reactionsEmojis = this.props.reactionOptions.reduce(
-      (acc, cur) => ({ ...acc, [cur.id]: cur }),
-      {},
-    );
-    return Object.keys(reactionsByType).map((type, i) => (
-      <li
-        className="str-chat__simple-reactions-list-item"
-        key={`${reactionsByType[type][0].id}-${i}`}
-        onClick={(e) => this.handleReaction(e, type)}
-      >
-        <span onMouseEnter={() => this.setUsernames(type)}>
-          <NimbleEmoji
-            emoji={reactionsEmojis[type]}
-            {...emojiSetDef}
-            size={13}
-            data={emojiData}
-          />
-          &nbsp;
-        </span>
-      </li>
-    ));
-  };
-
-  getUsernames = (reactions) =>
-    reactions.map((item) =>
-      item.user !== null ? item.user.name || item.user.id : 'null',
+  const getTotalReactionCount = () =>
+    Object.values(reaction_counts || {}).reduce(
+      (total, count) => total + count,
+      0,
     );
 
-  setUsernames = (type) => {
-    const reactionsByType = this.getReactionsByType(this.props.reactions);
-
-    const reactions = reactionsByType[type];
-    const users = this.getUsernames(reactions);
-
-    this.setState(
-      {
-        users,
-      },
-      () => this.showTooltip(),
-    );
+  const getReactionTypes = () => {
+    if (!reactions) return [];
+    const allTypes = new Set();
+    reactions.forEach(({ type }) => {
+      allTypes.add(type);
+    });
+    return Array.from(allTypes);
   };
 
-  renderUsernames = (users) => users.join(', ');
+  /** @param {string} type */
+  const getOptionForType = (type) =>
+    reactionOptions.find((option) => option.id === type);
 
-  render() {
-    const { reactions } = this.props;
-    if (!reactions || reactions.length === 0) {
-      return null;
-    }
-    return (
-      <ul
-        data-testid="simple-reaction-list"
-        className="str-chat__simple-reactions-list"
-        onMouseLeave={this.hideTooltip}
-      >
-        {this.state.showTooltip && (
-          <div
-            className="str-chat__simple-reactions-list-tooltip"
-            ref={this.reactionSelectorTooltip}
+  return (
+    <ul
+      data-testid="simple-reaction-list"
+      className="str-chat__simple-reactions-list"
+      onMouseLeave={() => setTooltipReactionType(null)}
+    >
+      {getReactionTypes().map((reactionType, i) => {
+        const emojiDefinition = getOptionForType(reactionType);
+        return (
+          <li
+            className="str-chat__simple-reactions-list-item"
+            key={`${emojiDefinition?.id}-${i}`}
+            onClick={() => handleReaction && handleReaction(reactionType)}
           >
-            <div className="arrow" />
-            {this.renderUsernames(this.state.users)}
-          </div>
-        )}
-        {this.renderReactions(reactions)}
-        {reactions.length !== 0 && (
-          <li className="str-chat__simple-reactions-list-item--last-number">
-            {this.getReactionCount()}
-          </li>
-        )}
-      </ul>
-    );
-  }
-}
+            <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
+              <NimbleEmoji
+                emoji={emojiDefinition}
+                {...emojiSetDef}
+                size={13}
+                data={emojiData}
+              />
+              &nbsp;
+            </span>
 
-export default SimpleReactionsList;
+            {tooltipReactionType === getOptionForType(reactionType)?.id && (
+              <div className="str-chat__simple-reactions-list-tooltip">
+                <div className="arrow" />
+                {getUsersPerReactionType(tooltipReactionType)?.join(', ')}
+              </div>
+            )}
+          </li>
+        );
+      })}
+      {reactions?.length !== 0 && (
+        <li className="str-chat__simple-reactions-list-item--last-number">
+          {getTotalReactionCount()}
+        </li>
+      )}
+    </ul>
+  );
+};
+
+SimpleReactionsList.propTypes = {
+  reactions: PropTypes.array,
+  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
+  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
+  reactionOptions: PropTypes.array,
+  /**
+   * Handler to set/unset reaction on message.
+   *
+   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+   * */
+  handleReaction: PropTypes.func,
+};
+
+export default React.memo(SimpleReactionsList);

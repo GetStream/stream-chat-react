@@ -619,7 +619,7 @@ export interface ReactionSelectorProps {
    * }
    * ```
    * */
-  latest_reactions: Client.ReactionResponse[];
+  latest_reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -627,7 +627,7 @@ export interface ReactionSelectorProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
   /** Enable the avatar display */
@@ -662,7 +662,7 @@ export interface ReactionsListProps {
    * }
    * ```
    * */
-  reactions: Client.ReactionResponse[];
+  reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -670,11 +670,11 @@ export interface ReactionsListProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface;
+  reactionOptions?: MinimalEmojiInterface[];
   onClick?(): void;
   reverse?: boolean;
   emojiSetDef?: EnojiSetDef;
@@ -829,7 +829,7 @@ export interface ModalProps {
 }
 export interface SafeAnchorProps {}
 export interface SimpleReactionsListProps {
-  reactions: Client.ReactionResponse[];
+  reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -837,12 +837,11 @@ export interface SimpleReactionsListProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
-  showTooltip?: boolean;
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface;
+  reactionOptions?: MinimalEmojiInterface[];
   handleReaction?(reactionType: string): void;
 }
 export interface TooltipProps {}
