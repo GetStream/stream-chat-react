@@ -13,7 +13,7 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat;
+  client?: Client.StreamChat | null;
   channel?: Client.Channel;
   setActiveChannel?(
     channel: Client.Channel,
