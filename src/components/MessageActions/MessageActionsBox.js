@@ -23,6 +23,10 @@ const MessageActionsBox = ({
 
   const checkIfReverse = useCallback(
     (containerElement) => {
+      if (!containerElement) {
+        setReverse(false);
+        return;
+      }
       if (open) {
         const containerRect = containerElement.getBoundingClientRect();
 
@@ -125,4 +129,4 @@ MessageActionsBox.propTypes = {
    */
   getMessageActions: PropTypes.func.isRequired,
 };
-export default MessageActionsBox;
+export default React.memo(MessageActionsBox);
