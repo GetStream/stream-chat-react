@@ -1,8 +1,8 @@
 // @ts-check
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { withTranslationContext } from '../../context';
+import { TranslationContext } from '../../context';
 
 /**
  * DateSeparator - A simple date separator
@@ -10,12 +10,8 @@ import { withTranslationContext } from '../../context';
  * @example ../../docs/DateSeparator.md
  * @type {React.FC<import('types').DateSeparatorProps>}
  */
-const DateSeparator = ({
-  position = 'right',
-  tDateTimeParser,
-  formatDate,
-  date,
-}) => {
+const DateSeparator = ({ position = 'right', formatDate, date }) => {
+  const { tDateTimeParser } = useContext(TranslationContext);
   if (typeof date === 'string') return null;
 
   return (
@@ -44,4 +40,4 @@ DateSeparator.propTypes = {
   formatDate: PropTypes.func,
 };
 
-export default withTranslationContext(React.memo(DateSeparator));
+export default React.memo(DateSeparator);
