@@ -1,125 +1,104 @@
 /* eslint-disable */
-import React, { PureComponent } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
-import { withTranslationContext, withChatContext } from '../../context';
+import { TranslationContext, ChatContext } from '../../context';
 import {
   getLatestMessagePreview,
   getDisplayTitle,
   getDisplayImage,
 } from './utils';
 
-class ChannelPreview extends PureComponent {
-  constructor(props) {
-    super(props);
+const ChannelPreview = (props) => {
+  const { t } = useContext(TranslationContext);
+  const { client } = useContext(ChatContext);
+  const { channel, activeChannel, Preview } = props;
+  const [lastMessage, setLastMessage] = useState({});
+  const [unread, setUnread] = useState(0);
+  const [lastRead, setLastRead] = useState(new Date());
 
-    this.state = {
-      lastMessage: {},
-      unread: 0,
-      lastRead: new Date(),
-    };
-  }
-
-  static propTypes = {
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    channel: PropTypes.object.isRequired,
-    /** Current selected channel object */
-    activeChannel: PropTypes.object,
-    /** Setter for selected channel */
-    setActiveChannel: PropTypes.func.isRequired,
-    /**
-     * Available built-in options (also accepts the same props as):
-     *
-     * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
-     * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
-     * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
-     *
-     * The Preview to use, defaults to ChannelPreviewLastMessage
-     * */
-    Preview: PropTypes.elementType,
-    /**
-     * Object containing watcher parameters
-     * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
-     * */
-    watchers: PropTypes.object,
-  };
-
-  static defaultProps = {
-    Preview: ChannelPreviewCountOnly,
-  };
-
-  componentDidMount() {
-    // listen to change...
-    const channel = this.props.channel;
+  useEffect(() => {
     const unread = channel.countUnread();
+    setUnread(unread);
+  }, []);
 
-    if (this.isActive()) {
-      this.setState({ unread: 0 });
-    } else {
-      this.setState({ unread });
-    }
+  useEffect(() => {
+    const handleEvent = (event) => {
+      const isActive = activeChannel && activeChannel.cid === channel.cid;
+      setLastMessage(event.message);
 
-    channel.on('message.new', this.handleEvent);
-    channel.on('message.updated', this.handleEvent);
-    channel.on('message.deleted', this.handleEvent);
-  }
-
-  componentWillUnmount() {
-    const channel = this.props.channel;
-    channel.off('message.new', this.handleEvent);
-    channel.off('message.updated', this.handleEvent);
-    channel.off('message.deleted', this.handleEvent);
-  }
-
-  isActive = () => {
-    const { activeChannel, channel } = this.props;
-
-    return activeChannel && activeChannel.cid === channel.cid;
-  };
-
-  handleEvent = (event) => {
-    const { channel } = this.props;
-    const { lastRead } = this.state;
-
-    if (!this.isActive()) {
-      const unread = channel.countUnread(lastRead);
-      this.setState({ lastMessage: event.message, unread });
-    } else {
-      this.setState({ lastMessage: event.message, unread: 0 });
-    }
-  };
-
-  componentDidUpdate(prevProps) {
-    if (
-      this.props.activeChannel &&
-      prevProps.activeChannel &&
-      this.props.activeChannel.cid !== prevProps.activeChannel.cid
-    ) {
-      const isActive = this.props.activeChannel.cid === this.props.channel.cid;
-      if (isActive) {
-        this.setState({ unread: 0, lastRead: new Date() });
+      if (!isActive) {
+        const unread = channel.countUnread(lastRead);
+        setUnread(unread);
+      } else {
+        setUnread(0);
       }
+    };
+
+    channel.on('message.new', handleEvent);
+    channel.on('message.updated', handleEvent);
+    channel.on('message.deleted', handleEvent);
+
+    return () => {
+      channel.off('message.new', handleEvent);
+      channel.off('message.updated', handleEvent);
+      channel.off('message.deleted', handleEvent);
+    };
+  }, [channel, activeChannel, lastRead]);
+
+  useEffect(() => {
+    const isActive = activeChannel.cid === channel.cid;
+
+    if (isActive) {
+      setUnread(0);
+      setLastRead(new Date());
+    } else {
+      setUnread(channel.countUnread());
     }
-  }
+  }, [activeChannel, channel]);
 
-  render() {
-    const props = { ...this.state, ...this.props };
+  return (
+    <Preview
+      {...props}
+      lastMessage={lastMessage}
+      unread={unread}
+      lastRead={lastRead}
+      latestMessage={getLatestMessagePreview(channel, t)}
+      latestMessageDisplayTest={getLatestMessagePreview(channel, t)}
+      displayTitle={getDisplayTitle(channel, client.user)}
+      displayImage={getDisplayImage(channel, client.user)}
+      active={activeChannel && activeChannel.cid === channel.cid}
+    />
+  );
+};
 
-    const { Preview, channel, client, activeChannel, t } = this.props;
-    return (
-      <Preview
-        {...props}
-        latestMessage={getLatestMessagePreview(channel, t)}
-        latestMessageDisplayTest={getLatestMessagePreview(channel, t)}
-        displayTitle={getDisplayTitle(channel, client.user)}
-        displayImage={getDisplayImage(channel, client.user)}
-        active={activeChannel && activeChannel.cid === channel.cid}
-      />
-    );
-  }
-}
+ChannelPreview.defaultProps = {
+  Preview: ChannelPreviewCountOnly,
+};
 
-ChannelPreview = withTranslationContext(withChatContext(ChannelPreview));
+ChannelPreview.propTypes = {
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  channel: PropTypes.object.isRequired,
+  /** Current selected channel object */
+  activeChannel: PropTypes.object,
+  /** Setter for selected channel */
+  setActiveChannel: PropTypes.func.isRequired,
+  /**
+   * Available built-in options (also accepts the same props as):
+   *
+   * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
+   * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
+   * 3. [ChannelPreviewMessanger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
+   *
+   * The Preview to use, defaults to ChannelPreviewLastMessage
+   * */
+  Preview: PropTypes.elementType,
+  /**
+   * Object containing watcher parameters
+   * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+   * */
+  watchers: PropTypes.object,
+};
 
 export default ChannelPreview;
