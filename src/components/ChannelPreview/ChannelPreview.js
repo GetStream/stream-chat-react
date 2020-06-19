@@ -4,6 +4,11 @@ import PropTypes from 'prop-types';
 
 import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
 import { withTranslationContext, withChatContext } from '../../context';
+import {
+  getLatestMessagePreview,
+  getDisplayTitle,
+  getDisplayImage,
+} from './utils';
 
 class ChannelPreview extends PureComponent {
   constructor(props) {
@@ -49,7 +54,12 @@ class ChannelPreview extends PureComponent {
     const channel = this.props.channel;
     const unread = channel.countUnread();
 
-    this.setState({ unread });
+    if (this.isActive()) {
+      this.setState({ unread: 0 });
+    } else {
+      this.setState({ unread });
+    }
+
     channel.on('message.new', this.handleEvent);
     channel.on('message.updated', this.handleEvent);
     channel.on('message.deleted', this.handleEvent);
@@ -62,12 +72,18 @@ class ChannelPreview extends PureComponent {
     channel.off('message.deleted', this.handleEvent);
   }
 
+  isActive = () => {
+    const { activeChannel, channel } = this.props;
+
+    return activeChannel && activeChannel.cid === channel.cid;
+  };
+
   handleEvent = (event) => {
-    const channel = this.props.channel;
-    const isActive =
-      this.props.activeChannel && this.props.activeChannel.cid === channel.cid;
-    if (!isActive) {
-      const unread = channel.countUnread(this.state.lastRead);
+    const { channel } = this.props;
+    const { lastRead } = this.state;
+
+    if (!this.isActive()) {
+      const unread = channel.countUnread(lastRead);
       this.setState({ lastMessage: event.message, unread });
     } else {
       this.setState({ lastMessage: event.message, unread: 0 });
@@ -87,71 +103,18 @@ class ChannelPreview extends PureComponent {
     }
   }
 
-  getLatestMessage = () => {
-    const { channel, t } = this.props;
-
-    const latestMessage =
-      channel.state.messages[channel.state.messages.length - 1];
-
-    if (!latestMessage) {
-      return t('Nothing yet...');
-    }
-    if (latestMessage.deleted_at) {
-      return t('Message deleted');
-    }
-    if (latestMessage.text) {
-      return latestMessage.text;
-    } else {
-      if (latestMessage.command) {
-        return '/' + latestMessage.command;
-      }
-      if (latestMessage.attachments.length) {
-        return t('🏙 Attachment...');
-      }
-      return t('Empty message...');
-    }
-  };
-
-  getDisplayTitle = () => {
-    const { channel, client } = this.props;
-    let title = channel.data.name;
-    const members = Object.values(channel.state.members);
-
-    if (!title && members.length === 2) {
-      const otherMember = members.find((m) => m.user.id !== client.user.id);
-      title = otherMember.user.name;
-    }
-
-    return title;
-  };
-
-  getDisplayImage = () => {
-    const { channel, client } = this.props;
-    let image = channel.data.image;
-    const members = Object.values(channel.state.members);
-
-    if (!image && members.length === 2) {
-      const otherMember = members.find((m) => m.user.id !== client.user.id);
-      image = otherMember.user.image;
-    }
-
-    return image;
-  };
-
   render() {
     const props = { ...this.state, ...this.props };
 
-    const { Preview } = this.props;
+    const { Preview, channel, client, activeChannel, t } = this.props;
     return (
       <Preview
         {...props}
-        latestMessage={this.getLatestMessage()}
-        displayTitle={this.getDisplayTitle()}
-        displayImage={this.getDisplayImage()}
-        active={
-          this.props.activeChannel &&
-          this.props.activeChannel.cid === this.props.channel.cid
-        }
+        latestMessage={getLatestMessagePreview(channel, t)}
+        latestMessageDisplayTest={getLatestMessagePreview(channel, t)}
+        displayTitle={getDisplayTitle(channel, client.user)}
+        displayImage={getDisplayImage(channel, client.user)}
+        active={activeChannel && activeChannel.cid === channel.cid}
       />
     );
   }

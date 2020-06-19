@@ -39,6 +39,12 @@ export const getTestClientWithUser = async (user) => {
   return client;
 };
 
+export const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; // The maximum is exclusive and the minimum is inclusive
+};
+
 export * from './api';
 export * from './event';
 export * from './generator';
