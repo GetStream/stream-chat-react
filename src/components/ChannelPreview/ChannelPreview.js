@@ -54,7 +54,12 @@ class ChannelPreview extends PureComponent {
     const channel = this.props.channel;
     const unread = channel.countUnread();
 
-    this.setState({ unread });
+    if (this.isActive()) {
+      this.setState({ unread: 0 });
+    } else {
+      this.setState({ unread });
+    }
+
     channel.on('message.new', this.handleEvent);
     channel.on('message.updated', this.handleEvent);
     channel.on('message.deleted', this.handleEvent);
@@ -67,11 +72,17 @@ class ChannelPreview extends PureComponent {
     channel.off('message.deleted', this.handleEvent);
   }
 
+  isActive = () => {
+    const { activeChannel, channel } = this.props;
+
+    return activeChannel && activeChannel.cid === channel.cid;
+  };
+
   handleEvent = (event) => {
-    const { channel, activeChannel } = this.props;
+    const { channel } = this.props;
     const { lastRead } = this.state;
-    const isActive = activeChannel && activeChannel.cid === channel.cid;
-    if (!isActive) {
+
+    if (!this.isActive()) {
       const unread = channel.countUnread(lastRead);
       this.setState({ lastMessage: event.message, unread });
     } else {

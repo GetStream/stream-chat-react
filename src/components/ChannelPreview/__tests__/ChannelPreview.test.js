@@ -149,9 +149,6 @@ describe('ChannelPreview', () => {
 
     // eslint-disable-next-line jest/expect-expect
     it('should set unreadCount to 0, in case of active channel', async () => {
-      const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
-
       const { getByTestId } = renderComponent(
         {
           channel: c0,
@@ -159,7 +156,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      await expectUnreadCountToBe(getByTestId, unreadCount);
+      await expectUnreadCountToBe(getByTestId, 0);
 
       const message = generateMessage();
       act(() => {
