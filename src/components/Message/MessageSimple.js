@@ -328,7 +328,6 @@ class MessageSimple extends PureComponent {
 
   renderMessageActions = () => {
     const {
-      Message,
       getMessageActions,
       messageListRect,
       handleFlag,
@@ -350,7 +349,6 @@ class MessageSimple extends PureComponent {
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
       >
         <MessageActionsBox
-          Message={Message}
           getMessageActions={getMessageActions}
           open={this.state.actionsBoxOpen}
           messageListRect={messageListRect}

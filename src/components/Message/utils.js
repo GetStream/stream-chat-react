@@ -1,5 +1,6 @@
 // @ts-check
 import deepequal from 'deep-equal';
+import PropTypes from 'prop-types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -105,3 +106,12 @@ export const shouldMessageComponentUpdate = (nextProps, props) => {
     nextProps.messageListRect !== props.messageListRect
   );
 };
+
+export const MessagePropTypes = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+  html: PropTypes.string.isRequired,
+  created_at: PropTypes.string.isRequired,
+  updated_at: PropTypes.string.isRequired,
+}).isRequired;

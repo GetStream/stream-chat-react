@@ -8,6 +8,8 @@ import { LoadingIndicator } from '../Loading';
 import { EmoticonItem } from '../EmoticonItem';
 import { UserItem } from '../UserItem';
 import { CommandItem } from '../CommandItem';
+import debounce from 'lodash/debounce';
+import { withChannelContext } from '../../context';
 
 /**
  * Textarea component with included autocomplete options. You can set your own commands and
@@ -59,15 +61,85 @@ class ChatAutoComplete extends PureComponent {
     rows: 3,
   };
 
+  getCommands = (channel) => {
+    const config = channel.getConfig();
+
+    if (!config) return [];
+
+    const allCommands = config.commands;
+    return allCommands;
+  };
+
+  getMembers = (channel) => {
+    const result = [];
+    const members = channel.state.members;
+    if (members && Object.values(members).length) {
+      Object.values(members).forEach((member) => result.push(member.user));
+    }
+
+    return result;
+  };
+
+  getWatchers = (channel) => {
+    const result = [];
+    const watchers = channel.state.watchers;
+    if (watchers && Object.values(watchers).length) {
+      result.push(...Object.values(watchers));
+    }
+
+    return result;
+  };
+
+  getMembersAndWatchers = (channel) => {
+    const users = [...this.getMembers(channel), ...this.getWatchers(channel)];
+
+    // make sure we don't list users twice
+    const uniqueUsers = {};
+    for (const user of users) {
+      if (user !== undefined && !uniqueUsers[user.id]) {
+        uniqueUsers[user.id] = user;
+      }
+    }
+    const usersArray = Object.values(uniqueUsers);
+
+    return usersArray;
+  };
+
+  queryMembers = async (channel, query, onReady) => {
+    const response = await channel.queryMembers({
+      name: { $autocomplete: query },
+    });
+
+    const users = response.members.map((m) => m.user);
+    onReady && onReady(users);
+  };
+
+  queryMembersdebounced = debounce(this.queryMembers, 200, {
+    trailing: true,
+    leading: false,
+  });
+
+  // dataProvider accepts `onReady` function, which will executed once the data is ready.
+  // Another approach would have been to simply return the data from dataProvider and let the
+  // component await for it and then execute the required logic. We are going for callback instead
+  // of async-await since we have debounce function in dataProvider. Which will delay the execution
+  // of api call on trailing end of debounce (lets call it a1) but will return with result of
+  // previous call without waiting for a1. So in this case, we want to execute onReady, when trailing
+  // end of debounce executes.
   getTriggers() {
+    const { channel } = this.props;
     return {
       ':': {
-        dataProvider: (q) => {
+        dataProvider: (q, text, onReady) => {
           if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
             return [];
           }
           const emojis = emojiIndex.search(q) || [];
-          return emojis.slice(0, 10);
+          const result = emojis.slice(0, 10);
+
+          onReady && onReady(result, q);
+
+          return result;
         },
         component: EmoticonItem,
         output: (entity) => ({
@@ -77,20 +149,40 @@ class ChatAutoComplete extends PureComponent {
         }),
       },
       '@': {
-        dataProvider: (q) => {
-          const matchingUsers = this.props.users.filter((user) => {
-            if (
-              user.name !== undefined &&
-              user.name.toLowerCase().indexOf(q.toLowerCase()) !== -1
-            ) {
-              return true;
-            } else if (user.id.toLowerCase().indexOf(q.toLowerCase()) !== -1) {
-              return true;
-            } else {
-              return false;
-            }
+        dataProvider: (query, text, onReady) => {
+          const members = channel.state.members;
+          // By default, we return maximum 100 members via queryChannels api call.
+          // Thus it is safe to assume, that if number of members in channel.state is < 100,
+          // then all the members are already available on client side and we don't need to
+          // make any api call to queryMembers endpoint.
+          if (!query || Object.values(members).length < 100) {
+            const users = this.getMembersAndWatchers(channel);
+
+            const matchingUsers = users.filter((user) => {
+              if (!query) return true;
+              if (
+                user.name !== undefined &&
+                user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+              ) {
+                return true;
+              } else if (
+                user.id.toLowerCase().indexOf(query.toLowerCase()) !== -1
+              ) {
+                return true;
+              } else {
+                return false;
+              }
+            });
+            const data = matchingUsers.slice(0, 10);
+
+            onReady && onReady(data, query);
+
+            return data;
+          }
+
+          return this.queryMembersdebounced(channel, query, (data) => {
+            onReady && onReady(data, query);
           });
-          return matchingUsers.slice(0, 10);
         },
         component: UserItem,
         output: (entity) => ({
@@ -101,7 +193,7 @@ class ChatAutoComplete extends PureComponent {
         callback: (item) => this.props.onSelectItem(item),
       },
       '/': {
-        dataProvider: (q, text) => {
+        dataProvider: (q, text, onReady) => {
           if (text.indexOf('/') !== 0) {
             return [];
           }
@@ -129,7 +221,10 @@ class ChatAutoComplete extends PureComponent {
             return 0;
           });
 
-          return selectedCommands.slice(0, 10);
+          const result = selectedCommands.slice(0, 10);
+          onReady && onReady(result, q);
+
+          return result;
         },
         component: CommandItem,
         output: (entity) => ({
@@ -185,4 +280,4 @@ class ChatAutoComplete extends PureComponent {
   }
 }
 
-export default ChatAutoComplete;
+export default withChannelContext(ChatAutoComplete);

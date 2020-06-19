@@ -334,7 +334,6 @@ class MessageTeam extends PureComponent {
       handleReaction,
       channelConfig,
       handleOpenThread,
-      Message,
       messageListRect,
       onMentionsHoverMessage,
       onMentionsClickMessage,
@@ -514,10 +513,8 @@ class MessageTeam extends PureComponent {
                         />
                         <MessageActionsBox
                           getMessageActions={getMessageActions}
-                          Message={Message}
                           open={this.state.actionsBoxOpen}
                           isUserMuted={isUserMuted}
-                          message={message}
                           messageListRect={messageListRect}
                           mine={isMyMessage && isMyMessage(message)}
                           handleFlag={handleFlag}

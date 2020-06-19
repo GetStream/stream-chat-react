@@ -4,8 +4,9 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 
 const extendedDayjs = Dayjs.extend(LocalizedFormat);
 
+/** @type {React.Context<{ t: import("i18next").TFunction, tDateTimeParser: (msg: string) => Dayjs.Dayjs }>} */
 export const TranslationContext = React.createContext({
-  t: (msg) => msg, // eslint-disable-line
+  t: /** @param {string} key */ (key) => key,
   tDateTimeParser: (input) => extendedDayjs(input),
 });
 
