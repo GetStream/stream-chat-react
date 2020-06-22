@@ -16,7 +16,6 @@ const ChannelPreview = (props) => {
   const { channel, activeChannel, Preview } = props;
   const [lastMessage, setLastMessage] = useState({});
   const [unread, setUnread] = useState(0);
-  const [lastRead, setLastRead] = useState(new Date());
 
   useEffect(() => {
     const unread = channel.countUnread();
@@ -29,7 +28,7 @@ const ChannelPreview = (props) => {
       setLastMessage(event.message);
 
       if (!isActive) {
-        const unread = channel.countUnread(lastRead);
+        const unread = channel.countUnread();
         setUnread(unread);
       } else {
         setUnread(0);
@@ -45,14 +44,13 @@ const ChannelPreview = (props) => {
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
-  }, [channel, activeChannel, lastRead]);
+  }, [channel, activeChannel]);
 
   useEffect(() => {
     const isActive = activeChannel.cid === channel.cid;
 
     if (isActive) {
       setUnread(0);
-      setLastRead(new Date());
     } else {
       setUnread(channel.countUnread());
     }
@@ -63,7 +61,6 @@ const ChannelPreview = (props) => {
       {...props}
       lastMessage={lastMessage}
       unread={unread}
-      lastRead={lastRead}
       latestMessage={getLatestMessagePreview(channel, t)}
       latestMessageDisplayTest={getLatestMessagePreview(channel, t)}
       displayTitle={getDisplayTitle(channel, client.user)}

@@ -1,7 +1,6 @@
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { render, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -128,7 +127,7 @@ describe('ChannelPreview', () => {
     });
 
     // eslint-disable-next-line jest/expect-expect
-    it('should update unreadCount, in acse of inactive channel', async () => {
+    it('should update unreadCount, in case of inactive channel', async () => {
       let newUnreadCount = getRandomInt(1, 10);
       c0.countUnread = () => newUnreadCount;
 

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import truncate from 'lodash/truncate';
+import truncate from 'lodash.truncate';
 
 import { Avatar } from '../Avatar';
 

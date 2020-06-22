@@ -1,7 +1,6 @@
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
