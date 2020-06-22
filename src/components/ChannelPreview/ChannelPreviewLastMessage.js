@@ -1,4 +1,6 @@
+// @ts-check
 import React, { useRef } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
 import truncate from 'lodash.truncate';
 
@@ -8,13 +10,15 @@ import { Avatar } from '../Avatar';
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  *
  * @example ../../docs/ChannelPreviewLastMessage.md
- * @extends PureComponent
+ * @type {import('types').ChannelPreviewLastMessage}
  */
 const ChannelPreviewLastMessage = (props) => {
-  const channelPreviewButton = useRef();
+  /** @type {React.MutableRefObject<HTMLButtonElement | null>} Typescript syntax */
+  const channelPreviewButton = useRef(null);
   const onSelectChannel = () => {
     props.setActiveChannel(props.channel, props.watchers);
-    channelPreviewButton.current.blur();
+    // eslint-disable-next-line no-unused-expressions
+    channelPreviewButton?.current?.blur();
   };
 
   const unreadClass =

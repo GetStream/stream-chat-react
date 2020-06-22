@@ -1,4 +1,6 @@
+// @ts-check
 import React, { useRef } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
 import truncate from 'lodash.truncate';
 
@@ -9,10 +11,11 @@ import { Avatar } from '../Avatar';
  * Its best suited for messenger type chat.
  *
  * @example ../../docs/ChannelPreviewMessenger.md
- * @extends PureComponent
+ * @type {import('types').ChannelPreviewMessenger}
  */
 const ChannelPreviewMessenger = (props) => {
-  const channelPreviewButton = useRef();
+  /** @type {React.MutableRefObject<HTMLButtonElement | null>} Typescript syntax */
+  const channelPreviewButton = useRef(null);
   const unreadClass =
     props.unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
   const activeClass = props.active
@@ -20,7 +23,8 @@ const ChannelPreviewMessenger = (props) => {
     : '';
   const onSelectChannel = () => {
     props.setActiveChannel(props.channel, props.watchers);
-    channelPreviewButton.current.blur();
+    // eslint-disable-next-line no-unused-expressions
+    channelPreviewButton?.current?.blur();
   };
 
   return (

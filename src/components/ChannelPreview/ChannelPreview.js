@@ -1,6 +1,8 @@
+// @ts-check
 import React, { useState, useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
 
+// eslint-disable-next-line import/no-unresolved
+import PropTypes from 'prop-types';
 import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
 import { TranslationContext, ChatContext } from '../../context';
 import {
@@ -9,9 +11,13 @@ import {
   getDisplayImage,
 } from './utils';
 
+/**
+ * @type {import('types').ChannelPreview}
+ */
 const ChannelPreview = (props) => {
   const { t } = useContext(TranslationContext);
-  const { client } = useContext(ChatContext);
+  const chatContext = useContext(ChatContext);
+  const { client } = chatContext;
   const { channel, activeChannel, Preview } = props;
   const [lastMessage, setLastMessage] = useState({});
   const [unread, setUnread] = useState(0);
@@ -21,9 +27,10 @@ const ChannelPreview = (props) => {
   }, [channel]);
 
   useEffect(() => {
+    /** @type {(event: StreamChat.Event) => void} Typescript syntax */
     const handleEvent = (event) => {
       const isActive = activeChannel && activeChannel.cid === channel.cid;
-      setLastMessage(event.message);
+      setLastMessage(event.message || {});
 
       if (!isActive) {
         setUnread(channel.countUnread());

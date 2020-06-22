@@ -1,16 +1,21 @@
+// @ts-check
 import React, { useRef } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
+import { Channel } from 'stream-chat';
 
 import { Avatar } from '../Avatar';
 
 /**
  *
  * @example ../../docs/ChannelPreviewCompact.md
- * @extends PureComponent
- *
+ * @type {import('types').ChannelPreviewCompact}
  */
 const ChannelPreviewCompact = (props) => {
-  const channelPreviewButton = useRef();
+  /**
+   * @type {React.MutableRefObject<HTMLButtonElement | null>} Typescript syntax
+   */
+  const channelPreviewButton = useRef(null);
   const unreadClass =
     props.unread_count >= 1 ? 'str-chat__channel-preview-compact--unread' : '';
   const activeClass = props.active
@@ -19,7 +24,8 @@ const ChannelPreviewCompact = (props) => {
 
   const onSelectChannel = () => {
     props.setActiveChannel(props.channel, props.watchers);
-    channelPreviewButton.current.blur();
+    // eslint-disable-next-line no-unused-expressions
+    channelPreviewButton?.current?.blur();
   };
 
   return (
@@ -41,9 +47,9 @@ const ChannelPreviewCompact = (props) => {
 
 ChannelPreviewCompact.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  channel: PropTypes.object.isRequired,
+  channel: PropTypes.instanceOf(Channel).isRequired,
   /** Current selected channel object */
-  activeChannel: PropTypes.object,
+  activeChannel: PropTypes.instanceOf(Channel),
   /** Setter for selected channel */
   setActiveChannel: PropTypes.func.isRequired,
   /**
