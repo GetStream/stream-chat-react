@@ -64,7 +64,11 @@ class ChannelPreviewLastMessage extends PureComponent {
       <div
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
       >
-        <button onClick={this.onSelectChannel} ref={this.channelPreviewButton}>
+        <button
+          onClick={this.onSelectChannel}
+          ref={this.channelPreviewButton}
+          data-testid="channel-preview-button"
+        >
           {this.props.unread >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}

@@ -53,6 +53,7 @@ class ChannelPreviewCompact extends React.PureComponent {
 
     return (
       <button
+        data-testid="channel-preview-button"
         onClick={this.onSelectChannel}
         ref={this.channelPreviewButton}
         className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
