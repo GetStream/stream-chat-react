@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 
@@ -18,9 +17,8 @@ const ChannelPreview = (props) => {
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    const unread = channel.countUnread();
-    setUnread(unread);
-  }, []);
+    setUnread(channel.countUnread());
+  }, [channel]);
 
   useEffect(() => {
     const handleEvent = (event) => {
@@ -28,8 +26,7 @@ const ChannelPreview = (props) => {
       setLastMessage(event.message);
 
       if (!isActive) {
-        const unread = channel.countUnread();
-        setUnread(unread);
+        setUnread(channel.countUnread());
       } else {
         setUnread(0);
       }
