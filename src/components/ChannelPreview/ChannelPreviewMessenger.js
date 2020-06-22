@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import truncate from 'lodash/truncate';
+import truncate from 'lodash.truncate';
 
 import { Avatar } from '../Avatar';
 import { withTranslationContext } from '../../context';
@@ -60,7 +60,7 @@ class ChannelPreviewMessenger extends PureComponent {
       ? 'str-chat__channel-preview-messenger--active'
       : '';
 
-    const { displayTitle, displayImage, t } = this.props;
+    const { displayTitle, displayImage } = this.props;
 
     return (
       <button
