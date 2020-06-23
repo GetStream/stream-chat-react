@@ -7,10 +7,10 @@ import {
   generateUser,
   generateMessage,
 } from '../../../mock-builders';
-import { ChannelContext } from '../../../context';
+import { ChatContext } from '../../../context';
 
 const user = generateUser({ name: 'name', id: 'id' });
-const channelContextMock = {
+const chatContextMock = {
   channel: {
     state: {
       messages: [generateMessage({ user })],
@@ -22,13 +22,13 @@ const channelContextMock = {
 
 const renderComponent = async (
   props = {},
-  channelContext = channelContextMock,
+  channelContext = chatContextMock,
 ) => {
   const placeholderText = props.placeholder || 'placeholder';
   const renderResult = render(
-    <ChannelContext.Provider value={channelContext}>
+    <ChatContext.Provider value={channelContext}>
       <ChatAutoComplete {...props} placeholder={placeholderText} />
-    </ChannelContext.Provider>,
+    </ChatContext.Provider>,
   );
   const textarea = await renderResult.findByPlaceholderText(placeholderText);
   const typeText = (text) => {

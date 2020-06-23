@@ -710,22 +710,22 @@ export interface CardProps extends TranslationContextValue {
 }
 
 export interface ChatAutoCompleteProps {
-  rows: number;
-  grow: boolean;
-  maxRows: number;
-  disabled: boolean;
-  value: string;
+  rows?: number;
+  grow?: boolean;
+  maxRows?: number;
+  disabled?: boolean;
+  value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
-  placeholder: string;
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  minChar: number;
-  users: Client.UserResponse[];
+  placeholder?: string;
+  LoadingIndicator?: React.ElementType;
+  minChar?: number;
   onSelectItem?(item: any): any;
-  commands: Client.CommandResponse[];
+  commands?: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
+  innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
 }
 
 export interface ChatDownProps extends TranslationContextValue {

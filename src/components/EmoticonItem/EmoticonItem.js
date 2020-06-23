@@ -1,6 +1,8 @@
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 
+/** @type {React.FC<import("types").EmoticonItemProps>} */
 const EmoticonItem = ({ entity }) => (
   <div className="str-chat__emoji-item">
     <span className="str-chat__emoji-item--entity">{entity.native}</span>
@@ -12,11 +14,11 @@ const EmoticonItem = ({ entity }) => (
 EmoticonItem.propTypes = {
   entity: PropTypes.shape({
     /** Name for emoticon */
-    name: PropTypes.string,
+    name: PropTypes.string.isRequired,
     /** Native value or actual emoticon */
-    native: PropTypes.string,
+    native: PropTypes.string.isRequired,
     /** Representative character for emoticon */
-    char: PropTypes.string,
+    char: PropTypes.string.isRequired,
   }).isRequired,
 };
 
