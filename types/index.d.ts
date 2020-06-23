@@ -718,7 +718,7 @@ export interface ChatAutoCompleteProps {
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
   placeholder?: string;
-  LoadingIndicator?: React.ElementType;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   minChar?: number;
   onSelectItem?(item: any): any;
   commands?: Client.CommandResponse[];
@@ -749,7 +749,6 @@ export interface EmoticonItemProps {
   entity: {
     name: string;
     native: string;
-    char: string;
   };
 }
 

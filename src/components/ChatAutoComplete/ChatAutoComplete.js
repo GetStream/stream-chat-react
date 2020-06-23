@@ -26,8 +26,8 @@ const emojiReplace = (word) => {
 /** @type {React.FC<import("types").ChatAutoCompleteProps>} */
 const ChatAutoComplete = (props) => {
   const { channel } = useContext(ChatContext);
-  const members = channel?.state.members;
-  const watchers = channel?.state.watchers;
+  const members = channel?.state?.members;
+  const watchers = channel?.state?.watchers;
   const queryMembers = channel?.queryMembers;
 
   const getMembersAndWatchers = useCallback(() => {
@@ -97,8 +97,7 @@ const ChatAutoComplete = (props) => {
           // Thus it is safe to assume, that if number of members in channel.state is < 100,
           // then all the members are already available on client side and we don't need to
           // make any api call to queryMembers endpoint.
-          if (!members) return [];
-          if (!query || Object.values(members).length < 100) {
+          if (!query || Object.values(members || {}).length < 100) {
             const users = getMembersAndWatchers();
 
             const matchingUsers = users.filter((user) => {

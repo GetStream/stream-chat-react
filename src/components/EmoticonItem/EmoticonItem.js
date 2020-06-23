@@ -7,7 +7,6 @@ const EmoticonItem = ({ entity }) => (
   <div className="str-chat__emoji-item">
     <span className="str-chat__emoji-item--entity">{entity.native}</span>
     <span className="str-chat__emoji-item--name">{entity.name}</span>
-    <span className="str-chat__emoji-item--char">{entity.char}</span>
   </div>
 );
 
@@ -17,8 +16,6 @@ EmoticonItem.propTypes = {
     name: PropTypes.string.isRequired,
     /** Native value or actual emoticon */
     native: PropTypes.string.isRequired,
-    /** Representative character for emoticon */
-    char: PropTypes.string.isRequired,
   }).isRequired,
 };
 
