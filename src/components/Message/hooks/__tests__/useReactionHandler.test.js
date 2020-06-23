@@ -50,7 +50,7 @@ async function renderUseReactionHandlerHook(
 
 describe('useReactionHandler custom hook', () => {
   afterEach(jest.clearAllMocks);
-  it('should return generate function that handles reactions', async () => {
+  it('should generate function that handles reactions', async () => {
     const handleReaction = await renderUseReactionHandlerHook();
     expect(typeof handleReaction).toBe('function');
   });

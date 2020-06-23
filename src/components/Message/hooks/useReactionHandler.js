@@ -5,7 +5,7 @@ import { ChannelContext } from '../../../context';
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
       Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
 /**
- * @type {(message: import('stream-chat').MessageResponse) => (reactionType: string, event: React.MouseEvent) => Promise<void>}
+ * @type {(message: import('stream-chat').MessageResponse | undefined) => (reactionType: string, event: React.MouseEvent) => Promise<void>}
  */
 export const useReactionHandler = (message) => {
   /**
