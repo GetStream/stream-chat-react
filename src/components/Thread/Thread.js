@@ -174,11 +174,12 @@ class ThreadInner extends React.PureComponent {
   }
 
   render() {
-    if (!this.props.thread) {
+    const { t, closeThread, thread } = this.props;
+
+    if (!thread) {
       return null;
     }
 
-    const { t } = this.props;
     const read = {};
     return (
       <div
@@ -188,16 +189,17 @@ class ThreadInner extends React.PureComponent {
       >
         <div className="str-chat__thread-header">
           <div className="str-chat__thread-header-details">
-            <strong>{t('Thread')}</strong>
+            <strong>{t && t('Thread')}</strong>
             <small>
               {' '}
-              {t('{{ replyCount }} replies', {
-                replyCount: this.props.thread.reply_count,
-              })}
+              {t &&
+                t('{{ replyCount }} replies', {
+                  replyCount: thread.reply_count,
+                })}
             </small>
           </div>
           <button
-            onClick={(e) => this.props.closeThread(e)}
+            onClick={(e) => closeThread(e)}
             className="str-chat__square-button"
           >
             <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
@@ -219,7 +221,7 @@ class ThreadInner extends React.PureComponent {
             {...this.props.additionalParentMessageProps}
           />
           <div className="str-chat__thread-start">
-            {t('Start of a new thread')}
+            {t && t('Start of a new thread')}
           </div>
           <MessageList
             messages={this.props.threadMessages}
