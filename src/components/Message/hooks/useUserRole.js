@@ -11,7 +11,7 @@ import { ChannelContext } from '../../../context';
  *   canEditMessage: boolean;
  *   canDeleteMessage: boolean;
  * }} UserRoles
- * @type {(message: import('stream-chat').MessageResponse) => UserRoles} Typescript syntax
+ * @type {(message: import('stream-chat').MessageResponse | undefined) => UserRoles} Typescript syntax
  */
 export const useUserRole = (message) => {
   /**

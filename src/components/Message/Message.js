@@ -2,6 +2,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import { Channel, StreamChat } from 'stream-chat';
+import SeamlessImmutable from 'seamless-immutable';
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
 import {
@@ -33,136 +35,6 @@ class Message extends Component {
       loading: false,
     };
   }
-
-  static propTypes = {
-    /** The message object */
-    message: PropTypes.object.isRequired,
-    /** The client connection object for connecting to Stream */
-    client: PropTypes.object.isRequired,
-    /** The current channel this message is displayed in */
-    channel: PropTypes.object.isRequired,
-    /** A list of users that have read this message */
-    readBy: PropTypes.array,
-    /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-    groupStyles: PropTypes.array,
-    /** Editing, if the message is currently being edited */
-    editing: PropTypes.bool,
-    /**
-     * Message UI component to display a message in message list.
-     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-     * */
-    Message: PropTypes.elementType,
-    /**
-     * Attachment UI component to display attachment in individual message.
-     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-     * */
-    Attachment: PropTypes.elementType,
-    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-    unsafeHTML: PropTypes.bool,
-    /**
-     * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
-     * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-     * */
-    messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageErrorNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserErrorNotification: PropTypes.func,
-    /** Latest message id on current channel */
-    lastReceivedId: PropTypes.string,
-    /** DOMRect object for parent MessageList component */
-    messageListRect: PropTypes.object,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    members: PropTypes.object,
-    /**
-     * Function to add custom notification on messagelist
-     *
-     * @param text Notification text to display
-     * @param type Type of notification. 'success' | 'error'
-     * */
-    addNotification: PropTypes.func,
-    /** Sets the editing state */
-    setEditingState: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    updateMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    removeMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    retrySendMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    onMentionsClick: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    onMentionsHover: PropTypes.func,
-    /**
-     * The handler for click event on the user that posted the message
-     *
-     * @param event Dom click event which triggered handler.
-     * @param user the User object for the corresponding user.
-     */
-    onUserClick: PropTypes.func,
-    /**
-     * The handler for hover events on the user that posted the message
-     *
-     * @param event Dom hover event which triggered handler.
-     * @param user the User object for the corresponding user.
-     */
-    onUserHover: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    openThread: PropTypes.func,
-    /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
-    clearEditingState: PropTypes.func,
-    /**
-     * Additional props for underlying MessageInput component.
-     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-     * */
-    additionalMessageInputProps: PropTypes.object,
-    /**
-     * The component that will be rendered if the message has been deleted.
-     * All props are passed into this component.
-     */
-    MessageDeleted: PropTypes.elementType,
-  };
-
-  static defaultProps = {
-    Message: MessageSimple,
-    readBy: [],
-    groupStyles: [],
-    Attachment,
-    editing: false,
-    messageActions: Object.keys(MESSAGE_ACTIONS),
-  };
 
   /** @type {(nextProps: Props) => boolean} Typescript syntax */
   shouldComponentUpdate(nextProps) {
@@ -524,5 +396,144 @@ class Message extends Component {
     );
   }
 }
+
+Message.propTypes = {
+  /** The message object */
+  message: PropTypes.shape({
+    text: PropTypes.string.isRequired,
+    html: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired).isRequired,
+    reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired).isRequired,
+    created_at: PropTypes.string.isRequired,
+    updated_at: PropTypes.string.isRequired,
+  }).isRequired,
+  /** The client connection object for connecting to Stream */
+  client: PropTypes.instanceOf(StreamChat).isRequired,
+  /** The current channel this message is displayed in */
+  channel: PropTypes.instanceOf(Channel).isRequired,
+  /** A list of users that have read this message */
+  readBy: PropTypes.array,
+  /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
+  groupStyles: PropTypes.array,
+  /** Editing, if the message is currently being edited */
+  editing: PropTypes.bool,
+  /**
+   * Message UI component to display a message in message list.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Message: PropTypes.elementType,
+  /**
+   * The component that will be rendered if the message has been deleted.
+   * All props are passed into this component.
+   */
+  MessageDeleted: PropTypes.elementType,
+  /**
+   * Attachment UI component to display attachment in individual message.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Attachment: PropTypes.elementType,
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML: PropTypes.bool,
+  /**
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+   * */
+  messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserErrorNotification: PropTypes.func,
+  /** Latest message id on current channel */
+  lastReceivedId: PropTypes.string,
+  /** DOMRect object for parent MessageList component */
+  messageListRect: PropTypes.instanceOf(DOMRect),
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  // @ts-ignore
+  members: PropTypes.instanceOf(SeamlessImmutable),
+  /**
+   * Function to add custom notification on messagelist
+   *
+   * @param text Notification text to display
+   * @param type Type of notification. 'success' | 'error'
+   * */
+  addNotification: PropTypes.func,
+  /** Sets the editing state */
+  setEditingState: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  updateMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  removeMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  retrySendMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsClick: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsHover: PropTypes.func,
+  /**
+   * The handler for click event on the user that posted the message
+   *
+   * @param event Dom click event which triggered handler.
+   * @param user the User object for the corresponding user.
+   */
+  onUserClick: PropTypes.func,
+  /**
+   * The handler for hover events on the user that posted the message
+   *
+   * @param event Dom hover event which triggered handler.
+   * @param user the User object for the corresponding user.
+   */
+  onUserHover: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  openThread: PropTypes.func,
+  /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
+  clearEditingState: PropTypes.func,
+  /**
+   * Additional props for underlying MessageInput component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
+  additionalMessageInputProps: PropTypes.object,
+};
+
+Message.defaultProps = {
+  Message: MessageSimple,
+  readBy: [],
+  groupStyles: [],
+  Attachment,
+  editing: false,
+  messageActions: Object.keys(MESSAGE_ACTIONS),
+};
 
 export default withTranslationContext(Message);

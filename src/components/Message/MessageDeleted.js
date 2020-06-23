@@ -37,6 +37,8 @@ const MessageDeleted = (props) => {
 
 MessageDeleted.propTypes = {
   /** The [message object](https://getstream.io/chat/docs/#message_format) */
+  // @ts-ignore
+  // Ignoring this for now as Typescript definitions on 'strem-chat' are wrong.
   message: MessagePropTypes,
   /** @deprecated This is no longer needed. The component should now rely on the user role custom hook */
   isMyMessage: PropTypes.func,

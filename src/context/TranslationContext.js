@@ -10,7 +10,14 @@ export const TranslationContext = React.createContext({
   tDateTimeParser: (input) => extendedDayjs(input),
 });
 
+/**
+ * @function
+ * @template P
+ * @param {React.ComponentType<P>} OriginalComponent
+ * @returns {React.ComponentType<Omit<P, 't' | 'tDateTimeParser'>>}>}
+ */
 export function withTranslationContext(OriginalComponent) {
+  /** @param {Omit<P, 't' | 'tDateTimeParser'>} props */
   const ContextAwareComponent = function ContextComponent(props) {
     return (
       <TranslationContext.Consumer>
@@ -20,12 +27,12 @@ export function withTranslationContext(OriginalComponent) {
       </TranslationContext.Consumer>
     );
   };
+  /** @type {string} */
   ContextAwareComponent.displayName =
     OriginalComponent.displayName || OriginalComponent.name || 'Component';
   ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
     'Base',
     '',
   );
-
   return ContextAwareComponent;
 }

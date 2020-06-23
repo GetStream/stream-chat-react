@@ -46,7 +46,7 @@ async function renderUseHandleMuteHook(
 
 describe('useHandleMute custom hook', () => {
   afterEach(jest.clearAllMocks);
-  it('should return generate function that handles mutes', async () => {
+  it('should generate function that handles mutes', async () => {
     const handleMute = await renderUseHandleMuteHook();
     expect(typeof handleMute).toBe('function');
   });
