@@ -967,24 +967,31 @@ export class MessageTeam extends React.PureComponent<
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
 export interface MessageSimpleTextProps extends MessageSimpleProps {
-  actionsBoxOpen: boolean;
   onReactionListClick: () => void;
   showDetailedReactions: boolean;
   reactionSelectorRef: React.RefObject<ReactionSelector>;
-  setActionsBoxOpen: (state: boolean) => void;
-  hideOptions: () => void;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
 }
 export interface MessageSimpleOptionsProps extends MessageSimpleProps {
-  actionsBoxOpen: boolean;
-  hideOptions: () => void;
-  setActionsBoxOpen: (state: boolean) => void;
   onReactionListClick: () => void;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
 }
-export interface MessageSimpleActionsProps extends MessageSimpleProps {
+export interface MessageActionsProps {
   addNotification?(notificationText: string, type: string): any;
-  actionsBoxOpen: boolean;
-  hideOptions: () => void;
-  setActionsBoxOpen: (state: boolean) => void;
+  handleEdit?(event?: React.BaseSyntheticEvent): void;
+  handleDelete?(event?: React.BaseSyntheticEvent): void;
+  handleFlag?(event?: React.BaseSyntheticEvent): void;
+  handleMute?(event?: React.BaseSyntheticEvent): void;
+  mutes?: Client.Mute[];
+  getMessageActions(): Array<string>;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  setEditingState?(message: Client.MessageResponse): any;
+  messageListRect?: DOMRect;
+  message?: Client.MessageResponse;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
 }
 
 export const MessageSimple: React.FC<MessageSimpleProps>;

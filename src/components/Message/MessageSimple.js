@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -15,18 +15,14 @@ import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
-import { MessageActionsBox } from '../MessageActions';
+import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import DefaultMessageDeleted from './MessageDeleted';
 import {
   useActionHandler,
-  useDeleteHandler,
-  useEditHandler,
-  useFlagHandler,
   useMentionsHandler,
-  useMuteHandler,
   useOpenThreadHandler,
   useReactionClick,
   useReactionHandler,
@@ -35,7 +31,6 @@ import {
   useUserRole,
 } from './hooks';
 import {
-  isUserMuted,
   areMessagePropsEqual,
   messageHasReactions,
   messageHasAttachments,
@@ -70,7 +65,6 @@ const MessageSimple = (props) => {
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
   const updateMessage = propUpdateMessage || channelUpdateMessage;
   const { tDateTimeParser } = useContext(TranslationContext);
-  const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
@@ -84,6 +78,7 @@ const MessageSimple = (props) => {
     message,
   );
   const reactionSelectorRef = React.createRef();
+  const messageWrapperRef = useRef(null);
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
     reactionSelectorRef,
     message,
@@ -92,14 +87,6 @@ const MessageSimple = (props) => {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
   } = props;
-
-  /** @type {() => void} Typescript syntax */
-  const hideOptions = () => setActionsBoxOpen(false);
-  useEffect(() => {
-    if (message?.deleted_at) {
-      document.removeEventListener('click', hideOptions);
-    }
-  }, [message]);
 
   const dateTimeParser = propTDateTimeParser || tDateTimeParser;
   const when =
@@ -152,7 +139,7 @@ const MessageSimple = (props) => {
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message--with-reactions' : ''}
 					`.trim()}
-          onMouseLeave={hideOptions}
+          ref={messageWrapperRef}
         >
           <MessageSimpleStatus {...props} />
 
@@ -186,9 +173,7 @@ const MessageSimple = (props) => {
                 {
                   <MessageSimpleOptions
                     {...props}
-                    hideOptions={hideOptions}
-                    actionsBoxOpen={actionsBoxOpen}
-                    setActionsBoxOpen={setActionsBoxOpen}
+                    messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
                   />
                 }
@@ -239,9 +224,7 @@ const MessageSimple = (props) => {
             {message.text && (
               <MessageSimpleText
                 {...props}
-                actionsBoxOpen={actionsBoxOpen}
-                hideOptions={hideOptions}
-                setActionsBoxOpen={setActionsBoxOpen}
+                messageWrapperRef={messageWrapperRef}
                 showDetailedReactions={showDetailedReactions}
                 onReactionListClick={onReactionListClick}
                 // FIXME: There's some unmatched definition between the infered and the declared
@@ -282,16 +265,14 @@ const MessageSimpleText = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-    actionsBoxOpen,
     actionsEnabled,
-    hideOptions,
     message,
     messageListRect,
     onReactionListClick,
     reactionSelectorRef,
-    setActionsBoxOpen,
     showDetailedReactions,
     unsafeHTML,
+    messageWrapperRef,
   } = props;
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
   const { t } = useContext(TranslationContext);
@@ -363,9 +344,7 @@ const MessageSimpleText = (props) => {
       {
         <MessageSimpleOptions
           {...props}
-          hideOptions={hideOptions}
-          actionsBoxOpen={actionsBoxOpen}
-          setActionsBoxOpen={setActionsBoxOpen}
+          messageWrapperRef={messageWrapperRef}
         />
       }
     </div>
@@ -380,9 +359,9 @@ const MessageSimpleOptions = (props) => {
     message,
     initialMessage,
     threadList,
-    actionsBoxOpen,
-    hideOptions,
-    setActionsBoxOpen,
+    messageWrapperRef,
+    // @TODO: can be removed after we set hideOpetions inside message actions
+    // A wrapper reference might still be required though
     onReactionListClick,
     handleOpenThread: propHandleOpenThread,
   } = props;
@@ -407,14 +386,7 @@ const MessageSimpleOptions = (props) => {
   if (isMyMessage) {
     return (
       <div className="str-chat__message-simple__actions">
-        {
-          <MessageSimpleActions
-            {...props}
-            actionsBoxOpen={actionsBoxOpen}
-            hideOptions={hideOptions}
-            setActionsBoxOpen={setActionsBoxOpen}
-          />
-        }
+        {<MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
         {!threadList && channelConfig && channelConfig.replies && (
           <div
             data-testid="thread-action"
@@ -480,102 +452,7 @@ const MessageSimpleOptions = (props) => {
           </svg>
         </div>
       )}
-      {
-        <MessageSimpleActions
-          {...props}
-          actionsBoxOpen={actionsBoxOpen}
-          hideOptions={hideOptions}
-          setActionsBoxOpen={setActionsBoxOpen}
-        />
-      }
-    </div>
-  );
-};
-
-/**
- * @type { React.FC<import('types').MessageSimpleActionsProps> }
- */
-const MessageSimpleActions = ({
-  addNotification,
-  message,
-  mutes,
-  getMessageActions,
-  messageListRect,
-  handleFlag: propHandleFlag,
-  handleMute: propHandleMute,
-  handleEdit: propHandleEdit,
-  handleDelete: propHandleDelete,
-  actionsBoxOpen,
-  hideOptions,
-  setEditingState,
-  setActionsBoxOpen,
-  getMuteUserSuccessNotification,
-  getMuteUserErrorNotification,
-  getFlagMessageErrorNotification,
-  getFlagMessageSuccessNotification,
-}) => {
-  const { isMyMessage } = useUserRole(message);
-  const handleDelete = useDeleteHandler(message);
-  const handleEdit = useEditHandler(message, setEditingState);
-  const handleFlag = useFlagHandler(message, {
-    notify: addNotification,
-    getSuccessNotification: getMuteUserSuccessNotification,
-    getErrorNotification: getMuteUserErrorNotification,
-  });
-  const handleMute = useMuteHandler(message, {
-    notify: addNotification,
-    getErrorNotification: getFlagMessageErrorNotification,
-    getSuccessNotification: getFlagMessageSuccessNotification,
-  });
-  const messageActions = getMessageActions();
-  const isMuted = useCallback(() => {
-    return isUserMuted(message, mutes);
-  }, [message, mutes]);
-  useEffect(() => {
-    if (actionsBoxOpen) {
-      document.addEventListener('click', hideOptions);
-    } else {
-      document.removeEventListener('click', hideOptions);
-    }
-    return () => {
-      document.removeEventListener('click', hideOptions);
-    };
-  }, [actionsBoxOpen, hideOptions]);
-  /** @type {() => void} Typescript syntax */
-  const onClickOptionsAction = () => setActionsBoxOpen(true);
-
-  if (messageActions.length === 0) {
-    return null;
-  }
-
-  return (
-    <div
-      data-testid="message-actions"
-      onClick={onClickOptionsAction}
-      className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
-    >
-      <MessageActionsBox
-        getMessageActions={getMessageActions}
-        open={actionsBoxOpen}
-        messageListRect={messageListRect}
-        handleFlag={propHandleFlag || handleFlag}
-        isUserMuted={isMuted}
-        handleMute={propHandleMute || handleMute}
-        handleEdit={propHandleEdit || handleEdit}
-        handleDelete={propHandleDelete || handleDelete}
-        mine={isMyMessage}
-      />
-      <svg
-        width="11"
-        height="4"
-        viewBox="0 0 11 4"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-          fillRule="nonzero"
-        />
-      </svg>
+      {<MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
     </div>
   );
 };

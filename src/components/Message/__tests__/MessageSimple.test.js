@@ -17,14 +17,9 @@ import {
   MessageInput as MessageInputMock,
   EditMessageForm,
 } from '../../MessageInput';
-import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageActions', () => ({
-  MessageActionsBox: jest.fn(() => <div />),
 }));
 
 jest.mock('../../MessageInput', () => ({
@@ -260,37 +255,6 @@ describe('<MessageSimple />', () => {
       initialMessage: true,
     });
     expect(queryByTestId(/message-actions/)).toBeNull();
-  });
-
-  it('should render closed message actions when message has no text but has at least one action', async () => {
-    const message = generateAliceMessage();
-    await renderMessageSimple(message);
-    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        open: false,
-        mine: true,
-        getMessageActions: expect.any(Function),
-        handleEdit: expect.any(Function),
-        handleFlag: expect.any(Function),
-        handleMute: expect.any(Function),
-        handleDelete: expect.any(Function),
-      }),
-      {},
-    );
-  });
-
-  it('should open the actions box when it is clicked', async () => {
-    const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
-    fireEvent.click(getByTestId('message-actions'));
-    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
-      expect.objectContaining({ open: true }),
-      {},
-    );
   });
 
   it('should display thread actions when message is not displayed on a thread list and channel has replies configured', async () => {
