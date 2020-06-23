@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import {
   getTestClientWithUser,
   generateChannel,
@@ -10,6 +10,7 @@ import {
 import { ChannelContext } from '../../../../context';
 import {
   useReactionHandler,
+  useReactionClick,
   reactionHandlerWarning,
 } from '../useReactionHandler';
 
@@ -98,5 +99,158 @@ describe('useReactionHandler custom hook', () => {
     sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
     expect(updateMessage).toHaveBeenCalledWith(message);
+  });
+});
+
+function renderUseReactionClickHook(
+  message = generateMessage(),
+  reactionListRef = React.createRef(),
+) {
+  const wrapper = ({ children }) => {
+    return <div>{children}</div>;
+  };
+  const { result, rerender } = renderHook(
+    () => useReactionClick(reactionListRef, message),
+    { wrapper },
+  );
+  return { result, rerender };
+}
+
+describe('useReactionClick custom hook', () => {
+  beforeEach(jest.clearAllMocks);
+  it('should initialize a click handler and a flag for showing detailed reactions', () => {
+    const {
+      result: { current },
+    } = renderUseReactionClickHook();
+    expect(typeof current.onReactionListClick).toBe('function');
+    expect(current.showDetailedReactions).toBe(false);
+  });
+
+  it('should set show details to true on click', () => {
+    const { result } = renderUseReactionClickHook();
+    expect(result.current.showDetailedReactions).toBe(false);
+    act(() => result.current.onReactionListClick());
+    expect(result.current.showDetailedReactions).toBe(true);
+  });
+
+  it('should set event listener to close reaction list on document click when list is opened', () => {
+    const clickMock = {
+      target: document.createElement('div'),
+    };
+    const { result } = renderUseReactionClickHook();
+    let onDocumentClick;
+    const addEventListenerSpy = jest
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(
+        jest.fn((_, fn) => {
+          onDocumentClick = fn;
+        }),
+      );
+    act(() => result.current.onReactionListClick());
+    expect(result.current.showDetailedReactions).toBe(true);
+    expect(document.addEventListener).toHaveBeenCalledTimes(2);
+    expect(document.addEventListener).toHaveBeenCalledWith(
+      'click',
+      expect.any(Function),
+    );
+    expect(document.addEventListener).toHaveBeenCalledWith(
+      'touchend',
+      expect.any(Function),
+    );
+    act(() => onDocumentClick(clickMock));
+    expect(result.current.showDetailedReactions).toBe(false);
+    addEventListenerSpy.mockRestore();
+  });
+
+  it('should not close reaction list on document click when click is on the reaction list itself', () => {
+    const message = generateMessage();
+    const reactionSelectorEl = document.createElement('div');
+    const reactionListElement = document
+      .createElement('div')
+      .appendChild(reactionSelectorEl);
+    const clickMock = {
+      target: reactionSelectorEl,
+    };
+    const { result } = renderUseReactionClickHook(message, {
+      current: { reactionSelector: { current: reactionListElement } },
+    });
+    let onDocumentClick;
+    const addEventListenerSpy = jest
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(
+        jest.fn((_, fn) => {
+          onDocumentClick = fn;
+        }),
+      );
+    act(() => result.current.onReactionListClick());
+    expect(result.current.showDetailedReactions).toBe(true);
+    act(() => onDocumentClick(clickMock));
+    expect(result.current.showDetailedReactions).toBe(true);
+    addEventListenerSpy.mockRestore();
+  });
+
+  it('should remove close click event listeners after reaction list is closed', () => {
+    const clickMock = {
+      target: document.createElement('div'),
+    };
+    const { result } = renderUseReactionClickHook();
+    let onDocumentClick;
+    const addEventListenerSpy = jest
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(
+        jest.fn((_, fn) => {
+          onDocumentClick = fn;
+        }),
+      );
+    const removeEventListenerSpy = jest
+      .spyOn(document, 'removeEventListener')
+      .mockImplementationOnce(jest.fn());
+    act(() => result.current.onReactionListClick());
+    expect(result.current.showDetailedReactions).toBe(true);
+    act(() => onDocumentClick(clickMock));
+    expect(result.current.showDetailedReactions).toBe(false);
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'click',
+      onDocumentClick,
+    );
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'touchend',
+      onDocumentClick,
+    );
+    addEventListenerSpy.mockRestore();
+    removeEventListenerSpy.mockRestore();
+  });
+
+  it('should remove close click event listeners if message is deleted', () => {
+    const clickMock = {
+      target: document.createElement('div'),
+    };
+    const message = generateMessage();
+    let onDocumentClick;
+    const addEventListenerSpy = jest
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(
+        jest.fn((_, fn) => {
+          onDocumentClick = fn;
+        }),
+      );
+    const removeEventListenerSpy = jest
+      .spyOn(document, 'removeEventListener')
+      .mockImplementationOnce(jest.fn());
+    const { result, rerender } = renderUseReactionClickHook(message);
+    expect(document.removeEventListener).not.toHaveBeenCalled();
+    act(() => result.current.onReactionListClick(clickMock));
+    message.deleted_at = new Date();
+    rerender();
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'click',
+      onDocumentClick,
+    );
+    expect(document.removeEventListener).toHaveBeenCalledWith(
+      'touchend',
+      onDocumentClick,
+    );
+    addEventListenerSpy.mockRestore();
+    removeEventListenerSpy.mockRestore();
   });
 });
