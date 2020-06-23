@@ -114,6 +114,28 @@ export const shouldMessageComponentUpdate = (props, nextProps) => {
   return !areMessagePropsEqual(props, nextProps);
 };
 
+/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
+export const messageHasReactions = (message) => {
+  return !!message?.latest_reactions && !!message.latest_reactions.length;
+};
+
+/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
+export const messageHasAttachments = (message) => {
+  return !!message?.attachments && !!message.attachments.length;
+};
+
+/**
+ * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
+ */
+export const getImages = (message) => {
+  if (!message?.attachments) {
+    return [];
+  }
+  return message.attachments.filter(
+    /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+    (item) => item.type === 'image',
+  );
+};
 export const MessagePropTypes = PropTypes.shape({
   id: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
