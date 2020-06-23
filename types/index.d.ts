@@ -58,7 +58,7 @@ export interface ChannelContextValue extends ChatContextValue {
       | Client.MemberRemovedEvent
     )[];
   };
-  thread?: Client.MessageResponse | boolean;
+  thread?: Client.MessageResponse | null;
   threadMessages?: Client.MessageResponse[];
 
   multipleUploads?: boolean;

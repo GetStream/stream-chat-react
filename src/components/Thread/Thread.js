@@ -1,5 +1,6 @@
 /* eslint-disable */
-import React from 'react';
+// @ts-check
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { smartRender } from '../../utils';
@@ -17,7 +18,8 @@ import { MessageInput, MessageInputSmall } from '../MessageInput';
  * - additionalMessageInputProps
  *
  * @example ../../docs/Thread.md
- * @extends Component
+ * @typedef { import('../../../types').ThreadProps } Props
+ * @extends PureComponent<Props, any>
  */
 class Thread extends React.PureComponent {
   static propTypes = {
@@ -90,7 +92,7 @@ class Thread extends React.PureComponent {
       return null;
     }
     const parentID = this.props.thread.id;
-    const cid = this.props.channel.cid;
+    const cid = this.props.channel && this.props.channel.cid;
 
     const key = `thread-${parentID}-${cid}`;
     // We use a wrapper to make sure the key variable is set.
@@ -99,6 +101,7 @@ class Thread extends React.PureComponent {
   }
 }
 
+/** @extends {PureComponent<Props, any>} */
 class ThreadInner extends React.PureComponent {
   static propTypes = {
     /** Channel is passed via the Channel Context */
@@ -107,35 +110,52 @@ class ThreadInner extends React.PureComponent {
     thread: PropTypes.object.isRequired,
   };
 
+  /** @param { any } props */
   constructor(props) {
     super(props);
     this.messageList = React.createRef();
   }
 
   async componentDidMount() {
-    const parentID = this.props.thread.id;
-    if (parentID && this.props.thread.reply_count) {
-      await this.props.loadMoreThread();
+    const { thread, loadMoreThread } = this.props;
+    const parentID = thread && thread.id;
+    if (parentID && thread?.reply_count && loadMoreThread) {
+      loadMoreThread();
     }
   }
+
+  /** @param {Props} prevProps */
   getSnapshotBeforeUpdate(prevProps) {
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
-    if (prevProps.threadMessages.length < this.props.threadMessages.length) {
+    if (
+      prevProps.threadMessages &&
+      this.props.threadMessages &&
+      prevProps.threadMessages.length < this.props.threadMessages.length
+    ) {
       const list = this.messageList.current;
       return list.scrollHeight - list.scrollTop;
     }
     return null;
   }
 
+  /**
+   * @param {Props} prevProps
+   * @param {any} prevState
+   * @param {number} snapshot
+   */
   async componentDidUpdate(prevProps, prevState, snapshot) {
-    const parentID = this.props.thread.id;
+    const { thread, threadMessages, loadMoreThread } = this.props;
+    const parentID = thread?.id;
+
     if (
       parentID &&
-      this.props.thread.reply_count > 0 &&
-      this.props.threadMessages.length === 0
+      thread?.reply_count &&
+      thread.reply_count > 0 &&
+      threadMessages?.length === 0 &&
+      loadMoreThread
     ) {
-      await this.props.loadMoreThread();
+      loadMoreThread();
     }
 
     // If we have a snapshot value, we've just added new items.
