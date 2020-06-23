@@ -1,12 +1,16 @@
-/* eslint-disable */
+// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LoadingIndicator } from 'react-file-utils';
+// @ts-ignore
+import { LoadingIndicator as DefaultLoadingIndicator } from 'react-file-utils';
 
 import InfiniteScroll from './InfiniteScroll';
 
+/**
+ * @type { React.FC<import('types').InfiniteScrollPaginatorProps>}
+ */
 const InfiniteScrollPaginator = ({
-  LoadingIndicator,
+  LoadingIndicator = DefaultLoadingIndicator,
   loadNextPage,
   hasNextPage,
   refreshing,
@@ -34,13 +38,9 @@ const InfiniteScrollPaginator = ({
   </InfiniteScroll>
 );
 
-InfiniteScrollPaginator.defaultProps = {
-  LoadingIndicator,
-};
-
 InfiniteScrollPaginator.propTypes = {
   /** callback to load the next page */
-  loadNextPage: PropTypes.func,
+  loadNextPage: PropTypes.func.isRequired,
   /** indicates if there is a next page to load */
   hasNextPage: PropTypes.bool,
   /** indicates if there there's currently any refreshing taking place */
@@ -50,6 +50,7 @@ InfiniteScrollPaginator.propTypes = {
   /** Offset from when to start the loadNextPage call */
   threshold: PropTypes.number,
   /** The loading indicator to use */
+  // @ts-ignore
   LoadingIndicator: PropTypes.elementType,
 };
 
