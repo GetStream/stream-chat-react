@@ -972,10 +972,7 @@ export interface MessageSimpleTextProps extends MessageSimpleProps {
   reactionSelectorRef: React.RefObject<ReactionSelector>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
 }
-export interface MessageSimpleOptionsProps extends MessageSimpleProps {
-  onReactionListClick: () => void;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
-}
+
 export interface MessageActionsProps {
   addNotification?(notificationText: string, type: string): any;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -992,6 +989,16 @@ export interface MessageActionsProps {
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
+}
+
+export interface MessageOptionsProps {
+  getMessageActions(): Array<string>;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  initialMessage?: boolean;
+  message?: Client.MessageResponse;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  onReactionListClick: () => void;
+  threadList?: boolean;
 }
 
 export const MessageSimple: React.FC<MessageSimpleProps>;
