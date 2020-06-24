@@ -21,17 +21,6 @@ const Window = ({ children, hideOnThread = false }) => {
 Window.propTypes = {
   /** show or hide the window when a thread is active */
   hideOnThread: PropTypes.bool,
-  /** Flag if thread is open or not */
-  thread: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.shape({
-      text: PropTypes.string.isRequired,
-      created_at: PropTypes.string.isRequired,
-      updated_at: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-      html: PropTypes.string.isRequired,
-    }).isRequired,
-  ]).isRequired,
 };
 
 export default React.memo(Window);
