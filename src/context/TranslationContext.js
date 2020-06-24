@@ -21,7 +21,7 @@ export const TranslationContext = React.createContext(
  * @function
  * @template P
  * @param {React.ComponentType<P>} OriginalComponent
- * @returns {React.ComponentType<Exclude<P, TranslationContextProps>>}>}
+ * @returns {React.ComponentType<Exclude<P, TranslationContextProps>>}
  */
 export function withTranslationContext(OriginalComponent) {
   /** @param {Exclude<P, TranslationContextProps>} props */

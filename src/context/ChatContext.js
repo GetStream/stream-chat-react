@@ -13,7 +13,7 @@ export const ChatContext = React.createContext(
  * @function
  * @template P
  * @param {React.ComponentType<P>} OriginalComponent
- * @returns {React.ComponentType<Exclude<P, ChatContextProps>>}>}
+ * @returns {React.ComponentType<Exclude<P, ChatContextProps>>}
  */
 export function withChatContext(OriginalComponent) {
   /** @param {Exclude<P, ChatContextProps>} props */

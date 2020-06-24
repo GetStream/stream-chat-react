@@ -13,8 +13,8 @@ export const ChannelContext = React.createContext(
 /**
  * @function
  * @template P
- * @param {React.ComponentType<P>} OriginalComponent
- * @returns {React.ComponentType<Exclude<P, ChannelContextProps>>}>}
+ * @param { React.ComponentType<P> } OriginalComponent
+ * @returns {React.ComponentType<Exclude<P, ChannelContextProps>>}
  */
 export function withChannelContext(OriginalComponent) {
   /** @param {Exclude<P, ChannelContextProps>} props */
