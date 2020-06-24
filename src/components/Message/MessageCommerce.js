@@ -20,12 +20,13 @@ import { withTranslationContext } from '../../context';
 class MessageCommerce extends PureComponent {
   static propTypes = {
     /** The [message object](https://getstream.io/chat/docs/#message_format) */
-    message: PropTypes.object,
+    message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
+      .object.isRequired),
     /**
      * The attachment UI component.
      * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
      * */
-    Attachment: PropTypes.elementType,
+    Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
     /**
      *
      * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
@@ -34,17 +35,16 @@ class MessageCommerce extends PureComponent {
      * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
      *
      * */
-    Message: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-      PropTypes.object,
-    ]).isRequired,
+    Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
+      [PropTypes.node, PropTypes.func, PropTypes.object],
+    ).isRequired),
     /** render HTML instead of markdown. Posting HTML is only allowed server-side */
     unsafeHTML: PropTypes.bool,
     /** If its parent message in thread. */
     initialMessage: PropTypes.bool,
     /** Channel config object */
-    channelConfig: PropTypes.object,
+    channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
+      .object.isRequired),
     /** If component is in thread list */
     threadList: PropTypes.bool,
     /** Function to open thread on current messxage */
@@ -52,7 +52,7 @@ class MessageCommerce extends PureComponent {
     /** Returns true if message belongs to current user */
     isMyMessage: PropTypes.func,
     /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
-    getMessageActions: PropTypes.func,
+    getMessageActions: PropTypes.func.isRequired,
     /**
      * Add or remove reaction on message
      *
@@ -101,7 +101,7 @@ class MessageCommerce extends PureComponent {
     /** The component that will be rendered if the message has been deleted.
      * All of Message's props are passed into this component.
      */
-    MessageDeleted: PropTypes.elementType,
+    MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
   };
 
   static defaultProps = {
