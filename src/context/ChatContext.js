@@ -2,32 +2,34 @@
 import React from 'react';
 
 /**
- * @typedef {import('types').ChatContextValue} ChatContext
+ * @typedef {import('types').ChatContextValue} ChatContextProps
  */
+
 export const ChatContext = React.createContext(
-  /** @type {ChatContext} */ { client: null },
+  /** @type {ChatContextProps} */ ({ client: null }),
 );
 
-/** @param { React.ComponentClass | React.FC } OriginalComponent */
+/**
+ * @function
+ * @template P
+ * @param {React.ComponentType<P>} OriginalComponent
+ * @returns {React.ComponentType<Exclude<P, ChatContextProps>>}>}
+ */
 export function withChatContext(OriginalComponent) {
-  /** @param {any} props */
+  /** @param {Exclude<P, ChatContextProps>} props */
   const ContextAwareComponent = function ContextComponent(props) {
     return (
       <ChatContext.Consumer>
-        {(context) => {
-          const mergedProps = { ...context, ...props };
-          return <OriginalComponent {...mergedProps} />;
-        }}
+        {(context) => <OriginalComponent {...context} {...props} />}
       </ChatContext.Consumer>
     );
   };
-  /** @type {string} */
-  ContextAwareComponent.displayName =
-    OriginalComponent.displayName || OriginalComponent.name || 'Component';
-  ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
-    'Base',
-    '',
-  );
+
+  ContextAwareComponent.displayName = (
+    OriginalComponent.displayName ||
+    OriginalComponent.name ||
+    'Component'
+  ).replace('Base', '');
 
   return ContextAwareComponent;
 }
