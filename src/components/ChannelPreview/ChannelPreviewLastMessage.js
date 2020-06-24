@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import truncate from 'lodash/truncate';
+import truncate from 'lodash.truncate';
 
 import { Avatar } from '../Avatar';
 import { withTranslationContext } from '../../context';
@@ -64,7 +64,11 @@ class ChannelPreviewLastMessage extends PureComponent {
       <div
         className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}
       >
-        <button onClick={this.onSelectChannel} ref={this.channelPreviewButton}>
+        <button
+          onClick={this.onSelectChannel}
+          ref={this.channelPreviewButton}
+          data-testid="channel-preview-button"
+        >
           {this.props.unread >= 1 && (
             <div className="str-chat__channel-preview--dot" />
           )}
@@ -74,11 +78,9 @@ class ChannelPreviewLastMessage extends PureComponent {
               {displayTitle}
             </span>
             <span className="str-chat__channel-preview-last-message">
-              {!this.props.channel.state.messages[0]
-                ? t('Nothing yet...')
-                : truncate(this.props.latestMessage, {
-                    length: this.props.latestMessageLength,
-                  })}
+              {truncate(this.props.latestMessage, {
+                length: this.props.latestMessageLength,
+              })}
             </span>
             {this.props.unread >= 1 && (
               <span className="str-chat__channel-preview-unread-count">
