@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 /**
  * Modal - Custom Image component used in modal
- * @type import('types').ModalImageProps
+ * @type {React.FC<import('types').ModalImageProps>}
  */
 const ModalImage = ({ data }) => (
   <div className="str-chat__modal-image__wrapper" data-testid="modal-image">
@@ -13,7 +13,9 @@ const ModalImage = ({ data }) => (
 );
 
 ModalImage.propTypes = {
-  data: PropTypes.object,
+  data: PropTypes.shape({
+    src: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default ModalImage;
