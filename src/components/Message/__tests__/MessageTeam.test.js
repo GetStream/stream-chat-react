@@ -334,7 +334,6 @@ describe('<MessageTeam />', () => {
         open: false,
         mine: true,
         isUserMuted: expect.any(Function),
-        message,
         getMessageActions: expect.any(Function),
         handleEdit: expect.any(Function),
         handleFlag: expect.any(Function),

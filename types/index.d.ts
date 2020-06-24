@@ -13,7 +13,7 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat;
+  client?: Client.StreamChat | null;
   channel?: Client.Channel;
   setActiveChannel?(
     channel: Client.Channel,
@@ -72,12 +72,12 @@ export interface ChannelContextValue extends ChatContextValue {
     extraState?: object,
   ): void;
   /** Function executed when user clicks on link to open thread */
-  retrySendMessage?(message: Client.Message): void;
+  retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse[]): void;
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
@@ -506,6 +506,11 @@ export interface MessageProps extends TranslationContextValue {
   ): void;
   additionalMessageInputProps?: object;
   clearEditingState?(e?: React.MouseEvent): void;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  setEditingState?(message: Client.MessageResponse): any;
 }
 
 export type MessageComponentState = {
@@ -532,13 +537,8 @@ export interface MessageComponentProps
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
   addNotification?(notificationText: string, type: string): any;
-  setEditingState?(message: Client.MessageResponse): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -582,7 +582,7 @@ export interface MessageUIComponentProps
 export interface MessageDeletedProps extends TranslationContextValue {
   /** The message object */
   message: Client.MessageResponse;
-  isMyMessage(message: Client.MessageResponse): boolean;
+  isMyMessage?(message: Client.MessageResponse): boolean;
 }
 
 export interface ThreadProps
@@ -619,7 +619,7 @@ export interface ReactionSelectorProps {
    * }
    * ```
    * */
-  latest_reactions: Client.ReactionResponse[];
+  latest_reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -627,7 +627,7 @@ export interface ReactionSelectorProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
   /** Enable the avatar display */
@@ -662,7 +662,7 @@ export interface ReactionsListProps {
    * }
    * ```
    * */
-  reactions: Client.ReactionResponse[];
+  reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -670,11 +670,11 @@ export interface ReactionsListProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface;
+  reactionOptions?: MinimalEmojiInterface[];
   onClick?(): void;
   reverse?: boolean;
   emojiSetDef?: EnojiSetDef;
@@ -708,6 +708,7 @@ export interface CardProps extends TranslationContextValue {
   image_url?: string;
   thumb_url?: string;
   text?: string;
+  type?: string;
 }
 
 export interface ChatAutoCompleteProps {
@@ -730,9 +731,9 @@ export interface ChatAutoCompleteProps {
 }
 
 export interface ChatDownProps extends TranslationContextValue {
-  image: string;
+  image?: string;
   type: string;
-  text: string;
+  text?: string;
 }
 
 export interface CommandItemProps {
@@ -795,7 +796,6 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
-}
 
 export interface ModalImageProps {
   data: { src: string };
@@ -819,6 +819,8 @@ export interface ReverseInfiniteScrollProps {
     standardOffset: string | number,
     reverseOffset: string | number,
   ): any;
+  listenToScroll?(standardOffset: number, reverseOffset: number): void;
+  [elementAttribute: string]: any; // any other prop is applied as attribute to element
 }
 
 export interface LoadMoreButtonProps {
@@ -826,21 +828,12 @@ export interface LoadMoreButtonProps {
   refreshing: boolean;
 }
 export interface LoadingChannelsProps {}
-export interface MessageActionsProps extends TranslationContextValue {
-  onClickReact: React.MouseEventHandler;
+export interface MessageActionsBoxProps {
   /** If the message actions box should be open or not */
-  open: boolean;
-  /**
-   * @deprecated
-   *
-   *  The message component, most logic is delegated to this component and MessageActionsBox uses the following functions explicitly:
-   *  `handleFlag`, `handleMute`, `handleEdit`, `handleDelete`, `canDeleteMessage`, `canEditMessage`, `isMyMessage`, `isAdmin`
-   */
-  Message?: React.ElementType<MessageProps>;
+  open?: boolean;
   /** If message belongs to current user. */
   mine?: boolean;
   isUserMuted?(): boolean;
-  mutes: Client.Mute[];
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -849,17 +842,16 @@ export interface MessageActionsProps extends TranslationContextValue {
   handleMute?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
-export interface MessageActionsBoxProps extends MessageActionsProps {}
 export interface MessageNotificationProps {
   showNotification: boolean;
   onClick: React.MouseEventHandler;
 }
 export interface MessageRepliesCountButtonProps
   extends TranslationContextValue {
-  labelSingle: string;
-  labelPlural: string;
-  reply_count: number;
-  onClick: React.MouseEventHandler;
+  labelSingle?: string;
+  labelPlural?: string;
+  reply_count?: number;
+  onClick?: React.MouseEventHandler;
 }
 export interface ModalProps {
   onClose(): void;
@@ -867,7 +859,7 @@ export interface ModalProps {
 }
 export interface SafeAnchorProps {}
 export interface SimpleReactionsListProps {
-  reactions: Client.ReactionResponse[];
+  reactions?: Client.ReactionResponse[];
   /**
    * {
    *  'like': 9,
@@ -875,19 +867,18 @@ export interface SimpleReactionsListProps {
    *  'haha': 2
    * }
    */
-  reaction_counts: {
+  reaction_counts?: {
     [reaction_type: string]: number;
   };
-  showTooltip?: boolean;
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface;
+  reactionOptions?: MinimalEmojiInterface[];
   handleReaction?(reactionType: string): void;
 }
 export interface TooltipProps {}
 
 export const AttachmentActions: React.FC<AttachmentActionsProps>;
 export class Audio extends React.PureComponent<AudioProps, any> {}
-export class Card extends React.PureComponent<CardProps, any> {}
+export const Card: React.FC<CardProps>;
 export class ChatAutoComplete extends React.PureComponent<
   ChatAutoCompleteProps,
   any
@@ -914,10 +905,7 @@ export class InfiniteScroll extends React.PureComponent<
 export const LoadMoreButton: React.FC<LoadMoreButtonProps>;
 export const LoadingChannels: React.FC<LoadingChannelsProps>;
 export const LoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps>;
-export class MessageActions extends React.PureComponent<
-  MessageActionsProps,
-  any
-> {}
+
 export class MessageActionsBox extends React.PureComponent<
   MessageActionsBoxProps,
   any
@@ -928,7 +916,7 @@ export class Modal extends React.PureComponent<ModalProps, any> {}
 export const ModalImage: React.FC<ModalImageProps>;
 
 export class ReverseInfiniteScroll extends React.PureComponent<
-  ReverseInfiniteScrollProps,
+  InfiniteScrollProps,
   any
 > {}
 export class SafeAnchor extends React.PureComponent<SafeAnchorProps, any> {}
@@ -1025,16 +1013,28 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-
-export type MessageSimpleState = {
-  isFocused: boolean;
+export interface MessageSimpleTextProps extends MessageSimpleProps {
   actionsBoxOpen: boolean;
+  onReactionListClick: () => void;
   showDetailedReactions: boolean;
-};
-export class MessageSimple extends React.PureComponent<
-  MessageSimpleProps,
-  MessageSimpleState
-> {}
+  reactionSelectorRef: React.RefObject<ReactionSelector>;
+  setActionsBoxOpen: (state: boolean) => void;
+  hideOptions: () => void;
+}
+export interface MessageSimpleOptionsProps extends MessageSimpleProps {
+  actionsBoxOpen: boolean;
+  hideOptions: () => void;
+  setActionsBoxOpen: (state: boolean) => void;
+  onReactionListClick: () => void;
+}
+export interface MessageSimpleActionsProps extends MessageSimpleProps {
+  addNotification?(notificationText: string, type: string): any;
+  actionsBoxOpen: boolean;
+  hideOptions: () => void;
+  setActionsBoxOpen: (state: boolean) => void;
+}
+
+export const MessageSimple: React.FC<MessageSimpleProps>;
 
 export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
@@ -1150,8 +1150,8 @@ declare function withTranslationContext<T>(
 export interface TranslationContext
   extends React.Context<TranslationContextValue> {}
 export interface TranslationContextValue {
-  t: i18next.TFunction;
-  tDateTimeParser(datetime: string | number): Dayjs.Dayjs;
+  t?: i18next.TFunction;
+  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
 }
 
 export interface Streami18nOptions {

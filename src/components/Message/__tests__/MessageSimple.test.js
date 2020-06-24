@@ -8,8 +8,8 @@ import {
   generateMessage,
   generateReaction,
 } from 'mock-builders';
-
-import Message from '../Message';
+import { MESSAGE_ACTIONS } from '../utils';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
@@ -18,10 +18,6 @@ import {
   EditMessageForm,
 } from '../../MessageInput';
 import { MessageActionsBox as MessageActionsBoxMock } from '../../MessageActions';
-
-const alice = generateUser();
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
-const carol = generateUser();
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -40,6 +36,17 @@ jest.mock('../../Modal', () => ({
   Modal: jest.fn((props) => <div>{props.children}</div>),
 }));
 
+const alice = generateUser();
+const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const carol = generateUser();
+const openThreadMock = jest.fn();
+const onMentionsClickMock = jest.fn();
+const onMentionsHoverMock = jest.fn();
+const tDateTimeParserMock = jest.fn(() => ({
+  calendar: jest.fn(),
+}));
+const retrySendMessageMock = jest.fn();
+
 async function renderMessageSimple(
   message,
   props = {},
@@ -48,15 +55,28 @@ async function renderMessageSimple(
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
-    <Message
-      t={(key) => key}
-      channel={channel}
-      client={client}
-      message={message}
-      typing={false}
-      Message={MessageSimple}
-      {...props}
-    />,
+    <ChannelContext.Provider
+      value={{
+        client,
+        channel,
+        openThread: openThreadMock,
+        onMentionsClick: onMentionsClickMock,
+        onMentionsHover: onMentionsHoverMock,
+        retrySendMessage: retrySendMessageMock,
+      }}
+    >
+      <TranslationContext.Provider
+        value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}
+      >
+        <MessageSimple
+          message={message}
+          typing={false}
+          getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+          threadList={false}
+          {...props}
+        />
+      </TranslationContext.Provider>
+    </ChannelContext.Provider>,
   );
 }
 
@@ -196,7 +216,10 @@ describe('<MessageSimple />', () => {
 
   it("should render the message user's avatar", async () => {
     const message = generateBobMessage();
-    await renderMessageSimple(message);
+    await renderMessageSimple(message, {
+      onUserClick: jest.fn(),
+      onUserHover: jest.fn(),
+    });
     expect(AvatarMock).toHaveBeenCalledWith(
       {
         image: message.user.image,
@@ -209,14 +232,11 @@ describe('<MessageSimple />', () => {
   });
 
   it('should allow message to be retried when it failed', async () => {
-    const retrySendMessage = jest.fn();
     const message = generateAliceMessage({ status: 'failed' });
-    const { getByTestId } = await renderMessageSimple(message, {
-      retrySendMessage,
-    });
-    expect(retrySendMessage).not.toHaveBeenCalled();
+    const { getByTestId } = await renderMessageSimple(message);
+    expect(retrySendMessageMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-inner'));
-    expect(retrySendMessage).toHaveBeenCalledWith(message);
+    expect(retrySendMessageMock).toHaveBeenCalledWith(message);
   });
 
   it.each([
@@ -299,15 +319,14 @@ describe('<MessageSimple />', () => {
 
   it('should trigger open thread handler when thread action is clicked', async () => {
     const message = generateAliceMessage();
-    const openThread = jest.fn();
     const { getByTestId } = await renderMessageSimple(
       message,
-      { threadList: false, openThread },
+      { threadList: false },
       { replies: true },
     );
-    expect(openThread).not.toHaveBeenCalled();
+    expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('thread-action'));
-    expect(openThread).toHaveBeenCalledWith(
+    expect(openThreadMock).toHaveBeenCalledWith(
       message,
       expect.any(Object), // The click event
     );
@@ -393,24 +412,18 @@ describe('<MessageSimple />', () => {
 
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsHover = jest.fn();
-    const { getByTestId } = await renderMessageSimple(message, {
-      onMentionsHover,
-    });
-    expect(onMentionsHover).not.toHaveBeenCalled();
+    const { getByTestId } = await renderMessageSimple(message);
+    expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageInputWrapperTestId));
-    expect(onMentionsHover).toHaveBeenCalledTimes(1);
+    expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
   });
 
   it('should handle message mentions mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsClick = jest.fn();
-    const { getByTestId } = await renderMessageSimple(message, {
-      onMentionsClick,
-    });
-    expect(onMentionsClick).not.toHaveBeenCalled();
+    const { getByTestId } = await renderMessageSimple(message);
+    expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageInputWrapperTestId));
-    expect(onMentionsClick).toHaveBeenCalledTimes(1);
+    expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {
@@ -476,11 +489,10 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const openThread = jest.fn();
-    const { getByTestId } = await renderMessageSimple(message, { openThread });
-    expect(openThread).not.toHaveBeenCalled();
+    const { getByTestId } = await renderMessageSimple(message);
+    expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThread).toHaveBeenCalledWith(
+    expect(openThreadMock).toHaveBeenCalledWith(
       message,
       expect.any(Object), // The event object
     );
@@ -498,13 +510,11 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    const customTDateTimeParser = jest.fn(() => ({
+    tDateTimeParserMock.mockImplementation(() => ({
       calendar: () => parsedDateText,
     }));
-    const { getByText } = await renderMessageSimple(message, {
-      tDateTimeParser: customTDateTimeParser,
-    });
-    expect(customTDateTimeParser).toHaveBeenCalledWith(messageDate);
+    const { getByText } = await renderMessageSimple(message);
+    expect(tDateTimeParserMock).toHaveBeenCalledWith(messageDate);
     expect(getByText(parsedDateText)).toBeInTheDocument();
   });
 });
