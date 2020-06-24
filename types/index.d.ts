@@ -966,10 +966,11 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-export interface MessageSimpleTextProps extends MessageSimpleProps {
-  onReactionListClick: () => void;
-  showDetailedReactions: boolean;
-  reactionSelectorRef: React.RefObject<ReactionSelector>;
+export interface MessageTextProps extends MessageSimpleProps {
+  customOptionProps?: Partial<MessageOptionsProps>;
+  customWrapperClass?: string;
+  onReactionListClick?: () => void;
+  showDetailedReactions?: boolean;
   messageWrapperRef?: React.RefObject<HTMLElement>;
 }
 
@@ -997,8 +998,12 @@ export interface MessageOptionsProps {
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
-  onReactionListClick: () => void;
+  onReactionListClick?: () => void;
   threadList?: boolean;
+  displayLeft?: boolean;
+  displayReplies?: boolean;
+  displayActions?: boolean;
+  theme?: string;
 }
 
 export const MessageSimple: React.FC<MessageSimpleProps>;

@@ -2,12 +2,7 @@
 import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import {
-  isOnlyEmojis,
-  renderText,
-  getReadByTooltipText,
-  smartRender,
-} from '../../utils';
+import { getReadByTooltipText, smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
@@ -15,13 +10,13 @@ import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { MessageOptions } from './MessageOptions';
+import { MessageText } from './MessageText';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import DefaultMessageDeleted from './MessageDeleted';
 import {
   useActionHandler,
-  useMentionsHandler,
   useOpenThreadHandler,
   useReactionClick,
   useReactionHandler,
@@ -222,11 +217,12 @@ const MessageSimple = (props) => {
             </div>
             {images && images.length > 1 && <Gallery images={images} />}
             {message.text && (
-              <MessageSimpleText
+              <MessageText
                 {...props}
-                messageWrapperRef={messageWrapperRef}
-                showDetailedReactions={showDetailedReactions}
-                onReactionListClick={onReactionListClick}
+                customOptionProps={{
+                  messageWrapperRef,
+                  handleOpenThread: propHandleOpenThread,
+                }}
                 // FIXME: There's some unmatched definition between the infered and the declared
                 // ReactionSelector reference
                 // @ts-ignore
@@ -255,101 +251,6 @@ const MessageSimple = (props) => {
         </div>
       )}
     </React.Fragment>
-  );
-};
-
-/**
- * @type { React.FC<import('types').MessageSimpleTextProps> }
- */
-const MessageSimpleText = (props) => {
-  const {
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
-    handleOpenThread: propsHandleOpenThread,
-    actionsEnabled,
-    message,
-    messageListRect,
-    onReactionListClick,
-    reactionSelectorRef,
-    showDetailedReactions,
-    unsafeHTML,
-    messageWrapperRef,
-  } = props;
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
-  const { t } = useContext(TranslationContext);
-  const { isMyMessage } = useUserRole(message);
-  const hasReactions = messageHasReactions(message);
-  const hasAttachment = messageHasAttachments(message);
-  const handleReaction = useReactionHandler(message);
-
-  if (!message || !message.text) {
-    return null;
-  }
-
-  return (
-    <div className="str-chat__message-text">
-      <div
-        data-testid="message-simple-inner-wrapper"
-        className={`
-          str-chat__message-text-inner str-chat__message-simple-text-inner
-          ${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
-          ${
-            isOnlyEmojis(message.text)
-              ? 'str-chat__message-simple-text-inner--is-emoji'
-              : ''
-          }
-        `.trim()}
-        onMouseOver={propOnMentionsHover || onMentionsHover}
-        onClick={propOnMentionsClick || onMentionsClick}
-      >
-        {message.type === 'error' && (
-          <div className="str-chat__simple-message--error-message">
-            {t && t('Error · Unsent')}
-          </div>
-        )}
-        {message.status === 'failed' && (
-          <div className="str-chat__simple-message--error-message">
-            {t && t('Message Failed · Click to try again')}
-          </div>
-        )}
-
-        {unsafeHTML ? (
-          <div dangerouslySetInnerHTML={{ __html: message.html }} />
-        ) : (
-          renderText(message)
-        )}
-
-        {/* if reactions show them */}
-        {hasReactions && !showDetailedReactions && (
-          <ReactionsList
-            reactions={message.latest_reactions}
-            reaction_counts={message.reaction_counts}
-            onClick={onReactionListClick}
-            reverse={true}
-          />
-        )}
-        {showDetailedReactions && (
-          <ReactionSelector
-            mine={isMyMessage}
-            handleReaction={handleReaction}
-            actionsEnabled={actionsEnabled}
-            detailedView
-            reaction_counts={message.reaction_counts}
-            latest_reactions={message.latest_reactions}
-            messageList={messageListRect}
-            // @ts-ignore
-            ref={reactionSelectorRef}
-          />
-        )}
-      </div>
-      {
-        <MessageOptions
-          {...props}
-          messageWrapperRef={messageWrapperRef}
-          handleOpenThread={propsHandleOpenThread}
-        />
-      }
-    </div>
   );
 };
 

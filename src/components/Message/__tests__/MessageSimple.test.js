@@ -6,7 +6,6 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
-  generateReaction,
 } from 'mock-builders';
 import { MESSAGE_ACTIONS } from '../utils';
 import { ChannelContext, TranslationContext } from '../../../context';
@@ -14,6 +13,7 @@ import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageText as MessageTextMock } from '../MessageText';
 import {
   MessageInput as MessageInputMock,
   EditMessageForm,
@@ -21,6 +21,9 @@ import {
 
 jest.mock('../MessageOptions', () => ({
   MessageOptions: jest.fn(() => <div />),
+}));
+jest.mock('../MessageText', () => ({
+  MessageText: jest.fn(() => <div />),
 }));
 
 jest.mock('../../Avatar', () => ({
@@ -40,8 +43,6 @@ const alice = generateUser();
 const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
 const carol = generateUser();
 const openThreadMock = jest.fn();
-const onMentionsClickMock = jest.fn();
-const onMentionsHoverMock = jest.fn();
 const tDateTimeParserMock = jest.fn(() => ({
   calendar: jest.fn(),
 }));
@@ -60,8 +61,6 @@ async function renderMessageSimple(
         client,
         channel,
         openThread: openThreadMock,
-        onMentionsClick: onMentionsClickMock,
-        onMentionsHover: onMentionsHoverMock,
         retrySendMessage: retrySendMessageMock,
       }}
     >
@@ -94,7 +93,6 @@ function generateBobMessage(messageOptions) {
   });
 }
 
-const messageInputWrapperTestId = 'message-simple-inner-wrapper';
 const reactionSelectorTestId = 'reaction-selector';
 
 describe('<MessageSimple />', () => {
@@ -238,7 +236,7 @@ describe('<MessageSimple />', () => {
   });
 
   it('should render message options', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ text: undefined });
     await renderMessageSimple(message, {
       handleOpenThread: jest.fn(),
     });
@@ -254,8 +252,40 @@ describe('<MessageSimple />', () => {
     );
   });
 
+  it('should render message text when message has text', async () => {
+    const message = generateAliceMessage({ text: 'Hello' });
+    const actionsEnabled = true;
+    const messageListRect = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      top: 0,
+      right: 100,
+      bottom: 100,
+      left: 0,
+      toJSON: () => {},
+    };
+    const unsafeHTML = false;
+    await renderMessageSimple(message, {
+      actionsEnabled,
+      messageListRect,
+      unsafeHTML,
+    });
+    expect(MessageTextMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message,
+        actionsEnabled,
+        messageListRect,
+        unsafeHTML,
+        reactionSelectorRef: expect.any(Object),
+      }),
+      {},
+    );
+  });
+
   it('should display detailed reactions when reactions action is clicked', async () => {
-    const message = generateAliceMessage();
+    const message = generateAliceMessage({ text: undefined });
     const { queryByTestId } = await renderMessageSimple(
       message,
       {},
@@ -288,95 +318,6 @@ describe('<MessageSimple />', () => {
     });
     const { queryAllByTestId } = await renderMessageSimple(message);
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
-  });
-
-  it('should set attachments css class modifier when message has text and is focused', async () => {
-    const attachment = {
-      type: 'image',
-      image_url: 'image.jpg',
-    };
-    const message = generateAliceMessage({
-      attachments: [attachment, attachment, attachment],
-    });
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(getByTestId(messageInputWrapperTestId).className).toContain(
-      '--has-attachment',
-    );
-  });
-
-  it('should set emoji css class when message has text that is only emojis', async () => {
-    const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(getByTestId(messageInputWrapperTestId).className).toContain(
-      '--is-emoji',
-    );
-  });
-
-  it('should handle message mention mouse hover event', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(onMentionsHoverMock).not.toHaveBeenCalled();
-    fireEvent.mouseOver(getByTestId(messageInputWrapperTestId));
-    expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle message mentions mouse click event', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(onMentionsClickMock).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(messageInputWrapperTestId));
-    expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should inform that message was not sent when message is has type "error"', async () => {
-    const message = generateAliceMessage({ type: 'error' });
-    const { getByText } = await renderMessageSimple(message);
-    expect(getByText('Error · Unsent')).toBeInTheDocument();
-  });
-
-  it('should inform that retry is possible when message has status "failed"', async () => {
-    const message = generateAliceMessage({ status: 'failed' });
-    const { getByText } = await renderMessageSimple(message);
-    expect(
-      getByText('Message Failed · Click to try again'),
-    ).toBeInTheDocument();
-  });
-
-  it('render message html when unsafe html property is enabled', async () => {
-    const message = generateAliceMessage({
-      html: '<span data-testid="custom-html" />',
-    });
-    const { getByTestId } = await renderMessageSimple(message, {
-      unsafeHTML: true,
-    });
-    expect(getByTestId('custom-html')).toBeInTheDocument();
-  });
-
-  it('render message text', async () => {
-    const text = 'Hello, world!';
-    const message = generateAliceMessage({ text });
-    const { getByText } = await renderMessageSimple(message);
-    expect(getByText(text)).toBeInTheDocument();
-  });
-
-  it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId } = await renderMessageSimple(message);
-    expect(getByTestId('reaction-list')).toBeInTheDocument();
-  });
-
-  it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId, queryByTestId } = await renderMessageSimple(message);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
-    fireEvent.click(getByTestId('reaction-list'));
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
   });
 
   it('should display reply count and handle replies count button click when not in thread list and reply count is not 0', async () => {
