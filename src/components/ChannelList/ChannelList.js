@@ -32,7 +32,7 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
  * @example ../../docs/ChannelList.md
  */
 const ChannelList = (props) => {
-  const channelListRef = useRef(null);
+  const channelListRef = useRef(/** @type {HTMLDivElement | null} */ (null));
 
   // Set a channel with id {customActiveChannel} as active and move it to the top of the list.
   // If customActiveChannel prop is absent, then set the first channel in list as active channel.

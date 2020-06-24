@@ -212,10 +212,10 @@ export default function useMessageInputState(props) {
   } = props;
 
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
-  /** @type {{ current: HTMLTextAreaElement | undefined }} */
-  const textareaRef = useRef();
-  /** @type {{ current: HTMLDivElement | null }} */
-  const emojiPickerRef = useRef(null);
+  const textareaRef = useRef(
+    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
+  );
+  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
   const channelContext = useContext(ChannelContext);
   const {
     text,
@@ -238,9 +238,7 @@ export default function useMessageInputState(props) {
   }, [focus]);
 
   // Text + cursor position
-
-  /** @type {React.MutableRefObject<number | null>} */
-  const newCursorPosition = useRef(null);
+  const newCursorPosition = useRef(/** @type {number | null} */ (null));
   const insertText = useCallback(
     (textToInsert) => {
       if (!textareaRef.current) {
