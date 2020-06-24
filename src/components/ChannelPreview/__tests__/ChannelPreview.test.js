@@ -51,7 +51,11 @@ describe('ChannelPreview', () => {
   const renderComponent = (props, renderer) => {
     return renderer(
       <Chat client={chatClientUthred}>
-        <ChannelPreview Preview={PreviewUIComponent} {...props} />
+        <ChannelPreview
+          Preview={PreviewUIComponent}
+          setActiveChannel={jest.fn()}
+          {...props}
+        />
       </Chat>,
     );
   };
