@@ -1,15 +1,14 @@
 /* eslint-disable */
 import React, { PureComponent } from 'react';
-import ReactPlayer from 'react-player';
-import prettybytes from 'pretty-bytes';
+import { default as Media } from 'react-player';
 import PropTypes from 'prop-types';
-import { FileIcon } from 'react-file-utils';
 
 import AttachmentActions from './AttachmentActions';
-import { Audio } from '../Audio';
-import { Image } from '../Image';
-import { Card } from '../Card';
-import { SafeAnchor } from '../SafeAnchor';
+import Audio from './Audio';
+import Card from './Card';
+import File from './File';
+
+import { Image } from '../Gallery';
 
 const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
@@ -42,8 +41,46 @@ class Attachment extends PureComponent {
      * @param event Dom event that triggered this handler
      */
     actionHandler: PropTypes.func.isRequired,
+    /**
+     * Custom UI component for card type attachment
+     * Defaults to [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.js)
+     */
+    Card: PropTypes.elementType,
+    /**
+     * Custom UI component for file type attachment
+     * Defaults to [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/File.js)
+     */
+    File: PropTypes.elementType,
+    /**
+     * Custom UI component for image type attachment
+     * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.js)
+     */
+    Image: PropTypes.elementType,
+    /**
+     * Custom UI component for audio type attachment
+     * Defaults to [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.js)
+     */
+    Audio: PropTypes.elementType,
+    /**
+     * Custom UI component for media type attachment
+     * Defaults to [ReactPlayer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/ReactPlayer.js)
+     */
+    Media: PropTypes.elementType,
+    /**
+     * Custom UI component for attachment actions
+     * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.js)
+     */
+    AttachmentActions: PropTypes.elementType,
   };
 
+  static defaultProps = {
+    Card,
+    Image,
+    Audio,
+    File,
+    Media,
+    AttachmentActions,
+  };
   attachmentType(a) {
     let type, extra;
     if (a.actions && a.actions.length > 0) {
@@ -74,13 +111,17 @@ class Attachment extends PureComponent {
     return { type, extra };
   }
 
-  renderAttachmentActions = (a) => (
-    <AttachmentActions
-      key={'key-actions-' + a.id}
-      {...a}
-      actionHandler={this.props.actionHandler}
-    />
-  );
+  renderAttachmentActions = (a) => {
+    const { AttachmentActions } = this.props;
+
+    return (
+      <AttachmentActions
+        key={'key-actions-' + a.id}
+        {...a}
+        actionHandler={this.props.actionHandler}
+      />
+    );
+  };
 
   renderAttachment = (a) => (
     <div className="str-chat__attachment" key={`key-image-${a.id}`}>
@@ -90,7 +131,7 @@ class Attachment extends PureComponent {
   );
 
   render() {
-    const { attachment: a } = this.props;
+    const { attachment: a, Card, Image, Audio, Media, File } = this.props;
     if (!a) {
       return null;
     }
@@ -113,26 +154,7 @@ class Attachment extends PureComponent {
       }
     } else if (type === 'file') {
       a.asset_url &&
-        results.push(
-          <div
-            data-testid="attachment-file"
-            className="str-chat__message-attachment-file--item"
-            key={`key-file-${a.id}`}
-          >
-            <FileIcon
-              mimeType={a.mime_type}
-              filename={a.title}
-              big={true}
-              size={30}
-            />
-            <div className="str-chat__message-attachment-file--item-text">
-              <SafeAnchor href={a.asset_url} target="_blank" download>
-                {a.title}
-              </SafeAnchor>
-              {a.file_size && <span>{prettybytes(a.file_size)}</span>}
-            </div>
-          </div>,
-        );
+        results.push(<File attachment={a} key={`key-file-${a.id}`} />);
     } else if (type === 'audio') {
       results.push(
         <div className="str-chat__attachment" key={`key-video-${a.id}`}>
@@ -147,7 +169,7 @@ class Attachment extends PureComponent {
             key={`key-video-${a.id}`}
           >
             <div className="str-chat__player-wrapper">
-              <ReactPlayer
+              <Media
                 className="react-player"
                 url={a.asset_url}
                 width="100%"
@@ -161,7 +183,7 @@ class Attachment extends PureComponent {
       } else {
         results.push(
           <div className="str-chat__player-wrapper" key={`key-video-${a.id}`}>
-            <ReactPlayer
+            <Media
               className="react-player"
               url={a.asset_url}
               width="100%"
