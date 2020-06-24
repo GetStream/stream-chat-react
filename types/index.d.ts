@@ -571,7 +571,7 @@ export interface MessageUIComponentProps
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfigWithInfo;
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;

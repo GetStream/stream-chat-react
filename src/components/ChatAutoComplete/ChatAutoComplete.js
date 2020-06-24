@@ -65,7 +65,6 @@ const ChatAutoComplete = (props) => {
   );
 
   const { commands, onSelectItem } = props;
-
   /**
    * @type {() => import("../AutoCompleteTextarea/types").TriggerMap}
    */
