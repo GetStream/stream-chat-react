@@ -87,7 +87,8 @@ export const getMessageActions = (
 };
 
 /**
- * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
+ * @typedef {Pick<import('types').MessageComponentProps, 'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'editing' | 'messageListRect'>} MessageEqualProps
+ * @type {(props: MessageEqualProps, nextProps: MessageEqualProps) => boolean} Typescript syntax
  */
 export const areMessagePropsEqual = (props, nextProps) => {
   return (

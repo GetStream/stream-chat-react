@@ -22,7 +22,7 @@ const SUPPORTED_VIDEO_FORMATS = [
  * Attachment - The message attachment
  *
  * @example ../../docs/Attachment.md
- * @extends PureComponent
+ * @extends { PureComponent<import('types').AttachmentUIComponentProps> }
  */
 class Attachment extends PureComponent {
   attachmentRef = React.createRef();
