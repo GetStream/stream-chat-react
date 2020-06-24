@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { PureComponent } from 'react';
-import ReactPlayer from 'react-player';
+import { default as Media } from 'react-player';
 import PropTypes from 'prop-types';
 
 import AttachmentActions from './AttachmentActions';
@@ -66,6 +66,11 @@ class Attachment extends PureComponent {
      * Defaults to [ReactPlayer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/ReactPlayer.js)
      */
     Media: PropTypes.elementType,
+    /**
+     * Custom UI component for attachment actions
+     * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.js)
+     */
+    AttachmentActions: PropTypes.elementType,
   };
 
   static defaultProps = {
@@ -73,7 +78,8 @@ class Attachment extends PureComponent {
     Image,
     Audio,
     File,
-    Media: ReactPlayer,
+    Media,
+    AttachmentActions,
   };
   attachmentType(a) {
     let type, extra;
@@ -105,13 +111,17 @@ class Attachment extends PureComponent {
     return { type, extra };
   }
 
-  renderAttachmentActions = (a) => (
-    <AttachmentActions
-      key={'key-actions-' + a.id}
-      {...a}
-      actionHandler={this.props.actionHandler}
-    />
-  );
+  renderAttachmentActions = (a) => {
+    const { AttachmentActions } = this.props;
+
+    return (
+      <AttachmentActions
+        key={'key-actions-' + a.id}
+        {...a}
+        actionHandler={this.props.actionHandler}
+      />
+    );
+  };
 
   renderAttachment = (a) => (
     <div className="str-chat__attachment" key={`key-image-${a.id}`}>
