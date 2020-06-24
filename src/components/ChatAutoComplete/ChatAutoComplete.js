@@ -19,7 +19,7 @@ const emojiReplace = (word) => {
   const emoji = found
     .slice(0, 10)
     .find(({ emoticons }) => emoticons?.includes(word));
-  if (!emoji || !('native' in emoji)) return '';
+  if (!emoji || !('native' in emoji)) return null;
   return emoji.native;
 };
 
