@@ -796,6 +796,7 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
+}
 
 export interface ModalImageProps {
   data: { src: string };
