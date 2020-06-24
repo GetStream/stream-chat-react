@@ -14,9 +14,6 @@ import { ChannelContext } from '../../../context';
  * @type {(message: import('stream-chat').MessageResponse | undefined) => UserRoles} Typescript syntax
  */
 export const useUserRole = (message) => {
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { client, channel } = useContext(ChannelContext);
 
   const isMyMessage =

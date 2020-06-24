@@ -14,9 +14,7 @@ import SendButtonComponent from './SendButton';
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputSmall = (props) => {
   const messageInput = useMessageInput(props);
-  /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
-  /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
   const { SendButton } = props;
 

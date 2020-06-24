@@ -6,9 +6,6 @@ import { ChannelContext } from '../../../context';
  * @type {(message: import('stream-chat').MessageResponse | undefined) => (event: React.SyntheticEvent) => void}
  */
 export const useOpenThreadHandler = (message) => {
-  /**
-   * @type{import('types').ChannelContextValue}
-   */
   const { openThread } = useContext(ChannelContext);
 
   return (event) => {

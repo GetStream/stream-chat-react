@@ -13,7 +13,6 @@ import { generateRandomId } from '../../../utils';
 /**
  * @typedef {import("types").MessageInputState} State
  * @typedef {import("types").MessageInputProps} Props
- * @typedef {import('types').ChannelContextValue} ChannelContextValue
  * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
  * @typedef {import('stream-chat').UserResponse} UserResponse
  */
@@ -217,7 +216,6 @@ export default function useMessageInputState(props) {
   const textareaRef = useRef();
   /** @type {{ current: HTMLDivElement | null }} */
   const emojiPickerRef = useRef(null);
-  /** @type {ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
   const {
     text,

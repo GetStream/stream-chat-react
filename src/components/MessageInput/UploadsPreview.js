@@ -17,7 +17,6 @@ const UploadsPreview = ({
   removeFile,
   uploadFile,
 }) => {
-  /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
   return (
     <>

@@ -7,9 +7,6 @@ import { ChannelContext } from '../../../context';
  * @type {(message: import('stream-chat').MessageResponse | undefined) => { onMentionsClick: Handler, onMentionsHover: Handler }}
  */
 export const useMentionsHandler = (message) => {
-  /**
-   * @type{import('types').ChannelContextValue}
-   */
   const { onMentionsClick, onMentionsHover } = useContext(ChannelContext);
 
   return {

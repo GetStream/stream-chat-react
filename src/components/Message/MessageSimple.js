@@ -69,9 +69,6 @@ const MessageSimple = (props) => {
     onUserHover: onUserHoverCustomHandler,
     tDateTimeParser: propTDateTimeParser,
   } = props;
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
   const updateMessage = propUpdateMessage || channelUpdateMessage;
   const { tDateTimeParser } = useContext(TranslationContext);
@@ -424,9 +421,6 @@ const MessageSimpleOptions = (props) => {
   } = props;
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
-  /**
-   * @type {import('types').ChannelContextValue}
-   */
   const { channel } = useContext(ChannelContext);
   const channelConfig = channel?.getConfig();
   if (
@@ -624,9 +618,6 @@ const MessageSimpleStatus = ({
   lastReceivedId,
 }) => {
   const { t } = useContext(TranslationContext);
-  /**
-   * @type {import('types').ChannelContextValue}
-   */
   const { client } = useContext(ChannelContext);
   const { isMyMessage } = useUserRole(message);
   if (!isMyMessage || message?.type === 'error') {
