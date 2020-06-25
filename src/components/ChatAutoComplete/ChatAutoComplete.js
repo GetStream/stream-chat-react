@@ -28,7 +28,6 @@ const ChatAutoComplete = (props) => {
   const { channel } = useContext(ChatContext);
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
-  const queryMembers = channel?.queryMembers;
 
   const getMembersAndWatchers = useCallback(() => {
     const memberUsers = members
@@ -51,17 +50,16 @@ const ChatAutoComplete = (props) => {
     debounce(
       /** @type {(query: string, onReady: (data: any[]) => void) => Promise<void>} */
       async (query, onReady) => {
-        if (!queryMembers) return;
-        const response = await queryMembers({
+        if (!channel?.queryMembers) return;
+        const response = await channel?.queryMembers({
           name: { $autocomplete: query },
         });
-
         const users = response.members.map((m) => m.user);
         if (onReady) onReady(users);
       },
       200,
     ),
-    [queryMembers],
+    [channel?.queryMembers],
   );
 
   const { commands, onSelectItem } = props;
