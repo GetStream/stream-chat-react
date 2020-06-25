@@ -20,31 +20,26 @@ import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import DefaultMessageDeleted from './MessageDeleted';
-import { useUserRole } from './hooks/useUserRole';
-import { useReactionHandler } from './hooks/useReactionHandler';
-import { useOpenThreadHandler } from './hooks/useOpenThreadHandler';
-import { useMentionsHandler } from './hooks/useMentionsHandler';
-import { useMuteHandler } from './hooks/useMuteHandler';
-import { useFlagHandler } from './hooks/useFlagHandler';
-import { isUserMuted, areMessagePropsEqual } from './utils';
-import { useEditHandler } from './hooks/useEditHandler';
-import { useDeleteHandler } from './hooks/useDeleteHandler';
-import { useActionHandler } from './hooks/useActionHandler';
-import { useRetryHandler } from './hooks/useRetryHandler';
-import { useUserHandler } from './hooks/useUserHandler';
-
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-const messageHasReactions = (message) => {
-  if (!message) {
-    return false;
-  }
-  return Boolean(message.latest_reactions && message.latest_reactions.length);
-};
-
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-const messageHasAttachments = (message) => {
-  return Boolean(message && message.attachments && message.attachments.length);
-};
+import {
+  useActionHandler,
+  useDeleteHandler,
+  useEditHandler,
+  useFlagHandler,
+  useMentionsHandler,
+  useMuteHandler,
+  useOpenThreadHandler,
+  useReactionClick,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
+  useUserRole,
+} from './hooks';
+import {
+  isUserMuted,
+  areMessagePropsEqual,
+  messageHasReactions,
+  messageHasAttachments,
+} from './utils';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -75,9 +70,8 @@ const MessageSimple = (props) => {
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
   const updateMessage = propUpdateMessage || channelUpdateMessage;
   const { tDateTimeParser } = useContext(TranslationContext);
-  const [showDetailedReactions, setShowDetailedReactions] = useState(false);
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
-  const { isMyMessage } = useUserRole(props.message);
+  const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
@@ -89,54 +83,24 @@ const MessageSimple = (props) => {
     },
     message,
   );
+  const reactionSelectorRef = React.createRef();
+  const { onReactionListClick, showDetailedReactions } = useReactionClick(
+    reactionSelectorRef,
+    message,
+  );
   const {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
   } = props;
-  /** @type { React.RefObject<ReactionSelector> | null } */
-  const reactionSelectorRef = React.createRef();
-
-  /** @type {EventListener} */
-  const closeDetailedReactions = useCallback(
-    (event) => {
-      if (
-        event.target &&
-        // @ts-ignore
-        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
-          event.target,
-        )
-      ) {
-        return;
-      }
-      setShowDetailedReactions(() => false);
-    },
-    [setShowDetailedReactions, reactionSelectorRef],
-  );
-  /** @type {() => void} Typescript syntax */
-  const onReactionListClick = () => setShowDetailedReactions(true);
-  useEffect(() => {
-    if (showDetailedReactions) {
-      document.addEventListener('click', closeDetailedReactions);
-      document.addEventListener('touchend', closeDetailedReactions);
-    } else {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
-    }
-    return () => {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
-    };
-  }, [showDetailedReactions, closeDetailedReactions]);
 
   /** @type {() => void} Typescript syntax */
   const hideOptions = () => setActionsBoxOpen(false);
   useEffect(() => {
     if (message?.deleted_at) {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
       document.removeEventListener('click', hideOptions);
     }
-  }, [message, closeDetailedReactions]);
+  }, [message]);
+
   const dateTimeParser = propTDateTimeParser || tDateTimeParser;
   const when =
     dateTimeParser &&
