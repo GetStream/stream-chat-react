@@ -40,6 +40,7 @@ class Image extends React.PureComponent {
           onClick={this.toggleModal}
           src={thumb_url || image_url}
           alt={fallback}
+          data-testid="image-test"
         />
 
         <ModalWrapper
