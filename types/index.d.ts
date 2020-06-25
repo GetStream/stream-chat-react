@@ -13,14 +13,14 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat | null;
+  client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(
     channel: Client.Channel,
     watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
     event?: React.SyntheticEvent,
   ): void;
-  openNav?: boolean;
+  navOpen?: boolean;
   openMobileNav?(): void;
   closeMobileNav?(): void;
   theme?: string;

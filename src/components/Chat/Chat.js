@@ -1,5 +1,7 @@
+// @ts-check
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { StreamChat } from 'stream-chat';
 
 import { ChatContext, TranslationContext } from '../../context';
 import { Streami18n } from '../../Streami18n';
@@ -19,11 +21,18 @@ import { Streami18n } from '../../Streami18n';
  *
  * @example ../../docs/Chat.md
  */
+/** @type {React.FC<import("types").ChatProps>} */
 const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
-  const [translators, setTranslators] = useState({});
-  const [mutes, setMutes] = useState([]);
+  const [translators, setTranslators] = useState(
+    /** @type {import("types").TranslationContextValue} */ ({}),
+  );
+  const [mutes, setMutes] = useState(
+    /** @type {import("stream-chat").Mute[]} */ ([]),
+  );
   const [navOpen, setNavOpen] = useState(initialNavOpen);
-  const [channel, setChannel] = useState({});
+  const [channel, setChannel] = useState(
+    /** @type {import("stream-chat").Channel} */ ({}),
+  );
 
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
   const closeMobileNav = () => setNavOpen(false);
@@ -31,8 +40,9 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
   useEffect(() => {
     setMutes(client?.user?.mutes || []);
 
+    /** @param {import("stream-chat").Event} e */
     const handleEvent = (e) => {
-      if (e.type === 'notification.mutes_updated') setMutes(e.me.mutes || []);
+      if (e.type === 'notification.mutes_updated') setMutes(e.me?.mutes || []);
     };
 
     client.on(handleEvent);
@@ -47,7 +57,12 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
-    streami18n.getTranslators().then(setTranslators);
+
+    streami18n
+      .getTranslators()
+      .then(
+        (newTranslators) => newTranslators && setTranslators(newTranslators),
+      );
   }, [i18nInstance]);
 
   const setActiveChannel = useCallback(
@@ -92,7 +107,7 @@ Chat.defaultProps = {
 
 Chat.propTypes = {
   /** The StreamChat client object */
-  client: PropTypes.object.isRequired,
+  client: PropTypes.instanceOf(StreamChat).isRequired,
   /**
    *
    * Theme could be used for custom styling of the components.
