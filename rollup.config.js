@@ -66,6 +66,7 @@ const normalBundle = {
     'dayjs/locale/en',
     'lodash/uniq',
     'lodash.uniqby',
+    'lodash.truncate',
     'emoji-mart',
     'emoji-mart/data/all.json',
     'emoji-regex',

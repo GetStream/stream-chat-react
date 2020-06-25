@@ -140,11 +140,12 @@ describe('ChatAutoComplete', () => {
     );
     const mentionedUser = users[0];
 
-    typeText(`@${mentionedUser.id}`);
+    typeText(`@${mentionedUser.name}`);
 
     await waitFor(() => expect(queryMembers).toHaveBeenCalledTimes(1));
 
-    const userText = await findByText(mentionedUser.id);
+    const userText = await findByText(mentionedUser.name);
+
     expect(userText).toBeInTheDocument();
 
     fireEvent.click(userText);
