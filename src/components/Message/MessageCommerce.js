@@ -47,7 +47,7 @@ class MessageCommerce extends PureComponent {
       .object.isRequired),
     /** If component is in thread list */
     threadList: PropTypes.bool,
-    /** Function to open thread on current messxage */
+    /** Function to open thread on current message */
     handleOpenThread: PropTypes.func,
     /** Returns true if message belongs to current user */
     isMyMessage: PropTypes.func,
