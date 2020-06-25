@@ -11,7 +11,7 @@ module.exports = {
      */
   ],
   transformIgnorePatterns: ['/node_modules'],
-  testPathIgnorePatterns: ['/node_modules/', '/examples/'],
+  testPathIgnorePatterns: ['/node_modules/', '/examples/', '__snapshots__'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
   },

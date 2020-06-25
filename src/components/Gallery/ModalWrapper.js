@@ -6,16 +6,18 @@ import ModalImage from './ModalImage';
 
 /**
  * ImageModal - Small modal component
- * @type import('types').ImageModal
+ * @type { React.FC<import('types').ModalWrapperProps>}
  */
 const ModalComponent = ({ images, toggleModal, index, modalIsOpen }) => (
   <ModalGateway>
     {modalIsOpen ? (
+      // @ts-ignore
       <Modal onClose={toggleModal}>
         <Carousel
           views={images}
           currentIndex={index}
           components={{
+            // @ts-ignore
             View: ModalImage,
           }}
         />
@@ -25,10 +27,10 @@ const ModalComponent = ({ images, toggleModal, index, modalIsOpen }) => (
 );
 
 ModalComponent.propTypes = {
-  images: PropTypes.array,
-  toggleModal: PropTypes.func,
+  images: PropTypes.array.isRequired,
+  toggleModal: PropTypes.func.isRequired,
   index: PropTypes.number,
-  modalIsOpen: PropTypes.bool,
+  modalIsOpen: PropTypes.bool.isRequired,
 };
 
 export default ModalComponent;

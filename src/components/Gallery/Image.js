@@ -1,5 +1,5 @@
-/* @ts-check */
-import React, { Fragment, useState } from 'react';
+/* eslint-disable */
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import ModalWrapper from './ModalWrapper';
@@ -8,40 +8,49 @@ import ModalWrapper from './ModalWrapper';
  * Image - Small wrapper around an image tag, supports thumbnails
  *
  * @example ../../docs/Image.md
- * @typedef { import('../../../types').ImageProps } Props
- * @type React.FC<Props>
+ * @extends PureComponent
  */
-const Image = ({ image_url, thumb_url, fallback }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const formattedArray = [{ src: image_url || thumb_url }];
+class Image extends React.PureComponent {
+  static propTypes = {
+    /** The full size image url */
+    image_url: PropTypes.string,
+    /** The thumb url */
+    thumb_url: PropTypes.string,
+    /** The text fallback for the image */
+    fallback: PropTypes.string,
+  };
+  state = {
+    modalIsOpen: false,
+    currentIndex: 0,
+  };
 
-  const toggleModal = () => setModalOpen(!modalOpen);
+  toggleModal = () => {
+    this.setState((state) => ({
+      modalIsOpen: !state.modalIsOpen,
+    }));
+  };
 
-  return (
-    <Fragment>
-      <img
-        className="str-chat__message-attachment--img"
-        data-testid="image-test"
-        onClick={toggleModal}
-        src={thumb_url || image_url}
-        alt={fallback}
-      />
-      <ModalWrapper
-        images={formattedArray}
-        toggleModal={toggleModal}
-        modalIsOpen={modalOpen}
-      />
-    </Fragment>
-  );
-};
+  render() {
+    const { image_url, thumb_url, fallback } = this.props;
+    const formattedArray = [{ src: image_url || thumb_url }];
+    return (
+      <React.Fragment>
+        <img
+          className="str-chat__message-attachment--img"
+          onClick={this.toggleModal}
+          src={thumb_url || image_url}
+          alt={fallback}
+        />
 
-Image.propTypes = {
-  /** The full size image url */
-  image_url: PropTypes.string,
-  /** The thumb url */
-  thumb_url: PropTypes.string,
-  /** The text fallback for the image */
-  fallback: PropTypes.string,
-};
+        <ModalWrapper
+          images={formattedArray}
+          toggleModal={this.toggleModal}
+          index={this.state.currentIndex}
+          modalIsOpen={this.state.modalIsOpen}
+        />
+      </React.Fragment>
+    );
+  }
+}
 
-export default React.memo(Image);
+export default Image;

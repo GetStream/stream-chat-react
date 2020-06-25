@@ -30,7 +30,8 @@ const Gallery = ({ images }) => {
   const formattedArray = useMemo(
     () =>
       images.map((image) => ({
-        src: image.image_url || image.thumb_url,
+        src: image.image_url || image.thumb_url || '',
+        source: image.image_url || image.thumb_url || '',
       })),
     [images],
   );
@@ -71,6 +72,7 @@ const Gallery = ({ images }) => {
       <ModalWrapper
         images={formattedArray}
         index={index}
+        // @ts-ignore
         toggleModal={toggleModal}
         modalIsOpen={modalOpen}
       />
