@@ -1,8 +1,6 @@
 export * from './Attachment';
-export * from './Audio';
 export * from './AutoCompleteTextarea';
 export * from './Avatar';
-export * from './Card';
 export * from './ChannelPreview';
 export * from './Channel';
 export * from './ChannelHeader';
@@ -17,7 +15,6 @@ export * from './EmoticonItem';
 export * from './EmptyStateIndicator';
 export * from './EventComponent';
 export * from './Gallery';
-export * from './Image';
 export * from './InfiniteScrollPaginator';
 export * from './Loading';
 export * from './LoadMore';

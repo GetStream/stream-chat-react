@@ -9,7 +9,7 @@ import { validateAndGetMessage } from '../utils';
  *   getSuccessNotification?: import('types').MessageComponentProps['getMuteUserSuccessNotification'],
  *   getErrorNotification?: import('types').MessageComponentProps['getMuteUserErrorNotification'],
  * }} NotificationArg
- * @type {(message: import('stream-chat').MessageResponse, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
+ * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
  */
 export const useFlagHandler = (message, notifications) => {
   /**
