@@ -29,6 +29,7 @@ const channelContextMock = {
   thread: threadStart,
   threadMessages: [reply1, reply2],
   loadMoreThread: jest.fn(() => Promise.resolve()),
+  closeThread: jest.fn(),
   threadHasMore: true,
   threadLoadingMore: false,
 };
@@ -124,22 +125,21 @@ describe('Thread', () => {
   });
 
   it('should call the closeThread callback if the button is pressed', () => {
-    const closeThread = jest.fn();
-    const { getByTestId } = renderComponent({ closeThread });
+    const { getByTestId } = renderComponent();
 
     fireEvent.click(getByTestId('close-button'));
 
-    expect(closeThread).toHaveBeenCalledTimes(1);
+    expect(channelContextMock.closeThread).toHaveBeenCalledTimes(1);
   });
 
-  it('should assign the str-chat__thread--full modifier class if the follWidth prop is set to true', () => {
+  it('should assign the str-chat__thread--full modifier class if the fullWidth prop is set to true', () => {
     const { container } = renderComponent({ fullWidth: true });
     expect(
       container.querySelector('.str-chat__thread--full'),
     ).toBeInTheDocument();
   });
 
-  it('should not assign the str-chat__thread--full modifier class if the follWidth prop is set to false', () => {
+  it('should not assign the str-chat__thread--full modifier class if the fullWidth prop is set to false', () => {
     const { container } = renderComponent();
     expect(
       container.querySelector('.str-chat__thread--full'),
