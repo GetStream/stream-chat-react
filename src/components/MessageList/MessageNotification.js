@@ -2,14 +2,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-/**
- *
- * @type {React.FC<import('types').MessageNotificationProps>}
- */
+/** @type {React.FC<import('types').MessageNotificationProps>} */
 const MessageNotification = ({ showNotification, onClick, children }) => {
   if (!showNotification) return null;
   return (
-    <button className="str-chat__message-notification" onClick={onClick}>
+    <button
+      data-testid="message-notification"
+      className="str-chat__message-notification"
+      onClick={onClick}
+    >
       {children}
     </button>
   );

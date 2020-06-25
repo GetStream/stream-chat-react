@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelPreviewCompact should render correctly 1`] = `
+<button
+  className="str-chat__channel-preview-compact  "
+  data-testid="channel-preview-button"
+  onClick={[Function]}
+>
+  <div
+    className="str-chat__channel-preview-compact--left"
+  >
+    <div
+      className="str-chat__avatar str-chat__avatar--circle"
+      data-testid="avatar"
+      onClick={[Function]}
+      onMouseOver={[Function]}
+      style={
+        Object {
+          "flexBasis": 20,
+          "fontSize": 10,
+          "height": 20,
+          "lineHeight": "20px",
+          "width": 20,
+        }
+      }
+    >
+      <img
+        alt=""
+        className="str-chat__avatar-image"
+        data-testid="avatar-img"
+        onError={[Function]}
+        onLoad={[Function]}
+        src="https://randomimage.com/src.jpg"
+        style={
+          Object {
+            "flexBasis": 20,
+            "height": 20,
+            "objectFit": "cover",
+            "width": 20,
+          }
+        }
+      />
+    </div>
+  </div>
+  <div
+    className="str-chat__channel-preview-compact--right"
+  >
+    Channel name
+  </div>
+</button>
+`;

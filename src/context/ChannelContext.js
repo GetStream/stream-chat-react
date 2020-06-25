@@ -1,8 +1,16 @@
+// @ts-check
 import React from 'react';
 
-export const ChannelContext = React.createContext({});
+/**
+ * @typedef {import('types').ChannelContextValue} ChannelContext
+ */
+export const ChannelContext = React.createContext(
+  /** @type {ChannelContext} */ ({}),
+);
 
+/** @param { React.ComponentClass | React.FC } OriginalComponent */
 export function withChannelContext(OriginalComponent) {
+  /** @param {any} props */
   const ContextAwareComponent = function ContextComponent(props) {
     return (
       <ChannelContext.Consumer>
@@ -12,6 +20,7 @@ export function withChannelContext(OriginalComponent) {
       </ChannelContext.Consumer>
     );
   };
+  /** @type {string} */
   ContextAwareComponent.displayName =
     OriginalComponent.displayName || OriginalComponent.name || 'Component';
   ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
