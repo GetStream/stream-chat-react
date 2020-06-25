@@ -64,6 +64,13 @@ const ChatAutoComplete = (props) => {
 
   const { commands, onSelectItem } = props;
   /**
+   * dataProvider accepts `onReady` function, which will executed once the data is ready.
+   * Another approach would have been to simply return the data from dataProvider and let the
+   * component await for it and then execute the required logic. We are going for callback instead
+   * of async-await since we have debounce function in dataProvider. Which will delay the execution
+   * of api call on trailing end of debounce (lets call it a1) but will return with result of
+   * previous call without waiting for a1. So in this case, we want to execute onReady, when trailing
+   * end of debounce executes.
    * @type {() => import("../AutoCompleteTextarea/types").TriggerMap}
    */
   const getTriggers = useCallback(
