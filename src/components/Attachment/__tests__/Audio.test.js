@@ -2,15 +2,10 @@ import React from 'react';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { generateAudioAttachment } from 'mock-builders';
 import Audio from '../Audio';
 
-const mockAudioAsset = {
-  title: 'Tribute',
-  text: 'The best song in the world',
-  description: 'Just a tribute',
-  asset_url: 'http://www.jackblack.com/tribute.mp3',
-  image_url: 'http://www.jackblack.com/tenac_iousd.bmp',
-};
+const mockAudioAsset = generateAudioAttachment();
 
 const renderComponent = (
   props = {

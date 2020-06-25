@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelPreviewMessenger should render correctly 1`] = `
+<button
+  className="str-chat__channel-preview-messenger str-chat__channel-preview-messenger--unread "
+  data-testid="channel-preview-button"
+  onClick={[Function]}
+>
+  <div
+    className="str-chat__channel-preview-messenger--left"
+  >
+    <div
+      className="str-chat__avatar str-chat__avatar--circle"
+      data-testid="avatar"
+      onClick={[Function]}
+      onMouseOver={[Function]}
+      style={
+        Object {
+          "flexBasis": 40,
+          "fontSize": 20,
+          "height": 40,
+          "lineHeight": "40px",
+          "width": 40,
+        }
+      }
+    >
+      <img
+        alt=""
+        className="str-chat__avatar-image"
+        data-testid="avatar-img"
+        onError={[Function]}
+        onLoad={[Function]}
+        src="https://randomimage.com/src.jpg"
+        style={
+          Object {
+            "flexBasis": 40,
+            "height": 40,
+            "objectFit": "cover",
+            "width": 40,
+          }
+        }
+      />
+    </div>
+  </div>
+  <div
+    className="str-chat__channel-preview-messenger--right"
+  >
+    <div
+      className="str-chat__channel-preview-messenger--name"
+    >
+      <span>
+        Channel name
+      </span>
+    </div>
+    <div
+      className="str-chat__channel-preview-messenger--last-message"
+    >
+      Thi...
+    </div>
+  </div>
+</button>
+`;

@@ -211,9 +211,7 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps
-  extends TranslationContextValue,
-    ChatContextValue {
+export interface ChannelPreviewProps {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -927,24 +925,12 @@ export class ChannelListTeam extends React.PureComponent<
   any
 > {}
 
-export class ChannelPreview extends React.PureComponent<
-  ChannelPreviewProps,
-  any
-> {}
+export const ChannelPreview: React.FC<ChannelPreviewProps>;
 
-export class ChannelPreviewCompact extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
-export class ChannelPreviewMessenger extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
+export const ChannelPreviewCompact: React.FC<ChannelPreviewUIComponentProps>;
+export const ChannelPreviewMessenger: React.FC<ChannelPreviewUIComponentProps>;
 export const ChannelPreviewCountOnly: React.FC<ChannelPreviewUIComponentProps>;
-export class ChannelPreviewLastMessage extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
+export const ChannelPreviewLastMessage: React.FC<ChannelPreviewUIComponentProps>;
 export const ChannelSearch: React.FC<any>;
 export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;

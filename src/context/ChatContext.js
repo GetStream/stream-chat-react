@@ -1,11 +1,12 @@
 // @ts-check
 import React from 'react';
+import { StreamChat } from 'stream-chat';
 
 /**
  * @typedef {import('types').ChatContextValue} ChatContext
  */
 export const ChatContext = React.createContext(
-  /** @type {ChatContext} */ { client: null },
+  /** @type {ChatContext} */ { client: new StreamChat('') },
 );
 
 /** @param { React.ComponentClass | React.FC } OriginalComponent */

@@ -8,11 +8,12 @@ import PropTypes from 'prop-types';
  */
 const AttachmentActions = ({ text, id, actions, actionHandler }) => (
   <div className="str-chat__message-attachment-actions">
-    <form className="str-chat__message-attachment-actions-form">
+    <div className="str-chat__message-attachment-actions-form">
       <span key={0}>{text}</span>
       {actions.map((action) => (
         <button
           className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}
+          data-testid={`${action.name}`}
           key={`${id}-${action.value}`}
           data-value={action.value}
           onClick={(e) => actionHandler(action.name, action.value, e)}
@@ -20,7 +21,7 @@ const AttachmentActions = ({ text, id, actions, actionHandler }) => (
           {action.text}
         </button>
       ))}
-    </form>
+    </div>
   </div>
 );
 

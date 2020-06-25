@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AttachmentActions should render AttachmentActions component 1`] = `
+<div
+  className="str-chat__message-attachment-actions"
+>
+  <div
+    className="str-chat__message-attachment-actions-form"
+  >
+    <span />
+    <button
+      className="str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
+      data-testid="action 1 name"
+      data-value="action 1"
+      onClick={[Function]}
+    >
+      action 1 text
+    </button>
+    <button
+      className="str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--undefined"
+      data-testid="action 2 name"
+      data-value="action 2"
+      onClick={[Function]}
+    >
+      action 2 text
+    </button>
+  </div>
+</div>
+`;
