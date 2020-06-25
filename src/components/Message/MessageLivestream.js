@@ -26,8 +26,8 @@ const optionsSvg =
  * Implements the look and feel for a livestream use case.
  *
  * @example ../../docs/MessageLivestream.md
- * @typedef { import('../../../types').MessageLivestreamProps } Props
- * @typedef { import('../../../types').MessageLivestreamState } State
+ * @typedef { import('types').MessageLivestreamProps } Props
+ * @typedef { import('types').MessageLivestreamState } State
  * @extends PureComponent<Props, State>
  */
 class MessageLivestream extends PureComponent {

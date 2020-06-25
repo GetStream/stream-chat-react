@@ -13,8 +13,8 @@ import { withTranslationContext } from '../../context';
  * MessageCommerce - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @typedef { import('../../../types').MessageCommerceProps } Props
- * @typedef { import('../../../types').MessageCommerceState } State
+ * @typedef { import('types').MessageCommerceProps } Props
+ * @typedef { import('types').MessageCommerceState } State
  * @extends PureComponent<Props, State>
  */
 class MessageCommerce extends PureComponent {

@@ -31,8 +31,8 @@ const optionsSvg =
  * Implements the look and feel for a team style collaboration environment
  *
  * @example ../../docs/MessageTeam.md
- * @typedef { import('../../../types').MessageTeamProps } Props
- * @typedef { import('../../../types').MessageTeamState } State
+ * @typedef { import('types').MessageTeamProps } Props
+ * @typedef { import('types').MessageTeamState } State
  * @extends PureComponent<Props, State>
  */
 class MessageTeam extends PureComponent {
