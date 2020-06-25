@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import { default as Media } from 'react-player';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 
 import AttachmentActions from './AttachmentActions';
 import Audio from './Audio';
@@ -10,7 +11,7 @@ import File from './File';
 
 import { Image } from '../Gallery';
 
-const SUPPORTED_VIDEO_FORMATS = [
+export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
   'video/ogg',
   'video/webm',
@@ -108,6 +109,7 @@ class Attachment extends PureComponent {
       type = 'card';
       extra = 'no-image';
     }
+
     return { type, extra };
   }
 
@@ -131,11 +133,15 @@ class Attachment extends PureComponent {
   );
 
   render() {
-    const { attachment: a, Card, Image, Audio, Media, File } = this.props;
-    if (!a) {
+    const { attachment, Card, Image, Audio, Media, File } = this.props;
+    if (!attachment) {
       return null;
     }
 
+    const a = {
+      id: uuidv4(),
+      ...attachment,
+    };
     const { type, extra } = this.attachmentType(a);
     if (type === 'card' && !a.title_link && !a.og_scrape_url) {
       return null;
