@@ -11,7 +11,11 @@ const Modal = ({ children, onClose, open }) => {
 
   /** @param {React.MouseEvent} e */
   const handleClick = (e) => {
-    if (e.target instanceof Node && !innerRef.current?.contains(e.target)) {
+    if (
+      e.target instanceof Node &&
+      !innerRef.current?.contains(e.target) &&
+      onClose
+    ) {
       onClose();
     }
   };
@@ -20,7 +24,7 @@ const Modal = ({ children, onClose, open }) => {
     if (!open) return () => {};
     /** @type {EventListener} */
     const handleEscKey = (e) => {
-      if (e instanceof KeyboardEvent && e.keyCode === 27) {
+      if (e instanceof KeyboardEvent && e.keyCode === 27 && onClose) {
         onClose();
       }
     };
