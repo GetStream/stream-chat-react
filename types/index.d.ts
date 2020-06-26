@@ -852,7 +852,7 @@ export interface MessageRepliesCountButtonProps
   onClick?: React.MouseEventHandler;
 }
 export interface ModalProps {
-  onClose(): void;
+  onClose?(): void;
   open: boolean;
 }
 export interface SafeAnchorProps {}
