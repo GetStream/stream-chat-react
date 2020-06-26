@@ -1,5 +1,11 @@
 // @ts-check
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
 import { NimbleEmoji } from 'emoji-mart';
@@ -7,25 +13,28 @@ import { Avatar } from '../Avatar';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
 
-/** @type {React.FC<import("types").ReactionSelectorProps>} */
-const ReactionSelector = ({
-  latest_reactions,
-  reaction_counts,
-  reactionOptions = defaultMinimalEmojis,
-  reverse = false,
-  handleReaction,
-  detailedView = true,
-}) => {
+/** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
+const ReactionSelectorWithRef = (
+  {
+    latest_reactions,
+    reaction_counts,
+    reactionOptions = defaultMinimalEmojis,
+    reverse = false,
+    handleReaction,
+    detailedView = true,
+  },
+  ref,
+) => {
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
   const [tooltipPositions, setTooltipPositions] = useState(
     /** @type {{ tooltip: number, arrow: number } | null} */ (null),
   );
-  /** @type {React.MutableRefObject<HTMLDivElement | null>} */
-  const containerRef = useRef(null);
-  /** @type {React.MutableRefObject<HTMLDivElement | null>} */
-  const tooltipRef = useRef(null);
-  /** @type {React.MutableRefObject<HTMLElement | null>} */
-  const targetRef = useRef(null);
+  const containerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+  const tooltipRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+  const targetRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+
+  // @ts-ignore because it's okay for our ref to be null in the parent component.
+  useImperativeHandle(ref, () => containerRef.current);
 
   const showTooltip = useCallback((e, reactionType) => {
     targetRef.current = e.target;
@@ -159,6 +168,8 @@ const ReactionSelector = ({
     </div>
   );
 };
+
+const ReactionSelector = React.forwardRef(ReactionSelectorWithRef);
 
 ReactionSelector.propTypes = {
   /**

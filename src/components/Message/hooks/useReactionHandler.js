@@ -96,12 +96,11 @@ export const useReactionClick = (
   /** @type {EventListener} */
   const closeDetailedReactions = useCallback(
     (event) => {
+      console.log(reactionSelectorRef?.current);
       if (
         event.target &&
         // @ts-ignore
-        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
-          event.target,
-        )
+        reactionSelectorRef?.current?.contains(event.target)
       ) {
         return;
       }
