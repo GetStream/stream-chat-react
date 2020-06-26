@@ -770,9 +770,16 @@ export interface GalleryProps {
 }
 
 export interface ImageProps {
-  image_url: string;
-  thumb_url: string;
-  fallback: string;
+  image_url?: string;
+  thumb_url?: string;
+  fallback?: string;
+}
+
+export interface ModalWrapperProps {
+  images: { src: string; source: string }[];
+  toggleModal: (selectedIndex?: number) => void;
+  index?: number;
+  modalIsOpen: boolean;
 }
 
 export interface InfiniteScrollProps {
@@ -787,6 +794,32 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
+  children?: any;
+  listenToScroll?: (offset: number, reverseOffset: number) => void;
+}
+
+export interface ModalImageProps {
+  data: { src: string };
+}
+
+export interface ReverseInfiniteScrollProps {
+  loadMore(): any;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
+  className?: string;
+  /** The function is called when the list scrolls */
+  listenToScroll?(
+    standardOffset: string | number,
+    reverseOffset: string | number,
+  ): any;
   listenToScroll?(standardOffset: number, reverseOffset: number): void;
   [elementAttribute: string]: any; // any other prop is applied as attribute to element
 }
@@ -861,9 +894,10 @@ export class EditMessageForm extends React.PureComponent<
 > {}
 export const EmoticonItem: React.FC<EmoticonItemProps>;
 export const EmptyStateIndicator: React.FC<EmptyStateIndicatorProps>;
+export const Gallery: React.FC<GalleryProps>;
+export const Image: React.FC<ImageProps>;
+export const ImageModal: React.FC<ModalWrapperProps>;
 export const EventComponent: React.FC<EventComponentProps>;
-export class Gallery extends React.PureComponent<GalleryProps, any> {}
-export class Image extends React.PureComponent<ImageProps, any> {}
 export class InfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
@@ -880,6 +914,8 @@ export class MessageActionsBox extends React.PureComponent<
 export const MessageNotification: React.FC<MessageNotificationProps>;
 export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
+export const ModalImage: React.FC<ModalImageProps>;
+
 export class ReverseInfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
