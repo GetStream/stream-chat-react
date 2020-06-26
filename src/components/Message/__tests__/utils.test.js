@@ -9,6 +9,7 @@ import {
   messageHasAttachments,
   messageHasReactions,
   getImages,
+  getNonImageAttachments,
 } from '../utils';
 
 const alice = generateUser({ name: 'alice' });
@@ -286,6 +287,38 @@ describe('Message utils', () => {
         attachments: [pdf, img],
       });
       expect(getImages(message)).toStrictEqual([img]);
+    });
+  });
+
+  describe('getNonImageAttachments', () => {
+    it('should return empty if message is undefined', () => {
+      expect(getNonImageAttachments(undefined)).toStrictEqual([]);
+    });
+
+    it('should return empty if message has only image attachments', () => {
+      const img = {
+        type: 'image',
+        asset_url: 'image.jpg',
+      };
+      const message = generateMessage({
+        attachments: [img],
+      });
+      expect(getNonImageAttachments(message)).toStrictEqual([]);
+    });
+
+    it('should return just the non-image attachments when message has them', () => {
+      const pdf = {
+        type: 'file',
+        asset_url: 'file.pdf',
+      };
+      const img = {
+        type: 'image',
+        asset_url: 'some-image.jpg',
+      };
+      const message = generateMessage({
+        attachments: [pdf, img],
+      });
+      expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
     });
   });
 });
