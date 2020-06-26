@@ -9,8 +9,7 @@ import svg from '../../assets/str-chat__loading-indicator.svg';
  * LoadingIndicator - Just a simple loading spinner..
  *
  * @example ../../docs/LoadingIndicator.md
- * @type LoadingIndicator { import("../../types/index.d.ts").LoadingIndicator }
- * @return {React.ReactElement}
+ * @type { React.FC<import('types').LoadingIndicatorProps> }
  */
 
 const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (

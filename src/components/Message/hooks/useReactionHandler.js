@@ -1,5 +1,5 @@
 // @ts-check
-import { useContext } from 'react';
+import { useContext, useCallback, useEffect, useRef, useState } from 'react';
 import { ChannelContext } from '../../../context';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
@@ -74,5 +74,69 @@ export const useReactionHandler = (message) => {
       // revert to the original message if the API call fails
       updateMessage(originalMessage);
     }
+  };
+};
+
+/**
+ * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
+ * @type { (reactionSelectorRef: React.RefObject<import('../../Reactions/ReactionSelector').default | null>, message: import('stream-chat').MessageResponse | undefined) => ReactionClickHandler }
+ *
+ */
+export const useReactionClick = (reactionSelectorRef, message) => {
+  const [showDetailedReactions, setShowDetailedReactions] = useState(false);
+  const messageDeleted = !!message?.deleted_at;
+  const hasListener = useRef(false);
+  /** @type {EventListener} */
+  const closeDetailedReactions = useCallback(
+    (event) => {
+      if (
+        event.target &&
+        // @ts-ignore
+        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
+          event.target,
+        )
+      ) {
+        return;
+      }
+      setShowDetailedReactions(false);
+    },
+    [setShowDetailedReactions, reactionSelectorRef],
+  );
+
+  useEffect(() => {
+    if (showDetailedReactions && !hasListener.current) {
+      hasListener.current = true;
+      document.addEventListener('click', closeDetailedReactions);
+      document.addEventListener('touchend', closeDetailedReactions);
+    }
+    if (!showDetailedReactions && hasListener.current) {
+      document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('touchend', closeDetailedReactions);
+      hasListener.current = false;
+    }
+    return () => {
+      if (hasListener.current) {
+        document.removeEventListener('click', closeDetailedReactions);
+        document.removeEventListener('touchend', closeDetailedReactions);
+        hasListener.current = false;
+      }
+    };
+  }, [showDetailedReactions, closeDetailedReactions]);
+
+  useEffect(() => {
+    if (messageDeleted && hasListener.current) {
+      document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('touchend', closeDetailedReactions);
+      hasListener.current = false;
+    }
+  }, [messageDeleted, closeDetailedReactions]);
+
+  /** @type {() => void} Typescript syntax */
+  const onReactionListClick = () => {
+    setShowDetailedReactions(true);
+  };
+  return {
+    onReactionListClick,
+    showDetailedReactions,
   };
 };

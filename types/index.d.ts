@@ -150,7 +150,7 @@ export interface ChannelListProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
-
+  lockChannelOrder?: boolean;
   onMessageNew?(
     thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.MessageNewEvent>,
@@ -736,9 +736,9 @@ export interface ChatDownProps extends TranslationContextValue {
 
 export interface CommandItemProps {
   entity: {
-    name: string;
-    args: string;
-    description: string;
+    name?: string | null;
+    args?: string | null;
+    description?: string | null;
   };
 }
 
