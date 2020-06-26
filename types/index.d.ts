@@ -150,7 +150,7 @@ export interface ChannelListProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
-
+  lockChannelOrder?: boolean;
   onMessageNew?(
     thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.MessageNewEvent>,
@@ -211,9 +211,7 @@ export interface ChannelListUIComponentProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
 }
 
-export interface ChannelPreviewProps
-  extends TranslationContextValue,
-    ChatContextValue {
+export interface ChannelPreviewProps {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: Client.Channel;
   /** Current selected channel object */
@@ -295,7 +293,7 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
 
 export interface AvatarProps {
   /** image url */
-  image?: string;
+  image?: string | null;
   /** name of the picture, used for title tag fallback */
   name?: string;
   /** shape of the avatar, circle, rounded or square */
@@ -354,10 +352,7 @@ export interface MessageListProps
   additionalMessageInputProps?: object;
 }
 
-export interface ChannelHeaderProps
-  extends ChannelContextValue,
-    TranslationContextValue,
-    ChatContextValue {
+export interface ChannelHeaderProps {
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
@@ -738,9 +733,9 @@ export interface ChatDownProps extends TranslationContextValue {
 
 export interface CommandItemProps {
   entity: {
-    name: string;
-    args: string;
-    description: string;
+    name?: string | null;
+    args?: string | null;
+    description?: string | null;
   };
 }
 
@@ -757,9 +752,9 @@ export interface EmoticonItemProps {
 
 export interface UserItemProps {
   entity: {
-    name: string;
-    id: string;
-    image: string;
+    name?: string | null;
+    id?: string | null;
+    image?: string | null;
   };
 }
 
@@ -772,9 +767,16 @@ export interface GalleryProps {
 }
 
 export interface ImageProps {
-  image_url: string;
-  thumb_url: string;
-  fallback: string;
+  image_url?: string;
+  thumb_url?: string;
+  fallback?: string;
+}
+
+export interface ModalWrapperProps {
+  images: { src: string; source: string }[];
+  toggleModal: (selectedIndex?: number) => void;
+  index?: number;
+  modalIsOpen: boolean;
 }
 
 export interface InfiniteScrollProps {
@@ -789,6 +791,32 @@ export interface InfiniteScrollProps {
   element?: React.ElementType;
   loader?: React.ReactNode;
   threshold?: number;
+  children?: any;
+  listenToScroll?: (offset: number, reverseOffset: number) => void;
+}
+
+export interface ModalImageProps {
+  data: { src: string };
+}
+
+export interface ReverseInfiniteScrollProps {
+  loadMore(): any;
+  hasMore?: boolean;
+  initialLoad?: boolean;
+  isReverse?: boolean;
+  pageStart?: number;
+  isLoading?: boolean;
+  useCapture?: boolean;
+  useWindow?: boolean;
+  element?: React.ElementType;
+  loader?: React.ReactNode;
+  threshold?: number;
+  className?: string;
+  /** The function is called when the list scrolls */
+  listenToScroll?(
+    standardOffset: string | number,
+    reverseOffset: string | number,
+  ): any;
   listenToScroll?(standardOffset: number, reverseOffset: number): void;
   [elementAttribute: string]: any; // any other prop is applied as attribute to element
 }
@@ -824,7 +852,7 @@ export interface MessageRepliesCountButtonProps
   onClick?: React.MouseEventHandler;
 }
 export interface ModalProps {
-  onClose(): void;
+  onClose?(): void;
   open: boolean;
 }
 export interface SafeAnchorProps {}
@@ -863,9 +891,10 @@ export class EditMessageForm extends React.PureComponent<
 > {}
 export const EmoticonItem: React.FC<EmoticonItemProps>;
 export const EmptyStateIndicator: React.FC<EmptyStateIndicatorProps>;
+export const Gallery: React.FC<GalleryProps>;
+export const Image: React.FC<ImageProps>;
+export const ImageModal: React.FC<ModalWrapperProps>;
 export const EventComponent: React.FC<EventComponentProps>;
-export class Gallery extends React.PureComponent<GalleryProps, any> {}
-export class Image extends React.PureComponent<ImageProps, any> {}
 export class InfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
@@ -882,6 +911,8 @@ export class MessageActionsBox extends React.PureComponent<
 export const MessageNotification: React.FC<MessageNotificationProps>;
 export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
+export const ModalImage: React.FC<ModalImageProps>;
+
 export class ReverseInfiniteScroll extends React.PureComponent<
   InfiniteScrollProps,
   any
@@ -927,24 +958,12 @@ export class ChannelListTeam extends React.PureComponent<
   any
 > {}
 
-export class ChannelPreview extends React.PureComponent<
-  ChannelPreviewProps,
-  any
-> {}
+export const ChannelPreview: React.FC<ChannelPreviewProps>;
 
-export class ChannelPreviewCompact extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
-export class ChannelPreviewMessenger extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
+export const ChannelPreviewCompact: React.FC<ChannelPreviewUIComponentProps>;
+export const ChannelPreviewMessenger: React.FC<ChannelPreviewUIComponentProps>;
 export const ChannelPreviewCountOnly: React.FC<ChannelPreviewUIComponentProps>;
-export class ChannelPreviewLastMessage extends React.PureComponent<
-  ChannelPreviewUIComponentProps,
-  any
-> {}
+export const ChannelPreviewLastMessage: React.FC<ChannelPreviewUIComponentProps>;
 export const ChannelSearch: React.FC<any>;
 export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
@@ -980,25 +999,44 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-export interface MessageSimpleTextProps extends MessageSimpleProps {
-  actionsBoxOpen: boolean;
-  onReactionListClick: () => void;
-  showDetailedReactions: boolean;
-  reactionSelectorRef: React.RefObject<ReactionSelector>;
-  setActionsBoxOpen: (state: boolean) => void;
-  hideOptions: () => void;
+export interface MessageTextProps extends MessageSimpleProps {
+  customOptionProps?: Partial<MessageOptionsProps>;
+  customWrapperClass?: string;
+  onReactionListClick?: () => void;
+  showDetailedReactions?: boolean;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
 }
-export interface MessageSimpleOptionsProps extends MessageSimpleProps {
-  actionsBoxOpen: boolean;
-  hideOptions: () => void;
-  setActionsBoxOpen: (state: boolean) => void;
-  onReactionListClick: () => void;
-}
-export interface MessageSimpleActionsProps extends MessageSimpleProps {
+
+export interface MessageActionsProps {
   addNotification?(notificationText: string, type: string): any;
-  actionsBoxOpen: boolean;
-  hideOptions: () => void;
-  setActionsBoxOpen: (state: boolean) => void;
+  handleEdit?(event?: React.BaseSyntheticEvent): void;
+  handleDelete?(event?: React.BaseSyntheticEvent): void;
+  handleFlag?(event?: React.BaseSyntheticEvent): void;
+  handleMute?(event?: React.BaseSyntheticEvent): void;
+  mutes?: Client.Mute[];
+  getMessageActions(): Array<string>;
+  getFlagMessageSuccessNotification?(message: MessageResponse): string;
+  getFlagMessageErrorNotification?(message: MessageResponse): string;
+  getMuteUserSuccessNotification?(message: MessageResponse): string;
+  getMuteUserErrorNotification?(message: MessageResponse): string;
+  setEditingState?(message: Client.MessageResponse): any;
+  messageListRect?: DOMRect;
+  message?: Client.MessageResponse;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+}
+
+export interface MessageOptionsProps {
+  getMessageActions(): Array<string>;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  initialMessage?: boolean;
+  message?: Client.MessageResponse;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  onReactionListClick?: () => void;
+  threadList?: boolean;
+  displayLeft?: boolean;
+  displayReplies?: boolean;
+  displayActions?: boolean;
+  theme?: string;
 }
 
 export const MessageSimple: React.FC<MessageSimpleProps>;

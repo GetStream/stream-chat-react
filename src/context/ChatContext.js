@@ -1,12 +1,13 @@
 // @ts-check
 import React from 'react';
+import { StreamChat } from 'stream-chat';
 
 /**
  * @typedef {import('types').ChatContextValue} ChatContextProps
  */
 
 export const ChatContext = React.createContext(
-  /** @type {ChatContextProps} */ ({ client: null }),
+  /** @type {ChatContextProps} */ ({ client: new StreamChat('') }),
 );
 
 /**

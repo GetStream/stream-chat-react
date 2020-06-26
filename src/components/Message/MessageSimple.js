@@ -1,50 +1,34 @@
 // @ts-check
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
-
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import {
-  isOnlyEmojis,
-  renderText,
-  getReadByTooltipText,
-  smartRender,
-} from '../../utils';
+import { getReadByTooltipText, smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
-import { MessageActionsBox } from '../MessageActions';
+import { MessageOptions } from './MessageOptions';
+import { MessageText } from './MessageText';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import DefaultMessageDeleted from './MessageDeleted';
-import { useUserRole } from './hooks/useUserRole';
-import { useReactionHandler } from './hooks/useReactionHandler';
-import { useOpenThreadHandler } from './hooks/useOpenThreadHandler';
-import { useMentionsHandler } from './hooks/useMentionsHandler';
-import { useMuteHandler } from './hooks/useMuteHandler';
-import { useFlagHandler } from './hooks/useFlagHandler';
-import { isUserMuted, areMessagePropsEqual } from './utils';
-import { useEditHandler } from './hooks/useEditHandler';
-import { useDeleteHandler } from './hooks/useDeleteHandler';
-import { useActionHandler } from './hooks/useActionHandler';
-import { useRetryHandler } from './hooks/useRetryHandler';
-import { useUserHandler } from './hooks/useUserHandler';
-
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-const messageHasReactions = (message) => {
-  if (!message) {
-    return false;
-  }
-  return Boolean(message.latest_reactions && message.latest_reactions.length);
-};
-
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-const messageHasAttachments = (message) => {
-  return Boolean(message && message.attachments && message.attachments.length);
-};
+import {
+  useActionHandler,
+  useOpenThreadHandler,
+  useReactionClick,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
+  useUserRole,
+} from './hooks';
+import {
+  areMessagePropsEqual,
+  messageHasReactions,
+  messageHasAttachments,
+} from './utils';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -72,9 +56,7 @@ const MessageSimple = (props) => {
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
   const updateMessage = propUpdateMessage || channelUpdateMessage;
   const { tDateTimeParser } = useContext(TranslationContext);
-  const [showDetailedReactions, setShowDetailedReactions] = useState(false);
-  const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
-  const { isMyMessage } = useUserRole(props.message);
+  const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
@@ -86,54 +68,17 @@ const MessageSimple = (props) => {
     },
     message,
   );
+  const reactionSelectorRef = React.createRef();
+  const messageWrapperRef = useRef(null);
+  const { onReactionListClick, showDetailedReactions } = useReactionClick(
+    reactionSelectorRef,
+    message,
+  );
   const {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
   } = props;
-  /** @type { React.RefObject<ReactionSelector> | null } */
-  const reactionSelectorRef = React.createRef();
 
-  /** @type {EventListener} */
-  const closeDetailedReactions = useCallback(
-    (event) => {
-      if (
-        event.target &&
-        // @ts-ignore
-        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
-          event.target,
-        )
-      ) {
-        return;
-      }
-      setShowDetailedReactions(() => false);
-    },
-    [setShowDetailedReactions, reactionSelectorRef],
-  );
-  /** @type {() => void} Typescript syntax */
-  const onReactionListClick = () => setShowDetailedReactions(true);
-  useEffect(() => {
-    if (showDetailedReactions) {
-      document.addEventListener('click', closeDetailedReactions);
-      document.addEventListener('touchend', closeDetailedReactions);
-    } else {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
-    }
-    return () => {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
-    };
-  }, [showDetailedReactions, closeDetailedReactions]);
-
-  /** @type {() => void} Typescript syntax */
-  const hideOptions = () => setActionsBoxOpen(false);
-  useEffect(() => {
-    if (message?.deleted_at) {
-      document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
-      document.removeEventListener('click', hideOptions);
-    }
-  }, [message, closeDetailedReactions]);
   const dateTimeParser = propTDateTimeParser || tDateTimeParser;
   const when =
     dateTimeParser &&
@@ -185,7 +130,7 @@ const MessageSimple = (props) => {
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
 						${hasReactions ? 'str-chat__message--with-reactions' : ''}
 					`.trim()}
-          onMouseLeave={hideOptions}
+          ref={messageWrapperRef}
         >
           <MessageSimpleStatus {...props} />
 
@@ -217,12 +162,11 @@ const MessageSimple = (props) => {
             {!message.text && (
               <React.Fragment>
                 {
-                  <MessageSimpleOptions
+                  <MessageOptions
                     {...props}
-                    hideOptions={hideOptions}
-                    actionsBoxOpen={actionsBoxOpen}
-                    setActionsBoxOpen={setActionsBoxOpen}
+                    messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
+                    handleOpenThread={propHandleOpenThread}
                   />
                 }
                 {/* if reactions show them */}
@@ -270,13 +214,12 @@ const MessageSimple = (props) => {
             </div>
             {images && images.length > 1 && <Gallery images={images} />}
             {message.text && (
-              <MessageSimpleText
+              <MessageText
                 {...props}
-                actionsBoxOpen={actionsBoxOpen}
-                hideOptions={hideOptions}
-                setActionsBoxOpen={setActionsBoxOpen}
-                showDetailedReactions={showDetailedReactions}
-                onReactionListClick={onReactionListClick}
+                customOptionProps={{
+                  messageWrapperRef,
+                  handleOpenThread: propHandleOpenThread,
+                }}
                 // FIXME: There's some unmatched definition between the infered and the declared
                 // ReactionSelector reference
                 // @ts-ignore
@@ -305,308 +248,6 @@ const MessageSimple = (props) => {
         </div>
       )}
     </React.Fragment>
-  );
-};
-
-/**
- * @type { React.FC<import('types').MessageSimpleTextProps> }
- */
-const MessageSimpleText = (props) => {
-  const {
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
-    actionsBoxOpen,
-    actionsEnabled,
-    hideOptions,
-    message,
-    messageListRect,
-    onReactionListClick,
-    reactionSelectorRef,
-    setActionsBoxOpen,
-    showDetailedReactions,
-    unsafeHTML,
-  } = props;
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
-  const { t } = useContext(TranslationContext);
-  const { isMyMessage } = useUserRole(message);
-  const hasReactions = messageHasReactions(message);
-  const hasAttachment = messageHasAttachments(message);
-  const handleReaction = useReactionHandler(message);
-
-  if (!message || !message.text) {
-    return null;
-  }
-
-  return (
-    <div className="str-chat__message-text">
-      <div
-        data-testid="message-simple-inner-wrapper"
-        className={`
-          str-chat__message-text-inner str-chat__message-simple-text-inner
-          ${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
-          ${
-            isOnlyEmojis(message.text)
-              ? 'str-chat__message-simple-text-inner--is-emoji'
-              : ''
-          }
-        `.trim()}
-        onMouseOver={propOnMentionsHover || onMentionsHover}
-        onClick={propOnMentionsClick || onMentionsClick}
-      >
-        {message.type === 'error' && (
-          <div className="str-chat__simple-message--error-message">
-            {t && t('Error · Unsent')}
-          </div>
-        )}
-        {message.status === 'failed' && (
-          <div className="str-chat__simple-message--error-message">
-            {t && t('Message Failed · Click to try again')}
-          </div>
-        )}
-
-        {unsafeHTML ? (
-          <div dangerouslySetInnerHTML={{ __html: message.html }} />
-        ) : (
-          renderText(message)
-        )}
-
-        {/* if reactions show them */}
-        {hasReactions && !showDetailedReactions && (
-          <ReactionsList
-            reactions={message.latest_reactions}
-            reaction_counts={message.reaction_counts}
-            onClick={onReactionListClick}
-            reverse={true}
-          />
-        )}
-        {showDetailedReactions && (
-          <ReactionSelector
-            mine={isMyMessage}
-            handleReaction={handleReaction}
-            actionsEnabled={actionsEnabled}
-            detailedView
-            reaction_counts={message.reaction_counts}
-            latest_reactions={message.latest_reactions}
-            messageList={messageListRect}
-            // @ts-ignore
-            ref={reactionSelectorRef}
-          />
-        )}
-      </div>
-      {
-        <MessageSimpleOptions
-          {...props}
-          hideOptions={hideOptions}
-          actionsBoxOpen={actionsBoxOpen}
-          setActionsBoxOpen={setActionsBoxOpen}
-        />
-      }
-    </div>
-  );
-};
-
-/**
- * @type { React.FC<import('types').MessageSimpleOptionsProps> }
- */
-const MessageSimpleOptions = (props) => {
-  const {
-    message,
-    initialMessage,
-    threadList,
-    actionsBoxOpen,
-    hideOptions,
-    setActionsBoxOpen,
-    onReactionListClick,
-    handleOpenThread: propHandleOpenThread,
-  } = props;
-  const { isMyMessage } = useUserRole(message);
-  const handleOpenThread = useOpenThreadHandler(message);
-  const { channel } = useContext(ChannelContext);
-  const channelConfig = channel?.getConfig();
-  if (
-    !message ||
-    message.type === 'error' ||
-    message.type === 'system' ||
-    message.type === 'ephemeral' ||
-    message.status === 'failed' ||
-    message.status === 'sending' ||
-    initialMessage
-  ) {
-    return null;
-  }
-  if (isMyMessage) {
-    return (
-      <div className="str-chat__message-simple__actions">
-        {
-          <MessageSimpleActions
-            {...props}
-            actionsBoxOpen={actionsBoxOpen}
-            hideOptions={hideOptions}
-            setActionsBoxOpen={setActionsBoxOpen}
-          />
-        }
-        {!threadList && channelConfig && channelConfig.replies && (
-          <div
-            data-testid="thread-action"
-            onClick={propHandleOpenThread || handleOpenThread}
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
-          >
-            <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-                fillRule="evenodd"
-              />
-            </svg>
-          </div>
-        )}
-        {channelConfig && channelConfig.reactions && (
-          <div
-            data-testid="simple-message-reaction-action"
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
-            onClick={onReactionListClick}
-          >
-            <svg
-              width="16"
-              height="14"
-              viewBox="0 0 16 14"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
-                fillRule="evenodd"
-              />
-            </svg>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="str-chat__message-simple__actions">
-      {channelConfig && channelConfig.reactions && (
-        <div
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
-          onClick={onReactionListClick}
-        >
-          <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M11.108 8.05a.496.496 0 0 1 .212.667C10.581 10.147 8.886 11 7 11c-1.933 0-3.673-.882-4.33-2.302a.497.497 0 0 1 .9-.417C4.068 9.357 5.446 10 7 10c1.519 0 2.869-.633 3.44-1.738a.495.495 0 0 1 .668-.212zm.792-1.826a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.298 0-.431.168-.54.307A.534.534 0 0 1 9.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zm-7 0a.477.477 0 0 1-.119.692.541.541 0 0 1-.31.084.534.534 0 0 1-.428-.194c-.106-.138-.238-.306-.539-.306-.299 0-.432.168-.54.307A.533.533 0 0 1 2.538 7a.544.544 0 0 1-.31-.084.463.463 0 0 1-.117-.694c.33-.423.742-.722 1.394-.722.653 0 1.068.3 1.396.724zM7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm4.243 11.243A5.96 5.96 0 0 0 13 7a5.96 5.96 0 0 0-1.757-4.243A5.96 5.96 0 0 0 7 1a5.96 5.96 0 0 0-4.243 1.757A5.96 5.96 0 0 0 1 7a5.96 5.96 0 0 0 1.757 4.243A5.96 5.96 0 0 0 7 13a5.96 5.96 0 0 0 4.243-1.757z"
-              fillRule="evenodd"
-            />
-          </svg>
-        </div>
-      )}
-      {!threadList && channelConfig && channelConfig.replies && (
-        <div
-          onClick={handleOpenThread}
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
-        >
-          <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z"
-              fillRule="evenodd"
-            />
-          </svg>
-        </div>
-      )}
-      {
-        <MessageSimpleActions
-          {...props}
-          actionsBoxOpen={actionsBoxOpen}
-          hideOptions={hideOptions}
-          setActionsBoxOpen={setActionsBoxOpen}
-        />
-      }
-    </div>
-  );
-};
-
-/**
- * @type { React.FC<import('types').MessageSimpleActionsProps> }
- */
-const MessageSimpleActions = ({
-  addNotification,
-  message,
-  mutes,
-  getMessageActions,
-  messageListRect,
-  handleFlag: propHandleFlag,
-  handleMute: propHandleMute,
-  handleEdit: propHandleEdit,
-  handleDelete: propHandleDelete,
-  actionsBoxOpen,
-  hideOptions,
-  setEditingState,
-  setActionsBoxOpen,
-  getMuteUserSuccessNotification,
-  getMuteUserErrorNotification,
-  getFlagMessageErrorNotification,
-  getFlagMessageSuccessNotification,
-}) => {
-  const { isMyMessage } = useUserRole(message);
-  const handleDelete = useDeleteHandler(message);
-  const handleEdit = useEditHandler(message, setEditingState);
-  const handleFlag = useFlagHandler(message, {
-    notify: addNotification,
-    getSuccessNotification: getMuteUserSuccessNotification,
-    getErrorNotification: getMuteUserErrorNotification,
-  });
-  const handleMute = useMuteHandler(message, {
-    notify: addNotification,
-    getErrorNotification: getFlagMessageErrorNotification,
-    getSuccessNotification: getFlagMessageSuccessNotification,
-  });
-  const messageActions = getMessageActions();
-  const isMuted = useCallback(() => {
-    return isUserMuted(message, mutes);
-  }, [message, mutes]);
-  useEffect(() => {
-    if (actionsBoxOpen) {
-      document.addEventListener('click', hideOptions);
-    } else {
-      document.removeEventListener('click', hideOptions);
-    }
-    return () => {
-      document.removeEventListener('click', hideOptions);
-    };
-  }, [actionsBoxOpen, hideOptions]);
-  /** @type {() => void} Typescript syntax */
-  const onClickOptionsAction = () => setActionsBoxOpen(true);
-
-  if (messageActions.length === 0) {
-    return null;
-  }
-
-  return (
-    <div
-      data-testid="message-actions"
-      onClick={onClickOptionsAction}
-      className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
-    >
-      <MessageActionsBox
-        getMessageActions={getMessageActions}
-        open={actionsBoxOpen}
-        messageListRect={messageListRect}
-        handleFlag={propHandleFlag || handleFlag}
-        isUserMuted={isMuted}
-        handleMute={propHandleMute || handleMute}
-        handleEdit={propHandleEdit || handleEdit}
-        handleDelete={propHandleDelete || handleDelete}
-        mine={isMyMessage}
-      />
-      <svg
-        width="11"
-        height="4"
-        viewBox="0 0 11 4"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-          fillRule="nonzero"
-        />
-      </svg>
-    </div>
   );
 };
 

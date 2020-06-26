@@ -5,10 +5,10 @@ import '@testing-library/jest-dom';
 import { ChannelContext } from '../../../context';
 import Window from '../Window';
 
-const renderComponent = ({ children, channelContextMock }) =>
+const renderComponent = ({ children, props, channelContextMock }) =>
   render(
     <ChannelContext.Provider value={channelContextMock}>
-      <Window>{children}</Window>
+      <Window {...props}>{children}</Window>
     </ChannelContext.Provider>,
   );
 
@@ -30,8 +30,8 @@ describe('Window', () => {
   it('should not render its children if hideOnThread is true and thread is truthy', () => {
     const { queryByText } = renderComponent({
       children: [<div key="bla">bla</div>],
+      props: { hideOnThread: true },
       channelContextMock: {
-        hideOnThread: true,
         thread,
       },
     });

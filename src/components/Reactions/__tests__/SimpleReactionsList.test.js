@@ -121,7 +121,9 @@ describe('SimpleReactionsList', () => {
     fireEvent.mouseEnter(getByTestId(loveEmojiTestId));
 
     reactions.forEach(({ user }) => {
-      expect(queryByText(user.id, { exact: false })).toBeInTheDocument();
+      expect(
+        queryByText(user.name || user.id, { exact: false }),
+      ).toBeInTheDocument();
     });
 
     fireEvent.mouseLeave(getByTestId(loveEmojiTestId));

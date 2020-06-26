@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -30,6 +30,7 @@
     "isomorphic-ws": "^4.0.1",
     "linkifyjs": "^2.1.9",
     "lodash.uniqby": "^4.7.0",
+    "lodash.truncate": "^4.4.2",
     "pretty-bytes": "^5.3.0",
     "prop-types": "^15.7.2",
     "react-file-utils": "0.3.14",
@@ -70,6 +71,7 @@
     "@testing-library/react-hooks": "^3.3.0",
     "@types/braintree__sanitize-url": "^4.0.0",
     "@types/deep-equal": "^1.0.1",
+    "@types/lodash.truncate": "^4.4.6",
     "@types/seamless-immutable": "7.1.12",
     "@types/uuid": "^7.0.2",
     "autoprefixer": "^9.7.6",
@@ -137,7 +139,7 @@
     }
   },
   "scripts": {
-    "test": "jest",
+    "test": "rm -rf built && jest",
     "start": "mkdir -p dist/assets assets && yarn build-translations && rollup -c -w",
     "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c",
     "types": "tsc --strict",
