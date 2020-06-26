@@ -96,7 +96,6 @@ export const useReactionClick = (
   /** @type {EventListener} */
   const closeDetailedReactions = useCallback(
     (event) => {
-      console.log(reactionSelectorRef?.current);
       if (
         event.target &&
         // @ts-ignore
