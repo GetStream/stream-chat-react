@@ -150,7 +150,7 @@ export interface ChannelListProps extends ChatContextValue {
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
-
+  lockChannelOrder?: boolean;
   onMessageNew?(
     thisArg: React.Component<ChannelListProps>,
     e: Client.Event<Client.MessageNewEvent>,
