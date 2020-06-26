@@ -3,7 +3,7 @@ import React from 'react';
 import { StreamChat } from 'stream-chat';
 
 /**
- * @typedef {import('types').ChatContextValue} ChatContext
+ * @typedef {import('types').ChatContextValue & { client: import('stream-chat').StreamChat}} ChatContext
  */
 export const ChatContext = React.createContext(
   /** @type {ChatContext} */ ({ client: new StreamChat('') }),

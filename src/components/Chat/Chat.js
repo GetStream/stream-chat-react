@@ -7,6 +7,14 @@ import { ChatContext, TranslationContext } from '../../context';
 import { Streami18n } from '../../Streami18n';
 
 /**
+ * @param {import('types').TranslationContextValue} translators
+ * @returns {translators is Required<import('types').TranslationContextValue>}
+ */
+const isTranslationContextReady = (translators) => {
+  return !!translators.t && !!translators.tDateTimeParser;
+};
+
+/**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
  *
@@ -22,14 +30,20 @@ import { Streami18n } from '../../Streami18n';
  * @example ../../docs/Chat.md
  */
 /** @type {React.FC<import("types").ChatProps>} */
-const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
+const Chat = ({
+  client,
+  theme = 'messaging light',
+  i18nInstance,
+  initialNavOpen = true,
+  children,
+}) => {
   const [translators, setTranslators] = useState(
     /** @type {import("types").TranslationContextValue} */ ({}),
   );
   const [mutes, setMutes] = useState(
     /** @type {import("stream-chat").Mute[]} */ ([]),
   );
-  const [navOpen, setNavOpen] = useState(initialNavOpen);
+  const [navOpen, setNavOpen] = useState(!!initialNavOpen);
   const [channel, setChannel] = useState(
     /** @type {import("stream-chat").Channel} */ ({}),
   );
@@ -78,7 +92,7 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
     [],
   );
 
-  if (!translators.t) return null;
+  if (!isTranslationContextReady(translators)) return null;
 
   return (
     <ChatContext.Provider
@@ -98,11 +112,6 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
       </TranslationContext.Provider>
     </ChatContext.Provider>
   );
-};
-
-Chat.defaultProps = {
-  initialNavOpen: true,
-  theme: 'messaging light',
 };
 
 Chat.propTypes = {
