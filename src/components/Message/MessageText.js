@@ -18,12 +18,14 @@ const MessageTextComponent = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
+<<<<<<< HEAD
     actionsEnabled,
     customWrapperClass,
     customInnerClass,
     theme = 'simple',
+=======
+>>>>>>> fix MessageText usage of ReactionSelector
     message,
-    messageListRect,
     unsafeHTML,
     customOptionProps,
   } = props;
@@ -95,12 +97,9 @@ const MessageTextComponent = (props) => {
         {showDetailedReactions && (
           <ReactionSelector
             handleReaction={handleReaction}
-            actionsEnabled={actionsEnabled}
             detailedView
             reaction_counts={message.reaction_counts}
             latest_reactions={message.latest_reactions}
-            messageList={messageListRect}
-            // @ts-ignore
             ref={reactionSelectorRef}
           />
         )}
