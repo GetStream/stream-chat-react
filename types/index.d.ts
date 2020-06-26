@@ -295,7 +295,7 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
 
 export interface AvatarProps {
   /** image url */
-  image?: string;
+  image?: string | null;
   /** name of the picture, used for title tag fallback */
   name?: string;
   /** shape of the avatar, circle, rounded or square */
@@ -756,9 +756,9 @@ export interface EmoticonItemProps {
 
 export interface UserItemProps {
   entity: {
-    name?: string | undefined | null;
-    id?: string | undefined | null;
-    image?: string | undefined | null;
+    name?: string | null;
+    id?: string | null;
+    image?: string | null;
   };
 }
 
