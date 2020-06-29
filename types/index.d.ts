@@ -3,14 +3,12 @@
 /** Components */
 import * as React from 'react';
 import * as Client from 'stream-chat';
-import SeamlessImmutable, {
-  ImmutableArray,
-  ImmutableObject,
-} from 'seamless-immutable';
+import SeamlessImmutable from 'seamless-immutable';
 import { MessageResponse } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
+import { ReactPlayerProps } from 'react-player';
 
 export interface ChatContextValue {
   client?: Client.StreamChat | null;
@@ -459,9 +457,18 @@ export interface MessageInputEmojiPickerProps extends MessageInputState {
   small?: boolean;
 }
 
+export interface FileProps {
+  attachment: Client.Attachment & { asset_url?: string };
+}
+
+export interface ExtendedAttachment extends Client.Attachment {
+  asset_url?: string;
+  mime_type?: string;
+}
+
 export interface AttachmentUIComponentProps {
   /** The attachment to render */
-  attachment: Client.Attachment;
+  attachment: ExtendedAttachment;
   /**
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
@@ -471,6 +478,12 @@ export interface AttachmentUIComponentProps {
     value: string,
     event: React.BaseSyntheticEvent,
   ): void;
+  Card?: React.ComponentType<CardProps>;
+  File?: React.ComponentType<FileProps>;
+  Image?: React.ComponentType<ImageProps>;
+  Audio?: React.ComponentType<AudioProps>;
+  Media?: React.ComponentType<ReactPlayerProps>;
+  AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
 }
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
