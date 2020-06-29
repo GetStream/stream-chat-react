@@ -18,20 +18,35 @@ export const SUPPORTED_VIDEO_FORMATS = [
   'video/quicktime',
 ];
 
-export const isCardAttachment = (a) => {
-  if (a.type === 'giphy' || a.type === 'imgur') {
-    return true;
+/**
+ * Attachment - The message attachment
+ *
+ * @example ../../docs/Attachment.md
+ * @extends PureComponent
+ */
+const Attachment = (props) => {
+  const { attachment } = props;
+  if (isImageAttachment(attachment)) {
+    return renderImage(props);
   }
 
-  if (a.type === 'image' && (a.title_link || a.og_scrape_url)) {
-    return true;
+  if (isFileAttachment(attachment)) {
+    return renderFile(props);
   }
 
-  return false;
+  if (isAudioAttachment(attachment)) {
+    return renderAudio(props);
+  }
+
+  if (isMediaAttachment(attachment)) {
+    return renderMedia(props);
+  }
+
+  return renderCard(props);
 };
 
 export const isImageAttachment = (a) => {
-  return a.type === 'image';
+  return a.type === 'image' && !a.title_link && !a.og_scrape_url;
 };
 
 export const isMediaAttachment = (a) => {
@@ -51,36 +66,49 @@ export const isFileAttachment = (a) => {
 
 export const renderAttachmentWithinContainer = (
   children,
-  attachmentType,
+  attachment,
   componentType,
-  extra,
 ) => {
+  let extra =
+    attachment && attachment.actions && attachment.actions.length
+      ? 'actions'
+      : '';
+  if (
+    componentType === 'card' &&
+    !attachment.image_url &&
+    !attachment.thumb_url
+  ) {
+    extra = 'no-image';
+  }
+
   return (
     <div
-      className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${attachmentType} str-chat__message-attachment--${componentType}--${extra}`}
+      className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${attachment.type} str-chat__message-attachment--${componentType}--${extra}`}
     >
       {children}
     </div>
   );
 };
 
-export const renderImage = (a) => {
+export const renderImage = (props) => {
+  const { attachment: a, Image } = props;
   let children;
-  if (attachment.actions && attachment.actions.length) {
+  if (a.actions && a.actions.length) {
     children = (
-      <div className="str-chat__attachment" key={`key-image-${attachment.id}`}>
+      <div className="str-chat__attachment" key={`key-image-${a.id}`}>
         <Image {...a} />
-        {renderAttachmentActions(a)}
+        {renderAttachmentActions(props)}
       </div>
     );
   } else {
-    children = <Image {...a} key={`key-image-${attachment.id}`} />;
+    children = <Image {...a} key={`key-image-${a.id}`} />;
   }
 
-  return renderAttachmentWithinContainer(children);
+  return renderAttachmentWithinContainer(children, a, 'image');
 };
 
-export const renderAttachmentActions = (a) => {
+export const renderAttachmentActions = (props) => {
+  const { attachment: a, AttachmentActions, actionHandler } = props;
   if (!a.actions || !a.actions.length) {
     return null;
   }
@@ -89,45 +117,53 @@ export const renderAttachmentActions = (a) => {
     <AttachmentActions
       key={'key-actions-' + a.id}
       {...a}
-      actionHandler={this.props.actionHandler}
+      actionHandler={actionHandler}
     />
   );
 };
 
-export const renderCard = (a) => {
+export const renderCard = (props) => {
+  const { attachment: a, Card } = props;
   let children;
 
   if (a.actions && a.actions.length) {
     children = (
       <div className="str-chat__attachment" key={`key-image-${a.id}`}>
         <Card {...a} key={`key-card-${a.id}`} />
-        {renderAttachmentActions(a)}
+        {renderAttachmentActions(props)}
       </div>
     );
   } else {
     children = <Card {...a} key={`key-card-${a.id}`} />;
   }
 
-  return renderAttachmentWithinContainer(children, a.type, 'card', '');
+  return renderAttachmentWithinContainer(children, a, 'card');
 };
 
-export const renderFile = (a) => {
+export const renderFile = (props) => {
+  const { attachment: a, File } = props;
   if (!a.asset_url) return null;
 
   return renderAttachmentWithinContainer(
     <File attachment={a} key={`key-file-${a.id}`} />,
+    a,
+    'file',
   );
 };
 
-export const renderAudio = (a) => {
+export const renderAudio = (props) => {
+  const { attachment: a, Audio } = props;
   return renderAttachmentWithinContainer(
     <div className="str-chat__attachment" key={`key-video-${a.id}`}>
       <Audio og={a} />
     </div>,
+    a,
+    'audio',
   );
 };
 
-export const renderMedia = (a) => {
+export const renderMedia = (props) => {
+  const { attachment: a, Media } = props;
   let children;
   if (a.actions && a.actions.length) {
     children = (
@@ -144,7 +180,7 @@ export const renderMedia = (a) => {
             controls
           />
         </div>
-        {renderAttachmentActions(a)}
+        {renderAttachmentActions(props)}
       </div>
     );
   } else {
@@ -161,175 +197,8 @@ export const renderMedia = (a) => {
     );
   }
 
-  return renderAttachmentWithinContainer(children);
+  return renderAttachmentWithinContainer(children, a, 'media');
 };
-export const Attachment = ({ attachment }) => {
-  let attachmentClassSuffix;
-  const result = [];
-
-  if (isImageAttachment(attachment)) {
-    return renderImage(attachment);
-  }
-
-  if (isFileAttachment(attachment)) {
-    return renderFile(attachment);
-  }
-
-  if (isAudioAttachment(attachment)) {
-    return renderAudio(attachment);
-  }
-
-  if (isMediaAttachment(attachment)) {
-    return renderMedia(attachment);
-  }
-
-  return renderCard(attachment);
-};
-/**
- * Attachment - The message attachment
- *
- * @example ../../docs/Attachment.md
- * @extends PureComponent
- */
-class Attachment extends PureComponent {
-  attachmentRef = React.createRef();
-  attachmentType(a) {
-    let type, extra;
-    if (a.actions && a.actions.length > 0) {
-      extra = 'actions';
-    }
-    if (a.type === 'giphy' || a.type === 'imgur') {
-      type = 'card';
-    } else if (a.type === 'image' && (a.title_link || a.og_scrape_url)) {
-      type = 'card';
-    } else if (a.type === 'image') {
-      type = 'image';
-    } else if (
-      a.mime_type &&
-      SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1
-    ) {
-      type = 'media';
-    } else if (a.type === 'audio') {
-      type = 'audio';
-    } else if (
-      a.type === 'file' ||
-      (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1)
-    ) {
-      type = 'file';
-    } else {
-      type = 'card';
-      extra = 'no-image';
-    }
-
-    return { type, extra };
-  }
-
-  renderAttachmentActions = (a) => {
-    const { AttachmentActions } = this.props;
-
-    return (
-      <AttachmentActions
-        key={'key-actions-' + a.id}
-        {...a}
-        actionHandler={this.props.actionHandler}
-      />
-    );
-  };
-
-  renderAttachment = (a) => (
-    <div className="str-chat__attachment" key={`key-image-${a.id}`}>
-      <Card {...a} key={`key-card-${a.id}`} />
-      {this.renderAttachmentActions(a)}
-    </div>
-  );
-
-  render() {
-    const { attachment, Card, Image, Audio, Media, File } = this.props;
-    if (!attachment) {
-      return null;
-    }
-
-    const a = {
-      id: uuidv4(),
-      ...attachment,
-    };
-    const { type, extra } = this.attachmentType(a);
-    if (type === 'card' && !a.title_link && !a.og_scrape_url) {
-      return null;
-    }
-    const results = [];
-    if (type === 'image') {
-      if (a.actions && a.actions.length) {
-        results.push(
-          <div className="str-chat__attachment" key={`key-image-${a.id}`}>
-            <Image {...a} />
-            {this.renderAttachmentActions(a)}
-          </div>,
-        );
-      } else {
-        results.push(<Image {...a} key={`key-image-${a.id}`} />);
-      }
-    } else if (type === 'file') {
-      a.asset_url &&
-        results.push(<File attachment={a} key={`key-file-${a.id}`} />);
-    } else if (type === 'audio') {
-      results.push(
-        <div className="str-chat__attachment" key={`key-video-${a.id}`}>
-          <Audio og={a} />
-        </div>,
-      );
-    } else if (type === 'media') {
-      if (a.actions && a.actions.length) {
-        results.push(
-          <div
-            className="str-chat__attachment str-chat__attachment-media"
-            key={`key-video-${a.id}`}
-          >
-            <div className="str-chat__player-wrapper">
-              <Media
-                className="react-player"
-                url={a.asset_url}
-                width="100%"
-                height="100%"
-                controls
-              />
-            </div>
-            {this.renderAttachmentActions(a)}
-          </div>,
-        );
-      } else {
-        results.push(
-          <div className="str-chat__player-wrapper" key={`key-video-${a.id}`}>
-            <Media
-              className="react-player"
-              url={a.asset_url}
-              width="100%"
-              height="100%"
-              controls
-            />
-          </div>,
-        );
-      }
-    } else {
-      if (a.actions && a.actions.length) {
-        results.push(this.renderAttachment(a));
-      } else {
-        results.push(<Card {...a} key={`key-card-${a.id}`} />);
-      }
-    }
-
-    if (results.length === 0) return null;
-
-    return (
-      <div
-        className={`str-chat__message-attachment str-chat__message-attachment--${type} str-chat__message-attachment--${a.type} str-chat__message-attachment--${type}--${extra}`}
-        ref={this.attachmentRef}
-      >
-        {results}
-      </div>
-    );
-  }
-}
 
 Attachment.propTypes = {
   /**
@@ -346,7 +215,7 @@ Attachment.propTypes = {
    * @param value {string} Value of action
    * @param event Dom event that triggered this handler
    */
-  actionHandler: PropTypes.func.isRequired,
+  actionHandler: PropTypes.func,
   /**
    * Custom UI component for card type attachment
    * Defaults to [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.js)
