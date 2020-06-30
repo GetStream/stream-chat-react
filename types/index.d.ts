@@ -476,6 +476,7 @@ export interface AttachmentUIComponentProps {
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
 export interface MessageProps extends TranslationContextValue {
+  addNotification?(notificationText: string, type: string): any;
   /** The message object */
   message?: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
@@ -534,7 +535,6 @@ export interface MessageComponentProps
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  addNotification?(notificationText: string, type: string): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -999,6 +999,22 @@ export type MessageTeamState = {
   reactionSelectorOpen: boolean;
 };
 export interface MessageTeamProps extends MessageUIComponentProps {}
+export interface MessageTeamAttachmentsProps {
+  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  message?: Client.MessageResponse;
+  handleAction?(
+    name: string,
+    value: string,
+    event: React.BaseSyntheticEvent,
+  ): void;
+}
+export interface MessageTeamStatusProps {
+  t?: i18next.TFunction;
+  threadList?: boolean;
+  lastReceivedId?: string | null;
+  message?: Client.MessageResponse;
+  readBy?: Array<Client.UserResponse>;
+}
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   MessageTeamState
