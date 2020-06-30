@@ -1026,6 +1026,13 @@ export interface MessageActionsProps {
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
+  inline?: boolean;
+  customWrapperClass?: string;
+}
+export interface MessageActionsWrapperProps {
+  customWrapperClass?: string;
+  inline?: boolean;
+  setActionsBoxOpen: (actionsBoxOpen: boolean) => void;
 }
 
 export interface MessageOptionsProps {

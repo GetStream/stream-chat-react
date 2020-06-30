@@ -1,4 +1,5 @@
 import React from 'react';
+import testRenderer from 'react-test-renderer';
 import { act, cleanup, render, fireEvent } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
@@ -23,8 +24,8 @@ const defaultProps = {
   getFlagMessageErrorNotification: () => 'error',
   getFlagMessageSuccessNotification: () => 'success',
 };
-function renderMessageActions(customProps) {
-  return render(
+function renderMessageActions(customProps, renderer = render) {
+  return renderer(
     <ChannelContext.Provider value={{}}>
       <TranslationContext.Provider value={{ t: (key) => key }}>
         <MessageActions {...defaultProps} {...customProps} />
@@ -37,6 +38,30 @@ const messageActionsTestId = 'message-actions';
 describe('<MessageActions /> component', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
+
+  it('should render correctly', () => {
+    const tree = renderMessageActions({}, testRenderer.create);
+    expect(tree.toJSON()).toMatchInlineSnapshot(`
+      <div
+        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+        data-testid="message-actions"
+        onClick={[Function]}
+      >
+        <div />
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </div>
+    `);
+  });
 
   it('should not return anything if message has no actions available', () => {
     const { queryByTestId } = renderMessageActions({
@@ -129,5 +154,63 @@ describe('<MessageActions /> component', () => {
       expect.any(Function),
     );
     removeEventListener.mockClear();
+  });
+
+  it('should render with a custom wrapper class when one is set', () => {
+    const tree = renderMessageActions(
+      {
+        customWrapperClass: 'custom-wrapper-class',
+      },
+      testRenderer.create,
+    );
+    expect(tree.toJSON()).toMatchInlineSnapshot(`
+      <div
+        className="custom-wrapper-class"
+        data-testid="message-actions"
+        onClick={[Function]}
+      >
+        <div />
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </div>
+    `);
+  });
+
+  it('should render with an inline element wrapper when inline set', () => {
+    const tree = renderMessageActions(
+      {
+        inline: true,
+      },
+      testRenderer.create,
+    );
+    expect(tree.toJSON()).toMatchInlineSnapshot(`
+      <span
+        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+        data-testid="message-actions"
+        onClick={[Function]}
+      >
+        <div />
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </span>
+    `);
   });
 });
