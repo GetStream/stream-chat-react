@@ -5,7 +5,7 @@ import { mockedApiResponse } from './utils.js';
  *
  * api - /messages/${parent_id}/replies
  *
- * @param {*} replies Array of channel objects.
+ * @param {*} replies Array of message objects.
  */
 export const getThreadReplies = (replies = []) => {
   const result = {
