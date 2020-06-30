@@ -184,7 +184,7 @@ class MessageList extends PureComponent {
     else if (target === 'bottom')
       scrollTop = containerEl.scrollHeight - containerEl.offsetHeight;
 
-    if (scrollTop) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
+    if (scrollTop !== undefined) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
   };
 
   setEditingState = (message) => {
