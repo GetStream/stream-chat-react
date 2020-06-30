@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react';
-import Immutable from 'seamless-immutable';
-import { isPromise } from '../../../utils';
-import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
+// @ts-check
 
+import { useEffect, useState } from 'react';
+import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
+/**
+ * @typedef {import('stream-chat').Channel} Channel
+ * @param {import('stream-chat').StreamChat} client
+ * @param {import('types').ChannelFilters} filters
+ * @param {import('types').ChannelSort} [sort]
+ * @param {import('types').ChannelOptions} [options]
+ * @param {(channels: Channel[]) => void} [activeChannelHandler]
+ */
 export const usePaginatedChannels = (
   client,
   filters,
@@ -10,13 +17,16 @@ export const usePaginatedChannels = (
   options,
   activeChannelHandler,
 ) => {
-  const [channels, setChannels] = useState(Immutable([]));
+  const [channels, setChannels] = useState(/** @type {Channel[]} */ ([]));
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   const [error, setError] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(true);
 
+  /**
+   * @param {string} [queryType]
+   */
   const queryChannels = async (queryType) => {
     if (queryType === 'reload') {
       setLoadingChannels(true);
@@ -26,19 +36,14 @@ export const usePaginatedChannels = (
 
     const newOptions = {
       ...options,
+      limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
     };
 
-    if (!options.limit) newOptions.limit = MAX_QUERY_CHANNELS_LIMIT;
-    const channelPromise = client.queryChannels(filters, sort, {
-      ...newOptions,
-      offset,
-    });
-
     try {
-      let channelQueryResponse = channelPromise;
-      if (isPromise(channelQueryResponse)) {
-        channelQueryResponse = await channelPromise;
-      }
+      const channelQueryResponse = await client.queryChannels(filters, sort, {
+        ...newOptions,
+        offset,
+      });
       const newChannels = [...channels, ...channelQueryResponse];
 
       setChannels(newChannels);
@@ -48,8 +53,8 @@ export const usePaginatedChannels = (
       setLoadingChannels(false);
 
       // Set active channel only after first page.
-      if (channels.length <= (options.limit || MAX_QUERY_CHANNELS_LIMIT)) {
-        activeChannelHandler(newChannels);
+      if (channels.length <= (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
+        activeChannelHandler?.(newChannels);
       }
     } catch (e) {
       console.warn(e);

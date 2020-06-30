@@ -1,11 +1,16 @@
+// @ts-check
+
 import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 
+/**
+ * @param {() => void} [forceUpdate]
+ */
 export const useConnectionRecoveredListener = (forceUpdate) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
     const handleEvent = () => {
-      forceUpdate();
+      forceUpdate?.();
     };
 
     client.on('connection.recovered', () => {
@@ -13,7 +18,7 @@ export const useConnectionRecoveredListener = (forceUpdate) => {
     });
 
     return () => {
-      client.off('connection.recovered');
+      client.off('connection.recovered', () => null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

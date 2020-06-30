@@ -1,7 +1,14 @@
+// @ts-check
+
 import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 import { moveChannelUp } from '../utils';
 
+/**
+ * @typedef {React.Dispatch<React.SetStateAction<import('stream-chat').Channel[]>>} SetChannels
+ * @param {SetChannels} setChannels
+ * @param {boolean} [lockChannelOrder]
+ */
 export const useMessageNewListener = (
   setChannels,
   lockChannelOrder = false,
@@ -16,7 +23,7 @@ export const useMessageNewListener = (
     });
 
     return () => {
-      client.off('message.new');
+      client.off('message.new', () => null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lockChannelOrder]);
