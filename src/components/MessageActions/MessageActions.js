@@ -40,13 +40,13 @@ export const MessageActions = (props) => {
   const handleEdit = useEditHandler(message, setEditingState);
   const handleFlag = useFlagHandler(message, {
     notify: addNotification,
-    getSuccessNotification: getMuteUserSuccessNotification,
-    getErrorNotification: getMuteUserErrorNotification,
+    getSuccessNotification: getFlagMessageErrorNotification,
+    getErrorNotification: getFlagMessageSuccessNotification,
   });
   const handleMute = useMuteHandler(message, {
     notify: addNotification,
-    getErrorNotification: getFlagMessageErrorNotification,
-    getSuccessNotification: getFlagMessageSuccessNotification,
+    getErrorNotification: getMuteUserSuccessNotification,
+    getSuccessNotification: getMuteUserErrorNotification,
   });
   const isMuted = useCallback(() => {
     return isUserMuted(message, mutes);
