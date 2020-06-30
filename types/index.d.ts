@@ -334,6 +334,7 @@ export interface MessageListProps
   HeaderComponent?: React.ElementType;
   /** Component to render at the top of the MessageList */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** Turn off grouping of messages by user */
