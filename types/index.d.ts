@@ -11,14 +11,14 @@ import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat | null;
+  client: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(
-    channel: Client.Channel,
+    channel?: Client.Channel,
     watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
     event?: React.SyntheticEvent,
   ): void;
-  openNav?: boolean;
+  navOpen?: boolean;
   openMobileNav?(): void;
   closeMobileNav?(): void;
   theme?: string;
@@ -138,58 +138,114 @@ export interface ChannelProps
   ): Promise<Client.MessageResponse> | void;
 }
 
-export interface ChannelListProps extends ChatContextValue {
+export type ArrayTwoOrMore<T> = {
+  0: T;
+  1: T;
+} & Array<T>;
+
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+  }[Keys];
+
+export type PrimitiveFilter = string | number | boolean;
+
+export interface ChannelFilter {
+  $and?: ArrayTwoOrMore<RequireAtLeastOne<ChannelFilter>>;
+  $eq?: PrimitiveFilter;
+  $gt?: PrimitiveFilter;
+  $gte?: PrimitiveFilter;
+  $in?: PrimitiveFilter[];
+  $lt?: PrimitiveFilter;
+  $lte?: PrimitiveFilter;
+  $ne?: PrimitiveFilter;
+  $nin?: PrimitiveFilter[];
+  $nor?: ArrayTwoOrMore<RequireAtLeastOne<ChannelFilter>>;
+  $or?: ArrayTwoOrMore<RequireAtLeastOne<ChannelFilter>>;
+}
+
+export interface ChannelFilters {
+  [key: string]: PrimitiveFilter | RequireAtLeastOne<ChannelFilter>;
+}
+
+export type AscDesc = 1 | -1;
+
+export interface ChannelSort {
+  last_updated?: AscDesc;
+  last_message_at?: AscDesc;
+  updated_at?: AscDesc;
+  created_at?: AscDesc;
+  member_count?: AscDesc;
+  unread_count?: AscDesc;
+  has_unread?: AscDesc;
+}
+
+export interface ChannelOptions {
+  state?: boolean;
+  watch?: boolean;
+  limit?: number;
+  offset?: number;
+  message_limit?: number;
+}
+
+export interface ChannelListProps {
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
+  LoadingErrorIndicator?: React.ElementType<ChatDownProps>;
   List?: React.ElementType<ChannelListUIComponentProps>;
   Paginator?: React.ElementType<PaginatorProps>;
   lockChannelOrder?: boolean;
   onMessageNew?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.MessageNewEvent>,
-  ): any;
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
   /** Function that overrides default behaviour when users gets added to a channel */
   onAddedToChannel?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.NotificationAddedToChannelEvent>,
-  ): any;
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
   /** Function that overrides default behaviour when users gets removed from a channel */
   onRemovedFromChannel?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.NotificationRemovedFromChannelEvent>,
-  ): any;
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
   onChannelUpdated?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.ChannelUpdatedEvent>,
-  ): any;
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
   onChannelDeleted?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.ChannelDeletedEvent>,
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
   ): void;
   onChannelTruncated?(
-    thisArg: React.Component<ChannelListProps>,
-    e: Client.Event<Client.ChannelTruncatedEvent>,
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
   ): void;
   setActiveChannelOnMount?: boolean;
   /** Object containing query filters */
-  filters: object;
+  filters: ChannelFilters;
   /** Object containing query options */
-  options?: object;
+  options?: ChannelOptions;
   /** Object containing sort parameters */
-  sort?: object;
+  sort?: ChannelSort;
   showSidebar?: boolean;
+  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
+  customActiveChannel?: string;
 }
 
-export interface ChannelListUIComponentProps extends ChatContextValue {
+export interface ChannelListUIComponentProps {
   /** If channel list ran into error */
   error?: boolean;
   /** If channel list is in loading state */
   loading?: boolean;
+  sidebarImage?: string | null;
   showSidebar?: boolean;
   /**
    * Loading indicator UI Component. It will be displayed if `loading` prop is true.

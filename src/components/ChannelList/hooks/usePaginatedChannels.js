@@ -8,7 +8,7 @@ import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
  * @param {import('types').ChannelFilters} filters
  * @param {import('types').ChannelSort} [sort]
  * @param {import('types').ChannelOptions} [options]
- * @param {(channels: Channel[]) => void} [activeChannelHandler]
+ * @param {(channels: Channel[], setChannels: React.Dispatch<React.SetStateAction<Channel[]>>) => void} [activeChannelHandler]
  */
 export const usePaginatedChannels = (
   client,
@@ -54,7 +54,7 @@ export const usePaginatedChannels = (
 
       // Set active channel only after first page.
       if (channels.length <= (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
-        activeChannelHandler?.(newChannels);
+        activeChannelHandler?.(newChannels, setChannels);
       }
     } catch (e) {
       console.warn(e);
