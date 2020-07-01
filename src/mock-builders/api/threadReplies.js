@@ -7,7 +7,7 @@ import { mockedApiResponse } from './utils.js';
  *
  * @param {*} replies Array of message objects.
  */
-export const getThreadReplies = (replies = []) => {
+export const threadRepliesApi = (replies = []) => {
   const result = {
     messages: replies,
   };

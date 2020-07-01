@@ -15,7 +15,7 @@ import {
   generateChannel,
   getTestClientWithUser,
   getOrCreateChannelApi,
-  getThreadReplies,
+  threadRepliesApi,
   generateUser,
   queryApi,
   sendMessageApi,
@@ -211,7 +211,7 @@ describe('Channel', () => {
 
       const replies = [generateMessage({ parent_id: threadMessage.id })];
 
-      useMockedApis(axios, [getThreadReplies(replies)]);
+      useMockedApis(axios, [threadRepliesApi(replies)]);
 
       const hasThreadMessages = jest.fn();
 
