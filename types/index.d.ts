@@ -981,14 +981,19 @@ export class MessageCommerce extends React.PureComponent<
 > {}
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
-export type MessageLivestreamState = {
-  actionsBoxOpen: boolean;
-  reactionSelectorOpen: boolean;
-};
-export class MessageLivestream extends React.PureComponent<
-  MessageLivestreamProps,
-  MessageLivestreamState
-> {}
+export interface MessageLivestreamActionProps {
+  initialMessage?: boolean;
+  message?: Client.MessageResponse;
+  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  channelConfig?: Client.ChannelConfig;
+  threadList?: boolean;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  onReactionListClick?: () => void;
+  getMessageActions(): Array<string>;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  setEditingState?(message: Client.MessageResponse): any;
+}
+export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {
   actionsBoxOpen: boolean;
   reactionSelectorOpen: boolean;
@@ -1026,6 +1031,13 @@ export interface MessageActionsProps {
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
+  inline?: boolean;
+  customWrapperClass?: string;
+}
+export interface MessageActionsWrapperProps {
+  customWrapperClass?: string;
+  inline?: boolean;
+  setActionsBoxOpen: (actionsBoxOpen: boolean) => void;
 }
 
 export interface MessageOptionsProps {
