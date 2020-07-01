@@ -13,12 +13,10 @@ export const useConnectionRecoveredListener = (forceUpdate) => {
       forceUpdate?.();
     };
 
-    client.on('connection.recovered', () => {
-      handleEvent();
-    });
+    client.on('connection.recovered', handleEvent);
 
     return () => {
-      client.off('connection.recovered', () => null);
+      client.off('connection.recovered', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

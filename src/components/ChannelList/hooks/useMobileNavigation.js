@@ -25,6 +25,7 @@ export const useMobileNavigation = (
         closeMobileNav?.();
       }
     };
+
     document.addEventListener('click', handleClickOutside);
 
     return () => {

@@ -32,12 +32,10 @@ export const useNotificationMessageNewListener = (
       }
     };
 
-    client.on('notification.message_new', (e) => {
-      handleEvent(e);
-    });
+    client.on('notification.message_new', handleEvent);
 
     return () => {
-      client.off('notification.message_new', () => null);
+      client.off('notification.message_new', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);

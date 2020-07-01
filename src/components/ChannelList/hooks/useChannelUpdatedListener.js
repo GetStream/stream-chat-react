@@ -39,12 +39,10 @@ export const useChannelUpdatedListener = (
       }
     };
 
-    client.on('channel.updated', (e) => {
-      handleEvent(e);
-    });
+    client.on('channel.updated', handleEvent);
 
     return () => {
-      client.off('channel.updated', () => null);
+      client.off('channel.updated', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);

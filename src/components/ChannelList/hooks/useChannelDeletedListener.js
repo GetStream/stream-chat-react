@@ -34,12 +34,10 @@ export const useChannelDeletedListener = (setChannels, customHandler) => {
       }
     };
 
-    client.on('channel.deleted', (e) => {
-      handleEvent(e);
-    });
+    client.on('channel.deleted', handleEvent);
 
     return () => {
-      client.off('channel.deleted', () => null);
+      client.off('channel.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);

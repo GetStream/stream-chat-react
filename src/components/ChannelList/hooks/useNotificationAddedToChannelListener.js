@@ -27,12 +27,10 @@ export const useNotificationAddedToChannelListener = (
       }
     };
 
-    client.on('notification.added_to_channel', (e) => {
-      handleEvent(e);
-    });
+    client.on('notification.added_to_channel', handleEvent);
 
     return () => {
-      client.off('notification.added_to_channel', () => null);
+      client.off('notification.added_to_channel', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);

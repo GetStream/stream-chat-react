@@ -15,15 +15,18 @@ export const useMessageNewListener = (
 ) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    client.on('message.new', (e) => {
+    /** @param {import('stream-chat').Event<string>} e */
+    const handleEvent = (e) => {
       setChannels((channels) => {
         if (!lockChannelOrder) return moveChannelUp(e.cid, channels);
         return channels;
       });
-    });
+    };
+
+    client.on('message.new', handleEvent);
 
     return () => {
-      client.off('message.new', () => null);
+      client.off('message.new', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lockChannelOrder]);
