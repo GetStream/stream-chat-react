@@ -8,13 +8,15 @@ import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
 import { MESSAGE_ACTIONS } from '../Message/utils';
+import { smartRender } from '../../utils';
+
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Message } from '../Message';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
 import { MessageSimple } from '../Message';
-import { LoadingIndicator } from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator } from '../DateSeparator';
 import { KEY_CODES } from '../AutoCompleteTextarea';
@@ -125,6 +127,10 @@ class MessageList extends PureComponent {
      * Component to render at the top of the MessageList
      * */
     HeaderComponent: PropTypes.elementType,
+    /**
+     * Component to render at the top of the MessageList while loading new messages
+     * */
+    LoadingIndicator: PropTypes.elementType,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     messages: PropTypes.array.isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -163,6 +169,7 @@ class MessageList extends PureComponent {
     threadList: false,
     Attachment,
     dateSeparator: DateSeparator,
+    LoadingIndicator: DefaultLoadingIndicator,
     EmptyStateIndicator,
     unsafeHTML: false,
     noGroupByUser: false,
@@ -644,7 +651,7 @@ class MessageList extends PureComponent {
   // eslint-disable-next-line
   render() {
     let allMessages = [...this.props.messages];
-    const MessageSystem = this.props.MessageSystem;
+    const { MessageSystem, LoadingIndicator } = this.props;
     allMessages = this.insertDates(allMessages);
     if (this.props.HeaderComponent) {
       allMessages = this.insertIntro(allMessages);
@@ -795,7 +802,7 @@ class MessageList extends PureComponent {
               useWindow={false}
               loader={
                 <Center key="loadingindicator">
-                  <LoadingIndicator size={20} />
+                  {smartRender(LoadingIndicator, { size: 20 }, null)}
                 </Center>
               }
               className="str-chat__reverse-infinite-scroll"

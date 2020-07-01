@@ -137,6 +137,20 @@ export const getImages = (message) => {
     (item) => item.type === 'image',
   );
 };
+
+/**
+ * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
+ */
+export const getNonImageAttachments = (message) => {
+  if (!message?.attachments) {
+    return [];
+  }
+  return message.attachments.filter(
+    /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
+    (item) => item.type !== 'image',
+  );
+};
+
 export const MessagePropTypes = PropTypes.shape({
   id: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,

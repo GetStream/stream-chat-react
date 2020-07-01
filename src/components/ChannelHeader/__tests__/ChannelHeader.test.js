@@ -23,7 +23,7 @@ async function renderComponent(props, channelData) {
   const client = await getTestClientWithUser(alice);
   return render(
     <ChatContext.Provider value={{ client, channel: testChannel1 }}>
-      <ChannelContext.Provider value={{ client }}>
+      <ChannelContext.Provider value={{ client, channel: testChannel1 }}>
         <TranslationContext.Provider value={{ t }}>
           <ChannelHeader {...props} />
         </TranslationContext.Provider>

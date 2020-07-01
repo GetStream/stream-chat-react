@@ -189,6 +189,7 @@ describe('<MessageText />', () => {
     await renderMessageText();
     expect(MessageOptionsMock).toHaveBeenCalledTimes(1);
   });
+
   it('should render message options with custom props when those are set', async () => {
     const displayLeft = false;
     await renderMessageText({
@@ -231,8 +232,35 @@ describe('<MessageText />', () => {
     `);
   });
 
+  it('should render with a custom inner class when one is set', async () => {
+    const customInnerClass = 'custom-inner';
+    const message = generateMessage({ text: 'hi mate' });
+    const tree = await renderMessageText(
+      { message, customInnerClass },
+      {},
+      testRenderer.create,
+    );
+    expect(tree.toJSON()).toMatchInlineSnapshot(`
+      <div
+        className="str-chat__message-text"
+      >
+        <div
+          className="custom-inner"
+          data-testid="message-text-inner-wrapper"
+          onClick={[Function]}
+          onMouseOver={[Function]}
+        >
+          <p>
+            hi mate
+          </p>
+        </div>
+        <div />
+      </div>
+    `);
+  });
+
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
-    const message = generateMessage({ text: 'hello world' });
+    const message = generateMessage({ text: 'whatup?!' });
     const tree = await renderMessageText(
       { message, theme: 'custom' },
       {},
@@ -243,13 +271,13 @@ describe('<MessageText />', () => {
         className="str-chat__message-text"
       >
         <div
-          className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+          className="str-chat__message-text-inner str-chat__message-custom-text-inner"
           data-testid="message-text-inner-wrapper"
           onClick={[Function]}
           onMouseOver={[Function]}
         >
           <p>
-            hello world
+            whatup?!
           </p>
         </div>
         <div />

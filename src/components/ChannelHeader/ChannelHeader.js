@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar } from '../Avatar';
-import { ChatContext, ChannelContext, TranslationContext } from '../../context';
+import { ChannelContext, TranslationContext } from '../../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel
@@ -13,9 +13,7 @@ const ChannelHeader = ({ title, live }) => {
   /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
   /** @type {import("types").ChannelContextValue} */
-  const { watcher_count } = useContext(ChannelContext);
-  /** @type {import("types").ChatContextValue} */
-  const { channel, openMobileNav } = useContext(ChatContext);
+  const { channel, openMobileNav, watcher_count } = useContext(ChannelContext);
 
   return (
     <div className="str-chat__header-livestream">
