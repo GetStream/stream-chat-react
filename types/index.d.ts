@@ -1002,8 +1002,10 @@ export class MessageTeam extends React.PureComponent<
 export interface MessageSimpleProps extends MessageUIComponentProps {}
 export interface MessageTextProps extends MessageSimpleProps {
   customOptionProps?: Partial<MessageOptionsProps>;
+  customInnerClass?: string;
   customWrapperClass?: string;
   onReactionListClick?: () => void;
+  theme?: string;
   showDetailedReactions?: boolean;
   messageWrapperRef?: React.RefObject<HTMLElement>;
 }
