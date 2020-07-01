@@ -67,6 +67,15 @@ const renderComponent = (props = {}, callback = () => {}) =>
   );
 
 describe('Channel', () => {
+  // A simple component that consumes ChannelContext and renders text for non-failed messages
+  const MockMessageList = () => {
+    const { messages: channelMessages } = useContext(ChannelContext);
+
+    return channelMessages.map(
+      ({ text, status }, i) => status !== 'failed' && <div key={i}>{text}</div>,
+    );
+  };
+
   beforeEach(async () => {
     const members = [generateMember({ user })];
     const mockedChannel = generateChannel({
@@ -234,7 +243,7 @@ describe('Channel', () => {
     });
 
     it('should allow closing a thread after it has been opened', async () => {
-      const threadHasClosed = jest.fn();
+      let threadHasClosed = false;
       const threadMessage = messages[0];
 
       let threadHasAlreadyBeenOpened = false;
@@ -247,7 +256,7 @@ describe('Channel', () => {
             threadHasAlreadyBeenOpened = true;
           } else {
             // if we opened it ourselves before, it means the thread was succesfully closed
-            threadHasClosed();
+            threadHasClosed = true;
           }
         } else {
           // if a thread is open, close it.
@@ -255,7 +264,7 @@ describe('Channel', () => {
         }
       });
 
-      await waitFor(() => expect(threadHasClosed).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(threadHasClosed).toBe(true));
     });
 
     it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
@@ -307,7 +316,7 @@ describe('Channel', () => {
       const limit = 10;
       it('should be able to load more messages', async () => {
         const channelQuerySpy = jest.spyOn(channel, 'query');
-        const newMessageAdded = jest.fn();
+        let newMessageAdded = false;
 
         const newMessages = [generateMessage()];
 
@@ -319,8 +328,8 @@ describe('Channel', () => {
             useMockedApis(axios, [queryApi(channel, newMessages)]);
             loadMore(limit);
           } else {
-            // If message has been added, call our mock so we can verify it happened.
-            newMessageAdded();
+            // If message has been added, update checker so we can verify it happened.
+            newMessageAdded = true;
           }
         });
 
@@ -333,11 +342,11 @@ describe('Channel', () => {
           }),
         );
 
-        await waitFor(() => expect(newMessageAdded).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(newMessageAdded).toBe(true));
       });
 
       it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
-        const checkHasMore = jest.fn();
+        let channelHasMore = false;
         const newMessages = [generateMessage()];
         renderComponent(
           {},
@@ -351,17 +360,17 @@ describe('Channel', () => {
               useMockedApis(axios, [queryApi(channel, newMessages)]);
               loadMore(limit);
             } else {
-              // If message has been added, call our mock so we can verify if hasMore is false.
-              checkHasMore(hasMore);
+              // If message has been added, set our checker variable so we can verify if hasMore is false.
+              channelHasMore = hasMore;
             }
           },
         );
 
-        await waitFor(() => expect(checkHasMore).toHaveBeenCalledWith(false));
+        await waitFor(() => expect(channelHasMore).toBe(false));
       });
 
       it('should set hasMore to true if querying channel returns an amount of messages that equals the limit', async () => {
-        const checkHasMore = jest.fn();
+        let channelHasMore = false;
         const newMessages = Array(limit)
           .fill(null)
           .map(() => generateMessage());
@@ -377,18 +386,18 @@ describe('Channel', () => {
               useMockedApis(axios, [queryApi(channel, newMessages)]);
               loadMore(limit);
             } else {
-              // If message has been added, call our mock so we can verify if hasMore is false.
-              checkHasMore(hasMore);
+              // If message has been added, set our checker variable so we can verify if hasMore is true.
+              channelHasMore = hasMore;
             }
           },
         );
 
-        await waitFor(() => expect(checkHasMore).toHaveBeenCalledWith(true));
+        await waitFor(() => expect(channelHasMore).toBe(true));
       });
 
       it('should set loadingMore to true while loading more', async () => {
         const queryPromise = new Promise(() => {});
-        const loadingMoreChecker = jest.fn();
+        let isLoadingMore = false;
 
         renderComponent({}, ({ loadingMore, loadMore }) => {
           // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
@@ -396,24 +405,13 @@ describe('Channel', () => {
             .spyOn(channel, 'query')
             .mockImplementationOnce(() => queryPromise);
           loadMore();
-          loadingMoreChecker(loadingMore);
+          isLoadingMore = loadingMore;
         });
-        await waitFor(() =>
-          expect(loadingMoreChecker).toHaveBeenCalledWith(true),
-        );
+        await waitFor(() => expect(isLoadingMore).toBe(true));
       });
     });
 
-    describe('Sending/removing/updateing messages', () => {
-      const MockMessageList = () => {
-        const { messages: channelMessages } = useContext(ChannelContext);
-
-        return channelMessages.map(
-          ({ text, status }, i) =>
-            status !== 'failed' && <div key={i}>{text}</div>,
-        );
-      };
-
+    describe('Sending/removing/updating messages', () => {
       it('should remove error messages from channel state when sending a new message', async () => {
         const filterErrorMessagesSpy = jest.spyOn(
           channel.state,
@@ -574,7 +572,7 @@ describe('Channel', () => {
       });
 
       it('should allow removing messages', async () => {
-        const allMessagesRemoved = jest.fn();
+        let allMessagesRemoved = false;
         const removeSpy = jest.spyOn(channel.state, 'removeMessage');
 
         renderComponent({}, ({ removeMessage, messages: contextMessages }) => {
@@ -582,26 +580,136 @@ describe('Channel', () => {
             // if there are messages passed as the context, remove them
             removeMessage(contextMessages[0]);
           } else {
-            // once they're all gone, call our mock so we can verify that we no longer have messages
-            allMessagesRemoved();
+            // once they're all gone, set to true so we can verify that we no longer have messages
+            allMessagesRemoved = true;
           }
         });
 
         await waitFor(() =>
           expect(removeSpy).toHaveBeenCalledWith(messages[0]),
         );
-        await waitFor(() =>
-          expect(allMessagesRemoved).toHaveBeenCalledTimes(1),
+        await waitFor(() => expect(allMessagesRemoved).toBe(true));
+      });
+    });
+
+    describe('Channel events', () => {
+      // note: these tests rely on Client.dispatchEvent, which eventually propagates to the channel component.
+      const createOneTimeEventDispatcher = (event) => {
+        let hasDispatchedEvent = false;
+        return () => {
+          if (!hasDispatchedEvent)
+            chatClient.dispatchEvent({
+              ...event,
+              cid: channel.cid,
+            });
+          hasDispatchedEvent = true;
+        };
+      };
+
+      const createChannelEventDispatcher = (body, type = 'message.new') =>
+        createOneTimeEventDispatcher({
+          type,
+          ...body,
+        });
+
+      it('should eventually pass down a message when a message.new event is triggered on the channel', async () => {
+        const message = generateMessage({ user });
+        const dispatchMessageEvent = createChannelEventDispatcher({ message });
+
+        const { findByText } = renderComponent(
+          {
+            children: <MockMessageList />,
+          },
+          () => {
+            // dispatch event in effect because it happens after active channel is set
+            dispatchMessageEvent();
+          },
         );
+
+        expect(await findByText(message.text)).toBeInTheDocument();
+      });
+
+      it('should mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
+        const markReadSpy = jest.spyOn(channel, 'markRead');
+        jest.spyOn(Visibility, 'state').mockImplementation(() => 'visible');
+
+        const message = generateMessage({ user: generateUser() });
+        const dispatchMessageEvent = createChannelEventDispatcher({ message });
+
+        renderComponent({}, () => {
+          dispatchMessageEvent();
+        });
+
+        await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
+      });
+
+      it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
+        const unreadAmount = 1;
+        jest.spyOn(Visibility, 'state').mockImplementation(() => 'not visible');
+        jest
+          .spyOn(channel, 'countUnread')
+          .mockImplementation(() => unreadAmount);
+        const message = generateMessage({ user: generateUser() });
+        const dispatchMessageEvent = createChannelEventDispatcher({ message });
+
+        renderComponent({}, () => {
+          dispatchMessageEvent();
+        });
+
+        await waitFor(() =>
+          expect(document.title).toContain(`${unreadAmount}`),
+        );
+      });
+
+      it('should update the `thread` parent message if an event comes in that modifies it', async () => {
+        const threadMessage = messages[0];
+        const newText = 'new text';
+        const updatedThreadMessage = { ...threadMessage, text: newText };
+        const dispatchUpdateMessageEvent = createChannelEventDispatcher(
+          { message: updatedThreadMessage },
+          'message.update',
+        );
+        let threadStarterHasUpdatedText = false;
+        renderComponent({}, ({ openThread, thread }) => {
+          if (!thread) {
+            // first, open thread
+            openThread(threadMessage);
+          } else if (thread.text !== newText) {
+            // then, update the thread message
+            dispatchUpdateMessageEvent();
+          } else {
+            threadStarterHasUpdatedText = true;
+          }
+        });
+
+        await waitFor(() => expect(threadStarterHasUpdatedText).toBe(true));
+      });
+
+      it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
+        const threadMessage = messages[0];
+        const newThreadMessage = generateMessage({
+          parent_id: threadMessage.id,
+        });
+        const dispatchNewThreadMessageEvent = createChannelEventDispatcher({
+          message: newThreadMessage,
+        });
+        let newThreadMessageWasAdded = false;
+        renderComponent({}, ({ openThread, thread, threadMessages }) => {
+          if (!thread) {
+            // first, open thread
+            openThread(threadMessage);
+          } else if (
+            !threadMessages.some(({ id }) => id === newThreadMessage.id)
+          ) {
+            // then, add new thread message
+            dispatchNewThreadMessageEvent();
+          } else {
+            newThreadMessageWasAdded = true;
+          }
+        });
+
+        await waitFor(() => expect(newThreadMessageWasAdded).toBe(true));
       });
     });
   });
-
-  // TODO: all unmount tests
-
-  // TODO: figure out how to test debounced / throttled setters
-
-  // TODO: test handleEvent by creating actual events on client/channel whatever
-
-  // TODO: test thread thing in componentDidUpdate by calling updateMessage (or something that updates a messages by ID) on whatever message is channel.thread
 });
