@@ -48,9 +48,7 @@ export const usePaginatedChannels = (
 
       setChannels(newChannels);
       setOffset(newChannels.length);
-      setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
-      setLoadingChannels(false);
 
       // Set active channel only after first page.
       if (channels.length <= (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
@@ -59,8 +57,9 @@ export const usePaginatedChannels = (
     } catch (e) {
       console.warn(e);
       setError(true);
-      setRefreshing(false);
     }
+    setLoadingChannels(false);
+    setRefreshing(false);
   };
 
   const loadNextPage = () => {

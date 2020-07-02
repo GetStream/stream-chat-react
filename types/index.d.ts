@@ -189,6 +189,7 @@ export interface ChannelOptions {
   limit?: number;
   offset?: number;
   message_limit?: number;
+  presence?: boolean;
 }
 
 export interface ChannelListProps {
@@ -279,14 +280,8 @@ export interface ChannelPreviewProps {
    *
    * The Preview to use, defaults to ChannelPreviewLastMessage
    * */
-  Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps>;
   key: string;
-  /** Setter for selected channel */
-  setActiveChannel(
-    channel: Client.Channel,
-    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
-    e?: React.BaseSyntheticEvent,
-  ): void;
   // Following props is just to make sure preview component gets updated after connection is recovered.
   // It is not actually used anywhere internally
   connectionRecoveredCount?: number;
