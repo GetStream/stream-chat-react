@@ -51,7 +51,7 @@ const ChannelPreview = (props) => {
   }, [channel, activeChannel]);
 
   useEffect(() => {
-    const isActive = activeChannel.cid === channel.cid;
+    const isActive = activeChannel && activeChannel.cid === channel.cid;
 
     if (isActive) {
       setUnread(0);
