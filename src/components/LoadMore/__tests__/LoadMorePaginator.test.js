@@ -76,7 +76,7 @@ describe('LoadMorePaginator', () => {
     `);
   });
 
-  it('should render children after loader in reveres mode', () => {
+  it('should render children after loader in reverse mode', () => {
     const tree = renderer
       .create(
         <LoadMorePaginator
