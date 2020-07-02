@@ -15,3 +15,4 @@ dist
 *.md
 babel.i18next-extract.js
 /built
+/coverage

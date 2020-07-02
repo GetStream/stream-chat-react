@@ -17,7 +17,7 @@ matrix:
 
 script:
   - if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
-  - if [ "$TYPESCRIPT" == "no" ]; then yarn test; fi
+  - if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
   - if [ "$TYPESCRIPT" == "no" ]; then yarn docs; fi
   - if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
   - if [ "$TYPESCRIPT" == "yes" ]; then tsc --strict; fi
