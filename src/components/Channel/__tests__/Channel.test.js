@@ -17,7 +17,6 @@ import {
   getOrCreateChannelApi,
   threadRepliesApi,
   generateUser,
-  queryApi,
   sendMessageApi,
 } from '../../../mock-builders';
 import { LoadingErrorIndicator } from '../../Loading';
@@ -313,6 +312,19 @@ describe('Channel', () => {
     });
 
     describe('loading more messages', () => {
+      const queryChannelWithNewMessages = (newMessages) => {
+        // generate new channel mock from existing channel with new messages added
+        return getOrCreateChannelApi(
+          generateChannel({
+            channel: {
+              id: channel.id,
+              type: channel.type,
+              config: channel.getConfig(),
+            },
+            messages: newMessages,
+          }),
+        );
+      };
       const limit = 10;
       it('should be able to load more messages', async () => {
         const channelQuerySpy = jest.spyOn(channel, 'query');
@@ -325,7 +337,7 @@ describe('Channel', () => {
             !contextMessages.find((message) => message.id === newMessages[0].id)
           ) {
             // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-            useMockedApis(axios, [queryApi(channel, newMessages)]);
+            useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
             loadMore(limit);
           } else {
             // If message has been added, update checker so we can verify it happened.
@@ -357,7 +369,7 @@ describe('Channel', () => {
               )
             ) {
               // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(axios, [queryApi(channel, newMessages)]);
+              useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
               loadMore(limit);
             } else {
               // If message has been added, set our checker variable so we can verify if hasMore is false.
@@ -383,7 +395,7 @@ describe('Channel', () => {
               )
             ) {
               // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(axios, [queryApi(channel, newMessages)]);
+              useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
               loadMore(limit);
             } else {
               // If message has been added, set our checker variable so we can verify if hasMore is true.
