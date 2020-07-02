@@ -399,15 +399,19 @@ class Message extends Component {
 
 Message.propTypes = {
   /** The message object */
-  message: PropTypes.shape({
-    text: PropTypes.string.isRequired,
-    html: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired).isRequired,
-    reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired).isRequired,
-    created_at: PropTypes.string.isRequired,
-    updated_at: PropTypes.string.isRequired,
-  }).isRequired,
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.shape(
+    {
+      text: PropTypes.string.isRequired,
+      html: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired)
+        .isRequired,
+      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired)
+        .isRequired,
+      created_at: PropTypes.string.isRequired,
+      updated_at: PropTypes.string.isRequired,
+    },
+  ).isRequired),
   /** The client connection object for connecting to Stream */
   client: PropTypes.instanceOf(StreamChat).isRequired,
   /** The current channel this message is displayed in */
@@ -422,17 +426,17 @@ Message.propTypes = {
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
-  Message: PropTypes.elementType,
+  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
   /**
    * The component that will be rendered if the message has been deleted.
    * All props are passed into this component.
    */
-  MessageDeleted: PropTypes.elementType,
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
   /**
    * Attachment UI component to display attachment in individual message.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
-  Attachment: PropTypes.elementType,
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /**
@@ -479,7 +483,7 @@ Message.propTypes = {
   /** Latest message id on current channel */
   lastReceivedId: PropTypes.string,
   /** DOMRect object for parent MessageList component */
-  messageListRect: PropTypes.instanceOf(DOMRect),
+  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   // @ts-ignore
   members: PropTypes.instanceOf(SeamlessImmutable),
