@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import LoadMoreButton from './LoadMoreButton';
+import DefaultLoadMoreButton from './LoadMoreButton';
 import { smartRender } from '../../utils';
 
 const LoadMorePaginator = ({
@@ -9,6 +9,7 @@ const LoadMorePaginator = ({
   hasNextPage,
   refreshing,
   loadNextPage,
+  LoadMoreButton,
   children,
 }) => (
   <>
@@ -20,11 +21,15 @@ const LoadMorePaginator = ({
 );
 
 LoadMorePaginator.defaultProps = {
-  LoadMoreButton,
+  LoadMoreButton: DefaultLoadMoreButton,
 };
 
 LoadMorePaginator.propTypes = {
-  LoadMoreButton: PropTypes.elementType,
+  LoadMoreButton: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.func,
+    PropTypes.object,
+  ]),
   /** callback to load the next page */
   loadNextPage: PropTypes.func,
   /** indicates if there is a next page to load */
