@@ -209,14 +209,13 @@ const MessageCommerce = (props) => {
 
 MessageCommerce.propTypes = {
   /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  // @ts-ignore
-  message: PropTypes.object,
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
+    .object.isRequired),
   /**
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  // @ts-ignore
-  Attachment: PropTypes.elementType,
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
@@ -225,19 +224,16 @@ MessageCommerce.propTypes = {
    * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
    *
    */
-  // @ts-ignore
-  Message: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.func,
-    PropTypes.object,
-  ]),
+  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
+    [PropTypes.node, PropTypes.func, PropTypes.object],
+  ).isRequired),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
   /** Channel config object */
-  // @ts-ignore
-  channelConfig: PropTypes.object,
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
+    .object.isRequired),
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /**
@@ -249,8 +245,7 @@ MessageCommerce.propTypes = {
   /** Returns true if message belongs to current user */
   isMyMessage: PropTypes.func,
   /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
-  // @ts-ignore
-  getMessageActions: PropTypes.func,
+  getMessageActions: PropTypes.func.isRequired,
   /**
    * Add or remove reaction on message
    *
@@ -303,8 +298,7 @@ MessageCommerce.propTypes = {
   /** The component that will be rendered if the message has been deleted.
    * All of Message's props are passed into this component.
    */
-  // @ts-ignore
-  MessageDeleted: PropTypes.elementType,
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
 };
 
 export default React.memo(MessageCommerce, areMessagePropsEqual);
