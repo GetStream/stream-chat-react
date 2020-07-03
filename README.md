@@ -8,7 +8,7 @@
 > building chat applications.
 
 [![NPM](https://img.shields.io/npm/v/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
-[![Build Status](https://travis-ci.org/GetStream/stream-chat-react.svg?branch=master)](https://travis-ci.org/GetStream/stream-chat-react)
+[![build](https://github.com/GetStream/stream-chat-react/workflows/test/badge.svg)](https://github.com/GetStream/stream-chat-react/actions)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
 [![codecov](https://codecov.io/gh/GetStream/stream-chat-react/branch/master/graph/badge.svg)](https://codecov.io/gh/GetStream/stream-chat-react)
 
