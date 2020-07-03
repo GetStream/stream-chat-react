@@ -984,7 +984,7 @@ export interface MessageLivestreamActionProps {
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   onReactionListClick?: () => void;
