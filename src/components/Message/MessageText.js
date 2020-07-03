@@ -18,13 +18,9 @@ const MessageTextComponent = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-<<<<<<< HEAD
-    actionsEnabled,
     customWrapperClass,
     customInnerClass,
     theme = 'simple',
-=======
->>>>>>> fix MessageText usage of ReactionSelector
     message,
     unsafeHTML,
     customOptionProps,
