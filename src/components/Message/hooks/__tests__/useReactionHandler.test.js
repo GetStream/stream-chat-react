@@ -191,7 +191,7 @@ describe('useReactionClick custom hook', () => {
       target: reactionSelectorEl,
     };
     const { result } = renderUseReactionClickHook(message, {
-      current: { reactionSelector: { current: reactionListElement } },
+      current: reactionListElement,
     });
     let onDocumentClick;
     const addEventListenerSpy = jest

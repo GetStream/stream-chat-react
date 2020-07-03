@@ -99,9 +99,7 @@ export const useReactionClick = (
       if (
         event.target &&
         // @ts-ignore
-        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
-          event.target,
-        )
+        reactionSelectorRef?.current?.contains(event.target)
       ) {
         return;
       }

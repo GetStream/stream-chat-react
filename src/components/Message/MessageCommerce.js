@@ -143,7 +143,6 @@ const MessageCommerce = (props) => {
                 <ReactionSelector
                   reverse={false}
                   handleReaction={propHandleReaction || handleReaction}
-                  actionsEnabled={actionsEnabled}
                   detailedView
                   reaction_counts={message.reaction_counts}
                   latest_reactions={message.latest_reactions}

@@ -114,8 +114,6 @@ const MessageTeam = (props) => {
   const galleryImages = getImages(message);
   const attachments = getNonImageAttachments(message);
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
-  // determine reaction selector alignment
-  const reactionDirection = 'left';
 
   if (message?.type === 'message.read') {
     return null;
@@ -228,7 +226,6 @@ const MessageTeam = (props) => {
                       latest_reactions={message.latest_reactions}
                       reaction_counts={message.reaction_counts}
                       detailedView={true}
-                      direction={reactionDirection}
                       ref={reactionSelectorRef}
                     />
                   )}
