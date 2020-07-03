@@ -19,6 +19,7 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { ChatContext } from '../../../context';
 
 // mock image loader fn used by ImagePreview
 jest.mock('blueimp-load-image/js/load-image-fetch', () => {
@@ -49,6 +50,12 @@ const editMock = jest.fn();
           doSendMessageRequest={submitMock}
           doUpdateMessageRequest={editMock}
         >
+          <ChatContext.Consumer>
+            {({ setActiveChannel }) => {
+              if (channel) setActiveChannel(channel);
+              return null;
+            }}
+          </ChatContext.Consumer>
           <MessageInput Input={InputComponent} {...props} />
         </Channel>
       </Chat>,

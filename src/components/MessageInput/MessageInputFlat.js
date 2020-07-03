@@ -42,7 +42,6 @@ const MessageInputFlat = (props) => {
 
           <div className="str-chat__input-flat--textarea-wrapper">
             <ChatAutoComplete
-              users={messageInput.getUsers()}
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}

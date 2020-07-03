@@ -1,134 +1,81 @@
-/* eslint-disable */
-import React, { PureComponent } from 'react';
+// @ts-check
+import React, { useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { emojiIndex } from 'emoji-mart';
+// ignore TS error because the type definitions for this package requires generics, which you can't do in jsdoc
+// @ts-ignore
+import debounce from 'lodash.debounce';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { LoadingIndicator } from '../Loading';
 import { EmoticonItem } from '../EmoticonItem';
 import { UserItem } from '../UserItem';
 import { CommandItem } from '../CommandItem';
-import debounce from 'lodash/debounce';
-import { withChannelContext } from '../../context';
+import { ChatContext } from '../../context/ChatContext';
 
-/**
- * Textarea component with included autocomplete options. You can set your own commands and
- * @example ../../docs/ChatAutoComplete.md
- */
-class ChatAutoComplete extends PureComponent {
-  static propTypes = {
-    /** The number of rows you want the textarea to have */
-    rows: PropTypes.number,
-    /** Grow the number of rows of the textarea while you're typing */
-    grow: PropTypes.bool,
-    /** Maximum number of rows */
-    maxRows: PropTypes.number,
-    /** Make the textarea disabled */
-    disabled: PropTypes.bool,
-    /** The value of the textarea */
-    value: PropTypes.string,
-    /** Function to run on pasting within the textarea */
-    onPaste: PropTypes.func,
-    /** Function that runs on submit */
-    handleSubmit: PropTypes.func,
-    /** Function that runs on change */
-    onChange: PropTypes.func,
-    /** Placeholder for the textare */
-    placeholder: PropTypes.string,
-    /** What loading component to use for the auto complete when loading results. */
-    LoadingIndicator: PropTypes.node,
-    /** Minimum number of Character */
-    minChar: PropTypes.number,
-    /** Array of [user object](https://getstream.io/chat/docs/#chat-doc-set-user). Used for mentions suggestions */
-    users: PropTypes.array,
-    /**
-     * Handler for selecting item from suggestions list
-     *
-     * @param item Selected item object.
-     *  */
-    onSelectItem: PropTypes.func,
-    /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
-    commands: PropTypes.array,
-    /** Listener for onfocus event on textarea */
-    onFocus: PropTypes.object,
-    /**
-     * Any additional attrubutes that you may want to add for underlying HTML textarea element.
-     */
-    additionalTextareaProps: PropTypes.object,
-  };
+/** @param {string} word */
+const emojiReplace = (word) => {
+  const found = emojiIndex.search(word) || [];
+  const emoji = found
+    .slice(0, 10)
+    .find(({ emoticons }) => emoticons?.includes(word));
+  if (!emoji || !('native' in emoji)) return null;
+  return emoji.native;
+};
 
-  static defaultProps = {
-    rows: 3,
-  };
+/** @type {React.FC<import("types").ChatAutoCompleteProps>} */
+const ChatAutoComplete = (props) => {
+  const { channel } = useContext(ChatContext);
+  const members = channel?.state?.members;
+  const watchers = channel?.state?.watchers;
 
-  getCommands = (channel) => {
-    const config = channel.getConfig();
-
-    if (!config) return [];
-
-    const allCommands = config.commands;
-    return allCommands;
-  };
-
-  getMembers = (channel) => {
-    const result = [];
-    const members = channel.state.members;
-    if (members && Object.values(members).length) {
-      Object.values(members).forEach((member) => result.push(member.user));
-    }
-
-    return result;
-  };
-
-  getWatchers = (channel) => {
-    const result = [];
-    const watchers = channel.state.watchers;
-    if (watchers && Object.values(watchers).length) {
-      result.push(...Object.values(watchers));
-    }
-
-    return result;
-  };
-
-  getMembersAndWatchers = (channel) => {
-    const users = [...this.getMembers(channel), ...this.getWatchers(channel)];
-
+  const getMembersAndWatchers = useCallback(() => {
+    const memberUsers = members
+      ? Object.values(members).map(({ user }) => user)
+      : [];
+    const watcherUsers = watchers ? Object.values(watchers) : [];
+    const users = [...memberUsers, ...watcherUsers];
     // make sure we don't list users twice
+    /** @type {{ [key: string]: import('stream-chat').User}} */
     const uniqueUsers = {};
-    for (const user of users) {
-      if (user !== undefined && !uniqueUsers[user.id]) {
+    users.forEach((user) => {
+      if (user && !uniqueUsers[user.id]) {
         uniqueUsers[user.id] = user;
       }
-    }
-    const usersArray = Object.values(uniqueUsers);
-
-    return usersArray;
-  };
-
-  queryMembers = async (channel, query, onReady) => {
-    const response = await channel.queryMembers({
-      name: { $autocomplete: query },
     });
+    return Object.values(uniqueUsers);
+  }, [members, watchers]);
 
-    const users = response.members.map((m) => m.user);
-    onReady && onReady(users);
-  };
+  const queryMembersdebounced = useCallback(
+    debounce(
+      /** @type {(query: string, onReady: (data: any[]) => void) => Promise<void>} */
+      async (query, onReady) => {
+        if (!channel?.queryMembers) return;
+        const response = await channel?.queryMembers({
+          name: { $autocomplete: query },
+        });
+        const users = response.members.map((m) => m.user);
+        if (onReady) onReady(users);
+      },
+      200,
+    ),
+    [channel?.queryMembers],
+  );
 
-  queryMembersdebounced = debounce(this.queryMembers, 200, {
-    trailing: true,
-    leading: false,
-  });
-
-  // dataProvider accepts `onReady` function, which will executed once the data is ready.
-  // Another approach would have been to simply return the data from dataProvider and let the
-  // component await for it and then execute the required logic. We are going for callback instead
-  // of async-await since we have debounce function in dataProvider. Which will delay the execution
-  // of api call on trailing end of debounce (lets call it a1) but will return with result of
-  // previous call without waiting for a1. So in this case, we want to execute onReady, when trailing
-  // end of debounce executes.
-  getTriggers() {
-    const { channel } = this.props;
-    return {
+  const { commands, onSelectItem } = props;
+  /**
+   * dataProvider accepts `onReady` function, which will executed once the data is ready.
+   * Another approach would have been to simply return the data from dataProvider and let the
+   * component await for it and then execute the required logic. We are going for callback instead
+   * of async-await since we have debounce function in dataProvider. Which will delay the execution
+   * of api call on trailing end of debounce (lets call it a1) but will return with result of
+   * previous call without waiting for a1. So in this case, we want to execute onReady, when trailing
+   * end of debounce executes.
+   * @type {() => import("../AutoCompleteTextarea/types").TriggerMap}
+   */
+  const getTriggers = useCallback(
+    // eslint-disable-next-line sonarjs/cognitive-complexity
+    () => ({
       ':': {
         dataProvider: (q, text, onReady) => {
           if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
@@ -137,7 +84,7 @@ class ChatAutoComplete extends PureComponent {
           const emojis = emojiIndex.search(q) || [];
           const result = emojis.slice(0, 10);
 
-          onReady && onReady(result, q);
+          if (onReady) onReady(result, q);
 
           return result;
         },
@@ -150,39 +97,36 @@ class ChatAutoComplete extends PureComponent {
       },
       '@': {
         dataProvider: (query, text, onReady) => {
-          const members = channel.state.members;
           // By default, we return maximum 100 members via queryChannels api call.
           // Thus it is safe to assume, that if number of members in channel.state is < 100,
           // then all the members are already available on client side and we don't need to
           // make any api call to queryMembers endpoint.
-          if (!query || Object.values(members).length < 100) {
-            const users = this.getMembersAndWatchers(channel);
+          if (!query || Object.values(members || {}).length < 100) {
+            const users = getMembersAndWatchers();
 
             const matchingUsers = users.filter((user) => {
               if (!query) return true;
               if (
                 user.name !== undefined &&
-                user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+                user.name.toLowerCase().includes(query.toLowerCase())
               ) {
                 return true;
-              } else if (
-                user.id.toLowerCase().indexOf(query.toLowerCase()) !== -1
-              ) {
-                return true;
-              } else {
-                return false;
               }
+              return user.id.toLowerCase().includes(query.toLowerCase());
             });
             const data = matchingUsers.slice(0, 10);
 
-            onReady && onReady(data, query);
+            if (onReady) onReady(data, query);
 
             return data;
           }
-
-          return this.queryMembersdebounced(channel, query, (data) => {
-            onReady && onReady(data, query);
-          });
+          return queryMembersdebounced(
+            query,
+            /** @param {any[]} data */
+            (data) => {
+              if (onReady) onReady(data, query);
+            },
+          );
         },
         component: UserItem,
         output: (entity) => ({
@@ -190,14 +134,14 @@ class ChatAutoComplete extends PureComponent {
           text: `@${entity.name || entity.id}`,
           caretPosition: 'next',
         }),
-        callback: (item) => this.props.onSelectItem(item),
+        callback: (item) => onSelectItem && onSelectItem(item),
       },
       '/': {
         dataProvider: (q, text, onReady) => {
-          if (text.indexOf('/') !== 0) {
+          if (text.indexOf('/') !== 0 || !commands) {
             return [];
           }
-          const selectedCommands = this.props.commands.filter(
+          const selectedCommands = commands.filter(
             (c) => c.name.indexOf(q) !== -1,
           );
 
@@ -222,7 +166,7 @@ class ChatAutoComplete extends PureComponent {
           });
 
           const result = selectedCommands.slice(0, 10);
-          onReady && onReady(result, q);
+          if (onReady) onReady(result, q);
 
           return result;
         },
@@ -233,51 +177,94 @@ class ChatAutoComplete extends PureComponent {
           caretPosition: 'next',
         }),
       },
-    };
-  }
+    }),
+    [
+      members,
+      getMembersAndWatchers,
+      commands,
+      onSelectItem,
+      queryMembersdebounced,
+    ],
+  );
 
-  emojiReplace(word) {
-    const found = emojiIndex.search(word) || [];
-    for (const emoji of found.slice(0, 10)) {
-      if (emoji.emoticons.includes(word)) {
-        return emoji.native;
-      }
-    }
-  }
+  const { innerRef } = props;
 
-  render() {
-    const { innerRef } = this.props;
-    return (
-      <AutoCompleteTextarea
-        loadingComponent={LoadingIndicator}
-        trigger={this.getTriggers()}
-        replaceWord={this.emojiReplace}
-        minChar={0}
-        maxRows={this.props.maxRows}
-        innerRef={
-          innerRef &&
-          ((ref) => {
-            innerRef.current = ref;
-          })
-        }
-        onFocus={this.props.onFocus}
-        rows={this.props.rows}
-        className="str-chat__textarea__textarea"
-        containerClassName="str-chat__textarea"
-        dropdownClassName="str-chat__emojisearch"
-        listClassName="str-chat__emojisearch__list"
-        itemClassName="str-chat__emojisearch__item"
-        placeholder={this.props.placeholder}
-        onChange={this.props.onChange}
-        handleSubmit={this.props.handleSubmit}
-        onPaste={this.props.onPaste}
-        value={this.props.value}
-        grow={this.props.grow}
-        disabled={this.props.disabled}
-        additionalTextareaProps={this.props.additionalTextareaProps}
-      />
-    );
-  }
-}
+  const updateInnerRef = useCallback(
+    (ref) => {
+      if (innerRef) innerRef.current = ref;
+    },
+    [innerRef],
+  );
 
-export default withChannelContext(ChatAutoComplete);
+  return (
+    <AutoCompleteTextarea
+      loadingComponent={LoadingIndicator}
+      trigger={getTriggers()}
+      replaceWord={emojiReplace}
+      minChar={0}
+      maxRows={props.maxRows}
+      innerRef={updateInnerRef}
+      onFocus={props.onFocus}
+      rows={props.rows}
+      className="str-chat__textarea__textarea"
+      containerClassName="str-chat__textarea"
+      dropdownClassName="str-chat__emojisearch"
+      listClassName="str-chat__emojisearch__list"
+      itemClassName="str-chat__emojisearch__item"
+      placeholder={props.placeholder}
+      onChange={props.onChange}
+      handleSubmit={props.handleSubmit}
+      onPaste={props.onPaste}
+      value={props.value}
+      grow={props.grow}
+      disabled={props.disabled}
+      additionalTextareaProps={props.additionalTextareaProps}
+    />
+  );
+};
+
+ChatAutoComplete.propTypes = {
+  /** The number of rows you want the textarea to have */
+  rows: PropTypes.number,
+  /** Grow the number of rows of the textarea while you're typing */
+  grow: PropTypes.bool,
+  /** Maximum number of rows */
+  maxRows: PropTypes.number,
+  /** Make the textarea disabled */
+  disabled: PropTypes.bool,
+  /** The value of the textarea */
+  value: PropTypes.string,
+  /** Function to run on pasting within the textarea */
+  onPaste: PropTypes.func,
+  /** Function that runs on submit */
+  handleSubmit: PropTypes.func,
+  /** Function that runs on change */
+  onChange: PropTypes.func,
+  /** Placeholder for the textare */
+  placeholder: PropTypes.string,
+  /** What loading component to use for the auto complete when loading results. */
+  // @ts-ignore
+  LoadingIndicator: PropTypes.elementType,
+  /** Minimum number of Character */
+  minChar: PropTypes.number,
+  /**
+   * Handler for selecting item from suggestions list
+   *
+   * @param item Selected item object.
+   *  */
+  onSelectItem: PropTypes.func,
+  /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
+  commands: PropTypes.array,
+  /** Listener for onfocus event on textarea */
+  onFocus: PropTypes.func,
+  /**
+   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   */
+  additionalTextareaProps: PropTypes.object,
+};
+
+ChatAutoComplete.defaultProps = {
+  rows: 3,
+};
+
+export default React.memo(ChatAutoComplete);
