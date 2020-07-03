@@ -163,13 +163,18 @@ describe('Channel', () => {
   });
 
   it('should mark the current channel as read if the user switches to the current window', async () => {
-    // This mocks the Visibilityjs module so it immediately calls the change callback with state === 'visible'
-    jest.spyOn(Visibility, 'change').mockImplementationOnce((callback) => {
-      callback(new Event('change'), 'visible');
+    Object.defineProperty(document, 'hidden', {
+      configurable: true,
+      get: () => false,
     });
     const markReadSpy = jest.spyOn(channel, 'markRead');
+    const watchSpy = jest.spyOn(channel, 'watch');
 
     renderComponent();
+    // first, wait for the effect in which the channel is watched,
+    // so we know the event listener is added to the document.
+    await waitFor(() => expect(watchSpy).toHaveBeenCalledWith());
+    fireEvent(document, new Event('visibilitychange'));
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
@@ -657,7 +662,10 @@ describe('Channel', () => {
 
       it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
         const unreadAmount = 1;
-        jest.spyOn(Visibility, 'state').mockImplementation(() => 'not visible');
+        Object.defineProperty(document, 'hidden', {
+          configurable: true,
+          get: () => true,
+        });
         jest
           .spyOn(channel, 'countUnread')
           .mockImplementation(() => unreadAmount);
