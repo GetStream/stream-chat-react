@@ -256,7 +256,7 @@ class ChannelInner extends PureComponent {
 
   loadMoreThread = async () => {
     // prevent duplicate loading events...
-    if (this.state.threadLoadingMore) return;
+    if (this.state.threadLoadingMore || !this.state.thread) return;
     this.setState({
       threadLoadingMore: true,
     });
