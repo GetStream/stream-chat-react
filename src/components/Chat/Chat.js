@@ -34,9 +34,8 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
     const handleEvent = (e) => {
       if (e.type === 'notification.mutes_updated') setMutes(e.me.mutes || []);
     };
-
-    client.on(handleEvent);
-    return () => client.off(handleEvent);
+    if (client) client.on(handleEvent);
+    return () => client && client.off(handleEvent);
   }, [client]);
 
   useEffect(() => {
