@@ -12,7 +12,7 @@ fs.readdir(directoryPath, function (err, files) {
   }
 
   files.forEach(function (file) {
-    if (file === 'index.js') return;
+    if (file === '__tests__' || file.split('.').reverse()[0] === 'js') return;
     // Do whatever you want to do with the file
     const data = require(i18nDirectoryRelativePath + file);
     const keys = Object.keys(data);
