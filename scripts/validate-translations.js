@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 const path = require('path');
 const fs = require('fs');
 const i18nDirectoryRelativePath = '../src/i18n/';
@@ -12,7 +10,7 @@ fs.readdir(directoryPath, function (err, files) {
   }
 
   files.forEach(function (file) {
-    if (file === '__tests__' || file.split('.').reverse()[0] === 'js') return;
+    if (file.split('.').reverse()[0] !== 'json') return;
     // Do whatever you want to do with the file
     const data = require(i18nDirectoryRelativePath + file);
     const keys = Object.keys(data);
