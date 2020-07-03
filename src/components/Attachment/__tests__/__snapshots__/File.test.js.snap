@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`File should render File component 1`] = `
+<div
+  className="str-chat__message-attachment-file--item"
+  data-testid="attachment-file"
+>
+  <svg
+    height={30}
+    style={
+      Object {
+        "maxWidth": "100%",
+      }
+    }
+    viewBox="0 0 48 48"
+    width={30}
+  >
+    <defs>
+      <clipPath
+        id="pageRadius1"
+      >
+        <rect
+          height={48}
+          rx={4}
+          ry={4}
+          width={40}
+          x={4}
+          y="0"
+        />
+      </clipPath>
+      <clipPath
+        id="foldCrop"
+      >
+        <rect
+          height={12}
+          transform="rotate(-45 0 12)"
+          width={40}
+        />
+      </clipPath>
+      <linearGradient
+        id="pageGradient1"
+        x1="100%"
+        y1="0%"
+        y2="100%"
+      >
+        <stop
+          offset="0%"
+          stopColor="white"
+          stopOpacity={0.25}
+        />
+        <stop
+          offset="66.67%"
+          stopColor="white"
+          stopOpacity="0"
+        />
+      </linearGradient>
+    </defs>
+    <g
+      clipPath="url(#pageRadius1)"
+      id="file"
+    >
+      <path
+        d="M4 0 h 28 L 44 12 v 36 H 4 Z"
+        fill="whitesmoke"
+      />
+      <path
+        d="M4 0 h 28 L 44 12 v 36 H 4 Z"
+        fill="url(#pageGradient1)"
+      />
+    </g>
+    <g
+      transform="translate(32 12) rotate(-90)"
+    >
+      <rect
+        clipPath="url(#foldCrop)"
+        fill="#dbdbdb"
+        height={48}
+        rx={4}
+        ry={4}
+        width={40}
+      />
+    </g>
+    
+  </svg>
+  <div
+    className="str-chat__message-attachment-file--item-text"
+  >
+    <a
+      href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      target="_blank"
+    >
+      Nice file
+    </a>
+    <span>
+      1.34 kB
+    </span>
+  </div>
+</div>
+`;

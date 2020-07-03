@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Image should render component with default props 1`] = `
+<img
+  className="str-chat__message-attachment--img"
+  data-testid="image-test"
+  onClick={[Function]}
+/>
+`;

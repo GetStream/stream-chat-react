@@ -1,0 +1,43 @@
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [10, 12, 14]
+        typescript: ['no']
+        include:
+          - typescript: 'yes'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@master
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-path.outputs.dir }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: yarn-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint and Test with ${{ matrix.node }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          TYPESCRIPT: ${{ matrix.typescript }}
+        run: |
+          if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
+          if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
+          if [ "$TYPESCRIPT" == "no" ]; then yarn docs; fi
+          if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
+          if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi

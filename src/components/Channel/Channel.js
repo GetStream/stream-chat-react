@@ -256,7 +256,7 @@ class ChannelInner extends PureComponent {
 
   loadMoreThread = async () => {
     // prevent duplicate loading events...
-    if (this.state.threadLoadingMore) return;
+    if (this.state.threadLoadingMore || !this.state.thread) return;
     this.setState({
       threadLoadingMore: true,
     });
@@ -341,12 +341,6 @@ class ChannelInner extends PureComponent {
     });
   };
 
-  removeEphemeralMessages() {
-    const c = this.props.channel;
-    c.state.selectRegularMessages();
-    this.setState({ messages: c.state.messages });
-  }
-
   createMessagePreview = (text, attachments, parent, mentioned_users) => {
     // create a preview of the message
     const clientSideID = `${this.props.client.userID}-` + uuidv4();
@@ -383,7 +377,6 @@ class ChannelInner extends PureComponent {
         ),
       );
     }
-
     return this.props.client.updateMessage(updatedMessage);
   };
 
@@ -603,7 +596,6 @@ class ChannelInner extends PureComponent {
 
   _onMentionsHoverOrClick = (e, mentioned_users) => {
     if (!this.props.onMentionsHover && !this.props.onMentionsClick) return;
-
     const tagName = e.target.tagName.toLowerCase();
     const textContent = e.target.innerHTML.replace('*', '');
     if (tagName === 'strong' && textContent[0] === '@') {

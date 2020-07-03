@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.5](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.5) 2020-06-30
+
+- Added `LoadingIndicator` prop to MessageList
+- Fixed some minor styling issues with SafeAnchor
+
+## [1.2.4](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.4) 2020-06-30
+
+- Refactor and improvements to the Gallery Modal component
+
+## [1.2.3](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.3) 2020-06-30
+
+- Fixing types
+
+## [1.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.2) 2020-06-22
+
+- Fixing types
+
 ## [1.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.1) 2020-06-17
 
 - Fixed an issue with our type definitions introduced in `1.2.0`

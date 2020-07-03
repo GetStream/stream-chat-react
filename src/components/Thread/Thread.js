@@ -179,6 +179,7 @@ class ThreadInner extends React.PureComponent {
           <button
             onClick={(e) => this.props.closeThread(e)}
             className="str-chat__square-button"
+            data-testid="close-button"
           >
             <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
               <path
