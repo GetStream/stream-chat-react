@@ -13,7 +13,7 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat | null;
+  client: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(
     channel: Client.Channel,
@@ -569,7 +569,7 @@ export interface MessageUIComponentProps
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfigWithInfo;
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
@@ -708,22 +708,22 @@ export interface CardProps extends TranslationContextValue {
 }
 
 export interface ChatAutoCompleteProps {
-  rows: number;
-  grow: boolean;
-  maxRows: number;
-  disabled: boolean;
-  value: string;
+  rows?: number;
+  grow?: boolean;
+  maxRows?: number;
+  disabled?: boolean;
+  value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
-  placeholder: string;
+  placeholder?: string;
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  minChar: number;
-  users: Client.UserResponse[];
+  minChar?: number;
   onSelectItem?(item: any): any;
-  commands: Client.CommandResponse[];
+  commands?: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
+  innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
 }
 
 export interface ChatDownProps extends TranslationContextValue {
@@ -747,7 +747,6 @@ export interface EmoticonItemProps {
   entity: {
     name: string;
     native: string;
-    char: string;
   };
 }
 
@@ -985,7 +984,7 @@ export interface MessageLivestreamActionProps {
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   onReactionListClick?: () => void;

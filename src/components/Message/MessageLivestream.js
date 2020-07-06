@@ -65,7 +65,6 @@ const MessageLivestreamComponent = (props) => {
     editing,
     clearEditingState,
     initialMessage,
-    messageListRect,
     unsafeHTML,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
@@ -169,7 +168,6 @@ const MessageLivestreamComponent = (props) => {
             detailedView
             latest_reactions={message?.latest_reactions}
             reaction_counts={message?.reaction_counts}
-            messageList={messageListRect}
             ref={reactionSelectorRef}
           />
         )}
