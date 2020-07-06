@@ -162,8 +162,7 @@
     "validate-translations": "node scripts/validate-translations.js",
     "prepare": "yarn run build",
     "preversion": "make example-deps && git add yarn.lock && git add examples/*/yarn.lock",
-    "version": "yarn docs && git add docs && git add yarn.lock examples/*/yarn.lock",
-    "postversion": "git push && git push --tags && npm publish"
+    "version": "yarn docs && git add docs && git add yarn.lock examples/*/yarn.lock"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended-scss",
