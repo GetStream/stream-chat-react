@@ -58,7 +58,7 @@ export interface ChannelContextValue extends ChatContextValue {
       | Client.MemberRemovedEvent
     )[];
   };
-  thread?: Client.MessageResponse | boolean;
+  thread?: Client.MessageResponse | null;
   threadMessages?: Client.MessageResponse[];
 
   multipleUploads?: boolean;
@@ -85,7 +85,7 @@ export interface ChannelContextValue extends ChatContextValue {
 
   loadMore?(): void;
   // thread related
-  closeThread?(event: React.SyntheticEvent): void;
+  closeThread(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
 
   /** Via Context: The function is called when the list scrolls */

@@ -1,8 +1,8 @@
 /* eslint-disable */
-import { Streami18n } from '../src/Streami18n';
+import { Streami18n } from '../Streami18n';
 import { v4 as uuidv4 } from 'uuid';
 import { default as Dayjs } from 'dayjs';
-import { nlTranslations, frTranslations } from '../src/i18n';
+import { nlTranslations, frTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
 Dayjs.extend(localeData);
