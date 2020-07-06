@@ -596,7 +596,9 @@ const ChannelInner = ({
   }
 
   return (
-    <div className={`str-chat str-chat-channel ${props.theme}`}>{core}</div>
+    <div className={`str-chat str-chat-channel ${chatContext.theme}`}>
+      {core}
+    </div>
   );
 };
 
