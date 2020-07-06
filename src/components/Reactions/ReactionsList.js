@@ -47,6 +47,9 @@ const ReactionsList = ({
           return emojiDefinition ? (
             <li key={emojiDefinition.id}>
               <NimbleEmoji
+                // emoji-mart type defs don't support spriteSheet use case
+                // (but implementation does)
+                // @ts-ignore
                 emoji={emojiDefinition}
                 {...emojiSetDef}
                 size={16}

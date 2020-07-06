@@ -79,10 +79,17 @@ export const useReactionHandler = (message) => {
 
 /**
  * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
- * @type { (reactionSelectorRef: React.RefObject<import('../../Reactions/ReactionSelector').default | null>, message: import('stream-chat').MessageResponse | undefined) => ReactionClickHandler }
- *
+ * @type {(
+ *   reactionSelectorRef: React.RefObject<import('../../Reactions/ReactionSelector').default | null>,
+ *   message: import('stream-chat').MessageResponse | undefined,
+ *   messageWrapperRef?: React.RefObject<HTMLElement | null>
+ * ) => ReactionClickHandler}
  */
-export const useReactionClick = (reactionSelectorRef, message) => {
+export const useReactionClick = (
+  reactionSelectorRef,
+  message,
+  messageWrapperRef,
+) => {
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
   const messageDeleted = !!message?.deleted_at;
   const hasListener = useRef(false);
@@ -92,9 +99,7 @@ export const useReactionClick = (reactionSelectorRef, message) => {
       if (
         event.target &&
         // @ts-ignore
-        reactionSelectorRef?.current?.reactionSelector?.current?.contains(
-          event.target,
-        )
+        reactionSelectorRef?.current?.contains(event.target)
       ) {
         return;
       }
@@ -104,32 +109,55 @@ export const useReactionClick = (reactionSelectorRef, message) => {
   );
 
   useEffect(() => {
+    const messageWrapper = messageWrapperRef?.current;
     if (showDetailedReactions && !hasListener.current) {
       hasListener.current = true;
       document.addEventListener('click', closeDetailedReactions);
       document.addEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
+      }
     }
     if (!showDetailedReactions && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
       document.removeEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.removeEventListener(
+          'mouseleave',
+          closeDetailedReactions,
+        );
+      }
       hasListener.current = false;
     }
     return () => {
       if (hasListener.current) {
         document.removeEventListener('click', closeDetailedReactions);
         document.removeEventListener('touchend', closeDetailedReactions);
+        if (messageWrapper) {
+          messageWrapper.removeEventListener(
+            'mouseleave',
+            closeDetailedReactions,
+          );
+        }
         hasListener.current = false;
       }
     };
-  }, [showDetailedReactions, closeDetailedReactions]);
+  }, [showDetailedReactions, closeDetailedReactions, messageWrapperRef]);
 
   useEffect(() => {
+    const messageWrapper = messageWrapperRef?.current;
     if (messageDeleted && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
       document.removeEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.removeEventListener(
+          'mouseleave',
+          closeDetailedReactions,
+        );
+      }
       hasListener.current = false;
     }
-  }, [messageDeleted, closeDetailedReactions]);
+  }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
   /** @type {() => void} Typescript syntax */
   const onReactionListClick = () => {

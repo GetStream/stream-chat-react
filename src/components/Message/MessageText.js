@@ -18,11 +18,11 @@ const MessageTextComponent = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-    actionsEnabled,
-    message,
-    messageListRect,
-    unsafeHTML,
     customWrapperClass,
+    customInnerClass,
+    theme = 'simple',
+    message,
+    unsafeHTML,
     customOptionProps,
   } = props;
   const reactionSelectorRef = useRef(null);
@@ -36,6 +36,10 @@ const MessageTextComponent = (props) => {
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
+  const innerClass =
+    customInnerClass ||
+    `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
+
   if (!message || !message.text) {
     return null;
   }
@@ -45,11 +49,15 @@ const MessageTextComponent = (props) => {
       <div
         data-testid="message-text-inner-wrapper"
         className={`
-          str-chat__message-text-inner str-chat__message-simple-text-inner
-          ${hasAttachment ? 'str-chat__message-text-inner--has-attachment' : ''}
+          ${innerClass}
+          ${
+            hasAttachment
+              ? ` str-chat__message-${theme}-text-inner--has-attachment`
+              : ''
+          }
           ${
             isOnlyEmojis(message.text)
-              ? 'str-chat__message-simple-text-inner--is-emoji'
+              ? ` str-chat__message-${theme}-text-inner--is-emoji`
               : ''
           }
         `.trim()}
@@ -57,12 +65,12 @@ const MessageTextComponent = (props) => {
         onClick={propOnMentionsClick || onMentionsClick}
       >
         {message.type === 'error' && (
-          <div className="str-chat__simple-message--error-message">
+          <div className={`str-chat__${theme}-message--error-message`}>
             {t && t('Error · Unsent')}
           </div>
         )}
         {message.status === 'failed' && (
-          <div className="str-chat__simple-message--error-message">
+          <div className={`str-chat__${theme}-message--error-message`}>
             {t && t('Message Failed · Click to try again')}
           </div>
         )}
@@ -85,12 +93,9 @@ const MessageTextComponent = (props) => {
         {showDetailedReactions && (
           <ReactionSelector
             handleReaction={handleReaction}
-            actionsEnabled={actionsEnabled}
             detailedView
             reaction_counts={message.reaction_counts}
             latest_reactions={message.latest_reactions}
-            messageList={messageListRect}
-            // @ts-ignore
             ref={reactionSelectorRef}
           />
         )}

@@ -1,36 +1,49 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import React, { useEffect, useContext } from 'react';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import axios from 'axios';
 import ChatAutoComplete from '../ChatAutoComplete';
 import {
+  useMockedApis,
+  queryMembersApi,
   generateMember,
   generateUser,
   generateMessage,
+  generateChannel,
+  getTestClientWithUser,
+  getOrCreateChannelApi,
 } from '../../../mock-builders';
-import { ChannelContext } from '../../../context';
+import { Chat } from '../../Chat';
+import { Channel } from '../../Channel';
+import { ChatContext } from '../../../context';
 
+jest.mock('axios');
+let chatClient;
+let channel;
 const user = generateUser({ name: 'name', id: 'id' });
-const channelContextMock = {
-  channel: {
-    state: {
-      messages: [generateMessage({ user })],
-      members: [generateMember({ user })],
-      watchers: [user],
-    },
-  },
+
+const ActiveChannelSetter = ({ activeChannel }) => {
+  const { setActiveChannel } = useContext(ChatContext);
+  useEffect(() => {
+    setActiveChannel(activeChannel);
+  });
+  return null;
 };
 
-const renderComponent = async (
-  props = {},
-  channelContext = channelContextMock,
-) => {
+const renderComponent = async (props = {}, activeChannel = channel) => {
   const placeholderText = props.placeholder || 'placeholder';
   const renderResult = render(
-    <ChannelContext.Provider value={channelContext}>
-      <ChatAutoComplete {...props} placeholder={placeholderText} />
-    </ChannelContext.Provider>,
+    <Chat client={chatClient}>
+      <Channel channel={channel}>
+        <ActiveChannelSetter activeChannel={activeChannel} />
+        <ChatAutoComplete {...props} placeholder={placeholderText} />
+      </Channel>
+    </Chat>,
   );
-  const textarea = await renderResult.findByPlaceholderText(placeholderText);
+  const textarea = await waitFor(() =>
+    renderResult.getByPlaceholderText(placeholderText),
+  );
   const typeText = (text) => {
     fireEvent.change(textarea, {
       target: {
@@ -43,6 +56,20 @@ const renderComponent = async (
 };
 
 describe('ChatAutoComplete', () => {
+  beforeEach(async () => {
+    const messages = [generateMessage({ user })];
+    const members = [generateMember({ user })];
+    const mockedChannel = generateChannel({
+      messages,
+      members,
+    });
+    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
+    chatClient = await getTestClientWithUser(user);
+    channel = chatClient.channel('messaging', mockedChannel.id);
+  });
+
+  afterEach(cleanup);
+
   it('should call onChange with the change event when you type in the input', async () => {
     const onChange = jest.fn();
     const { typeText } = await renderComponent({ onChange });
@@ -118,45 +145,6 @@ describe('ChatAutoComplete', () => {
     );
   });
 
-  it('should use the queryMembers API for mentions if a channel has many members', async () => {
-    const users = Array(100).fill().map(generateUser);
-    const members = users.map((u) => generateMember({ user: u }));
-    const messages = [generateMessage({ user: users[0] })];
-    const queryMembers = jest.fn(() => Promise.resolve({ members }));
-
-    const onSelectItem = jest.fn();
-    const { typeText, findByText } = await renderComponent(
-      { onSelectItem },
-      {
-        channel: {
-          state: {
-            members,
-            messages,
-            watchers: users,
-          },
-          queryMembers,
-        },
-      },
-    );
-    const mentionedUser = users[0];
-
-    typeText(`@${mentionedUser.name}`);
-
-    await waitFor(() => expect(queryMembers).toHaveBeenCalledTimes(1));
-
-    const userText = await findByText(mentionedUser.name);
-
-    expect(userText).toBeInTheDocument();
-
-    fireEvent.click(userText);
-
-    expect(onSelectItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mentionedUser.id,
-      }),
-    );
-  });
-
   it('should let you select commands when you type /<command>', async () => {
     const commandAutocompleteText = '/giph';
     const { typeText, findByText, textarea } = await renderComponent({
@@ -177,5 +165,39 @@ describe('ChatAutoComplete', () => {
     fireEvent.click(command);
 
     expect(textarea.value).toContain('/giphy');
+  });
+
+  it('should use the queryMembers API for mentions if a channel has many members', async () => {
+    const users = Array(100).fill().map(generateUser);
+    const members = users.map((u) => generateMember({ user: u }));
+    const messages = [generateMessage({ user: users[0] })];
+    const mockedChannel = generateChannel({
+      messages,
+      members,
+    });
+    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
+    const activeChannel = chatClient.channel('messaging', mockedChannel.id);
+    const searchMember = members[0];
+    useMockedApis(axios, [queryMembersApi([searchMember])]);
+
+    const onSelectItem = jest.fn();
+    const { typeText, findByText } = await renderComponent({
+      onSelectItem,
+      activeChannel,
+    });
+    const mentionedUser = searchMember.user;
+
+    typeText(`@${mentionedUser.id}`);
+
+    const userText = await findByText(mentionedUser.name);
+    expect(userText).toBeInTheDocument();
+
+    fireEvent.click(userText);
+
+    expect(onSelectItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: mentionedUser.id,
+      }),
+    );
   });
 });

@@ -30,6 +30,7 @@ export const useMockedApis = (axios, apiResponses) => {
 };
 
 export * from './queryChannels';
+export * from './queryMembers';
 export * from './getOrCreateChannel';
 export * from './threadReplies';
 export * from './sendMessage';

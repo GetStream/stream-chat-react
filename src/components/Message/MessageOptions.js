@@ -9,12 +9,16 @@ import { MessageActions } from '../MessageActions';
  */
 const MessageOptionsComponent = (props) => {
   const {
-    message,
+    displayActions = true,
+    displayLeft = true,
+    displayReplies = true,
+    handleOpenThread: propHandleOpenThread,
     initialMessage,
-    threadList,
+    message,
     messageWrapperRef,
     onReactionListClick,
-    handleOpenThread: propHandleOpenThread,
+    theme = 'simple',
+    threadList,
   } = props;
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
@@ -23,6 +27,9 @@ const MessageOptionsComponent = (props) => {
    */
   const { channel } = useContext(ChannelContext);
   const channelConfig = channel?.getConfig();
+  const shouldShowReplies =
+    displayReplies && !threadList && channelConfig && channelConfig.replies;
+  const shouldShowReactions = channelConfig && channelConfig.reactions;
   if (
     !message ||
     message.type === 'error' ||
@@ -34,18 +41,18 @@ const MessageOptionsComponent = (props) => {
   ) {
     return null;
   }
-  if (isMyMessage) {
+  if (isMyMessage && displayLeft) {
     return (
       <div
-        data-testid="message-options-mine"
-        className="str-chat__message-simple__actions"
+        data-testid="message-options-left"
+        className={`str-chat__message-${theme}__actions`}
       >
         {<MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
-        {!threadList && channelConfig && channelConfig.replies && (
+        {shouldShowReplies && (
           <div
             data-testid="thread-action"
             onClick={propHandleOpenThread || handleOpenThread}
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+            className={`str-chat__message-${theme} str-chat__message-${theme}__actions__action--thread`}
           >
             <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -55,10 +62,10 @@ const MessageOptionsComponent = (props) => {
             </svg>
           </div>
         )}
-        {channelConfig && channelConfig.reactions && (
+        {shouldShowReactions && (
           <div
             data-testid="message-reaction-action"
-            className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+            className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
             onClick={onReactionListClick}
           >
             <svg
@@ -80,12 +87,12 @@ const MessageOptionsComponent = (props) => {
   return (
     <div
       data-testid="message-options"
-      className="str-chat__message-simple__actions"
+      className={`str-chat__message-${theme}__actions`}
     >
-      {channelConfig && channelConfig.reactions && (
+      {shouldShowReactions && (
         <div
           data-testid="message-reaction-action"
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--reactions"
+          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
           onClick={onReactionListClick}
         >
           <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg">
@@ -96,11 +103,11 @@ const MessageOptionsComponent = (props) => {
           </svg>
         </div>
       )}
-      {!threadList && channelConfig && channelConfig.replies && (
+      {shouldShowReplies && (
         <div
           onClick={propHandleOpenThread || handleOpenThread}
           data-testid="thread-action"
-          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--thread"
+          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
         >
           <svg width="14" height="10" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -110,7 +117,9 @@ const MessageOptionsComponent = (props) => {
           </svg>
         </div>
       )}
-      {<MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
+      {displayActions && (
+        <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
+      )}
     </div>
   );
 };

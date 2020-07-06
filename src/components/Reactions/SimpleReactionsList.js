@@ -52,7 +52,7 @@ const SimpleReactionsList = ({
     >
       {getReactionTypes().map((reactionType, i) => {
         const emojiDefinition = getOptionForType(reactionType);
-        return (
+        return emojiDefinition ? (
           <li
             className="str-chat__simple-reactions-list-item"
             key={`${emojiDefinition?.id}-${i}`}
@@ -60,6 +60,9 @@ const SimpleReactionsList = ({
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
               <NimbleEmoji
+                // emoji-mart type defs don't support spriteSheet use case
+                // (but implementation does)
+                // @ts-ignore
                 emoji={emojiDefinition}
                 {...emojiSetDef}
                 size={13}
@@ -75,7 +78,7 @@ const SimpleReactionsList = ({
               </div>
             )}
           </li>
-        );
+        ) : null;
       })}
       {reactions?.length !== 0 && (
         <li className="str-chat__simple-reactions-list-item--last-number">

@@ -13,7 +13,7 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 
 export interface ChatContextValue {
-  client?: Client.StreamChat | null;
+  client: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(
     channel: Client.Channel,
@@ -58,7 +58,7 @@ export interface ChannelContextValue extends ChatContextValue {
       | Client.MemberRemovedEvent
     )[];
   };
-  thread?: Client.MessageResponse | boolean;
+  thread?: Client.MessageResponse | null;
   threadMessages?: Client.MessageResponse[];
 
   multipleUploads?: boolean;
@@ -85,7 +85,7 @@ export interface ChannelContextValue extends ChatContextValue {
 
   loadMore?(): void;
   // thread related
-  closeThread?(event: React.SyntheticEvent): void;
+  closeThread(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
 
   /** Via Context: The function is called when the list scrolls */
@@ -334,6 +334,7 @@ export interface MessageListProps
   HeaderComponent?: React.ElementType;
   /** Component to render at the top of the MessageList */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   /** Turn off grouping of messages by user */
@@ -475,6 +476,7 @@ export interface AttachmentUIComponentProps {
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
 export interface MessageProps extends TranslationContextValue {
+  addNotification?(notificationText: string, type: string): any;
   /** The message object */
   message?: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
@@ -533,7 +535,6 @@ export interface MessageComponentProps
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  addNotification?(notificationText: string, type: string): any;
   retrySendMessage?(message: Client.Message): void;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -568,7 +569,7 @@ export interface MessageUIComponentProps
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfigWithInfo;
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
@@ -707,22 +708,22 @@ export interface CardProps extends TranslationContextValue {
 }
 
 export interface ChatAutoCompleteProps {
-  rows: number;
-  grow: boolean;
-  maxRows: number;
-  disabled: boolean;
-  value: string;
+  rows?: number;
+  grow?: boolean;
+  maxRows?: number;
+  disabled?: boolean;
+  value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
-  placeholder: string;
+  placeholder?: string;
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  minChar: number;
-  users: Client.UserResponse[];
+  minChar?: number;
   onSelectItem?(item: any): any;
-  commands: Client.CommandResponse[];
+  commands?: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
+  innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
 }
 
 export interface ChatDownProps extends TranslationContextValue {
@@ -746,7 +747,6 @@ export interface EmoticonItemProps {
   entity: {
     name: string;
     native: string;
-    char: string;
   };
 }
 
@@ -852,7 +852,7 @@ export interface MessageRepliesCountButtonProps
   onClick?: React.MouseEventHandler;
 }
 export interface ModalProps {
-  onClose(): void;
+  onClose?(): void;
   open: boolean;
 }
 export interface SafeAnchorProps {}
@@ -980,19 +980,40 @@ export class MessageCommerce extends React.PureComponent<
 > {}
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
-export type MessageLivestreamState = {
-  actionsBoxOpen: boolean;
-  reactionSelectorOpen: boolean;
-};
-export class MessageLivestream extends React.PureComponent<
-  MessageLivestreamProps,
-  MessageLivestreamState
-> {}
+export interface MessageLivestreamActionProps {
+  initialMessage?: boolean;
+  message?: Client.MessageResponse;
+  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
+  threadList?: boolean;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  onReactionListClick?: () => void;
+  getMessageActions(): Array<string>;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  setEditingState?(message: Client.MessageResponse): any;
+}
+export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {
   actionsBoxOpen: boolean;
   reactionSelectorOpen: boolean;
 };
 export interface MessageTeamProps extends MessageUIComponentProps {}
+export interface MessageTeamAttachmentsProps {
+  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  message?: Client.MessageResponse;
+  handleAction?(
+    name: string,
+    value: string,
+    event: React.BaseSyntheticEvent,
+  ): void;
+}
+export interface MessageTeamStatusProps {
+  t?: i18next.TFunction;
+  threadList?: boolean;
+  lastReceivedId?: string | null;
+  message?: Client.MessageResponse;
+  readBy?: Array<Client.UserResponse>;
+}
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   MessageTeamState
@@ -1001,8 +1022,10 @@ export class MessageTeam extends React.PureComponent<
 export interface MessageSimpleProps extends MessageUIComponentProps {}
 export interface MessageTextProps extends MessageSimpleProps {
   customOptionProps?: Partial<MessageOptionsProps>;
+  customInnerClass?: string;
   customWrapperClass?: string;
   onReactionListClick?: () => void;
+  theme?: string;
   showDetailedReactions?: boolean;
   messageWrapperRef?: React.RefObject<HTMLElement>;
 }
@@ -1023,6 +1046,13 @@ export interface MessageActionsProps {
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
+  inline?: boolean;
+  customWrapperClass?: string;
+}
+export interface MessageActionsWrapperProps {
+  customWrapperClass?: string;
+  inline?: boolean;
+  setActionsBoxOpen: (actionsBoxOpen: boolean) => void;
 }
 
 export interface MessageOptionsProps {

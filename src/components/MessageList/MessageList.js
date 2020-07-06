@@ -1,4 +1,7 @@
-/* eslint-disable */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-continue */
+/* eslint-disable sonarjs/no-duplicate-string */
+/* eslint-disable sonarjs/cognitive-complexity */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'deep-equal';
@@ -8,15 +11,16 @@ import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
 import { MESSAGE_ACTIONS } from '../Message/utils';
+import { smartRender } from '../../utils';
+
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
-import { Message } from '../Message';
-import { EmptyStateIndicator } from '../EmptyStateIndicator';
+import { Message, MessageSimple } from '../Message';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
-import { MessageSimple } from '../Message';
-import { LoadingIndicator } from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
-import { DateSeparator } from '../DateSeparator';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /**
@@ -41,138 +45,9 @@ class MessageList extends PureComponent {
     this.messageRefs = {};
     this.notificationTimeouts = [];
   }
-  static propTypes = {
-    /**
-     * Typing indicator UI component to render
-     *
-     * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
-     * */
-    TypingIndicator: PropTypes.elementType,
-    /**
-     * Date separator UI component to render
-     *
-     * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
-     * */
-    dateSeparator: PropTypes.elementType,
-    /** Turn off grouping of messages by user */
-    noGroupByUser: PropTypes.bool,
-    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-    unsafeHTML: PropTypes.bool,
-    /** Set the limit to use when paginating messages */
-    messageLimit: PropTypes.number,
-    /**
-     * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
-     * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-     * */
-    messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-    /**
-     * Boolean weather current message list is a thread.
-     */
-    threadList: PropTypes.bool,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageErrorNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserErrorNotification: PropTypes.func,
-    /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-    client: PropTypes.object,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Attachment: PropTypes.elementType,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Message: PropTypes.elementType,
-    /**
-     * Custom UI component to display system messages.
-     *
-     * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
-     */
-    MessageSystem: PropTypes.elementType,
-    /**
-     * The UI Indicator to use when MessagerList or ChannelList is empty
-     * */
-    EmptyStateIndicator: PropTypes.elementType,
-    /**
-     * Component to render at the top of the MessageList
-     * */
-    HeaderComponent: PropTypes.elementType,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    messages: PropTypes.array.isRequired,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    channel: PropTypes.object.isRequired,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    updateMessage: PropTypes.func.isRequired,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    retrySendMessage: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    removeMessage: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    onMentionsClick: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    onMentionsHover: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    openThread: PropTypes.func,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    members: PropTypes.object,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    watchers: PropTypes.object,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    read: PropTypes.object,
-    /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    typing: PropTypes.object,
-    /**
-     * Additional props for underlying MessageInput component. We have instance of MessageInput
-     * component in MessageSimple component, for handling edit state.
-     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-     * */
-    additionalMessageInputProps: PropTypes.object,
-  };
 
-  static defaultProps = {
-    Message: MessageSimple,
-    MessageSystem: EventComponent,
-    threadList: false,
-    Attachment,
-    dateSeparator: DateSeparator,
-    EmptyStateIndicator,
-    unsafeHTML: false,
-    noGroupByUser: false,
-    messageActions: Object.keys(MESSAGE_ACTIONS),
-  };
-
-  connectionChanged = (event) => {
-    if (this.state.online !== event.online) {
-      this.setState({ online: event.online });
-    }
+  connectionChanged = ({ online }) => {
+    if (this.state.online !== online) this.setState({ online });
   };
 
   componentDidMount() {
@@ -193,9 +68,7 @@ class MessageList extends PureComponent {
     this.props.client.off('connection.changed', this.connectionChanged);
 
     document.removeEventListener('keydown', this.keypress);
-    this.notificationTimeouts.forEach((ct) => {
-      clearTimeout(ct);
-    });
+    this.notificationTimeouts.forEach(clearTimeout);
   }
 
   getSnapshotBeforeUpdate(prevProps) {
@@ -244,7 +117,7 @@ class MessageList extends PureComponent {
       this.scrollToBottom();
 
       // remove the scroll notification if we already scrolled down...
-      this.state.newMessagesNotification &&
+      if (this.state.newMessagesNotification)
         this.setState({ newMessagesNotification: false });
 
       return;
@@ -282,14 +155,15 @@ class MessageList extends PureComponent {
   };
 
   _scrollToRef = (el, parent) => {
-    function scrollDown() {
+    const scrollDown = () => {
       if (el && el.current && parent && parent.current) {
         this.scrollToTarget(el.current, parent.current);
       }
-    }
-    scrollDown.call(this);
+    };
+
+    scrollDown();
     // scroll down after images load again
-    setTimeout(scrollDown.bind(this), 200);
+    setTimeout(scrollDown, 200);
   };
 
   /**
@@ -299,34 +173,28 @@ class MessageList extends PureComponent {
    */
   scrollToTarget = (target, containerEl) => {
     // Moved up here for readability:
-    const isElement = target && target.nodeType === 1,
-      isNumber = Object.prototype.toString.call(target) === '[object Number]';
+    const isElement = target && target.nodeType === 1;
+    const isNumber =
+      Object.prototype.toString.call(target) === '[object Number]';
 
-    if (isElement) {
-      containerEl.scrollTop = target.offsetTop;
-    } else if (isNumber) {
-      containerEl.scrollTop = target;
-    } else if (target === 'bottom') {
-      containerEl.scrollTop =
-        containerEl.scrollHeight - containerEl.offsetHeight;
-    } else if (target === 'top') {
-      containerEl.scrollTop = 0;
-    }
+    let scrollTop;
+    if (isElement) scrollTop = target.offsetTop;
+    else if (isNumber) scrollTop = target;
+    else if (target === 'top') scrollTop = 0;
+    else if (target === 'bottom')
+      scrollTop = containerEl.scrollHeight - containerEl.offsetHeight;
+
+    if (scrollTop !== undefined) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
   };
 
   setEditingState = (message) => {
-    this.setState({
-      editing: message.id,
-    });
+    this.setState({ editing: message.id });
   };
 
   clearEditingState = (e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
-    this.setState({
-      editing: '',
-    });
+    if (e && e.preventDefault) e.preventDefault();
+
+    this.setState({ editing: '' });
   };
 
   insertDates = (messages) => {
@@ -371,10 +239,7 @@ class MessageList extends PureComponent {
     const newMessages = messages || [];
     // if no headerPosition is set, HeaderComponent will go at the top
     if (!this.props.headerPosition) {
-      newMessages.unshift({
-        type: 'channel.intro',
-        // created_at: new Date(0),
-      });
+      newMessages.unshift({ type: 'channel.intro' });
       return newMessages;
     }
 
@@ -418,27 +283,22 @@ class MessageList extends PureComponent {
     return newMessages;
   };
 
-  goToNewMessages = async () => {
-    await this.scrollToBottom();
-    this.setState({
-      newMessagesNotification: false,
-    });
+  goToNewMessages = () => {
+    this.scrollToBottom();
+    this.setState({ newMessagesNotification: false });
   };
 
   getReadStates = (messages) => {
     // create object with empty array for each message id
     const readData = {};
-    for (const message of messages) {
-      if (!message || !message.id) {
-        continue;
-      }
+    messages.forEach((message) => {
+      if (!message || !message.id) return;
       readData[message.id] = [];
-    }
+    });
 
-    for (const readState of Object.values(this.props.read)) {
-      if (readState.last_read == null) {
-        break;
-      }
+    Object.values(this.props.read).forEach((readState) => {
+      if (readState.last_read == null) return;
+
       let userLastReadMsgId;
       for (const msg of messages) {
         if (msg.updated_at < readState.last_read) {
@@ -451,7 +311,7 @@ class MessageList extends PureComponent {
           readState.user,
         ];
       }
-    }
+    });
 
     return readData;
   };
@@ -461,35 +321,23 @@ class MessageList extends PureComponent {
   listenToScroll = (offset) => {
     this.scrollOffset = offset;
     if (this.state.newMessagesNotification && !this.userScrolledUp()) {
-      this.setState({
-        newMessagesNotification: false,
-      });
+      this.setState({ newMessagesNotification: false });
     }
   };
 
   getLastReceived = (messages) => {
-    const l = messages.length;
-    let lastReceivedId = null;
-    for (let i = l; i > 0; i--) {
-      if (
-        messages[i] !== undefined &&
-        messages[i].status !== undefined &&
-        messages[i].status === 'received'
-      ) {
-        lastReceivedId = messages[i].id;
-        break;
+    for (let i = messages.length; i > 0; i -= 1) {
+      if (messages[i] && messages[i].status === 'received') {
+        return messages[i].id;
       }
     }
-    return lastReceivedId;
+    return null;
   };
 
-  getGroupStyles = (m) => {
-    const l = m.length;
+  getGroupStyles = (messages) => {
     const messageGroupStyles = {};
 
-    const messages = [...m];
-
-    for (let i = 0; i < l; i++) {
+    for (let i = 0, l = messages; i < l; i += 1) {
       const previousMessage = messages[i - 1];
       const message = messages[i];
       const nextMessage = messages[i + 1];
@@ -578,7 +426,7 @@ class MessageList extends PureComponent {
     if (tagName === 'strong' && textContent[0] === '@') {
       const userName = textContent.replace('@', '');
       const user = mentioned_users.find(
-        (user) => user.name === userName || user.id === userName,
+        (u) => u.name === userName || u.id === userName,
       );
       if (this.props.onMentionsHover && e.type === 'mouseover') {
         this.props.onMentionsHover(e, user);
@@ -600,38 +448,29 @@ class MessageList extends PureComponent {
     if (typeof notificationText !== 'string') return;
     if (type !== 'success' && type !== 'error') return;
 
-    const nextIndex = uuidv4();
+    const id = uuidv4();
 
-    const newNotifications = [...this.state.notifications];
-    newNotifications.push({
-      id: nextIndex,
-      text: notificationText,
-      type,
-    });
-    this.setState({
-      notifications: newNotifications,
-    });
+    this.setState(({ notifications }) => ({
+      notifications: [...notifications, { id, text: notificationText, type }],
+    }));
 
     // remove the notification after 5000 ms
-    const ct = setTimeout(() => {
-      const index = this.state.notifications.findIndex((notification) => {
-        if (notification.id === nextIndex) return true;
-        return false;
-      });
-      const newNotifications = [...this.state.notifications];
-      newNotifications.splice(index, 1);
-      this.setState({
-        notifications: newNotifications,
-      });
-    }, 5000);
+    const ct = setTimeout(
+      () =>
+        this.setState(({ notifications }) => ({
+          notifications: notifications.filter((n) => n.id !== id),
+        })),
+      5000,
+    );
 
     this.notificationTimeouts.push(ct);
   };
 
-  _loadMore = () =>
-    this.props.messageLimit
+  _loadMore = () => {
+    return this.props.messageLimit
       ? this.props.loadMore(this.props.messageLimit)
       : this.props.loadMore();
+  };
 
   _onMessageLoadCaptured = () => {
     // A load event (emitted by e.g. an <img>) was captured on a message.
@@ -641,19 +480,18 @@ class MessageList extends PureComponent {
     }
   };
 
-  // eslint-disable-next-line
   render() {
     let allMessages = [...this.props.messages];
-    const MessageSystem = this.props.MessageSystem;
+    const { MessageSystem, LoadingIndicator } = this.props;
     allMessages = this.insertDates(allMessages);
     if (this.props.HeaderComponent) {
       allMessages = this.insertIntro(allMessages);
     }
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
+    const DateSeparator = this.props.DateSeparator || this.props.dateSeparator; // backward compatibility
     const {
       TypingIndicator,
-      dateSeparator: DateSeparator,
       HeaderComponent,
       EmptyStateIndicator,
       t,
@@ -673,17 +511,17 @@ class MessageList extends PureComponent {
     const elements = [];
 
     // loop over the messages
-    for (const message of allMessages) {
+    allMessages.forEach((message) => {
       if (message.id) {
         this.messageRefs[message.id] = React.createRef();
       }
 
       if (message.type === 'message.date') {
         if (this.props.threadList) {
-          continue;
+          return;
         }
         elements.push(
-          <li key={message.date.toISOString() + '-i'}>
+          <li key={`${message.date.toISOString()}-i`}>
             <DateSeparator date={message.date} />
           </li>,
         );
@@ -697,10 +535,11 @@ class MessageList extends PureComponent {
         message.type === 'channel.event' ||
         message.type === 'system'
       ) {
-        MessageSystem &&
+        if (MessageSystem)
           elements.push(
             <li
               key={
+                // eslint-disable-next-line no-nested-ternary
                 message.type === 'system'
                   ? message.created_at
                   : message.type === 'channel.event'
@@ -774,7 +613,8 @@ class MessageList extends PureComponent {
           </li>,
         );
       }
-    }
+    });
+
     return (
       <React.Fragment>
         <div
@@ -795,7 +635,7 @@ class MessageList extends PureComponent {
               useWindow={false}
               loader={
                 <Center key="loadingindicator">
-                  <LoadingIndicator size={20} />
+                  {smartRender(LoadingIndicator, { size: 20 }, null)}
                 </Center>
               }
               className="str-chat__reverse-infinite-scroll"
@@ -838,5 +678,138 @@ class MessageList extends PureComponent {
     );
   }
 }
+
+MessageList.propTypes = {
+  /**
+   * Typing indicator UI component to render
+   *
+   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
+   * */
+  TypingIndicator: PropTypes.elementType,
+  /**
+   * Date separator UI component to render
+   *
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
+   * */
+  dateSeparator: PropTypes.elementType,
+  /** Turn off grouping of messages by user */
+  noGroupByUser: PropTypes.bool,
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML: PropTypes.bool,
+  /** Set the limit to use when paginating messages */
+  messageLimit: PropTypes.number,
+  /**
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+   * */
+  messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+  /**
+   * Boolean weather current message list is a thread.
+   */
+  threadList: PropTypes.bool,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserErrorNotification: PropTypes.func,
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  client: PropTypes.object,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  Attachment: PropTypes.elementType,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  Message: PropTypes.elementType,
+  /**
+   * Custom UI component to display system messages.
+   *
+   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
+   */
+  MessageSystem: PropTypes.elementType,
+  /**
+   * The UI Indicator to use when MessagerList or ChannelList is empty
+   * */
+  EmptyStateIndicator: PropTypes.elementType,
+  /**
+   * Component to render at the top of the MessageList
+   * */
+  HeaderComponent: PropTypes.elementType,
+  /**
+   * Component to render at the top of the MessageList while loading new messages
+   * */
+  LoadingIndicator: PropTypes.elementType,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  messages: PropTypes.array.isRequired,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  channel: PropTypes.object.isRequired,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  updateMessage: PropTypes.func.isRequired,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  retrySendMessage: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  removeMessage: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  onMentionsClick: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  onMentionsHover: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  openThread: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  members: PropTypes.object,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  watchers: PropTypes.object,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  read: PropTypes.object,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  typing: PropTypes.object,
+  /**
+   * Additional props for underlying MessageInput component. We have instance of MessageInput
+   * component in MessageSimple component, for handling edit state.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
+  additionalMessageInputProps: PropTypes.object,
+};
+
+MessageList.defaultProps = {
+  Message: MessageSimple,
+  MessageSystem: EventComponent,
+  threadList: false,
+  Attachment,
+  DateSeparator: DefaultDateSeparator,
+  LoadingIndicator: DefaultLoadingIndicator,
+  EmptyStateIndicator: DefaultEmptyStateIndicator,
+  unsafeHTML: false,
+  noGroupByUser: false,
+  messageActions: Object.keys(MESSAGE_ACTIONS),
+};
 
 export default withChannelContext(withTranslationContext(MessageList));

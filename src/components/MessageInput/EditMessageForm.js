@@ -35,7 +35,6 @@ const EditMessageForm = (props) => {
           <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} small />
           <ChatAutoComplete
-            users={messageInput.getUsers()}
             commands={messageInput.getCommands()}
             innerRef={messageInput.textareaRef}
             handleSubmit={messageInput.handleSubmit}

@@ -72,7 +72,6 @@ const MessageInputLarge = (props) => {
           <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
             <ChatAutoComplete
-              users={messageInput.getUsers()}
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}

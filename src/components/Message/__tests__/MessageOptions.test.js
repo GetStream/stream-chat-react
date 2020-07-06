@@ -42,6 +42,7 @@ async function renderMessageOptions(customProps, channelConfig) {
 }
 const threadActionTestId = 'thread-action';
 const reactionActionTestId = 'message-reaction-action';
+const messageOptionsTestId = 'message-options';
 describe('<MessageOptions />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render message options when there is no message set', async () => {
@@ -137,6 +138,40 @@ describe('<MessageOptions />', () => {
     expect(MessageActionsMock).toHaveBeenCalledWith(
       expect.objectContaining(defaultProps),
       {},
+    );
+  });
+
+  it('should not render message with "left-to-the-bubble" style if displayLeft is false', async () => {
+    const message = generateAliceMessage();
+    const { queryByTestId } = await renderMessageOptions({
+      message,
+      displayLeft: false,
+    });
+    expect(queryByTestId('message-options-left')).toBeNull();
+  });
+
+  it('should not render message thread actinos if displayReplies is false', async () => {
+    const { queryByTestId } = await renderMessageOptions(
+      {
+        displayReplies: false,
+      },
+      {
+        replies: true,
+      },
+    );
+    expect(queryByTestId(threadActionTestId)).toBeNull();
+  });
+
+  it('should render css classes with corresonding theme when it is set', async () => {
+    const { queryByTestId } = await renderMessageOptions(
+      { theme: 'custom' },
+      { reactions: true },
+    );
+    expect(queryByTestId(messageOptionsTestId).className).toContain(
+      'str-chat__message-custom__actions',
+    );
+    expect(queryByTestId(reactionActionTestId).className).toContain(
+      'str-chat__message-custom__actions__action',
     );
   });
 });

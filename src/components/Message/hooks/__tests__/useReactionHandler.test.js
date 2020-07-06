@@ -105,12 +105,13 @@ describe('useReactionHandler custom hook', () => {
 function renderUseReactionClickHook(
   message = generateMessage(),
   reactionListRef = React.createRef(),
+  messageWrapperRef = React.createRef(),
 ) {
   const wrapper = ({ children }) => {
     return <div>{children}</div>;
   };
   const { result, rerender } = renderHook(
-    () => useReactionClick(reactionListRef, message),
+    () => useReactionClick(reactionListRef, message, messageWrapperRef),
     { wrapper },
   );
   return { result, rerender };
@@ -162,6 +163,24 @@ describe('useReactionClick custom hook', () => {
     addEventListenerSpy.mockRestore();
   });
 
+  it('should set event listener to message wrapper reference when one is set', () => {
+    const mockMessageWrapperReference = {
+      current: {
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      },
+    };
+    const { result } = renderUseReactionClickHook(
+      generateMessage(),
+      React.createRef(),
+      mockMessageWrapperReference,
+    );
+    act(() => result.current.onReactionListClick());
+    expect(
+      mockMessageWrapperReference.current.addEventListener,
+    ).toHaveBeenCalledWith('mouseleave', expect.any(Function));
+  });
+
   it('should not close reaction list on document click when click is on the reaction list itself', () => {
     const message = generateMessage();
     const reactionSelectorEl = document.createElement('div');
@@ -172,7 +191,7 @@ describe('useReactionClick custom hook', () => {
       target: reactionSelectorEl,
     };
     const { result } = renderUseReactionClickHook(message, {
-      current: { reactionSelector: { current: reactionListElement } },
+      current: reactionListElement,
     });
     let onDocumentClick;
     const addEventListenerSpy = jest
