@@ -210,6 +210,7 @@ export default function useMessageInputState(props) {
     parent,
     noFiles,
     errorHandler,
+    publishTypingEvent,
   } = props;
 
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
@@ -288,11 +289,11 @@ export default function useMessageInputState(props) {
         type: 'setText',
         getNewText: () => newText,
       });
-      if (newText && channel) {
+      if (publishTypingEvent && newText && channel) {
         logChatPromiseExecution(channel.keystroke(), 'start typing event');
       }
     },
-    [channel],
+    [channel, publishTypingEvent],
   );
 
   // Emoji
@@ -468,7 +469,8 @@ export default function useMessageInputState(props) {
       logChatPromiseExecution(sendMessagePromise, 'send message');
       dispatch({ type: 'clear' });
     }
-    if (channel) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
+    if (channel && publishTypingEvent)
+      logChatPromiseExecution(channel.stopTyping(), 'stop typing');
   };
 
   // Attachments

@@ -120,6 +120,8 @@ MessageInputSmall.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    */
@@ -145,6 +147,7 @@ MessageInputSmall.propTypes = {
 MessageInputSmall.defaultProps = {
   focus: false,
   disabled: false,
+  publishTypingEvent: true,
   grow: true,
   maxRows: 10,
   SendButton: SendButtonComponent,
