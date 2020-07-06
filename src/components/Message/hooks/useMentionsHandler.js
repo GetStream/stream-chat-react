@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
-/** @type {(fn: Function | undefined, message: import('stream-chat').MessageResponse | undefined) => Handler} * */
+/** @type {(fn: Function | undefined, message: import('stream-chat').MessageResponse | null | undefined) => Handler} * */
 function createEventHandler(fn, message) {
   return (e) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
@@ -14,7 +14,7 @@ function createEventHandler(fn, message) {
 
 /**
  * @typedef {React.EventHandler<React.SyntheticEvent>} Handler
- * @typedef { import('stream-chat').MessageResponse | undefined } Message
+ * @typedef { import('stream-chat').MessageResponse | null | undefined } Message
  * @typedef { (event: React.MouseEvent, user: import('stream-chat').UserResponse[] ) => void } CustomMentionHandler
  * @type {(
  *   message: Message,

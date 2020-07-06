@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined, setEditingState: import('types').MessageComponentProps['setEditingState']) =>  (event: React.MouseEvent<HTMLElement>) => void}
+ * @type {(message: import('stream-chat').MessageResponse | null | undefined, setEditingState: import('types').MessageComponentProps['setEditingState']) =>  (event: React.MouseEvent<HTMLElement>) => void}
  */
 export const useEditHandler = (message, setEditingState) => {
   return (event) => {

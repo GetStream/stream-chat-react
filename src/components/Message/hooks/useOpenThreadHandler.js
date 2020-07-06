@@ -4,7 +4,7 @@ import { ChannelContext } from '../../../context';
 
 /**
  * @type {(
- *   message: import('stream-chat').MessageResponse | undefined,
+ *   message: import('stream-chat').MessageResponse | null | undefined,
  *   customOpenThread?: (message: import('stream-chat').MessageResponse, event: React.SyntheticEvent) => void
  * ) => (event: React.SyntheticEvent) => void}
  */

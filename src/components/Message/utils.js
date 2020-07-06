@@ -21,7 +21,7 @@ export const validateAndGetMessage = (func, args) => {
 /**
  * Tell if the owner of the current message is muted
  *
- * @type {(message?: import('stream-chat').MessageResponse, mutes?: import('stream-chat').Mute[]) => boolean}
+ * @type {(message?: import('stream-chat').MessageResponse | null, mutes?: import('stream-chat').Mute[]) => boolean}
  */
 export const isUserMuted = (message, mutes) => {
   if (!mutes || !message) {
@@ -114,18 +114,18 @@ export const shouldMessageComponentUpdate = (props, nextProps) => {
   return !areMessagePropsEqual(props, nextProps);
 };
 
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
+/** @type {(message?: import('stream-chat').MessageResponse | null) => boolean} */
 export const messageHasReactions = (message) => {
   return !!message?.latest_reactions && !!message.latest_reactions.length;
 };
 
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
+/** @type {(message?: import('stream-chat').MessageResponse | null) => boolean} */
 export const messageHasAttachments = (message) => {
   return !!message?.attachments && !!message.attachments.length;
 };
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
+ * @type {(message?: import('stream-chat').MessageResponse | null) => import('stream-chat').Attachment[] }
  */
 export const getImages = (message) => {
   if (!message?.attachments) {
@@ -138,7 +138,7 @@ export const getImages = (message) => {
 };
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
+ * @type {(message?: import('stream-chat').MessageResponse | null) => import('stream-chat').Attachment[] }
  */
 export const getNonImageAttachments = (message) => {
   if (!message?.attachments) {
