@@ -337,7 +337,7 @@ class MessageList extends PureComponent {
   getGroupStyles = (messages) => {
     const messageGroupStyles = {};
 
-    for (let i = 0, l = messages; i < l; i += 1) {
+    for (let i = 0, l = messages.length; i < l; i += 1) {
       const previousMessage = messages[i - 1];
       const message = messages[i];
       const nextMessage = messages[i + 1];
