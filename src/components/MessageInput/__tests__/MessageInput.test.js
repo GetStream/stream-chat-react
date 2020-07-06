@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { cleanup, render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -33,6 +33,14 @@ let channel;
 const submitMock = jest.fn();
 const editMock = jest.fn();
 
+const ActiveChannelSetter = ({ activeChannel }) => {
+  const { setActiveChannel } = useContext(ChatContext);
+  useEffect(() => {
+    setActiveChannel(activeChannel);
+  });
+  return null;
+};
+
 [
   { InputComponent: MessageInputLarge, name: 'MessageInputLarge' },
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
@@ -45,17 +53,11 @@ const editMock = jest.fn();
     // Which relies on ChatContext, created by Chat component.
     const renderResult = render(
       <Chat client={chatClient}>
+        <ActiveChannelSetter activeChannel={channel} />
         <Channel
-          channel={channel}
           doSendMessageRequest={submitMock}
           doUpdateMessageRequest={editMock}
         >
-          <ChatContext.Consumer>
-            {({ setActiveChannel }) => {
-              if (channel) setActiveChannel(channel);
-              return null;
-            }}
-          </ChatContext.Consumer>
           <MessageInput Input={InputComponent} {...props} />
         </Channel>
       </Chat>,
