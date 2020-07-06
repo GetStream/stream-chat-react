@@ -23,7 +23,7 @@ export const SUPPORTED_VIDEO_FORMATS = [
  * Attachment - The message attachment
  *
  * @example ../../docs/Attachment.md
- * @extends PureComponent
+ * @type {React.FC<import('types').AttachmentUIComponentProps>}
  */
 const Attachment = (props) => {
   const { attachment } = props;

@@ -30,10 +30,12 @@ export interface ChatContextValue {
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-  messages?: Client.MessageResponse[];
+  messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
   online?: boolean;
   typing?: SeamlessImmutable.Immutable<{
-    [user_id: string]: Client.Event<Client.TypingStartEvent>;
+    [user_id: string]: SeamlessImmutable.Immutable<
+      Client.Event<Client.TypingStartEvent>
+    >;
   }>;
   watcher_count?: number;
   watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
@@ -44,7 +46,7 @@ export interface ChannelContextValue extends ChatContextValue {
       user: Client.UserResponse;
     }>;
   };
-  error?: boolean | Error;
+  error?: Error | null;
   // Loading the intial content of the channel
   loading?: boolean;
   // Loading more messages
@@ -58,8 +60,8 @@ export interface ChannelContextValue extends ChatContextValue {
       | Client.MemberRemovedEvent
     )[];
   };
-  thread?: Client.MessageResponse | null;
-  threadMessages?: Client.MessageResponse[];
+  thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
+  threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
 
   multipleUploads?: boolean;
   acceptedFiles?: string[];
@@ -118,15 +120,16 @@ export interface ChannelProps
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  EmptyPlaceholder?: React.ReactElement;
   mutes?: Client.Mute[];
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
 
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsClick?(e: React.MouseEvent, user?: Client.UserResponse): void;
   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(e: React.MouseEvent, user: Client.UserResponse): void;
+  onMentionsHover?(e: React.MouseEvent, user?: Client.UserResponse): void;
 
   /** Override send message request (Advanced usage only) */
   doSendMessageRequest?(
@@ -137,7 +140,7 @@ export interface ChannelProps
   doUpdateMessageRequest?(
     channelId: string,
     updatedMessage: Client.Message,
-  ): Promise<Client.MessageResponse> | void;
+  ): Promise<Client.UpdateMessageAPIResponse> | void;
 }
 
 export interface ChannelListProps extends ChatContextValue {

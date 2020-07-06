@@ -218,18 +218,6 @@ class MessageList extends PureComponent {
       } else {
         newMessages.push(message);
       }
-
-      const eventsNextToMessage = this.props.eventHistory[
-        message.id || 'first'
-      ];
-      if (eventsNextToMessage && eventsNextToMessage.length > 0) {
-        eventsNextToMessage.forEach((e) => {
-          newMessages.push({
-            type: 'channel.event',
-            event: e,
-          });
-        });
-      }
     }
 
     return newMessages;
