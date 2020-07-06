@@ -478,9 +478,11 @@ export interface AttachmentUIComponentProps {
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
 export interface MessageProps extends TranslationContextValue {
+  initialMessage?: boolean;
+  threadList?: boolean;
   addNotification?(notificationText: string, type: string): any;
   /** The message object */
-  message?: Client.MessageResponse;
+  message?: Client.MessageResponse | null;
   /** The client connection object for connecting to Stream */
   client?: Client.StreamChat;
   /** A list of users that have read this message **/
@@ -550,7 +552,7 @@ export interface MessageComponentProps
 export interface MessageUIComponentProps
   extends MessageProps,
     TranslationContextValue {
-  actionsEnabled?: boolean;
+  actionsEnabled?: null | boolean;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
   handleDelete?(event?: React.BaseSyntheticEvent): void;
@@ -572,9 +574,7 @@ export interface MessageUIComponentProps
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
   channelConfig?: Client.ChannelConfigWithInfo;
-  threadList?: boolean;
   additionalMessageInputProps?: object;
-  initialMessage?: boolean;
 }
 
 export interface MessageDeletedProps extends TranslationContextValue {
@@ -1013,7 +1013,7 @@ export interface MessageTeamStatusProps {
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
-  message?: Client.MessageResponse;
+  message?: Client.MessageResponse | null;
   readBy?: Array<Client.UserResponse>;
 }
 export class MessageTeam extends React.PureComponent<
@@ -1046,7 +1046,7 @@ export interface MessageActionsProps {
   getMuteUserErrorNotification?(message: MessageResponse): string;
   setEditingState?(message: Client.MessageResponse): any;
   messageListRect?: DOMRect;
-  message?: Client.MessageResponse;
+  message?: Client.MessageResponse | null;
   messageWrapperRef?: React.RefObject<HTMLElement>;
   inline?: boolean;
   customWrapperClass?: string;
@@ -1061,7 +1061,7 @@ export interface MessageOptionsProps {
   getMessageActions(): Array<string>;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   initialMessage?: boolean;
-  message?: Client.MessageResponse;
+  message?: Client.MessageResponse | null;
   messageWrapperRef?: React.RefObject<HTMLElement>;
   onReactionListClick?: () => void;
   threadList?: boolean;
