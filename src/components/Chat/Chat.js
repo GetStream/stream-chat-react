@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import { ChatContext, TranslationContext } from '../../context';
-import { Streami18n } from '../../Streami18n';
+import { Streami18n } from '../../i18n';
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
