@@ -70,7 +70,10 @@ const Message = (props) => {
     getSuccessNotification: getMuteUserSuccessNotification,
     getErrorNotification: getMuteUserErrorNotification,
   });
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
+  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
   const { onUserClick, onUserHover } = useUserHandler(
     {
       onUserClickHandler: propOnUserClick,
@@ -117,8 +120,8 @@ const Message = (props) => {
         isUserMuted={() => isMuted}
         isMyMessage={() => isMyMessage}
         channelConfig={channelConfig}
-        onMentionsClickMessage={propOnMentionsClick || onMentionsClick}
-        onMentionsHoverMessage={propOnMentionsHover || onMentionsHover}
+        onMentionsClickMessage={onMentionsClick}
+        onMentionsHoverMessage={onMentionsHover}
         onUserClick={onUserClick}
         onUserHover={onUserHover}
       />

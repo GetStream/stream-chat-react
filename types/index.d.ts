@@ -535,7 +535,7 @@ export interface MessageComponentProps
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string>;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  retrySendMessage?(message: Client.Message): void;
+  retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
   openThread?(
