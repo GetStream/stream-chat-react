@@ -81,7 +81,7 @@ const normalBundle = {
     'emoji-mart/css/emoji-mart.css',
     'react-dropzone',
     'react-markdown',
-    'deep-equal',
+    'react-fast-compare',
     'shallow-diff',
     'immutable',
     'url-parse',

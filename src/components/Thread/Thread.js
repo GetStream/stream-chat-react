@@ -1,4 +1,3 @@
-/* eslint-disable */
 // @ts-check
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -21,7 +20,7 @@ import { MessageInput, MessageInputSmall } from '../MessageInput';
  * @typedef { import('../../../types').ThreadProps } Props
  * @extends PureComponent<Props, any>
  */
-class Thread extends React.PureComponent {
+class Thread extends PureComponent {
   static propTypes = {
     /** Display the thread on 100% width of it's container. Useful for mobile style view */
     fullWidth: PropTypes.bool,
@@ -116,7 +115,7 @@ class ThreadInner extends React.PureComponent {
     this.messageList = React.createRef();
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { thread, loadMoreThread } = this.props;
     const parentID = thread && thread.id;
     if (parentID && thread?.reply_count && loadMoreThread) {
@@ -134,7 +133,7 @@ class ThreadInner extends React.PureComponent {
       prevProps.threadMessages.length < this.props.threadMessages.length
     ) {
       const list = this.messageList.current;
-      return list.scrollHeight - list.scrollTop;
+      return list.clientHeight + list.scrollTop === list.scrollHeight;
     }
     return null;
   }
@@ -144,7 +143,7 @@ class ThreadInner extends React.PureComponent {
    * @param {any} prevState
    * @param {number} snapshot
    */
-  async componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { thread, threadMessages, loadMoreThread } = this.props;
     const parentID = thread?.id;
 
@@ -162,10 +161,9 @@ class ThreadInner extends React.PureComponent {
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)
     if (snapshot !== null) {
-      const list = this.messageList.current;
-
       const scrollDown = () => {
-        list.scrollTop = list.scrollHeight - snapshot;
+        const list = this.messageList.current;
+        if (snapshot) list.scrollTop = list.scrollHeight;
       };
       scrollDown();
       // scroll down after images load again
@@ -236,9 +234,10 @@ class ThreadInner extends React.PureComponent {
           />
         </div>
         {smartRender(this.props.MessageInput, {
-          MessageInputSmall,
+          Input: MessageInputSmall,
           parent: this.props.thread,
           focus: this.props.autoFocus,
+          publishTypingEvent: false,
           ...this.props.additionalMessageInputProps,
         })}
       </div>

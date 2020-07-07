@@ -368,6 +368,8 @@ export interface MessageInputProps {
   focus?: boolean;
   /** Disable input */
   disabled?: boolean;
+  /** enable/disable firing the typing event */
+  publishTypingEvent?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
   /** Max number of rows the textarea is allowed to grow */

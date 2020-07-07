@@ -7,7 +7,6 @@ import React, {
   useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
 import { NimbleEmoji } from 'emoji-mart';
 import { Avatar } from '../Avatar';
 
@@ -151,6 +150,8 @@ const ReactionSelectorWithRef = (
                 </React.Fragment>
               )}
               <NimbleEmoji
+                // @ts-ignore because emoji-mart types don't support specifying
+                // spriteUrl instead of imageUrl, while the implementation does
                 emoji={reactionOption}
                 {...emojiSetDef}
                 data={emojiData}

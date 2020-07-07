@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import Immutable from 'seamless-immutable';
-import { isPromise } from '../../../utils';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 export const usePaginatedChannels = (
@@ -10,47 +8,51 @@ export const usePaginatedChannels = (
   options,
   activeChannelHandler,
 ) => {
-  const [channels, setChannels] = useState(Immutable([]));
+  const [channels, setChannels] = useState([]);
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
-  const [error, setError] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
-
   const queryChannels = async (queryType) => {
     if (queryType === 'reload') {
+      setChannels([]);
       setLoadingChannels(true);
     }
 
     setRefreshing(true);
 
     const newOptions = {
+      limit: MAX_QUERY_CHANNELS_LIMIT,
+      offset: queryType === 'reload' ? 0 : offset,
       ...options,
     };
 
-    if (!options.limit) newOptions.limit = MAX_QUERY_CHANNELS_LIMIT;
-    const channelPromise = client.queryChannels(filters, sort, {
-      ...newOptions,
-      offset,
-    });
-
     try {
-      let channelQueryResponse = channelPromise;
-      if (isPromise(channelQueryResponse)) {
-        channelQueryResponse = await channelPromise;
+      const channelQueryResponse = await client.queryChannels(
+        filters,
+        sort,
+        newOptions,
+      );
+
+      let newChannels;
+      if (queryType === 'reload') {
+        newChannels = channelQueryResponse;
+      } else {
+        newChannels = [...channels, ...channelQueryResponse];
       }
-      const newChannels = [...channels, ...channelQueryResponse];
 
       setChannels(newChannels);
-      setOffset(newChannels.length);
       setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
       setLoadingChannels(false);
 
       // Set active channel only after first page.
-      if (channels.length <= (options.limit || MAX_QUERY_CHANNELS_LIMIT)) {
+      if (offset === 0) {
         activeChannelHandler(newChannels);
       }
+
+      setOffset(newChannels.length);
     } catch (e) {
       console.warn(e);
       setError(true);
