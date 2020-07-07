@@ -13,7 +13,7 @@ import CustomNotification from './CustomNotification';
 import { MESSAGE_ACTIONS } from '../Message/utils';
 import { smartRender } from '../../utils';
 
-import { withChannelContext, withTranslationContext } from '../../context';
+import { ChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
 import { Message, MessageSimple } from '../Message';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -490,12 +490,7 @@ class MessageList extends PureComponent {
     const messageGroupStyles = this.getGroupStyles(allMessages);
 
     const DateSeparator = this.props.DateSeparator || this.props.dateSeparator; // backward compatibility
-    const {
-      TypingIndicator,
-      HeaderComponent,
-      EmptyStateIndicator,
-      t,
-    } = this.props;
+    const { HeaderComponent, EmptyStateIndicator, t } = this.props;
 
     // sort by date
     allMessages.sort((a, b) => a.created_at - b.created_at);
@@ -642,12 +637,7 @@ class MessageList extends PureComponent {
               data-testid="reverse-infinite-scroll"
             >
               <ul className="str-chat__ul">{elements}</ul>
-              {this.props.TypingIndicator && (
-                <TypingIndicator
-                  typing={this.props.typing}
-                  client={this.props.client}
-                />
-              )}
+
               <div key="bottom" ref={this.bottomRef} />
             </InfiniteScroll>
           )}
@@ -680,12 +670,6 @@ class MessageList extends PureComponent {
 }
 
 MessageList.propTypes = {
-  /**
-   * Typing indicator UI component to render
-   *
-   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator.js)
-   * */
-  TypingIndicator: PropTypes.elementType,
   /**
    * Date separator UI component to render
    *
@@ -789,8 +773,6 @@ MessageList.propTypes = {
   watchers: PropTypes.object,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   read: PropTypes.object,
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  typing: PropTypes.object,
   /**
    * Additional props for underlying MessageInput component. We have instance of MessageInput
    * component in MessageSimple component, for handling edit state.
@@ -812,4 +794,11 @@ MessageList.defaultProps = {
   messageActions: Object.keys(MESSAGE_ACTIONS),
 };
 
-export default withChannelContext(withTranslationContext(MessageList));
+export default withTranslationContext((props) => (
+  <ChannelContext.Consumer>
+    {/* TODO: only used props needs to be passed in */}
+    {({ typing, ...channelContext }) => (
+      <MessageList {...channelContext} {...props} />
+    )}
+  </ChannelContext.Consumer>
+));
