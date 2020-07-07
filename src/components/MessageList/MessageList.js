@@ -4,7 +4,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import deepequal from 'deep-equal';
+import deepequal from 'react-fast-compare';
 import { v4 as uuidv4 } from 'uuid';
 
 import Center from './Center';

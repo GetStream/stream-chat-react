@@ -1,5 +1,5 @@
 // @ts-check
-import deepequal from 'deep-equal';
+import deepequal from 'react-fast-compare';
 import PropTypes from 'prop-types';
 
 /**
