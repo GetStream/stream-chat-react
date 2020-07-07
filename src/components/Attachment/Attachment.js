@@ -51,7 +51,10 @@ export const isImageAttachment = (a) => {
 };
 
 export const isMediaAttachment = (a) => {
-  return a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1;
+  return (
+    (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1) ||
+    a.type === 'video'
+  );
 };
 
 export const isAudioAttachment = (a) => {
