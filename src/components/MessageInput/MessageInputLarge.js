@@ -68,9 +68,9 @@ const MessageInputLarge = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input">
-          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
+            <UploadsPreview {...messageInput} />
             <ChatAutoComplete
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
