@@ -1,6 +1,7 @@
 // @ts-check
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import deepequal from 'react-fast-compare';
 
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
@@ -30,7 +31,7 @@ class Message extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
+      editing: false,
     };
   }
 
@@ -45,8 +46,6 @@ class Message extends Component {
     readBy: PropTypes.array,
     /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
     groupStyles: PropTypes.array,
-    /** Editing, if the message is currently being edited */
-    editing: PropTypes.bool,
     /**
      * Message UI component to display a message in message list.
      * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
@@ -113,8 +112,6 @@ class Message extends Component {
      * @param type Type of notification. 'success' | 'error'
      * */
     addNotification: PropTypes.func,
-    /** Sets the editing state */
-    setEditingState: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     updateMessage: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
@@ -141,8 +138,6 @@ class Message extends Component {
     onUserHover: PropTypes.func,
     /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
     openThread: PropTypes.func,
-    /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
-    clearEditingState: PropTypes.func,
     /**
      * Additional props for underlying MessageInput component.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
@@ -160,13 +155,15 @@ class Message extends Component {
     readBy: [],
     groupStyles: [],
     Attachment,
-    editing: false,
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
-  /** @type {(nextProps: Props) => boolean} Typescript syntax */
-  shouldComponentUpdate(nextProps) {
-    return shouldMessageComponentUpdate(nextProps, this.props);
+  /** @type {(nextProps: Props, nextState: State) => boolean} Typescript syntax */
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      shouldMessageComponentUpdate(nextProps, this.props) ||
+      !deepequal(nextState, this.state)
+    );
   }
 
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
@@ -305,18 +302,20 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(event?: React.BaseSyntheticEvent<HTMLElement>) => void} Typescript syntax */
+  clearEditingState = (event) => {
+    if (event?.preventDefault) event.preventDefault();
+    this.setState({ editing: false });
+  };
+
+  setEditingState = () => {
+    this.setState({ editing: true });
+  };
+
+  /** @type {(event: React.BaseSyntheticEvent<HTMLElement>) => void} Typescript syntax */
   handleEdit = (event) => {
-    const { setEditingState, message } = this.props;
-
-    if (!message || !setEditingState) {
-      return;
-    }
-    if (event !== undefined && event.preventDefault) {
-      event.preventDefault();
-    }
-
-    setEditingState(message);
+    if (event.preventDefault) event.preventDefault();
+    this.setEditingState();
   };
 
   /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
@@ -501,6 +500,9 @@ class Message extends Component {
           Message={MessageUIComponent}
           handleReaction={this.handleReaction}
           getMessageActions={this.getMessageActions}
+          clearEditingState={this.clearEditingState}
+          setEditingState={this.setEditingState}
+          editing={this.state.editing}
           handleFlag={this.handleFlag}
           handleMute={this.handleMute}
           handleAction={this.handleAction}
