@@ -696,7 +696,8 @@ describe('Channel', () => {
             openThread(threadMessage);
           } else if (thread.text !== newText) {
             // then, update the thread message
-            dispatchUpdateMessageEvent();
+            // FIXME: dispatch event needs to be queued on event loop now
+            setTimeout(() => dispatchUpdateMessageEvent(), 0);
           } else {
             threadStarterHasUpdatedText = true;
           }
@@ -722,7 +723,8 @@ describe('Channel', () => {
             !threadMessages.some(({ id }) => id === newThreadMessage.id)
           ) {
             // then, add new thread message
-            dispatchNewThreadMessageEvent();
+            // FIXME: dispatch event needs to be queued on event loop now
+            setTimeout(() => dispatchNewThreadMessageEvent(), 0);
           } else {
             newThreadMessageWasAdded = true;
           }
