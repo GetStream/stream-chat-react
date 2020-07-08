@@ -64,7 +64,9 @@ export const isAudioAttachment = (a) => {
 export const isFileAttachment = (a) => {
   return (
     a.type === 'file' ||
-    (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1)
+    (a.mime_type &&
+      SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1 &&
+      a.type !== 'video')
   );
 };
 

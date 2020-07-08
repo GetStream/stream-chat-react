@@ -109,6 +109,27 @@ describe('Attachment', () => {
         });
       },
     );
+    it('should render video player if video type is video', async () => {
+      const attachment = generateVideoAttachment({
+        asset_url: 'https://www.youtube.com/embed/UaeOlIa0LL8',
+        author_name: 'YouTube',
+        image_url: 'https://i.ytimg.com/vi/UaeOlIa0LL8/maxresdefault.jpg',
+        og_scrape_url: 'https://www.youtube.com/watch?v=UaeOlIa0LL8',
+        text:
+          "It's Gmod TTT! Praise Ben in the church of Bon! Hail the great jetstream in Gmod TTT! Confused? Check out the new roles here: https://twitter.com/yogscast/st...",
+        thumb_url: 'https://i.ytimg.com/vi/UaeOlIa0LL8/maxresdefault.jpg',
+        title: 'THE CHURCH OF BON! | Gmod TTT',
+        title_link: 'https://www.youtube.com/watch?v=UaeOlIa0LL8',
+        type: 'video',
+        mime_type: 'nothing',
+      });
+
+      const { getByTestId } = render(getAttachmentComponent({ attachment }));
+
+      await waitFor(() => {
+        expect(getByTestId('media-attachment')).toBeInTheDocument();
+      });
+    });
   });
   it('should render "Card" if attachment type is not recognized, but has title_link or og_scrape_url', async () => {
     const { getByTestId } = render(
