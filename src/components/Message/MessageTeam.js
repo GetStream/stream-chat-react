@@ -26,6 +26,7 @@ import {
   useRetryHandler,
   useReactionHandler,
   useOpenThreadHandler,
+  useMentionsUIHandler,
 } from './hooks';
 import {
   getNonImageAttachments,
@@ -64,11 +65,11 @@ const MessageTeam = (props) => {
     clearEditingState,
     threadList,
     initialMessage,
-    onMentionsHoverMessage,
-    onMentionsClickMessage,
     unsafeHTML,
     getMessageActions,
     MessageDeleted,
+    onMentionsHoverMessage: propOnMentionsHover,
+    onMentionsClickMessage: propOnMentionsClick,
     channelConfig: propChannelConfig,
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
@@ -99,6 +100,10 @@ const MessageTeam = (props) => {
   const handleReaction = useReactionHandler(message);
   const retryHandler = useRetryHandler();
   const retry = propHandleRetry || retryHandler;
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
     reactionSelectorRef,
     message,
@@ -289,8 +294,8 @@ const MessageTeam = (props) => {
                     ? 'str-chat__message-team-text--is-emoji'
                     : ''
                 }
-                onMouseOver={onMentionsHoverMessage}
-                onClick={onMentionsClickMessage}
+                onMouseOver={onMentionsHover}
+                onClick={onMentionsClick}
               >
                 {unsafeHTML ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
