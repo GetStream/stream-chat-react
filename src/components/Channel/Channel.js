@@ -1,14 +1,14 @@
 // @ts-check
 import React, {
-  useState,
   useEffect,
   useCallback,
   useContext,
   useRef,
+  useReducer,
+  useLayoutEffect,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
-import Immutable from 'seamless-immutable';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
@@ -22,6 +22,7 @@ import {
 } from '../Loading';
 import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
+import { channelReducer, initialState } from './channelState';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
 const Channel = ({ EmptyPlaceholder = null, ...props }) => {
@@ -113,27 +114,6 @@ Channel.propTypes = {
   doUpdateMessageRequest: PropTypes.func,
 };
 
-/**
- * @template T
- * @typedef {{ [user_id: string]: T }} UserMap
- */
-/**
- * @template T
- * @typedef {import('seamless-immutable').ImmutableObject<T>} ImmutableObject
- */
-/**
- * @template T
- * @typedef {import('seamless-immutable').ImmutableArray<T>} ImmutableArray
- */
-/**
- * @typedef {import('stream-chat').TypingStartEvent} TypingStartEvent
- * @typedef {import('stream-chat').Event<TypingStartEvent>} TypingEvent
- * @typedef {import('stream-chat').Member} Member
- * @typedef {import('stream-chat').User} User
- * @typedef {import('stream-chat').UserResponse} UserResponse
- * @typedef {import('stream-chat').MessageResponse} MessageResponse
- */
-// TODO: memoize this
 /** @type {React.FC<import('types').ChannelProps & { channel: import('stream-chat').Channel }>} */
 const ChannelInner = ({
   LoadingIndicator = LoadingIndicatorComponent,
@@ -144,36 +124,7 @@ const ChannelInner = ({
   // eslint-disable-next-line sonarjs/cognitive-complexity
 }) => {
   const { channel } = props;
-  const [error, setError] = useState(/** @type {Error | null} */ (null));
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [messages, setMessages] = useState(
-    Immutable(/** @type {import('stream-chat').MessageResponse[]} */ ([])),
-  );
-  const [typing, setTyping] = useState(
-    Immutable(/** @type {UserMap<ImmutableObject<TypingEvent>>} */ ({})),
-  );
-  const [members, setMembers] = useState(
-    Immutable(/** @type {UserMap<Member>} */ ({})),
-  );
-  const [watchers, setWatchers] = useState(
-    Immutable(/** @type {UserMap<UserResponse>} */ ({})),
-  );
-  const [watcherCount, setWatcherCount] = useState(0);
-  const [read, setRead] = useState(
-    Immutable(
-      /** @type {UserMap<{ last_read: string, user: UserResponse }>} */ ({}),
-    ),
-  );
-  const [thread, setThread] = useState(
-    /** @type {ImmutableObject<MessageResponse> | null} */ (null),
-  ); // was false, check if okay
-  const [threadMessages, setThreadMessages] = useState(
-    /** @type {ImmutableArray<MessageResponse>} */ (Immutable([])),
-  );
-  const [threadLoadingMore, setThreadLoadingMore] = useState(false);
-  const [threadHasMore, setThreadHasMore] = useState(false);
+  const [state, dispatch] = useReducer(channelReducer, initialState);
   const originalTitle = useRef('');
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
@@ -182,11 +133,7 @@ const ChannelInner = ({
   const throttledCopyStateFromChannel = useCallback(
     throttle(
       () => {
-        setMessages(channel.state.messages);
-        setWatchers(channel.state.watchers);
-        setRead(channel.state.read);
-        setTyping(channel.state.typing);
-        setWatcherCount(channel.state.watcher_count);
+        dispatch({ type: 'copyStateFromChannelOnEvent', channel });
       },
       500,
       { leading: true, trailing: true },
@@ -209,17 +156,12 @@ const ChannelInner = ({
 
   const markReadThrottled = useCallback(
     throttle(markRead, 500, { leading: true, trailing: true }),
-    [],
+    [markRead],
   );
 
   const handleEvent = useCallback(
     (e) => {
-      if (thread) {
-        setThreadMessages(channel.state.threads[thread.id] || []);
-        if (e.message?.id === thread.id) {
-          setThread(channel.state.messageToImmutable(e.message));
-        }
-      }
+      dispatch({ type: 'updateThreadOnEvent', message: e.message, channel });
 
       if (e.type === 'message.new') {
         let mainChannelUpdated = true;
@@ -244,14 +186,14 @@ const ChannelInner = ({
     },
     [
       channel,
-      chatContext.client.userID,
       throttledCopyStateFromChannel,
+      chatContext.client.userID,
       markReadThrottled,
-      thread,
     ],
   );
 
-  useEffect(() => {
+  // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
+  useLayoutEffect(() => {
     let errored = false;
     let done = false;
     const onVisibilityChange = () => {
@@ -265,19 +207,14 @@ const ChannelInner = ({
         try {
           await channel.watch();
         } catch (e) {
-          setError(e);
+          dispatch({ type: 'setError', error: e });
           errored = true;
         }
       }
       done = true;
       originalTitle.current = document.title;
       if (!errored) {
-        setMessages(channel.state.messages);
-        setRead(channel.state.read);
-        setWatchers(channel.state.watchers);
-        setMembers(channel.state.members);
-        setWatcherCount(channel.state.watcher_count);
-        setLoading(false);
+        dispatch({ type: 'initStateFromChannel', channel });
         if (channel.countUnread() > 0) channel.markRead();
         // The more complex sync logic is done in chat.js
         // listen to client.connection.recovered and all channel events
@@ -295,26 +232,26 @@ const ChannelInner = ({
   }, [channel, chatContext.client, handleEvent, markRead, props.channel]);
 
   useEffect(() => {
-    if (thread) {
-      for (let i = messages.length - 1; i >= 0; i -= 1) {
-        if (messages[i].id === thread.id) {
-          setThread(messages[i]);
+    if (state.thread) {
+      for (let i = state.messages.length - 1; i >= 0; i -= 1) {
+        if (state.messages[i].id === state.thread.id) {
+          dispatch({ type: 'setThread', message: state.messages[i] });
           break;
         }
       }
     }
-  }, [thread, messages]);
+  }, [state.messages, state.thread]);
+
+  // Message
 
   const loadMoreFinished = useCallback(
     debounce(
       /**
-       * @param {boolean} hasMoreMessages
-       * @param {ImmutableArray<MessageResponse>} newMessages
+       * @param {boolean} hasMore
+       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} messages
        */
-      (hasMoreMessages, newMessages) => {
-        setLoadingMore(false);
-        setHasMore(hasMoreMessages);
-        setMessages(newMessages);
+      (hasMore, messages) => {
+        dispatch({ type: 'loadMoreFinished', hasMore, messages });
       },
       2000,
       {
@@ -328,9 +265,9 @@ const ChannelInner = ({
   const loadMore = useCallback(
     async (limit = 100) => {
       // prevent duplicate loading events...
-      const oldestMessage = messages[0];
-      if (loadingMore || oldestMessage?.status !== 'received') return;
-      setLoadingMore(true);
+      const oldestMessage = state.messages[0];
+      if (state.loadingMore || oldestMessage?.status !== 'received') return;
+      dispatch({ type: 'setLoadingMore', loadingMore: true });
 
       const oldestID = oldestMessage?.id || null;
 
@@ -342,14 +279,14 @@ const ChannelInner = ({
         });
       } catch (e) {
         console.warn('message pagination request failed with error', e);
-        setLoadingMore(false);
+        dispatch({ type: 'setLoadingMore', loadingMore: false });
         return;
       }
       const hasMoreMessages = queryResponse.messages.length === perPage;
 
       loadMoreFinished(hasMoreMessages, channel.state.messages);
     },
-    [channel, loadMoreFinished, loadingMore, messages],
+    [channel, loadMoreFinished, state.loadingMore, state.messages],
   );
 
   const updateMessage = useCallback(
@@ -358,15 +295,13 @@ const ChannelInner = ({
       // this adds to both the main channel state as well as any reply threads
       channel.state.addMessageSorted(updatedMessage);
 
-      // update the Channel component state
-      if (thread && updatedMessage.parent_id) {
-        setThreadMessages(
-          channel.state.threads[updatedMessage.parent_id] || [],
-        );
-      }
-      setMessages(channel.state.messages);
+      dispatch({
+        type: 'copyMessagesFromChannel',
+        parentId: state.thread && updatedMessage.parent_id,
+        channel,
+      });
     },
-    [channel.state, thread],
+    [channel, state.thread],
   );
 
   const { doSendMessageRequest } = props;
@@ -469,11 +404,16 @@ const ChannelInner = ({
   const removeMessage = useCallback(
     (message) => {
       channel.state.removeMessage(message);
-      setMessages(channel.state.messages);
-      setThreadMessages(channel.state.threads[message.parent_id] || []);
+      dispatch({
+        type: 'copyMessagesFromChannel',
+        parentId: state.thread && message.parent_id,
+        channel,
+      });
     },
-    [channel.state],
+    [channel, state.thread],
   );
+
+  // Thread
 
   const openThread = useCallback(
     (message, e) => {
@@ -481,22 +421,23 @@ const ChannelInner = ({
         e.preventDefault();
       }
 
-      setThread(message);
-      setThreadMessages(channel.state.threads[message.id] || []);
+      dispatch({ type: 'openThread', message, channel });
     },
-    [channel.state.threads],
+    [channel],
   );
 
   const loadMoreThreadFinished = useCallback(
     debounce(
       /**
-       * @param {boolean} threadHasMoreMessages
-       * @param {ImmutableArray<MessageResponse>} newThreadMessages
+       * @param {boolean} threadHasMore
+       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} threadMessages
        */
-      (threadHasMoreMessages, newThreadMessages) => {
-        setThreadHasMore(threadHasMoreMessages);
-        setThreadMessages(newThreadMessages);
-        setThreadLoadingMore(false);
+      (threadHasMore, threadMessages) => {
+        dispatch({
+          type: 'loadMoreThreadFinished',
+          threadHasMore,
+          threadMessages,
+        });
       },
       2000,
       { leading: true, trailing: true },
@@ -506,9 +447,9 @@ const ChannelInner = ({
 
   const loadMoreThread = useCallback(async () => {
     // prevent duplicate loading events...
-    if (threadLoadingMore || !thread) return;
-    setThreadLoadingMore(true);
-    const parentID = thread.id;
+    if (state.threadLoadingMore || !state.thread) return;
+    dispatch({ type: 'startLoadingThread' });
+    const parentID = state.thread.id;
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
     const limit = 50;
@@ -523,14 +464,13 @@ const ChannelInner = ({
 
     // next set loadingMore to false so we can start asking for more data...
     loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
-  }, [channel, loadMoreThreadFinished, thread, threadLoadingMore]);
+  }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
   const closeThread = useCallback((e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
-    setThread(null);
-    setThreadMessages(Immutable([]));
+    dispatch({ type: 'closeThread' });
   }, []);
 
   const onMentionsHoverOrClick = useMentionsHandlers(
@@ -542,20 +482,8 @@ const ChannelInner = ({
 
   const channelContextValue = {
     // state
-    error,
-    loading,
-    loadingMore,
-    hasMore,
-    messages,
-    typing,
-    members,
-    watchers,
-    read,
-    thread,
-    threadMessages,
-    threadLoadingMore,
-    threadHasMore,
-    watcher_count: watcherCount,
+    ...state,
+    watcher_count: state.watcherCount,
     // props
     channel,
     Message,
@@ -581,9 +509,9 @@ const ChannelInner = ({
   };
 
   let core;
-  if (error) {
-    core = <LoadingErrorIndicator error={error} />;
-  } else if (loading) {
+  if (state.error) {
+    core = <LoadingErrorIndicator error={state.error} />;
+  } else if (state.loading) {
     core = <LoadingIndicator size={25} />;
   } else if (!props.channel?.watch) {
     core = <div>{t('Channel Missing')}</div>;
