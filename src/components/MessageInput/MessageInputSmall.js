@@ -38,9 +38,10 @@ const MessageInputSmall = (props) => {
               : null
           }`}
         >
-          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} small />
           <div className="str-chat__small-message-input--textarea-wrapper">
+            <UploadsPreview {...messageInput} />
+
             <ChatAutoComplete
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}

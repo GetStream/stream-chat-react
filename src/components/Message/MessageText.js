@@ -4,9 +4,9 @@ import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import {
-  useMentionsHandler,
   useReactionHandler,
   useReactionClick,
+  useMentionsUIHandler,
 } from './hooks';
 import { messageHasReactions, messageHasAttachments } from './utils';
 import { MessageOptions } from './MessageOptions';
@@ -26,7 +26,10 @@ const MessageTextComponent = (props) => {
     customOptionProps,
   } = props;
   const reactionSelectorRef = useRef(null);
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
     reactionSelectorRef,
     message,
@@ -61,8 +64,8 @@ const MessageTextComponent = (props) => {
               : ''
           }
         `.trim()}
-        onMouseOver={propOnMentionsHover || onMentionsHover}
-        onClick={propOnMentionsClick || onMentionsClick}
+        onMouseOver={onMentionsHover}
+        onClick={onMentionsClick}
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>
