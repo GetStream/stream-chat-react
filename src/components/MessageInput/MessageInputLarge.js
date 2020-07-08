@@ -82,6 +82,7 @@ const MessageInputLarge = (props) => {
               maxRows={props.maxRows}
               placeholder={t('Type your message')}
               onPaste={messageInput.onPaste}
+              triggers={props.triggers}
               grow={props.grow}
               disabled={props.disabled}
               additionalTextareaProps={props.additionalTextareaProps}
