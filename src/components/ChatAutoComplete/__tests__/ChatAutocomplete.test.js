@@ -1,8 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
+
 import ChatAutoComplete from '../ChatAutoComplete';
 import {
   useMockedApis,
@@ -18,7 +17,6 @@ import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import { ChatContext } from '../../../context';
 
-jest.mock('axios');
 let chatClient;
 let channel;
 const user = generateUser({ name: 'name', id: 'id' });
@@ -63,8 +61,8 @@ describe('ChatAutoComplete', () => {
       messages,
       members,
     });
-    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
     chatClient = await getTestClientWithUser(user);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
     channel = chatClient.channel('messaging', mockedChannel.id);
   });
 
@@ -175,10 +173,10 @@ describe('ChatAutoComplete', () => {
       messages,
       members,
     });
-    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
     const activeChannel = chatClient.channel('messaging', mockedChannel.id);
     const searchMember = members[0];
-    useMockedApis(axios, [queryMembersApi([searchMember])]);
+    useMockedApis(chatClient, [queryMembersApi([searchMember])]);
 
     const onSelectItem = jest.fn();
     const { typeText, findByText } = await renderComponent({

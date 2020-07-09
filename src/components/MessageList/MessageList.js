@@ -21,7 +21,6 @@ import { InfiniteScroll } from '../InfiniteScrollPaginator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
-import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -35,7 +34,6 @@ class MessageList extends PureComponent {
 
     this.state = {
       newMessagesNotification: false,
-      editing: '',
       online: true,
       notifications: [],
     };
@@ -60,14 +58,11 @@ class MessageList extends PureComponent {
     });
 
     this.props.client.on('connection.changed', this.connectionChanged);
-
-    document.addEventListener('keydown', this.keypress);
   }
 
   componentWillUnmount() {
     this.props.client.off('connection.changed', this.connectionChanged);
 
-    document.removeEventListener('keydown', this.keypress);
     this.notificationTimeouts.forEach(clearTimeout);
   }
 
@@ -144,12 +139,6 @@ class MessageList extends PureComponent {
     }
   }
 
-  keypress = (event) => {
-    if (event.keyCode === KEY_CODES.ESC && this.state.editing) {
-      this.clearEditingState();
-    }
-  };
-
   scrollToBottom = () => {
     this._scrollToRef(this.bottomRef, this.messageList);
   };
@@ -185,16 +174,6 @@ class MessageList extends PureComponent {
       scrollTop = containerEl.scrollHeight - containerEl.offsetHeight;
 
     if (scrollTop !== undefined) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
-  };
-
-  setEditingState = (message) => {
-    this.setState({ editing: message.id });
-  };
-
-  clearEditingState = (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-
-    this.setState({ editing: '' });
   };
 
   insertDates = (messages) => {
@@ -558,11 +537,6 @@ class MessageList extends PureComponent {
               lastReceivedId={
                 lastReceivedId === message.id ? lastReceivedId : null
               }
-              editing={
-                !!(this.state.editing && this.state.editing === message.id)
-              }
-              clearEditingState={this.clearEditingState}
-              setEditingState={this.setEditingState}
               messageListRect={this.state.messageListRect}
               channel={this.props.channel}
               threadList={this.props.threadList}

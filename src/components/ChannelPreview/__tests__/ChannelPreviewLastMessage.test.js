@@ -1,6 +1,4 @@
 import React from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
@@ -14,8 +12,6 @@ import {
 } from 'mock-builders';
 
 import ChannelPreviewLastMessage from '../ChannelPreviewLastMessage';
-
-jest.mock('axios');
 
 describe('ChannelPreviewLastMessage', () => {
   const clientUser = generateUser();
@@ -38,7 +34,7 @@ describe('ChannelPreviewLastMessage', () => {
 
   const initializeChannel = async (c) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useMockedApis(axios, [getOrCreateChannelApi(c)]);
+    useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
 
     channel = chatClient.channel('messaging');
 

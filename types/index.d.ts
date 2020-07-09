@@ -490,8 +490,6 @@ export interface MessageProps extends TranslationContextValue {
   readBy?: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
-  /** Editing, if the message is currently being edited */
-  editing?: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
   Message?: React.ElementType<MessageUIComponentProps>;
   /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
@@ -507,17 +505,16 @@ export interface MessageProps extends TranslationContextValue {
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  clearEditingState?(e?: React.MouseEvent): void;
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  setEditingState?(message: Client.MessageResponse): any;
 }
 
 export type MessageComponentState = {
-  loading: boolean;
+  editing: boolean;
 };
+
 // MessageComponentProps defines the props for the Message component
 export interface MessageComponentProps
   extends MessageProps,
@@ -554,6 +551,9 @@ export interface MessageUIComponentProps
   extends MessageProps,
     TranslationContextValue {
   actionsEnabled?: boolean;
+  editing?: boolean;
+  clearEditingState?(event?: React.BaseSyntheticEvent): void;
+  setEditingState?(): any;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
   handleDelete?(event?: React.BaseSyntheticEvent): void;
@@ -995,7 +995,7 @@ export interface MessageLivestreamActionProps {
   onReactionListClick?: () => void;
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
-  setEditingState?(message: Client.MessageResponse): any;
+  setEditingState?(): any;
 }
 export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {
@@ -1047,7 +1047,7 @@ export interface MessageActionsProps {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  setEditingState?(message: Client.MessageResponse): any;
+  setEditingState?(): any;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;

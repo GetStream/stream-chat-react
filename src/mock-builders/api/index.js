@@ -4,28 +4,15 @@
  * You should use api functions from current directory to build these responses.
  * e.g., queryChannelsApi, sendMessageApi
  *
- * @param {*} axios
+ * @param {StreamClient} client
  * @param {*} apiResponses
  */
-export const useMockedApis = (axios, apiResponses) => {
-  let getMock = axios.get;
-  let deleteMock = axios.delete;
-  let putMock = axios.put;
-  let postMock = axios.post;
-
-  apiResponses.forEach((ar) => {
-    if (ar.type === 'get') {
-      getMock = getMock.mockResolvedValue(ar.response);
-    }
-    if (ar.type === 'delete') {
-      deleteMock = deleteMock.mockResolvedValue(ar.response);
-    }
-    if (ar.type === 'post') {
-      postMock = postMock.mockResolvedValue(ar.response);
-    }
-    if (ar.type === 'put') {
-      putMock = putMock.mockResolvedValue(ar.response);
-    }
+export const useMockedApis = (client, apiResponses) => {
+  apiResponses.forEach(({ type, response }) => {
+    jest
+      .spyOn(client.axiosInstance, type)
+      .mockImplementation()
+      .mockResolvedValue(response);
   });
 };
 
