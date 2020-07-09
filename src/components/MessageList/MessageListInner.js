@@ -2,6 +2,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { useMemo } from 'react';
+import deepequal from 'react-fast-compare';
 
 import { Message } from '../Message';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
@@ -303,4 +304,4 @@ const MessageListInner = (props) => {
   );
 };
 
-export default React.memo(MessageListInner);
+export default React.memo(MessageListInner, deepequal);

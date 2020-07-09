@@ -222,6 +222,11 @@ class MessageList extends PureComponent {
     }
   };
 
+  loadMore = () =>
+    this.props.messageLimit
+      ? this.props.loadMore(this.props.messageLimit)
+      : this.props.loadMore();
+
   render() {
     const { t } = this.props;
 
@@ -251,10 +256,7 @@ class MessageList extends PureComponent {
               hasMore: this.props.hasMore,
               isLoading: this.props.loadingMore,
               listenToScroll: this.listenToScroll,
-              loadMore: () =>
-                this.props.messageLimit
-                  ? this.props.loadMore(this.props.messageLimit)
-                  : this.props.loadMore(),
+              loadMore: this.loadMore,
               loader: (
                 <Center key="loadingindicator">
                   {smartRender(this.props.LoadingIndicator, { size: 20 }, null)}
