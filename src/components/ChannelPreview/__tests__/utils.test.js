@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,14 +18,12 @@ import {
   getDisplayImage,
 } from '../utils';
 
-jest.mock('axios');
-
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
   let chatClient;
   const getQueriedChannelInstance = async (c) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useMockedApis(axios, [getOrCreateChannelApi(c)]);
+    useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
 
     const channel = chatClient.channel('messaging');
 

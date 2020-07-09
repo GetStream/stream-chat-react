@@ -10,8 +10,6 @@ import { ChannelListTeam } from '..';
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-jest.mock('axios');
-
 const Component = ({ client, loading = false, error = false }) => {
   return (
     <ChannelListTeam
