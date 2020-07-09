@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
@@ -11,12 +11,27 @@ import useMessageInput from './hooks/messageInput';
 import UploadsPreview from './UploadsPreview';
 import EmojiPicker from './EmojiPicker';
 import SendButtonComponent from './SendButton';
+import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
 const EditMessageForm = (props) => {
   const messageInput = useMessageInput(props);
   const channelContext = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
+
+  const { clearEditingState } = props;
+
+  useEffect(() => {
+    /** @type {(event: KeyboardEvent) => void} Typescript syntax */
+    const onKeyDown = (event) => {
+      console.log('event.keyCode :>> ', event.keyCode);
+      if (event.keyCode === KEY_CODES.ESC && clearEditingState)
+        clearEditingState();
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [clearEditingState]);
 
   return (
     <div className="str-chat__edit-message-form">
@@ -33,7 +48,6 @@ const EditMessageForm = (props) => {
           <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} small />
           <ChatAutoComplete
-            users={messageInput.getUsers()}
             commands={messageInput.getCommands()}
             innerRef={messageInput.textareaRef}
             handleSubmit={messageInput.handleSubmit}
@@ -112,6 +126,8 @@ EditMessageForm.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    */
@@ -141,6 +157,7 @@ EditMessageForm.propTypes = {
 EditMessageForm.defaultProps = {
   focus: false,
   disabled: false,
+  publishTypingEvent: true,
   grow: true,
   maxRows: 10,
   SendButton: SendButtonComponent,

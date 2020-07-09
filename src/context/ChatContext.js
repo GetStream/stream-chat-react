@@ -7,7 +7,10 @@ import { StreamChat } from 'stream-chat';
  */
 
 export const ChatContext = React.createContext(
-  /** @type {ChatContextProps} */ ({ client: new StreamChat('') }),
+  /** @type {ChatContextProps} */ ({
+    client: new StreamChat(''),
+    setActiveChannel: () => null,
+  }),
 );
 
 /**

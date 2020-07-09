@@ -20,22 +20,18 @@ describe('EmoticonItem', () => {
         <span
           className="str-chat__emoji-item--name"
         />
-        <span
-          className="str-chat__emoji-item--char"
-        />
       </div>
     `);
   });
 
   it('should render component with custom entity prop', async () => {
-    const entity = { name: 'name', native: 'native', char: 'char' };
+    const entity = { name: 'name', native: 'native' };
     const Component = <EmoticonItem entity={entity} />;
 
     const { getByText } = render(Component);
     await waitFor(() => {
       expect(getByText(entity.name)).toBeInTheDocument();
       expect(getByText(entity.native)).toBeInTheDocument();
-      expect(getByText(entity.char)).toBeInTheDocument();
     });
 
     const tree = renderer.create(Component).toJSON();
@@ -52,11 +48,6 @@ describe('EmoticonItem', () => {
           className="str-chat__emoji-item--name"
         >
           name
-        </span>
-        <span
-          className="str-chat__emoji-item--char"
-        >
-          char
         </span>
       </div>
     `);

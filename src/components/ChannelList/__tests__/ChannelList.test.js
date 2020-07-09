@@ -1,7 +1,5 @@
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { getNodeText } from '@testing-library/dom';
 import {
   cleanup,
@@ -68,8 +66,6 @@ const ChannelListComponent = (props) => {
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
 
-jest.mock('axios');
-
 describe('ChannelList', () => {
   let chatClientUthred;
   let testChannel1;
@@ -96,7 +92,7 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
         closeMobileNav,
       };
-      useMockedApis(axios, [queryChannelsApi([])]);
+      useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
       const { getByTestId, getByRole } = render(
@@ -148,7 +144,7 @@ describe('ChannelList', () => {
       List: ChannelListComponent,
     };
 
-    useMockedApis(axios, [queryChannelsApi([testChannel1])]);
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
 
     const { getByTestId, getByRole, rerender } = render(
       <Chat client={chatClientUthred}>
@@ -161,7 +157,7 @@ describe('ChannelList', () => {
       expect(getByRole('list')).toBeInTheDocument();
     });
 
-    useMockedApis(axios, [queryChannelsApi([testChannel2])]);
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel2])]);
     rerender(
       <Chat client={chatClientUthred}>
         <ChannelList {...props} filters={{ dummyFilter: true }} />
@@ -173,7 +169,7 @@ describe('ChannelList', () => {
   });
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
-    useMockedApis(axios, [erroredGetApi()]);
+    useMockedApis(chatClientUthred, [erroredGetApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const { getByTestId } = render(
@@ -194,7 +190,7 @@ describe('ChannelList', () => {
   });
 
   it('when queryChannels api returns no channels, `EmptyStateIndicator` should be rendered', async () => {
-    useMockedApis(axios, [queryChannelsApi([])]);
+    useMockedApis(chatClientUthred, [queryChannelsApi([])]);
 
     const EmptyStateIndicator = () => {
       return <div data-testid="empty-state-indicator" />;
@@ -232,7 +228,9 @@ describe('ChannelList', () => {
 
     beforeEach(() => {
       setActiveChannel = jest.fn();
-      useMockedApis(axios, [queryChannelsApi([testChannel1, testChannel2])]);
+      useMockedApis(chatClientUthred, [
+        queryChannelsApi([testChannel1, testChannel2]),
+      ]);
     });
 
     it('should call `setActiveChannel` prop function with first channel as param', async () => {
@@ -344,7 +342,7 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(axios, [
+        useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2, testChannel3]),
         ]);
       });
@@ -405,7 +403,7 @@ describe('ChannelList', () => {
 
     describe('notification.message_new', () => {
       it('should move channel to top of the list by default', async () => {
-        useMockedApis(axios, [
+        useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
           getOrCreateChannelApi(testChannel3),
         ]);
@@ -447,7 +445,7 @@ describe('ChannelList', () => {
       it('should call `onMessageNew` function prop, if provided', async () => {
         const onMessageNew = jest.fn();
 
-        useMockedApis(axios, [
+        useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1]),
           getOrCreateChannelApi(testChannel2),
         ]);
@@ -491,14 +489,11 @@ describe('ChannelList', () => {
       };
 
       beforeEach(async () => {
-        useMockedApis(axios, [
+        chatClientUthred = await getTestClientWithUser({ id: 'vishal' });
+        useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
           getOrCreateChannelApi(testChannel3),
         ]);
-
-        chatClientUthred = await getTestClientWithUser({
-          id: 'vishal',
-        });
       });
 
       it('should move channel to top of the list by default', async () => {
@@ -570,7 +565,7 @@ describe('ChannelList', () => {
 
       // eslint-disable-next-line sonarjs/no-identical-functions
       beforeEach(() => {
-        useMockedApis(axios, [
+        useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2, testChannel3]),
         ]);
       });
@@ -635,7 +630,9 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(axios, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClientUthred, [
+          queryChannelsApi([testChannel1, testChannel2]),
+        ]);
       });
 
       it('should update the channel in list, by default', async () => {
@@ -703,7 +700,9 @@ describe('ChannelList', () => {
 
       // eslint-disable-next-line sonarjs/no-identical-functions
       beforeEach(() => {
-        useMockedApis(axios, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClientUthred, [
+          queryChannelsApi([testChannel1, testChannel2]),
+        ]);
       });
 
       it('should remove channel from list, by default', async () => {
@@ -792,7 +791,7 @@ describe('ChannelList', () => {
           List: ChannelListComponent,
         };
 
-        useMockedApis(axios, [queryChannelsApi([channel1])]);
+        useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
 
         const { getByRole, getByTestId } = render(
           <Chat client={chatClientUthred}>
@@ -810,7 +809,7 @@ describe('ChannelList', () => {
           10,
         );
 
-        useMockedApis(axios, [queryChannelsApi([channel2])]);
+        useMockedApis(chatClientUthred, [queryChannelsApi([channel2])]);
         act(() => dispatchConnectionRecoveredEvent(chatClientUthred));
 
         await waitFor(() => {
@@ -839,7 +838,7 @@ describe('ChannelList', () => {
         message2 = generateMessage({ user: user1 });
         channel1 = generateChannel({ messages: [message1, message2] });
 
-        useMockedApis(axios, [queryChannelsApi([channel1])]);
+        useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
       });
 
       it('should remove latest message', async () => {

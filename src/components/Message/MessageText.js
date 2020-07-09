@@ -4,9 +4,9 @@ import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import { ReactionsList, ReactionSelector } from '../Reactions';
 import {
-  useMentionsHandler,
   useReactionHandler,
   useReactionClick,
+  useMentionsUIHandler,
 } from './hooks';
 import { messageHasReactions, messageHasAttachments } from './utils';
 import { MessageOptions } from './MessageOptions';
@@ -18,19 +18,20 @@ const MessageTextComponent = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-    actionsEnabled,
     customWrapperClass,
     customInnerClass,
     theme = 'simple',
     message,
-    messageListRect,
     unsafeHTML,
     customOptionProps,
   } = props;
   const reactionSelectorRef = useRef(
     /** @type {ReactionSelector | null} */ (null),
   );
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
     reactionSelectorRef,
     message,
@@ -65,8 +66,8 @@ const MessageTextComponent = (props) => {
               : ''
           }
         `.trim()}
-        onMouseOver={propOnMentionsHover || onMentionsHover}
-        onClick={propOnMentionsClick || onMentionsClick}
+        onMouseOver={onMentionsHover}
+        onClick={onMentionsClick}
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>
@@ -97,11 +98,9 @@ const MessageTextComponent = (props) => {
         {showDetailedReactions && (
           <ReactionSelector
             handleReaction={handleReaction}
-            actionsEnabled={actionsEnabled}
             detailedView
             reaction_counts={message.reaction_counts}
             latest_reactions={message.latest_reactions}
-            messageList={messageListRect}
             ref={reactionSelectorRef}
           />
         )}

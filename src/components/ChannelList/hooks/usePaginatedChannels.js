@@ -20,8 +20,8 @@ export const usePaginatedChannels = (
   const [channels, setChannels] = useState(/** @type {Channel[]} */ ([]));
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
-  const [error, setError] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
 
   /**
@@ -29,31 +29,42 @@ export const usePaginatedChannels = (
    */
   const queryChannels = async (queryType) => {
     if (queryType === 'reload') {
+      setChannels([]);
       setLoadingChannels(true);
     }
 
     setRefreshing(true);
 
     const newOptions = {
+      offset: queryType === 'reload' ? 0 : offset,
       ...options,
       limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
     };
 
     try {
-      const channelQueryResponse = await client.queryChannels(filters, sort, {
-        ...newOptions,
-        offset,
-      });
-      const newChannels = [...channels, ...channelQueryResponse];
+      const channelQueryResponse = await client.queryChannels(
+        filters,
+        sort || {},
+        newOptions,
+      );
+
+      let newChannels;
+      if (queryType === 'reload') {
+        newChannels = channelQueryResponse;
+      } else {
+        newChannels = [...channels, ...channelQueryResponse];
+      }
 
       setChannels(newChannels);
-      setOffset(newChannels.length);
+      setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
 
       // Set active channel only after first page.
-      if (channels.length <= (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
-        activeChannelHandler?.(newChannels, setChannels);
+      if (offset === 0 && activeChannelHandler) {
+        activeChannelHandler(newChannels, setChannels);
       }
+
+      setOffset(newChannels.length);
     } catch (e) {
       console.warn(e);
       setError(true);

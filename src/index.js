@@ -55,5 +55,4 @@ import './styles/Tooltip.scss';
 export * from './context';
 export * from './utils';
 export * from './i18n';
-export * from './Streami18n';
 export * from './components';

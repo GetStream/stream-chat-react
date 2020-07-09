@@ -42,7 +42,6 @@ const MessageSimple = (props) => {
     clearEditingState,
     editing,
     message,
-    messageListRect,
     threadList,
     updateMessage: propUpdateMessage,
     handleAction: propHandleAction,
@@ -184,7 +183,6 @@ const MessageSimple = (props) => {
                     detailedView
                     reaction_counts={message.reaction_counts}
                     latest_reactions={message.latest_reactions}
-                    messageList={messageListRect}
                     ref={reactionSelectorRef}
                   />
                 )}

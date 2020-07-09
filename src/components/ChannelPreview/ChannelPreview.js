@@ -96,7 +96,7 @@ ChannelPreview.propTypes = {
    *
    * The Preview to use, defaults to ChannelPreviewLastMessage
    * */
-  Preview: /** @type {PropTypes.Validator<React.ComponentType<import('types').ChannelPreviewProps>>} */ (PropTypes.elementType),
+  Preview: /** @type {PropTypes.Validator<React.ComponentType<import('types').ChannelPreviewUIComponentProps>>} */ (PropTypes.elementType),
 };
 
 export default ChannelPreview;

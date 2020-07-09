@@ -9,7 +9,7 @@ import {
 } from 'mock-builders';
 import { Chat } from '..';
 import { ChatContext, TranslationContext } from '../../../context';
-import { Streami18n } from '../../../Streami18n';
+import { Streami18n } from '../../../i18n';
 
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));

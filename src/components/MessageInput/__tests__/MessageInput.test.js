@@ -1,8 +1,6 @@
 import React from 'react';
 import { cleanup, render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
 import MessageInput from '../MessageInput';
 import MessageInputLarge from '../MessageInputLarge';
 import MessageInputSmall from '../MessageInputSmall';
@@ -19,13 +17,13 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { ChatContext } from '../../../context';
 
 // mock image loader fn used by ImagePreview
 jest.mock('blueimp-load-image/js/load-image-fetch', () => {
   return jest.fn().mockImplementation(() => Promise.resolve());
 });
 
-jest.mock('axios');
 let chatClient;
 let channel;
 
@@ -49,6 +47,12 @@ const editMock = jest.fn();
           doSendMessageRequest={submitMock}
           doUpdateMessageRequest={editMock}
         >
+          <ChatContext.Consumer>
+            {({ setActiveChannel }) => {
+              if (channel) setActiveChannel(channel);
+              return null;
+            }}
+          </ChatContext.Consumer>
           <MessageInput Input={InputComponent} {...props} />
         </Channel>
       </Chat>,
@@ -76,8 +80,8 @@ const editMock = jest.fn();
         messages: [message1],
         members: [generateMember({ user: user1 })],
       });
-      useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
       chatClient = await getTestClientWithUser({ id: user1.id });
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
       channel = chatClient.channel('messaging', mockedChannel.id);
     });
 

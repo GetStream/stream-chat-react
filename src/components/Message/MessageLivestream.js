@@ -25,7 +25,7 @@ import {
   useOpenThreadHandler,
   useActionHandler,
   useReactionClick,
-  useMentionsHandler,
+  useMentionsUIHandler,
 } from './hooks';
 import {
   messageHasAttachments,
@@ -65,7 +65,6 @@ const MessageLivestreamComponent = (props) => {
     editing,
     clearEditingState,
     initialMessage,
-    messageListRect,
     unsafeHTML,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
@@ -89,7 +88,10 @@ const MessageLivestreamComponent = (props) => {
    *@type {import('types').ChannelContextValue}
    */
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
@@ -169,7 +171,6 @@ const MessageLivestreamComponent = (props) => {
             detailedView
             latest_reactions={message?.latest_reactions}
             reaction_counts={message?.reaction_counts}
-            messageList={messageListRect}
             ref={reactionSelectorRef}
           />
         )}
@@ -212,8 +213,8 @@ const MessageLivestreamComponent = (props) => {
                   ? 'str-chat__message-livestream-text--is-emoji'
                   : ''
               }
-              onMouseOver={propOnMentionsHover || onMentionsHover}
-              onClick={propOnMentionsClick || onMentionsClick}
+              onMouseOver={onMentionsHover}
+              onClick={onMentionsClick}
             >
               {message.type !== 'error' &&
                 message.status !== 'failed' &&

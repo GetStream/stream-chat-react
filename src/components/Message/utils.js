@@ -1,5 +1,5 @@
 // @ts-check
-import deepequal from 'deep-equal';
+import deepequal from 'react-fast-compare';
 import PropTypes from 'prop-types';
 
 /**
@@ -87,7 +87,7 @@ export const getMessageActions = (
 };
 
 /**
- * @typedef {Pick<import('types').MessageComponentProps, 'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'editing' | 'messageListRect'>} MessageEqualProps
+ * @typedef {Pick<import('types').MessageComponentProps, 'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'>} MessageEqualProps
  * @type {(props: MessageEqualProps, nextProps: MessageEqualProps) => boolean} Typescript syntax
  */
 export const areMessagePropsEqual = (props, nextProps) => {
@@ -101,6 +101,7 @@ export const areMessagePropsEqual = (props, nextProps) => {
     // Last message received in the channel changes
     deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
     // User toggles edit state
+    // @ts-ignore // TODO: fix
     nextProps.editing === props.editing &&
     // Message wrapper layout changes
     nextProps.messageListRect === props.messageListRect

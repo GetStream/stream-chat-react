@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import Dayjs from 'dayjs';
 import { ChatContext, TranslationContext } from '../../context';
-import { Streami18n } from '../../Streami18n';
+import { Streami18n } from '../../i18n';
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
@@ -55,10 +55,8 @@ const Chat = ({
     const handleEvent = (e) => {
       if (e.type === 'notification.mutes_updated') setMutes(e.me?.mutes || []);
     };
-
-    client.on(handleEvent);
-
-    return () => client.off(handleEvent);
+    if (client) client.on(handleEvent);
+    return () => client && client.off(handleEvent);
   }, [client]);
 
   useEffect(() => {

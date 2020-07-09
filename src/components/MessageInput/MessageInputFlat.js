@@ -35,12 +35,11 @@ const MessageInputFlat = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input-flat-wrapper">
-          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} />
 
           <div className="str-chat__input-flat--textarea-wrapper">
+            <UploadsPreview {...messageInput} />
             <ChatAutoComplete
-              users={messageInput.getUsers()}
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
@@ -118,6 +117,8 @@ MessageInputFlat.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    */
@@ -143,6 +144,7 @@ MessageInputFlat.propTypes = {
 MessageInputFlat.defaultProps = {
   focus: false,
   disabled: false,
+  publishTypingEvent: true,
   grow: true,
   maxRows: 10,
   SendButton: SendButtonComponent,

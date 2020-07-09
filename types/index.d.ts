@@ -56,7 +56,7 @@ export interface ChannelContextValue extends ChatContextValue {
       | Client.MemberRemovedEvent
     )[];
   };
-  thread?: Client.MessageResponse | boolean;
+  thread?: Client.MessageResponse;
   threadMessages?: Client.MessageResponse[];
 
   multipleUploads?: boolean;
@@ -83,7 +83,7 @@ export interface ChannelContextValue extends ChatContextValue {
 
   loadMore?(): void;
   // thread related
-  closeThread?(event: React.SyntheticEvent): void;
+  closeThread(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
 
   /** Via Context: The function is called when the list scrolls */
@@ -295,6 +295,12 @@ export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
   displayImage?: string;
   /** Latest message's text. */
   latestMessage?: string;
+  setActiveChannel(
+    channel?: Client.Channel,
+    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    event?: React.SyntheticEvent,
+  ): void;
+
   /** Length of latest message to truncate at */
   latestMessageLength?: number;
   active?: boolean;
@@ -414,13 +420,15 @@ export interface MessageInputProps {
   focus?: boolean;
   /** Disable input */
   disabled?: boolean;
+  /** enable/disable firing the typing event */
+  publishTypingEvent?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
 
   /** The parent message object when replying on a thread */
-  parent?: Client.MessageResponse | null;
+  parent?: Client.MessageResponse;
 
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputProps>;
@@ -540,6 +548,7 @@ export interface AttachmentUIComponentProps {
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
 export interface MessageProps extends TranslationContextValue {
+  addNotification?(notificationText: string, type: string): any;
   /** The message object */
   message?: Client.MessageResponse;
   /** The client connection object for connecting to Stream */
@@ -548,8 +557,6 @@ export interface MessageProps extends TranslationContextValue {
   readBy?: Array<Client.UserResponse>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
-  /** Editing, if the message is currently being edited */
-  editing?: boolean;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
   Message?: React.ElementType<MessageUIComponentProps>;
   /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
@@ -565,17 +572,16 @@ export interface MessageProps extends TranslationContextValue {
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  clearEditingState?(e?: React.MouseEvent): void;
   getFlagMessageSuccessNotification?(message: MessageResponse): string;
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  setEditingState?(message: Client.MessageResponse): any;
 }
 
 export type MessageComponentState = {
-  loading: boolean;
+  editing: boolean;
 };
+
 // MessageComponentProps defines the props for the Message component
 export interface MessageComponentProps
   extends MessageProps,
@@ -598,14 +604,15 @@ export interface MessageComponentProps
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string> | boolean;
   members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  addNotification?(notificationText: string, type: string): any;
-  retrySendMessage?(message: Client.Message): void;
+  retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
   openThread?(
     message: Client.MessageResponse,
     event: React.SyntheticEvent,
   ): void;
+  initialMessage?: boolean;
+  threadList?: boolean;
 }
 
 // MessageUIComponentProps defines the props for the Message UI components (e.g. MessageSimple)
@@ -613,6 +620,9 @@ export interface MessageUIComponentProps
   extends MessageProps,
     TranslationContextValue {
   actionsEnabled?: boolean;
+  editing?: boolean;
+  clearEditingState?(event?: React.BaseSyntheticEvent): void;
+  setEditingState?(): any;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
   handleDelete?(event?: React.BaseSyntheticEvent): void;
@@ -633,7 +643,7 @@ export interface MessageUIComponentProps
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
@@ -772,22 +782,22 @@ export interface CardProps extends TranslationContextValue {
 }
 
 export interface ChatAutoCompleteProps {
-  rows: number;
-  grow: boolean;
-  maxRows: number;
-  disabled: boolean;
-  value: string;
+  rows?: number;
+  grow?: boolean;
+  maxRows?: number;
+  disabled?: boolean;
+  value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
-  placeholder: string;
+  placeholder?: string;
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  minChar: number;
-  users: Client.UserResponse[];
+  minChar?: number;
   onSelectItem?(item: any): any;
-  commands: Client.CommandResponse[];
+  commands?: Client.CommandResponse[];
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
+  innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
 }
 
 export interface ChatDownProps extends TranslationContextValue {
@@ -811,7 +821,6 @@ export interface EmoticonItemProps {
   entity: {
     name: string;
     native: string;
-    char: string;
   };
 }
 
@@ -1049,13 +1058,13 @@ export interface MessageLivestreamActionProps {
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
-  channelConfig?: Client.ChannelConfig;
+  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   onReactionListClick?: () => void;
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
-  setEditingState?(message: Client.MessageResponse): any;
+  setEditingState?(): any;
 }
 export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {
@@ -1063,6 +1072,22 @@ export type MessageTeamState = {
   reactionSelectorOpen: boolean;
 };
 export interface MessageTeamProps extends MessageUIComponentProps {}
+export interface MessageTeamAttachmentsProps {
+  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  message?: Client.MessageResponse;
+  handleAction?(
+    name: string,
+    value: string,
+    event: React.BaseSyntheticEvent,
+  ): void;
+}
+export interface MessageTeamStatusProps {
+  t?: i18next.TFunction;
+  threadList?: boolean;
+  lastReceivedId?: string | null;
+  message?: Client.MessageResponse;
+  readBy?: Array<Client.UserResponse>;
+}
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
   MessageTeamState
@@ -1091,7 +1116,7 @@ export interface MessageActionsProps {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  setEditingState?(message: Client.MessageResponse): any;
+  setEditingState?(): any;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
