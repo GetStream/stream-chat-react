@@ -132,7 +132,7 @@ class ReactTextareaAutocomplete extends React.Component {
     if (!hasFocus || event.shiftKey === true) {
       return;
     }
-    if (!trigger) {
+    if (!trigger || !this.state.data) {
       // trigger a submit
       this._replaceWord();
       if (this.textareaRef) {
