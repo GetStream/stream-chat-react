@@ -26,7 +26,9 @@ import { channelReducer, initialState } from './channelState';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
 const Channel = ({ EmptyPlaceholder = null, ...props }) => {
-  const { channel } = useContext(ChatContext);
+  const { channel: contextChannel } = useContext(ChatContext);
+  const channel = props.channel || contextChannel;
+  // const { channel } = useContext(ChatContext);
   if (!channel?.cid) {
     return EmptyPlaceholder;
   }
