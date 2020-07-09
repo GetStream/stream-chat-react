@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 // eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
-import truncate from 'lodash.truncate';
+import { truncate } from '../../utils';
 
 import { Avatar } from '../Avatar';
 
@@ -41,9 +41,7 @@ const ChannelPreviewLastMessage = (props) => {
             {props.displayTitle}
           </span>
           <span className="str-chat__channel-preview-last-message">
-            {truncate(props.latestMessage, {
-              length: props.latestMessageLength,
-            })}
+            {truncate(props.latestMessage, props.latestMessageLength)}
           </span>
           {props.unread >= 1 && (
             <span className="str-chat__channel-preview-unread-count">

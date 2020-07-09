@@ -131,6 +131,7 @@ function messageInputReducer(state, action) {
         imageUploads: Immutable(emptyImageUploads),
         fileOrder: [],
         fileUploads: Immutable(emptyFileUploads),
+        numberOfUploads: 0,
       };
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
