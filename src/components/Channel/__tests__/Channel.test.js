@@ -1,8 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
 import Visibility from 'visibilityjs';
 import Immutable from 'seamless-immutable';
 import Channel from '../Channel';
@@ -21,7 +19,6 @@ import {
 } from '../../../mock-builders';
 import { LoadingErrorIndicator } from '../../Loading';
 
-jest.mock('axios');
 jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -81,8 +78,8 @@ describe('Channel', () => {
       messages,
       members,
     });
-    useMockedApis(axios, [getOrCreateChannelApi(mockedChannel)]);
     chatClient = await getTestClientWithUser(user);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
     channel = chatClient.channel('messaging', mockedChannel.id);
   });
 
@@ -210,7 +207,7 @@ describe('Channel', () => {
 
       const replies = [generateMessage({ parent_id: threadMessage.id })];
 
-      useMockedApis(axios, [threadRepliesApi(replies)]);
+      useMockedApis(chatClient, [threadRepliesApi(replies)]);
 
       const hasThreadMessages = jest.fn();
 
@@ -337,7 +334,9 @@ describe('Channel', () => {
             !contextMessages.find((message) => message.id === newMessages[0].id)
           ) {
             // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-            useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
+            useMockedApis(chatClient, [
+              queryChannelWithNewMessages(newMessages),
+            ]);
             loadMore(limit);
           } else {
             // If message has been added, update checker so we can verify it happened.
@@ -369,7 +368,9 @@ describe('Channel', () => {
               )
             ) {
               // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
+              useMockedApis(chatClient, [
+                queryChannelWithNewMessages(newMessages),
+              ]);
               loadMore(limit);
             } else {
               // If message has been added, set our checker variable so we can verify if hasMore is false.
@@ -395,7 +396,9 @@ describe('Channel', () => {
               )
             ) {
               // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(axios, [queryChannelWithNewMessages(newMessages)]);
+              useMockedApis(chatClient, [
+                queryChannelWithNewMessages(newMessages),
+              ]);
               loadMore(limit);
             } else {
               // If message has been added, set our checker variable so we can verify if hasMore is true.
@@ -496,7 +499,7 @@ describe('Channel', () => {
             children: <MockMessageList />,
           },
           ({ sendMessage }) => {
-            useMockedApis(axios, [
+            useMockedApis(chatClient, [
               sendMessageApi(generateMessage(messageResponse)),
             ]);
             if (!hasSent) sendMessage(sentMessage);
@@ -571,7 +574,7 @@ describe('Channel', () => {
               contextMessages.some(({ status }) => status === 'failed')
             ) {
               // retry
-              useMockedApis(axios, [
+              useMockedApis(chatClient, [
                 sendMessageApi(generateMessage(messageObject)),
               ]);
               retrySendMessage(messageObject);
