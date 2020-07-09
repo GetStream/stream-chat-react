@@ -340,7 +340,7 @@ ChannelList.propTypes = {
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/channel_pagination/?language=js) for a list of available fields for sort.
    * */
-  watchers: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<{[user_id: string]: import('stream-chat').User}> | null | undefined>} */ (PropTypes.object),
+  watchers: /** @type {PropTypes.Validator<{ limit?: number | undefined; offset?: number | undefined} | null | undefined> | undefined} */ (PropTypes.object),
 
   /**
    * Set a Channel (of this id) to be active and move it to the top of the list of channels by ID.

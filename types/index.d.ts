@@ -15,7 +15,7 @@ export interface ChatContextValue {
   channel?: Client.Channel;
   setActiveChannel?(
     channel?: Client.Channel,
-    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ): void;
   navOpen?: boolean;
@@ -237,7 +237,7 @@ export interface ChannelListProps {
   /** Object containing sort parameters */
   sort?: ChannelSort;
   showSidebar?: boolean;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
+  watchers?: { limit?: number; offset?: number };
   customActiveChannel?: string;
 }
 
@@ -295,9 +295,9 @@ export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
   displayImage?: string;
   /** Latest message's text. */
   latestMessage?: string;
-  setActiveChannel(
+  setActiveChannel?(
     channel?: Client.Channel,
-    watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>,
+    watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ): void;
 

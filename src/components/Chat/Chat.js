@@ -75,7 +75,7 @@ const Chat = ({
   const setActiveChannel = useCallback(
     /**
      * @param {ChannelState} activeChannel
-     * @param {import('seamless-immutable').Immutable<{ [user_id: string]: import('stream-chat').User}> | {}} [watchers]
+     * @param {{ limit?: number; offset?: number }} [watchers]
      * @param {React.BaseSyntheticEvent} [e]
      */
     async (activeChannel, watchers = {}, e) => {
