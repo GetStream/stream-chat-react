@@ -26,6 +26,7 @@ import {
   useActionHandler,
   useReactionClick,
   useMentionsUIHandler,
+  useEditHandler,
 } from './hooks';
 import {
   messageHasAttachments,
@@ -62,7 +63,8 @@ const MessageLivestreamComponent = (props) => {
   const {
     message,
     groupStyles,
-    editing,
+    editing: propEditing,
+    setEditingState,
     clearEditingState,
     initialMessage,
     unsafeHTML,
@@ -95,6 +97,11 @@ const MessageLivestreamComponent = (props) => {
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
+  const { editing, setEdit, clearEdit } = useEditHandler(
+    propEditing,
+    setEditingState,
+    clearEditingState,
+  );
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
@@ -146,7 +153,7 @@ const MessageLivestreamComponent = (props) => {
         <MessageInput
           Input={EditMessageForm}
           message={message}
-          clearEditingState={clearEditingState}
+          clearEditingState={clearEdit}
           updateMessage={propUpdateMessage || channelUpdateMessage}
         />
       </div>
@@ -183,8 +190,8 @@ const MessageLivestreamComponent = (props) => {
           tDateTimeParser={propTDateTimeParser}
           channelConfig={props.channelConfig}
           threadList={props.threadList}
-          handleOpenThread={props.handleOpenThread || handleOpenThread}
-          setEditingState={props.setEditingState}
+          handleOpenThread={propHandleOpenThread || handleOpenThread}
+          setEditingState={setEdit}
         />
         <div className="str-chat__message-livestream-left">
           <Avatar

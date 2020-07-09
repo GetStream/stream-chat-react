@@ -9,11 +9,11 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import Message from '../Message';
 import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { ChannelContext, TranslationContext } from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -38,15 +38,18 @@ async function renderMessageLivestream(
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
-    <Message
-      t={(key) => key}
-      channel={channel}
-      client={client}
-      message={message}
-      typing={false}
-      Message={MessageLivestream}
-      {...props}
-    />,
+    <ChannelContext.Provider value={{ client, channel }}>
+      <TranslationContext.Provider value={{ t: (key) => key }}>
+        <MessageLivestream
+          t={(key) => key}
+          channel={channel}
+          client={client}
+          message={message}
+          typing={false}
+          {...props}
+        />
+      </TranslationContext.Provider>
+    </ChannelContext.Provider>,
   );
 }
 
@@ -104,9 +107,7 @@ describe('<MessageLivestream />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
-  // TODO: @vini
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should render message input when in edit mode', async () => {
+  it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
     const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
@@ -125,8 +126,7 @@ describe('<MessageLivestream />', () => {
     );
   });
 
-  // TODO: @vini
-  it.skip.each([
+  it.each([
     ['should display', 'top', { shouldDisplay: true }],
     ['should display', 'single', { shouldDisplay: true }],
     ['should not display', 'middle', { shouldDisplay: false }],
@@ -227,13 +227,11 @@ describe('<MessageLivestream />', () => {
 
   it('should display a reactions icon when channel has reactions enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageLivestream(
-      message,
-      {},
-      {
+    const { getByTestId } = await renderMessageLivestream(message, {
+      channelConfig: {
         reactions: true,
       },
-    );
+    });
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
   });
 
@@ -241,8 +239,9 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage();
     const { getByTestId, queryByTestId } = await renderMessageLivestream(
       message,
-      {},
-      { reactions: true },
+      {
+        channelConfig: { reactions: true },
+      },
     );
     expect(queryByTestId(reactionSelectorTestId)).toBeNull();
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
@@ -253,8 +252,9 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage();
     const { getByTestId, queryByTestId } = await renderMessageLivestream(
       message,
-      {},
-      { reactions: true },
+      {
+        channelConfig: { reactions: true },
+      },
     );
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
@@ -268,26 +268,22 @@ describe('<MessageLivestream />', () => {
 
   it('should display thread action button when channel has replies enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageLivestream(
-      message,
-      {},
-      { replies: true },
-    );
+    const { getByTestId } = await renderMessageLivestream(message, {
+      channelConfig: { replies: true },
+    });
     expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
   });
 
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
-    const openThread = jest.fn();
-    const { getByTestId } = await renderMessageLivestream(
-      message,
-      { openThread },
-      { replies: true },
-    );
-    expect(openThread).not.toHaveBeenCalled();
+    const handleOpenThread = jest.fn();
+    const { getByTestId } = await renderMessageLivestream(message, {
+      handleOpenThread,
+      channelConfig: { replies: true },
+    });
+    expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageLivestreamthreadTestId));
-    expect(openThread).toHaveBeenCalledWith(
-      message,
+    expect(handleOpenThread).toHaveBeenCalledWith(
       expect.any(Object), // THe click event
     );
   });
@@ -338,24 +334,24 @@ describe('<MessageLivestream />', () => {
 
   it('should trigger mentions hover handler when user hovers message text', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsHover = jest.fn();
+    const onMentionsHoverMessage = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
-      onMentionsHover,
+      onMentionsHoverMessage,
     });
-    expect(onMentionsHover).not.toHaveBeenCalled();
+    expect(onMentionsHoverMessage).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageLivestreamTextTestId));
-    expect(onMentionsHover).toHaveBeenCalledTimes(1);
+    expect(onMentionsHoverMessage).toHaveBeenCalledTimes(1);
   });
 
   it('should trigger mentions click handler when user clicks message text', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsClick = jest.fn();
+    const onMentionsClickMessage = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
-      onMentionsClick,
+      onMentionsClickMessage,
     });
-    expect(onMentionsClick).not.toHaveBeenCalled();
+    expect(onMentionsClickMessage).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageLivestreamTextTestId));
-    expect(onMentionsClick).toHaveBeenCalledTimes(1);
+    expect(onMentionsClickMessage).toHaveBeenCalledTimes(1);
   });
 
   it('should render the message text', async () => {
@@ -439,13 +435,13 @@ describe('<MessageLivestream />', () => {
 
   it('should handle open thread when message has replies reply button is clicked', async () => {
     const message = generateAliceMessage({ reply_count: 1 });
-    const openThread = jest.fn();
+    const handleOpenThread = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       initialMessage: false,
-      openThread,
+      handleOpenThread,
     });
-    expect(openThread).not.toHaveBeenCalled();
+    expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThread).toHaveBeenCalledTimes(1);
+    expect(handleOpenThread).toHaveBeenCalledTimes(1);
   });
 });
