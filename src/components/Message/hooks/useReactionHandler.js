@@ -77,7 +77,7 @@ export const useReactionHandler = (message) => {
 /**
  * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
  * @type {(
- *   reactionSelectorRef: React.RefObject<import('../../Reactions/ReactionSelector').default | null>,
+ *   reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
  *   message: import('stream-chat').MessageResponse | undefined,
  *   messageWrapperRef?: React.RefObject<HTMLElement | null>
  * ) => ReactionClickHandler}

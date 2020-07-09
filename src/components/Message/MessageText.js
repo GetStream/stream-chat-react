@@ -26,7 +26,7 @@ const MessageTextComponent = (props) => {
     customOptionProps,
   } = props;
   const reactionSelectorRef = useRef(
-    /** @type {ReactionSelector | null} */ (null),
+    /** @type {HTMLDivElement | null} */ (null),
   );
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
