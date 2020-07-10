@@ -562,8 +562,7 @@ export class Streami18n {
   }
 
   /**
-   *
-   * @param {*} callback
+   * @param {(t: import('i18next').TFunction) => void} callback
    */
   registerSetLanguageCallback(callback) {
     this.setLanguageCallback = callback;

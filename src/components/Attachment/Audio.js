@@ -7,8 +7,7 @@ const progressUpdateInterval = 500;
  * @param {import("types").AudioProps} props
  */
 const Audio = ({ og }) => {
-  /** @type {{ current: HTMLAudioElement | null }} */
-  const audioRef = useRef(null);
+  const audioRef = useRef(/** @type {HTMLAudioElement | null} */ (null));
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 

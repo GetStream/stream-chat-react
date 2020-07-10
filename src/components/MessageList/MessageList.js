@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import deepequal from 'react-fast-compare';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Channel } from 'stream-chat';
 import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
@@ -716,7 +717,7 @@ MessageList.propTypes = {
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   messages: PropTypes.array.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  channel: PropTypes.object.isRequired,
+  channel: PropTypes.instanceOf(Channel).isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   updateMessage: PropTypes.func.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */

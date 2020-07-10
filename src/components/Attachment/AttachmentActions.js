@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
  * AttachmentActions - The actions you can take on an attachment
  *
  * @example ../../docs/AttachmentActions.md
+ * @type {React.FC<import('type').AttachmentActionsProps>}
  */
 const AttachmentActions = ({ text, id, actions, actionHandler }) => (
   <div className="str-chat__message-attachment-actions">

@@ -1,20 +1,29 @@
+// @ts-check
+
 import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 
+/**
+ * @typedef {import('stream-chat').Event<string>} ChannelDeletedEvent
+ * @typedef {React.Dispatch<React.SetStateAction<import('stream-chat').Channel[]>>} SetChannels
+ * @param {SetChannels} setChannels
+ * @param {(setChannels: SetChannels, event: ChannelDeletedEvent) => void} [customHandler]
+ */
 export const useChannelDeletedListener = (setChannels, customHandler) => {
   const { client } = useContext(ChatContext);
 
   useEffect(() => {
+    /** @param {import('stream-chat').Event<string>} e */
     const handleEvent = (e) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);
       } else {
         setChannels((channels) => {
           const channelIndex = channels.findIndex(
-            (channel) => channel.cid === e.channel.cid,
+            (channel) => channel.cid === e.channel?.cid,
           );
 
-          if (channelIndex < 0) return;
+          if (channelIndex < 0) return [...channels];
 
           // Remove the deleted channel from the list.s
           channels.splice(channelIndex, 1);
@@ -25,12 +34,10 @@ export const useChannelDeletedListener = (setChannels, customHandler) => {
       }
     };
 
-    client.on('channel.deleted', (e) => {
-      handleEvent(e);
-    });
+    client.on('channel.deleted', handleEvent);
 
     return () => {
-      client.off('channel.deleted');
+      client.off('channel.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);

@@ -54,7 +54,8 @@ const ErrorIcon = () => (
  * Implements the look and feel for a team style collaboration environment
  *
  * @example ../../docs/MessageTeam.md
- * @typedef { import('../../../types').MessageTeamProps } Props
+ * @typedef { import('types').MessageTeamProps } Props
+ *
  * @type {React.FC<Props>}
  */
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -486,14 +487,13 @@ const MessageTeamAttachments = (props) => {
 
 MessageTeam.propTypes = {
   /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  // @ts-ignore
-  message: PropTypes.object,
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
+    .object.isRequired),
   /**
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  // @ts-ignore
-  Attachment: PropTypes.elementType,
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
@@ -501,22 +501,18 @@ MessageTeam.propTypes = {
    * The higher order message component, most logic is delegated to this component
    * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
    * */
-  // @ts-ignore
-  Message: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.func,
-    PropTypes.object,
-  ]).isRequired,
+  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
+    [PropTypes.node, PropTypes.func, PropTypes.object],
+  ).isRequired),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** Client object */
-  // @ts-ignore
-  client: PropTypes.object,
+  client: /** @type {PropTypes.Validator<import('stream-chat').StreamChat>} */ (PropTypes.object),
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
   /** Channel config object */
-  // @ts-ignore
-  channelConfig: PropTypes.object,
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
+    .object.isRequired),
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /** Function to open thread on current messxage */
@@ -531,8 +527,7 @@ MessageTeam.propTypes = {
    * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
-  // @ts-ignore
-  getMessageActions: PropTypes.func,
+  getMessageActions: /** @type {PropTypes.Validator<() => Array<string>>} */ (PropTypes.func),
   /**
    * Function to publish updates on message to channel
    *
@@ -552,8 +547,7 @@ MessageTeam.propTypes = {
    */
   handleReaction: PropTypes.func,
   /** DOMRect object for parent MessageList component */
-  // @ts-ignore
-  messageListRect: PropTypes.object,
+  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /**
    * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
    *
@@ -594,8 +588,7 @@ MessageTeam.propTypes = {
    * The component that will be rendered if the message has been deleted.
    * All of Message's props are passed into this component.
    */
-  // @ts-ignore
-  MessageDeleted: PropTypes.elementType,
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
 };
 
 export default React.memo(MessageTeam, areMessagePropsEqual);
