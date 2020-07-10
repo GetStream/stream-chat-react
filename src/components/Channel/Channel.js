@@ -28,7 +28,6 @@ import { channelReducer, initialState } from './channelState';
 const Channel = ({ EmptyPlaceholder = null, ...props }) => {
   const { channel: contextChannel } = useContext(ChatContext);
   const channel = props.channel || contextChannel;
-  // const { channel } = useContext(ChatContext);
   if (!channel?.cid) {
     return EmptyPlaceholder;
   }
@@ -217,7 +216,7 @@ const ChannelInner = ({
       originalTitle.current = document.title;
       if (!errored) {
         dispatch({ type: 'initStateFromChannel', channel });
-        if (channel.countUnread() > 0) channel.markRead();
+        if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in chat.js
         // listen to client.connection.recovered and all channel events
         document.addEventListener('visibilitychange', onVisibilityChange);
