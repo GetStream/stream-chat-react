@@ -30,6 +30,7 @@ import {
 } from 'mock-builders';
 import { v4 as uuidv4 } from 'uuid';
 
+import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
 import ChannelList from '../ChannelList';
 
@@ -95,10 +96,12 @@ describe('ChannelList', () => {
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
       const { getByTestId, getByRole } = render(
-        <Chat client={chatClientUthred}>
-          <ChannelList {...props} navOpen />
+        <ChatContext.Provider
+          value={{ client: chatClientUthred, closeMobileNav, navOpen: true }}
+        >
+          <ChannelList {...props} />
           <div data-testid="outside-channellist" />
-        </Chat>,
+        </ChatContext.Provider>,
       );
 
       // Wait for list of channels to load in DOM.
@@ -114,10 +117,12 @@ describe('ChannelList', () => {
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
       const { getByTestId, getByRole } = render(
-        <Chat client={chatClientUthred}>
-          <ChannelList {...props} navOpen={false} />
+        <ChatContext.Provider
+          value={{ client: chatClientUthred, closeMobileNav, navOpen: false }}
+        >
+          <ChannelList {...props} />
           <div data-testid="outside-channellist" />
-        </Chat>,
+        </ChatContext.Provider>,
       );
 
       // Wait for list of channels to load in DOM.
@@ -230,16 +235,21 @@ describe('ChannelList', () => {
 
     it('should call `setActiveChannel` prop function with first channel as param', async () => {
       render(
-        <Chat client={chatClientUthred}>
+        <ChatContext.Provider
+          value={{ client: chatClientUthred, setActiveChannel }}
+        >
           <ChannelList
             filters={{}}
             List={ChannelListComponent}
             setActiveChannelOnMount
-            setActiveChannel={setActiveChannel}
             watchers={watchersConfig}
-            options={{ state: true, watch: true, presence: true }}
+            options={{
+              state: true,
+              watch: true,
+              presence: true,
+            }}
           />
-        </Chat>,
+        </ChatContext.Provider>,
       );
 
       const channelInstance = chatClientUthred.channel(
@@ -252,7 +262,9 @@ describe('ChannelList', () => {
 
     it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', async () => {
       render(
-        <Chat client={chatClientUthred}>
+        <ChatContext.Provider
+          value={{ client: chatClientUthred, setActiveChannel }}
+        >
           <ChannelList
             filters={{}}
             List={ChannelListComponent}
@@ -262,7 +274,7 @@ describe('ChannelList', () => {
             watchers={watchersConfig}
             options={{ state: true, watch: true, presence: true }}
           />
-        </Chat>,
+        </ChatContext.Provider>,
       );
 
       const channelInstance = chatClientUthred.channel(
@@ -275,7 +287,9 @@ describe('ChannelList', () => {
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
       const { getByTestId, getByRole, getAllByRole } = render(
-        <Chat client={chatClientUthred}>
+        <ChatContext.Provider
+          value={{ client: chatClientUthred, setActiveChannel }}
+        >
           <ChannelList
             filters={{}}
             Preview={ChannelPreviewComponent}
@@ -286,7 +300,7 @@ describe('ChannelList', () => {
             watchers={watchersConfig}
             options={{ state: true, watch: true, presence: true }}
           />
-        </Chat>,
+        </ChatContext.Provider>,
       );
 
       // Wait for list of channels to load in DOM.
@@ -741,13 +755,15 @@ describe('ChannelList', () => {
       it('should unset activeChannel if it was deleted', async () => {
         const setActiveChannel = jest.fn();
         const { getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <ChatContext.Provider
+            value={{ client: chatClientUthred, setActiveChannel }}
+          >
             <ChannelList
               {...channelListProps}
               channel={{ cid: testChannel1.channel.cid }}
               setActiveChannel={setActiveChannel}
             />
-          </Chat>,
+          </ChatContext.Provider>,
         );
 
         // Wait for list of channels to load in DOM.
@@ -760,7 +776,7 @@ describe('ChannelList', () => {
         );
 
         await waitFor(() => {
-          expect(setActiveChannel).toHaveBeenCalledWith({});
+          expect(setActiveChannel).toHaveBeenCalledTimes(1);
         });
       });
     });

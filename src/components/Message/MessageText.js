@@ -25,7 +25,9 @@ const MessageTextComponent = (props) => {
     unsafeHTML,
     customOptionProps,
   } = props;
-  const reactionSelectorRef = useRef(null);
+  const reactionSelectorRef = useRef(
+    /** @type {HTMLDivElement | null} */ (null),
+  );
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
@@ -43,7 +45,7 @@ const MessageTextComponent = (props) => {
     customInnerClass ||
     `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!message || !message.text) {
+  if (!message?.text) {
     return null;
   }
 

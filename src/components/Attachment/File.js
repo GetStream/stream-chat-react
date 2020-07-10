@@ -3,6 +3,7 @@ import { FileIcon } from 'react-file-utils';
 import prettybytes from 'pretty-bytes';
 import { SafeAnchor } from '../SafeAnchor';
 
+/** @type React.FC<import('types').FileProps> */
 const File = ({ attachment }) => {
   return (
     <div

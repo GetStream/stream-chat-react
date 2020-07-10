@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+import { Channel } from 'stream-chat';
 import { smartRender } from '../../utils';
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Message } from '../Message';
@@ -17,7 +18,7 @@ import { MessageInput, MessageInputSmall } from '../MessageInput';
  * - additionalMessageInputProps
  *
  * @example ../../docs/Thread.md
- * @typedef { import('../../../types').ThreadProps } Props
+ * @typedef { import('types').ThreadProps } Props
  * @extends PureComponent<Props, any>
  */
 class Thread extends PureComponent {
@@ -27,13 +28,13 @@ class Thread extends PureComponent {
     /** Make input focus on mounting thread */
     autoFocus: PropTypes.bool,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    channel: PropTypes.object.isRequired,
+    channel: PropTypes.instanceOf(Channel).isRequired,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    Message: PropTypes.elementType,
+    Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
-    thread: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+    thread: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The array of immutable messages to render. By default they are provided by parent Channel component */
@@ -75,7 +76,7 @@ class Thread extends PureComponent {
         <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
         ```
     */
-    MessageInput: PropTypes.elementType,
+    MessageInput: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageInputProps>>} */ (PropTypes.elementType),
   };
 
   static defaultProps = {

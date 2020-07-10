@@ -14,7 +14,7 @@ import {
   getRandomInt,
 } from 'mock-builders';
 
-import { Chat } from '../../Chat';
+import { ChatContext } from '../../../context';
 import ChannelPreview from '../ChannelPreview';
 
 const PreviewUIComponent = (props) => {
@@ -46,13 +46,15 @@ describe('ChannelPreview', () => {
   let c1;
   const renderComponent = (props, renderer) => {
     return renderer(
-      <Chat client={chatClientUthred}>
-        <ChannelPreview
-          Preview={PreviewUIComponent}
-          setActiveChannel={jest.fn()}
-          {...props}
-        />
-      </Chat>,
+      <ChatContext.Provider
+        value={{
+          client: chatClientUthred,
+          setActiveChannel: () => jest.fn(),
+          channel: props.activeChannel,
+        }}
+      >
+        <ChannelPreview Preview={PreviewUIComponent} {...props} />
+      </ChatContext.Provider>,
     );
   };
 
