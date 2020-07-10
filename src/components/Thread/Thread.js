@@ -34,11 +34,13 @@ class Thread extends PureComponent {
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
-    thread: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
+    thread: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<import('stream-chat').MessageResponse>>} */ (PropTypes.object),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The array of immutable messages to render. By default they are provided by parent Channel component */
-    threadMessages: PropTypes.array.isRequired,
+    threadMessages:
+      /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>>} */
+      (PropTypes.array),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      *
@@ -212,7 +214,8 @@ class ThreadInner extends React.PureComponent {
         </div>
         <div className="str-chat__thread-list" ref={this.messageList}>
           <Message
-            message={this.props.thread}
+            // @ts-ignore
+            message={thread}
             initialMessage
             threadList
             Message={this.props.Message}
