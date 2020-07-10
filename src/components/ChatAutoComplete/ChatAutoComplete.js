@@ -46,6 +46,7 @@ const ChatAutoComplete = (props) => {
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryMembersdebounced = useCallback(
     debounce(
       /** @type {(query: string, onReady: (data: any[]) => void) => Promise<void>} */

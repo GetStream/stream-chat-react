@@ -713,7 +713,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
         <Textarea
           {...this._cleanUpProps()}
-          inputRef={(ref) => {
+          ref={(ref) => {
             this.props.innerRef && this.props.innerRef(ref);
             this.textareaRef = ref;
           }}
