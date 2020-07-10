@@ -1,6 +1,15 @@
+// @ts-check
+
 import { useEffect, useState } from 'react';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
-
+/**
+ * @typedef {import('stream-chat').Channel} Channel
+ * @param {import('stream-chat').StreamChat} client
+ * @param {import('types').ChannelFilters} filters
+ * @param {import('types').ChannelSort} [sort]
+ * @param {import('types').ChannelOptions} [options]
+ * @param {(channels: Channel[], setChannels: React.Dispatch<React.SetStateAction<Channel[]>>) => void} [activeChannelHandler]
+ */
 export const usePaginatedChannels = (
   client,
   filters,
@@ -8,12 +17,16 @@ export const usePaginatedChannels = (
   options,
   activeChannelHandler,
 ) => {
-  const [channels, setChannels] = useState([]);
+  const [channels, setChannels] = useState(/** @type {Channel[]} */ ([]));
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   const [offset, setOffset] = useState(0);
   const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
+
+  /**
+   * @param {string} [queryType]
+   */
   const queryChannels = async (queryType) => {
     if (queryType === 'reload') {
       setChannels([]);
@@ -23,15 +36,15 @@ export const usePaginatedChannels = (
     setRefreshing(true);
 
     const newOptions = {
-      limit: MAX_QUERY_CHANNELS_LIMIT,
       offset: queryType === 'reload' ? 0 : offset,
       ...options,
+      limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
     };
 
     try {
       const channelQueryResponse = await client.queryChannels(
         filters,
-        sort,
+        sort || {},
         newOptions,
       );
 
@@ -45,19 +58,19 @@ export const usePaginatedChannels = (
       setChannels(newChannels);
       setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
-      setLoadingChannels(false);
 
       // Set active channel only after first page.
-      if (offset === 0) {
-        activeChannelHandler(newChannels);
+      if (offset === 0 && activeChannelHandler) {
+        activeChannelHandler(newChannels, setChannels);
       }
 
       setOffset(newChannels.length);
     } catch (e) {
       console.warn(e);
       setError(true);
-      setRefreshing(false);
     }
+    setLoadingChannels(false);
+    setRefreshing(false);
   };
 
   const loadNextPage = () => {

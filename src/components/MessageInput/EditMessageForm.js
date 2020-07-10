@@ -16,9 +16,7 @@ import { KEY_CODES } from '../AutoCompleteTextarea';
 /** @type {React.FC<import("types").MessageInputProps>} */
 const EditMessageForm = (props) => {
   const messageInput = useMessageInput(props);
-  /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
-  /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
 
   const { clearEditingState } = props;
