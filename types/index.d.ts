@@ -346,7 +346,7 @@ export interface LoadingIndicatorProps {
 }
 
 export interface LoadingErrorIndicatorProps extends TranslationContextValue {
-  error: boolean | object;
+  error?: Error | null;
 }
 
 export interface AvatarProps {
