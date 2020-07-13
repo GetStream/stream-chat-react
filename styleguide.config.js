@@ -1,6 +1,4 @@
 /* eslint-disable */
-// @noflow
-/* eslint-env commonjs */
 const path = require('path');
 
 module.exports = {
@@ -9,7 +7,7 @@ module.exports = {
   assetsDir: 'src/assets',
   sortProps: (props) => props,
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
-  webpackConfig: require('./webpack.config.styleguidist.js'),
+  webpackConfig: require('./styleguidist/webpack.config.styleguidist.js'),
   serverPort: 6068,
   styleguideComponents: {
     PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
@@ -116,7 +114,7 @@ module.exports = {
   ],
   require: [
     path.join(path.resolve(path.dirname('')), 'dist/css/index.css'),
-    path.join(path.resolve(path.dirname('')), 'styleguidist.css'),
+    path.join(path.resolve(path.dirname('')), 'styleguidist/styleguidist.css'),
   ],
   template: {
     favicon: 'https://getstream.imgix.net/images/favicons/favicon-96x96.png',
