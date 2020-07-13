@@ -5,7 +5,6 @@ import {
   useDeleteHandler,
   useUserRole,
   useFlagHandler,
-  useEditHandler,
   useMuteHandler,
 } from '../Message/hooks';
 import { isUserMuted } from '../Message/utils';
@@ -28,7 +27,6 @@ export const MessageActions = (props) => {
     getFlagMessageSuccessNotification,
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
-    handleEdit: propHandleEdit,
     handleDelete: propHandleDelete,
     inline,
     customWrapperClass,
@@ -37,7 +35,6 @@ export const MessageActions = (props) => {
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   const { isMyMessage } = useUserRole(message);
   const handleDelete = useDeleteHandler(message);
-  const handleEdit = useEditHandler(message, setEditingState);
   const handleFlag = useFlagHandler(message, {
     notify: addNotification,
     getSuccessNotification: getFlagMessageErrorNotification,
@@ -93,7 +90,7 @@ export const MessageActions = (props) => {
         handleFlag={propHandleFlag || handleFlag}
         isUserMuted={isMuted}
         handleMute={propHandleMute || handleMute}
-        handleEdit={propHandleEdit || handleEdit}
+        handleEdit={setEditingState}
         handleDelete={propHandleDelete || handleDelete}
         mine={isMyMessage}
       />
