@@ -50,7 +50,7 @@ const MessageInputFlat = (props) => {
               maxRows={props.maxRows}
               placeholder={t('Type your message')}
               onPaste={messageInput.onPaste}
-              triggers={props.triggers}
+              triggers={props.autocompleteTriggers}
               grow={props.grow}
               disabled={props.disabled}
               additionalTextareaProps={props.additionalTextareaProps}
@@ -124,6 +124,10 @@ MessageInputFlat.propTypes = {
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    */
   additionalTextareaProps: PropTypes.object,
+  /**
+   * Override the default triggers of the ChatAutoComplete component
+   */
+  autocompleteTriggers: PropTypes.object,
   /**
    * @param message: the Message object to be sent
    * @param cid: the channel id
