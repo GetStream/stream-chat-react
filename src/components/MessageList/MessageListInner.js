@@ -35,7 +35,7 @@ const getReadStates = (messages, read) => {
   return readData;
 };
 
-const insertDates = (messages, eventHistory) => {
+const insertDates = (messages) => {
   const newMessages = [];
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
@@ -57,20 +57,11 @@ const insertDates = (messages, eventHistory) => {
     } else {
       newMessages.push(message);
     }
-
-    const eventsNextToMessage =
-      eventHistory && eventHistory[message.id || 'first'];
-    if (eventsNextToMessage && eventsNextToMessage.length > 0) {
-      eventsNextToMessage.forEach((e) => {
-        newMessages.push({ type: 'channel.event', event: e });
-      });
-    }
   }
 
   return newMessages;
 };
 
-// TODO: merge this into the eventHistory render
 const insertIntro = (messages, headerPosition) => {
   const newMessages = messages;
   // if no headerPosition is set, HeaderComponent will go at the top
@@ -178,7 +169,6 @@ const MessageListInner = (props) => {
     bottomRef,
     onMessageLoadCaptured,
     messages,
-    eventHistory,
     noGroupByUser,
     client,
     threadList,
@@ -188,11 +178,11 @@ const MessageListInner = (props) => {
   } = props;
 
   const enrichedMessages = useMemo(() => {
-    const messageWithDates = insertDates(messages, eventHistory);
+    const messageWithDates = insertDates(messages);
     // messageWithDates.sort((a, b) => a.created_at - b.created_at); // TODO: remove if no issue came up
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
     return messageWithDates;
-  }, [HeaderComponent, eventHistory, headerPosition, messages]);
+  }, [HeaderComponent, headerPosition, messages]);
 
   const messageGroupStyles = useMemo(
     () =>
