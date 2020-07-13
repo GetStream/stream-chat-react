@@ -7,3 +7,4 @@ export { default as MessageRepliesCountButton } from './MessageRepliesCountButto
 export * from './MessageOptions';
 export * from './MessageText';
 export * from './hooks';
+export * from './utils';
