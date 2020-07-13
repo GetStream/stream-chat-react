@@ -19,12 +19,7 @@ import SendButtonComponent from './SendButton';
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputLarge = (props) => {
   const messageInput = useMessageInput(props);
-  /** @type {import("types").TranslationContextValue} */
-  const translationContext = useContext(TranslationContext);
-  const {
-    t = /** @type {(key: string) => string} */ (key) => key,
-  } = translationContext;
-  /** @type {import("types").ChannelContextValue} */
+  const { t } = useContext(TranslationContext);
   const channelContext = useContext(ChannelContext);
 
   /**
@@ -68,9 +63,9 @@ const MessageInputLarge = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input">
-          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
+            <UploadsPreview {...messageInput} />
             <ChatAutoComplete
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}

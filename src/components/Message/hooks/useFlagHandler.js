@@ -12,9 +12,6 @@ import { validateAndGetMessage } from '../utils';
  * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
  */
 export const useFlagHandler = (message, notifications) => {
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { client } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
 

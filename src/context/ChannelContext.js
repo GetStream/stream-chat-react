@@ -1,32 +1,36 @@
 // @ts-check
+
 import React from 'react';
 
 /**
- * @typedef {import('types').ChannelContextValue} ChannelContext
+ * @typedef {import('types').ChannelContextValue} ChannelContextProps
  */
+
 export const ChannelContext = React.createContext(
-  /** @type {ChannelContext} */ ({}),
+  /** @type {ChannelContextProps} */ ({}),
 );
 
-/** @param { React.ComponentClass | React.FC } OriginalComponent */
+/**
+ * @function
+ * @template P
+ * @param { React.ComponentType<P> } OriginalComponent
+ * @returns {React.ComponentType<Exclude<P, ChannelContextProps>>}
+ */
 export function withChannelContext(OriginalComponent) {
-  /** @param {any} props */
+  /** @param {Exclude<P, ChannelContextProps>} props */
   const ContextAwareComponent = function ContextComponent(props) {
     return (
       <ChannelContext.Consumer>
-        {(channelContext) => (
-          <OriginalComponent {...channelContext} {...props} />
-        )}
+        {(context) => <OriginalComponent {...context} {...props} />}
       </ChannelContext.Consumer>
     );
   };
-  /** @type {string} */
-  ContextAwareComponent.displayName =
-    OriginalComponent.displayName || OriginalComponent.name || 'Component';
-  ContextAwareComponent.displayName = ContextAwareComponent.displayName.replace(
-    'Base',
-    '',
-  );
+
+  ContextAwareComponent.displayName = (
+    OriginalComponent.displayName ||
+    OriginalComponent.name ||
+    'Component'
+  ).replace('Base', '');
 
   return ContextAwareComponent;
 }

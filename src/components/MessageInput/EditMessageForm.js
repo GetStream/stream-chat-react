@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
@@ -11,14 +11,27 @@ import useMessageInput from './hooks/messageInput';
 import UploadsPreview from './UploadsPreview';
 import EmojiPicker from './EmojiPicker';
 import SendButtonComponent from './SendButton';
+import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
 const EditMessageForm = (props) => {
   const messageInput = useMessageInput(props);
-  /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
-  /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
+
+  const { clearEditingState } = props;
+
+  useEffect(() => {
+    /** @type {(event: KeyboardEvent) => void} Typescript syntax */
+    const onKeyDown = (event) => {
+      console.log('event.keyCode :>> ', event.keyCode);
+      if (event.keyCode === KEY_CODES.ESC && clearEditingState)
+        clearEditingState();
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [clearEditingState]);
 
   return (
     <div className="str-chat__edit-message-form">

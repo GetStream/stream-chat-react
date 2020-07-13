@@ -8,9 +8,6 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
  * @type {(message: import('stream-chat').MessageResponse | undefined) => (reactionType: string, event: React.MouseEvent) => Promise<void>}
  */
 export const useReactionHandler = (message) => {
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { client, channel, updateMessage } = useContext(ChannelContext);
 
   return async (reactionType, event) => {
@@ -80,7 +77,7 @@ export const useReactionHandler = (message) => {
 /**
  * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
  * @type {(
- *   reactionSelectorRef: React.RefObject<import('../../Reactions/ReactionSelector').default | null>,
+ *   reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
  *   message: import('stream-chat').MessageResponse | undefined,
  *   messageWrapperRef?: React.RefObject<HTMLElement | null>
  * ) => ReactionClickHandler}

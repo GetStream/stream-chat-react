@@ -1,7 +1,9 @@
 // @ts-check
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import deepequal from 'react-fast-compare';
 
+import { Channel, StreamChat } from 'stream-chat';
 import MessageSimple from './MessageSimple';
 import { Attachment } from '../Attachment';
 import {
@@ -30,143 +32,24 @@ class Message extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
+      editing: false,
     };
   }
-
-  static propTypes = {
-    /** The message object */
-    message: PropTypes.object.isRequired,
-    /** The client connection object for connecting to Stream */
-    client: PropTypes.object.isRequired,
-    /** The current channel this message is displayed in */
-    channel: PropTypes.object.isRequired,
-    /** A list of users that have read this message */
-    readBy: PropTypes.array,
-    /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-    groupStyles: PropTypes.array,
-    /** Editing, if the message is currently being edited */
-    editing: PropTypes.bool,
-    /**
-     * Message UI component to display a message in message list.
-     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-     * */
-    Message: PropTypes.elementType,
-    /**
-     * Attachment UI component to display attachment in individual message.
-     * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-     * */
-    Attachment: PropTypes.elementType,
-    /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-    unsafeHTML: PropTypes.bool,
-    /**
-     * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
-     * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-     * */
-    messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-     *
-     * */
-    getFlagMessageErrorNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserSuccessNotification: PropTypes.func,
-    /**
-     * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-     *
-     * This function should accept following params:
-     *
-     * @param user A user object which is being muted
-     *
-     * */
-    getMuteUserErrorNotification: PropTypes.func,
-    /** Latest message id on current channel */
-    lastReceivedId: PropTypes.string,
-    /** DOMRect object for parent MessageList component */
-    messageListRect: PropTypes.object,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    members: PropTypes.object,
-    /**
-     * Function to add custom notification on messagelist
-     *
-     * @param text Notification text to display
-     * @param type Type of notification. 'success' | 'error'
-     * */
-    addNotification: PropTypes.func,
-    /** Sets the editing state */
-    setEditingState: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    updateMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    removeMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    retrySendMessage: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    onMentionsClick: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    onMentionsHover: PropTypes.func,
-    /**
-     * The handler for click event on the user that posted the message
-     *
-     * @param event Dom click event which triggered handler.
-     * @param user the User object for the corresponding user.
-     */
-    onUserClick: PropTypes.func,
-    /**
-     * The handler for hover events on the user that posted the message
-     *
-     * @param event Dom hover event which triggered handler.
-     * @param user the User object for the corresponding user.
-     */
-    onUserHover: PropTypes.func,
-    /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-    openThread: PropTypes.func,
-    /** Handler to clear the edit state of message. It is defined in [MessageList](https://getstream.github.io/stream-chat-react/#messagelist) component */
-    clearEditingState: PropTypes.func,
-    /**
-     * Additional props for underlying MessageInput component.
-     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-     * */
-    additionalMessageInputProps: PropTypes.object,
-    /**
-     * The component that will be rendered if the message has been deleted.
-     * All props are passed into this component.
-     */
-    MessageDeleted: PropTypes.elementType,
-  };
 
   static defaultProps = {
     Message: MessageSimple,
     readBy: [],
     groupStyles: [],
     Attachment,
-    editing: false,
     messageActions: Object.keys(MESSAGE_ACTIONS),
   };
 
-  /** @type {(nextProps: Props) => boolean} Typescript syntax */
-  shouldComponentUpdate(nextProps) {
-    return shouldMessageComponentUpdate(nextProps, this.props);
+  /** @type {(nextProps: Props, nextState: State) => boolean} Typescript syntax */
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      shouldMessageComponentUpdate(nextProps, this.props) ||
+      !deepequal(nextState, this.state)
+    );
   }
 
   /** @type {(message: import('stream-chat').MessageResponse) => boolean} Typescript syntax */
@@ -305,18 +188,20 @@ class Message extends Component {
     }
   };
 
-  /** @type {(event: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
+  /** @type {(event?: React.BaseSyntheticEvent<HTMLElement>) => void} Typescript syntax */
+  clearEditingState = (event) => {
+    if (event?.preventDefault) event.preventDefault();
+    this.setState({ editing: false });
+  };
+
+  setEditingState = () => {
+    this.setState({ editing: true });
+  };
+
+  /** @type {(event: React.BaseSyntheticEvent<HTMLElement>) => void} Typescript syntax */
   handleEdit = (event) => {
-    const { setEditingState, message } = this.props;
-
-    if (!message || !setEditingState) {
-      return;
-    }
-    if (event !== undefined && event.preventDefault) {
-      event.preventDefault();
-    }
-
-    setEditingState(message);
+    if (event.preventDefault) event.preventDefault();
+    this.setEditingState();
   };
 
   /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
@@ -501,6 +386,9 @@ class Message extends Component {
           Message={MessageUIComponent}
           handleReaction={this.handleReaction}
           getMessageActions={this.getMessageActions}
+          clearEditingState={this.clearEditingState}
+          setEditingState={this.setEditingState}
+          editing={this.state.editing}
           handleFlag={this.handleFlag}
           handleMute={this.handleMute}
           handleAction={this.handleAction}
@@ -524,5 +412,140 @@ class Message extends Component {
     );
   }
 }
+
+Message.propTypes = {
+  /** The message object */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.shape(
+    {
+      text: PropTypes.string.isRequired,
+      html: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired)
+        .isRequired,
+      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired)
+        .isRequired,
+      created_at: PropTypes.string.isRequired,
+      updated_at: PropTypes.string.isRequired,
+    },
+  ).isRequired),
+  /** The client connection object for connecting to Stream */
+  client: PropTypes.instanceOf(StreamChat).isRequired,
+  /** The current channel this message is displayed in */
+  channel: PropTypes.instanceOf(Channel).isRequired,
+  /** A list of users that have read this message */
+  readBy: PropTypes.array,
+  /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
+  groupStyles: PropTypes.array,
+  /**
+   * Message UI component to display a message in message list.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
+  /**
+   * The component that will be rendered if the message has been deleted.
+   * All props are passed into this component.
+   */
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+  /**
+   * Attachment UI component to display attachment in individual message.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML: PropTypes.bool,
+  /**
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+   * */
+  messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserSuccessNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserErrorNotification: PropTypes.func,
+  /** Latest message id on current channel */
+  lastReceivedId: PropTypes.string,
+  /** DOMRect object for parent MessageList component */
+  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  members: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<{[user_id: string]: import('stream-chat').Member}> | null | undefined>} */ (PropTypes.object),
+  /**
+   * Function to add custom notification on messagelist
+   *
+   * @param text Notification text to display
+   * @param type Type of notification. 'success' | 'error'
+   * */
+  addNotification: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  updateMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  removeMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  retrySendMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsClick: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsHover: PropTypes.func,
+  /**
+   * The handler for click event on the user that posted the message
+   *
+   * @param event Dom click event which triggered handler.
+   * @param user the User object for the corresponding user.
+   */
+  onUserClick: PropTypes.func,
+  /**
+   * The handler for hover events on the user that posted the message
+   *
+   * @param event Dom hover event which triggered handler.
+   * @param user the User object for the corresponding user.
+   */
+  onUserHover: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  openThread: PropTypes.func,
+  /**
+   * Additional props for underlying MessageInput component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
+  additionalMessageInputProps: PropTypes.object,
+};
+
+Message.defaultProps = {
+  Message: MessageSimple,
+  readBy: [],
+  groupStyles: [],
+  Attachment,
+  messageActions: Object.keys(MESSAGE_ACTIONS),
+};
 
 export default withTranslationContext(Message);

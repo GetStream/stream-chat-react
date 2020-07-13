@@ -132,7 +132,7 @@ class ReactTextareaAutocomplete extends React.Component {
     if (!hasFocus || event.shiftKey === true) {
       return;
     }
-    if (!trigger) {
+    if (!trigger || !this.state.data) {
       // trigger a submit
       this._replaceWord();
       if (this.textareaRef) {
@@ -713,7 +713,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
         <Textarea
           {...this._cleanUpProps()}
-          inputRef={(ref) => {
+          ref={(ref) => {
             this.props.innerRef && this.props.innerRef(ref);
             this.textareaRef = ref;
           }}

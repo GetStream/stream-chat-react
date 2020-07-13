@@ -1,27 +1,23 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-continue */
-/* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable sonarjs/cognitive-complexity */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import deepequal from 'react-fast-compare';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Channel } from 'stream-chat';
 import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
+import MessageListInner from './MessageListInner';
 import { MESSAGE_ACTIONS } from '../Message/utils';
 import { smartRender } from '../../utils';
 
 import { ChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
-import { Message, MessageSimple } from '../Message';
+import { MessageSimple } from '../Message';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { InfiniteScroll } from '../InfiniteScrollPaginator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
-import { KEY_CODES } from '../AutoCompleteTextarea';
 
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -35,14 +31,12 @@ class MessageList extends PureComponent {
 
     this.state = {
       newMessagesNotification: false,
-      editing: '',
       online: true,
       notifications: [],
     };
 
     this.bottomRef = React.createRef();
     this.messageList = React.createRef();
-    this.messageRefs = {};
     this.notificationTimeouts = [];
   }
 
@@ -60,14 +54,11 @@ class MessageList extends PureComponent {
     });
 
     this.props.client.on('connection.changed', this.connectionChanged);
-
-    document.addEventListener('keydown', this.keypress);
   }
 
   componentWillUnmount() {
     this.props.client.off('connection.changed', this.connectionChanged);
 
-    document.removeEventListener('keydown', this.keypress);
     this.notificationTimeouts.forEach(clearTimeout);
   }
 
@@ -144,12 +135,6 @@ class MessageList extends PureComponent {
     }
   }
 
-  keypress = (event) => {
-    if (event.keyCode === KEY_CODES.ESC && this.state.editing) {
-      this.clearEditingState();
-    }
-  };
-
   scrollToBottom = () => {
     this._scrollToRef(this.bottomRef, this.messageList);
   };
@@ -187,133 +172,9 @@ class MessageList extends PureComponent {
     if (scrollTop !== undefined) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
   };
 
-  setEditingState = (message) => {
-    this.setState({ editing: message.id });
-  };
-
-  clearEditingState = (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-
-    this.setState({ editing: '' });
-  };
-
-  insertDates = (messages) => {
-    const newMessages = [];
-    for (const [i, message] of messages.entries()) {
-      if (message.type === 'message.read') {
-        newMessages.push(message);
-        continue;
-      }
-      const messageDate = message.created_at.toDateString();
-      let prevMessageDate = messageDate;
-      if (i > 0) {
-        prevMessageDate = messages[i - 1].created_at.toDateString();
-      }
-
-      if (i === 0 || messageDate !== prevMessageDate) {
-        newMessages.push(
-          { type: 'message.date', date: message.created_at },
-          message,
-        );
-      } else {
-        newMessages.push(message);
-      }
-
-      const eventsNextToMessage = this.props.eventHistory[
-        message.id || 'first'
-      ];
-      if (eventsNextToMessage && eventsNextToMessage.length > 0) {
-        eventsNextToMessage.forEach((e) => {
-          newMessages.push({
-            type: 'channel.event',
-            event: e,
-          });
-        });
-      }
-    }
-
-    return newMessages;
-  };
-
-  insertIntro = (messages) => {
-    const newMessages = messages || [];
-    // if no headerPosition is set, HeaderComponent will go at the top
-    if (!this.props.headerPosition) {
-      newMessages.unshift({ type: 'channel.intro' });
-      return newMessages;
-    }
-
-    // if no messages, intro get's inserted
-    if (!newMessages.length) {
-      newMessages.unshift({
-        type: 'channel.intro',
-      });
-      return newMessages;
-    }
-
-    // else loop over the messages
-    for (const [i, message] of messages.entries()) {
-      const messageTime = message.created_at
-        ? message.created_at.getTime()
-        : null;
-      const nextMessageTime =
-        messages[i + 1] && messages[i + 1].created_at
-          ? messages[i + 1].created_at.getTime()
-          : null;
-      const { headerPosition } = this.props;
-
-      // headerposition is smaller than message time so comes after;
-      if (messageTime < headerPosition) {
-        // if header position is also smaller than message time continue;
-        if (nextMessageTime < headerPosition) {
-          if (messages[i + 1] && messages[i + 1].type === 'message.date')
-            continue;
-          if (!nextMessageTime) {
-            newMessages.push({ type: 'channel.intro' });
-            return newMessages;
-          }
-          continue;
-        } else {
-          newMessages.splice(i + 1, 0, { type: 'channel.intro' });
-          return newMessages;
-        }
-      }
-    }
-
-    return newMessages;
-  };
-
   goToNewMessages = () => {
     this.scrollToBottom();
     this.setState({ newMessagesNotification: false });
-  };
-
-  getReadStates = (messages) => {
-    // create object with empty array for each message id
-    const readData = {};
-    messages.forEach((message) => {
-      if (!message || !message.id) return;
-      readData[message.id] = [];
-    });
-
-    Object.values(this.props.read).forEach((readState) => {
-      if (readState.last_read == null) return;
-
-      let userLastReadMsgId;
-      for (const msg of messages) {
-        if (msg.updated_at < readState.last_read) {
-          userLastReadMsgId = msg.id;
-        }
-      }
-      if (userLastReadMsgId) {
-        readData[userLastReadMsgId] = [
-          ...readData[userLastReadMsgId],
-          readState.user,
-        ];
-      }
-    });
-
-    return readData;
   };
 
   userScrolledUp = () => this.scrollOffset > 310;
@@ -322,118 +183,6 @@ class MessageList extends PureComponent {
     this.scrollOffset = offset;
     if (this.state.newMessagesNotification && !this.userScrolledUp()) {
       this.setState({ newMessagesNotification: false });
-    }
-  };
-
-  getLastReceived = (messages) => {
-    for (let i = messages.length; i > 0; i -= 1) {
-      if (messages[i] && messages[i].status === 'received') {
-        return messages[i].id;
-      }
-    }
-    return null;
-  };
-
-  getGroupStyles = (messages) => {
-    const messageGroupStyles = {};
-
-    for (let i = 0, l = messages.length; i < l; i += 1) {
-      const previousMessage = messages[i - 1];
-      const message = messages[i];
-      const nextMessage = messages[i + 1];
-      const groupStyles = [];
-
-      if (message.type === 'message.date') {
-        continue;
-      }
-
-      if (message.type === 'channel.event') {
-        continue;
-      }
-
-      if (message.type === 'channel.intro') {
-        continue;
-      }
-
-      const userId = message.user.id;
-
-      const isTopMessage =
-        !previousMessage ||
-        previousMessage.type === 'channel.intro' ||
-        previousMessage.type === 'message.date' ||
-        previousMessage.type === 'system' ||
-        previousMessage.type === 'channel.event' ||
-        previousMessage.attachments.length !== 0 ||
-        userId !== previousMessage.user.id ||
-        previousMessage.type === 'error' ||
-        previousMessage.deleted_at;
-
-      const isBottomMessage =
-        !nextMessage ||
-        nextMessage.type === 'message.date' ||
-        nextMessage.type === 'system' ||
-        nextMessage.type === 'channel.event' ||
-        nextMessage.type === 'channel.intro' ||
-        nextMessage.attachments.length !== 0 ||
-        userId !== nextMessage.user.id ||
-        nextMessage.type === 'error' ||
-        nextMessage.deleted_at;
-
-      if (isTopMessage) {
-        groupStyles.push('top');
-      }
-
-      if (isBottomMessage) {
-        if (isTopMessage || message.deleted_at || message.type === 'error') {
-          groupStyles.splice(0, groupStyles.length);
-          groupStyles.push('single');
-        } else {
-          groupStyles.push('bottom');
-        }
-      }
-
-      if (!isTopMessage && !isBottomMessage) {
-        if (message.deleted_at || message.type === 'error') {
-          groupStyles.splice(0, groupStyles.length);
-          groupStyles.push('single');
-        } else {
-          groupStyles.splice(0, groupStyles.length);
-          groupStyles.push('middle');
-        }
-      }
-
-      if (message.attachments.length !== 0) {
-        groupStyles.splice(0, groupStyles.length);
-        groupStyles.push('single');
-      }
-
-      if (this.props.noGroupByUser) {
-        groupStyles.splice(0, groupStyles.length);
-        groupStyles.push('single');
-      }
-
-      messageGroupStyles[message.id] = groupStyles;
-    }
-
-    return messageGroupStyles;
-  };
-
-  _onMentionsHoverOrClick = (e, mentioned_users) => {
-    if (!this.props.onMentionsHover || !this.props.onMentionsClick) return;
-
-    const tagName = e.target.tagName.toLowerCase();
-    const textContent = e.target.innerHTML.replace('*', '');
-    if (tagName === 'strong' && textContent[0] === '@') {
-      const userName = textContent.replace('@', '');
-      const user = mentioned_users.find(
-        (u) => u.name === userName || u.id === userName,
-      );
-      if (this.props.onMentionsHover && e.type === 'mouseover') {
-        this.props.onMentionsHover(e, user);
-      }
-      if (this.props.onMentionsClick && e.type === 'click') {
-        this.props.onMentionsHover(e, user);
-      }
     }
   };
 
@@ -466,13 +215,7 @@ class MessageList extends PureComponent {
     this.notificationTimeouts.push(ct);
   };
 
-  _loadMore = () => {
-    return this.props.messageLimit
-      ? this.props.loadMore(this.props.messageLimit)
-      : this.props.loadMore();
-  };
-
-  _onMessageLoadCaptured = () => {
+  onMessageLoadCaptured = () => {
     // A load event (emitted by e.g. an <img>) was captured on a message.
     // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
     if (!this.userScrolledUp()) {
@@ -480,135 +223,13 @@ class MessageList extends PureComponent {
     }
   };
 
+  loadMore = () =>
+    this.props.messageLimit
+      ? this.props.loadMore(this.props.messageLimit)
+      : this.props.loadMore();
+
   render() {
-    let allMessages = [...this.props.messages];
-    const { MessageSystem, LoadingIndicator } = this.props;
-    allMessages = this.insertDates(allMessages);
-    if (this.props.HeaderComponent) {
-      allMessages = this.insertIntro(allMessages);
-    }
-    const messageGroupStyles = this.getGroupStyles(allMessages);
-
-    const DateSeparator = this.props.DateSeparator || this.props.dateSeparator; // backward compatibility
-    const { HeaderComponent, EmptyStateIndicator, t } = this.props;
-
-    // sort by date
-    allMessages.sort((a, b) => a.created_at - b.created_at);
-
-    // get the readData, but only for messages submitted by the user themselves
-    const readData = this.getReadStates(
-      allMessages.filter(
-        ({ user }) => user && user.id === this.props.client.userID,
-      ),
-    );
-
-    const lastReceivedId = this.getLastReceived(allMessages);
-    const elements = [];
-
-    // loop over the messages
-    allMessages.forEach((message) => {
-      if (message.id) {
-        this.messageRefs[message.id] = React.createRef();
-      }
-
-      if (message.type === 'message.date') {
-        if (this.props.threadList) {
-          return;
-        }
-        elements.push(
-          <li key={`${message.date.toISOString()}-i`}>
-            <DateSeparator date={message.date} />
-          </li>,
-        );
-      } else if (message.type === 'channel.intro') {
-        elements.push(
-          <li key="intro">
-            <HeaderComponent />
-          </li>,
-        );
-      } else if (
-        message.type === 'channel.event' ||
-        message.type === 'system'
-      ) {
-        if (MessageSystem)
-          elements.push(
-            <li
-              key={
-                // eslint-disable-next-line no-nested-ternary
-                message.type === 'system'
-                  ? message.created_at
-                  : message.type === 'channel.event'
-                  ? message.event.created_at
-                  : ''
-              }
-            >
-              <MessageSystem message={message} />
-            </li>,
-          );
-      } else if (message.type !== 'message.read') {
-        let groupStyles = messageGroupStyles[message.id];
-        if (!groupStyles) {
-          groupStyles = [];
-        }
-        const readBy = readData[message.id] || [];
-
-        elements.push(
-          <li
-            className={`str-chat__li str-chat__li--${groupStyles}`}
-            key={message.id || message.created_at}
-            ref={this.messageRefs[message.id]}
-            onLoadCapture={this._onMessageLoadCaptured}
-          >
-            <Message
-              client={this.props.client}
-              openThread={this.props.openThread}
-              members={this.props.members}
-              watchers={this.props.watchers}
-              message={message}
-              groupStyles={groupStyles}
-              readBy={readBy}
-              lastReceivedId={
-                lastReceivedId === message.id ? lastReceivedId : null
-              }
-              editing={
-                !!(this.state.editing && this.state.editing === message.id)
-              }
-              clearEditingState={this.clearEditingState}
-              setEditingState={this.setEditingState}
-              messageListRect={this.state.messageListRect}
-              channel={this.props.channel}
-              threadList={this.props.threadList}
-              retrySendMessage={this.props.retrySendMessage}
-              addNotification={this.addNotification}
-              updateMessage={this.props.updateMessage}
-              removeMessage={this.props.removeMessage}
-              Message={this.props.Message}
-              mutes={this.props.mutes}
-              unsafeHTML={this.props.unsafeHTML}
-              Attachment={this.props.Attachment}
-              onMentionsClick={this.props.onMentionsClick}
-              onMentionsHover={this.props.onMentionsHover}
-              messageActions={this.props.messageActions}
-              additionalMessageInputProps={
-                this.props.additionalMessageInputProps
-              }
-              getFlagMessageSuccessNotification={
-                this.props.getFlagMessageSuccessNotification
-              }
-              getFlagMessageErrorNotification={
-                this.props.getFlagMessageErrorNotification
-              }
-              getMuteUserSuccessNotification={
-                this.props.getMuteUserSuccessNotification
-              }
-              getMuteUserErrorNotification={
-                this.props.getMuteUserErrorNotification
-              }
-            />
-          </li>,
-        );
-      }
-    });
+    const { t } = this.props;
 
     return (
       <React.Fragment>
@@ -618,29 +239,60 @@ class MessageList extends PureComponent {
           }`}
           ref={this.messageList}
         >
-          {!elements.length ? (
-            <EmptyStateIndicator listType="message" />
-          ) : (
-            <InfiniteScroll
-              isReverse
-              loadMore={this._loadMore}
-              hasMore={this.props.hasMore}
-              isLoading={this.props.loadingMore}
-              listenToScroll={this.listenToScroll}
-              useWindow={false}
-              loader={
+          <MessageListInner
+            EmptyStateIndicator={this.props.EmptyStateIndicator}
+            MessageSystem={this.props.MessageSystem}
+            HeaderComponent={this.props.HeaderComponent}
+            headerPosition={this.props.headerPosition}
+            DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
+            messages={this.props.messages}
+            eventHistory={this.props.eventHistory}
+            noGroupByUser={this.props.noGroupByUser}
+            threadList={this.props.threadList}
+            client={this.props.client}
+            read={this.props.read}
+            bottomRef={this.bottomRef}
+            onMessageLoadCaptured={this.onMessageLoadCaptured}
+            internalInfiniteScrollProps={{
+              hasMore: this.props.hasMore,
+              isLoading: this.props.loadingMore,
+              listenToScroll: this.listenToScroll,
+              loadMore: this.loadMore,
+              loader: (
                 <Center key="loadingindicator">
-                  {smartRender(LoadingIndicator, { size: 20 }, null)}
+                  {smartRender(this.props.LoadingIndicator, { size: 20 }, null)}
                 </Center>
-              }
-              className="str-chat__reverse-infinite-scroll"
-              data-testid="reverse-infinite-scroll"
-            >
-              <ul className="str-chat__ul">{elements}</ul>
-
-              <div key="bottom" ref={this.bottomRef} />
-            </InfiniteScroll>
-          )}
+              ),
+            }}
+            internalMessageProps={{
+              messageListRect: this.state.messageListRect,
+              openThread: this.props.openThread,
+              members: this.props.members,
+              watchers: this.props.watchers,
+              channel: this.props.channel,
+              retrySendMessage: this.props.retrySendMessage,
+              addNotification: this.addNotification,
+              updateMessage: this.props.updateMessage,
+              removeMessage: this.props.removeMessage,
+              Message: this.props.Message,
+              mutes: this.props.mutes,
+              unsafeHTML: this.props.unsafeHTML,
+              Attachment: this.props.Attachment,
+              onMentionsClick: this.props.onMentionsClick,
+              onMentionsHover: this.props.onMentionsHover,
+              messageActions: this.props.messageActions,
+              additionalMessageInputProps: this.props
+                .additionalMessageInputProps,
+              getFlagMessageSuccessNotification: this.props
+                .getFlagMessageSuccessNotification,
+              getFlagMessageErrorNotification: this.props
+                .getFlagMessageErrorNotification,
+              getMuteUserSuccessNotification: this.props
+                .getMuteUserSuccessNotification,
+              getMuteUserErrorNotification: this.props
+                .getMuteUserErrorNotification,
+            }}
+          />
         </div>
 
         <div className="str-chat__list-notifications">
@@ -653,6 +305,7 @@ class MessageList extends PureComponent {
               {notification.text}
             </CustomNotification>
           ))}
+
           <CustomNotification active={!this.state.online} type="error">
             {t('Connection failure, reconnecting now...')}
           </CustomNotification>
@@ -754,7 +407,7 @@ MessageList.propTypes = {
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   messages: PropTypes.array.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  channel: PropTypes.object.isRequired,
+  channel: PropTypes.instanceOf(Channel).isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   updateMessage: PropTypes.func.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */

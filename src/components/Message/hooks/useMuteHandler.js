@@ -12,14 +12,7 @@ import { ChannelContext, TranslationContext } from '../../../context';
  * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
  */
 export const useMuteHandler = (message, notifications) => {
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { client, mutes } = useContext(ChannelContext);
-
-  /**
-   *@type {import('types').TranslationContextValue}
-   */
   const { t } = useContext(TranslationContext);
 
   /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */

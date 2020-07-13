@@ -11,7 +11,7 @@ import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import PropTypes from 'prop-types';
 
-import replace from 'rollup-plugin-replace';
+import replace from '@rollup/plugin-replace';
 
 import process from 'process';
 import pkg from './package.json';
@@ -76,13 +76,10 @@ const normalBundle = {
     'custom-event',
     'textarea-caret',
     '@braintree/sanitize-url',
-    '@webscopeio/react-textarea-autocomplete',
-    '@webscopeio/react-textarea-autocomplete/style.css',
     'emoji-mart/css/emoji-mart.css',
     'react-dropzone',
     'react-markdown',
     'react-fast-compare',
-    'shallow-diff',
     'immutable',
     'url-parse',
     'stream-chat',
@@ -118,6 +115,10 @@ const normalBundle = {
   plugins: [
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
+    replace({
+      "import('types')": "import('../types')",
+      delimiters: ['', ''],
     }),
     external(),
     babel({
@@ -163,6 +164,10 @@ const fullBrowserBundle = {
   plugins: [
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
+    replace({
+      "import('types')": "import('../types')",
+      delimiters: ['', ''],
     }),
     external(),
     babel({
