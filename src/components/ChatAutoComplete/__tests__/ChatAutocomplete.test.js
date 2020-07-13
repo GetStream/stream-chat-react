@@ -33,8 +33,8 @@ const renderComponent = async (props = {}, activeChannel = channel) => {
   const placeholderText = props.placeholder || 'placeholder';
   const renderResult = render(
     <Chat client={chatClient}>
-      <Channel channel={channel}>
-        <ActiveChannelSetter activeChannel={activeChannel} />
+      <ActiveChannelSetter activeChannel={activeChannel} />
+      <Channel>
         <ChatAutoComplete {...props} placeholder={placeholderText} />
       </Channel>
     </Chat>,

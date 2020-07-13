@@ -49,7 +49,10 @@ const ChatAutoComplete = (props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryMembersdebounced = useCallback(
     debounce(
-      /** @type {(query: string, onReady: (data: any[]) => void) => Promise<void>} */
+      /**
+       * @param {string} query
+       * @param {(data: any[]) => void} onReady
+       */
       async (query, onReady) => {
         if (!channel?.queryMembers) return;
         const response = await channel?.queryMembers({

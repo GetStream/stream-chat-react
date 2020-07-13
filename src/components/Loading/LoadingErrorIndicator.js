@@ -21,15 +21,12 @@ const LoadingErrorIndicator = ({ error }) => {
 };
 
 LoadingErrorIndicator.defaultProps = {
-  error: false,
+  error: null,
 };
 
 LoadingErrorIndicator.propTypes = {
   /** Error object */
-  error: PropTypes.oneOfType([
-    PropTypes.shape({ message: PropTypes.string }),
-    PropTypes.bool,
-  ]).isRequired,
+  error: PropTypes.instanceOf(Error),
 };
 
 export default React.memo(LoadingErrorIndicator);
