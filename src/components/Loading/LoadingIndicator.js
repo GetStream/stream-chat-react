@@ -1,4 +1,3 @@
-/* eslint-disable */
 // @ts-check
 import React from 'react';
 
@@ -9,12 +8,12 @@ import svg from '../../assets/str-chat__loading-indicator.svg';
  * LoadingIndicator - Just a simple loading spinner..
  *
  * @example ../../docs/LoadingIndicator.md
- * @type { React.FC<import('types').LoadingIndicatorProps> }
+ * @type { React.FC<import('types').LoadingIndicatorProps>}
  */
-
 const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (
   <div
-    className={'str-chat__loading-indicator ' + color}
+    className={`str-chat__loading-indicator ${color}`}
+    data-testid="loading-indicator-wrapper"
     style={{ width: size, height: size }}
   >
     <svg
@@ -28,6 +27,7 @@ const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (
           <stop stopColor="#FFF" stopOpacity="0" offset="0%" />
           <stop
             offset="100%"
+            data-testid="loading-indicator-circle"
             stopColor={color}
             stopOpacity="1"
             style={{ stopColor: color }}
@@ -42,4 +42,5 @@ const LoadingIndicator = ({ size = 15, color = '#006CFF' }) => (
     </svg>
   </div>
 );
+
 export default React.memo(LoadingIndicator);
