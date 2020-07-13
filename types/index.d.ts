@@ -625,7 +625,7 @@ export interface MessageUIComponentProps
   actionsEnabled?: boolean;
   editing?: boolean;
   clearEditingState?(event?: React.BaseSyntheticEvent): void;
-  setEditingState?(): any;
+  setEditingState?(event?: React.BaseSyntheticEvent): void;
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
   handleDelete?(event?: React.BaseSyntheticEvent): void;
@@ -1067,7 +1067,7 @@ export interface MessageLivestreamActionProps {
   onReactionListClick?: () => void;
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
-  setEditingState?(): any;
+  setEditingState?(event?: React.BaseSyntheticEvent): void;
 }
 export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {
@@ -1119,7 +1119,7 @@ export interface MessageActionsProps {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
-  setEditingState?(): any;
+  setEditingState?(event?: React.BaseSyntheticEvent): void;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;

@@ -131,6 +131,7 @@ const ChannelInner = ({
   const chatContext = useContext(ChatContext);
   const { t } = useContext(TranslationContext);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCopyStateFromChannel = useCallback(
     throttle(
       () => {
@@ -155,6 +156,7 @@ const ChannelInner = ({
     }
   }, [channel]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const markReadThrottled = useCallback(
     throttle(markRead, 500, { leading: true, trailing: true }),
     [markRead],
@@ -244,7 +246,7 @@ const ChannelInner = ({
   }, [state.messages, state.thread]);
 
   // Message
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
     debounce(
       /**
@@ -427,6 +429,7 @@ const ChannelInner = ({
     [channel],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreThreadFinished = useCallback(
     debounce(
       /**

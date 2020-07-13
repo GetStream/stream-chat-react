@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadingChannels should render component with default props 1`] = `
+<div
+  className="str-chat__loading-channels"
+>
+  <div
+    className="str-chat__loading-channels-item"
+  >
+    <div
+      className="str-chat__loading-channels-avatar"
+    />
+    <div
+      className="str-chat__loading-channels-meta"
+    >
+      <div
+        className="str-chat__loading-channels-username"
+      />
+      <div
+        className="str-chat__loading-channels-status"
+      />
+    </div>
+  </div>
+  <div
+    className="str-chat__loading-channels-item"
+  >
+    <div
+      className="str-chat__loading-channels-avatar"
+    />
+    <div
+      className="str-chat__loading-channels-meta"
+    >
+      <div
+        className="str-chat__loading-channels-username"
+      />
+      <div
+        className="str-chat__loading-channels-status"
+      />
+    </div>
+  </div>
+  <div
+    className="str-chat__loading-channels-item"
+  >
+    <div
+      className="str-chat__loading-channels-avatar"
+    />
+    <div
+      className="str-chat__loading-channels-meta"
+    >
+      <div
+        className="str-chat__loading-channels-username"
+      />
+      <div
+        className="str-chat__loading-channels-status"
+      />
+    </div>
+  </div>
+</div>
+`;
