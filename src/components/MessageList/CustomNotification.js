@@ -5,7 +5,10 @@ const CustomNotification = ({ children, active, type }) => {
   if (!active) return null;
 
   return (
-    <div className={`str-chat__custom-notification notification-${type}`}>
+    <div
+      className={`str-chat__custom-notification notification-${type}`}
+      data-testid="custom-notification"
+    >
       {children}
     </div>
   );

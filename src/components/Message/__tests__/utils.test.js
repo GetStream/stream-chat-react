@@ -1,4 +1,4 @@
-import { generateMessage, generateUser } from 'mock-builders';
+import { generateReaction, generateMessage, generateUser } from 'mock-builders';
 import {
   areMessagePropsEqual,
   getMessageActions,
@@ -6,6 +6,10 @@ import {
   isUserMuted,
   validateAndGetMessage,
   shouldMessageComponentUpdate,
+  messageHasAttachments,
+  messageHasReactions,
+  getImages,
+  getNonImageAttachments,
 } from '../utils';
 
 const alice = generateUser({ name: 'alice' });
@@ -213,6 +217,108 @@ describe('Message utils', () => {
       );
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
+    });
+  });
+
+  describe('messageHasReactions', () => {
+    it('should return false if message is undefined', () => {
+      expect(messageHasReactions(undefined)).toBe(false);
+    });
+    it('should return false if message has no reactions', () => {
+      const message = generateMessage({
+        latest_reactions: [],
+      });
+      expect(messageHasReactions(message)).toBe(false);
+    });
+    it('should return true if message has reactions', () => {
+      const message = generateMessage({
+        latest_reactions: [generateReaction()],
+      });
+      expect(messageHasReactions(message)).toBe(true);
+    });
+  });
+
+  describe('messageHasAttachments', () => {
+    it('should return false if message is undefined', () => {
+      expect(messageHasAttachments(undefined)).toBe(false);
+    });
+    it('should return false if message has no attachments', () => {
+      const message = generateMessage({
+        attachments: [],
+      });
+      expect(messageHasAttachments(message)).toBe(false);
+    });
+    it('should return true if message has attachments', () => {
+      const attachment = {
+        type: 'file',
+        asset_url: 'file.pdf',
+      };
+      const message = generateMessage({
+        attachments: [attachment],
+      });
+      expect(messageHasAttachments(message)).toBe(true);
+    });
+  });
+
+  describe('getImages', () => {
+    it('should return empty if message is undefined', () => {
+      expect(getImages(undefined)).toStrictEqual([]);
+    });
+    it('should return empty if message has no image attachments', () => {
+      const pdf = {
+        type: 'file',
+        asset_url: 'file.pdf',
+      };
+      const message = generateMessage({
+        attachments: [pdf],
+      });
+      expect(getImages(message)).toStrictEqual([]);
+    });
+    it('should return just the image attachments when message has them', () => {
+      const pdf = {
+        type: 'file',
+        asset_url: 'file.pdf',
+      };
+      const img = {
+        type: 'image',
+        asset_url: 'some-image.jpg',
+      };
+      const message = generateMessage({
+        attachments: [pdf, img],
+      });
+      expect(getImages(message)).toStrictEqual([img]);
+    });
+  });
+
+  describe('getNonImageAttachments', () => {
+    it('should return empty if message is undefined', () => {
+      expect(getNonImageAttachments(undefined)).toStrictEqual([]);
+    });
+
+    it('should return empty if message has only image attachments', () => {
+      const img = {
+        type: 'image',
+        asset_url: 'image.jpg',
+      };
+      const message = generateMessage({
+        attachments: [img],
+      });
+      expect(getNonImageAttachments(message)).toStrictEqual([]);
+    });
+
+    it('should return just the non-image attachments when message has them', () => {
+      const pdf = {
+        type: 'file',
+        asset_url: 'file.pdf',
+      };
+      const img = {
+        type: 'image',
+        asset_url: 'some-image.jpg',
+      };
+      const message = generateMessage({
+        attachments: [pdf, img],
+      });
+      expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
     });
   });
 });

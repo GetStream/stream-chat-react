@@ -5,24 +5,28 @@ import '@testing-library/jest-dom';
 
 import Modal from '../Modal';
 
-afterEach(cleanup); // eslint-disable-line
-
 describe('Modal', () => {
-  it('should be closed if the `open` prop is not explicitly set to true', () => {
-    const { container } = render(<Modal />);
+  afterEach(cleanup); // eslint-disable-line
+
+  it('should be closed if the `open` prop is set to false', () => {
+    const { container } = render(<Modal open={false} onClose={() => {}} />);
 
     expect(container.firstChild).toHaveClass('str-chat__modal--closed');
   });
 
   it('should be open if the `open` prop is set to true', () => {
-    const { container } = render(<Modal open />);
+    const { container } = render(<Modal open onClose={() => {}} />);
 
     expect(container.firstChild).toHaveClass('str-chat__modal--open');
   });
 
   it('should render what is passed as props.children', () => {
     const textContent = 'some text';
-    const { queryByText } = render(<Modal>{textContent}</Modal>);
+    const { queryByText } = render(
+      <Modal open={false} onClose={() => {}}>
+        {textContent}
+      </Modal>,
+    );
 
     expect(queryByText(textContent)).toBeInTheDocument();
   });
@@ -88,7 +92,9 @@ describe('Modal', () => {
   });
 
   it('should render the expected html', () => {
-    const tree = renderer.create(<Modal />).toJSON();
+    const tree = renderer
+      .create(<Modal open={false} onClose={() => {}} />)
+      .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__modal str-chat__modal--closed"

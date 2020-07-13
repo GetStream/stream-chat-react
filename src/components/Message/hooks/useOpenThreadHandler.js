@@ -3,14 +3,18 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => (event: React.SyntheticEvent) => void}
+ * @type {(
+ *   message: import('stream-chat').MessageResponse | undefined,
+ *   customOpenThread?: (message: import('stream-chat').MessageResponse, event: React.SyntheticEvent) => void
+ * ) => (event: React.SyntheticEvent) => void}
  */
-export const useOpenThreadHandler = (message) => {
+export const useOpenThreadHandler = (message, customOpenThread) => {
   /**
    * @type{import('types').ChannelContextValue}
    */
-  const { openThread } = useContext(ChannelContext);
+  const { openThread: channelOpenThread } = useContext(ChannelContext);
 
+  const openThread = customOpenThread || channelOpenThread;
   return (event) => {
     if (!openThread || !message) {
       console.warn(

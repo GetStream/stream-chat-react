@@ -5,25 +5,26 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { getTestClientWithUser } from 'mock-builders';
 import { ChannelListTeam } from '..';
+import { ChatContext } from '../../../context';
 
 // Wierd hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-jest.mock('axios');
-
 const Component = ({ client, loading = false, error = false }) => {
   return (
-    <ChannelListTeam
-      client={client}
-      loading={loading}
-      error={error}
-      LoadingIndicator={() => <div>Loading Indicator</div>}
-      LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
-    >
-      <div>children 1</div>
-      <div>children 2</div>
-    </ChannelListTeam>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelListTeam
+        client={client}
+        loading={loading}
+        error={error}
+        LoadingIndicator={() => <div>Loading Indicator</div>}
+        LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
+      >
+        <div>children 1</div>
+        <div>children 2</div>
+      </ChannelListTeam>
+    </ChatContext.Provider>
   );
 };
 

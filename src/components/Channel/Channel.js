@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable import/no-extraneous-dependencies */
 import React, { PureComponent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -6,7 +6,7 @@ import Immutable from 'seamless-immutable';
 import Visibility from 'visibilityjs';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
-import { logChatPromiseExecution } from 'stream-chat';
+import { logChatPromiseExecution, Channel as ChannelInst } from 'stream-chat';
 
 import {
   withChatContext,
@@ -15,7 +15,10 @@ import {
 } from '../../context';
 import { Attachment } from '../Attachment';
 import { MessageSimple } from '../Message';
-import { LoadingIndicator, LoadingErrorIndicator } from '../Loading';
+import {
+  LoadingIndicator as DefaultLoadingIndicator,
+  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
+} from '../Loading';
 
 /**
  * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.
@@ -25,10 +28,6 @@ import { LoadingIndicator, LoadingErrorIndicator } from '../Loading';
  * @extends PureComponent
  */
 class Channel extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { error: false };
-  }
   static propTypes = {
     /** Which channel to connect to, will initialize the channel if it's not initialized yet */
     channel: PropTypes.shape({
@@ -115,8 +114,8 @@ class Channel extends PureComponent {
 
   static defaultProps = {
     EmptyPlaceholder: null,
-    LoadingIndicator,
-    LoadingErrorIndicator,
+    LoadingIndicator: DefaultLoadingIndicator,
+    LoadingErrorIndicator: DefaultLoadingErrorIndicator,
     Message: MessageSimple,
     Attachment,
   };
@@ -182,9 +181,7 @@ class ChannelInner extends PureComponent {
 
   static propTypes = {
     /** Which channel to connect to */
-    channel: PropTypes.shape({
-      watch: PropTypes.func,
-    }).isRequired,
+    channel: PropTypes.instanceOf(ChannelInst).isRequired,
     /** Client is passed via the Chat Context */
     client: PropTypes.object.isRequired,
     /** The loading indicator to use */
@@ -196,7 +193,7 @@ class ChannelInner extends PureComponent {
   };
 
   async componentDidMount() {
-    const channel = this.props.channel;
+    const { channel } = this.props;
     let errored = false;
     if (!channel.initialized) {
       try {
@@ -218,7 +215,7 @@ class ChannelInner extends PureComponent {
     // If there is an active thread, then in that case we should sync
     // it with updated state of channel.
     if (this.state.thread) {
-      for (let i = this.state.messages.length - 1; i >= 0; i--) {
+      for (let i = this.state.messages.length - 1; i >= 0; i -= 1) {
         if (this.state.messages[i].id === this.state.thread.id) {
           this.setState({
             thread: this.state.messages[i],
@@ -245,7 +242,7 @@ class ChannelInner extends PureComponent {
       e.preventDefault();
     }
 
-    const channel = this.props.channel;
+    const { channel } = this.props;
     const threadMessages = channel.state.threads[message.id] || [];
 
     this.setState({
@@ -256,11 +253,11 @@ class ChannelInner extends PureComponent {
 
   loadMoreThread = async () => {
     // prevent duplicate loading events...
-    if (this.state.threadLoadingMore) return;
+    if (this.state.threadLoadingMore || !this.state.thread) return;
     this.setState({
       threadLoadingMore: true,
     });
-    const channel = this.props.channel;
+    const { channel } = this.props;
     const parentID = this.state.thread.id;
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
@@ -298,7 +295,7 @@ class ChannelInner extends PureComponent {
   };
 
   copyChannelState() {
-    const channel = this.props.channel;
+    const { channel } = this.props;
 
     this.setState({
       messages: channel.state.messages,
@@ -313,15 +310,14 @@ class ChannelInner extends PureComponent {
     if (channel.countUnread() > 0) channel.markRead();
   }
 
-  updateMessage = (updatedMessage, extraState) => {
-    const channel = this.props.channel;
-
-    extraState = extraState || {};
+  updateMessage = (updatedMessage) => {
+    const { channel } = this.props;
 
     // adds the message to the local channel state..
     // this adds to both the main channel state as well as any reply threads
     channel.state.addMessageSorted(updatedMessage);
 
+    const extraState = {};
     // update the Channel component state
     if (this.state.thread && updatedMessage.parent_id) {
       extraState.threadMessages =
@@ -331,7 +327,7 @@ class ChannelInner extends PureComponent {
   };
 
   removeMessage = (message) => {
-    const channel = this.props.channel;
+    const { channel } = this.props;
     channel.state.removeMessage(message);
     const threadMessages = channel.state.threads[message.parent_id] || [];
     this.setState({
@@ -341,21 +337,13 @@ class ChannelInner extends PureComponent {
     });
   };
 
-  removeEphemeralMessages() {
-    const c = this.props.channel;
-    c.state.selectRegularMessages();
-    this.setState({ messages: c.state.messages });
-  }
-
   createMessagePreview = (text, attachments, parent, mentioned_users) => {
     // create a preview of the message
-    const clientSideID = `${this.props.client.userID}-` + uuidv4();
     const message = {
       text,
       html: text,
       __html: text,
-      //id: tmpID,
-      id: clientSideID,
+      id: `${this.props.client.userID}-${uuidv4()}`,
       type: 'regular',
       status: 'sending',
       user: {
@@ -383,7 +371,6 @@ class ChannelInner extends PureComponent {
         ),
       );
     }
-
     return this.props.client.updateMessage(updatedMessage);
   };
 
@@ -415,8 +402,7 @@ class ChannelInner extends PureComponent {
       }
     } catch (error) {
       // set the message to failed..
-      message.status = 'failed';
-      this.updateMessage(message);
+      this.updateMessage({ ...message, status: 'failed' });
     }
   };
 
@@ -438,20 +424,14 @@ class ChannelInner extends PureComponent {
     );
 
     // first we add the message to the UI
-    this.updateMessage(messagePreview, {
-      messageInput: '',
-      commands: [],
-      userAutocomplete: [],
-    });
+    this.updateMessage(messagePreview);
 
     await this._sendMessage(messagePreview);
   };
 
   retrySendMessage = async (message) => {
     // set the message status to sending
-    message = message.asMutable();
-    message.status = 'sending';
-    this.updateMessage(message);
+    this.updateMessage({ ...message.asMutable(), status: 'sending' });
     // actually try to send the message...
     await this._sendMessage(message);
   };
@@ -462,7 +442,7 @@ class ChannelInner extends PureComponent {
     const threadState = {};
     if (this.state.thread) {
       threadMessages = channel.state.threads[this.state.thread.id] || [];
-      threadState['threadMessages'] = threadMessages;
+      threadState.threadMessages = threadMessages;
     }
 
     if (
@@ -470,7 +450,7 @@ class ChannelInner extends PureComponent {
       e.message &&
       e.message.id === this.state.thread.id
     ) {
-      threadState['thread'] = channel.state.messageToImmutable(e.message);
+      threadState.thread = channel.state.messageToImmutable(e.message);
     }
 
     if (Object.keys(threadState).length > 0) {
@@ -518,7 +498,7 @@ class ChannelInner extends PureComponent {
   addToEventHistory = (e) => {
     this.setState((prevState) => {
       if (!prevState.message || !prevState.message.length) {
-        return;
+        return null;
       }
       const lastMessageId =
         prevState.messages[prevState.messages.length - 1].id;
@@ -558,7 +538,7 @@ class ChannelInner extends PureComponent {
     // The more complex sync logic is done in chat.js
     // listen to client.connection.recovered and all channel events
     this.props.client.on('connection.recovered', this.handleEvent);
-    const channel = this.props.channel;
+    const { channel } = this.props;
     channel.on(this.handleEvent);
     this.boundMarkRead = this.markRead.bind(this, channel);
     this.visibilityListener = Visibility.change((e, state) => {
@@ -603,13 +583,12 @@ class ChannelInner extends PureComponent {
 
   _onMentionsHoverOrClick = (e, mentioned_users) => {
     if (!this.props.onMentionsHover && !this.props.onMentionsClick) return;
-
     const tagName = e.target.tagName.toLowerCase();
     const textContent = e.target.innerHTML.replace('*', '');
     if (tagName === 'strong' && textContent[0] === '@') {
       const userName = textContent.replace('@', '');
       const user = mentioned_users.find(
-        (user) => user.name === userName || user.id === userName,
+        (u) => u.name === userName || u.id === userName,
       );
       if (
         this.props.onMentionsHover &&
@@ -667,8 +646,7 @@ class ChannelInner extends PureComponent {
     const { t } = this.props;
 
     let core;
-    const LoadingIndicator = this.props.LoadingIndicator;
-    const LoadingErrorIndicator = this.props.LoadingErrorIndicator;
+    const { LoadingIndicator, LoadingErrorIndicator } = this.props;
 
     if (this.state.error) {
       core = (

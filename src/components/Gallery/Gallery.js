@@ -1,94 +1,87 @@
-import React from 'react';
+// @ts-check
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Carousel, { Modal, ModalGateway } from 'react-images';
-import { withTranslationContext } from '../../context';
+import { TranslationContext } from '../../context';
+import ModalWrapper from './ModalWrapper';
 
 /**
- * Gallery - displays up to 6 images in a simple responsive grid with a lightbox to view the images.
+ * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ../../docs/Gallery.md
- * @extends PureComponent
+ * @typedef {import('types').GalleryProps} Props
+ * @type React.FC<Props>
  */
-class Gallery extends React.PureComponent {
-  static propTypes = {
-    images: PropTypes.arrayOf(
-      PropTypes.shape({
-        /** Url of the image */
-        image_url: PropTypes.string,
-        /** Url of thumbnail of image */
-        thumb_url: PropTypes.string,
-      }),
-    ),
+const Gallery = ({ images }) => {
+  const [index, setIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { t } = useContext(TranslationContext);
+
+  /**
+   * @param {number} selectedIndex Index of image clicked
+   */
+  const toggleModal = (selectedIndex) => {
+    if (modalOpen) {
+      setModalOpen(false);
+    } else {
+      setIndex(selectedIndex);
+      setModalOpen(true);
+    }
   };
 
-  state = {
-    modalIsOpen: false,
-    currentIndex: 0,
-  };
+  const formattedArray = useMemo(
+    () =>
+      images.map((image) => ({
+        src: image.image_url || image.thumb_url || '',
+        source: image.image_url || image.thumb_url || '',
+      })),
+    [images],
+  );
 
-  toggleModal = (index) => {
-    this.setState((state) => ({
-      modalIsOpen: !state.modalIsOpen,
-      currentIndex: index,
-    }));
-  };
+  const renderImages = images.slice(0, 3).map((image, i) => (
+    <div
+      data-testid="gallery-image"
+      className="str-chat__gallery-image"
+      key={`gallery-image-${i}`}
+      onClick={() => toggleModal(i)}
+    >
+      <img src={image.image_url || image.thumb_url} />
+    </div>
+  ));
 
-  render() {
-    const { images, t } = this.props;
-    const formattedArray = images.map((image) => ({
-      src: image.image_url || image.thumb_url,
-    }));
+  return (
+    <div
+      className={`str-chat__gallery ${
+        images.length > 3 ? 'str-chat__gallery--square' : ''
+      }`}
+    >
+      {renderImages}
+      {images.length > 3 && (
+        <div
+          className="str-chat__gallery-placeholder"
+          style={{
+            backgroundImage: `url(${images[3].image_url})`,
+          }}
+          onClick={() => toggleModal(3)}
+        >
+          <p>
+            {t('{{ imageCount }} more', {
+              imageCount: images.length - 3,
+            })}
+          </p>
+        </div>
+      )}
+      <ModalWrapper
+        images={formattedArray}
+        index={index}
+        // @ts-ignore
+        toggleModal={toggleModal}
+        modalIsOpen={modalOpen}
+      />
+    </div>
+  );
+};
 
-    const squareClass = images.length > 3 ? 'str-chat__gallery--square' : '';
+Gallery.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+};
 
-    return (
-      <div className={`str-chat__gallery ${squareClass}`}>
-        {images.slice(0, 3).map((image, i) => (
-          <div
-            data-testid="gallery-image"
-            className="str-chat__gallery-image"
-            key={`gallery-image-${i}`}
-            onClick={() => this.toggleModal(i)}
-          >
-            <img src={image.image_url || image.thumb_url} />
-          </div>
-        ))}
-        {images.length > 3 && (
-          <div
-            className="str-chat__gallery-placeholder"
-            style={{
-              backgroundImage: `url(${images[3].image_url})`,
-            }}
-            onClick={() => this.toggleModal(3)}
-          >
-            <p>
-              {t('{{ imageCount }} more', {
-                imageCount: images.length - 3,
-              })}
-            </p>
-          </div>
-        )}
-        {/* <Lightbox
-          images={formattedArray}
-          isOpen={this.state.lightboxIsOpen}
-          onClickPrev={this.gotoPrevLightboxImage}
-          onClickNext={this.gotoNextLightboxImage}
-          onClose={this.closeLightbox}
-          backdropClosesModal
-          currentImage={this.state.imageIndex}
-        /> */}
-        <ModalGateway>
-          {this.state.modalIsOpen ? (
-            <Modal onClose={this.toggleModal} closeOnBackdropClick={true}>
-              <Carousel
-                views={formattedArray}
-                currentIndex={this.state.currentIndex}
-              />
-            </Modal>
-          ) : null}
-        </ModalGateway>
-      </div>
-    );
-  }
-}
-
-export default withTranslationContext(Gallery);
+export default React.memo(Gallery);

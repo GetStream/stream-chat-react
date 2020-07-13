@@ -1,9 +1,8 @@
-/* eslint-disable */
-/* global require */
 /* eslint sonarjs/no-duplicate-string: 0 */
 
-const StreamChat = require('stream-chat').StreamChat;
+const { StreamChat } = require('stream-chat');
 const Dayjs = require('dayjs');
+
 export const client = new StreamChat('qk4nn7rpcn75');
 
 client.setUser(

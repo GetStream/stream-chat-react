@@ -9,16 +9,22 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import Message from '../Message';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageCommerce from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageText as MessageTextMock } from '../MessageText';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
 }));
 
+jest.mock('../MessageText', () => ({
+  MessageText: jest.fn(() => <div />),
+}));
+
 const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
 const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const openThreadMock = jest.fn();
 
 async function renderMessageCommerce(
   message,
@@ -28,15 +34,13 @@ async function renderMessageCommerce(
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
-    <Message
-      t={(key) => key}
-      channel={channel}
-      client={client}
-      message={message}
-      typing={false}
-      Message={MessageCommerce}
-      {...props}
-    />,
+    <ChannelContext.Provider
+      value={{ channel, client, openThread: openThreadMock }}
+    >
+      <TranslationContext.Provider value={{ t: (key) => key }}>
+        <MessageCommerce message={message} {...props} />
+      </TranslationContext.Provider>
+    </ChannelContext.Provider>,
   );
 }
 
@@ -67,9 +71,8 @@ const imageAttachment = {
 const messageCommerceWrapperTestId = 'message-commerce-wrapper';
 const reactionSelectorTestId = 'reaction-selector';
 const reactionListTestId = 'reaction-list';
-const messageCommerceActionsTestId = 'message-commerce-actions';
+const messageCommerceActionsTestId = 'message-reaction-action';
 
-const messageCommerceInnerWrapperTestId = 'message-commerce-text-inner-wrapper';
 describe('<MessageCommerce />', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
@@ -107,7 +110,7 @@ describe('<MessageCommerce />', () => {
     );
   });
 
-  it('should position message to the right if it is not from current user', async () => {
+  it('should position message to the left if it is not from current user', async () => {
     const message = generateBobMessage();
     const { getByTestId } = await renderMessageCommerce(message);
     expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
@@ -226,7 +229,7 @@ describe('<MessageCommerce />', () => {
     expect(getByTestId(messageCommerceActionsTestId)).toBeInTheDocument();
   });
 
-  it('should render message actions when message has no text and channel has reactions disabled', async () => {
+  it('should not render message actions when message has no text and channel has reactions disabled', async () => {
     const message = generateAliceMessage({ text: undefined });
     const { queryByTestId } = await renderMessageCommerce(
       message,
@@ -271,91 +274,23 @@ describe('<MessageCommerce />', () => {
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
   });
 
-  it('should set attachment wrapper css if message has text and has attachment', async () => {
-    const message = generateAliceMessage({
-      attachments: [pdfAttachment, pdfAttachment, pdfAttachment],
-      text: 'Hello world',
-    });
-    const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceInnerWrapperTestId).className).toContain(
-      '--has-attachment',
+  it('should render message text when messag has text', async () => {
+    const message = generateAliceMessage({ text: 'Hello' });
+    await renderMessageCommerce(message);
+    expect(MessageTextMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message,
+        customOptionProps: expect.objectContaining({
+          displayLeft: false,
+          displayReplies: false,
+          displayActions: false,
+          theme: 'commerce',
+        }),
+        theme: 'commerce',
+        customWrapperClass: 'str-chat__message-commerce-text',
+      }),
+      {},
     );
-  });
-
-  it('should set emoji wrapper css if message has emoji-only text', async () => {
-    const message = generateAliceMessage({ text: '🚀🚀🚀' });
-    const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceInnerWrapperTestId).className).toContain(
-      '--is-emoji',
-    );
-  });
-
-  it('should trigger on mention hover event handler when the user hovers a message mention', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsHover = jest.fn();
-    const { getByTestId } = await renderMessageCommerce(message, {
-      onMentionsHover,
-    });
-    expect(onMentionsHover).not.toHaveBeenCalled();
-    fireEvent.mouseOver(getByTestId(messageCommerceInnerWrapperTestId));
-    expect(onMentionsHover).toHaveBeenCalledTimes(1);
-  });
-
-  it('should trigger on mention click event handler on message click when message has text', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsClick = jest.fn();
-    const { getByTestId } = await renderMessageCommerce(message, {
-      onMentionsClick,
-    });
-    expect(onMentionsClick).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(messageCommerceInnerWrapperTestId));
-    expect(onMentionsClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('should inform that the message was not sent when message has text and is of type "error"', async () => {
-    const message = generateAliceMessage({ type: 'error', text: 'Hello!' });
-    const { getByText } = await renderMessageCommerce(message);
-    expect(getByText('Error · Unsent')).toBeInTheDocument();
-  });
-
-  it('should render the message html when unsafeHTML property is true', async () => {
-    const customTestId = 'custom-html';
-    const message = generateAliceMessage({
-      html: `<span data-testid="${customTestId}" />`,
-    });
-    const { getByTestId } = await renderMessageCommerce(message, {
-      unsafeHTML: true,
-    });
-
-    expect(getByTestId(customTestId)).toBeInTheDocument();
-  });
-
-  it('should render the message text when it has one', async () => {
-    const text = 'Hello, world!';
-    const message = generateAliceMessage({ text });
-    const { getByText } = await renderMessageCommerce(message);
-    expect(getByText(text)).toBeInTheDocument();
-  });
-
-  it('should display the reaction list when message has text and reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-      text: 'hello world',
-    });
-    const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(reactionListTestId)).toBeInTheDocument();
-  });
-
-  it('should display detailed reactions when message has text, reactions and user clicks on the reaction list', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId, queryByTestId } = await renderMessageCommerce(message);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
-    fireEvent.click(getByTestId(reactionListTestId));
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
   });
 
   it('should display reply count when message is not on thread list', async () => {
@@ -370,13 +305,10 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const openThread = jest.fn();
-    const { getByTestId } = await renderMessageCommerce(message, {
-      openThread,
-    });
-    expect(openThread).not.toHaveBeenCalled();
+    const { getByTestId } = await renderMessageCommerce(message);
+    expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThread).toHaveBeenCalledWith(
+    expect(openThreadMock).toHaveBeenCalledWith(
       message,
       expect.any(Object), // The Event object
     );

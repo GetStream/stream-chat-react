@@ -14,9 +14,7 @@ import SendButtonComponent from './SendButton';
 /** @type {React.FC<import("types").MessageInputProps>} */
 const MessageInputSmall = (props) => {
   const messageInput = useMessageInput(props);
-  /** @type {import("types").ChannelContextValue} */
   const channelContext = useContext(ChannelContext);
-  /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
   const { SendButton } = props;
 
@@ -38,11 +36,11 @@ const MessageInputSmall = (props) => {
               : null
           }`}
         >
-          <UploadsPreview {...messageInput} />
           <EmojiPicker {...messageInput} small />
           <div className="str-chat__small-message-input--textarea-wrapper">
+            <UploadsPreview {...messageInput} />
+
             <ChatAutoComplete
-              users={messageInput.getUsers()}
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
@@ -121,6 +119,8 @@ MessageInputSmall.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Any additional attrubutes that you may want to add for underlying HTML textarea element.
    */
@@ -146,6 +146,7 @@ MessageInputSmall.propTypes = {
 MessageInputSmall.defaultProps = {
   focus: false,
   disabled: false,
+  publishTypingEvent: true,
   grow: true,
   maxRows: 10,
   SendButton: SendButtonComponent,

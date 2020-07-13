@@ -1,7 +1,6 @@
 /* eslint-disable */
 import emojiRegex from 'emoji-regex';
 import ReactMarkdown from 'react-markdown/with-html';
-import truncate from 'lodash/truncate';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
 import { find as linkifyFind } from 'linkifyjs/lib/linkify';
@@ -160,6 +159,13 @@ const matchMarkdownLinks = (message) => {
   return links;
 };
 
+export const truncate = (input, length, end = '...') => {
+  if (input.length > length) {
+    return `${input.substring(0, length - end.length)}${end}`;
+  }
+  return input;
+};
+
 export const renderText = (message) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -179,9 +185,7 @@ export const renderText = (message) => {
     const displayLink =
       type === 'email'
         ? value
-        : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), {
-            length: 20,
-          });
+        : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), 20);
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 

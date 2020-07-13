@@ -2,13 +2,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Carousel, { Modal, ModalGateway } from 'react-images';
+import ModalWrapper from './ModalWrapper';
 
 /**
  * Image - Small wrapper around an image tag, supports thumbnails
  *
  * @example ../../docs/Image.md
- * @extends PureComponent
+ * @extends {React.PureComponent<import('type').ImageProps>}
  */
 class Image extends React.PureComponent {
   static propTypes = {
@@ -40,14 +40,15 @@ class Image extends React.PureComponent {
           onClick={this.toggleModal}
           src={thumb_url || image_url}
           alt={fallback}
+          data-testid="image-test"
         />
-        <ModalGateway>
-          {this.state.modalIsOpen ? (
-            <Modal onClose={this.toggleModal}>
-              <Carousel views={formattedArray} />
-            </Modal>
-          ) : null}
-        </ModalGateway>
+
+        <ModalWrapper
+          images={formattedArray}
+          toggleModal={this.toggleModal}
+          index={this.state.currentIndex}
+          modalIsOpen={this.state.modalIsOpen}
+        />
       </React.Fragment>
     );
   }

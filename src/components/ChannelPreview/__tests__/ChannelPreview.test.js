@@ -1,6 +1,4 @@
 import React from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import axios from 'axios';
 import { render, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -16,10 +14,8 @@ import {
   getRandomInt,
 } from 'mock-builders';
 
-import { Chat } from '../../Chat';
+import { ChatContext } from '../../../context';
 import ChannelPreview from '../ChannelPreview';
-
-jest.mock('axios');
 
 const PreviewUIComponent = (props) => {
   return (
@@ -50,19 +46,21 @@ describe('ChannelPreview', () => {
   let c1;
   const renderComponent = (props, renderer) => {
     return renderer(
-      <Chat client={chatClientUthred}>
-        <ChannelPreview
-          Preview={PreviewUIComponent}
-          setActiveChannel={jest.fn()}
-          {...props}
-        />
-      </Chat>,
+      <ChatContext.Provider
+        value={{
+          client: chatClientUthred,
+          setActiveChannel: () => jest.fn(),
+          channel: props.activeChannel,
+        }}
+      >
+        <ChannelPreview Preview={PreviewUIComponent} {...props} />
+      </ChatContext.Provider>,
     );
   };
 
   beforeEach(async () => {
     chatClientUthred = await getTestClientWithUser({ id: 'uthred' });
-    useMockedApis(axios, [
+    useMockedApis(chatClientUthred, [
       queryChannelsApi([generateChannel(), generateChannel()]),
     ]);
 

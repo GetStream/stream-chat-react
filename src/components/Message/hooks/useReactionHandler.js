@@ -1,5 +1,5 @@
 // @ts-check
-import { useContext } from 'react';
+import { useContext, useCallback, useEffect, useRef, useState } from 'react';
 import { ChannelContext } from '../../../context';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
@@ -8,9 +8,6 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
  * @type {(message: import('stream-chat').MessageResponse | undefined) => (reactionType: string, event: React.MouseEvent) => Promise<void>}
  */
 export const useReactionHandler = (message) => {
-  /**
-   *@type {import('types').ChannelContextValue}
-   */
   const { client, channel, updateMessage } = useContext(ChannelContext);
 
   return async (reactionType, event) => {
@@ -74,5 +71,97 @@ export const useReactionHandler = (message) => {
       // revert to the original message if the API call fails
       updateMessage(originalMessage);
     }
+  };
+};
+
+/**
+ * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
+ * @type {(
+ *   reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
+ *   message: import('stream-chat').MessageResponse | undefined,
+ *   messageWrapperRef?: React.RefObject<HTMLElement | null>
+ * ) => ReactionClickHandler}
+ */
+export const useReactionClick = (
+  reactionSelectorRef,
+  message,
+  messageWrapperRef,
+) => {
+  const [showDetailedReactions, setShowDetailedReactions] = useState(false);
+  const messageDeleted = !!message?.deleted_at;
+  const hasListener = useRef(false);
+  /** @type {EventListener} */
+  const closeDetailedReactions = useCallback(
+    (event) => {
+      if (
+        event.target &&
+        // @ts-ignore
+        reactionSelectorRef?.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setShowDetailedReactions(false);
+    },
+    [setShowDetailedReactions, reactionSelectorRef],
+  );
+
+  useEffect(() => {
+    const messageWrapper = messageWrapperRef?.current;
+    if (showDetailedReactions && !hasListener.current) {
+      hasListener.current = true;
+      document.addEventListener('click', closeDetailedReactions);
+      document.addEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
+      }
+    }
+    if (!showDetailedReactions && hasListener.current) {
+      document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.removeEventListener(
+          'mouseleave',
+          closeDetailedReactions,
+        );
+      }
+      hasListener.current = false;
+    }
+    return () => {
+      if (hasListener.current) {
+        document.removeEventListener('click', closeDetailedReactions);
+        document.removeEventListener('touchend', closeDetailedReactions);
+        if (messageWrapper) {
+          messageWrapper.removeEventListener(
+            'mouseleave',
+            closeDetailedReactions,
+          );
+        }
+        hasListener.current = false;
+      }
+    };
+  }, [showDetailedReactions, closeDetailedReactions, messageWrapperRef]);
+
+  useEffect(() => {
+    const messageWrapper = messageWrapperRef?.current;
+    if (messageDeleted && hasListener.current) {
+      document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('touchend', closeDetailedReactions);
+      if (messageWrapper) {
+        messageWrapper.removeEventListener(
+          'mouseleave',
+          closeDetailedReactions,
+        );
+      }
+      hasListener.current = false;
+    }
+  }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
+
+  /** @type {() => void} Typescript syntax */
+  const onReactionListClick = () => {
+    setShowDetailedReactions(true);
+  };
+  return {
+    onReactionListClick,
+    showDetailedReactions,
   };
 };
