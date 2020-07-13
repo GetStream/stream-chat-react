@@ -1,3 +1,9 @@
+// @ts-check
+
+/**
+ * @param {string} cid
+ * @param {import('stream-chat').Channel[]} channels
+ */
 export const moveChannelUp = (cid, channels) => {
   // get channel index
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
@@ -15,6 +21,11 @@ export const moveChannelUp = (cid, channels) => {
   return [...channels];
 };
 
+/**
+ * @param {import('stream-chat').StreamChat} client
+ * @param {string} type
+ * @param {string} [id]
+ */
 export const getChannel = async (client, type, id) => {
   const channel = client.channel(type, id);
   await channel.watch();

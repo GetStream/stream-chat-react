@@ -12,14 +12,17 @@ import {
 } from './utils';
 
 /**
- * @type {import('types').ChannelPreview}
+ * @type {React.FC<import('types').ChannelPreviewProps>}
  */
 const ChannelPreview = (props) => {
   const { t } = useContext(TranslationContext);
-  const chatContext = useContext(ChatContext);
-  const { client } = chatContext;
-  const { channel, activeChannel, Preview } = props;
-  const [lastMessage, setLastMessage] = useState({});
+  const { client, channel: activeChannel, setActiveChannel } = useContext(
+    ChatContext,
+  );
+  const { channel, Preview = ChannelPreviewCountOnly } = props;
+  const [lastMessage, setLastMessage] = useState(
+    /** @type {import('stream-chat').MessageResponse | undefined} */ (undefined),
+  );
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
@@ -29,8 +32,8 @@ const ChannelPreview = (props) => {
   useEffect(() => {
     /** @type {(event: StreamChat.Event) => void} Typescript syntax */
     const handleEvent = (event) => {
-      const isActive = activeChannel && activeChannel.cid === channel.cid;
-      setLastMessage(event.message || {});
+      const isActive = activeChannel?.cid === channel.cid;
+      setLastMessage(event.message);
 
       if (!isActive) {
         setUnread(channel.countUnread());
@@ -51,7 +54,7 @@ const ChannelPreview = (props) => {
   }, [channel, activeChannel]);
 
   useEffect(() => {
-    const isActive = activeChannel.cid === channel.cid;
+    const isActive = activeChannel?.cid === channel.cid;
 
     if (isActive) {
       setUnread(0);
@@ -60,13 +63,17 @@ const ChannelPreview = (props) => {
     }
   }, [activeChannel, channel]);
 
+  if (!Preview) {
+    return null;
+  }
+
   return (
     <Preview
       {...props}
+      setActiveChannel={setActiveChannel}
       lastMessage={lastMessage}
       unread={unread}
       latestMessage={getLatestMessagePreview(channel, t)}
-      latestMessageDisplayTest={getLatestMessagePreview(channel, t)}
       displayTitle={getDisplayTitle(channel, client.user)}
       displayImage={getDisplayImage(channel, client.user)}
       active={activeChannel && activeChannel.cid === channel.cid}
@@ -74,17 +81,12 @@ const ChannelPreview = (props) => {
   );
 };
 
-ChannelPreview.defaultProps = {
-  Preview: ChannelPreviewCountOnly,
-};
-
 ChannelPreview.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  channel: PropTypes.object.isRequired,
+  channel: /** @type {PropTypes.Validator<import('stream-chat').Channel>} */ (PropTypes
+    .object.isRequired),
   /** Current selected channel object */
-  activeChannel: PropTypes.object,
-  /** Setter for selected channel */
-  setActiveChannel: PropTypes.func.isRequired,
+  activeChannel: /** @type {PropTypes.Validator<import('stream-chat').Channel | null | undefined>} */ (PropTypes.object),
   /**
    * Available built-in options (also accepts the same props as):
    *
@@ -94,12 +96,7 @@ ChannelPreview.propTypes = {
    *
    * The Preview to use, defaults to ChannelPreviewLastMessage
    * */
-  Preview: PropTypes.elementType,
-  /**
-   * Object containing watcher parameters
-   * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
-   * */
-  watchers: PropTypes.object,
+  Preview: /** @type {PropTypes.Validator<React.ComponentType<import('types').ChannelPreviewUIComponentProps>>} */ (PropTypes.elementType),
 };
 
 export default ChannelPreview;

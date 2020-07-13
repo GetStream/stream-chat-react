@@ -1,6 +1,9 @@
+// @ts-check
+
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
+import Dayjs from 'dayjs';
 import { ChatContext, TranslationContext } from '../../context';
 import { Streami18n } from '../../i18n';
 
@@ -18,12 +21,29 @@ import { Streami18n } from '../../i18n';
  * It also exposes the withChatContext HOC which you can use to consume the ChatContext
  *
  * @example ../../docs/Chat.md
+ * @typedef {import('stream-chat').Channel | undefined} ChannelState
+ * @type {React.FC<{ client: import('stream-chat').StreamChat, theme?: string, i18nInstance?: Streami18n, initialNavOpen?: boolean }>}
  */
-const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
-  const [translators, setTranslators] = useState({});
-  const [mutes, setMutes] = useState([]);
+const Chat = ({
+  client,
+  theme = 'messaging light',
+  i18nInstance,
+  initialNavOpen = true,
+  children,
+}) => {
+  const [translators, setTranslators] = useState(
+    /** @type { Required<import('types').TranslationContextValue>} */ ({
+      t: /** @param {string} key */ (key) => key,
+      tDateTimeParser: (input) => Dayjs(input),
+    }),
+  );
+  const [mutes, setMutes] = useState(
+    /** @type {import('stream-chat').Mute[]} */ ([]),
+  );
   const [navOpen, setNavOpen] = useState(initialNavOpen);
-  const [channel, setChannel] = useState({});
+  const [channel, setChannel] = useState(
+    /** @type {ChannelState} */ (undefined),
+  );
 
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
   const closeMobileNav = () => setNavOpen(false);
@@ -31,8 +51,9 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
   useEffect(() => {
     setMutes(client?.user?.mutes || []);
 
+    /** @param {import('stream-chat').Event<string>} e */
     const handleEvent = (e) => {
-      if (e.type === 'notification.mutes_updated') setMutes(e.me.mutes || []);
+      if (e.type === 'notification.mutes_updated') setMutes(e.me?.mutes || []);
     };
     if (client) client.on(handleEvent);
     return () => client && client.off(handleEvent);
@@ -46,14 +67,21 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
-    streami18n.getTranslators().then(setTranslators);
+    streami18n.getTranslators().then((translator) => {
+      if (translator) setTranslators(translator);
+    });
   }, [i18nInstance]);
 
   const setActiveChannel = useCallback(
+    /**
+     * @param {ChannelState} activeChannel
+     * @param {{ limit?: number; offset?: number }} [watchers]
+     * @param {React.BaseSyntheticEvent} [e]
+     */
     async (activeChannel, watchers = {}, e) => {
       if (e && e.preventDefault) e.preventDefault();
 
-      if (Object.keys(watchers).length)
+      if (activeChannel && Object.keys(watchers).length)
         await activeChannel.query({ watch: true, watchers });
 
       setChannel(activeChannel);
@@ -84,14 +112,10 @@ const Chat = ({ client, theme, i18nInstance, initialNavOpen, children }) => {
   );
 };
 
-Chat.defaultProps = {
-  initialNavOpen: true,
-  theme: 'messaging light',
-};
-
 Chat.propTypes = {
   /** The StreamChat client object */
-  client: PropTypes.object.isRequired,
+  client: /** @type {PropTypes.Validator<import('stream-chat').StreamChat>} */ (PropTypes
+    .object.isRequired),
   /**
    *
    * Theme could be used for custom styling of the components.

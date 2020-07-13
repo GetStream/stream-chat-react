@@ -9,8 +9,6 @@ import { ChannelListMessenger } from '..';
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-jest.mock('axios');
-
 const Component = ({ loading = false, error = false }) => (
   <ChannelListMessenger
     loading={loading}

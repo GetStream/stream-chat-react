@@ -1,4 +1,5 @@
 {
+  "root": true,
   "plugins": [
     "babel",
     "markdown",
@@ -36,7 +37,9 @@
     "jest/lowercase-name": 0,
     "jest/prefer-expect-assertions": 0,
     "jest/no-hooks": 0,
-    "sonarjs/cognitive-complexity": ["error", 30]
+    "sonarjs/cognitive-complexity": ["error", 30],
+    "no-unused-expressions": "off",
+    "babel/no-unused-expressions": "error"
   },
   "env": {
     "es6": true,

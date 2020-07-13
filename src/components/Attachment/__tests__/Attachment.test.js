@@ -18,8 +18,6 @@ import {
 
 import Attachment, { SUPPORTED_VIDEO_FORMATS } from '../Attachment';
 
-jest.mock('axios');
-
 const Audio = () => <div data-testid="audio-attachment"></div>;
 const Card = () => <div data-testid="card-attachment"></div>;
 const Media = () => <div data-testid="media-attachment"></div>;

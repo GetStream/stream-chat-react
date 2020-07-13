@@ -8,7 +8,7 @@ import ModalWrapper from './ModalWrapper';
  * Image - Small wrapper around an image tag, supports thumbnails
  *
  * @example ../../docs/Image.md
- * @extends PureComponent
+ * @extends {React.PureComponent<import('type').ImageProps>}
  */
 class Image extends React.PureComponent {
   static propTypes = {

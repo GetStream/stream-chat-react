@@ -6,7 +6,7 @@ import Immutable from 'seamless-immutable';
 import Visibility from 'visibilityjs';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
-import { logChatPromiseExecution } from 'stream-chat';
+import { logChatPromiseExecution, Channel as ChannelInst } from 'stream-chat';
 
 import {
   withChatContext,
@@ -181,9 +181,7 @@ class ChannelInner extends PureComponent {
 
   static propTypes = {
     /** Which channel to connect to */
-    channel: PropTypes.shape({
-      watch: PropTypes.func,
-    }).isRequired,
+    channel: PropTypes.instanceOf(ChannelInst).isRequired,
     /** Client is passed via the Chat Context */
     client: PropTypes.object.isRequired,
     /** The loading indicator to use */
