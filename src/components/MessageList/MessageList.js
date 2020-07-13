@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import deepequal from 'react-fast-compare';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Channel } from 'stream-chat';
@@ -69,10 +68,7 @@ class MessageList extends PureComponent {
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
 
-    if (
-      prevProps.messages.length < this.props.messages.length ||
-      !deepequal(this.props.eventHistory, prevProps.eventHistory)
-    ) {
+    if (prevProps.messages.length < this.props.messages.length) {
       const list = this.messageList.current;
       return {
         offsetTop: list.scrollTop,
@@ -246,7 +242,6 @@ class MessageList extends PureComponent {
             headerPosition={this.props.headerPosition}
             DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
             messages={this.props.messages}
-            eventHistory={this.props.eventHistory}
             noGroupByUser={this.props.noGroupByUser}
             threadList={this.props.threadList}
             client={this.props.client}

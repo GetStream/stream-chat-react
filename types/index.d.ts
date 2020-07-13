@@ -52,12 +52,6 @@ export interface ChannelContextValue extends ChatContextValue {
   hasMore?: boolean;
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
-  eventHistory?: {
-    [lastMessageId: string]: (
-      | Client.MemberAddedEvent
-      | Client.MemberRemovedEvent
-    )[];
-  };
   thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
   threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
 
