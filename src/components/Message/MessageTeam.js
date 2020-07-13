@@ -27,6 +27,7 @@ import {
   useReactionHandler,
   useOpenThreadHandler,
   useMentionsUIHandler,
+  useEditHandler,
 } from './hooks';
 import {
   getNonImageAttachments,
@@ -62,13 +63,14 @@ const ErrorIcon = () => (
 const MessageTeam = (props) => {
   const {
     message,
-    editing,
-    clearEditingState,
     threadList,
     initialMessage,
     unsafeHTML,
     getMessageActions,
     MessageDeleted,
+    editing: propEditing,
+    setEditingState: propSetEdit,
+    clearEditingState: propClearEdit,
     onMentionsHoverMessage: propOnMentionsHover,
     onMentionsClickMessage: propOnMentionsClick,
     channelConfig: propChannelConfig,
@@ -97,6 +99,11 @@ const MessageTeam = (props) => {
   const groupStyles = props.groupStyles || ['single'];
   const reactionSelectorRef = useRef(null);
   const messageWrapperRef = useRef(null);
+  const { editing, setEdit, clearEdit } = useEditHandler(
+    propEditing,
+    propSetEdit,
+    propClearEdit,
+  );
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const retryHandler = useRetryHandler();
@@ -149,7 +156,7 @@ const MessageTeam = (props) => {
         <MessageInput
           Input={EditMessageForm}
           message={message}
-          clearEditingState={clearEditingState}
+          clearEditingState={clearEdit}
           updateMessage={propUpdateMessage || channelUpdateMessage}
         />
       </div>
@@ -256,35 +263,37 @@ const MessageTeam = (props) => {
                       onClick={propHandleOpenThread || handleOpenThread}
                     />
                   )}
-                  {message && getMessageActions().length > 0 && (
-                    <MessageActions
-                      addNotification={props.addNotification}
-                      message={message}
-                      mutes={props.mutes}
-                      getMessageActions={props.getMessageActions}
-                      messageListRect={props.messageListRect}
-                      messageWrapperRef={messageWrapperRef}
-                      setEditingState={props.setEditingState}
-                      getMuteUserSuccessNotification={
-                        props.getMuteUserSuccessNotification
-                      }
-                      getMuteUserErrorNotification={
-                        props.getMuteUserErrorNotification
-                      }
-                      getFlagMessageErrorNotification={
-                        props.getFlagMessageErrorNotification
-                      }
-                      getFlagMessageSuccessNotification={
-                        props.getFlagMessageSuccessNotification
-                      }
-                      handleFlag={props.handleFlag}
-                      handleMute={props.handleMute}
-                      handleEdit={props.handleEdit}
-                      handleDelete={props.handleDelete}
-                      customWrapperClass={''}
-                      inline
-                    />
-                  )}
+                  {message &&
+                    getMessageActions &&
+                    getMessageActions().length > 0 && (
+                      <MessageActions
+                        addNotification={props.addNotification}
+                        message={message}
+                        mutes={props.mutes}
+                        getMessageActions={props.getMessageActions}
+                        messageListRect={props.messageListRect}
+                        messageWrapperRef={messageWrapperRef}
+                        setEditingState={setEdit}
+                        getMuteUserSuccessNotification={
+                          props.getMuteUserSuccessNotification
+                        }
+                        getMuteUserErrorNotification={
+                          props.getMuteUserErrorNotification
+                        }
+                        getFlagMessageErrorNotification={
+                          props.getFlagMessageErrorNotification
+                        }
+                        getFlagMessageSuccessNotification={
+                          props.getFlagMessageSuccessNotification
+                        }
+                        handleFlag={props.handleFlag}
+                        handleMute={props.handleMute}
+                        handleEdit={props.handleEdit}
+                        handleDelete={props.handleDelete}
+                        customWrapperClass={''}
+                        inline
+                      />
+                    )}
                 </div>
               )}
             {message && (
