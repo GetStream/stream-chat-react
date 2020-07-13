@@ -10,12 +10,10 @@ import {
   generateMessage,
 } from 'mock-builders';
 import { ChannelContext } from '../../../context';
-import { MessageText } from '../MessageText';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import MessageText from '../MessageText';
+import MessageOptionsMock from '../MessageOptions';
 
-jest.mock('../MessageOptions', () => ({
-  MessageOptions: jest.fn(() => <div />),
-}));
+jest.mock('../MessageOptions', () => jest.fn(() => <div />));
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });

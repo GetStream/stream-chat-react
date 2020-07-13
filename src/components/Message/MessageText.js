@@ -9,7 +9,7 @@ import {
   useMentionsUIHandler,
 } from './hooks';
 import { messageHasReactions, messageHasAttachments } from './utils';
-import { MessageOptions } from './MessageOptions';
+import MessageOptions from './MessageOptions';
 
 /**
  * @type { React.FC<import('types').MessageTextProps> }
@@ -114,4 +114,4 @@ const MessageTextComponent = (props) => {
   );
 };
 
-export const MessageText = React.memo(MessageTextComponent);
+export default React.memo(MessageTextComponent);

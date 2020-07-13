@@ -124,4 +124,4 @@ const MessageOptionsComponent = (props) => {
   );
 };
 
-export const MessageOptions = React.memo(MessageOptionsComponent);
+export default React.memo(MessageOptionsComponent);

@@ -9,7 +9,7 @@ import {
 } from 'mock-builders';
 import { ChannelContext } from '../../../context';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { MessageOptions } from '../MessageOptions';
+import MessageOptions from '../MessageOptions';
 
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),

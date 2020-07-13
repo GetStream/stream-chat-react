@@ -14,8 +14,8 @@ import {
   messageHasAttachments,
   getImages,
 } from './utils';
-import { MessageOptions } from './MessageOptions';
-import { MessageText } from './MessageText';
+import MessageOptions from './MessageOptions';
+import MessageText from './MessageText';
 import {
   useUserRole,
   useReactionClick,

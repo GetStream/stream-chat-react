@@ -4,3 +4,7 @@ export { default as MessageLivestream } from './MessageLivestream';
 export { default as MessageSimple } from './MessageSimple';
 export { default as MessageTeam } from './MessageTeam';
 export { default as MessageRepliesCountButton } from './MessageRepliesCountButton';
+export { default as MessageOptions } from './MessageOptions';
+export { default as MessageText } from './MessageText';
+export * from './hooks';
+export * from './utils';

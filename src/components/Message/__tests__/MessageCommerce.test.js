@@ -12,15 +12,13 @@ import {
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageCommerce from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
-import { MessageText as MessageTextMock } from '../MessageText';
+import MessageTextMock from '../MessageText';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
 }));
 
-jest.mock('../MessageText', () => ({
-  MessageText: jest.fn(() => <div />),
-}));
+jest.mock('../MessageText', () => jest.fn(() => <div />));
 
 const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
 const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
