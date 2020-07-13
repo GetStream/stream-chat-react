@@ -6,3 +6,4 @@ export { default as MessageTeam } from './MessageTeam';
 export { default as MessageRepliesCountButton } from './MessageRepliesCountButton';
 export * from './MessageOptions';
 export * from './MessageText';
+export * from './hooks';
