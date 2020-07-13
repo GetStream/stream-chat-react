@@ -17,7 +17,7 @@ export interface TriggerMap {
       q: string,
       text: string,
       onReady: (data: any[], token: string) => void,
-    ) => Promise<Array<Object | string>> | Array<Object | string>;
+    ) => Promise<void> | Array<Object | string>;
     component: React.ComponentType<any>;
     callback?: (item: Object) => void;
   };

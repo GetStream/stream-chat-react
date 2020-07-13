@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
@@ -53,10 +53,12 @@ describe('MessageList', () => {
     });
 
     const newMessage = generateMessage({ user: user2 });
-    dispatchMessageNewEvent(
-      chatClientVishal,
-      newMessage,
-      mockedChannel.channel,
+    act(() =>
+      dispatchMessageNewEvent(
+        chatClientVishal,
+        newMessage,
+        mockedChannel.channel,
+      ),
     );
 
     await waitFor(() => {

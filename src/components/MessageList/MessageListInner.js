@@ -58,7 +58,8 @@ const insertDates = (messages, eventHistory) => {
       newMessages.push(message);
     }
 
-    const eventsNextToMessage = eventHistory[message.id || 'first'];
+    const eventsNextToMessage =
+      eventHistory && eventHistory[message.id || 'first'];
     if (eventsNextToMessage && eventsNextToMessage.length > 0) {
       eventsNextToMessage.forEach((e) => {
         newMessages.push({ type: 'channel.event', event: e });

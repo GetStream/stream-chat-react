@@ -9,8 +9,7 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import { ChannelContext } from '../../../context';
-import Message from '../Message';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageTeam from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
@@ -41,12 +40,9 @@ async function renderMessageTeam(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider value={{ client, channel, t: (key) => key }}>
-      <Message
-        message={message}
-        typing={false}
-        Message={MessageTeam}
-        {...props}
-      />
+      <TranslationContext.Provider value={{ t: (key) => key }}>
+        <MessageTeam message={message} typing={false} {...props} />
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -97,9 +93,7 @@ describe('<MessageTeam />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
-  // TODO: @vini
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('should render message input when in edit mode', async () => {
+  it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
     const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
@@ -118,8 +112,7 @@ describe('<MessageTeam />', () => {
     );
   });
 
-  // TODO: @vini
-  it.skip.each([
+  it.each([
     ['should display', 'top', { shouldDisplay: true }],
     ['should display', 'single', { shouldDisplay: true }],
     ['should not display', 'middle', { shouldDisplay: false }],
@@ -169,10 +162,11 @@ describe('<MessageTeam />', () => {
     );
   });
 
-  it('should place a spacer when message is not the first message on a thread', async () => {
+  it('should place a spacer when message is not the first message on a thread and group style is not top or single', async () => {
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageTeam(message, {
       initialMessage: false,
+      groupStyles: [],
     });
     expect(getByTestId('team-meta-spacer')).toBeInTheDocument();
   });
@@ -310,16 +304,14 @@ describe('<MessageTeam />', () => {
 
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
-    const openThread = jest.fn();
-    const { getByTestId } = await renderMessageTeam(
-      message,
-      { openThread },
-      { replies: true },
-    );
-    expect(openThread).not.toHaveBeenCalled();
+    const handleOpenThread = jest.fn();
+    const { getByTestId } = await renderMessageTeam(message, {
+      handleOpenThread,
+      channelConfig: { replies: true },
+    });
+    expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTeamThreadIcon));
-    expect(openThread).toHaveBeenCalledWith(
-      message,
+    expect(handleOpenThread).toHaveBeenCalledWith(
       expect.any(Object), // THe click event
     );
   });
@@ -343,24 +335,24 @@ describe('<MessageTeam />', () => {
 
   it('should trigger mentions hover handler when user hovers message text', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsHover = jest.fn();
+    const onMentionsHoverMessage = jest.fn();
     const { getByTestId } = await renderMessageTeam(message, {
-      onMentionsHover,
+      onMentionsHoverMessage,
     });
-    expect(onMentionsHover).not.toHaveBeenCalled();
+    expect(onMentionsHoverMessage).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTeamMessageTestId));
-    expect(onMentionsHover).toHaveBeenCalledTimes(1);
+    expect(onMentionsHoverMessage).toHaveBeenCalledTimes(1);
   });
 
   it('should trigger mentions click handler when user clicks message text', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const onMentionsClick = jest.fn();
+    const onMentionsClickMessage = jest.fn();
     const { getByTestId } = await renderMessageTeam(message, {
-      onMentionsClick,
+      onMentionsClickMessage,
     });
-    expect(onMentionsClick).not.toHaveBeenCalled();
+    expect(onMentionsClickMessage).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTeamMessageTestId));
-    expect(onMentionsClick).toHaveBeenCalledTimes(1);
+    expect(onMentionsClickMessage).toHaveBeenCalledTimes(1);
   });
 
   it('should render message html when unsafeHTML is enabled', async () => {
@@ -410,14 +402,14 @@ describe('<MessageTeam />', () => {
   });
 
   it('should allow message to be retried when it failed', async () => {
-    const retrySendMessage = jest.fn();
+    const handleRetry = jest.fn();
     const message = generateAliceMessage({ status: 'failed' });
     const { getByTestId } = await renderMessageTeam(message, {
-      retrySendMessage,
+      handleRetry,
     });
-    expect(retrySendMessage).not.toHaveBeenCalled();
+    expect(handleRetry).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-team-failed'));
-    expect(retrySendMessage).toHaveBeenCalledWith(message);
+    expect(handleRetry).toHaveBeenCalledWith(message);
   });
 
   it('should display loading status when message is being sent', async () => {

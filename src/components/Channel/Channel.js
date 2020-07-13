@@ -1,264 +1,459 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import React, { PureComponent } from 'react';
+// @ts-check
+import React, {
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+  useReducer,
+  useLayoutEffect,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
-import Immutable from 'seamless-immutable';
-import Visibility from 'visibilityjs';
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
-import { logChatPromiseExecution, Channel as ChannelInst } from 'stream-chat';
+import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
+import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
 
+import { ChatContext, ChannelContext, TranslationContext } from '../../context';
+import { Attachment as AttachmentComponent } from '../Attachment';
+import { MessageSimple as MessageSimpleComponent } from '../Message';
 import {
-  withChatContext,
-  ChannelContext,
-  withTranslationContext,
-} from '../../context';
-import { Attachment } from '../Attachment';
-import { MessageSimple } from '../Message';
-import {
-  LoadingIndicator as DefaultLoadingIndicator,
-  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
+  LoadingIndicator as LoadingIndicatorComponent,
+  LoadingErrorIndicator as LoadingErrorIndicatorComponent,
 } from '../Loading';
+import useMentionsHandlers from './hooks/useMentionsHandlers';
+import useEditMessageHandler from './hooks/useEditMessageHandler';
+import { channelReducer, initialState } from './channelState';
 
-/**
- * Channel - Wrapper component for a channel. It needs to be place inside of the Chat component.
- * ChannelHeader, MessageList, Thread and MessageInput should be used as children of the Channel component.
- *
- * @example ../../docs/Channel.md
- * @extends PureComponent
- */
-class Channel extends PureComponent {
-  static propTypes = {
-    /** Which channel to connect to, will initialize the channel if it's not initialized yet */
-    channel: PropTypes.shape({
-      watch: PropTypes.func,
-    }),
-    /** Client is passed automatically via the Chat Context */
-    client: PropTypes.object.isRequired,
-    /**
-     * Empty channel UI component. This will be shown on the screen if there is no active channel.
-     *
-     * Defaults to null which skips rendering the Channel
-     *
-     * */
-    EmptyPlaceholder: PropTypes.node,
-    /**
-     * Error indicator UI component. This will be shown on the screen if channel query fails.
-     *
-     * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
-     *
-     * */
-    LoadingErrorIndicator: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
-    /**
-     * Loading indicator UI component. This will be shown on the screen until the messages are
-     * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
-     * and replaced with children of the Channel component.
-     *
-     * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
-     */
-    LoadingIndicator: PropTypes.elementType,
-    /**
-     * Message UI component to display a message in message list.
-     *
-     * Available built-in components (also accepts the same props as):
-     *
-     * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
-     * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
-     * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
-     * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
-     *
-     * */
-    Message: PropTypes.elementType,
-    /**
-     * Attachment UI component to display attachment in individual message.
-     *
-     * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
-     * */
-    Attachment: PropTypes.elementType,
-    /**
-     * Handle for click on @mention in message
-     *
-     * @param {Event} event DOM Click event
-     * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
-     */
-    onMentionsClick: PropTypes.func,
-    /**
-     * Handle for hover on @mention in message
-     *
-     * @param {Event} event DOM hover event
-     * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
-     */
-    onMentionsHover: PropTypes.func,
-    /** Weather to allow multiple attachment uploads */
-    multipleUploads: PropTypes.bool,
-    /** List of accepted file types */
-    acceptedFiles: PropTypes.array,
-    /** Maximum number of attachments allowed per message */
-    maxNumberOfFiles: PropTypes.number,
-    /** Override send message request (Advanced usage only)
-     *
-     * @param {String} channelId full channel ID in format of `type:id`
-     * @param {Object} message
-     */
-    doSendMessageRequest: PropTypes.func,
-    /** Override update(edit) message request (Advanced usage only)
-     *
-     * @param {String} channelId full channel ID in format of `type:id`
-     * @param {Object} updatedMessage
-     */
-    doUpdateMessageRequest: PropTypes.func,
-  };
-
-  static defaultProps = {
-    EmptyPlaceholder: null,
-    LoadingIndicator: DefaultLoadingIndicator,
-    LoadingErrorIndicator: DefaultLoadingErrorIndicator,
-    Message: MessageSimple,
-    Attachment,
-  };
-
-  render() {
-    if (!this.props.channel || !this.props.channel.cid) {
-      return this.props.EmptyPlaceholder;
-    }
-    // We use a wrapper to make sure the key variable is set.
-    // this ensures that if you switch channel the component is recreated
-    return <ChannelInner {...this.props} key={this.props.channel.cid} />;
+/** @type {React.FC<import('types').ChannelProps>}>} */
+const Channel = ({ EmptyPlaceholder = null, ...props }) => {
+  const { channel: contextChannel } = useContext(ChatContext);
+  const channel = props.channel || contextChannel;
+  if (!channel?.cid) {
+    return EmptyPlaceholder;
   }
-}
+  return <ChannelInner {...props} channel={channel} key={channel.cid} />;
+};
 
-class ChannelInner extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      error: false,
-      // Loading the initial content of the channel
-      loading: true,
-      // Loading more messages
-      loadingMore: false,
-      hasMore: true,
-      messages: Immutable([]),
-      online: true,
-      typing: Immutable({}),
-      watchers: Immutable({}),
-      members: Immutable({}),
-      read: Immutable({}),
-      eventHistory: {},
-      thread: false,
-      threadMessages: [],
-      threadLoadingMore: false,
-      threadHasMore: true,
+Channel.propTypes = {
+  /** Which channel to connect to, will initialize the channel if it's not initialized yet */
+  channel: PropTypes.instanceOf(StreamChannel),
+  /**
+   * Empty channel UI component. This will be shown on the screen if there is no active channel.
+   *
+   * Defaults to null which skips rendering the Channel
+   *
+   * */
+  EmptyPlaceholder: PropTypes.element,
+  /**
+   * Error indicator UI component. This will be shown on the screen if channel query fails.
+   *
+   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
+   *
+   * */
+  // @ts-ignore elementType
+  LoadingErrorIndicator: PropTypes.elementType,
+  /**
+   * Loading indicator UI component. This will be shown on the screen until the messages are
+   * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
+   * and replaced with children of the Channel component.
+   *
+   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+   */
+  // @ts-ignore elementType
+  LoadingIndicator: PropTypes.elementType,
+  /**
+   * Message UI component to display a message in message list.
+   *
+   * Available built-in components (also accepts the same props as):
+   *
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
+   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
+   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
+   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+   *
+   * */
+  // @ts-ignore elementType
+  Message: PropTypes.elementType,
+  /**
+   * Attachment UI component to display attachment in individual message.
+   *
+   * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+   * */
+  // @ts-ignore elementType
+  Attachment: PropTypes.elementType,
+  /**
+   * Handle for click on @mention in message
+   *
+   * @param {Event} event DOM Click event
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
+   */
+  onMentionsClick: PropTypes.func,
+  /**
+   * Handle for hover on @mention in message
+   *
+   * @param {Event} event DOM hover event
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
+   */
+  onMentionsHover: PropTypes.func,
+  /** Weather to allow multiple attachment uploads */
+  multipleUploads: PropTypes.bool,
+  /** List of accepted file types */
+  acceptedFiles: PropTypes.array,
+  /** Maximum number of attachments allowed per message */
+  maxNumberOfFiles: PropTypes.number,
+  /** Override send message request (Advanced usage only)
+   *
+   * @param {String} channelId full channel ID in format of `type:id`
+   * @param {Object} message
+   */
+  doSendMessageRequest: PropTypes.func,
+  /** Override update(edit) message request (Advanced usage only)
+   *
+   * @param {String} channelId full channel ID in format of `type:id`
+   * @param {Object} updatedMessage
+   */
+  doUpdateMessageRequest: PropTypes.func,
+};
+
+/** @type {React.FC<import('types').ChannelProps & { channel: import('stream-chat').Channel }>} */
+const ChannelInner = ({
+  LoadingIndicator = LoadingIndicatorComponent,
+  LoadingErrorIndicator = LoadingErrorIndicatorComponent,
+  Attachment = AttachmentComponent,
+  Message = MessageSimpleComponent,
+  ...props
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+}) => {
+  const { channel } = props;
+  const [state, dispatch] = useReducer(channelReducer, initialState);
+  const originalTitle = useRef('');
+  const lastRead = useRef(new Date());
+  const chatContext = useContext(ChatContext);
+  const { t } = useContext(TranslationContext);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCopyStateFromChannel = useCallback(
+    throttle(
+      () => {
+        dispatch({ type: 'copyStateFromChannelOnEvent', channel });
+      },
+      500,
+      { leading: true, trailing: true },
+    ),
+    [channel],
+  );
+
+  const markRead = useCallback(() => {
+    if (channel.disconnected || !channel.getConfig().read_events) {
+      return;
+    }
+    lastRead.current = new Date();
+
+    logChatPromiseExecution(channel.markRead(), 'mark read');
+
+    if (originalTitle.current) {
+      document.title = originalTitle.current;
+    }
+  }, [channel]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const markReadThrottled = useCallback(
+    throttle(markRead, 500, { leading: true, trailing: true }),
+    [markRead],
+  );
+
+  const handleEvent = useCallback(
+    (e) => {
+      dispatch({ type: 'updateThreadOnEvent', message: e.message, channel });
+
+      if (e.type === 'message.new') {
+        let mainChannelUpdated = true;
+        if (e.message.parent_id && !e.message.show_in_channel) {
+          mainChannelUpdated = false;
+        }
+
+        if (
+          mainChannelUpdated &&
+          e.message.user.id !== chatContext.client.userID
+        ) {
+          if (!document.hidden) {
+            markReadThrottled();
+          } else {
+            const unread = channel.countUnread(lastRead.current);
+            document.title = `(${unread}) ${originalTitle.current}`;
+          }
+        }
+      }
+
+      throttledCopyStateFromChannel();
+    },
+    [
+      channel,
+      throttledCopyStateFromChannel,
+      chatContext.client.userID,
+      markReadThrottled,
+    ],
+  );
+
+  // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
+  useLayoutEffect(() => {
+    let errored = false;
+    let done = false;
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        markRead();
+      }
     };
 
-    // hard limit to prevent you from scrolling faster than 1 page per 2 seconds
-    this._loadMoreFinishedDebounced = debounce(this.loadMoreFinished, 2000, {
-      leading: true,
-      trailing: true,
-    });
+    (async () => {
+      if (!channel.initialized) {
+        try {
+          await channel.watch();
+        } catch (e) {
+          dispatch({ type: 'setError', error: e });
+          errored = true;
+        }
+      }
+      done = true;
+      originalTitle.current = document.title;
+      if (!errored) {
+        dispatch({ type: 'initStateFromChannel', channel });
+        if (channel.countUnread() > 0) markRead();
+        // The more complex sync logic is done in chat.js
+        // listen to client.connection.recovered and all channel events
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        chatContext.client.on('connection.recovered', handleEvent);
+        channel.on(handleEvent);
+      }
+    })();
+    return () => {
+      if (errored || !done) return;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      channel.off(handleEvent);
+      chatContext.client.off('connection.recovered', handleEvent);
+    };
+  }, [channel, chatContext.client, handleEvent, markRead, props.channel]);
 
-    // hard limit to prevent you from scrolling faster than 1 page per 2 seconds
-    this._loadMoreThreadFinishedDebounced = debounce(
-      this.loadMoreThreadFinished,
+  useEffect(() => {
+    if (state.thread) {
+      for (let i = state.messages.length - 1; i >= 0; i -= 1) {
+        if (state.messages[i].id === state.thread.id) {
+          dispatch({ type: 'setThread', message: state.messages[i] });
+          break;
+        }
+      }
+    }
+  }, [state.messages, state.thread]);
+
+  // Message
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadMoreFinished = useCallback(
+    debounce(
+      /**
+       * @param {boolean} hasMore
+       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} messages
+       */
+      (hasMore, messages) => {
+        dispatch({ type: 'loadMoreFinished', hasMore, messages });
+      },
       2000,
       {
         leading: true,
         trailing: true,
       },
-    );
+    ),
+    [],
+  );
 
-    this._markReadThrottled = throttle(this.markRead, 500, {
-      leading: true,
-      trailing: true,
-    });
-    this._setStateThrottled = throttle(this.setState, 500, {
-      leading: true,
-      trailing: true,
-    });
-  }
+  const loadMore = useCallback(
+    async (limit = 100) => {
+      // prevent duplicate loading events...
+      const oldestMessage = state.messages[0];
+      if (state.loadingMore || oldestMessage?.status !== 'received') return;
+      dispatch({ type: 'setLoadingMore', loadingMore: true });
 
-  static propTypes = {
-    /** Which channel to connect to */
-    channel: PropTypes.instanceOf(ChannelInst).isRequired,
-    /** Client is passed via the Chat Context */
-    client: PropTypes.object.isRequired,
-    /** The loading indicator to use */
-    LoadingIndicator: PropTypes.elementType,
-    LoadingErrorIndicator: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
-  };
+      const oldestID = oldestMessage?.id || null;
 
-  async componentDidMount() {
-    const { channel } = this.props;
-    let errored = false;
-    if (!channel.initialized) {
+      const perPage = limit;
+      let queryResponse;
       try {
-        await channel.watch();
+        queryResponse = await channel.query({
+          messages: { limit: perPage, id_lt: oldestID },
+        });
       } catch (e) {
-        this.setState({ error: e });
-        errored = true;
+        console.warn('message pagination request failed with error', e);
+        dispatch({ type: 'setLoadingMore', loadingMore: false });
+        return;
       }
-    }
-    this.originalTitle = document.title;
-    this.lastRead = new Date();
-    if (!errored) {
-      this.copyChannelState();
-      this.listenToChanges();
-    }
-  }
+      const hasMoreMessages = queryResponse.messages.length === perPage;
 
-  componentDidUpdate() {
-    // If there is an active thread, then in that case we should sync
-    // it with updated state of channel.
-    if (this.state.thread) {
-      for (let i = this.state.messages.length - 1; i >= 0; i -= 1) {
-        if (this.state.messages[i].id === this.state.thread.id) {
-          this.setState({
-            thread: this.state.messages[i],
-          });
-          break;
+      loadMoreFinished(hasMoreMessages, channel.state.messages);
+    },
+    [channel, loadMoreFinished, state.loadingMore, state.messages],
+  );
+
+  const updateMessage = useCallback(
+    (updatedMessage) => {
+      // adds the message to the local channel state..
+      // this adds to both the main channel state as well as any reply threads
+      channel.state.addMessageSorted(updatedMessage);
+
+      dispatch({
+        type: 'copyMessagesFromChannel',
+        parentId: state.thread && updatedMessage.parent_id,
+        channel,
+      });
+    },
+    [channel, state.thread],
+  );
+
+  const { doSendMessageRequest } = props;
+  const doSendMessage = useCallback(
+    async (message) => {
+      const { text, attachments, id, parent_id, mentioned_users } = message;
+      const messageData = {
+        text,
+        attachments,
+        mentioned_users,
+        id,
+        parent_id,
+      };
+
+      try {
+        let messageResponse;
+        if (doSendMessageRequest) {
+          messageResponse = await doSendMessageRequest(
+            channel.cid,
+            messageData,
+          );
+        } else {
+          messageResponse = await channel.sendMessage(messageData);
         }
+
+        // replace it after send is completed
+        if (messageResponse && messageResponse.message) {
+          updateMessage({
+            ...messageResponse.message,
+            status: 'received',
+          });
+        }
+      } catch (e) {
+        // set the message to failed..
+        updateMessage({
+          ...message,
+          status: 'failed',
+        });
       }
-    }
-  }
+    },
+    [channel, doSendMessageRequest, updateMessage],
+  );
 
-  componentWillUnmount() {
-    this.props.client.off('connection.recovered', this.handleEvent);
-    this.props.channel.off(this.handleEvent);
-    this._loadMoreFinishedDebounced.cancel();
-    this._loadMoreThreadFinishedDebounced.cancel();
+  const createMessagePreview = useCallback(
+    (text, attachments, parent, mentioned_users) => {
+      // create a preview of the message
+      const clientSideID = `${chatContext.client.userID}-${uuidv4()}`;
+      return {
+        text,
+        html: text,
+        __html: text,
+        id: clientSideID,
+        type: 'regular',
+        status: 'sending',
+        user: chatContext.client.user,
+        created_at: new Date(),
+        attachments,
+        mentioned_users,
+        reactions: [],
+        ...(parent?.id ? { parent_id: parent.id } : null),
+      };
+    },
+    [chatContext.client.user, chatContext.client.userID],
+  );
 
-    if (this.visibilityListener || this.visibilityListener === 0) {
-      Visibility.unbind(this.visibilityListener);
-    }
-  }
+  const sendMessage = useCallback(
+    async ({ text, attachments = [], mentioned_users = [], parent }) => {
+      // remove error messages upon submit
+      channel.state.filterErrorMessages();
 
-  openThread = (message, e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
+      // create a local preview message to show in the UI
+      const messagePreview = createMessagePreview(
+        text,
+        attachments,
+        parent,
+        mentioned_users,
+      );
 
-    const { channel } = this.props;
-    const threadMessages = channel.state.threads[message.id] || [];
+      // first we add the message to the UI
+      updateMessage(messagePreview);
 
-    this.setState({
-      thread: message,
-      threadMessages,
-    });
-  };
+      await doSendMessage(messagePreview);
+    },
+    [channel.state, createMessagePreview, doSendMessage, updateMessage],
+  );
 
-  loadMoreThread = async () => {
+  const retrySendMessage = useCallback(
+    async (message) => {
+      // set the message status to sending
+      updateMessage({
+        ...message,
+        status: 'sending',
+      });
+      // actually try to send the message...
+      await doSendMessage(message);
+    },
+    [doSendMessage, updateMessage],
+  );
+
+  const removeMessage = useCallback(
+    (message) => {
+      channel.state.removeMessage(message);
+      dispatch({
+        type: 'copyMessagesFromChannel',
+        parentId: state.thread && message.parent_id,
+        channel,
+      });
+    },
+    [channel, state.thread],
+  );
+
+  // Thread
+
+  const openThread = useCallback(
+    (message, e) => {
+      if (e && e.preventDefault) {
+        e.preventDefault();
+      }
+
+      dispatch({ type: 'openThread', message, channel });
+    },
+    [channel],
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadMoreThreadFinished = useCallback(
+    debounce(
+      /**
+       * @param {boolean} threadHasMore
+       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} threadMessages
+       */
+      (threadHasMore, threadMessages) => {
+        dispatch({
+          type: 'loadMoreThreadFinished',
+          threadHasMore,
+          threadMessages,
+        });
+      },
+      2000,
+      { leading: true, trailing: true },
+    ),
+    [],
+  );
+
+  const loadMoreThread = useCallback(async () => {
     // prevent duplicate loading events...
-    if (this.state.threadLoadingMore || !this.state.thread) return;
-    this.setState({
-      threadLoadingMore: true,
-    });
-    const { channel } = this.props;
-    const parentID = this.state.thread.id;
+    if (state.threadLoadingMore || !state.thread) return;
+    dispatch({ type: 'startLoadingThread' });
+    const parentID = state.thread.id;
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
     const limit = 50;
@@ -267,409 +462,76 @@ class ChannelInner extends PureComponent {
       id_lt: oldestMessageID,
     });
 
-    const hasMore = queryResponse.messages.length === limit;
+    const threadHasMoreMessages = queryResponse.messages.length === limit;
 
-    const threadMessages = channel.state.threads[parentID] || [];
+    const newThreadMessages = channel.state.threads[parentID] || [];
 
     // next set loadingMore to false so we can start asking for more data...
-    this._loadMoreThreadFinishedDebounced(hasMore, threadMessages);
-  };
+    loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
+  }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
-  loadMoreThreadFinished = (threadHasMore, threadMessages) => {
-    this.setState({
-      threadLoadingMore: false,
-      threadHasMore,
-      threadMessages,
-    });
-  };
-
-  closeThread = (e) => {
+  const closeThread = useCallback((e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
+    dispatch({ type: 'closeThread' });
+  }, []);
 
-    this.setState({
-      thread: null,
-      threadMessages: [],
-    });
+  const onMentionsHoverOrClick = useMentionsHandlers(
+    props.onMentionsHover,
+    props.onMentionsClick,
+  );
+
+  const editMessage = useEditMessageHandler(props.doUpdateMessageRequest);
+
+  const channelContextValue = {
+    // state
+    ...state,
+    watcher_count: state.watcherCount,
+    // props
+    channel,
+    Message,
+    Attachment,
+    multipleUploads: props.multipleUploads,
+    acceptedFiles: props.acceptedFiles,
+    maxNumberOfFiles: props.maxNumberOfFiles,
+    mutes: props.mutes,
+    // handlers
+    loadMore,
+    editMessage,
+    updateMessage,
+    sendMessage,
+    retrySendMessage,
+    removeMessage,
+    openThread,
+    loadMoreThread,
+    closeThread,
+    onMentionsClick: onMentionsHoverOrClick,
+    onMentionsHover: onMentionsHoverOrClick,
+    // from chatContext, for legacy reasons
+    client: chatContext.client,
   };
 
-  copyChannelState() {
-    const { channel } = this.props;
-
-    this.setState({
-      messages: channel.state.messages,
-      read: channel.state.read,
-      watchers: channel.state.watchers,
-      members: channel.state.members,
-      watcher_count: channel.state.watcher_count,
-      loading: false,
-      typing: Immutable({}),
-    });
-
-    if (channel.countUnread() > 0) channel.markRead();
-  }
-
-  updateMessage = (updatedMessage) => {
-    const { channel } = this.props;
-
-    // adds the message to the local channel state..
-    // this adds to both the main channel state as well as any reply threads
-    channel.state.addMessageSorted(updatedMessage);
-
-    const extraState = {};
-    // update the Channel component state
-    if (this.state.thread && updatedMessage.parent_id) {
-      extraState.threadMessages =
-        channel.state.threads[updatedMessage.parent_id] || [];
-    }
-    this.setState({ messages: channel.state.messages, ...extraState });
-  };
-
-  removeMessage = (message) => {
-    const { channel } = this.props;
-    channel.state.removeMessage(message);
-    const threadMessages = channel.state.threads[message.parent_id] || [];
-    this.setState({
-      messages: channel.state.messages,
-      threads: channel.state.threads,
-      threadMessages,
-    });
-  };
-
-  createMessagePreview = (text, attachments, parent, mentioned_users) => {
-    // create a preview of the message
-    const message = {
-      text,
-      html: text,
-      __html: text,
-      id: `${this.props.client.userID}-${uuidv4()}`,
-      type: 'regular',
-      status: 'sending',
-      user: {
-        id: this.props.client.userID,
-        ...this.props.client.user,
-      },
-      created_at: new Date(),
-      attachments,
-      mentioned_users,
-      reactions: [],
-    };
-
-    if (parent && parent.id) {
-      message.parent_id = parent.id;
-    }
-    return message;
-  };
-
-  editMessage = (updatedMessage) => {
-    if (this.props.doUpdateMessageRequest) {
-      return Promise.resolve(
-        this.props.doUpdateMessageRequest(
-          this.props.channel.cid,
-          updatedMessage,
-        ),
-      );
-    }
-    return this.props.client.updateMessage(updatedMessage);
-  };
-
-  _sendMessage = async (message) => {
-    const { text, attachments, id, parent_id, mentioned_users } = message;
-    const messageData = {
-      text,
-      attachments,
-      mentioned_users,
-      id,
-      parent_id,
-    };
-
-    try {
-      let messageResponse;
-      if (this.props.doSendMessageRequest) {
-        messageResponse = await this.props.doSendMessageRequest(
-          this.props.channel.cid,
-          messageData,
-        );
-      } else {
-        messageResponse = await this.props.channel.sendMessage(messageData);
-      }
-
-      // replace it after send is completed
-      if (messageResponse.message) {
-        messageResponse.message.status = 'received';
-        this.updateMessage(messageResponse.message);
-      }
-    } catch (error) {
-      // set the message to failed..
-      this.updateMessage({ ...message, status: 'failed' });
-    }
-  };
-
-  sendMessage = async ({
-    text,
-    attachments = [],
-    mentioned_users = [],
-    parent,
-  }) => {
-    // remove error messages upon submit
-    this.props.channel.state.filterErrorMessages();
-
-    // create a local preview message to show in the UI
-    const messagePreview = this.createMessagePreview(
-      text,
-      attachments,
-      parent,
-      mentioned_users,
-    );
-
-    // first we add the message to the UI
-    this.updateMessage(messagePreview);
-
-    await this._sendMessage(messagePreview);
-  };
-
-  retrySendMessage = async (message) => {
-    // set the message status to sending
-    this.updateMessage({ ...message.asMutable(), status: 'sending' });
-    // actually try to send the message...
-    await this._sendMessage(message);
-  };
-
-  handleEvent = (e) => {
-    const { channel } = this.props;
-    let threadMessages = [];
-    const threadState = {};
-    if (this.state.thread) {
-      threadMessages = channel.state.threads[this.state.thread.id] || [];
-      threadState.threadMessages = threadMessages;
-    }
-
-    if (
-      this.state.thread &&
-      e.message &&
-      e.message.id === this.state.thread.id
-    ) {
-      threadState.thread = channel.state.messageToImmutable(e.message);
-    }
-
-    if (Object.keys(threadState).length > 0) {
-      // TODO: in theory we should do 1 setState call not 2,
-      // However the setStateThrottled doesn't support this
-      this.setState(threadState);
-    }
-
-    if (e.type === 'message.new') {
-      let mainChannelUpdated = true;
-      if (e.message.parent_id && !e.message.show_in_channel) {
-        mainChannelUpdated = false;
-      }
-
-      if (
-        mainChannelUpdated &&
-        e.message.user.id !== this.props.client.userID
-      ) {
-        if (Visibility.state() === 'visible') {
-          this._markReadThrottled(channel);
-        } else {
-          const unread = channel.countUnread(this.lastRead);
-          document.title = `(${unread}) ${this.originalTitle}`;
-        }
-      }
-    }
-
-    if (e.type === 'member.added') {
-      this.addToEventHistory(e);
-    }
-
-    if (e.type === 'member.removed') {
-      this.addToEventHistory(e);
-    }
-
-    this._setStateThrottled({
-      messages: channel.state.messages,
-      watchers: channel.state.watchers,
-      read: channel.state.read,
-      typing: channel.state.typing,
-      watcher_count: channel.state.watcher_count,
-    });
-  };
-
-  addToEventHistory = (e) => {
-    this.setState((prevState) => {
-      if (!prevState.message || !prevState.message.length) {
-        return null;
-      }
-      const lastMessageId =
-        prevState.messages[prevState.messages.length - 1].id;
-      if (!prevState.eventHistory[lastMessageId])
-        return {
-          ...prevState,
-          eventHistory: {
-            ...prevState.eventHistory,
-            [lastMessageId]: [e],
-          },
-        };
-
-      return {
-        ...prevState,
-        eventHistory: {
-          ...prevState.eventHistory,
-          [lastMessageId]: [...prevState.eventHistory[lastMessageId], e],
-        },
-      };
-    });
-  };
-
-  markRead = (channel) => {
-    if (this.props.channel.disconnected || !channel.getConfig().read_events) {
-      return;
-    }
-    this.lastRead = new Date();
-
-    logChatPromiseExecution(channel.markRead(), 'mark read');
-
-    if (this.originalTitle) {
-      document.title = this.originalTitle;
-    }
-  };
-
-  listenToChanges() {
-    // The more complex sync logic is done in chat.js
-    // listen to client.connection.recovered and all channel events
-    this.props.client.on('connection.recovered', this.handleEvent);
-    const { channel } = this.props;
-    channel.on(this.handleEvent);
-    this.boundMarkRead = this.markRead.bind(this, channel);
-    this.visibilityListener = Visibility.change((e, state) => {
-      if (state === 'visible') {
-        this.boundMarkRead();
-      }
-    });
-  }
-
-  loadMore = async (limit = 100) => {
-    // prevent duplicate loading events...
-    if (this.state.loadingMore) return;
-    this.setState({ loadingMore: true });
-
-    const oldestMessage = this.state.messages[0];
-
-    if (oldestMessage && oldestMessage.status !== 'received') {
-      this.setState({
-        loadingMore: false,
-      });
-
-      return;
-    }
-
-    const oldestID = oldestMessage ? oldestMessage.id : null;
-
-    const perPage = limit;
-    let queryResponse;
-    try {
-      queryResponse = await this.props.channel.query({
-        messages: { limit: perPage, id_lt: oldestID },
-      });
-    } catch (e) {
-      console.warn('message pagination request failed with error', e);
-      this.setState({ loadingMore: false });
-      return;
-    }
-    const hasMore = queryResponse.messages.length === perPage;
-
-    this._loadMoreFinishedDebounced(hasMore, this.props.channel.state.messages);
-  };
-
-  _onMentionsHoverOrClick = (e, mentioned_users) => {
-    if (!this.props.onMentionsHover && !this.props.onMentionsClick) return;
-    const tagName = e.target.tagName.toLowerCase();
-    const textContent = e.target.innerHTML.replace('*', '');
-    if (tagName === 'strong' && textContent[0] === '@') {
-      const userName = textContent.replace('@', '');
-      const user = mentioned_users.find(
-        (u) => u.name === userName || u.id === userName,
-      );
-      if (
-        this.props.onMentionsHover &&
-        typeof this.props.onMentionsHover === 'function' &&
-        e.type === 'mouseover'
-      ) {
-        this.props.onMentionsHover(e, user);
-      }
-      if (
-        this.props.onMentionsClick &&
-        e.type === 'click' &&
-        typeof this.props.onMentionsClick === 'function'
-      ) {
-        this.props.onMentionsClick(e, user);
-      }
-    }
-  };
-
-  loadMoreFinished = (hasMore, messages) => {
-    this.setState({
-      loadingMore: false,
-      hasMore,
-      messages,
-    });
-  };
-
-  getContext = () => ({
-    ...this.state,
-    client: this.props.client,
-    channel: this.props.channel,
-    Message: this.props.Message,
-    Attachment: this.props.Attachment,
-    multipleUploads: this.props.multipleUploads,
-    acceptedFiles: this.props.acceptedFiles,
-    maxNumberOfFiles: this.props.maxNumberOfFiles,
-    mutes: this.props.mutes,
-    updateMessage: this.updateMessage,
-    removeMessage: this.removeMessage,
-    sendMessage: this.sendMessage,
-    editMessage: this.editMessage,
-    retrySendMessage: this.retrySendMessage,
-    loadMore: this.loadMore,
-
-    // thread related
-    openThread: this.openThread,
-    closeThread: this.closeThread,
-    loadMoreThread: this.loadMoreThread,
-    onMentionsClick: this._onMentionsHoverOrClick,
-    onMentionsHover: this._onMentionsHoverOrClick,
-  });
-
-  renderComponent = () => this.props.children;
-
-  render() {
-    const { t } = this.props;
-
-    let core;
-    const { LoadingIndicator, LoadingErrorIndicator } = this.props;
-
-    if (this.state.error) {
-      core = (
-        <LoadingErrorIndicator error={this.state.error}></LoadingErrorIndicator>
-      );
-    } else if (this.state.loading) {
-      core = <LoadingIndicator size={25} isLoading={true} />;
-    } else if (!this.props.channel || !this.props.channel.watch) {
-      core = <div>{t('Channel Missing')}</div>;
-    } else {
-      core = (
-        <ChannelContext.Provider value={this.getContext()}>
-          <div className="str-chat__container">{this.renderComponent()}</div>
-        </ChannelContext.Provider>
-      );
-    }
-
-    return (
-      <div className={`str-chat str-chat-channel ${this.props.theme}`}>
-        {core}
-      </div>
+  let core;
+  if (state.error) {
+    core = <LoadingErrorIndicator error={state.error} />;
+  } else if (state.loading) {
+    core = <LoadingIndicator size={25} />;
+  } else if (!props.channel?.watch) {
+    core = <div>{t('Channel Missing')}</div>;
+  } else {
+    core = (
+      <ChannelContext.Provider value={channelContextValue}>
+        <div className="str-chat__container">{props.children}</div>
+      </ChannelContext.Provider>
     );
   }
-}
 
-export default withChatContext(withTranslationContext(Channel));
+  return (
+    <div className={`str-chat str-chat-channel ${chatContext.theme}`}>
+      {core}
+    </div>
+  );
+};
+
+export default React.memo(Channel);
