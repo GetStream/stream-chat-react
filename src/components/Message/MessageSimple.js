@@ -9,11 +9,11 @@ import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
-import { MessageOptions } from './MessageOptions';
-import { MessageText } from './MessageText';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import { ReactionsList, ReactionSelector } from '../Reactions';
+import MessageOptions from './MessageOptions';
+import MessageText from './MessageText';
 import DefaultMessageDeleted from './MessageDeleted';
 import {
   useActionHandler,
