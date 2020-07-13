@@ -430,6 +430,8 @@ export interface MessageInputProps {
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
 
+  autocompleteTriggers?: object;
+
   /** The parent message object when replying on a thread */
   parent?: Client.MessageResponse;
 
@@ -797,6 +799,7 @@ export interface ChatAutoCompleteProps {
   minChar?: number;
   onSelectItem?(item: any): any;
   commands?: Client.CommandResponse[];
+  triggers?: object;
   onFocus?: React.FocusEventHandler;
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
