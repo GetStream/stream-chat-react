@@ -235,10 +235,10 @@ const MessageListInner = (props) => {
 
       if (message.type === 'channel.event' || message.type === 'system') {
         if (!MessageSystem) return null;
-        return elements.push(
+        return (
           <li key={message.event?.created_at || message.created_at || ''}>
             <MessageSystem message={message} />
-          </li>,
+          </li>
         );
       }
 
