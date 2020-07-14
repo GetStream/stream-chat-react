@@ -135,10 +135,8 @@ Message.propTypes = {
       text: PropTypes.string.isRequired,
       html: PropTypes.string.isRequired,
       type: PropTypes.string.isRequired,
-      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired)
-        .isRequired,
-      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired)
-        .isRequired,
+      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
+      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired),
       created_at: PropTypes.string.isRequired,
       updated_at: PropTypes.string.isRequired,
     },
