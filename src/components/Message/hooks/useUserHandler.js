@@ -2,9 +2,9 @@
 /**
  * @typedef {React.EventHandler<React.SyntheticEvent>} Handler
  * @typedef {(e: React.MouseEvent, user: import('stream-chat').User) => void} UserEventHandler
- * @type {(eventHandlers: {onUserClickHandler?: UserEventHandler, onUserHoverHandler?: UserEventHandler} , message: import('stream-chat').MessageResponse | undefined) => { onUserClick: Handler, onUserHover: Handler }}
+ * @type {(message: import('stream-chat').MessageResponse | undefined, eventHandlers: {onUserClickHandler?: UserEventHandler, onUserHoverHandler?: UserEventHandler}) => { onUserClick: Handler, onUserHover: Handler }}
  */
-export const useUserHandler = (eventHandlers, message) => {
+export const useUserHandler = (message, eventHandlers) => {
   return {
     /** @type {(e: React.MouseEvent<HTMLElement>) => void} Typescript syntax */
     onUserClick: (e) => {

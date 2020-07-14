@@ -57,13 +57,10 @@ const MessageCommerce = (props) => {
     message,
     reactionSelectorRef,
   );
-  const { onUserClick, onUserHover } = useUserHandler(
-    {
-      onUserClickHandler: propOnUserClick,
-      onUserHoverHandler: propOnUserHover,
-    },
-    message,
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
   const dateTimeParser = propTDateTimeParser || tDateTimeParser;
   const when =
     message &&

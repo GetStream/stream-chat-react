@@ -117,13 +117,10 @@ const MessageTeam = (props) => {
     reactionSelectorRef,
     messageWrapperRef,
   );
-  const { onUserClick, onUserHover } = useUserHandler(
-    {
-      onUserClickHandler: propOnUserClick,
-      onUserHoverHandler: propOnUserHover,
-    },
-    message,
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
   const galleryImages = getImages(message);
   const attachments = getNonImageAttachments(message);
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';

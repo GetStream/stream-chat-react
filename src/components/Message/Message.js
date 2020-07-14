@@ -74,13 +74,10 @@ const Message = (props) => {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
-  const { onUserClick, onUserHover } = useUserHandler(
-    {
-      onUserClickHandler: propOnUserClick,
-      onUserHoverHandler: propOnUserHover,
-    },
-    message,
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
   const isMuted = isUserMuted(message, mutes);
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;

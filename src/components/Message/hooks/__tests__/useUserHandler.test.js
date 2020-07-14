@@ -7,7 +7,7 @@ const mouseEventMock = {
 };
 
 function renderUseUserHandlerHook(message = generateMessage(), eventHandlers) {
-  const { result } = renderHook(() => useUserHandler(eventHandlers, message));
+  const { result } = renderHook(() => useUserHandler(message, eventHandlers));
   return result.current;
 }
 
