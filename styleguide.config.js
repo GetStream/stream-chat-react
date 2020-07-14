@@ -51,13 +51,27 @@ module.exports = {
     },
     {
       name: 'Message Input',
-      components: [
-        'src/components/MessageInput/MessageInput.js',
-        'src/components/MessageInput/MessageInputSmall.js',
-        'src/components/MessageInput/MessageInputLarge.js',
-        'src/components/MessageInput/MessageInputFlat.js',
-        'src/components/ChatAutoComplete/ChatAutoComplete.js',
-        'src/components/EditMessageForm/EditMessageForm.js',
+      sections: [
+        {
+          name: 'Components',
+          components: [
+            'src/components/MessageInput/MessageInput.js',
+            'src/components/MessageInput/MessageInputSmall.js',
+            'src/components/MessageInput/MessageInputLarge.js',
+            'src/components/MessageInput/MessageInputFlat.js',
+            'src/components/ChatAutoComplete/ChatAutoComplete.js',
+            'src/components/EditMessageForm/EditMessageForm.js',
+          ],
+        },
+        {
+          name: 'Custom Hooks',
+          sections: [
+            {
+              name: 'useMessageInputState',
+              content: 'src/docs/MessageInputHooks.md',
+            },
+          ],
+        },
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
