@@ -111,7 +111,7 @@ export const initialState = {
   error: null,
   loading: true,
   loadingMore: false,
-  hasMore: false,
+  hasMore: true,
   messages: Immutable([]),
   typing: Immutable(/** @type {any} infer from ChannelState */ ({})),
   members: Immutable(/** @type {any} infer from ChannelState */ ({})),
@@ -121,5 +121,5 @@ export const initialState = {
   thread: null,
   threadMessages: Immutable([]),
   threadLoadingMore: false,
-  threadHasMore: false,
+  threadHasMore: true,
 };
