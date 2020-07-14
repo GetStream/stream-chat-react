@@ -54,8 +54,8 @@ const MessageCommerce = (props) => {
   const { tDateTimeParser } = useContext(TranslationContext);
   const reactionSelectorRef = useRef(null);
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
   );
   const { onUserClick, onUserHover } = useUserHandler(
     {

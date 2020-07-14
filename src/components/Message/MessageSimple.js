@@ -70,8 +70,8 @@ const MessageSimple = (props) => {
   const reactionSelectorRef = React.createRef();
   const messageWrapperRef = useRef(null);
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
   );
   const {
     Attachment = DefaultAttachment,

@@ -105,8 +105,8 @@ const MessageLivestreamComponent = (props) => {
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
     messageWrapperRef,
   );
   const { onUserClick, onUserHover } = useUserHandler(

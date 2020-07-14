@@ -33,8 +33,8 @@ const MessageTextComponent = (props) => {
     onMentionsHover: propOnMentionsHover,
   });
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
   );
   const { t } = useContext(TranslationContext);
   const hasReactions = messageHasReactions(message);

@@ -113,8 +113,8 @@ const MessageTeam = (props) => {
     onMentionsHover: propOnMentionsHover,
   });
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
     messageWrapperRef,
   );
   const { onUserClick, onUserHover } = useUserHandler(
