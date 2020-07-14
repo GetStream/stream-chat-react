@@ -105,17 +105,14 @@ const MessageLivestreamComponent = (props) => {
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
     messageWrapperRef,
   );
-  const { onUserClick, onUserHover } = useUserHandler(
-    {
-      onUserClickHandler: propOnUserClick,
-      onUserHoverHandler: propOnUserHover,
-    },
-    message,
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
 
   const hasAttachment = messageHasAttachments(message);
   const galleryImages = getImages(message);

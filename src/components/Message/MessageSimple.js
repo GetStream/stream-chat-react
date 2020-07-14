@@ -60,18 +60,15 @@ const MessageSimple = (props) => {
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
   const handleRetry = useRetryHandler();
-  const { onUserClick, onUserHover } = useUserHandler(
-    {
-      onUserClickHandler: onUserClickCustomHandler,
-      onUserHoverHandler: onUserHoverCustomHandler,
-    },
-    message,
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: onUserClickCustomHandler,
+    onUserHoverHandler: onUserHoverCustomHandler,
+  });
   const reactionSelectorRef = React.createRef();
   const messageWrapperRef = useRef(null);
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    reactionSelectorRef,
     message,
+    reactionSelectorRef,
   );
   const {
     Attachment = DefaultAttachment,

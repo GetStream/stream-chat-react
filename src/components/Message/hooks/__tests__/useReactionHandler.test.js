@@ -111,7 +111,7 @@ function renderUseReactionClickHook(
     return <div>{children}</div>;
   };
   const { result, rerender } = renderHook(
-    () => useReactionClick(reactionListRef, message, messageWrapperRef),
+    () => useReactionClick(message, reactionListRef, messageWrapperRef),
     { wrapper },
   );
   return { result, rerender };
