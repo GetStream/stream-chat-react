@@ -17,7 +17,6 @@ The Message component provides the following functions to the rendered component
 - **handleEdit** Handler to edit a message
 - **handleDelete** Handler to delete a message
 - **handleReaction** Handler to add/remove reaction on message
-- **handleAction** Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
 - **handleRetry** Handler to resend the message, in case of failure.
 - **openThread** Handler to open the thread on current message.
 
