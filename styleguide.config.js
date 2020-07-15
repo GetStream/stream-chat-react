@@ -72,6 +72,10 @@ module.exports = {
               name: 'useMentionsHandler',
               content: 'src/docs/useMentionsHandler.md',
             },
+            {
+              name: 'useMuteHandler',
+              content: 'src/docs/useMuteHandler.md',
+            },
           ],
         },
       ],
