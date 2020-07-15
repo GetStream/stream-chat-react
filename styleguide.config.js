@@ -84,6 +84,10 @@ module.exports = {
               name: 'useReactionHandler',
               content: 'src/docs/useReactionHandler.md',
             },
+            {
+              name: 'useRetryHandler',
+              content: 'src/docs/useRetryHandler.md',
+            },
           ],
         },
       ],
