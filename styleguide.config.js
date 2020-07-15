@@ -68,6 +68,10 @@ module.exports = {
               name: 'useFlagHandler',
               content: 'src/docs/useFlagHandler.md',
             },
+            {
+              name: 'useMentionsHandler',
+              content: 'src/docs/useMentionsHandler.md',
+            },
           ],
         },
       ],
