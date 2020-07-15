@@ -64,8 +64,8 @@ const MessageLivestreamComponent = (props) => {
     message,
     groupStyles,
     editing: propEditing,
-    setEditingState,
-    clearEditingState,
+    setEditingState: propSetEdit,
+    clearEditingState: propClearEdit,
     initialMessage,
     unsafeHTML,
     onUserClick: propOnUserClick,
@@ -97,11 +97,14 @@ const MessageLivestreamComponent = (props) => {
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
-  const { editing, setEdit, clearEdit } = useEditHandler(
-    propEditing,
-    setEditingState,
-    clearEditingState,
-  );
+  const {
+    editing: ownEditing,
+    setEdit: ownSetEditing,
+    clearEdit: ownClearEditing,
+  } = useEditHandler();
+  const editing = propEditing || ownEditing;
+  const setEdit = propSetEdit || ownSetEditing;
+  const clearEdit = propClearEdit || ownClearEditing;
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
