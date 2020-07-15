@@ -22,13 +22,13 @@ export const useEditHandler = (
   const setEdit =
     customSetEditing ||
     ((event) => {
-      event.preventDefault();
+      event?.preventDefault();
       setEditing(true);
     });
   const clearEdit =
     customClearEditingHandler ||
     ((event) => {
-      event.preventDefault();
+      event?.preventDefault();
       setEditing(false);
     });
   return { editing, setEdit, clearEdit };
