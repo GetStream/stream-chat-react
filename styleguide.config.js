@@ -80,6 +80,10 @@ module.exports = {
               name: 'useOpenThreadHandler',
               content: 'src/docs/useOpenThreadHandler.md',
             },
+            {
+              name: 'useReactionHandler',
+              content: 'src/docs/useReactionHandler.md',
+            },
           ],
         },
       ],
