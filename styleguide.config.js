@@ -76,6 +76,10 @@ module.exports = {
               name: 'useMuteHandler',
               content: 'src/docs/useMuteHandler.md',
             },
+            {
+              name: 'useOpenThreadHandler',
+              content: 'src/docs/useOpenThreadHandler.md',
+            },
           ],
         },
       ],
