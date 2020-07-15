@@ -104,6 +104,7 @@ const Message = (props) => {
         {...props}
         editing={editing}
         clearEditingState={clearEdit}
+        setEditingState={setEdit}
         groupStyles={groupStyles}
         actionsEnabled={actionsEnabled}
         Message={MessageUIComponent}
