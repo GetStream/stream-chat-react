@@ -64,6 +64,10 @@ module.exports = {
               name: 'useEditHandler',
               content: 'src/docs/useEditHandler.md',
             },
+            {
+              name: 'useFlagHandler',
+              content: 'src/docs/useFlagHandler.md',
+            },
           ],
         },
       ],
