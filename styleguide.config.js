@@ -60,6 +60,10 @@ module.exports = {
               name: 'useDeleteHandler',
               content: 'src/docs/useDeleteHandler.md',
             },
+            {
+              name: 'useEditHandler',
+              content: 'src/docs/useEditHandler.md',
+            },
           ],
         },
       ],
