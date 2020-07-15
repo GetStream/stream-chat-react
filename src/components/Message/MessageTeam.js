@@ -99,11 +99,14 @@ const MessageTeam = (props) => {
   const groupStyles = props.groupStyles || ['single'];
   const reactionSelectorRef = useRef(null);
   const messageWrapperRef = useRef(null);
-  const { editing, setEdit, clearEdit } = useEditHandler(
-    propEditing,
-    propSetEdit,
-    propClearEdit,
-  );
+  const {
+    editing: ownEditing,
+    setEdit: ownSetEditing,
+    clearEdit: ownClearEditing,
+  } = useEditHandler();
+  const editing = propEditing || ownEditing;
+  const setEdit = propSetEdit || ownSetEditing;
+  const clearEdit = propClearEdit || ownClearEditing;
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const retryHandler = useRetryHandler();
