@@ -88,6 +88,10 @@ module.exports = {
               name: 'useRetryHandler',
               content: 'src/docs/useRetryHandler.md',
             },
+            {
+              name: 'useUserHandler',
+              content: 'src/docs/useUserHandler.md',
+            },
           ],
         },
       ],
