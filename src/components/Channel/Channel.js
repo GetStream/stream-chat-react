@@ -495,7 +495,7 @@ const ChannelInner = ({
     multipleUploads: props.multipleUploads,
     acceptedFiles: props.acceptedFiles,
     maxNumberOfFiles: props.maxNumberOfFiles,
-    mutes: props.mutes,
+    mutes: chatContext.mutes,
     // handlers
     loadMore,
     editMessage,

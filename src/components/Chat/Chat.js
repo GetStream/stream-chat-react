@@ -81,9 +81,9 @@ const Chat = ({
     async (activeChannel, watchers = {}, e) => {
       if (e && e.preventDefault) e.preventDefault();
 
-      if (activeChannel && Object.keys(watchers).length)
+      if (activeChannel && Object.keys(watchers).length) {
         await activeChannel.query({ watch: true, watchers });
-
+      }
       setChannel(activeChannel);
       closeMobileNav();
     },
