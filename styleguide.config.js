@@ -92,6 +92,10 @@ module.exports = {
               name: 'useUserHandler',
               content: 'src/docs/useUserHandler.md',
             },
+            {
+              name: 'useUserRole',
+              content: 'src/docs/useUserRole.md',
+            },
           ],
         },
       ],
