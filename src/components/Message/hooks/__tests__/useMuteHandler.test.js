@@ -7,7 +7,10 @@ import {
   generateUser,
 } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
-import { useMuteHandler } from '../useMuteHandler';
+import {
+  useMuteHandler,
+  missingUseMuteHandlerParamsWarning,
+} from '../useMuteHandler';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -49,6 +52,17 @@ describe('useHandleMute custom hook', () => {
   it('should generate function that handles mutes', async () => {
     const handleMute = await renderUseHandleMuteHook();
     expect(typeof handleMute).toBe('function');
+  });
+
+  it('should throw a warning when there are missing parameters and the handler is called', async () => {
+    const consoleWarnSpy = jest
+      .spyOn(console, 'warn')
+      .mockImplementationOnce(() => null);
+    const handleMute = await renderUseHandleMuteHook(undefined);
+    await handleMute(mouseEventMock);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      missingUseMuteHandlerParamsWarning,
+    );
   });
 
   it('should allow to mute a user and notify with custom success notification when it is successful', async () => {

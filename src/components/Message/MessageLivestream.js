@@ -476,8 +476,6 @@ MessageLivestreamComponent.propTypes = {
     toJSON: PropTypes.func.isRequired,
   }),
   /**
-   * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
-   *
    * @param name {string} Name of action
    * @param value {string} Value of action
    * @param event Dom event that triggered this handler
