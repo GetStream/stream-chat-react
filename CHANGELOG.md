@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.2) 2020-07-16
+
+- Fixed some issues with editing messages
+- Fixed some issues with muting/unmuting messages
+
 ## [2.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.1) 2020-07-15
 
 We’re bumping `stream-chat-react` to version 2.0.1 because over the past three months we’ve been doing a major refactor of our codebase. The foundational work includes:
