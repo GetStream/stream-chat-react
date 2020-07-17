@@ -1,5 +1,5 @@
 // @ts-check
-import React, { Fragment, useContext, useRef } from 'react';
+import React, { Fragment, useMemo, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -124,6 +124,10 @@ const MessageTeam = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+  const messageText = useMemo(
+    () => renderText(message?.text, message?.mentioned_users),
+    [message?.text, message?.mentioned_users],
+  );
   const galleryImages = getImages(message);
   const attachments = getNonImageAttachments(message);
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
@@ -310,7 +314,7 @@ const MessageTeam = (props) => {
                 {unsafeHTML ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 ) : (
-                  renderText(message)
+                  messageText
                 )}
               </span>
             )}

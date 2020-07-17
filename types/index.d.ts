@@ -1189,9 +1189,8 @@ export interface MinimalEmojiInterface
 }
 
 export function renderText(
-  message:
-    | SeamlessImmutable.Immutable<Client.MessageResponse>
-    | Client.MessageResponse,
+  messageText?: string,
+  mentioned_users?: Client.UserResponse[],
 ): ReactMarkdown;
 export function smartRender(
   ElementOrComponentOrLiteral: ElementOrComponentOrLiteral,

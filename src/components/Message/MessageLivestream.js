@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useContext,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -116,6 +117,10 @@ const MessageLivestreamComponent = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+  const messageText = useMemo(
+    () => renderText(message?.text, message?.mentioned_users),
+    [message?.text, message?.mentioned_users],
+  );
 
   const hasAttachment = messageHasAttachments(message);
   const galleryImages = getImages(message);
@@ -226,7 +231,7 @@ const MessageLivestreamComponent = (props) => {
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
                 !unsafeHTML &&
-                renderText(message)}
+                messageText}
 
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
