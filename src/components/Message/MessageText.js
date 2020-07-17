@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useContext, useRef } from 'react';
+import React, { useMemo, useContext, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import { ReactionsList, ReactionSelector } from '../Reactions';
@@ -40,6 +40,10 @@ const MessageTextComponent = (props) => {
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
+  const messageText = useMemo(
+    () => renderText(message?.text, message?.mentioned_users),
+    [message?.text, message?.mentioned_users],
+  );
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass ||
@@ -83,7 +87,7 @@ const MessageTextComponent = (props) => {
         {unsafeHTML ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          renderText(message)
+          messageText
         )}
 
         {/* if reactions show them */}
