@@ -84,6 +84,7 @@ const MessageTeam = (props) => {
     t: propT,
     tDateTimeParser: propTDateTimeParser,
   } = props;
+
   /**
    *@type {import('types').ChannelContextValue}
    */
@@ -273,7 +274,6 @@ const MessageTeam = (props) => {
                       <MessageActions
                         addNotification={props.addNotification}
                         message={message}
-                        mutes={props.mutes}
                         getMessageActions={props.getMessageActions}
                         messageListRect={props.messageListRect}
                         messageWrapperRef={messageWrapperRef}

@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import MessageActionsBox from './MessageActionsBox';
 import {
   useDeleteHandler,
@@ -8,6 +8,7 @@ import {
   useMuteHandler,
 } from '../Message/hooks';
 import { isUserMuted } from '../Message/utils';
+import { ChatContext } from '../../context';
 
 /**
  * @type { React.FC<import('types').MessageActionsProps> }
@@ -16,7 +17,6 @@ export const MessageActions = (props) => {
   const {
     addNotification,
     message,
-    mutes,
     getMessageActions,
     messageListRect,
     messageWrapperRef,
@@ -31,6 +31,7 @@ export const MessageActions = (props) => {
     inline,
     customWrapperClass,
   } = props;
+  const { mutes } = useContext(ChatContext);
   const messageActions = getMessageActions();
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   const { isMyMessage } = useUserRole(message);

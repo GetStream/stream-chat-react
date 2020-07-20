@@ -6,7 +6,6 @@ import { ChannelContext } from '../../context';
 import MessageSimple from './MessageSimple';
 import {
   MESSAGE_ACTIONS,
-  isUserMuted,
   getMessageActions,
   areMessagePropsEqual,
 } from './utils';
@@ -39,7 +38,6 @@ const Message = (props) => {
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
     message,
-    mutes,
     channel: propChannel,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
@@ -78,7 +76,6 @@ const Message = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const isMuted = isUserMuted(message, mutes);
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
@@ -117,7 +114,6 @@ const Message = (props) => {
         handleEdit={setEdit}
         handleRetry={handleRetry}
         handleOpenThread={handleOpenThread}
-        isUserMuted={() => isMuted}
         isMyMessage={() => isMyMessage}
         channelConfig={channelConfig}
         onMentionsClickMessage={onMentionsClick}
