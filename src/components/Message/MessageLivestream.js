@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useEffect,
   useContext,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -11,7 +10,7 @@ import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
 
-import { isOnlyEmojis, renderText, smartRender } from '../../utils';
+import { smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 
 import { Avatar } from '../Avatar';
@@ -35,8 +34,9 @@ import {
   getNonImageAttachments,
   areMessagePropsEqual,
 } from './utils';
+import MessageText from './MessageText';
 import { MessageActions } from '../MessageActions';
-import { ReactionIcon, ThreadIcon, ErrorIcon } from './icons';
+import { ReactionIcon, ThreadIcon } from './icons';
 
 /**
  * MessageLivestream - Render component, should be used together with the Message component
@@ -55,7 +55,6 @@ const MessageLivestreamComponent = (props) => {
     setEditingState: propSetEdit,
     clearEditingState: propClearEdit,
     initialMessage,
-    unsafeHTML,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
     handleOpenThread: propHandleOpenThread,
@@ -94,7 +93,10 @@ const MessageLivestreamComponent = (props) => {
   const setEdit = propSetEdit || ownSetEditing;
   const clearEdit = propClearEdit || ownClearEditing;
   const handleRetry = useRetryHandler();
-  const retryHandler = propHandleRetry || handleRetry;
+  const onRetryClick = useCallback(() => {
+    const retryHandler = propHandleRetry || handleRetry;
+    retryHandler(message);
+  }, [handleRetry, propHandleRetry, message]);
   const { onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
     reactionSelectorRef,
@@ -104,11 +106,6 @@ const MessageLivestreamComponent = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const messageText = useMemo(
-    () => renderText(message?.text, message?.mentioned_users),
-    [message?.text, message?.mentioned_users],
-  );
-
   const hasAttachment = messageHasAttachments(message);
   const galleryImages = getImages(message);
   const attachments = getNonImageAttachments(message);
@@ -204,59 +201,14 @@ const MessageLivestreamComponent = (props) => {
                 </div>
               )}
             </div>
-
-            <div
-              data-testid="message-livestream-text"
-              className={
-                isOnlyEmojis(message.text)
-                  ? 'str-chat__message-livestream-text--is-emoji'
-                  : ''
-              }
-              onMouseOver={onMentionsHover}
-              onClick={onMentionsClick}
-            >
-              {message.type !== 'error' &&
-                message.status !== 'failed' &&
-                !unsafeHTML &&
-                messageText}
-
-              {message.type !== 'error' &&
-                message.status !== 'failed' &&
-                unsafeHTML && (
-                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                )}
-
-              {message.type === 'error' && !message.command && (
-                <p data-testid="message-livestream-error">
-                  <ErrorIcon />
-                  {message.text}
-                </p>
-              )}
-
-              {message.type === 'error' && message.command && (
-                <p data-testid="message-livestream-command-error">
-                  <ErrorIcon />
-                  {/* TODO: Translate following sentence */}
-                  <strong>/{message.command}</strong> is not a valid command
-                </p>
-              )}
-              {message.status === 'failed' && (
-                <p
-                  onClick={() => {
-                    if (retryHandler) {
-                      // FIXME: type checking fails here because in the case of a failed message,
-                      // `message` is of type Client.Message (i.e. request object)
-                      // instead of Client.MessageResponse (i.e. server response object)
-                      // @ts-ignore
-                      retryHandler(message);
-                    }
-                  }}
-                >
-                  <ErrorIcon />
-                  {t('Message failed. Click to try again.')}
-                </p>
-              )}
-            </div>
+            <MessageText
+              theme="livestream"
+              message={message}
+              onMentionsClickMessage={onMentionsClick}
+              onMentionsHoverMessage={onMentionsHover}
+              onRetryClick={onRetryClick}
+              inlineError={true}
+            />
 
             {hasAttachment &&
               attachments.map(

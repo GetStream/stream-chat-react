@@ -74,8 +74,7 @@ const messageLivestreamWrapperTestId = 'message-livestream';
 const messageLiveStreamReactionsTestId = 'message-livestream-reactions-action';
 const reactionSelectorTestId = 'reaction-selector';
 const messageLivestreamthreadTestId = 'message-livestream-thread-action';
-const messageLivestreamTextTestId = 'message-livestream-text';
-const messageLivestreamErrorTestId = 'message-livestream-error';
+const messageLivestreamTextTestId = 'message-text-inner-wrapper';
 const messageLivestreamCommandErrorTestId = 'message-livestream-command-error';
 
 describe('<MessageLivestream />', () => {
@@ -376,16 +375,16 @@ describe('<MessageLivestream />', () => {
     const errorMessage = 'Unable to send it!';
     const message = generateAliceMessage({ type: 'error', text: errorMessage });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamErrorTestId)).toContainHTML(
+    expect(getByTestId(messageLivestreamTextTestId)).toContainHTML(
       errorMessage,
     );
   });
 
-  it('should display command message error when command message is of error type', async () => {
+  it.only('should display command message error when command message is of error type', async () => {
     const command = 'giphy';
     const message = generateAliceMessage({ type: 'error', command });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamCommandErrorTestId)).toContainHTML(
+    expect(getByTestId(messageLivestreamTextTestId)).toContainHTML(
       `<strong>/${command}</strong> is not a valid command`,
     );
   });

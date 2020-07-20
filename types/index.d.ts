@@ -1104,7 +1104,7 @@ export interface MessageTextProps {
   onMentionsClickMessage?(event: React.MouseEvent): void;
   onMentionsHoverMessage?(event: React.MouseEvent): void;
   onRetryClick?(event?: React.BaseSyntheticEvent): void;
-  displayIconOnError?: boolean;
+  inlineError?: boolean;
 }
 
 export interface MessageActionsProps {
