@@ -177,21 +177,33 @@ describe('Chat', () => {
 
   describe('mutes', () => {
     it('init the mute state with client data', async () => {
-      const mutes = ['user_y', 'user_z'];
       const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
-      chatClientWithUser.user.mutes = mutes;
-
+      // First load, mutes are initialized empty
+      chatClientWithUser.user.mutes = [];
       let context;
-      render(
+      const { rerender } = render(
         <Chat client={chatClientWithUser}>
           <ChatContextConsumer
             fn={(ctx) => {
               context = ctx;
             }}
-          ></ChatContextConsumer>
+          />
         </Chat>,
       );
-
+      // Chat client loads mutes information
+      const mutes = ['user_y', 'user_z'];
+      chatClientWithUser.user.mutes = mutes;
+      act(() => {
+        rerender(
+          <Chat client={chatClientWithUser}>
+            <ChatContextConsumer
+              fn={(ctx) => {
+                context = ctx;
+              }}
+            ></ChatContextConsumer>
+          </Chat>,
+        );
+      });
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
     });
 

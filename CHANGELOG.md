@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.3) 2020-07-20
+
+- All components using mutes get them using the useContext hook.
+- Performance updates
+- Fix for document.title when read_events are disabled
+- Added docs on using included hooks
+
+## [2.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.2) 2020-07-16
+
+- Fixed some issues with editing messages
+- Fixed some issues with muting/unmuting messages
+
+## [2.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.1) 2020-07-15
+
+We’re bumping `stream-chat-react` to version 2.0.1 because over the past three months we’ve been doing a major refactor of our codebase. The foundational work includes:
+
+- Major refactor and code cleanup
+- Components have been rewritten to use React Hooks
+- Added tests for all components
+- Performance improvements on MessageList
+- Upgraded dependencies
+
+### Breaking changes
+
+- Drop node 11, 13
+- Deprecating context HOC’s
+  Since we moved our library to rely on React Hooks moved the following HOC’s to use `useContext` :
+  - `withChannelContext`
+  - `withChatContext`
+  - `withTranslationContext`
+    This means we now directly use the context values from the context and they’re not passed down from the props anymore.
+- The `updateMessage` on the channel context does not support extraState anymore.
+- There no longer is a ref inside a ref in ReactionsList. Instead, the ref of the container div is directly forwarded by the component.
+
+### Addidtions
+
+- Triggers on MessageInput can now be overwritten using the autocompleteTriggers prop on `MessageInput`
+
+### Fixes
+
+- Fixed styling on autocomplete suggestions
+- Fixed YouTube video rendering in messages
+- Fixed an issue that allowed you to send empty messages
+- Bugfix in groupStyles calculations
+
 ## [1.2.5](https://github.com/GetStream/stream-chat-react/releases/tag/v1.2.5) 2020-06-30
 
 - Added `LoadingIndicator` prop to MessageList

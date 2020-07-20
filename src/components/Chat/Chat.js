@@ -47,9 +47,10 @@ const Chat = ({
 
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
   const closeMobileNav = () => setNavOpen(false);
+  const clientMutes = client?.user?.mutes;
 
   useEffect(() => {
-    setMutes(client?.user?.mutes || []);
+    setMutes(clientMutes || []);
 
     /** @param {import('stream-chat').Event<string>} e */
     const handleEvent = (e) => {
@@ -57,7 +58,7 @@ const Chat = ({
     };
     if (client) client.on(handleEvent);
     return () => client && client.off(handleEvent);
-  }, [client]);
+  }, [client, clientMutes]);
 
   useEffect(() => {
     let streami18n;
@@ -81,9 +82,9 @@ const Chat = ({
     async (activeChannel, watchers = {}, e) => {
       if (e && e.preventDefault) e.preventDefault();
 
-      if (activeChannel && Object.keys(watchers).length)
+      if (activeChannel && Object.keys(watchers).length) {
         await activeChannel.query({ watch: true, watchers });
-
+      }
       setChannel(activeChannel);
       closeMobileNav();
     },

@@ -178,7 +178,7 @@ const ChannelInner = ({
         ) {
           if (!document.hidden) {
             markReadThrottled();
-          } else {
+          } else if (channel.getConfig().read_events) {
             const unread = channel.countUnread(lastRead.current);
             document.title = `(${unread}) ${originalTitle.current}`;
           }
@@ -495,7 +495,7 @@ const ChannelInner = ({
     multipleUploads: props.multipleUploads,
     acceptedFiles: props.acceptedFiles,
     maxNumberOfFiles: props.maxNumberOfFiles,
-    mutes: props.mutes,
+    mutes: chatContext.mutes,
     // handlers
     loadMore,
     editMessage,
