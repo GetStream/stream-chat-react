@@ -272,18 +272,12 @@ describe('<MessageCommerce />', () => {
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
   });
 
-  it('should render message text when messag has text', async () => {
+  it('should render message text when message has text', async () => {
     const message = generateAliceMessage({ text: 'Hello' });
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message,
-        customOptionProps: expect.objectContaining({
-          displayLeft: false,
-          displayReplies: false,
-          displayActions: false,
-          theme: 'commerce',
-        }),
         theme: 'commerce',
         customWrapperClass: 'str-chat__message-commerce-text',
       }),

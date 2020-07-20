@@ -31,14 +31,13 @@ import {
  * @example ../../docs/MessageCommerce.md
  * @type { React.FC<import('types').MessageCommerceProps> }
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageCommerce = (props) => {
   const {
     message,
     groupStyles,
-    actionsEnabled,
     threadList,
     MessageDeleted,
-    getMessageActions,
     handleReaction: propHandleReaction,
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
@@ -162,24 +161,45 @@ const MessageCommerce = (props) => {
           {!!images.length && <Gallery images={images} />}
 
           {message?.text && (
-            <MessageText
-              actionsEnabled={actionsEnabled}
-              customWrapperClass="str-chat__message-commerce-text"
-              customInnerClass="str-chat__message-commerce-text-inner"
-              customOptionProps={{
-                displayLeft: false,
-                displayReplies: false,
-                displayActions: false,
-                theme: 'commerce',
-              }}
-              getMessageActions={getMessageActions}
-              message={message}
-              messageListRect={props.messageListRect}
-              unsafeHTML={props.unsafeHTML}
-              onMentionsClickMessage={props.onMentionsClickMessage}
-              onMentionsHoverMessage={props.onMentionsHoverMessage}
-              theme="commerce"
-            />
+            <React.Fragment>
+              <MessageText
+                customWrapperClass="str-chat__message-commerce-text"
+                customInnerClass="str-chat__message-commerce-text-inner"
+                message={message}
+                unsafeHTML={props.unsafeHTML}
+                onMentionsClickMessage={props.onMentionsClickMessage}
+                onMentionsHoverMessage={props.onMentionsHoverMessage}
+                theme="commerce"
+              />
+              {/* if reactions show them */}
+              {hasReactions && !showDetailedReactions && (
+                <ReactionsList
+                  reactions={message.latest_reactions}
+                  reaction_counts={message.reaction_counts}
+                  onClick={onReactionListClick}
+                />
+              )}
+              {showDetailedReactions && (
+                <ReactionSelector
+                  reverse={false}
+                  handleReaction={propHandleReaction || handleReaction}
+                  detailedView
+                  reaction_counts={message.reaction_counts}
+                  latest_reactions={message.latest_reactions}
+                  ref={reactionSelectorRef}
+                />
+              )}
+              {
+                <MessageOptions
+                  {...props}
+                  displayLeft={false}
+                  displayReplies={false}
+                  displayActions={false}
+                  onReactionListClick={onReactionListClick}
+                  theme={'commerce'}
+                />
+              }
+            </React.Fragment>
           )}
           {!threadList && (
             <div className="str-chat__message-commerce-reply-button">

@@ -1,15 +1,9 @@
 // @ts-check
-import React, { useMemo, useContext, useRef } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
-import { ReactionsList, ReactionSelector } from '../Reactions';
-import {
-  useReactionHandler,
-  useReactionClick,
-  useMentionsUIHandler,
-} from './hooks';
-import { messageHasReactions, messageHasAttachments } from './utils';
-import MessageOptions from './MessageOptions';
+import { useMentionsUIHandler } from './hooks';
+import { messageHasAttachments } from './utils';
 
 /**
  * @type { React.FC<import('types').MessageTextProps> }
@@ -23,23 +17,13 @@ const MessageTextComponent = (props) => {
     theme = 'simple',
     message,
     unsafeHTML,
-    customOptionProps,
   } = props;
-  const reactionSelectorRef = useRef(
-    /** @type {HTMLDivElement | null} */ (null),
-  );
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
   const { t } = useContext(TranslationContext);
-  const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
-  const handleReaction = useReactionHandler(message);
   const messageText = useMemo(
     () => renderText(message?.text, message?.mentioned_users),
     [message?.text, message?.mentioned_users],
@@ -89,31 +73,7 @@ const MessageTextComponent = (props) => {
         ) : (
           messageText
         )}
-
-        {/* if reactions show them */}
-        {hasReactions && !showDetailedReactions && (
-          <ReactionsList
-            reactions={message.latest_reactions}
-            reaction_counts={message.reaction_counts}
-            onClick={onReactionListClick}
-            reverse={true}
-          />
-        )}
-        {showDetailedReactions && (
-          <ReactionSelector
-            handleReaction={handleReaction}
-            detailedView
-            reaction_counts={message.reaction_counts}
-            latest_reactions={message.latest_reactions}
-            ref={reactionSelectorRef}
-          />
-        )}
       </div>
-      <MessageOptions
-        {...props}
-        {...customOptionProps}
-        onReactionListClick={onReactionListClick}
-      />
     </div>
   );
 };

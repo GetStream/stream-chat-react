@@ -210,17 +210,38 @@ const MessageSimple = (props) => {
             </div>
             {images && images.length > 1 && <Gallery images={images} />}
             {message.text && (
-              <MessageText
-                {...props}
-                customOptionProps={{
-                  messageWrapperRef,
-                  handleOpenThread: propHandleOpenThread,
-                }}
-                // FIXME: There's some unmatched definition between the infered and the declared
-                // ReactionSelector reference
-                // @ts-ignore
-                reactionSelectorRef={reactionSelectorRef}
-              />
+              <React.Fragment>
+                <MessageText
+                  onMentionsClickMessage={props.onMentionsClickMessage}
+                  onMentionsHoverMessage={props.onMentionsHoverMessage}
+                  unsafeHTML={props.unsafeHTML}
+                  message={message}
+                />
+                {/* if reactions show them */}
+                {hasReactions && !showDetailedReactions && (
+                  <ReactionsList
+                    reactions={message.latest_reactions}
+                    reaction_counts={message.reaction_counts}
+                    onClick={onReactionListClick}
+                    reverse={true}
+                  />
+                )}
+                {showDetailedReactions && (
+                  <ReactionSelector
+                    handleReaction={handleReaction}
+                    detailedView
+                    reaction_counts={message.reaction_counts}
+                    latest_reactions={message.latest_reactions}
+                    ref={reactionSelectorRef}
+                  />
+                )}
+                <MessageOptions
+                  {...props}
+                  messageWrapperRef={messageWrapperRef}
+                  onReactionListClick={onReactionListClick}
+                  handleOpenThread={propHandleOpenThread}
+                />
+              </React.Fragment>
             )}
             {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">

@@ -5,13 +5,11 @@ import '@testing-library/jest-dom';
 import {
   generateChannel,
   generateUser,
-  generateReaction,
   getTestClientWithUser,
   generateMessage,
 } from 'mock-builders';
 import { ChannelContext } from '../../../context';
 import MessageText from '../MessageText';
-import MessageOptionsMock from '../MessageOptions';
 
 jest.mock('../MessageOptions', () => jest.fn(() => <div />));
 
@@ -58,7 +56,6 @@ async function renderMessageText(
 }
 
 const messageTextTestId = 'message-text-inner-wrapper';
-const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
@@ -163,46 +160,6 @@ describe('<MessageText />', () => {
     expect(getByText(text)).toBeInTheDocument();
   });
 
-  it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId } = await renderMessageText({ message });
-    expect(getByTestId('reaction-list')).toBeInTheDocument();
-  });
-
-  it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId, queryByTestId } = await renderMessageText({ message });
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
-    fireEvent.click(getByTestId('reaction-list'));
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
-  });
-
-  it('should render message options', async () => {
-    await renderMessageText();
-    expect(MessageOptionsMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render message options with custom props when those are set', async () => {
-    const displayLeft = false;
-    await renderMessageText({
-      customOptionProps: {
-        displayLeft,
-      },
-    });
-    expect(MessageOptionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        displayLeft,
-      }),
-      {},
-    );
-  });
-
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
@@ -225,7 +182,6 @@ describe('<MessageText />', () => {
             hello world
           </p>
         </div>
-        <div />
       </div>
     `);
   });
@@ -252,7 +208,6 @@ describe('<MessageText />', () => {
             hi mate
           </p>
         </div>
-        <div />
       </div>
     `);
   });
@@ -278,7 +233,6 @@ describe('<MessageText />', () => {
             whatup?!
           </p>
         </div>
-        <div />
       </div>
     `);
   });

@@ -1094,14 +1094,14 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
-export interface MessageTextProps extends MessageSimpleProps {
-  customOptionProps?: Partial<MessageOptionsProps>;
+export interface MessageTextProps {
   customInnerClass?: string;
   customWrapperClass?: string;
-  onReactionListClick?: () => void;
   theme?: string;
-  showDetailedReactions?: boolean;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
+  message?: Client.MessageResponse;
+  unsafeHTML?: boolean;
+  onMentionsClickMessage?(event: React.MouseEvent): void;
+  onMentionsHoverMessage?(event: React.MouseEvent): void;
 }
 
 export interface MessageActionsProps {

@@ -250,31 +250,20 @@ describe('<MessageSimple />', () => {
 
   it('should render message text when message has text', async () => {
     const message = generateAliceMessage({ text: 'Hello' });
-    const actionsEnabled = true;
-    const messageListRect = {
-      x: 0,
-      y: 0,
-      width: 100,
-      height: 100,
-      top: 0,
-      right: 100,
-      bottom: 100,
-      left: 0,
-      toJSON: () => {},
-    };
     const unsafeHTML = false;
+    const onMentionsClickMessage = jest.fn();
+    const onMentionsHoverMessage = jest.fn();
     await renderMessageSimple(message, {
-      actionsEnabled,
-      messageListRect,
       unsafeHTML,
+      onMentionsClickMessage,
+      onMentionsHoverMessage,
     });
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message,
-        actionsEnabled,
-        messageListRect,
         unsafeHTML,
-        reactionSelectorRef: expect.any(Object),
+        onMentionsClickMessage,
+        onMentionsHoverMessage,
       }),
       {},
     );
