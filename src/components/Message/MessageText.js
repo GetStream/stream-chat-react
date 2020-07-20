@@ -4,6 +4,7 @@ import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import { useMentionsUIHandler } from './hooks';
 import { messageHasAttachments } from './utils';
+import { ErrorIcon } from './icons';
 
 /**
  * @type { React.FC<import('types').MessageTextProps> }
@@ -12,11 +13,13 @@ const MessageTextComponent = (props) => {
   const {
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
+    onRetryClick,
     customWrapperClass,
     customInnerClass,
     theme = 'simple',
     message,
     unsafeHTML,
+    displayIconOnError = false,
   } = props;
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
@@ -59,12 +62,18 @@ const MessageTextComponent = (props) => {
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>
-            {t && t('Error · Unsent')}
+            {displayIconOnError && <ErrorIcon />}
+            {t('Error · Unsent')}
           </div>
         )}
         {message.status === 'failed' && (
-          <div className={`str-chat__${theme}-message--error-message`}>
-            {t && t('Message Failed · Click to try again')}
+          <div
+            data-testid="message-text-failed"
+            className={`str-chat__${theme}-message--error-message`}
+            onClick={onRetryClick}
+          >
+            {displayIconOnError && <ErrorIcon />}
+            {t('Message Failed · Click to try again')}
           </div>
         )}
 

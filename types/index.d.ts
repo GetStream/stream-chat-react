@@ -1102,6 +1102,8 @@ export interface MessageTextProps {
   unsafeHTML?: boolean;
   onMentionsClickMessage?(event: React.MouseEvent): void;
   onMentionsHoverMessage?(event: React.MouseEvent): void;
+  onRetryClick?(event?: React.BaseSyntheticEvent): void;
+  displayIconOnError?: boolean;
 }
 
 export interface MessageActionsProps {
