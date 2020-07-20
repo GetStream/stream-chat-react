@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.3) 2020-07-20
+
+- All components using mutes get them using the useContext hook.
+- Performance updates
+- Fix for document.title when read_events are disabled
+- Added docs on using included hooks
+
 ## [2.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.2) 2020-07-16
 
 - Fixed some issues with editing messages
