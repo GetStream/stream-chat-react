@@ -65,8 +65,9 @@ export interface ChannelContextValue extends ChatContextValue {
     updatedMessage: Client.MessageResponse,
     extraState?: object,
   ): void;
-  /** Function executed when user clicks on link to open thread */
-  retrySendMessage?(message: Client.Message): Promise<void>;
+  retrySendMessage?(
+    message: Client.Message | Client.MessageResponse,
+  ): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(e: React.MouseEvent, user: Client.UserResponse[]): void;

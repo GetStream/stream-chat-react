@@ -5,7 +5,7 @@ import { ChannelContext } from '../../../context';
 /**
  * @type {(
  *  customRetrySendMessage?: (message: import('stream-chat').Message) => Promise<void>
- * ) => (message: import('stream-chat').Message | undefined) => Promise<void>}
+ * ) => (message: import('stream-chat').Message | import('stream-chat').MessageResponse | undefined) => Promise<void>}
  */
 export const useRetryHandler = (customRetrySendMessage) => {
   /**
