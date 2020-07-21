@@ -34,6 +34,7 @@ import MessageTimestamp from './MessageTimestamp';
 const MessageCommerce = (props) => {
   const {
     message,
+    formatDate,
     groupStyles,
     actionsEnabled,
     threadList,
@@ -190,6 +191,7 @@ const MessageCommerce = (props) => {
               </span>
             ) : null}
             <MessageTimestamp
+              formatDate={formatDate}
               customClass="str-chat__message-commerce-timestamp"
               message={message}
               tDateTimeParser={propTDateTimeParser}

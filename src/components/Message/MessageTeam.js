@@ -56,6 +56,7 @@ const MessageTeam = (props) => {
   const {
     message,
     threadList,
+    formatDate,
     initialMessage,
     unsafeHTML,
     getMessageActions,
@@ -186,6 +187,7 @@ const MessageTeam = (props) => {
           <MessageTimestamp
             message={message}
             tDateTimeParser={props.tDateTimeParser}
+            formatDate={formatDate}
           />
         </div>
         <div className="str-chat__message-team-group">

@@ -611,6 +611,8 @@ export interface MessageProps extends TranslationContextValue {
   getFlagMessageErrorNotification?(message: MessageResponse): string;
   getMuteUserSuccessNotification?(message: MessageResponse): string;
   getMuteUserErrorNotification?(message: MessageResponse): string;
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate?(date: Date): string;
 }
 
 export type MessageComponentState = {
@@ -1105,6 +1107,7 @@ export interface MessageLivestreamActionProps {
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
+  formatDate?(date: Date): string;
 }
 export const MessageLivestream: React.FC<MessageLivestreamProps>;
 export type MessageTeamState = {

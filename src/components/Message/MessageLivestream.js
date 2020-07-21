@@ -57,6 +57,7 @@ const MessageLivestreamComponent = (props) => {
     clearEditingState: propClearEdit,
     initialMessage,
     unsafeHTML,
+    formatDate,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
     handleOpenThread: propHandleOpenThread,
@@ -177,6 +178,7 @@ const MessageLivestreamComponent = (props) => {
         <MessageLivestreamActions
           initialMessage={initialMessage}
           message={message}
+          formatDate={formatDate}
           onReactionListClick={onReactionListClick}
           messageWrapperRef={messageWrapperRef}
           getMessageActions={props.getMessageActions}
@@ -301,6 +303,7 @@ const MessageLivestreamActions = (props) => {
     message,
     channelConfig,
     threadList,
+    formatDate,
     messageWrapperRef,
     onReactionListClick,
     getMessageActions,
@@ -360,6 +363,7 @@ const MessageLivestreamActions = (props) => {
       <MessageTimestamp
         customClass="str-chat__message-livestream-time"
         message={message}
+        formatDate={formatDate}
         tDateTimeParser={propTDateTimeParser}
       />
       {channelConfig && channelConfig.reactions && (

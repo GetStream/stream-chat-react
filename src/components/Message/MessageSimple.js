@@ -45,6 +45,7 @@ const MessageSimple = (props) => {
     editing,
     message,
     threadList,
+    formatDate,
     updateMessage: propUpdateMessage,
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
@@ -235,6 +236,7 @@ const MessageSimple = (props) => {
               <MessageTimestamp
                 customClass="str-chat__message-simple-timestamp"
                 tDateTimeParser={propTDateTimeParser}
+                formatDate={formatDate}
                 message={message}
                 calendar
               />
