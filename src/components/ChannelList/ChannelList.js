@@ -356,4 +356,4 @@ ChannelList.propTypes = {
   lockChannelOrder: PropTypes.bool,
 };
 
-export default ChannelList;
+export default React.memo(ChannelList);
