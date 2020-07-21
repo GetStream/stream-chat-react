@@ -40,6 +40,7 @@ import {
   ErrorIcon,
   DeliveredCheckIcon,
 } from './icons';
+import MessageTimestamp from './MessageTimestamp';
 
 /**
  * MessageTeam - Render component, should be used together with the Message component
@@ -55,6 +56,7 @@ const MessageTeam = (props) => {
   const {
     message,
     threadList,
+    formatDate,
     initialMessage,
     unsafeHTML,
     getMessageActions,
@@ -73,7 +75,6 @@ const MessageTeam = (props) => {
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     t: propT,
-    tDateTimeParser: propTDateTimeParser,
   } = props;
 
   /**
@@ -83,11 +84,8 @@ const MessageTeam = (props) => {
     ChannelContext,
   );
   const channelConfig = propChannelConfig || channel?.getConfig();
-  const { t: contextT, tDateTimeParser: contextTDateTimeParser } = useContext(
-    TranslationContext,
-  );
+  const { t: contextT } = useContext(TranslationContext);
   const t = propT || contextT;
-  const tDateTimeParser = propTDateTimeParser || contextTDateTimeParser;
   const groupStyles = props.groupStyles || ['single'];
   const reactionSelectorRef = useRef(null);
   const messageWrapperRef = useRef(null);
@@ -186,13 +184,11 @@ const MessageTeam = (props) => {
               style={{ width: 40, marginRight: 0 }}
             />
           )}
-
-          <time dateTime={message?.created_at} title={message?.created_at}>
-            {message &&
-              tDateTimeParser &&
-              Boolean(Date.parse(message.created_at)) &&
-              tDateTimeParser(message.created_at).format('h:mmA')}
-          </time>
+          <MessageTimestamp
+            message={message}
+            tDateTimeParser={props.tDateTimeParser}
+            formatDate={formatDate}
+          />
         </div>
         <div className="str-chat__message-team-group">
           {message &&

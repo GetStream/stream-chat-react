@@ -47,6 +47,7 @@ const Message = (props) => {
     onMentionsHover: propOnMentionsHover,
     Message: MessageUIComponent = MessageSimple,
     messageActions = Object.keys(MESSAGE_ACTIONS),
+    formatDate,
     groupStyles = [],
   } = props;
   const { channel: contextChannel } = useContext(ChannelContext);
@@ -100,6 +101,7 @@ const Message = (props) => {
       <MessageUIComponent
         {...props}
         editing={editing}
+        formatDate={formatDate}
         clearEditingState={clearEdit}
         setEditingState={setEdit}
         groupStyles={groupStyles}
