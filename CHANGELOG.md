@@ -147,7 +147,7 @@ We’re bumping `stream-chat-react` to version 2.0.1 because over the past three
 
 We've already been on a v1 release for a while but never updated our versioning. Right now we're in the process of rewriting our components to be more future proof and we started using hooks, hence the v1.0.0 today.
 
-**Breaking change:** `stream-chat-react` no relies on hooks and will need at least `v16.8.x` of `react` to work.
+**Breaking change:** `stream-chat-react` now relies on hooks and will need at least `v16.8.x` of `react` to work.
 
 - Fixed some issues with mutes
 - Fixed issues with attachments
