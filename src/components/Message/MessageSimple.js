@@ -30,6 +30,7 @@ import {
   messageHasAttachments,
 } from './utils';
 import { DeliveredCheckIcon } from './icons';
+import MessageTimestamp from './MessageTimestamp';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component
@@ -55,7 +56,6 @@ const MessageSimple = (props) => {
   } = props;
   const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
   const updateMessage = propUpdateMessage || channelUpdateMessage;
-  const { tDateTimeParser } = useContext(TranslationContext);
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
@@ -76,12 +76,6 @@ const MessageSimple = (props) => {
     MessageDeleted = DefaultMessageDeleted,
   } = props;
 
-  const dateTimeParser = propTDateTimeParser || tDateTimeParser;
-  const when =
-    dateTimeParser &&
-    message &&
-    dateTimeParser(message.created_at).calendar &&
-    dateTimeParser(message.created_at).calendar();
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
 
@@ -238,7 +232,12 @@ const MessageSimple = (props) => {
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <span className="str-chat__message-simple-timestamp">{when}</span>
+              <MessageTimestamp
+                customClass="str-chat__message-simple-timestamp"
+                tDateTimeParser={propTDateTimeParser}
+                message={message}
+                calendar
+              />
             </div>
           </div>
         </div>

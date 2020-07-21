@@ -37,6 +37,7 @@ import {
 } from './utils';
 import { MessageActions } from '../MessageActions';
 import { ReactionIcon, ThreadIcon, ErrorIcon } from './icons';
+import MessageTimestamp from './MessageTimestamp';
 
 /**
  * MessageLivestream - Render component, should be used together with the Message component
@@ -306,8 +307,6 @@ const MessageLivestreamActions = (props) => {
     handleOpenThread,
     tDateTimeParser: propTDateTimeParser,
   } = props;
-  const { tDateTimeParser } = useContext(TranslationContext);
-  const dateParser = propTDateTimeParser || tDateTimeParser;
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   /** @type {() => void} Typescript syntax */
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
@@ -358,9 +357,11 @@ const MessageLivestreamActions = (props) => {
       data-testid={'message-livestream-actions'}
       className={`str-chat__message-livestream-actions`}
     >
-      <span className={`str-chat__message-livestream-time`}>
-        {dateParser && dateParser(message.created_at).format('h:mmA')}
-      </span>
+      <MessageTimestamp
+        customClass="str-chat__message-livestream-time"
+        message={message}
+        tDateTimeParser={propTDateTimeParser}
+      />
       {channelConfig && channelConfig.reactions && (
         <span
           onClick={onReactionListClick}
