@@ -11,7 +11,7 @@ import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 
 export interface ChatContextValue {
-  client: Client.StreamChat;
+  client?: Client.StreamChat;
   channel?: Client.Channel;
   setActiveChannel?(
     channel?: Client.Channel,
@@ -79,7 +79,7 @@ export interface ChannelContextValue extends ChatContextValue {
 
   loadMore?(): void;
   // thread related
-  closeThread(event: React.SyntheticEvent): void;
+  closeThread?(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
 
   /** Via Context: The function is called when the list scrolls */
@@ -178,6 +178,7 @@ export interface ChannelSort {
   member_count?: AscDesc;
   unread_count?: AscDesc;
   has_unread?: AscDesc;
+  [key: string]: AscDesc | undefined;
 }
 
 export interface ChannelOptions {

@@ -174,7 +174,7 @@ const ChannelInner = ({
 
         if (
           mainChannelUpdated &&
-          e.message.user.id !== chatContext.client.userID
+          e.message.user.id !== chatContext.client?.userID
         ) {
           if (!document.hidden) {
             markReadThrottled();
@@ -190,7 +190,7 @@ const ChannelInner = ({
     [
       channel,
       throttledCopyStateFromChannel,
-      chatContext.client.userID,
+      chatContext.client?.userID,
       markReadThrottled,
     ],
   );
@@ -222,7 +222,7 @@ const ChannelInner = ({
         // The more complex sync logic is done in chat.js
         // listen to client.connection.recovered and all channel events
         document.addEventListener('visibilitychange', onVisibilityChange);
-        chatContext.client.on('connection.recovered', handleEvent);
+        chatContext.client?.on('connection.recovered', handleEvent);
         channel.on(handleEvent);
       }
     })();
@@ -230,7 +230,7 @@ const ChannelInner = ({
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.off(handleEvent);
-      chatContext.client.off('connection.recovered', handleEvent);
+      chatContext.client?.off('connection.recovered', handleEvent);
     };
   }, [channel, chatContext.client, handleEvent, markRead, props.channel]);
 
@@ -351,7 +351,7 @@ const ChannelInner = ({
   const createMessagePreview = useCallback(
     (text, attachments, parent, mentioned_users) => {
       // create a preview of the message
-      const clientSideID = `${chatContext.client.userID}-${uuidv4()}`;
+      const clientSideID = `${chatContext.client?.userID}-${uuidv4()}`;
       return {
         text,
         html: text,
@@ -359,7 +359,7 @@ const ChannelInner = ({
         id: clientSideID,
         type: 'regular',
         status: 'sending',
-        user: chatContext.client.user,
+        user: chatContext.client?.user,
         created_at: new Date(),
         attachments,
         mentioned_users,
@@ -367,7 +367,7 @@ const ChannelInner = ({
         ...(parent?.id ? { parent_id: parent.id } : null),
       };
     },
-    [chatContext.client.user, chatContext.client.userID],
+    [chatContext.client?.user, chatContext.client?.userID],
   );
 
   const sendMessage = useCallback(
