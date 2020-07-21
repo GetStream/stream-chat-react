@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.4](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.4) 2020-07-21
+
+- Fixed type issues
+- Fixed an issue with the mobile navigation
+- Added the ability to customize the datetime stamp on Message components using the `formatDate` prop
+
 ## [2.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.3) 2020-07-20
 
 - All components using mutes get them using the useContext hook.
