@@ -3,7 +3,10 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
-import MessageTimestamp, { defaultTimestampFormat } from '../MessageTimestamp';
+import MessageTimestamp, {
+  defaultTimestampFormat,
+  notValidDateWarning,
+} from '../MessageTimestamp';
 import { TranslationContext } from '../../../context';
 
 const messageMock = generateMessage({
@@ -28,14 +31,18 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should not render if no message is available', () => {
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(<MessageTimestamp message={undefined} />);
     expect(container.children).toHaveLength(0);
+    expect(console.warn).toHaveBeenCalledWith(notValidDateWarning);
   });
 
   it('should not render if message created_at is not a valid date', () => {
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const message = generateMessage({ created_at: 'I am not a date' });
     const { container } = render(<MessageTimestamp message={message} />);
     expect(container.children).toHaveLength(0);
+    expect(console.warn).toHaveBeenCalledWith(notValidDateWarning);
   });
 
   it('should render message created_at date with custom datetime parser if one is set', () => {
@@ -83,6 +90,16 @@ describe('<MessageTimestamp />', () => {
       </TranslationContext.Provider>,
     );
     expect(container.children).toHaveLength(0);
+  });
+
+  it('should use custom date formater when one is set', () => {
+    const customDate = 'Some time ago';
+    const formatDate = jest.fn(() => customDate);
+    const { queryByText } = render(
+      <MessageTimestamp formatDate={formatDate} message={messageMock} />,
+    );
+    expect(formatDate).toHaveBeenCalledWith(new Date(messageMock.created_at));
+    expect(queryByText(customDate)).toBeInTheDocument();
   });
 
   it('should render message with a custom css class when one is set', () => {

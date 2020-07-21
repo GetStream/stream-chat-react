@@ -1140,6 +1140,8 @@ export interface MessageTimestampProps {
   calendar?: boolean;
   format?: string;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate?(date: Date): string;
 }
 
 export interface MessageTextProps extends MessageSimpleProps {
