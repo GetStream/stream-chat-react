@@ -1,0 +1,18 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+}
+
+.str-chat-channel-list {
+  height: 100%;
+}
+
+.str-chat-channel {
+  height: 100%;
+}

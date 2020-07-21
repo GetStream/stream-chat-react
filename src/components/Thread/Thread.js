@@ -18,7 +18,7 @@ import { MessageInput, MessageInputSmall } from '../MessageInput';
  * - additionalMessageInputProps
  *
  * @example ../../docs/Thread.md
- * @typedef { import('types').ThreadProps } Props
+ * @typedef { import('types').ThreadProps & import('types').ChannelContextValue & import('types').TranslationContextValue} Props
  * @extends PureComponent<Props, any>
  */
 class Thread extends PureComponent {
@@ -200,7 +200,7 @@ class ThreadInner extends React.PureComponent {
             </small>
           </div>
           <button
-            onClick={(e) => closeThread(e)}
+            onClick={(e) => closeThread && closeThread(e)}
             className="str-chat__square-button"
             data-testid="close-button"
           >
