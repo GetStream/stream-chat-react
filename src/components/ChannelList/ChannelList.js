@@ -335,7 +335,7 @@ ChannelList.propTypes = {
    * Object containing sort parameters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for sort.
    * */
-  sort: PropTypes.object,
+  sort: /** @type {PropTypes.Validator<import('types').ChannelSort>} */ (PropTypes.object),
   /**
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/channel_pagination/?language=js) for a list of available fields for sort.

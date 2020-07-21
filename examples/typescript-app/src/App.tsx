@@ -47,20 +47,19 @@ class App extends Component {
 
   render() {
     const filters = { type: 'messaging', example: 1 };
-    const sort = {
-      last_message_at: -1,
-      updated_at: -1,
-      cid: 1,
-    };
     const options = { state: true, watch: true, presence: true };
-
+    const channel = this.chatClient.channel('messaging', 'booo');
     return (
       <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
           filters={filters}
-          sort={sort}
+          sort={{
+            last_message_at: -1,
+            updated_at: -1,
+            cid: 1,
+          }}
           options={options}
           Paginator={(props) => (
             <InfiniteScrollPaginator threshold={300} {...props} />
