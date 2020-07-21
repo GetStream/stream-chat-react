@@ -1134,6 +1134,14 @@ export class MessageTeam extends React.PureComponent<
 > {}
 
 export interface MessageSimpleProps extends MessageUIComponentProps {}
+export interface MessageTimestampProps {
+  customClass?: string;
+  message?: Client.MessageResponse;
+  calendar?: boolean;
+  format?: string;
+  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+}
+
 export interface MessageTextProps extends MessageSimpleProps {
   customOptionProps?: Partial<MessageOptionsProps>;
   customInnerClass?: string;
