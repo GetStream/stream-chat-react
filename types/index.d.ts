@@ -552,7 +552,7 @@ export interface MessageInputEmojiPickerProps extends MessageInputState {
   small?: boolean;
 }
 
-export interface FileProps {
+export interface FileAttachmentProps {
   attachment: Client.Attachment & { asset_url?: string };
 }
 
@@ -574,7 +574,7 @@ export interface AttachmentUIComponentProps {
     event: React.BaseSyntheticEvent,
   ): void;
   Card?: React.ComponentType<CardProps>;
-  File?: React.ComponentType<FileProps>;
+  File?: React.ComponentType<FileAttachmentProps>;
   Image?: React.ComponentType<ImageProps>;
   Audio?: React.ComponentType<AudioProps>;
   Media?: React.ComponentType<ReactPlayerProps>;
