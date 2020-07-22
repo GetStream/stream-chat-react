@@ -34,7 +34,7 @@
     "pretty-bytes": "^5.3.0",
     "prop-types": "^15.7.2",
     "react-fast-compare": "^3.2.0",
-    "react-file-utils": "0.3.14",
+    "react-file-utils": "0.3.15",
     "react-images": "^1.1.7",
     "react-is": "^16.13.1",
     "react-markdown": "^4.3.1",
