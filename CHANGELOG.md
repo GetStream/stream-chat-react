@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.1) 2020-07-22
+
+- Bumped `react-file-utils` to `0.3.15` which includes an upgraded version of `blueimp-load-image` which makes it easier to use this library in SSR apps.
+
 ## [2.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.0) 2020-07-22
 
 - Rename exported component `File` to `FileAttachment` to avoid overriding `window.File` in bundled release
