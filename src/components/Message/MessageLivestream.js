@@ -418,6 +418,10 @@ MessageLivestreamComponent.propTypes = {
   unsafeHTML: PropTypes.bool,
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
+
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
+
   /** Channel config object */
   channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
     .object.isRequired),

@@ -515,6 +515,9 @@ MessageTeam.propTypes = {
   clearEditingState: PropTypes.func,
   /** Returns true if message belongs to current user */
   isMyMessage: PropTypes.func,
+
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
   /**
    * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
