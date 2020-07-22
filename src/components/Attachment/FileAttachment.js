@@ -3,8 +3,8 @@ import { FileIcon } from 'react-file-utils';
 import prettybytes from 'pretty-bytes';
 import { SafeAnchor } from '../SafeAnchor';
 
-/** @type React.FC<import('types').FileProps> */
-const File = ({ attachment }) => {
+/** @type React.FC<import('types').FileAttachmentProps> */
+const FileAttachment = ({ attachment }) => {
   return (
     <div
       data-testid="attachment-file"
@@ -28,4 +28,4 @@ const File = ({ attachment }) => {
   );
 };
 
-export default React.memo(File);
+export default React.memo(FileAttachment);
