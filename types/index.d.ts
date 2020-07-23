@@ -1086,14 +1086,7 @@ export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
 
 export interface MessageCommerceProps extends MessageUIComponentProps {}
-export type MessageCommerceState = {
-  isFocused: boolean;
-  showDetailedReactions: boolean;
-};
-export class MessageCommerce extends React.PureComponent<
-  MessageCommerceProps,
-  MessageCommerceState
-> {}
+export const MessageCommerce: React.FC<MessageCommerceProps>;
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
 export interface MessageLivestreamActionProps {
