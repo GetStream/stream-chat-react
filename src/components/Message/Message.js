@@ -148,6 +148,9 @@ Message.propTypes = {
   readBy: PropTypes.array,
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles: PropTypes.array,
+
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
   /**
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
