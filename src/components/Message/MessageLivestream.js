@@ -18,7 +18,10 @@ import { Avatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Gallery } from '../Gallery';
 import { MessageInput, EditMessageForm } from '../MessageInput';
-import { SimpleReactionsList, ReactionSelector } from '../Reactions';
+import {
+  SimpleReactionsList as DefaultReactionsList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import {
   useReactionHandler,
   useUserHandler,
@@ -58,6 +61,8 @@ const MessageLivestreamComponent = (props) => {
     initialMessage,
     unsafeHTML,
     formatDate,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
     handleOpenThread: propHandleOpenThread,
@@ -275,7 +280,7 @@ const MessageLivestreamComponent = (props) => {
 
             {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
-            <SimpleReactionsList
+            <ReactionsList
               reaction_counts={message.reaction_counts}
               reactions={message.latest_reactions}
               handleReaction={propHandleReaction || handleReaction}
@@ -458,6 +463,15 @@ MessageLivestreamComponent.propTypes = {
    * @param event Dom event which triggered this function
    */
   handleReaction: PropTypes.func,
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
+
   /** If actions such as edit, delete, flag, mute are enabled on message */
   /** @deprecated This property is no longer used * */
   actionsEnabled: PropTypes.bool,

@@ -11,7 +11,10 @@ import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
-import { ReactionsList, ReactionSelector } from '../Reactions';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import MessageOptions from './MessageOptions';
 import MessageText from './MessageText';
 import DefaultMessageDeleted from './MessageDeleted';
@@ -75,6 +78,8 @@ const MessageSimple = (props) => {
   const {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
+    ReactionSelector = DefaultReactionSelector,
+    ReactionsList = DefaultReactionList,
   } = props;
 
   const hasReactions = messageHasReactions(message);
@@ -394,6 +399,14 @@ MessageSimple.propTypes = {
    * @deprecated This component now relies on the useReactionHandler custom hook.
    */
   handleReaction: PropTypes.func,
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
   /** If actions such as edit, delete, flag, mute are enabled on message */
   actionsEnabled: PropTypes.bool,
   /** DOMRect object for parent MessageList component */

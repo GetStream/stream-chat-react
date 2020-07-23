@@ -596,6 +596,9 @@ export interface MessageProps extends TranslationContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
   /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
   MessageDeleted?: React.ElementType<MessageDeletedProps>;
+
+  ReactionSelector?: React.ElementType<ReactionSelectorProps>;
+  ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
