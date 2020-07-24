@@ -61,6 +61,7 @@ const MessageLivestreamComponent = (props) => {
     initialMessage,
     unsafeHTML,
     formatDate,
+    channelConfig: propChannelConfig,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     onUserClick: propOnUserClick,
@@ -84,7 +85,10 @@ const MessageLivestreamComponent = (props) => {
   /**
    *@type {import('types').ChannelContextValue}
    */
-  const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
+  const { updateMessage: channelUpdateMessage, channel } = useContext(
+    ChannelContext,
+  );
+  const channelConfig = propChannelConfig || channel?.getConfig();
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
@@ -188,7 +192,7 @@ const MessageLivestreamComponent = (props) => {
           messageWrapperRef={messageWrapperRef}
           getMessageActions={props.getMessageActions}
           tDateTimeParser={propTDateTimeParser}
-          channelConfig={props.channelConfig}
+          channelConfig={channelConfig}
           threadList={props.threadList}
           handleOpenThread={propHandleOpenThread || handleOpenThread}
           setEditingState={setEdit}
@@ -418,7 +422,7 @@ MessageLivestreamComponent.propTypes = {
    * */
   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
     [PropTypes.node, PropTypes.func, PropTypes.object],
-  ).isRequired),
+  )),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** If its parent message in thread. */
@@ -428,8 +432,7 @@ MessageLivestreamComponent.propTypes = {
   formatDate: PropTypes.func,
 
   /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
-    .object.isRequired),
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /** Function to open thread on current messxage */
