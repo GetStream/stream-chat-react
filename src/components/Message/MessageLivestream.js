@@ -18,7 +18,10 @@ import { Avatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Gallery } from '../Gallery';
 import { MessageInput, EditMessageForm } from '../MessageInput';
-import { SimpleReactionsList, ReactionSelector } from '../Reactions';
+import {
+  SimpleReactionsList as DefaultReactionsList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import {
   useReactionHandler,
   useUserHandler,
@@ -58,6 +61,9 @@ const MessageLivestreamComponent = (props) => {
     initialMessage,
     unsafeHTML,
     formatDate,
+    channelConfig: propChannelConfig,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
     onUserClick: propOnUserClick,
     handleReaction: propHandleReaction,
     handleOpenThread: propHandleOpenThread,
@@ -79,7 +85,10 @@ const MessageLivestreamComponent = (props) => {
   /**
    *@type {import('types').ChannelContextValue}
    */
-  const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
+  const { updateMessage: channelUpdateMessage, channel } = useContext(
+    ChannelContext,
+  );
+  const channelConfig = propChannelConfig || channel?.getConfig();
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
@@ -183,7 +192,7 @@ const MessageLivestreamComponent = (props) => {
           messageWrapperRef={messageWrapperRef}
           getMessageActions={props.getMessageActions}
           tDateTimeParser={propTDateTimeParser}
-          channelConfig={props.channelConfig}
+          channelConfig={channelConfig}
           threadList={props.threadList}
           handleOpenThread={propHandleOpenThread || handleOpenThread}
           setEditingState={setEdit}
@@ -275,7 +284,7 @@ const MessageLivestreamComponent = (props) => {
 
             {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
-            <SimpleReactionsList
+            <ReactionsList
               reaction_counts={message.reaction_counts}
               reactions={message.latest_reactions}
               handleReaction={propHandleReaction || handleReaction}
@@ -413,7 +422,7 @@ MessageLivestreamComponent.propTypes = {
    * */
   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
     [PropTypes.node, PropTypes.func, PropTypes.object],
-  ).isRequired),
+  )),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** If its parent message in thread. */
@@ -423,8 +432,7 @@ MessageLivestreamComponent.propTypes = {
   formatDate: PropTypes.func,
 
   /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
-    .object.isRequired),
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /** Function to open thread on current messxage */
@@ -458,6 +466,15 @@ MessageLivestreamComponent.propTypes = {
    * @param event Dom event which triggered this function
    */
   handleReaction: PropTypes.func,
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
+
   /** If actions such as edit, delete, flag, mute are enabled on message */
   /** @deprecated This property is no longer used * */
   actionsEnabled: PropTypes.bool,

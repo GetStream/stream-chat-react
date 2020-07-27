@@ -11,7 +11,10 @@ import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
-import { ReactionsList, ReactionSelector } from '../Reactions';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import MessageOptions from './MessageOptions';
 import MessageText from './MessageText';
 import DefaultMessageDeleted from './MessageDeleted';
@@ -75,6 +78,8 @@ const MessageSimple = (props) => {
   const {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
+    ReactionSelector = DefaultReactionSelector,
+    ReactionsList = DefaultReactionList,
   } = props;
 
   const hasReactions = messageHasReactions(message);
@@ -342,7 +347,7 @@ MessageSimple.propTypes = {
    * */
   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
     [PropTypes.node, PropTypes.func, PropTypes.object],
-  ).isRequired),
+  )),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** Client object */
@@ -351,8 +356,7 @@ MessageSimple.propTypes = {
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
   /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
-    .object.isRequired),
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate: PropTypes.func,
   /** If component is in thread list */
@@ -394,6 +398,14 @@ MessageSimple.propTypes = {
    * @deprecated This component now relies on the useReactionHandler custom hook.
    */
   handleReaction: PropTypes.func,
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
   /** If actions such as edit, delete, flag, mute are enabled on message */
   actionsEnabled: PropTypes.bool,
   /** DOMRect object for parent MessageList component */

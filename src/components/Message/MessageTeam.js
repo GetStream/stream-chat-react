@@ -17,7 +17,10 @@ import { MessageInput, EditMessageForm } from '../MessageInput';
 import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
-import { SimpleReactionsList, ReactionSelector } from '../Reactions';
+import {
+  SimpleReactionsList as DefaultReactionsList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import {
   useUserRole,
   useActionHandler,
@@ -61,6 +64,8 @@ const MessageTeam = (props) => {
     unsafeHTML,
     getMessageActions,
     MessageDeleted,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
     editing: propEditing,
     setEditingState: propSetEdit,
     clearEditingState: propClearEdit,
@@ -317,7 +322,7 @@ const MessageTeam = (props) => {
             {message?.latest_reactions &&
               message.latest_reactions.length !== 0 &&
               message.text !== '' && (
-                <SimpleReactionsList
+                <ReactionsList
                   reaction_counts={message.reaction_counts}
                   handleReaction={propHandleReaction || handleReaction}
                   reactions={message.latest_reactions}
@@ -359,7 +364,7 @@ const MessageTeam = (props) => {
           {message?.latest_reactions &&
             message.latest_reactions.length !== 0 &&
             message.text === '' && (
-              <SimpleReactionsList
+              <ReactionsList
                 reaction_counts={message.reaction_counts}
                 handleReaction={propHandleReaction || handleReaction}
                 reactions={message.latest_reactions}
@@ -495,7 +500,7 @@ MessageTeam.propTypes = {
    * */
   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
     [PropTypes.node, PropTypes.func, PropTypes.object],
-  ).isRequired),
+  )),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** Client object */
@@ -503,8 +508,7 @@ MessageTeam.propTypes = {
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
   /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes
-    .object.isRequired),
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /** Function to open thread on current messxage */
@@ -541,6 +545,14 @@ MessageTeam.propTypes = {
    * @param event Dom event which triggered this function
    */
   handleReaction: PropTypes.func,
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
   /** DOMRect object for parent MessageList component */
   messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /**

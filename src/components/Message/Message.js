@@ -161,6 +161,15 @@ Message.propTypes = {
    * All props are passed into this component.
    */
   MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
   /**
    * Attachment UI component to display attachment in individual message.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
