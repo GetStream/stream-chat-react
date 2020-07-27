@@ -14,6 +14,10 @@ const SimpleReactionsList = ({
 }) => {
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
 
+  if (!reactions || reactions.length === 0) {
+    return null;
+  }
+
   /** @param {string | null} type */
   const getUsersPerReactionType = (type) =>
     reactions
