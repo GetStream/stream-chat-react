@@ -48,6 +48,13 @@ const expectEmojiToHaveBeenRendered = (id) => {
 describe('SimpleReactionsList', () => {
   afterEach(jest.clearAllMocks);
 
+  it('should not render anything if there are no reactions', () => {
+    const { container } = renderComponent({
+      reaction_counts: {},
+    });
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('should render the total reaction count', () => {
     const { getByText } = renderComponent({
       reaction_counts: {
