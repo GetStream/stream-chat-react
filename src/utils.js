@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown/with-html';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
 import { find as linkifyFind } from 'linkifyjs/lib/linkify';
+import { uriTransformer } from 'react-markdown';
 
 export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
@@ -210,7 +211,7 @@ export const renderText = (text, mentioned_users) => {
         if (uri.startsWith('app://')) {
           return uri;
         } else {
-          return require('react-markdown').uriTransformer(uri);
+          return uriTransformer(uri);
         }
       }}
     />
