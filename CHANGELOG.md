@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.3) 2020-07-27
+
+- Fix empty reaction showing bubble [#473](https://github.com/GetStream/stream-chat-react/pull/473)
+
 ## [2.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.2) 2020-07-27
 
 - Add formatDate to docs [#469](https://github.com/GetStream/stream-chat-react/pull/469)
