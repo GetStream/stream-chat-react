@@ -29,4 +29,5 @@ export * from './Thread';
 export * from './Tooltip';
 export * from './TypingIndicator';
 export * from './UserItem';
+export * from './VirtualizedMessageList';
 export * from './Window';
