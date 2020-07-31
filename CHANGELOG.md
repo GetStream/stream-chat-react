@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.0) 2020-07-31
+
+- Added doMarkReadRequest prop to Channel component, to override markRead api calls [49a058b8](https://github.com/GetStream/stream-chat-react/commit/49a058b8489699fb3de4fc5f7041a4d09d9acd39)
+
 ## [2.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.3) 2020-07-27
 
 - Fix empty reaction showing bubble [#473](https://github.com/GetStream/stream-chat-react/pull/473)
