@@ -107,6 +107,12 @@ Channel.propTypes = {
    * @param {Object} message
    */
   doSendMessageRequest: PropTypes.func,
+  /**
+   * Override mark channel read request (Advanced usage only)
+   *
+   * @param {Channel} channel object
+   * */
+  doMarkReadRequest: PropTypes.func,
   /** Override update(edit) message request (Advanced usage only)
    *
    * @param {String} channelId full channel ID in format of `type:id`
@@ -121,6 +127,7 @@ const ChannelInner = ({
   LoadingErrorIndicator = LoadingErrorIndicatorComponent,
   Attachment = AttachmentComponent,
   Message = MessageSimpleComponent,
+  doMarkReadRequest,
   ...props
   // eslint-disable-next-line sonarjs/cognitive-complexity
 }) => {
@@ -148,13 +155,15 @@ const ChannelInner = ({
       return;
     }
     lastRead.current = new Date();
-
-    logChatPromiseExecution(channel.markRead(), 'mark read');
-
+    if (doMarkReadRequest) {
+      doMarkReadRequest(channel);
+    } else {
+      logChatPromiseExecution(channel.markRead(), 'mark read');
+    }
     if (originalTitle.current) {
       document.title = originalTitle.current;
     }
-  }, [channel]);
+  }, [channel, doMarkReadRequest]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const markReadThrottled = useCallback(

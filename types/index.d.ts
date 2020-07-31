@@ -130,6 +130,9 @@ export interface ChannelProps {
     channelId: string,
     message: Client.Message,
   ): Promise<Client.MessageResponse> | void;
+  doMarkReadRequest?(
+    channel: Client.Channel,
+  ): Promise<Client.MessageResponse> | void;
   /** Override update(edit) message request (Advanced usage only) */
   doUpdateMessageRequest?(
     channelId: string,

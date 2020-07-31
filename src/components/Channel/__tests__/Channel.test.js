@@ -181,6 +181,16 @@ describe('Channel', () => {
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
+  it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
+    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const doMarkReadRequest = jest.fn();
+
+    renderComponent({
+      doMarkReadRequest,
+    });
+
+    await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
+  });
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   describe('Children that consume ChannelContext', () => {
