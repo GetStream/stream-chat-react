@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.3) 2020-07-27
+
+- Fix empty reaction showing bubble [#473](https://github.com/GetStream/stream-chat-react/pull/473)
+
+## [2.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.2) 2020-07-27
+
+- Add formatDate to docs [#469](https://github.com/GetStream/stream-chat-react/pull/469)
+- Allow reaction override in Message components [#470](https://github.com/GetStream/stream-chat-react/pull/470)
+- Fix runtime require in browser bundle [#472](https://github.com/GetStream/stream-chat-react/pull/472)
+
 ## [2.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.1) 2020-07-22
 
 - Bumped `react-file-utils` to `0.3.15` which includes an upgraded version of `blueimp-load-image` which makes it easier to use this library in SSR apps.

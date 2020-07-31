@@ -13,7 +13,7 @@ import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext, TranslationContext } from '../../../context';
+import { ChannelContext } from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -39,16 +39,7 @@ async function renderMessageLivestream(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider value={{ client, channel }}>
-      <TranslationContext.Provider value={{ t: (key) => key }}>
-        <MessageLivestream
-          t={(key) => key}
-          channel={channel}
-          client={client}
-          message={message}
-          typing={false}
-          {...props}
-        />
-      </TranslationContext.Provider>
+      <MessageLivestream message={message} typing={false} {...props} />
     </ChannelContext.Provider>,
   );
 }
@@ -105,6 +96,62 @@ describe('<MessageLivestream />', () => {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
+  });
+
+  it('should render reaction selector with custom component when one is given', async () => {
+    const message = generateAliceMessage({ text: undefined });
+    const customSelectorTestId = 'custom-reaction-selector';
+    // Passing the ref prevents a react warning
+    // eslint-disable-next-line no-unused-vars
+    const CustomReactionSelector = (props, ref) => (
+      <ul data-testid={customSelectorTestId}>
+        <li>
+          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>
+            :)
+          </button>
+        </li>
+        <li>
+          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>
+            :(
+          </button>
+        </li>
+      </ul>
+    );
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      {
+        ReactionSelector: React.forwardRef(CustomReactionSelector),
+      },
+      { reactions: true },
+    );
+    fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
+    expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
+  });
+
+  it('should render reaction list with custom component when one is given', async () => {
+    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const message = generateAliceMessage({
+      text: undefined,
+      latest_reactions: [bobReaction],
+    });
+    const CustomReactionsList = ({ reactions }) => (
+      <ul data-testid="custom-reaction-list">
+        {reactions.map((reaction) => {
+          if (reaction.type === 'cool-reaction') {
+            return <li key={reaction.type + reaction.user_id}>:)</li>;
+          }
+          return <li key={reaction.type + reaction.user_id}>?</li>;
+        })}
+      </ul>
+    );
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      {
+        ReactionsList: CustomReactionsList,
+      },
+      { reactions: true },
+    );
+    expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
 
   it('should render message input when in edit mode', async () => {

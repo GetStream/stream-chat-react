@@ -2,7 +2,10 @@
 import React, { useMemo, useContext, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
-import { ReactionsList, ReactionSelector } from '../Reactions';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import {
   useReactionHandler,
   useReactionClick,
@@ -16,6 +19,8 @@ import MessageOptions from './MessageOptions';
  */
 const MessageTextComponent = (props) => {
   const {
+    ReactionsList = DefaultReactionList,
+    ReactionSelector = DefaultReactionSelector,
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
     customWrapperClass,

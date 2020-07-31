@@ -210,7 +210,7 @@ export const renderText = (text, mentioned_users) => {
         if (uri.startsWith('app://')) {
           return uri;
         } else {
-          return require('react-markdown').uriTransformer(uri);
+          return ReactMarkdown.uriTransformer(uri);
         }
       }}
     />
