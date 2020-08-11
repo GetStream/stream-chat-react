@@ -4,12 +4,12 @@ import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 
 /**
- * @typedef {import('stream-chat').Event<string>} ChannelDeletedEvent
+ * @typedef {import('stream-chat').Event<string>} ChannelHiddenEvent
  * @typedef {React.Dispatch<React.SetStateAction<import('stream-chat').Channel[]>>} SetChannels
  * @param {SetChannels} setChannels
- * @param {(setChannels: SetChannels, event: ChannelDeletedEvent) => void} [customHandler]
+ * @param {(setChannels: SetChannels, event: ChannelHiddenEvent) => void} [customHandler]
  */
-export const useChannelDeletedListener = (setChannels, customHandler) => {
+export const useChannelHiddenListener = (setChannels, customHandler) => {
   const { client } = useContext(ChatContext);
 
   useEffect(() => {
@@ -22,10 +22,9 @@ export const useChannelDeletedListener = (setChannels, customHandler) => {
           const channelIndex = channels.findIndex(
             (channel) => channel.cid === e?.cid,
           );
-
           if (channelIndex < 0) return [...channels];
 
-          // Remove the deleted channel from the list.s
+          // Remove the hidden channel from the list.s
           channels.splice(channelIndex, 1);
 
           // eslint-disable-next-line consistent-return
@@ -34,10 +33,10 @@ export const useChannelDeletedListener = (setChannels, customHandler) => {
       }
     };
 
-    client.on('channel.deleted', handleEvent);
+    client.on('channel.hidden', handleEvent);
 
     return () => {
-      client.off('channel.deleted', handleEvent);
+      client.off('channel.hidden', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);
