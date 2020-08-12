@@ -21,6 +21,7 @@ import {
   dispatchMessageNewEvent,
   dispatchChannelDeletedEvent,
   dispatchChannelUpdatedEvent,
+  dispatchChannelHiddenEvent,
   dispatchChannelVisibleEvent,
   dispatchChannelTruncatedEvent,
   dispatchNotificationAddedToChannelEvent,
@@ -775,6 +776,71 @@ describe('ChannelList', () => {
 
         act(() =>
           dispatchChannelDeletedEvent(chatClientUthred, testChannel1.channel),
+        );
+
+        await waitFor(() => {
+          expect(setActiveChannel).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe('channel.hidden', () => {
+      const channelListProps = {
+        filters: {},
+        Preview: ChannelPreviewComponent,
+        List: ChannelListComponent,
+      };
+
+      // eslint-disable-next-line sonarjs/no-identical-functions
+      beforeEach(() => {
+        useMockedApis(chatClientUthred, [
+          queryChannelsApi([testChannel1, testChannel2]),
+        ]);
+      });
+
+      it('should remove channel from list, by default', async () => {
+        const { getByRole, getByTestId } = render(
+          <Chat client={chatClientUthred}>
+            <ChannelList {...channelListProps} />
+          </Chat>,
+        );
+
+        // Wait for list of channels to load in DOM.
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        const nodeToBeRemoved = getByTestId(testChannel2.channel.id);
+        act(() =>
+          dispatchChannelHiddenEvent(chatClientUthred, testChannel2.channel),
+        );
+
+        await waitFor(() => {
+          expect(nodeToBeRemoved).not.toBeInTheDocument();
+        });
+      });
+
+      it('should unset activeChannel if it was hidden', async () => {
+        const setActiveChannel = jest.fn();
+        const { getByRole } = render(
+          <ChatContext.Provider
+            value={{ client: chatClientUthred, setActiveChannel }}
+          >
+            <ChannelList
+              {...channelListProps}
+              channel={{ cid: testChannel1.channel.cid }}
+              setActiveChannel={setActiveChannel}
+            />
+          </ChatContext.Provider>,
+        );
+
+        // Wait for list of channels to load in DOM.
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        act(() =>
+          dispatchChannelHiddenEvent(chatClientUthred, testChannel1.channel),
         );
 
         await waitFor(() => {
