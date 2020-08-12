@@ -16,8 +16,6 @@ export const useChannelVisibleListener = (setChannels, customHandler) => {
   useEffect(() => {
     /** @param {import('stream-chat').Event<string>} e */
     const handleEvent = async (e) => {
-      console.log('channel.visible event', e);
-
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);
       } else if (e?.type) {

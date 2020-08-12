@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { getNodeText } from '@testing-library/dom';
@@ -20,6 +21,7 @@ import {
   dispatchMessageNewEvent,
   dispatchChannelDeletedEvent,
   dispatchChannelUpdatedEvent,
+  dispatchChannelVisibleEvent,
   dispatchChannelTruncatedEvent,
   dispatchNotificationAddedToChannelEvent,
   dispatchNotificationMessageNewEvent,
@@ -777,6 +779,76 @@ describe('ChannelList', () => {
 
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe('channel.visible', () => {
+      const channelListProps = {
+        filters: {},
+        Preview: ChannelPreviewComponent,
+        List: ChannelListComponent,
+        options: { state: true, watch: true, presence: true },
+      };
+
+      beforeEach(async () => {
+        chatClientUthred = await getTestClientWithUser({ id: 'jaap' });
+        useMockedApis(chatClientUthred, [
+          queryChannelsApi([testChannel1, testChannel2]),
+          getOrCreateChannelApi(testChannel3),
+        ]);
+      });
+
+      it('should move channel to top of the list by default', async () => {
+        const { getByRole, getByTestId, getAllByRole } = render(
+          <Chat client={chatClientUthred}>
+            <ChannelList {...channelListProps} />
+          </Chat>,
+        );
+
+        // Wait for list of channels to load in DOM.
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        act(() =>
+          dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel),
+        );
+
+        await waitFor(() => {
+          expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
+        });
+
+        const items = getAllByRole('listitem');
+
+        // Get the closes listitem to the channel that received new message.
+        const channelPreview = getByTestId(testChannel3.channel.id);
+        expect(channelPreview.isEqualNode(items[0])).toBe(true);
+      });
+
+      it('should call `onChannelVisible` function prop, if provided', async () => {
+        const onChannelVisible = jest.fn();
+        const { getByRole } = render(
+          <Chat client={chatClientUthred}>
+            <ChannelList
+              {...channelListProps}
+              onChannelVisible={onChannelVisible}
+            />
+          </Chat>,
+        );
+
+        // Wait for list of channels to load in DOM.
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // eslint-disable-next-line sonarjs/no-identical-functions
+        act(() =>
+          dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel),
+        );
+
+        await waitFor(() => {
+          expect(onChannelVisible).toHaveBeenCalledTimes(1);
         });
       });
     });
