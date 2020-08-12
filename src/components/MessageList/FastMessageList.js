@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback } from 'react';
 import deepequal from 'react-fast-compare';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -6,6 +6,32 @@ import { ChannelContext } from '../../context';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
+
+const Message = React.memo(function Message({ client, message }) {
+  const renderedText = useMemo(
+    () => renderText(message.text, message.mentioned_users),
+    [message.text, message.mentioned_users],
+  );
+
+  const isOwner = message.user.id === client.userID;
+  return (
+    <div
+      key={message.id}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        margin: '10px',
+        flexDirection: isOwner ? 'row-reverse' : 'row',
+      }}
+    >
+      <Avatar
+        image={message.user.image}
+        name={message.user.name || message.user.id}
+      />
+      {renderedText}
+    </div>
+  );
+}, deepequal);
 
 const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
   const virtuoso = useRef();
@@ -26,27 +52,9 @@ const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
         return null;
       }
 
-      const isOwner = message.user.id === client.userID;
-
-      return (
-        <div
-          key={message.id}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: '10px',
-            flexDirection: isOwner ? 'row-reverse' : 'row',
-          }}
-        >
-          <Avatar
-            image={message.user.image}
-            name={message.user.name || message.user.id}
-          />
-          {renderText(message.text, message?.mentioned_users)}
-        </div>
-      );
+      return <Message client={client} message={message} />;
     },
-    [client.userID],
+    [client],
   );
 
   useEffect(() => {
