@@ -21,6 +21,7 @@ import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
 import { useChannelUpdatedListener } from './hooks/useChannelUpdatedListener';
 import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
+import { useChannelVisibleListener } from './hooks/useChannelVisibleListener';
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
@@ -123,6 +124,7 @@ const ChannelList = (props) => {
   );
   useChannelDeletedListener(setChannels, props.onChannelDeleted);
   useChannelHiddenListener(setChannels, props.onChannelHidden);
+  useChannelVisibleListener(setChannels, props.onChannelVisible);
   useChannelTruncatedListener(
     setChannels,
     props.onChannelTruncated,
