@@ -41,7 +41,7 @@
     "react-player": "^2.5.0",
     "react-textarea-autosize": "^8.2.0",
     "seamless-immutable": "^7.1.4",
-    "stream-chat": "^1.13.0",
+    "stream-chat": "^1.14.1",
     "textarea-caret": "^3.1.0",
     "uuid": "^7.0.3"
   },

@@ -10856,10 +10856,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^1.13.0:
-  version "1.13.2"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.13.2.tgz#d158e5f35dc75915772d0466d43969f874f53ac9"
-  integrity sha512-taVAAzjHeHGQjwml8wqbPBaiErJCcVtiMSa9iUgq75hiPssQ2fJlsMzAw+0IiCx8w/s8gUcVBxdqOIhHb8X02A==
+stream-chat@^1.14.1:
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-1.14.1.tgz#c2e7786e6865647902cf81a43adfa48ff8ae12ba"
+  integrity sha512-1WeTpNqXhDmuOo5QGixBXGASjZYoGbMZIFZ83MzfgsJh0rMoGIR5Hwx+P/qtAffwlSktXxf7+6GKidgSEYcQRw==
   dependencies:
     "@babel/runtime" "^7.3.1"
     "@types/seamless-immutable" "7.1.12"

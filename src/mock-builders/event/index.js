@@ -3,6 +3,7 @@ export { default as dispatchMessageUpdatedEvent } from './messageUpdated';
 export { default as dispatchMessageDeletedEvent } from './messageDeleted';
 export { default as dispatchChannelUpdatedEvent } from './channelUpdated';
 export { default as dispatchChannelDeletedEvent } from './channelDeleted';
+export { default as dispatchChannelVisibleEvent } from './channelVisible';
 export { default as dispatchChannelTruncatedEvent } from './channelTruncated';
 export { default as dispatchNotificationAddedToChannelEvent } from './notificationAddedToChannel';
 export { default as dispatchNotificationMessageNewEvent } from './notificationMessageNew';
