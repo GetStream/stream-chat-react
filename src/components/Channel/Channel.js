@@ -278,7 +278,7 @@ const ChannelInner = ({
     async (limit = 100) => {
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
-      if (state.loadingMore || oldestMessage?.status !== 'received') return;
+      if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
       dispatch({ type: 'setLoadingMore', loadingMore: true });
 
       const oldestID = oldestMessage?.id || null;
@@ -292,11 +292,13 @@ const ChannelInner = ({
       } catch (e) {
         console.warn('message pagination request failed with error', e);
         dispatch({ type: 'setLoadingMore', loadingMore: false });
-        return;
+        return 0;
       }
       const hasMoreMessages = queryResponse.messages.length === perPage;
 
       loadMoreFinished(hasMoreMessages, channel.state.messages);
+
+      return queryResponse.messages.length;
     },
     [channel, loadMoreFinished, state.loadingMore, state.messages],
   );

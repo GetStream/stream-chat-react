@@ -80,6 +80,7 @@ const normalBundle = {
     'react-markdown',
     'react-fast-compare',
     'immutable',
+    'react-virtuoso',
     'url-parse',
     'stream-chat',
     'pretty-bytes',
