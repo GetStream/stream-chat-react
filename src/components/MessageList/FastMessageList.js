@@ -7,6 +7,19 @@ import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 
+const ScrollSeekPlaceholder = ({ height, index }) => (
+  <div
+    style={{
+      height,
+      backgroundColor: '#fff',
+      padding: '8px',
+      boxSizing: 'border-box',
+    }}
+  >
+    <div style={{ background: '#ccc', height: '100%' }}>{index}</div>
+  </div>
+);
+
 const Message = React.memo(function Message({ client, message }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
@@ -72,12 +85,18 @@ const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
       <Virtuoso
         ref={virtuoso}
         style={{ width: '100%', height: '100%' }}
-        totalCount={messages.length + 3} // +3 is just a hack to show last messages in the dom
+        totalCount={messages.length + 2} // +2 a hack to show last messages in the dom due to virtuoso miscalculation
+        item={(index) => itemRenderer(messages[index])}
         rangeChanged={({ startIndex }) => {
           if (hasMore && startIndex < 10)
             loadMore().then(virtuoso.current.adjustForPrependedItems);
         }}
-        item={(index) => itemRenderer(messages[index])}
+        scrollSeek={{
+          enter: (velocity) => Math.abs(velocity) > 220,
+          exit: (velocity) => Math.abs(velocity) < 30,
+          change: () => null,
+          placeholder: ScrollSeekPlaceholder,
+        }}
       />
     </div>
   );
