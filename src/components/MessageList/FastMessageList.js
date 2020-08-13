@@ -88,7 +88,7 @@ const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
         totalCount={messages.length + 2} // +2 a hack to show last messages in the dom due to virtuoso miscalculation
         item={(index) => itemRenderer(messages[index])}
         rangeChanged={({ startIndex }) => {
-          if (hasMore && startIndex < 10)
+          if (mounted.current && hasMore && startIndex < 10)
             loadMore().then(virtuoso.current.adjustForPrependedItems);
         }}
         scrollSeek={{
