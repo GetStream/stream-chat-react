@@ -2,8 +2,8 @@
 
 ## [2.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.0) 2020-07-31
 
-- Added listener for channel.hidden event and prop to override the default behaviour onChannelHidden[643af50](https://github.com/GetStream/stream-chat-react/commit/33739bd730f61da62e6fbe305a2807575643af50)
-- Added listener for channel.visible event and prop to override the default behaviour onChannelVisible[56e1208](https://github.com/GetStream/stream-chat-react/commit/5066052d0948310582c74476d3981965b56e1208)
+- Added listener for channel.hidden event and prop to override the default behaviour onChannelHidden [643af50](https://github.com/GetStream/stream-chat-react/commit/33739bd730f61da62e6fbe305a2807575643af50)
+- Added listener for channel.visible event and prop to override the default behaviour onChannelVisible [56e1208](https://github.com/GetStream/stream-chat-react/commit/5066052d0948310582c74476d3981965b56e1208)
 
 ## [2.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.0) 2020-07-31
 
