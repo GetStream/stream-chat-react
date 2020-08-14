@@ -1,0 +1,219 @@
+.str-chat__message-reactions-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.str-chat__message-reactions-list-item {
+  font-size: 20px;
+  margin: 0 5px;
+  position: relative;
+  line-height: 0;
+  button {
+    padding: 0;
+  }
+
+  span[role='img'] {
+    position: relative;
+    display: block;
+    top: -2px;
+    transform: scalce(1);
+    transition: transform 100ms ease;
+
+    &:hover {
+      transform: scale(1.4);
+    }
+  }
+
+  &__count {
+    position: absolute;
+    top: 28px;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+    left: 6px;
+  }
+
+  .str-chat__avarar {
+    margin: 0;
+    visibility: visible;
+  }
+
+  .latest-user {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: -24px;
+    left: 0;
+
+    &-tooltip {
+      display: none;
+      text-align: center;
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 50%;
+      transform: translate(-50%, 0);
+      background: rgba(0, 0, 0, 0.81);
+      border-radius: 5px;
+      background-image: linear-gradient(
+        -180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
+      max-width: 237px;
+      padding: 4px 8px;
+      font-size: 13px;
+      color: white;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: calc(100% - 4px);
+        left: 50%;
+        transform: translate(-50%, 0) rotate(45deg);
+        width: 7px;
+        height: 7px;
+        background-color: #1a1a1a;
+      }
+    }
+
+    &-not-found {
+      border: 1.5px solid #fff;
+      border-radius: 50%;
+      background-color: $primary-color;
+      width: inherit;
+      height: inherit;
+    }
+
+    img {
+      border: 1.5px solid #fff;
+      border-radius: 50%;
+      object-fit: cover;
+      width: inherit;
+      height: inherit;
+    }
+
+    &:hover {
+      .latest-user-tooltip {
+        display: block;
+      }
+    }
+  }
+}
+
+.str-chat__reaction-selector {
+  z-index: 999;
+  height: 60px;
+  position: absolute;
+  width: initial;
+  background: rgba(24, 25, 28, 0.98);
+  background-image: linear-gradient(
+    -180deg,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  border: 1px solid rgba(224, 224, 224, 0.03);
+  box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+
+  ul {
+    position: relative;
+    z-index: 1000;
+    margin: 0 16px;
+  }
+
+  &-tooltip {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    background: rgba(0, 0, 0, 0.81);
+    border-radius: 5px;
+    background-image: linear-gradient(
+      -180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+    min-width: 85px;
+    min-height: 24px;
+    max-width: 100%;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: white;
+    text-align: center;
+
+    .arrow {
+      position: absolute;
+      top: calc(100% - 4px);
+      left: 50%;
+      transform: translate(-50%, 0) rotate(45deg);
+      width: 7px;
+      height: 7px;
+      background-color: #1a1a1a;
+    }
+  }
+
+  .emoji-mart-emoji:hover {
+    transition: 0.1s;
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+}
+
+.str-chat__message,
+.str-chat__message-team,
+.str-chat__message-simple,
+.str-chat__message-commerce,
+.str-chat__message-livestream {
+  .str-chat__reaction-selector {
+    top: -65px;
+    left: 0;
+  }
+}
+
+.str-chat__message-commerce {
+  &--right {
+    .str-chat__reaction-selector {
+      left: unset;
+      right: 0;
+    }
+  }
+}
+
+.str-chat__message-livestream {
+  .str-chat__reaction-selector {
+    left: unset;
+    top: -70px;
+    right: 0;
+  }
+}
+
+.str-chat__message-team {
+  .str-chat__reaction-selector {
+    left: unset;
+    top: -60px;
+    right: 0;
+  }
+}
+
+.str-chat__message-simple {
+  .str-chat__reaction-selector {
+    right: unset;
+    left: 0;
+    &--reverse {
+      right: 0;
+      left: unset;
+    }
+  }
+  &--me {
+    .str-chat__reaction-selector {
+      left: unset;
+      right: 0;
+      &--reverse {
+        right: unset;
+        left: 0;
+      }
+    }
+  }
+}

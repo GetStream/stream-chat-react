@@ -7,6 +7,8 @@ import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 
+import MessageTimestamp from '../Message/MessageTimestamp';
+
 const ScrollSeekPlaceholder = ({ height, index }) => (
   <div
     style={{
@@ -20,33 +22,56 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({ client, message }) {
+const Message = React.memo(function Message({ client, message, prevMessage }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
   );
 
   const isOwner = message.user.id === client.userID;
+  const prevMessageIsMine = prevMessage?.user.id === client.userID;
+
+  const bubbleClass = isOwner
+    ? 'str-chat__fast-message__bubble str-chat__fast-message__bubble--me'
+    : 'str-chat__fast-message__bubble';
+  const wrapperClass = isOwner
+    ? 'str-chat__fast-message__wrapper str-chat__fast-message__wrapper--me'
+    : 'str-chat__fast-message__wrapper';
+  const metaClass = isOwner
+    ? 'str-chat__fast-message__meta'
+    : 'str-chat__fast-message__meta';
   return (
-    <div
-      key={message.id}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        margin: '10px',
-        flexDirection: isOwner ? 'row-reverse' : 'row',
-      }}
-    >
+    <div key={message.id} className={wrapperClass}>
       <Avatar
         image={message.user.image}
         name={message.user.name || message.user.id}
       />
-      {renderedText}
+      <div className="str-chat__fast-message__content">
+        <div className={bubbleClass}>{renderedText}</div>
+        <div className={metaClass}>
+          <span className="str-chat__fast-message__author">
+            <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
+          </span>
+          <span className="str-chat__fast-message__date">
+            <MessageTimestamp
+              customClass="str-chat__message-simple-timestamp"
+              message={message}
+              calendar
+            />
+          </span>
+        </div>
+      </div>
     </div>
   );
 }, deepequal);
 
-const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
+const FastMessageList = ({
+  client,
+  messages,
+  loadMore,
+  hasMore,
+  hackNumber,
+}) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
 
@@ -59,13 +84,15 @@ const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
   }, [client.userID, messages]);
 
   const itemRenderer = useCallback(
-    (message) => {
+    (message, prevMessage) => {
       if (!message) return null;
       if (message.type === 'channel.event' || message.type === 'system') {
         return null;
       }
 
-      return <Message client={client} message={message} />;
+      return (
+        <Message client={client} message={message} prevMessage={prevMessage} />
+      );
     },
     [client],
   );
@@ -81,22 +108,22 @@ const FastMessageList = ({ client, messages, loadMore, hasMore }) => {
   if (!messages.length) return <EmptyStateIndicator listType="message" />;
 
   return (
-    <div className="str-chat__list">
+    <div className="str-chat__fast-list">
       <Virtuoso
         ref={virtuoso}
         style={{ width: '100%', height: '100%' }}
-        totalCount={messages.length + 2} // +2 a hack to show last messages in the dom due to virtuoso miscalculation
-        item={(index) => itemRenderer(messages[index])}
+        totalCount={messages.length + (hackNumber || 0)}
+        item={(index) => itemRenderer(messages[index], messages[index - 1])}
         rangeChanged={({ startIndex }) => {
           if (mounted.current && hasMore && startIndex < 10)
             loadMore().then(virtuoso.current.adjustForPrependedItems);
         }}
-        scrollSeek={{
-          enter: (velocity) => Math.abs(velocity) > 220,
-          exit: (velocity) => Math.abs(velocity) < 30,
-          change: () => null,
-          placeholder: ScrollSeekPlaceholder,
-        }}
+        // scrollSeek={{
+        //   enter: (velocity) => Math.abs(velocity) > 220,
+        //   exit: (velocity) => Math.abs(velocity) < 30,
+        //   change: () => null,
+        //   placeholder: ScrollSeekPlaceholder,
+        // }}
       />
     </div>
   );

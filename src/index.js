@@ -23,6 +23,7 @@ import './styles/ChatDown.scss';
 import './styles/EventComponent.scss';
 import './styles/DateSeparator.scss';
 import './styles/EditMessageForm.scss';
+import './styles/FastMessage.scss';
 import './styles/Gallery.scss';
 import './styles/InfiniteScrollPaginator.scss';
 import './styles/LoadingChannels.scss';

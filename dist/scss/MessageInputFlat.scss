@@ -1,0 +1,161 @@
+.str-chat__input-flat {
+  background: white;
+  padding: 10px 40px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+
+  &-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .str-chat__textarea {
+    flex: 1;
+  }
+  .str-chat__textarea > textarea {
+    min-height: 56px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 20px 69px;
+    font-size: 15px;
+    line-height: 17px;
+    border: none;
+    margin: 0;
+    &:focus {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 0 0 3px rgba(0, 108, 255, 1);
+    }
+  }
+
+  &-footer {
+    padding: 10px 40px;
+    background: white;
+  }
+
+  &-emojiselect {
+    position: absolute;
+    top: calc(100% - 45px);
+    left: 25px;
+    svg {
+      fill: #000;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  &--textarea-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 0;
+    position: relative;
+
+    .str-chat__fileupload-wrapper {
+      .str-chat__tooltip {
+        bottom: 45px;
+        right: 25px;
+      }
+    }
+    .str-chat__emojiselect-wrapper {
+      .str-chat__tooltip {
+        bottom: 50px;
+        left: 32px;
+        right: unset;
+        &:after {
+          left: 5px;
+          right: unset;
+        }
+      }
+    }
+  }
+
+  &--emojipicker {
+    position: absolute;
+    bottom: calc(100%);
+  }
+
+  .rfu-file-previewer {
+    width: 100%;
+  }
+
+  .rfu-file-upload-button {
+    position: absolute;
+    top: calc(100% - 40px);
+    right: 25px;
+
+    svg {
+      fill: #000;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.rfu-image-previewer {
+  flex: 1 1 100%;
+  &__image {
+    width: 60px !important;
+    height: 60px !important;
+    .rfu-thumbnail__wrapper {
+      width: 60px !important;
+      height: 60px !important;
+      border-radius: 10px;
+      .rfu-thumbnail__overlay,
+      .rfu-icon-button {
+        padding: 0;
+        svg {
+          opacity: 0.9;
+          height: 25px;
+          width: 25px;
+        }
+      }
+    }
+  }
+  .rfu-thumbnail-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+  }
+}
+
+.commerce.str-chat {
+  .str-chat__input-flat {
+    padding: 10px 22px;
+    background: transparent;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__input-flat {
+    background: rgba(white, 0.04);
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      color: white;
+    }
+    &-emojiselect,
+    .rfu-file-upload-button {
+      svg {
+        fill: #fff;
+      }
+    }
+  }
+  &.commerce {
+    .str-chat__input-flat {
+      background: none;
+    }
+  }
+}
+
+@media screen and (max-width: 960px) {
+  .str-chat.messaging {
+    .str-chat__input-flat {
+      padding: 10px 10px;
+    }
+  }
+}

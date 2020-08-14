@@ -1,0 +1,222 @@
+.str-chat__channel-preview {
+  button {
+    position: relative;
+    border: none;
+    background: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding: 10px 40px 10px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    outline: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    &:focus {
+      background: white;
+      box-shadow: inset 0 0 0 1px $secondary-color,
+        inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+    }
+  }
+
+  &-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 0 10px;
+    max-width: 250px;
+  }
+
+  &-avatar {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 18px;
+  }
+
+  &-title {
+    color: black;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &-unread-count {
+    position: absolute;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    color: black;
+    font-size: 12px;
+    background: lightgray;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+  }
+
+  &-last-message {
+    color: lighten($black, 50%);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  &--active {
+    background: #006cff;
+    color: white;
+
+    .str-chat__channel-preview-title {
+      color: $white;
+    }
+
+    .str-chat__channel-preview-last-message {
+      color: rgba(255, 255, 255, 0.69);
+    }
+  }
+
+  &--unread {
+    position: relative;
+
+    .str-chat__channel-preview-last-message {
+      font-weight: 700;
+      color: $black;
+    }
+  }
+
+  &--dot {
+    width: 5px;
+    height: 5px;
+    position: absolute;
+    border-radius: 50%;
+    left: 2px;
+    background-color: $primary-color;
+  }
+}
+
+.str-chat__channel-preview-compact {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  display: flex;
+  font-size: 14px;
+  letter-spacing: 0;
+  line-height: 40px;
+  color: black;
+  position: relative;
+  border: none;
+  background: none;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 0 40px 0 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  outline: 0;
+
+  &:focus {
+    background: white;
+    box-shadow: inset 0 0 0 1px $secondary-color,
+      inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+  }
+
+  &--left {
+    width: 22px;
+    height: 22px;
+  }
+
+  &--right {
+    flex: 1;
+    margin-left: 11px;
+  }
+
+  &--unread {
+    font-weight: 700;
+  }
+}
+
+.str-chat__channel-preview-compact--active {
+  color: white;
+  background: #004ab3;
+}
+
+.str-chat__channel-preview-messenger {
+  display: flex;
+  width: 100%;
+  border: none;
+  padding: 10px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07);
+  text-align: left;
+  margin: 5px 0;
+
+  &--active {
+    border: none;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+  }
+
+  &--last-message {
+    font-size: 13px;
+    line-height: 14px;
+    opacity: 0.5;
+  }
+
+  &--name {
+    font-size: 14px;
+    line-height: 17px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    max-width: 250px;
+    span {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &--unread {
+    .str-chat__channel-preview-messenger--last-message {
+      opacity: 1;
+      font-weight: 600;
+    }
+  }
+}
+
+.dark.str-chat {
+  .str-chat__channel-preview {
+    &--active {
+      background: #132d50;
+    }
+    &-title {
+      color: white;
+    }
+    button {
+      &:focus {
+        background: #132d50;
+        box-shadow: inset 0 0 0 1px $secondary-color,
+          inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+      }
+    }
+  }
+  .str-chat__channel-preview-messenger {
+    &--active {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+    }
+    &--last-message {
+      color: rgba(white, 0.5);
+    }
+    &--name {
+      color: rgba(white, 1);
+    }
+  }
+}

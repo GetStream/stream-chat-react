@@ -1,0 +1,44 @@
+.str-chat.messaging {
+  .str-chat__event-component__channel-event {
+    display: flex;
+    margin-top: 20px;
+
+    &__content {
+      margin-right: 10px;
+      color: rgba(0, 0, 0, 0.5);
+      font-size: 15px;
+    }
+    &__sentence {
+    }
+    &__date {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+  }
+}
+
+.str-chat.team {
+  .str-chat__event-component__channel-event {
+    display: flex;
+    margin: 20px 40px;
+
+    &__content {
+      margin-right: 10px;
+      color: rgba(0, 0, 0, 0.5);
+      font-size: 15px;
+    }
+    &__sentence {
+    }
+    &__date {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+  }
+}
+
+.str-chat.commerce,
+.str-chat.livestream {
+  .str-chat__event-component__channel-event {
+    display: none;
+  }
+}

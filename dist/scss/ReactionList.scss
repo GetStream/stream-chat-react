@@ -1,0 +1,175 @@
+%background-reaction-list {
+  background: url('#{$assetsPath}/str-chat__reaction-list-sprite@1x.png') no-repeat;
+  background-size: 59px 101px;
+
+  @media only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (min-resolution: 2dppx) {
+    background-image: url('#{$assetsPath}/str-chat__reaction-list-sprite@2x.png');
+  }
+
+  @media only screen and (-webkit-min-device-pixel-ratio: 3),
+    only screen and (min-resolution: 3dppx) {
+    background-image: url('#{$assetsPath}/str-chat__reaction-list-sprite@3x.png');
+  }
+}
+
+.str-chat__message,
+.str-chat__message-commerce {
+  .str-chat__reaction-list {
+    ul {
+      position: relative;
+      list-style-type: none;
+      padding: 0;
+      font-size: 15px;
+      line-height: 26px;
+      display: flex;
+      justify-content: center;
+      margin: -1px -15px 0 0;
+      z-index: 888;
+    }
+
+    position: absolute;
+    right: 15px;
+    top: -28px;
+    z-index: 99;
+
+    @extend %background-reaction-list;
+
+    height: 33px;
+    width: initial;
+    background-position: 0 -66px;
+    background-repeat: repeat-x;
+
+    .emoji-mart-emoji {
+      display: flex;
+    }
+
+    &::after,
+    &::before {
+      position: absolute;
+
+      @extend %background-reaction-list;
+
+      content: '';
+      top: 0;
+      height: 33px;
+    }
+
+    &::after {
+      right: -26px;
+      width: 26px;
+      background-position: -33px -33px;
+    }
+
+    &::before {
+      left: -13px;
+      width: 13px;
+      background-position: -0 -33px;
+    }
+
+    &--reverse {
+      ul {
+        margin: -1px -5px 0 -15px;
+      }
+
+      right: initial;
+      left: 15px;
+      position: absolute;
+
+      &::after {
+        right: -13px;
+        width: 13px;
+        background-position: -46px 0;
+      }
+
+      &::before {
+        left: -26px;
+        width: 26px;
+        background-position: -0 0;
+      }
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+
+      button {
+        padding: 0;
+      }
+    }
+
+    &--counter {
+      color: $white;
+      font-size: 12px;
+    }
+  }
+
+  &--me,
+  &--right {
+    .str-chat__message-commerce-inner {
+      > .str-chat__reaction-list {
+        left: 46px;
+      }
+    }
+    .str-chat__reaction-list {
+      right: initial;
+      left: 16px;
+
+      ul {
+        margin: -1px 0 0 -15px;
+      }
+
+      &::after {
+        right: -13px;
+        width: 13px;
+        background-position: -46px 0;
+      }
+
+      &::before {
+        left: -26px;
+        width: 26px;
+        background-position: -0 0;
+      }
+
+      &--reverse {
+        right: 15px;
+        left: initial;
+
+        ul {
+          margin: -1px -15px 0 0;
+        }
+
+        &::after {
+          right: -26px;
+          width: 26px;
+          background-position: -33px -33px;
+        }
+
+        &::before {
+          left: -13px;
+          width: 13px;
+          background-position: -0 -33px;
+        }
+      }
+    }
+  }
+}
+
+.str-chat__message-commerce {
+  &-inner {
+    > .str-chat__reaction-list {
+      left: unset;
+      right: 46px;
+    }
+  }
+  &--right {
+    .str-chat__message-commerce {
+      &-inner {
+        > .str-chat__reaction-list {
+          right: unset;
+          left: 46px;
+        }
+      }
+    }
+  }
+}

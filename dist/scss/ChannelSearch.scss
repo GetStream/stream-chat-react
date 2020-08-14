@@ -1,0 +1,73 @@
+.str-chat__channel-search {
+  margin: 10px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+
+  input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.05);
+    margin-right: 20px;
+    border: 1px solid transparent;
+    outline: none;
+    $height: 30;
+
+    height: $height + px;
+    border-radius: $height/2 + px;
+    color: $black;
+    font-size: 14px;
+    padding: 0 10px;
+
+    &::placeholder {
+      color: lighten($black, 50%);
+    }
+
+    &:focus {
+      background: white;
+      border: 1px solid $secondary-color;
+      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+    }
+  }
+
+  button {
+    margin: 0;
+    padding: 0 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
+    cursor: pointer;
+    outline: 0;
+
+    &:focus {
+      background: white;
+      border: 1px solid $secondary-color;
+      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+    }
+
+    svg {
+      fill: $secondary-color;
+      transform: translateX(2px);
+    }
+  }
+}
+
+.dark.str-chat {
+  .str-chat__channel-search {
+    input {
+      background: rgba(255, 255, 255, 0.04);
+      color: white;
+    }
+    button {
+      background: $secondary-color;
+      svg {
+        fill: white;
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+.str-chat__gallery {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  overflow: hidden;
+
+  &-image {
+    /* flex: 1; x */
+    width: 150px;
+    height: 150px;
+    background: white;
+    margin-bottom: 1px;
+    margin-right: 1px;
+
+    &:hover {
+      cursor: -moz-zoom-in;
+      cursor: -webkit-zoom-in;
+      cursor: zoom-in;
+    }
+
+    img {
+      width: inherit;
+      height: inherit;
+      object-fit: cover;
+    }
+  }
+
+  &--square {
+    max-width: 301px; // 300px + 1px margin between images
+  }
+
+  &--square &-image:nth-child(even) {
+    margin-right: 0;
+  }
+}
+
+.livestream.str-chat,
+.messaging.str-chat,
+.commerce.str-chat,
+.team.str-chat {
+  .str-chat {
+    &__gallery {
+      margin: 5px 0;
+      &-image {
+        width: 150px;
+        height: 150px;
+      }
+      &-placeholder {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-size: cover;
+        background-position: top left;
+        background-repeat: no-repeat;
+        cursor: -moz-zoom-in;
+        cursor: -webkit-zoom-in;
+        cursor: zoom-in;
+        p {
+          position: relative;
+          z-index: 1;
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.69);
+          z-index: 0;
+        }
+      }
+    }
+  }
+}
+
+.commerce.str-chat {
+  .str-chat__gallery {
+    width: calc(100% - 30px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 100px;
+
+    &-image,
+    &-placeholder {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .str-chat__message-commerce {
+    .str-chat__gallery {
+      border-radius: $border-radius $border-radius $border-radius 2px;
+    }
+    &--right {
+      .str-chat__gallery {
+        border-radius: $border-radius $border-radius 2px $border-radius;
+      }
+    }
+  }
+}

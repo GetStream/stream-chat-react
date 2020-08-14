@@ -1,0 +1,142 @@
+.str-chat__channel-list-team {
+  font-family: $second-font;
+  display: flex;
+  height: 100%;
+  overflow-y: auto;
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 70px;
+    padding: 45px 10px 10px;
+    background: #dedfe2;
+
+    &--top {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: -10px 0;
+
+      > * {
+        margin: 10px 0;
+      }
+    }
+
+    &--bottom {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__send-button,
+  &__search-button {
+    background: none;
+    margin: none;
+    border: none;
+  }
+
+  &__main {
+    min-width: 230px;
+    background: #f1f1f3;
+  }
+
+  &__header {
+    padding: 15px 15px 15px 20px;
+    max-height: 70px;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.01);
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    font-size: 14px;
+    color: #000;
+    letter-spacing: 0;
+    position: relative;
+
+    &--title {
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    &--status {
+      position: relative;
+      padding: 0 0 0 10px;
+
+      &::before {
+        position: absolute;
+        top: 5px;
+        left: 0;
+        content: ' ';
+        width: 6px;
+        height: 6px;
+        border-radius: 10px;
+      }
+
+      &.watcher_count::before {
+        background: #28ca42;
+      }
+
+      &.busy::before {
+        background: #28ca42;
+      }
+
+      &.away::before {
+        background: #28ca42;
+      }
+    }
+
+    &--left {
+      width: 40px;
+    }
+
+    &--middle {
+      flex: 1;
+      margin-left: 15px;
+    }
+
+    &--button {
+      margin: 0;
+      padding: 15px 5px;
+      border: 0;
+      background: none;
+    }
+  }
+}
+
+.messenger-chat {
+  &.str-chat {
+    .str-chat {
+      &__channel-list-team {
+        padding: 0 0 0 10px;
+
+        &__header {
+          background: none;
+          box-shadow: none;
+        }
+
+        &__main {
+          background: none;
+        }
+      }
+    }
+  }
+}
+
+.dark.str-chat {
+  .str-chat__channel-list-team {
+    background: $dt-bg-team;
+
+    &__header {
+      &--title {
+        color: white;
+      }
+    }
+    &__sidebar {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    &__main {
+      background: none;
+    }
+  }
+}

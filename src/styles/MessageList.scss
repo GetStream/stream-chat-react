@@ -128,3 +128,14 @@
     }
   }
 }
+
+.str-chat__fast-list {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
+  padding: 75px 0 0 0;
+  padding: 0 0 0;
+  background: white;
+
+}

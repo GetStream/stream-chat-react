@@ -1,0 +1,203 @@
+.str-chat__thread {
+  background: #f1f1f3;
+  flex: 1 0 300px;
+  min-width: 300px;
+  max-width: 300px;
+  overflow-y: hidden;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0px;
+
+  &--full {
+    max-width: 100%;
+  }
+
+  &-header {
+    position: relative;
+    width: 100%;
+    background: #f1f1f3;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    height: 70px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+
+    &-details {
+      font-size: 14px;
+
+      small {
+        display: block;
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-start {
+    border-radius: 4px;
+    margin: 10px 10px 0 10px;
+    padding: 8px;
+    background: rgba(153, 196, 255, 0.1);
+    text-align: center;
+    font-size: 12px;
+  }
+
+  &-list {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+
+    .str-chat__list {
+      padding: 0;
+    }
+  }
+}
+
+.messaging {
+  &.str-chat {
+    .str-chat {
+      &__thread {
+        margin-right: 10px;
+        margin-top: 20px;
+        border-radius: 8px 8px 0 0;
+
+        overflow: hidden;
+        background: white;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding-top: 0px;
+
+        &.str-chat__thread--full {
+          margin: 0;
+        }
+        .str-chat__gallery {
+          justify-content: flex-end;
+          border-radius: 0;
+          &-image,
+          &-placeholder {
+            width: 100px;
+            height: 100px;
+          }
+        }
+      }
+      &__thread-list {
+        padding: 20px 10px 0 10px;
+
+        > .str-chat__list {
+          background: transparent;
+          padding: 0;
+          .str-chat__list--thread {
+            padding: 0;
+          }
+        }
+      }
+      &__thread-header {
+        border: none;
+        box-shadow: none;
+        background: white;
+      }
+      &__thread-start {
+        margin-top: 20px;
+      }
+      @media screen and (max-width: 960px) {
+        &__thread {
+          position: fixed;
+          top: 0;
+          right: 0;
+          height: 100vh;
+          background: white;
+          z-index: 1000;
+          margin: 0;
+          width: 100vw;
+          max-width: 100%;
+        }
+      }
+    }
+    &.dark {
+      .str-chat__thread {
+        background: rgba(white, 0.04);
+        &-header {
+          background: rgba(46, 48, 51, 0.98);
+          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
+            0 1px 0 0 rgba(0, 0, 0, 0.03);
+          color: white;
+        }
+        &-start {
+          color: white;
+        }
+      }
+      @media screen and (max-width: 960px) {
+        .str-chat__thread {
+          background: #282a2d;
+        }
+      }
+    }
+  }
+}
+
+.team {
+  &.str-chat {
+    .str-chat {
+      &__thread {
+        background: white;
+      }
+      @media screen and (max-width: 960px) {
+        &__thread {
+          position: fixed;
+          top: 0;
+          right: 0;
+          height: 100vh;
+          background: white;
+          z-index: 1000;
+          margin: 0;
+          width: 100vw;
+          max-width: 100%;
+        }
+      }
+      &__thread-header {
+        height: 80px;
+      }
+    }
+    &.dark {
+      .str-chat__thread {
+        background: $dt-bg-team;
+      }
+    }
+  }
+}
+
+.livestream.str-chat,
+.str-chat {
+  .str-chat__thread {
+    background: transparent;
+    &-header {
+      background: rgba(255, 255, 255, 0.29);
+    }
+  }
+  .str-chat__list--thread {
+    padding: 0 10px;
+  }
+  &.dark {
+    .str-chat__thread {
+      background: #1a1a1a;
+      &-header {
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
+        color: white;
+      }
+      &-start {
+        background: rgba(153, 196, 255, 0.1);
+        border-radius: 4px;
+        color: white;
+      }
+    }
+  }
+}

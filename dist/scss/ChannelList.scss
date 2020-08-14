@@ -1,0 +1,119 @@
+.str-chat__channel-list {
+  /* min-height: 667px; */
+  flex: 1;
+  overflow-y: auto;
+  max-width: 300px;
+  background: #f2f3f5;
+  box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+
+  &--channels {
+    flex: 1;
+  }
+
+  .channel_preview {
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+}
+
+.str-chat__button {
+  background: #fff;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
+  font-size: 14px;
+  padding: 14px 70px;
+  color: #006cff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 10px);
+  margin: 5px;
+  border: 1px solid transparent;
+
+  &:active,
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09),
+      0 0 0 2px rgba(0, 108, 255, 0.36);
+    border: 1px solid $secondary-color;
+  }
+
+  > * {
+    margin: 0 5px;
+  }
+
+  &--round {
+    border-radius: 100px;
+  }
+}
+
+.str-chat-channel-checkbox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100001;
+  // display: none;
+}
+.str-chat-channel-list-burger {
+  width: 10px;
+  height: 50px;
+  background: white;
+  border-radius: 0 4px 4px 0;
+  padding: 3px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.09);
+  position: fixed;
+  top: 10px;
+  left: 0;
+  z-index: 10000;
+
+  justify-content: center;
+  cursor: pointer;
+  div {
+    width: 4px;
+    height: 100%;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.08);
+  }
+  // display: none;
+}
+
+@media screen and (max-width: 960px) {
+  .str-chat-channel-list-burger {
+    display: flex;
+  }
+
+  .str-chat-channel-list {
+    &.messaging,
+    &.team,
+    &.commerce {
+      position: fixed;
+      left: -380px;
+      top: 0;
+      z-index: 1001;
+      min-height: 100vh;
+      overflow-y: auto;
+      box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
+      transition: left 200ms ease-in-out;
+    }
+  }
+
+  .str-chat-channel-list--open {
+    &.messaging,
+    &.team,
+    &.commerce {
+      left: 0px;
+    }
+  }
+}
+
+.str-chat-channel-list {
+  .str-chat__channel-list-messenger {
+    padding: 0;
+    &__main {
+      padding: 20px 10px 0 10px;
+      height: 100%;
+      overflow-y: auto;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+.str-chat__message-attachment-actions {
+  &-form {
+    width: 100%;
+    margin: 8px 0;
+    padding: 0;
+    display: flex;
+  }
+
+  &-button {
+    flex: 1;
+    border: none;
+    background: none;
+    margin: 0 4px;
+    padding: 8px 8px;
+    border-radius: 100px;
+    outline: none;
+
+    &:focus {
+      border: 1px solid $secondary-color;
+      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+    }
+
+    &--primary {
+      background-color: $secondary-color;
+      color: $white;
+    }
+
+    &--default {
+      border: 2px solid $border-color;
+    }
+  }
+}
+
+.dark.str-chat {
+  .str-chat__message-attachment-actions {
+    &-button {
+      color: white;
+      &--default {
+        border-color: rgba(white, 0.1);
+      }
+    }
+  }
+}

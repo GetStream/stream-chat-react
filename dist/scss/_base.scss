@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,700,700i');
+
+.str-chat {
+  box-sizing: border-box;
+
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+    font-family: $second-font;
+  }
+}
+
+.clearfix {
+  clear: both;
+}
+
+.messenger-chat {
+  &.str-chat {
+    height: 100vh;
+    font-family: $second-font;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0;
+    flex: 1 0 100%;
+
+    .str-chat {
+      &__container {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+
+      &__main-panel {
+        width: 100%;
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 20px 0 10px;
+      }
+    }
+  }
+}
+
+.str-chat {
+  height: 100vh;
+  font-family: $second-font;
+  &.messaging,
+  &.commerce {
+    background-color: #f1f1f3;
+    &.dark {
+      background-color: #212326;
+    }
+  }
+  &.team {
+    &.dark {
+      background: #212326;
+    }
+  }
+  &.livestream {
+    &.dark {
+      background: #1a1a1a;
+    }
+  }
+}
+
+.str-chat-channel-list {
+  float: left;
+}
+
+.str-chat-channel {
+  max-height: 100vh;
+  .str-chat__container {
+    height: 100%;
+    display: flex;
+    .str-chat__main-panel {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+  }
+  &.messaging {
+    .str-chat__main-panel {
+      padding: 20px 10px 0 0px;
+    }
+    @media screen and (max-width: 960px) {
+      .str-chat__main-panel {
+        padding: 5px 5px 0;
+      }
+    }
+  }
+  &.team {
+    .str-chat {
+      &__container {
+        display: flex;
+      }
+    }
+  }
+  &.commerce {
+    .str-chat {
+      &__main-panel {
+        width: 100%;
+      }
+      &__container {
+        background: rgba(255, 255, 255, 0.97);
+      }
+    }
+    &.dark {
+      .str-chat__container {
+        background: rgba(29, 32, 36, 0.9);
+        box-shadow: 0 10px 31px 0 rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+}
+
+.str-chat.dark {
+  .emoji-mart {
+    background: #1a1a1a;
+    border: lighten(#1a1a1a, 10%);
+  }
+  .emoji-mart-category-label span {
+    background: lighten(#1a1a1a, 2%);
+    color: white;
+  }
+  .emoji-mart-search {
+    input {
+      background: lighten(#1a1a1a, 2%);
+      color: white;
+    }
+    button svg {
+      fill: white;
+    }
+  }
+}

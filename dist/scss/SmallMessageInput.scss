@@ -1,0 +1,121 @@
+.str-chat__small-message-input {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 10px;
+  position: relative;
+  z-index: 1000;
+
+  .rfu-file-previewer {
+    flex: 1 1 100%;
+  }
+
+  .rfu-image-previewer {
+    flex: 1 1 100%;
+  }
+
+  &__wrapper {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+  }
+
+  &-emojiselect {
+    bottom: 10px;
+    right: 6px;
+  }
+  .rfu-file-upload-button {
+    bottom: 9px;
+    right: 26px;
+  }
+
+  &--textarea-wrapper {
+    flex-wrap: wrap;
+    flex: 1 0;
+    position: relative;
+  }
+
+  &-emojiselect,
+  .rfu-file-upload-button {
+    position: absolute;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-size: 44px 44px;
+    fill: rgba(0, 0, 0, 0.6);
+
+    &:hover {
+      fill: rgba(0, 0, 0, 1);
+    }
+  }
+
+  &-emojipicker {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    transform: scale(0.8);
+    transform-origin: 100% 100%;
+  }
+
+  &--send-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex: 0 1;
+    outline: 0;
+    &:hover {
+      opacity: 0.69;
+    }
+    @media screen and (min-width: 768px) {
+      display: none;
+    }
+  }
+
+  textarea {
+    background: transparent;
+    min-height: 36px;
+    font-size: 13px;
+    padding: 10px 44px 8px 8px;
+
+    &:focus {
+      height: 36px;
+    }
+  }
+
+  .str-chat__emojisearch {
+    bottom: 100%;
+  }
+
+  .str-chat__user-item {
+    font-size: 14px;
+  }
+
+  .rfu-file-upload-button {
+    position: absolute;
+    cursor: pointer;
+    right: 28px;
+  }
+
+  .rfu-dropzone .rfu-dropzone__notifier {
+    z-index: 1000;
+  }
+}
+
+.dark.str-chat {
+  .str-chat__small-message-input {
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.21);
+      border-radius: 6px;
+      color: white;
+    }
+    .rfu-file-upload-button,
+    .str-chat__small-message-input-emojiselect {
+      svg {
+        fill: white;
+      }
+    }
+  }
+}

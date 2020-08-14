@@ -1,0 +1,65 @@
+.str-chat__modal {
+  background: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  opacity: 0.89;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  &--open {
+    display: flex;
+  }
+
+  &__inner {
+    max-width: 667px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  &__close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    font-size: 14px;
+    line-height: 10px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    svg {
+      position: relative;
+      top: 1px;
+      margin-left: 10px;
+      fill: white;
+    }
+    &:hover {
+      opacity: 0.79;
+    }
+  }
+
+  .str-chat__edit-message-form {
+    min-width: 300px;
+  }
+
+  .str-chat__input-emojiselect,
+  .str-chat__input-fileupload {
+    position: relative;
+    top: unset;
+    right: unset;
+  }
+}
+
+.str-chat.dark.messaging {
+  .str-chat__modal {
+    &__inner {
+      border: 2px solid white;
+      background: black;
+    }
+  }
+}

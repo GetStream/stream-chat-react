@@ -1,0 +1,38 @@
+.str-chat__tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  display: flex;
+  background: #000;
+  border-radius: 4px;
+  padding: 3px 7px;
+  color: white;
+  font-size: 11px;
+  max-width: 300px;
+
+  button {
+    outline: none;
+    outline: 0;
+    background: none;
+    color: #006cff;
+    font-size: 11px;
+    font-family: $second-font;
+    border: none;
+  }
+
+  a {
+    color: #006cff;
+    text-decoration: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: 5px;
+    width: 5px;
+    height: 5px;
+    background: #000;
+    transform: rotate(45deg);
+  }
+}
