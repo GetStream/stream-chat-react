@@ -22,14 +22,13 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({ client, message, prevMessage }) {
+const Message = React.memo(function Message({ client, message, prevMessage, group }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
   );
 
   const isOwner = message.user.id === client.userID;
-  const prevMessageIsMine = prevMessage?.user.id === client.userID;
 
   const bubbleClass = isOwner
     ? 'str-chat__fast-message__bubble str-chat__fast-message__bubble--me'
@@ -40,8 +39,10 @@ const Message = React.memo(function Message({ client, message, prevMessage }) {
   const metaClass = isOwner
     ? 'str-chat__fast-message__meta'
     : 'str-chat__fast-message__meta';
+  const groupClass = `str-chat__fast-message--${group}`
+  
   return (
-    <div key={message.id} className={wrapperClass}>
+    <div key={message.id} className={wrapperClass + ' ' + groupClass}>
       <Avatar
         image={message.user.image}
         name={message.user.name || message.user.id}
@@ -71,6 +72,9 @@ const FastMessageList = ({
   loadMore,
   hasMore,
   hackNumber,
+  height,
+  width,
+  disableLoadMore,
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
@@ -84,14 +88,37 @@ const FastMessageList = ({
   }, [client.userID, messages]);
 
   const itemRenderer = useCallback(
-    (message, prevMessage) => {
+    (message, prevMessage, nextMessage) => {
       if (!message) return null;
-      if (message.type === 'channel.event' || message.type === 'system') {
+      if (message.type === 'channel.event' || message.type === 'system' || !message.text) {
         return null;
       }
 
+      const groupStyle = () => {
+
+        const top = prevMessage?.user.id !== client.userID;
+        const bottom = nextMessage?.user.id !== client.userID;
+        const middle = prevMessage?.user.id === client.userID && nextMessage?.user.id === client.userID
+        
+        if (top && bottom) {
+          return 'single';
+        } 
+
+        if (middle) {
+          return 'middle'
+        }
+
+        if(top) {
+          return 'top';
+        } 
+
+        if (bottom) {
+          return 'bottom';
+        }
+      }
+      
       return (
-        <Message client={client} message={message} prevMessage={prevMessage} />
+        <Message client={client} message={message} prevMessage={prevMessage} group={groupStyle()} />
       );
     },
     [client],
@@ -111,12 +138,14 @@ const FastMessageList = ({
     <div className="str-chat__fast-list">
       <Virtuoso
         ref={virtuoso}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length + (hackNumber || 0)}
-        item={(index) => itemRenderer(messages[index], messages[index - 1])}
+        item={(index) => <p>message: {messages[index]?.text}</p>}
+        // item={(index) => itemRenderer(messages[index], messages[index - 1], messages[index + 1])}
         rangeChanged={({ startIndex }) => {
-          if (mounted.current && hasMore && startIndex < 10)
+          if (!disableLoadMore && mounted.current && hasMore && startIndex < 10) {
             loadMore().then(virtuoso.current.adjustForPrependedItems);
+          } 
         }}
         // scrollSeek={{
         //   enter: (velocity) => Math.abs(velocity) > 220,
