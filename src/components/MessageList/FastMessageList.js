@@ -156,8 +156,13 @@ const FastMessageList = ({
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length + (hackNumber || 0)}
-        item={(index) => <p>message: {messages[index]?.text}</p>}
-        // item={(index) => itemRenderer(messages[index], messages[index - 1], messages[index + 1])}
+        item={(index) =>
+          itemRenderer(
+            messages[index],
+            messages[index - 1],
+            messages[index + 1],
+          )
+        }
         rangeChanged={({ startIndex }) => {
           if (
             !disableLoadMore &&
