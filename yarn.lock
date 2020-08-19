@@ -9599,10 +9599,10 @@ react-view-pager@^0.6.0:
     resize-observer-polyfill "1.5.0"
     tabbable "1.1.2"
 
-react-virtuoso@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-0.19.0.tgz#8f4692c3889f194fadb630471e784046d22f126f"
-  integrity sha512-OyOM4xz7W4y3A+kM4NwSQ9EWsh6au4xVPOKBvNXAR3XCPJqpzdCe35SxG/cumlByxYRIKyuVrM7N25eVOq8ssA==
+react-virtuoso@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-0.20.0.tgz#df1d6e33e358f817dbf954bd556333fcdcc91eb1"
+  integrity sha512-h+U6t/+m91AzfUe6bBfaacdLLJl1y8v7CfcXwPgQ/Dic+vNlgQmi6cIKTq18zuF+kI8Q7QN0ojIeqPHWbU8TZA==
   dependencies:
     resize-observer-polyfill "^1.5.1"
     tslib "^1.11.1"

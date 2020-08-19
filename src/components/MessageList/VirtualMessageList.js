@@ -133,14 +133,10 @@ const VirtualMessageList = ({
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length}
-        item={(index) =>
-          messageRenderer(
-            client,
-            messages[index],
-            messages[index - 1],
-            messages[index + 1],
-          )
+        item={(i) =>
+          messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
+        overscan={20}
         rangeChanged={({ startIndex }) => {
           if (
             !disableLoadMore &&
