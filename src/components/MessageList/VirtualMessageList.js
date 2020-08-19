@@ -120,7 +120,7 @@ const VirtualMessageList = ({
   useEffect(() => {
     if (mounted.current) return;
     if (messages.length && virtuoso.current) {
-      virtuoso.current.scrollToIndex(messages.length);
+      setTimeout(() => virtuoso.current.scrollToIndex(messages.length - 1), 50);
       mounted.current = true;
     }
   }, [messages.length]);
@@ -133,17 +133,15 @@ const VirtualMessageList = ({
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length}
+        // causing empty screen for channels with small no of messages
+        // initialTopMostItemIndex={messages.length - 1}
         item={(i) =>
           messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
-        overscan={20}
-        rangeChanged={({ startIndex }) => {
-          if (
-            !disableLoadMore &&
-            mounted.current &&
-            hasMore &&
-            startIndex < 10
-          ) {
+        followOutput={true}
+        overscan={200} // extra render in px
+        startReached={() => {
+          if (!disableLoadMore && mounted.current && hasMore) {
             loadMore().then(virtuoso.current.adjustForPrependedItems);
           }
         }}
