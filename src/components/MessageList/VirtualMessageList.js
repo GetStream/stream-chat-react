@@ -133,10 +133,13 @@ const VirtualMessageList = ({
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length}
+        // causing empty screen for channels with small no of messages
+        // initialTopMostItemIndex={messages.length - 1}
         item={(i) =>
           messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
-        overscan={20}
+        followOutput={true}
+        overscan={200} // extra render in px
         startReached={() => {
           if (!disableLoadMore && mounted.current && hasMore) {
             loadMore().then(virtuoso.current.adjustForPrependedItems);
