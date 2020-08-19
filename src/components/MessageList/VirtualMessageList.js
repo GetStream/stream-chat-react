@@ -6,6 +6,7 @@ import { ChannelContext } from '../../context';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
+import { LoadingIndicator } from '../Loading';
 
 import MessageTimestamp from '../Message/MessageTimestamp';
 
@@ -105,6 +106,7 @@ const VirtualMessageList = ({
   height,
   width,
   disableLoadMore,
+  loadingMore,
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
@@ -133,13 +135,21 @@ const VirtualMessageList = ({
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length}
+        followOutput={true}
+        overscan={200} // extra render in px
         // causing empty screen for channels with small no of messages
         // initialTopMostItemIndex={messages.length - 1}
         item={(i) =>
           messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
-        followOutput={true}
-        overscan={200} // extra render in px
+        header={() => (
+          <div
+            style={{ visibility: loadingMore ? null : 'hidden' }}
+            className="str-chat__virtual-list__loading"
+          >
+            <LoadingIndicator size={20} />
+          </div>
+        )}
         startReached={() => {
           if (!disableLoadMore && mounted.current && hasMore) {
             loadMore().then(virtuoso.current.adjustForPrependedItems);
@@ -168,7 +178,7 @@ export default function VirtualMessageListWithContext(props) {
             client={client}
             loadMore={loadMore}
             hasMore={hasMore}
-            isLoading={loadingMore}
+            loadingMore={loadingMore}
             {...props}
           />
         );

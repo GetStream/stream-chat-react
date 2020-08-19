@@ -135,8 +135,13 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
   background: white;
-
   margin: 0;
+
+  &__loading {
+    display: flex;
+    padding-top: 8px;
+    justify-content: center;
+  }
 
   p {
     margin: 0 !important; // always use padding, margin mess up the height calculations
