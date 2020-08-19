@@ -3,18 +3,19 @@
   align-items: flex-end;
   padding: 20px 10px 10px 20px;
   flex-direction: row;
-  & > .str-chat__avatar {
-    padding-left: 0;
-    padding-right: 8px;
+  & > .str-chat__virtual-message__content {
+    padding-left: 8px;
   }
 }
 
 .str-chat__virtual-message__wrapper.str-chat__virtual-message__wrapper--me {
   flex-direction: row-reverse;
   padding-right: 20px;
+  & > .str-chat__virtual-message__content {
+    padding-right: 8px;
+  }
   & > .str-chat__avatar {
-    padding-right: 0;
-    padding-left: 8px;
+    margin: 0;
   }
 }
 
