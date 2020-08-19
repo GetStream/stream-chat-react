@@ -137,13 +137,8 @@ const VirtualMessageList = ({
           messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
         overscan={20}
-        rangeChanged={({ startIndex }) => {
-          if (
-            !disableLoadMore &&
-            mounted.current &&
-            hasMore &&
-            startIndex < 10
-          ) {
+        startReached={() => {
+          if (!disableLoadMore && mounted.current && hasMore) {
             loadMore().then(virtuoso.current.adjustForPrependedItems);
           }
         }}
