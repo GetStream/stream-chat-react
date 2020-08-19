@@ -77,7 +77,6 @@ const VirtualMessageList = ({
   messages,
   loadMore,
   hasMore,
-  hackNumber,
   height,
   width,
   disableLoadMore,
@@ -155,7 +154,7 @@ const VirtualMessageList = ({
       <Virtuoso
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
-        totalCount={messages.length + (hackNumber || 0)}
+        totalCount={messages.length}
         item={(index) =>
           itemRenderer(
             messages[index],
