@@ -67,6 +67,7 @@ const Message = React.memo(function Message({ client, message, group }) {
 }, deepequal);
 
 const groupStyle = (userID, prevMessage, nextMessage) => {
+  console.log(userID);
   const top = prevMessage?.user.id !== userID;
   const bottom = nextMessage?.user.id !== userID;
   if (top && bottom) return 'single';
@@ -88,12 +89,15 @@ const messageRenderer = (client, message, prevMessage, nextMessage) => {
     return null;
   }
 
+  const userId =
+    message.user.id === client.userID ? client.userID : message.user.id;
+
   return (
     <Message
       client={client}
       message={message}
       prevMessage={prevMessage}
-      group={groupStyle(client.userID, prevMessage, nextMessage)}
+      group={groupStyle(userId, prevMessage, nextMessage)}
     />
   );
 };
