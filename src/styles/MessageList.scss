@@ -129,13 +129,17 @@
   }
 }
 
-.str-chat__fast-list {
+.str-chat__virtual-list {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  padding: 75px 0 0 0;
   padding: 40px 0 40px;
   background: white;
 
+  margin: 0;
+
+  * {
+    margin: 0 !important; // always use padding, margin mess up the height calculations
+  }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import deepequal from 'react-fast-compare';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -9,6 +9,7 @@ import { renderText } from '../../utils';
 
 import MessageTimestamp from '../Message/MessageTimestamp';
 
+// eslint-disable-next-line no-unused-vars
 const ScrollSeekPlaceholder = ({ height, index }) => (
   <div
     style={{
@@ -22,12 +23,7 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({
-  client,
-  message,
-  prevMessage,
-  group,
-}) {
+const Message = React.memo(function Message({ client, message, group }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
@@ -41,9 +37,7 @@ const Message = React.memo(function Message({
   const wrapperClass = isOwner
     ? 'str-chat__virtual-message__wrapper str-chat__virtual-message__wrapper--me'
     : 'str-chat__virtual-message__wrapper';
-  const metaClass = isOwner
-    ? 'str-chat__virtual-message__meta'
-    : 'str-chat__virtual-message__meta';
+
   const groupClass = `str-chat__virtual-message--${group}`;
 
   return (
@@ -54,7 +48,7 @@ const Message = React.memo(function Message({
       />
       <div className="str-chat__virtual-message__content">
         <div className={bubbleClass}>{renderedText}</div>
-        <div className={metaClass}>
+        <div className="str-chat__virtual-message__meta">
           <span className="str-chat__virtual-message__author">
             <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
           </span>
@@ -69,8 +63,39 @@ const Message = React.memo(function Message({
       </div>
     </div>
   );
-},
-deepequal);
+}, deepequal);
+
+const groupStyle = (userID, prevMessage, nextMessage) => {
+  const top = prevMessage?.user.id !== userID;
+  const bottom = nextMessage?.user.id !== userID;
+  if (top && bottom) return 'single';
+
+  if (prevMessage?.user.id === userID && nextMessage?.user.id === userID)
+    return 'middle';
+  if (top) return 'top';
+  if (bottom) return 'bottom';
+  return '';
+};
+
+const messageRenderer = (client, message, prevMessage, nextMessage) => {
+  if (!message) return null;
+  if (
+    message.type === 'channel.event' ||
+    message.type === 'system' ||
+    !message.text
+  ) {
+    return null;
+  }
+
+  return (
+    <Message
+      client={client}
+      message={message}
+      prevMessage={prevMessage}
+      group={groupStyle(client.userID, prevMessage, nextMessage)}
+    />
+  );
+};
 
 const VirtualMessageList = ({
   client,
@@ -92,53 +117,6 @@ const VirtualMessageList = ({
     if (isOwner) virtuoso.current.scrollToIndex(messages.length);
   }, [client.userID, messages]);
 
-  const itemRenderer = useCallback(
-    (message, prevMessage, nextMessage) => {
-      if (!message) return null;
-      if (
-        message.type === 'channel.event' ||
-        message.type === 'system' ||
-        !message.text
-      ) {
-        return null;
-      }
-
-      const groupStyle = () => {
-        const top = prevMessage?.user.id !== client.userID;
-        const bottom = nextMessage?.user.id !== client.userID;
-        const middle =
-          prevMessage?.user.id === client.userID &&
-          nextMessage?.user.id === client.userID;
-
-        if (top && bottom) {
-          return 'single';
-        }
-
-        if (middle) {
-          return 'middle';
-        }
-
-        if (top) {
-          return 'top';
-        }
-
-        if (bottom) {
-          return 'bottom';
-        }
-      };
-
-      return (
-        <Message
-          client={client}
-          message={message}
-          prevMessage={prevMessage}
-          group={groupStyle()}
-        />
-      );
-    },
-    [client],
-  );
-
   useEffect(() => {
     if (mounted.current) return;
     if (messages.length && virtuoso.current) {
@@ -150,13 +128,14 @@ const VirtualMessageList = ({
   if (!messages.length) return <EmptyStateIndicator listType="message" />;
 
   return (
-    <div className="str-chat__fast-list">
+    <div className="str-chat__virtual-list">
       <Virtuoso
         ref={virtuoso}
         style={{ width: width || '100%', height: height || '100%' }}
         totalCount={messages.length}
         item={(index) =>
-          itemRenderer(
+          messageRenderer(
+            client,
             messages[index],
             messages[index - 1],
             messages[index + 1],

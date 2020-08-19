@@ -23,7 +23,6 @@ import './styles/ChatDown.scss';
 import './styles/EventComponent.scss';
 import './styles/DateSeparator.scss';
 import './styles/EditMessageForm.scss';
-import './styles/FastMessage.scss';
 import './styles/Gallery.scss';
 import './styles/InfiniteScrollPaginator.scss';
 import './styles/LoadingChannels.scss';
@@ -51,6 +50,7 @@ import './styles/SmallMessageInput.scss';
 import './styles/Thread.scss';
 import './styles/TypingIndicator.scss';
 import './styles/Tooltip.scss';
+import './styles/VirtualMessage.scss';
 
 //
 export * from './context';
