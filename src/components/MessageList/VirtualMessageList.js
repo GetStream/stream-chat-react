@@ -120,7 +120,7 @@ const VirtualMessageList = ({
   useEffect(() => {
     if (mounted.current) return;
     if (messages.length && virtuoso.current) {
-      virtuoso.current.scrollToIndex(messages.length);
+      setTimeout(() => virtuoso.current.scrollToIndex(messages.length - 1), 50);
       mounted.current = true;
     }
   }, [messages.length]);
