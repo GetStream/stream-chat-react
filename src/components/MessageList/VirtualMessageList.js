@@ -36,15 +36,15 @@ const Message = React.memo(function Message({
   const isOwner = message.user.id === client.userID;
 
   const bubbleClass = isOwner
-    ? 'str-chat__fast-message__bubble str-chat__fast-message__bubble--me'
-    : 'str-chat__fast-message__bubble';
+    ? 'str-chat__virtual-message__bubble str-chat__virtual-message__bubble--me'
+    : 'str-chat__virtual-message__bubble';
   const wrapperClass = isOwner
-    ? 'str-chat__fast-message__wrapper str-chat__fast-message__wrapper--me'
-    : 'str-chat__fast-message__wrapper';
+    ? 'str-chat__virtual-message__wrapper str-chat__virtual-message__wrapper--me'
+    : 'str-chat__virtual-message__wrapper';
   const metaClass = isOwner
-    ? 'str-chat__fast-message__meta'
-    : 'str-chat__fast-message__meta';
-  const groupClass = `str-chat__fast-message--${group}`;
+    ? 'str-chat__virtual-message__meta'
+    : 'str-chat__virtual-message__meta';
+  const groupClass = `str-chat__virtual-message--${group}`;
 
   return (
     <div key={message.id} className={`${wrapperClass} ${groupClass}`}>
@@ -52,13 +52,13 @@ const Message = React.memo(function Message({
         image={message.user.image}
         name={message.user.name || message.user.id}
       />
-      <div className="str-chat__fast-message__content">
+      <div className="str-chat__virtual-message__content">
         <div className={bubbleClass}>{renderedText}</div>
         <div className={metaClass}>
-          <span className="str-chat__fast-message__author">
+          <span className="str-chat__virtual-message__author">
             <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
           </span>
-          <span className="str-chat__fast-message__date">
+          <span className="str-chat__virtual-message__date">
             <MessageTimestamp
               customClass="str-chat__message-simple-timestamp"
               message={message}
@@ -72,7 +72,7 @@ const Message = React.memo(function Message({
 },
 deepequal);
 
-const FastMessageList = ({
+const VirtualMessageList = ({
   client,
   messages,
   loadMore,
@@ -184,14 +184,14 @@ const FastMessageList = ({
   );
 };
 
-const MemoizeFastMessageList = React.memo(FastMessageList, deepequal);
+const MemoizeVirtualMessageList = React.memo(VirtualMessageList, deepequal);
 
-export default function FastMessageListWithContext(props) {
+export default function VirtualMessageListWithContext(props) {
   return (
     <ChannelContext.Consumer>
       {({ messages, client, loadMore, hasMore, loadingMore }) => {
         return (
-          <MemoizeFastMessageList
+          <MemoizeVirtualMessageList
             messages={messages}
             client={client}
             loadMore={loadMore}
