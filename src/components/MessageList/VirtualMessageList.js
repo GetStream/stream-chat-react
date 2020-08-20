@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import deepequal from 'react-fast-compare';
 import { Virtuoso } from 'react-virtuoso';
 
 import { ChannelContext } from '../../context';
@@ -7,6 +6,7 @@ import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 import { LoadingIndicator } from '../Loading';
+import { EventComponent } from '../EventComponent';
 
 import MessageTimestamp from '../Message/MessageTimestamp';
 
@@ -24,13 +24,13 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({ client, message, group }) {
+const Message = React.memo(function Message({ userID, message, group }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
   );
 
-  const isOwner = message.user.id === client.userID;
+  const isOwner = message.user.id === userID;
 
   const bubbleClass = isOwner
     ? 'str-chat__virtual-message__bubble str-chat__virtual-message__bubble--me'
@@ -64,7 +64,7 @@ const Message = React.memo(function Message({ client, message, group }) {
       </div>
     </div>
   );
-}, deepequal);
+});
 
 const groupStyle = (userID, prevMessage, nextMessage) => {
   const top = prevMessage?.user.id !== userID;
@@ -80,23 +80,18 @@ const groupStyle = (userID, prevMessage, nextMessage) => {
 
 const messageRenderer = (client, message, prevMessage, nextMessage) => {
   if (!message) return null;
-  if (
-    message.type === 'channel.event' ||
-    message.type === 'system' ||
-    !message.text
-  ) {
-    return null;
-  }
 
-  const userId =
-    message.user.id === client.userID ? client.userID : message.user.id;
+  if (message.type === 'channel.event' || message.type === 'system')
+    return <EventComponent message={message} />;
+
+  if (!message.text) return null; // TODO: remove when attachments are supported
 
   return (
     <Message
-      client={client}
+      userID={client.userID}
       message={message}
       prevMessage={prevMessage}
-      group={groupStyle(userId, prevMessage, nextMessage)}
+      group={groupStyle(message.user.id, prevMessage, nextMessage)}
     />
   );
 };
@@ -106,8 +101,6 @@ const VirtualMessageList = ({
   messages,
   loadMore,
   hasMore,
-  height,
-  width,
   disableLoadMore,
   loadingMore,
 }) => {
@@ -115,6 +108,7 @@ const VirtualMessageList = ({
   const mounted = useRef(false);
 
   useEffect(() => {
+    /* scroll to bottom when current user add new message */
     if (!messages.length) return;
 
     const lastMessage = messages[messages.length - 1];
@@ -123,6 +117,9 @@ const VirtualMessageList = ({
   }, [client.userID, messages]);
 
   useEffect(() => {
+    /* scroll to bottom when list is rendered for the first time 
+    this approach is used since virtuoso initialTopMostItemIndex is buggy leading to empty screen
+    */
     if (mounted.current) return;
     if (messages.length && virtuoso.current) {
       setTimeout(() => virtuoso.current.scrollToIndex(messages.length - 1), 50);
@@ -136,12 +133,10 @@ const VirtualMessageList = ({
     <div className="str-chat__virtual-list">
       <Virtuoso
         ref={virtuoso}
-        style={{ width: width || '100%', height: height || '100%' }}
+        style={{ width: '100%', height: '100%' }}
         totalCount={messages.length}
-        followOutput={true}
-        overscan={200} // extra render in px
-        // causing empty screen for channels with small no of messages
-        // initialTopMostItemIndex={messages.length - 1}
+        followOutput={true} // when list is at the bottom, it stick for new messages
+        overscan={100} // extra render in px
         item={(i) =>
           messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
         }
@@ -169,7 +164,7 @@ const VirtualMessageList = ({
   );
 };
 
-const MemoizeVirtualMessageList = React.memo(VirtualMessageList, deepequal);
+const MemoizeVirtualMessageList = React.memo(VirtualMessageList);
 
 export default function VirtualMessageListWithContext(props) {
   return (
