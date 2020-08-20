@@ -106,14 +106,20 @@ const VirtualMessageList = ({
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
+  const lastMessageId = useRef('');
 
   useEffect(() => {
     /* scroll to bottom when current user add new message */
     if (!messages.length) return;
 
     const lastMessage = messages[messages.length - 1];
-    const isOwner = lastMessage.user.id === client.userID;
-    if (isOwner) virtuoso.current.scrollToIndex(messages.length);
+    // making sure it is the last message that has changed before forcing scroll
+    // buggy scenario is last message belongs to current user and loadMore prepend more messages
+    if (lastMessage.id !== lastMessageId.current) {
+      lastMessageId.current = lastMessage.id;
+      if (lastMessage.user.id === client.userID)
+        virtuoso.current.scrollToIndex(messages.length);
+    }
   }, [client.userID, messages]);
 
   useEffect(() => {
