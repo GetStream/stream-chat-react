@@ -147,3 +147,7 @@
     margin: 0 !important; // always use padding, margin mess up the height calculations
   }
 }
+
+.dark .str-chat__virtual-list {
+  background: rgba(255, 255, 255, 0.04);
+}

@@ -46,4 +46,23 @@
 .str-chat__virtual-message__text {
   padding-top: 5px;
   font-size: 0.9rem;
+  a {
+    color: $secondary-color;
+    text-decoration: none;
+    font-weight: 700;
+  }
+}
+
+.dark {
+  .str-chat__virtual-message__wrapper {
+    &:hover {
+      background: rgba(0,0,0,0.15);
+    }
+  }
+  .str-chat__virtual-message__text {
+    color: ghostwhite;
+  }
+  .str-chat__virtual-message__date {
+    color: white;
+  }
 }
