@@ -77,40 +77,35 @@ const VirtualMessageList = ({
     [client.userID],
   );
 
-  if (!messages.length) return <EmptyStateIndicator listType="message" />;
-
   return (
-    <div className="str-chat__virtual-list">
-      <Virtuoso
-        ref={virtuoso}
-        style={{ width: '100%', height: '100%' }}
-        totalCount={messages.length}
-        followOutput={true} // when list is at the bottom, it stick for new messages
-        overscan={100} // extra render in px
-        item={(i) => messageRenderer(messages[i])}
-        header={() => (
-          <div
-            style={{ visibility: loadingMore ? null : 'hidden' }}
-            className="str-chat__virtual-list__loading"
-          >
-            <LoadingIndicator size={20} />
-          </div>
-        )}
-        startReached={() => {
-          if (mounted.current && hasMore) {
-            loadMore(messageLimit).then(
-              virtuoso.current.adjustForPrependedItems,
-            );
-          }
-        }}
-        // scrollSeek={{
-        //   enter: (velocity) => Math.abs(velocity) > 220,
-        //   exit: (velocity) => Math.abs(velocity) < 30,
-        //   change: () => null,
-        //   placeholder: ScrollSeekPlaceholder,
-        // }}
-      />
-    </div>
+    <Virtuoso
+      ref={virtuoso}
+      className="str-chat__virtual-list"
+      totalCount={messages.length}
+      followOutput={true} // when list is at the bottom, it stick for new messages
+      overscan={200} // extra render in px
+      item={(i) => messageRenderer(messages[i])}
+      emptyComponent={() => <EmptyStateIndicator listType="message" />}
+      header={() => (
+        <div
+          style={{ visibility: loadingMore ? null : 'hidden' }}
+          className="str-chat__virtual-list__loading"
+        >
+          <LoadingIndicator size={20} />
+        </div>
+      )}
+      startReached={() => {
+        if (mounted.current && hasMore) {
+          loadMore(messageLimit).then(virtuoso.current.adjustForPrependedItems);
+        }
+      }}
+      // scrollSeek={{
+      //   enter: (velocity) => Math.abs(velocity) > 220,
+      //   exit: (velocity) => Math.abs(velocity) < 30,
+      //   change: () => null,
+      //   placeholder: ScrollSeekPlaceholder,
+      // }}
+    />
   );
 };
 
