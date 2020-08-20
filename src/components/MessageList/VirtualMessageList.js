@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
-import { Channel } from 'stream-chat';
 
 import { ChannelContext } from '../../context';
-import { Avatar } from '../Avatar';
-import { renderText } from '../../utils';
+import { FixedHeightMessage } from '../Message';
+import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { EventComponent } from '../EventComponent';
-
-import MessageTimestamp from '../Message/MessageTimestamp';
 
 // eslint-disable-next-line no-unused-vars
 const ScrollSeekPlaceholder = ({ height, index }) => (
@@ -26,53 +22,6 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({ userID, message }) {
-  const renderedText = useMemo(
-    () => renderText(message.text, message.mentioned_users),
-    [message.text, message.mentioned_users],
-  );
-
-  const isOwner = message.user.id === userID;
-  const wrapperClass = isOwner
-    ? 'str-chat__virtual-message__wrapper str-chat__virtual-message__wrapper--me'
-    : 'str-chat__virtual-message__wrapper';
-  return (
-    <div key={message.id} className={`${wrapperClass}`}>
-      <Avatar
-        shape="rounded"
-        size={38}
-        image={message.user.image}
-        name={message.user.name || message.user.id}
-      />
-      <div className="str-chat__virtual-message__content">
-        <div className="str-chat__virtual-message__meta">
-          <span className="str-chat__virtual-message__author">
-            <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
-          </span>
-          <span className="str-chat__virtual-message__date">
-            <MessageTimestamp
-              customClass="str-chat__message-simple-timestamp"
-              message={message}
-            />
-          </span>
-        </div>
-        <div className="str-chat__virtual-message__text">{renderedText}</div>
-      </div>
-    </div>
-  );
-});
-
-const messageRenderer = (message, client, MessageSystem) => {
-  if (!message) return null;
-
-  if (message.type === 'channel.event' || message.type === 'system')
-    return <MessageSystem message={message} />;
-
-  if (!message.text) return null; // TODO: remove when attachments are supported
-
-  return <Message userID={client.userID} message={message} />;
-};
-
 const VirtualMessageList = ({
   client,
   messages,
@@ -83,6 +32,7 @@ const VirtualMessageList = ({
   LoadingIndicator,
   EmptyStateIndicator,
   MessageSystem,
+  Message,
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
@@ -113,6 +63,20 @@ const VirtualMessageList = ({
     }
   }, [messages.length]);
 
+  const messageRenderer = useCallback(
+    (message) => {
+      if (!message) return null;
+
+      if (message.type === 'channel.event' || message.type === 'system')
+        return <MessageSystem message={message} />;
+
+      if (!message.text) return null; // TODO: remove when attachments are supported
+
+      return <Message userID={client.userID} message={message} />;
+    },
+    [client.userID],
+  );
+
   if (!messages.length) return <EmptyStateIndicator listType="message" />;
 
   return (
@@ -123,7 +87,7 @@ const VirtualMessageList = ({
         totalCount={messages.length}
         followOutput={true} // when list is at the bottom, it stick for new messages
         overscan={100} // extra render in px
-        item={(i) => messageRenderer(messages[i], client, MessageSystem)}
+        item={(i) => messageRenderer(messages[i])}
         header={() => (
           <div
             style={{ visibility: loadingMore ? null : 'hidden' }}
@@ -152,9 +116,7 @@ const VirtualMessageList = ({
 
 VirtualMessageList.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  client: PropTypes.object,
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  channel: PropTypes.instanceOf(Channel).isRequired,
+  client: PropTypes.object.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   messages: PropTypes.array.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -165,7 +127,6 @@ VirtualMessageList.propTypes = {
   loadingMore: PropTypes.bool,
   /** Set the limit to use when paginating messages */
   messageLimit: PropTypes.number,
-
   /**
    * Custom UI component to display system messages.
    *
@@ -184,21 +145,20 @@ VirtualMessageList.propTypes = {
 
 VirtualMessageList.defaultProps = {
   messageLimit: 100,
+  Message: FixedHeightMessage,
   MessageSystem: EventComponent,
   LoadingIndicator: DefaultLoadingIndicator,
   EmptyStateIndicator: DefaultEmptyStateIndicator,
 };
 
-const MemoizeVirtualMessageList = React.memo(VirtualMessageList);
-
 export default function VirtualMessageListWithContext(props) {
   return (
     <ChannelContext.Consumer>
-      {({ messages, client, loadMore, hasMore, loadingMore }) => {
+      {({ client, messages, loadMore, hasMore, loadingMore }) => {
         return (
-          <MemoizeVirtualMessageList
-            messages={messages}
+          <VirtualMessageList
             client={client}
+            messages={messages}
             loadMore={loadMore}
             hasMore={hasMore}
             loadingMore={loadingMore}
