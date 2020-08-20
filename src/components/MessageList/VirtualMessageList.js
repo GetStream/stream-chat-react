@@ -36,19 +36,27 @@ const VirtualMessageList = ({
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
+  const atBottom = useRef(false);
   const lastMessageId = useRef('');
 
   useEffect(() => {
     /* scroll to bottom when current user add new message */
     if (!messages.length) return;
 
-    const lastMessage = messages[messages.length - 1];
     // making sure it is the last message that has changed before forcing scroll
     // buggy scenario is last message belongs to current user and loadMore prepend more messages
+    const lastMessage = messages[messages.length - 1];
     if (lastMessage.id !== lastMessageId.current) {
       lastMessageId.current = lastMessage.id;
-      if (lastMessage.user.id === client.userID)
-        virtuoso.current.scrollToIndex(messages.length);
+      if (lastMessage.user.id === client.userID) {
+        setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
+        return;
+      }
+    }
+
+    // if list is at bottom make it sticky for any messages
+    if (atBottom.current) {
+      setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
     }
   }, [client.userID, messages]);
 
@@ -82,7 +90,6 @@ const VirtualMessageList = ({
       ref={virtuoso}
       className="str-chat__virtual-list"
       totalCount={messages.length}
-      followOutput={true} // when list is at the bottom, it stick for new messages
       overscan={200} // extra render in px
       item={(i) => messageRenderer(messages[i])}
       emptyComponent={() => <EmptyStateIndicator listType="message" />}
@@ -98,6 +105,9 @@ const VirtualMessageList = ({
         if (mounted.current && hasMore) {
           loadMore(messageLimit).then(virtuoso.current.adjustForPrependedItems);
         }
+      }}
+      atBottomStateChange={(isAtBottom) => {
+        atBottom.current = isAtBottom;
       }}
       // scrollSeek={{
       //   enter: (velocity) => Math.abs(velocity) > 220,
