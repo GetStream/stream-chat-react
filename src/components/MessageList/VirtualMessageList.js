@@ -24,31 +24,25 @@ const ScrollSeekPlaceholder = ({ height, index }) => (
   </div>
 );
 
-const Message = React.memo(function Message({ userID, message, group }) {
+const Message = React.memo(function Message({ userID, message }) {
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
   );
 
   const isOwner = message.user.id === userID;
-
-  const bubbleClass = isOwner
-    ? 'str-chat__virtual-message__bubble str-chat__virtual-message__bubble--me'
-    : 'str-chat__virtual-message__bubble';
   const wrapperClass = isOwner
     ? 'str-chat__virtual-message__wrapper str-chat__virtual-message__wrapper--me'
     : 'str-chat__virtual-message__wrapper';
-
-  const groupClass = `str-chat__virtual-message--${group}`;
-
   return (
-    <div key={message.id} className={`${wrapperClass} ${groupClass}`}>
+    <div key={message.id} className={`${wrapperClass}`}>
       <Avatar
+        shape="rounded"
+        size={38}
         image={message.user.image}
         name={message.user.name || message.user.id}
       />
       <div className="str-chat__virtual-message__content">
-        <div className={bubbleClass}>{renderedText}</div>
         <div className="str-chat__virtual-message__meta">
           <span className="str-chat__virtual-message__author">
             <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
@@ -57,28 +51,16 @@ const Message = React.memo(function Message({ userID, message, group }) {
             <MessageTimestamp
               customClass="str-chat__message-simple-timestamp"
               message={message}
-              calendar
             />
           </span>
         </div>
+        <div className="str-chat__virtual-message__text">{renderedText}</div>
       </div>
     </div>
   );
 });
 
-const groupStyle = (userID, prevMessage, nextMessage) => {
-  const top = prevMessage?.user.id !== userID;
-  const bottom = nextMessage?.user.id !== userID;
-  if (top && bottom) return 'single';
-
-  if (prevMessage?.user.id === userID && nextMessage?.user.id === userID)
-    return 'middle';
-  if (top) return 'top';
-  if (bottom) return 'bottom';
-  return '';
-};
-
-const messageRenderer = (client, message, prevMessage, nextMessage) => {
+const messageRenderer = (client, message) => {
   if (!message) return null;
 
   if (message.type === 'channel.event' || message.type === 'system')
@@ -86,14 +68,7 @@ const messageRenderer = (client, message, prevMessage, nextMessage) => {
 
   if (!message.text) return null; // TODO: remove when attachments are supported
 
-  return (
-    <Message
-      userID={client.userID}
-      message={message}
-      prevMessage={prevMessage}
-      group={groupStyle(message.user.id, prevMessage, nextMessage)}
-    />
-  );
+  return <Message userID={client.userID} message={message} />;
 };
 
 const VirtualMessageList = ({
@@ -143,9 +118,7 @@ const VirtualMessageList = ({
         totalCount={messages.length}
         followOutput={true} // when list is at the bottom, it stick for new messages
         overscan={100} // extra render in px
-        item={(i) =>
-          messageRenderer(client, messages[i], messages[i - 1], messages[i + 1])
-        }
+        item={(i) => messageRenderer(client, messages[i])}
         header={() => (
           <div
             style={{ visibility: loadingMore ? null : 'hidden' }}
