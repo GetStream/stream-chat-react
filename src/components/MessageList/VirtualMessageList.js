@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
+import { Channel } from 'stream-chat';
 
 import { ChannelContext } from '../../context';
-import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
-import { LoadingIndicator } from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 
 import MessageTimestamp from '../Message/MessageTimestamp';
@@ -60,11 +62,11 @@ const Message = React.memo(function Message({ userID, message }) {
   );
 });
 
-const messageRenderer = (client, message) => {
+const messageRenderer = (message, client, MessageSystem) => {
   if (!message) return null;
 
   if (message.type === 'channel.event' || message.type === 'system')
-    return <EventComponent message={message} />;
+    return <MessageSystem message={message} />;
 
   if (!message.text) return null; // TODO: remove when attachments are supported
 
@@ -76,8 +78,11 @@ const VirtualMessageList = ({
   messages,
   loadMore,
   hasMore,
-  disableLoadMore,
+  messageLimit,
   loadingMore,
+  LoadingIndicator,
+  EmptyStateIndicator,
+  MessageSystem,
 }) => {
   const virtuoso = useRef();
   const mounted = useRef(false);
@@ -118,7 +123,7 @@ const VirtualMessageList = ({
         totalCount={messages.length}
         followOutput={true} // when list is at the bottom, it stick for new messages
         overscan={100} // extra render in px
-        item={(i) => messageRenderer(client, messages[i])}
+        item={(i) => messageRenderer(messages[i], client, MessageSystem)}
         header={() => (
           <div
             style={{ visibility: loadingMore ? null : 'hidden' }}
@@ -128,8 +133,10 @@ const VirtualMessageList = ({
           </div>
         )}
         startReached={() => {
-          if (!disableLoadMore && mounted.current && hasMore) {
-            loadMore().then(virtuoso.current.adjustForPrependedItems);
+          if (mounted.current && hasMore) {
+            loadMore(messageLimit).then(
+              virtuoso.current.adjustForPrependedItems,
+            );
           }
         }}
         // scrollSeek={{
@@ -141,6 +148,45 @@ const VirtualMessageList = ({
       />
     </div>
   );
+};
+
+VirtualMessageList.propTypes = {
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  client: PropTypes.object,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  channel: PropTypes.instanceOf(Channel).isRequired,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  messages: PropTypes.array.isRequired,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadMore: PropTypes.func,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  hasMore: PropTypes.bool,
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadingMore: PropTypes.bool,
+  /** Set the limit to use when paginating messages */
+  messageLimit: PropTypes.number,
+
+  /**
+   * Custom UI component to display system messages.
+   *
+   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
+   */
+  MessageSystem: PropTypes.elementType,
+  /**
+   * The UI Indicator to use when MessagerList or ChannelList is empty
+   * */
+  EmptyStateIndicator: PropTypes.elementType,
+  /**
+   * Component to render at the top of the MessageList while loading new messages
+   * */
+  LoadingIndicator: PropTypes.elementType,
+};
+
+VirtualMessageList.defaultProps = {
+  messageLimit: 100,
+  MessageSystem: EventComponent,
+  LoadingIndicator: DefaultLoadingIndicator,
+  EmptyStateIndicator: DefaultEmptyStateIndicator,
 };
 
 const MemoizeVirtualMessageList = React.memo(VirtualMessageList);
