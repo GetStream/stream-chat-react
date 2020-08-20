@@ -127,9 +127,9 @@ const VirtualMessageList = ({
     this approach is used since virtuoso initialTopMostItemIndex is buggy leading to empty screen
     */
     if (mounted.current) return;
+    mounted.current = true;
     if (messages.length && virtuoso.current) {
-      setTimeout(() => virtuoso.current.scrollToIndex(messages.length - 1), 50);
-      mounted.current = true;
+      virtuoso.current.scrollToIndex(messages.length - 1);
     }
   }, [messages.length]);
 
