@@ -16,11 +16,11 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 
 /**
- * VirtualMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  * It is pretty fast for rendering thousands of messages but it needs its Message componet to have fixed height
- * @example ../../docs/VirtualMessageList.md
+ * @example ../../docs/VirtualizedMessageList.md
  */
-const VirtualMessageList = ({
+const VirtualizedMessageList = ({
   client,
   messages,
   loadMore,
@@ -144,7 +144,7 @@ const VirtualMessageList = ({
   );
 };
 
-VirtualMessageList.propTypes = {
+VirtualizedMessageList.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: PropTypes.object.isRequired,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -196,7 +196,7 @@ VirtualMessageList.propTypes = {
   }),
 };
 
-VirtualMessageList.defaultProps = {
+VirtualizedMessageList.defaultProps = {
   messageLimit: 100,
   overscan: 200,
   Message: FixedHeightMessage,
@@ -205,12 +205,12 @@ VirtualMessageList.defaultProps = {
   EmptyStateIndicator: DefaultEmptyStateIndicator,
 };
 
-export default function VirtualMessageListWithContext(props) {
+export default function VirtualizedMessageListWithContext(props) {
   return (
     <ChannelContext.Consumer>
       {({ client, messages, loadMore, hasMore, loadingMore }) => {
         return (
-          <VirtualMessageList
+          <VirtualizedMessageList
             client={client}
             messages={messages}
             loadMore={loadMore}
