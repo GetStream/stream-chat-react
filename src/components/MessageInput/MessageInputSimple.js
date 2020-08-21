@@ -9,7 +9,7 @@ import EmojiPicker from './EmojiPicker';
 import SendButtonComponent from './SendButton';
 
 /** @type {React.FC<import("types").MessageInputProps>} */
-const MessageInputFlat = (props) => {
+const MessageInputSimple = (props) => {
   const messageInput = useMessageInput(props);
   const { t } = useContext(TranslationContext);
   const { SendButton } = props;
@@ -63,7 +63,7 @@ const MessageInputFlat = (props) => {
   );
 };
 
-MessageInputFlat.propTypes = {
+MessageInputSimple.propTypes = {
   /** Set focus to the text input if this is enabled */
   focus: PropTypes.bool.isRequired,
   /** Grow the textarea while you're typing */
@@ -100,7 +100,7 @@ MessageInputFlat.propTypes = {
   SendButton: PropTypes.elementType,
 };
 
-MessageInputFlat.defaultProps = {
+MessageInputSimple.defaultProps = {
   focus: false,
   disabled: false,
   publishTypingEvent: true,
@@ -110,4 +110,4 @@ MessageInputFlat.defaultProps = {
   additionalTextareaProps: {},
 };
 
-export default MessageInputFlat;
+export default MessageInputSimple;
