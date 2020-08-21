@@ -11,7 +11,7 @@ import { LoadingIndicator } from '../Loading';
 import { EmoticonItem } from '../EmoticonItem';
 import { UserItem } from '../UserItem';
 import { CommandItem } from '../CommandItem';
-import { ChatContext } from '../../context/ChatContext';
+import { ChannelContext } from '../../context/ChannelContext';
 
 /** @param {string} word */
 const emojiReplace = (word) => {
@@ -25,7 +25,7 @@ const emojiReplace = (word) => {
 
 /** @type {React.FC<import("types").ChatAutoCompleteProps>} */
 const ChatAutoComplete = (props) => {
-  const { channel } = useContext(ChatContext);
+  const { channel } = useContext(ChannelContext);
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
 
