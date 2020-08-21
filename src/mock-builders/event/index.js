@@ -10,4 +10,5 @@ export { default as dispatchNotificationAddedToChannelEvent } from './notificati
 export { default as dispatchNotificationMessageNewEvent } from './notificationMessageNew';
 export { default as dispatchNotificationRemovedFromChannel } from './notificationRemovedFromChannel';
 export { default as dispatchConnectionRecoveredEvent } from './connectionRecovered';
+export { default as dispatchConnectionChangedEvent } from './connectionChanged';
 export { default as dispatchNotificationMutesUpdated } from './notificationMutesUpdated';
