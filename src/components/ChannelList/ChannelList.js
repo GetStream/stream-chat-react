@@ -20,6 +20,8 @@ import { useNotificationRemovedFromChannelListener } from './hooks/useNotificati
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
 import { useChannelUpdatedListener } from './hooks/useChannelUpdatedListener';
+import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
+import { useChannelVisibleListener } from './hooks/useChannelVisibleListener';
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
@@ -121,6 +123,8 @@ const ChannelList = (props) => {
     props.onRemovedFromChannel,
   );
   useChannelDeletedListener(setChannels, props.onChannelDeleted);
+  useChannelHiddenListener(setChannels, props.onChannelHidden);
+  useChannelVisibleListener(setChannels, props.onChannelVisible);
   useChannelTruncatedListener(
     setChannels,
     props.onChannelTruncated,
@@ -134,18 +138,20 @@ const ChannelList = (props) => {
   useEffect(() => {
     /** @param {import('stream-chat').Event<string>} e */
     const handleEvent = (e) => {
-      if (e.channel?.cid === channel?.cid) {
+      if (e?.cid === channel?.cid) {
         setActiveChannel?.();
       }
     };
 
     client.on('channel.deleted', handleEvent);
+    client.on('channel.hidden', handleEvent);
 
     return () => {
       client.off('channel.deleted', handleEvent);
+      client.off('channel.hidden', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channel]);
 
   // renders the channel preview or item
   /** @param {import('stream-chat').Channel} item */

@@ -220,6 +220,14 @@ export interface ChannelListProps {
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
     e: Client.Event<string>,
   ): void;
+  onChannelHidden?(
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
+  onChannelVisible?(
+    thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
+    e: Client.Event<string>,
+  ): void;
   onChannelUpdated?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
     e: Client.Event<string>,
