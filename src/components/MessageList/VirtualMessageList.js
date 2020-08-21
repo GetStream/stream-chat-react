@@ -8,20 +8,6 @@ import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 
-// eslint-disable-next-line no-unused-vars
-const ScrollSeekPlaceholder = ({ height, index }) => (
-  <div
-    style={{
-      height,
-      backgroundColor: '#fff',
-      padding: '8px',
-      boxSizing: 'border-box',
-    }}
-  >
-    <div style={{ background: '#ccc', height: '100%' }}>{index}</div>
-  </div>
-);
-
 const VirtualMessageList = ({
   client,
   messages,
@@ -29,6 +15,8 @@ const VirtualMessageList = ({
   hasMore,
   messageLimit,
   loadingMore,
+  overscan,
+  scrollSeekPlaceHolder,
   LoadingIndicator,
   EmptyStateIndicator,
   MessageSystem,
@@ -43,8 +31,9 @@ const VirtualMessageList = ({
     /* scroll to bottom when current user add new message */
     if (!messages.length) return;
 
-    // making sure it is the last message that has changed before forcing scroll
-    // buggy scenario is last message belongs to current user and loadMore prepend more messages
+    /* making sure it is the last message that has changed before forcing scroll
+     * buggy scenario is last message belongs to current user and loadMore prepend more messages
+     */
     const lastMessage = messages[messages.length - 1];
     if (lastMessage.id !== lastMessageId.current) {
       lastMessageId.current = lastMessage.id;
@@ -54,16 +43,17 @@ const VirtualMessageList = ({
       }
     }
 
-    // if list is at bottom make it sticky for any messages
+    /* if list is at bottom make it sticky for any messages */
     if (atBottom.current) {
       setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
     }
   }, [client.userID, messages]);
 
   useEffect(() => {
-    /* scroll to bottom when list is rendered for the first time 
-    this approach is used since virtuoso initialTopMostItemIndex is buggy leading to empty screen
-    */
+    /*
+     * scroll to bottom when list is rendered for the first time
+     * this is due to initialTopMostItemIndex buggy behavior leading to empty screen
+     */
     if (mounted.current) return;
     mounted.current = true;
     if (messages.length && virtuoso.current) {
@@ -90,7 +80,8 @@ const VirtualMessageList = ({
       ref={virtuoso}
       className="str-chat__virtual-list"
       totalCount={messages.length}
-      overscan={200} // extra render in px
+      overscan={overscan}
+      scrollSeek={scrollSeekPlaceHolder}
       item={(i) => messageRenderer(messages[i])}
       emptyComponent={() => <EmptyStateIndicator listType="message" />}
       header={() => (
@@ -102,6 +93,7 @@ const VirtualMessageList = ({
         </div>
       )}
       startReached={() => {
+        // mounted.current prevents immediate loadMore on first render
         if (mounted.current && hasMore) {
           loadMore(messageLimit).then(virtuoso.current.adjustForPrependedItems);
         }
@@ -109,12 +101,6 @@ const VirtualMessageList = ({
       atBottomStateChange={(isAtBottom) => {
         atBottom.current = isAtBottom;
       }}
-      // scrollSeek={{
-      //   enter: (velocity) => Math.abs(velocity) > 220,
-      //   exit: (velocity) => Math.abs(velocity) < 30,
-      //   change: () => null,
-      //   placeholder: ScrollSeekPlaceholder,
-      // }}
     />
   );
 };
@@ -146,10 +132,34 @@ VirtualMessageList.propTypes = {
    * Component to render at the top of the MessageList while loading new messages
    * */
   LoadingIndicator: PropTypes.elementType,
+  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
+  overscan: PropTypes.number,
+  /** Performance improvement by showing placeholders if user scrolls fast through list
+   * it can be used like this:
+   *  {
+   *    enter: (velocity) => Math.abs(velocity) > 120,
+   *    exit: (velocity) => Math.abs(velocity) < 40,
+   *    change: () => null,
+   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
+   *  }
+   */
+  scrollSeekPlaceHolder: PropTypes.shape({
+    // when to enter into scrollSeek state, usually a velocity above 80 is considered fast scrolling
+    // (velocity: number, index: number) => boolean
+    enter: PropTypes.func.isRequired,
+    // when to exit into scrollSeek state
+    // (velocity: number, index: number) => boolean
+    exit: PropTypes.func.isRequired,
+    // (velocity: number, index: number) => void
+    change: PropTypes.func.isRequired,
+    // UI to render, this props are passed to it: {height: number, index: number}
+    placeholder: PropTypes.elementType.isRequired,
+  }),
 };
 
 VirtualMessageList.defaultProps = {
   messageLimit: 100,
+  overscan: 200,
   Message: FixedHeightMessage,
   MessageSystem: EventComponent,
   LoadingIndicator: DefaultLoadingIndicator,
