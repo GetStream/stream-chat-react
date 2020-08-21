@@ -43,7 +43,14 @@ const FixedHeightMessage = ({ userID, message }) => {
     : setUserColor(message.user.id, theme);
 
   return (
-    <div key={message.id} className={`${wrapperClass}`}>
+    <div
+      key={message.id}
+      className={`str-chat__virtual-message__wrapper ${
+        message.user.id === userID
+          ? 'str-chat__virtual-message__wrapper--me'
+          : ''
+      } `}
+    >
       <Avatar
         shape="rounded"
         size={38}
@@ -54,11 +61,9 @@ const FixedHeightMessage = ({ userID, message }) => {
         <div className="str-chat__virtual-message__meta">
           <span
             className="str-chat__virtual-message__author"
-            style={{
-              color: userColor,
-            }}
+            style={{ color: userColor }}
           >
-            <strong>{message.user.name ? message.user.name : 'unknown'}</strong>
+            <strong>{message.user.name || 'unknown'}</strong>
           </span>
           <span className="str-chat__virtual-message__date">
             <MessageTimestamp

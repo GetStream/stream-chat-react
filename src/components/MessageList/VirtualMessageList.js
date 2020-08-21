@@ -109,7 +109,7 @@ const VirtualMessageList = ({
         header={() => (
           <div
             className="str-chat__virtual-list__loading"
-            style={{ visibility: loadingMore ? null : 'hidden' }}
+            style={{ visibility: loadingMore ? undefined : 'hidden' }}
           >
             <LoadingIndicator size={20} />
           </div>
