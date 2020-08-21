@@ -6,6 +6,7 @@ import { Channel } from 'stream-chat';
 import Center from './Center';
 import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
+import ConnectionStatus from './ConnectionStatus';
 import MessageListInner from './MessageListInner';
 import { MESSAGE_ACTIONS } from '../Message/utils';
 import { smartRender } from '../../utils';
@@ -30,7 +31,6 @@ class MessageList extends PureComponent {
 
     this.state = {
       newMessagesNotification: false,
-      online: true,
       notifications: [],
     };
 
@@ -38,10 +38,6 @@ class MessageList extends PureComponent {
     this.messageList = React.createRef();
     this.notificationTimeouts = [];
   }
-
-  connectionChanged = ({ online }) => {
-    if (this.state.online !== online) this.setState({ online });
-  };
 
   componentDidMount() {
     // start at the bottom
@@ -51,13 +47,9 @@ class MessageList extends PureComponent {
     this.setState({
       messageListRect,
     });
-
-    this.props.client.on('connection.changed', this.connectionChanged);
   }
 
   componentWillUnmount() {
-    this.props.client.off('connection.changed', this.connectionChanged);
-
     this.notificationTimeouts.forEach(clearTimeout);
   }
 
@@ -301,9 +293,7 @@ class MessageList extends PureComponent {
             </CustomNotification>
           ))}
 
-          <CustomNotification active={!this.state.online} type="error">
-            {t('Connection failure, reconnecting now...')}
-          </CustomNotification>
+          <ConnectionStatus />
 
           <MessageNotification
             showNotification={this.state.newMessagesNotification}
