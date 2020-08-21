@@ -5,23 +5,22 @@ import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 import { ChatContext } from '../../context';
 
-function selectColor(number, theme) {
-  const dark = theme.includes('dark');
+const selectColor = (number, dark) => {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},${dark ? '50%' : '85%'}, ${dark ? '75%' : '55%'})`;
-}
-
-const randomColor = (theme) => {
-  return selectColor(Math.floor(Math.random() * 30), theme);
 };
 
-const setUserColor = (userId, theme) => {
-  const userColors = JSON.parse(localStorage.getItem('userColors'));
-  const userColor = randomColor(theme);
-  userColors[userId] = userColor;
-  localStorage.setItem('userColors', JSON.stringify(userColors));
+const hashUserId = (userId) => {
+  const hash = userId.split('').reduce((acc, c) => {
+    acc = (acc << 5) - acc + c.charCodeAt(0); // eslint-disable-line
+    return acc & acc; // eslint-disable-line no-bitwise
+  }, 0);
 
-  return userColor;
+  return Math.abs(hash) / 10 ** Math.ceil(Math.log10(Math.abs(hash) + 1));
+};
+
+const getUserColor = (theme, userId) => {
+  return selectColor(hashUserId(userId), theme.includes('dark'));
 };
 
 const FixedHeightMessage = ({ userID, message }) => {
@@ -31,16 +30,10 @@ const FixedHeightMessage = ({ userID, message }) => {
     [message.text, message.mentioned_users],
   );
 
-  const isOwner = message.user.id === userID;
-  const wrapperClass = isOwner
-    ? 'str-chat__virtual-message__wrapper str-chat__virtual-message__wrapper--me'
-    : 'str-chat__virtual-message__wrapper';
-
-  const userColors = JSON.parse(localStorage.getItem('userColors'));
-  if (!userColors) localStorage.setItem('userColors', JSON.stringify({}));
-  const userColor = userColors?.[message.user.id]
-    ? userColors?.[message.user.id]
-    : setUserColor(message.user.id, theme);
+  const userColor = useMemo(() => getUserColor(theme, message.user.id), [
+    message.user.id,
+    theme,
+  ]);
 
   return (
     <div
