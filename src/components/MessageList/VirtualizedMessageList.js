@@ -67,8 +67,6 @@ const VirtualizedMessageList = ({
 
     /* otherwise just show newMessage notification  */
     setNewMessagesNotification(true);
-
-    lastMessageId.current = lastMessage.id;
   }, [client.userID, messages]);
 
   useEffect(() => {
