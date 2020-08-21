@@ -1,8 +1,15 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
 
-import { ChannelContext } from '../../context';
+import MessageNotification from './MessageNotification';
+import { ChannelContext, TranslationContext } from '../../context';
 import { FixedHeightMessage } from '../Message';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
@@ -22,31 +29,41 @@ const VirtualMessageList = ({
   MessageSystem,
   Message,
 }) => {
+  const { t } = useContext(TranslationContext);
+  const [newMessagesNotification, setNewMessagesNotification] = useState(false);
+
   const virtuoso = useRef();
   const mounted = useRef(false);
   const atBottom = useRef(false);
   const lastMessageId = useRef('');
 
   useEffect(() => {
-    /* scroll to bottom when current user add new message */
+    /* handle scrolling behavior for new messages */
     if (!messages.length) return;
 
-    /* making sure it is the last message that has changed before forcing scroll
-     * buggy scenario is last message belongs to current user and loadMore prepend more messages
-     */
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage.id !== lastMessageId.current) {
-      lastMessageId.current = lastMessage.id;
-      if (lastMessage.user.id === client.userID) {
-        setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
-        return;
-      }
+    const prevMessageId = lastMessageId.current;
+    lastMessageId.current = lastMessage.id; // update last message id
+
+    /* do nothing if new messages are loaded from top(loadMore)  */
+    if (lastMessage.id === prevMessageId) return;
+
+    /* if list is already at the bottom make it sticky */
+    if (atBottom.current) {
+      setTimeout(() => virtuoso.current.scrollToIndex(messages.length)); // setTimeout is needed to delay the scroll until react flushes
+      return;
     }
 
-    /* if list is at bottom make it sticky for any messages */
-    if (atBottom.current) {
+    /* if the new message belongs to current user scroll to bottom */
+    if (lastMessage.user.id === client.userID) {
       setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
+      return;
     }
+
+    /* otherwise just show newMessage notification  */
+    setNewMessagesNotification(true);
+
+    lastMessageId.current = lastMessage.id;
   }, [client.userID, messages]);
 
   useEffect(() => {
@@ -76,32 +93,49 @@ const VirtualMessageList = ({
   );
 
   return (
-    <Virtuoso
-      ref={virtuoso}
-      className="str-chat__virtual-list"
-      totalCount={messages.length}
-      overscan={overscan}
-      scrollSeek={scrollSeekPlaceHolder}
-      item={(i) => messageRenderer(messages[i])}
-      emptyComponent={() => <EmptyStateIndicator listType="message" />}
-      header={() => (
-        <div
-          style={{ visibility: loadingMore ? null : 'hidden' }}
-          className="str-chat__virtual-list__loading"
+    <div className="str-chat__virtual-list">
+      <Virtuoso
+        ref={virtuoso}
+        totalCount={messages.length}
+        overscan={overscan}
+        scrollSeek={scrollSeekPlaceHolder}
+        item={(i) => messageRenderer(messages[i])}
+        emptyComponent={() => <EmptyStateIndicator listType="message" />}
+        header={() => (
+          <div
+            className="str-chat__virtual-list__loading"
+            style={{ visibility: loadingMore ? null : 'hidden' }}
+          >
+            <LoadingIndicator size={20} />
+          </div>
+        )}
+        startReached={() => {
+          // mounted.current prevents immediate loadMore on first render
+          if (mounted.current && hasMore) {
+            loadMore(messageLimit).then(
+              virtuoso.current.adjustForPrependedItems,
+            );
+          }
+        }}
+        atBottomStateChange={(isAtBottom) => {
+          atBottom.current = isAtBottom;
+          if (isAtBottom && newMessagesNotification)
+            setNewMessagesNotification(false);
+        }}
+      />
+
+      <div className="str-chat__list-notifications">
+        <MessageNotification
+          showNotification={newMessagesNotification}
+          onClick={() => {
+            virtuoso.current.scrollToIndex(messages.length);
+            setNewMessagesNotification(false);
+          }}
         >
-          <LoadingIndicator size={20} />
-        </div>
-      )}
-      startReached={() => {
-        // mounted.current prevents immediate loadMore on first render
-        if (mounted.current && hasMore) {
-          loadMore(messageLimit).then(virtuoso.current.adjustForPrependedItems);
-        }
-      }}
-      atBottomStateChange={(isAtBottom) => {
-        atBottom.current = isAtBottom;
-      }}
-    />
+          {t('New Messages!')}
+        </MessageNotification>
+      </div>
+    </div>
   );
 };
 
