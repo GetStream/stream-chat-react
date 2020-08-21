@@ -1,6 +1,6 @@
 .str-chat__virtual-message__wrapper {
   display: flex;
-  padding: 10px 40px 10px 40px;
+  padding: 10px 40px;
   flex-direction: row;
   &:hover {
     background: ghostwhite;
@@ -23,7 +23,7 @@
 .str-chat__virtual-message__meta {
   display: flex;
   justify-content: space-between;
-  width :100%;
+  width: 100%;
   }
 .str-chat__virtual-message__author {
   color: $secondary-color;
