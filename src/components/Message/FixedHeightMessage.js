@@ -4,6 +4,7 @@ import MessageTimestamp from './MessageTimestamp';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 import { ChatContext } from '../../context';
+import { Gallery } from '../Gallery';
 
 const selectColor = (number, dark) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -35,6 +36,8 @@ const FixedHeightMessage = ({ userID, message }) => {
     theme,
   ]);
 
+  const images = message?.attachments?.filter(({ type }) => type === 'image');
+
   return (
     <div
       key={message.id}
@@ -65,6 +68,9 @@ const FixedHeightMessage = ({ userID, message }) => {
             />
           </span>
         </div>
+
+        {images && <Gallery images={images} />}
+
         <div className="str-chat__virtual-message__text">{renderedText}</div>
       </div>
     </div>

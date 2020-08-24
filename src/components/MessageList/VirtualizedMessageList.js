@@ -88,8 +88,6 @@ const VirtualizedMessageList = ({
       if (message.type === 'channel.event' || message.type === 'system')
         return <MessageSystem message={message} />;
 
-      if (!message.text) return null; // TODO: remove when attachments are supported
-
       return <Message userID={client.userID} message={message} />;
     },
     [client.userID],
