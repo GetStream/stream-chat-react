@@ -28,22 +28,14 @@ export interface ChatContextValue {
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-  messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  messages?: Client.ChannelState['messages'];
+  typing?: Client.ChannelState['typing'];
+  watchers?: Client.ChannelState['watchers'];
+  members?: Client.ChannelState['members'];
+  read?: Client.ChannelState['read'];
+  thread?: ReturnType<Client.ChannelState['messageToImmutable']> | null;
   online?: boolean;
-  typing?: SeamlessImmutable.Immutable<{
-    [user_id: string]: SeamlessImmutable.Immutable<
-      Client.Event<Client.TypingStartEvent>
-    >;
-  }>;
   watcher_count?: number;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  read?: {
-    [user_id: string]: SeamlessImmutable.Immutable<{
-      last_read: string;
-      user: Client.UserResponse;
-    }>;
-  };
   error?: Error | null;
   // Loading the intial content of the channel
   loading?: boolean;
@@ -52,8 +44,9 @@ export interface ChannelContextValue extends ChatContextValue {
   hasMore?: boolean;
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
-  thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
-  threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  threadMessages?: SeamlessImmutable.ImmutableArray<
+    ReturnType<Client.ChannelState['messageToImmutable']>
+  >;
 
   multipleUploads?: boolean;
   acceptedFiles?: string[];
@@ -129,7 +122,7 @@ export interface ChannelProps {
   doSendMessageRequest?(
     channelId: string,
     message: Client.Message,
-  ): Promise<Client.MessageResponse> | void;
+  ): ReturnType<Client.Channel['sendMessage']> | void;
   doMarkReadRequest?(
     channel: Client.Channel,
   ): Promise<Client.MessageResponse> | void;
@@ -208,37 +201,37 @@ export interface ChannelListProps {
   lockChannelOrder?: boolean;
   onMessageNew?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   /** Function that overrides default behaviour when users gets added to a channel */
   onAddedToChannel?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   /** Function that overrides default behaviour when users gets removed from a channel */
   onRemovedFromChannel?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelHidden?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelVisible?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelUpdated?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelDeleted?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelTruncated?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   setActiveChannelOnMount?: boolean;
   /** Object containing query filters */
@@ -429,8 +422,12 @@ export interface MessageListProps {
   hasMore?: boolean;
   loadingMore?: boolean;
   openThread?(): void;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  members?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse;
+  }>;
+  watchers?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse;
+  }>;
   channel?: Client.Channel;
   retrySendMessage?(message: Client.Message): Promise<void>;
 
@@ -486,13 +483,13 @@ export interface MessageInputProps {
   doImageUploadRequest?(
     file: object,
     channel: Client.Channel,
-  ): Promise<Client.FileUploadAPIResponse>;
+  ): Promise<Client.SendFileAPIResponse>;
 
   /** Override file upload request */
   doFileUploadRequest?(
     file: File,
     channel: Client.Channel,
-  ): Promise<Client.FileUploadAPIResponse>;
+  ): Promise<Client.SendFileAPIResponse>;
 
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?(
@@ -654,7 +651,9 @@ export interface MessageComponentProps
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string> | boolean;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  members?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse;
+  }>;
   retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];

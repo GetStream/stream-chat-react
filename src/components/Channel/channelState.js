@@ -59,7 +59,9 @@ export const channelReducer = (state, action) => {
       if (!state.thread) return state;
       return {
         ...state,
-        threadMessages: channel.state.threads[state.thread.id],
+        threadMessages: state.thread?.id
+          ? channel.state.threads[state.thread.id]
+          : Immutable([]),
         thread:
           message?.id === state.thread.id
             ? channel.state.messageToImmutable(message)
@@ -71,7 +73,9 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         thread: message,
-        threadMessages: channel.state.threads[message.id] || [],
+        threadMessages: message.id
+          ? channel.state.threads[message.id]
+          : Immutable([]),
       };
     }
     case 'startLoadingThread': {

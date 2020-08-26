@@ -75,7 +75,7 @@
     "@types/lodash.throttle": "^4.1.6",
     "@types/lodash.uniqby": "^4.7.6",
     "@types/react-dom": "^16.9.8",
-    "@types/seamless-immutable": "7.1.12",
+    "@types/seamless-immutable": "7.1.13",
     "@types/uuid": "^8.0.0",
     "autoprefixer": "^9.8.4",
     "babel-eslint": "^10.1.0",

@@ -13,7 +13,7 @@ const TypingIndicator = (props) => {
   let show;
   if (
     typing.length === 0 ||
-    (typing.length === 1 && typing[0].user.id === props.client.user.id)
+    (typing.length === 1 && typing[0].user.id === props.client?.user?.id)
   ) {
     show = false;
   } else {
@@ -28,7 +28,7 @@ const TypingIndicator = (props) => {
     >
       <div className="str-chat__typing-indicator__avatars">
         {typing
-          .filter(({ user }) => user.id !== props.client.user.id)
+          .filter(({ user }) => user.id !== props.client?.user?.id)
           .map(({ user }) => (
             <Avatar
               image={user.image}
