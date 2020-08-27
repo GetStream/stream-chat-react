@@ -281,7 +281,8 @@ Attachment.propTypes = {
    * @see See [Attachment structure](https://getstream.io/chat/docs/#message_format)
    *
    *  */
-  attachment: PropTypes.object.isRequired,
+  attachment: /** @type {PropTypes.Validator<ExtendedAttachment>} */ (PropTypes
+    .object.isRequired),
   /**
    *
    * @param name {string} Name of action

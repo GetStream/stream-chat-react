@@ -565,6 +565,7 @@ export interface FileAttachmentProps {
 }
 
 export interface ExtendedAttachment extends Client.Attachment {
+  id?: string;
   asset_url?: string;
   mime_type?: string;
 }
