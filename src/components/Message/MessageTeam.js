@@ -301,7 +301,7 @@ const MessageTeam = (props) => {
                 onMouseOver={onMentionsHover}
                 onClick={onMentionsClick}
               >
-                {unsafeHTML ? (
+                {unsafeHTML && message.html ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 ) : (
                   messageText
@@ -418,8 +418,8 @@ const MessageTeamStatus = (props) => {
       <span className="str-chat__message-team-status">
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
-          image={lastReadUser && lastReadUser.image ? lastReadUser.image : null}
+          name={lastReadUser?.name}
+          image={lastReadUser?.image}
           size={15}
         />
         {readBy.length - 1 > 1 && (

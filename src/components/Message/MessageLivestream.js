@@ -234,7 +234,8 @@ const MessageLivestreamComponent = (props) => {
 
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
-                unsafeHTML && (
+                unsafeHTML &&
+                !!message.html && (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 )}
 

@@ -45,19 +45,19 @@ const ChannelListTeam = ({
         <div className="str-chat__channel-list-team__header">
           <div className="str-chat__channel-list-team__header--left">
             <Avatar
-              image={client.user.image}
-              name={client.user.name || client.user.id}
+              image={client.user?.image}
+              name={client.user?.name || client.user?.id}
               size={40}
             />
           </div>
           <div className="str-chat__channel-list-team__header--middle">
             <div className="str-chat__channel-list-team__header--title">
-              {client.user.name || client.user.id}
+              {client.user?.name || client.user?.id}
             </div>
             <div
-              className={`str-chat__channel-list-team__header--status ${client.user.status}`}
+              className={`str-chat__channel-list-team__header--status ${client.user?.status}`}
             >
-              {client.user.status}
+              {client.user?.status}
             </div>
           </div>
           <div className="str-chat__channel-list-team__header--right">

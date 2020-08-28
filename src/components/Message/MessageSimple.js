@@ -271,7 +271,7 @@ const MessageSimpleStatus = ({
     readBy.length === 1 &&
     readBy[0] &&
     client &&
-    readBy[0].id === client.user.id;
+    readBy[0].id === client.user?.id;
   if (message && message.status === 'sending') {
     return (
       <span
@@ -286,7 +286,7 @@ const MessageSimpleStatus = ({
   if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
     const lastReadUser = readBy.filter(
       /** @type {(item: import('stream-chat').UserResponse) => boolean} Typescript syntax */
-      (item) => !!item && !!client && item.id !== client.user.id,
+      (item) => !!item && !!client && item.id !== client.user?.id,
     )[0];
     return (
       <span
@@ -295,8 +295,8 @@ const MessageSimpleStatus = ({
       >
         <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
-          image={lastReadUser && lastReadUser.image ? lastReadUser.image : null}
+          name={lastReadUser?.name}
+          image={lastReadUser?.image}
           size={15}
         />
         {readBy.length > 2 && (

@@ -4,7 +4,7 @@ import { useEffect, useContext } from 'react';
 import { ChatContext } from '../../../context';
 
 /**
- * @typedef {import('stream-chat').Event<string>} NotificationAddedToChannelEvent
+ * @typedef {import('stream-chat').Event} NotificationAddedToChannelEvent
  * @typedef {React.Dispatch<React.SetStateAction<import('stream-chat').Channel[]>>} SetChannels
  * @param {SetChannels} setChannels
  * @param {(setChannels: SetChannels, event: NotificationAddedToChannelEvent) => void} [customHandler]
@@ -15,7 +15,7 @@ export const useNotificationRemovedFromChannelListener = (
 ) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = (e) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);

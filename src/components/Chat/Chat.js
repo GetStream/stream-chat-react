@@ -52,7 +52,7 @@ const Chat = ({
   useEffect(() => {
     setMutes(clientMutes || []);
 
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = (e) => {
       if (e.type === 'notification.mutes_updated') setMutes(e.me?.mutes || []);
     };

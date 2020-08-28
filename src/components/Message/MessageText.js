@@ -89,7 +89,7 @@ const MessageTextComponent = (props) => {
           </div>
         )}
 
-        {unsafeHTML ? (
+        {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
           messageText

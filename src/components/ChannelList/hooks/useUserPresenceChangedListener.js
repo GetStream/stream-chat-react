@@ -10,7 +10,7 @@ import { ChatContext } from '../../../context';
 export const useUserPresenceChangedListener = (setChannels) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = (e) => {
       setChannels((channels) => {
         const newChannels = channels.map((channel) => {

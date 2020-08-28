@@ -136,7 +136,7 @@ const ChannelList = (props) => {
 
   // If the active channel is deleted, then unset the active channel.
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = (e) => {
       if (e?.cid === channel?.cid) {
         setActiveChannel?.();

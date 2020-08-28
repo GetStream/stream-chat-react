@@ -4,17 +4,20 @@
 import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
-import { MessageResponse } from 'stream-chat';
+import { MessageResponse, UnknownType } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 
+export type StreamChatReactClient = Client.StreamChat<{ image?: string; subtitle?: string; member_count?: number }, { status?: string; image?: string }>
+export type StreamChatChannelState = Client.ChannelState<UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, UnknownType, UnknownType, { status?: string; image?: string }>
+
 export interface ChatContextValue {
-  client: Client.StreamChat;
-  channel?: Client.Channel;
+  client: StreamChatReactClient;
+  channel?: ReturnType<StreamChatReactClient['channel']>;
   setActiveChannel?(
-    channel?: Client.Channel,
+    channel?: ReturnType<StreamChatReactClient['channel']>,
     watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ): void;
@@ -37,7 +40,7 @@ export interface ChannelContextValue extends ChatContextValue {
   online?: boolean;
   watcher_count?: number;
   error?: Error | null;
-  // Loading the intial content of the channel
+  // Loading the initial content of the channel
   loading?: boolean;
   // Loading more messages
   loadingMore?: boolean;
@@ -53,7 +56,7 @@ export interface ChannelContextValue extends ChatContextValue {
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): Promise<any>;
   editMessage?(
-    updatedMessage: Client.Message,
+    updatedMessage: Client.MessageResponse,
   ): Promise<Client.UpdateMessageAPIResponse | void>;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
@@ -129,7 +132,7 @@ export interface ChannelProps {
   /** Override update(edit) message request (Advanced usage only) */
   doUpdateMessageRequest?(
     channelId: string,
-    updatedMessage: Client.Message,
+    updatedMessage: Client.MessageResponse,
   ): Promise<Client.UpdateMessageAPIResponse>;
 }
 
@@ -594,11 +597,11 @@ export interface AttachmentUIComponentProps {
 export interface MessageProps extends TranslationContextValue {
   addNotification?(notificationText: string, type: string): any;
   /** The message object */
-  message?: Client.MessageResponse;
+  message?: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>;
   /** The client connection object for connecting to Stream */
-  client?: Client.StreamChat;
+  client?: Client.StreamChat<{ image?: string; subtitle?: string; member_count?: number }, { status?: string; image?: string }>;
   /** A list of users that have read this message **/
-  readBy?: Array<Client.UserResponse>;
+  readBy?: Array<Client.UserResponse<{ status?: string; image?: string }>>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
@@ -615,14 +618,14 @@ export interface MessageProps extends TranslationContextValue {
   lastReceivedId?: string | null;
   messageListRect?: DOMRect;
   updateMessage?(
-    updatedMessage: Client.MessageResponse,
+    updatedMessage: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>,
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
+  getFlagMessageErrorNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
+  getMuteUserSuccessNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
+  getMuteUserErrorNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
@@ -1135,8 +1138,8 @@ export interface MessageTeamStatusProps {
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
-  message?: Client.MessageResponse;
-  readBy?: Array<Client.UserResponse>;
+  message?: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>;
+  readBy?: Array<Client.UserResponse<{ status?: string; image?: string }>>;
 }
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,

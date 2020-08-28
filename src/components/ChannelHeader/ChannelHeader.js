@@ -23,7 +23,7 @@ const ChannelHeader = ({ title, live }) => {
         <span className="str-chat__header-hamburger--line"></span>
         <span className="str-chat__header-hamburger--line"></span>
       </div>
-      {channel && channel.data.image && (
+      {channel && channel.data?.image && (
         <Avatar
           image={channel.data.image}
           shape="rounded"
@@ -32,26 +32,26 @@ const ChannelHeader = ({ title, live }) => {
       )}
       <div className="str-chat__header-livestream-left">
         <p className="str-chat__header-livestream-left--title">
-          {title || (channel && channel.data.name)}{' '}
+          {title || (channel && channel.data?.name)}{' '}
           {live && (
             <span className="str-chat__header-livestream-left--livelabel">
               {t('live')}
             </span>
           )}
         </p>
-        {channel && channel.data.subtitle && (
+        {channel && channel.data?.subtitle && (
           <p className="str-chat__header-livestream-left--subtitle">
-            {channel.data.subtitle}
+            {channel.data?.subtitle}
           </p>
         )}
         <p className="str-chat__header-livestream-left--members">
           {!live &&
             channel &&
-            channel.data.member_count &&
-            channel.data.member_count > 0 && (
+            channel.data?.member_count &&
+            channel.data?.member_count > 0 && (
               <>
                 {t('{{ memberCount }} members', {
-                  memberCount: channel.data.member_count,
+                  memberCount: channel.data?.member_count,
                 })}
                 ,{' '}
               </>
