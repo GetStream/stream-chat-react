@@ -22,7 +22,7 @@ import { Streami18n } from '../../i18n';
  *
  * @example ../../docs/Chat.md
  * @typedef {import('stream-chat').Channel | undefined} ChannelState
- * @type {React.FC<{ client: import('stream-chat').StreamChat, theme?: string, i18nInstance?: Streami18n, initialNavOpen?: boolean }>}
+ * @type {React.FC<{ client: import('types').StreamChatReactClient, theme?: string, i18nInstance?: Streami18n, initialNavOpen?: boolean }>}
  */
 const Chat = ({
   client,

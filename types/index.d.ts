@@ -10,8 +10,13 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 
-export type StreamChatReactClient = Client.StreamChat<{ image?: string; subtitle?: string; member_count?: number }, { status?: string; image?: string }>
-export type StreamChatChannelState = Client.ChannelState<UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, UnknownType, UnknownType, { status?: string; image?: string }>
+export type Mute = Client.Mute<StreamChatReactUserType>
+export type StreamChatReactUserType = { status?: string; image?: string; mutes?: Array<Mute> }
+export type StreamChatReactChannelType = { image?: string; subtitle?: string; member_count?: number }
+export type StreamChatMessageType = { event?: Client.Event<UnknownType, UnknownType, StreamChatReactChannelType, StreamChatMessageType, UnknownType, StreamChatReactUserType>}
+export type StreamChatReactMessageResponse = Client.MessageResponse<StreamChatMessageType, UnknownType, StreamChatReactChannelType, UnknownType, StreamChatReactUserType>
+export type StreamChatReactClient = Client.StreamChat<StreamChatReactChannelType, StreamChatReactUserType, StreamChatMessageType>
+export type StreamChatChannelState = Client.ChannelState<UnknownType, StreamChatReactChannelType, UnknownType, StreamChatMessageType, UnknownType, StreamChatReactUserType>
 
 export interface ChatContextValue {
   client: StreamChatReactClient;
@@ -56,7 +61,7 @@ export interface ChannelContextValue extends ChatContextValue {
   maxNumberOfFiles?: number;
   sendMessage?(message: Client.Message): Promise<any>;
   editMessage?(
-    updatedMessage: Client.MessageResponse,
+    updatedMessage: Client.Message<StreamChatMessageType, UnknownType, StreamChatReactUserType>
   ): Promise<Client.UpdateMessageAPIResponse | void>;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
@@ -597,11 +602,11 @@ export interface AttachmentUIComponentProps {
 export interface MessageProps extends TranslationContextValue {
   addNotification?(notificationText: string, type: string): any;
   /** The message object */
-  message?: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>;
+  message?: StreamChatReactMessageResponse;
   /** The client connection object for connecting to Stream */
-  client?: Client.StreamChat<{ image?: string; subtitle?: string; member_count?: number }, { status?: string; image?: string }>;
+  client?: StreamChatReactClient;
   /** A list of users that have read this message **/
-  readBy?: Array<Client.UserResponse<{ status?: string; image?: string }>>;
+  readBy?: Array<Client.UserResponse<StreamChatReactUserType>>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
@@ -618,14 +623,14 @@ export interface MessageProps extends TranslationContextValue {
   lastReceivedId?: string | null;
   messageListRect?: DOMRect;
   updateMessage?(
-    updatedMessage: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>,
+    updatedMessage: StreamChatReactMessageResponse,
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
-  getFlagMessageErrorNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
-  getMuteUserSuccessNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
-  getMuteUserErrorNotification?(message: MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>): string;
+  getFlagMessageSuccessNotification?(message: StreamChatReactMessageResponse): string;
+  getFlagMessageErrorNotification?(message: StreamChatReactMessageResponse): string;
+  getMuteUserSuccessNotification?(message: StreamChatReactMessageResponse): string;
+  getMuteUserErrorNotification?(message: StreamChatReactMessageResponse): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
@@ -656,7 +661,7 @@ export interface MessageComponentProps
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string> | boolean;
   members?: SeamlessImmutable.Immutable<{
-    [user_id: string]: Client.ChannelMemberResponse;
+    [user_id: string]: Client.ChannelMemberResponse<StreamChatReactUserType>;
   }>;
   retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
@@ -712,8 +717,8 @@ export interface ThreadProps {
   Message?: React.ElementType<MessageUIComponentProps>;
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
-  thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
-  threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  thread?: ReturnType<StreamChatChannelState['messageToImmutable']> | null
+  threadMessages?: SeamlessImmutable.ImmutableArray<ReturnType<StreamChatChannelState['messageToImmutable']>>;
   channel?: Client.Channel;
   loadMoreThread?(): void;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
@@ -892,7 +897,7 @@ export interface UserItemProps {
 }
 
 export interface EventComponentProps {
-  message: Client.MessageResponse;
+  message: StreamChatReactMessageResponse;
 }
 
 export interface GalleryProps {
@@ -1138,8 +1143,8 @@ export interface MessageTeamStatusProps {
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
-  message?: Client.MessageResponse<UnknownType, UnknownType, { image?: string; subtitle?: string; member_count?: number }, UnknownType, { status?: string; image?: string }>;
-  readBy?: Array<Client.UserResponse<{ status?: string; image?: string }>>;
+  message?: StreamChatReactMessageResponse;
+  readBy?: Array<Client.UserResponse<StreamChatReactUserType>>;
 }
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,

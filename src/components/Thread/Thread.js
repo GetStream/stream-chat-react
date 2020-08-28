@@ -34,12 +34,13 @@ class Thread extends PureComponent {
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
-    thread: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<import('stream-chat').MessageResponse>>} */ (PropTypes.object),
+    // thread: /** @type {PropTypes.Validator<ReturnType<import('stream-chat').ChannelState['messageToImmutable']>>} */ (PropTypes.object),
+    thread: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatChannelState['messageToImmutable']> | null> } */ (PropTypes.object),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The array of immutable messages to render. By default they are provided by parent Channel component */
     threadMessages:
-      /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>>} */
+      /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableArray<ReturnType<import('types').StreamChatChannelState['messageToImmutable']>>>} */
       (PropTypes.array),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**

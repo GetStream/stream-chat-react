@@ -20,7 +20,7 @@ export const useReactionHandler = (message) => {
       return;
     }
 
-    let userExistingReaction = /** @type { import('stream-chat').ReactionResponse<Record<String, unknown>, { status?: string; image?: string }> | null } */ (null);
+    let userExistingReaction = /** @type { import('stream-chat').ReactionResponse<Record<String, unknown>, import('types').StreamChatReactUserType> | null } */ (null);
 
     const currentUser = client.userID;
     if (message.own_reactions) {
