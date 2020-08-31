@@ -45,10 +45,13 @@ const MessageTextComponent = (props) => {
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
+  const messageTextItem = message?.text;
+  const messageMentionedUsersItem = message?.mentioned_users;
   const messageText = useMemo(
-    () => renderText(message?.text, message?.mentioned_users),
-    [message?.text, message?.mentioned_users],
+    () => renderText(messageTextItem, messageMentionedUsersItem),
+    [messageTextItem, messageMentionedUsersItem],
   );
+
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass ||

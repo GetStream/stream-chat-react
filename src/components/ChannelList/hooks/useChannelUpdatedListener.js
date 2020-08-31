@@ -33,7 +33,9 @@ export const useChannelUpdatedListener = (
 
         return channels;
       });
-      forceUpdate?.();
+      if (forceUpdate) {
+        forceUpdate();
+      }
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);
       }

@@ -24,7 +24,9 @@ export const useChannelTruncatedListener = (
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);
       }
-      forceUpdate?.();
+      if (forceUpdate) {
+        forceUpdate();
+      }
     };
 
     client.on('channel.truncated', handleEvent);
