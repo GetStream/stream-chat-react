@@ -137,7 +137,7 @@ export interface ChannelProps {
   /** Override update(edit) message request (Advanced usage only) */
   doUpdateMessageRequest?(
     channelId: string,
-    updatedMessage: Client.MessageResponse,
+    updatedMessage: Client.Message,
   ): Promise<Client.UpdateMessageAPIResponse>;
 }
 
