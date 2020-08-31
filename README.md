@@ -54,6 +54,8 @@ The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream
 
 The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
 
+**Note:** The [stream-chat-js](https://github.com/getstream/stream-chat-js) library allows for fully typed responses using generics, currently the React SDK does not allow for user defined types via generics, so custom fields will be returned with type `unknown` and need to be ignored using `@ts-ignore` when using custom components in typescript.
+
 ## Commands
 
 - yarn docs-server
@@ -62,9 +64,9 @@ The React components are created using the [stream-chat-js](https://github.com/g
 
 ## Component Reusability
 
-1.  If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageTeam to see how this approach works.
+1. If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageTeam to see how this approach works.
 
-2.  Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children. Have a look at how flexible the channel layout is due to this approach:
+2. Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children. Have a look at how flexible the channel layout is due to this approach:
 
 ```jsx
 <Channel>
@@ -131,7 +133,7 @@ Note that the PureComponent uses a shallow diff to determine if a component shou
 The regular component simply always rerenders when there is a state change.
 
 You can read more about PureComponents and common gotchas here:
-https://codeburst.io/when-to-use-component-or-purecomponent-a60cfad01a81
+<https://codeburst.io/when-to-use-component-or-purecomponent-a60cfad01a81>
 
 You want the shallow diff only to be true if something changed.
 Common mistakes that hurt performance are:
@@ -146,13 +148,13 @@ Common mistakes that hurt performance are:
 Instance of class `Streami18n` should be provided to the Chat component to handle translations.
 Stream provides the following list of in-built translations for components:
 
-1.  English (en)
-2.  Dutch (nl)
-3.  Russian (ru)
-4.  Turkish (tr)
-5.  French (fr)
-6.  Italian (it)
-7.  Hindi (hi)
+1. English (en)
+2. Dutch (nl)
+3. Russian (ru)
+4. Turkish (tr)
+5. French (fr)
+6. Italian (it)
+7. Hindi (hi)
 
 The default language is English. The simplest way to start using chat components in one of the in-built languages would be the following:
 
@@ -178,7 +180,7 @@ const i18n = new Streami18n({
 });
 ```
 
-You can find all the available keys here: https://github.com/GetStream/stream-chat-react/tree/master/src/i18n
+You can find all the available keys here: <https://github.com/GetStream/stream-chat-react/tree/master/src/i18n>
 
 They are also exported as a JSON object from the library.
 
@@ -195,7 +197,7 @@ import {
 } from 'stream-chat-react';
 ```
 
-Please read this docs on i18n for more details and further customizations - https://getstream.github.io/stream-chat-react/#section-streami18n
+Please read this docs on i18n for more details and further customizations - <https://getstream.github.io/stream-chat-react/#section-streami18n>
 
 ## Contributing
 
