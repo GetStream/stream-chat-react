@@ -28,13 +28,14 @@ class Thread extends PureComponent {
     /** Make input focus on mounting thread */
     autoFocus: PropTypes.bool,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    channel: PropTypes.instanceOf(Channel).isRequired,
+    channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.instanceOf(
+      Channel,
+    ).isRequired),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
-    // thread: /** @type {PropTypes.Validator<ReturnType<import('stream-chat').ChannelState['messageToImmutable']>>} */ (PropTypes.object),
     thread: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatChannelState['messageToImmutable']> | null> } */ (PropTypes.object),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
