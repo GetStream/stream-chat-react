@@ -182,7 +182,7 @@ const MessageLivestreamComponent = (props) => {
             handleReaction={handleReaction}
             detailedView
             latest_reactions={message?.latest_reactions}
-            reaction_counts={message?.reaction_counts}
+            reaction_counts={message?.reaction_counts || undefined}
             ref={reactionSelectorRef}
           />
         )}
@@ -288,7 +288,7 @@ const MessageLivestreamComponent = (props) => {
             {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
             <ReactionsList
-              reaction_counts={message.reaction_counts}
+              reaction_counts={message.reaction_counts || undefined}
               reactions={message.latest_reactions}
               handleReaction={propHandleReaction || handleReaction}
             />

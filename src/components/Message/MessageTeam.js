@@ -237,7 +237,7 @@ const MessageTeam = (props) => {
                     <ReactionSelector
                       handleReaction={propHandleReaction || handleReaction}
                       latest_reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts}
+                      reaction_counts={message.reaction_counts || undefined}
                       detailedView={true}
                       ref={reactionSelectorRef}
                     />
@@ -326,7 +326,7 @@ const MessageTeam = (props) => {
               message.latest_reactions.length !== 0 &&
               message.text !== '' && (
                 <ReactionsList
-                  reaction_counts={message.reaction_counts}
+                  reaction_counts={message.reaction_counts || undefined}
                   handleReaction={propHandleReaction || handleReaction}
                   reactions={message.latest_reactions}
                 />
@@ -368,7 +368,7 @@ const MessageTeam = (props) => {
             message.latest_reactions.length !== 0 &&
             message.text === '' && (
               <ReactionsList
-                reaction_counts={message.reaction_counts}
+                reaction_counts={message.reaction_counts || undefined}
                 handleReaction={propHandleReaction || handleReaction}
                 reactions={message.latest_reactions}
               />

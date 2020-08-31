@@ -87,7 +87,7 @@ const ReactionSelectorWithRef = (
   const getLatestUserForReactionType = (type) =>
     latest_reactions?.find(
       (reaction) => reaction.type === type && !!reaction.user,
-    )?.user;
+    )?.user || undefined;
 
   return (
     <div

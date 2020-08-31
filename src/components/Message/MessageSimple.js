@@ -170,7 +170,7 @@ const MessageSimple = (props) => {
                 {hasReactions && !showDetailedReactions && (
                   <ReactionsList
                     reactions={message.latest_reactions}
-                    reaction_counts={message.reaction_counts}
+                    reaction_counts={message.reaction_counts || undefined}
                     onClick={onReactionListClick}
                     reverse={true}
                   />
@@ -179,7 +179,7 @@ const MessageSimple = (props) => {
                   <ReactionSelector
                     handleReaction={propHandleReaction || handleReaction}
                     detailedView
-                    reaction_counts={message.reaction_counts}
+                    reaction_counts={message.reaction_counts || undefined}
                     latest_reactions={message.latest_reactions}
                     ref={reactionSelectorRef}
                   />
