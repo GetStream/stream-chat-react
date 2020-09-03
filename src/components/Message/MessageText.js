@@ -1,5 +1,6 @@
 // @ts-check
 import React, { useContext, useRef } from 'react';
+import { MML } from 'mml-react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import { ReactionsList, ReactionSelector } from '../Reactions';
@@ -7,6 +8,7 @@ import {
   useReactionHandler,
   useReactionClick,
   useMentionsUIHandler,
+  useActionHandlerMML,
 } from './hooks';
 import { messageHasReactions, messageHasAttachments } from './utils';
 import MessageOptions from './MessageOptions';
@@ -40,6 +42,7 @@ const MessageTextComponent = (props) => {
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
+  const handleActionMML = useActionHandlerMML(message);
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass ||
@@ -48,6 +51,12 @@ const MessageTextComponent = (props) => {
   if (!message?.text) {
     return null;
   }
+
+  const renderedText = message?.mml ? (
+    <MML source={message.mml} onSubmit={handleActionMML} />
+  ) : (
+    renderText(message)
+  );
 
   return (
     <div className={wrapperClass}>
@@ -83,7 +92,7 @@ const MessageTextComponent = (props) => {
         {unsafeHTML ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          renderText(message)
+          renderedText
         )}
 
         {/* if reactions show them */}
