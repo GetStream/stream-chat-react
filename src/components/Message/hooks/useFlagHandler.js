@@ -3,6 +3,9 @@ import { useContext } from 'react';
 import { ChannelContext, TranslationContext } from '../../../context';
 import { validateAndGetMessage } from '../utils';
 
+export const missingUseFlagHandlerParameterWarning =
+  'useFlagHandler was called but it is missing one or more necessary parameters.';
+
 /**
  * @typedef {{
  *   notify?: import('types').MessageComponentProps['addNotification'],
@@ -11,7 +14,7 @@ import { validateAndGetMessage } from '../utils';
  * }} NotificationArg
  * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
  */
-export const useFlagHandler = (message, notifications) => {
+export const useFlagHandler = (message, notifications = {}) => {
   const { client } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
 
@@ -23,9 +26,12 @@ export const useFlagHandler = (message, notifications) => {
       getSuccessNotification,
       getErrorNotification,
     } = notifications;
+
     if (!client || !t || !notify || !message) {
+      console.warn(missingUseFlagHandlerParameterWarning);
       return;
     }
+
     try {
       await client.flagMessage(message.id);
       const successMessage =

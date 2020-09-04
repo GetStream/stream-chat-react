@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.2) 2020-08-21
+
+- Separated ConnectionStatus component from MessageList [82c8927](https://github.com/GetStream/stream-chat-react/commit/82c892773cd4aebed275259c93829ba6cb34b0be)
+- Bug fix: When Channel component is standalone used (without ChannelList), mentions feature wouldn't work [4f64abc](https://github.com/GetStream/stream-chat-react/commit/4f64abcda95c77344a973b2972965a70b0cd8295)
+
+## [2.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.1) 2020-07-31
+
+- Added listener for channel.hidden event and prop to override the default behaviour onChannelHidden [643af50](https://github.com/GetStream/stream-chat-react/commit/33739bd730f61da62e6fbe305a2807575643af50)
+- Added listener for channel.visible event and prop to override the default behaviour onChannelVisible [56e1208](https://github.com/GetStream/stream-chat-react/commit/5066052d0948310582c74476d3981965b56e1208)
+
+## [2.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.0) 2020-07-31
+
+- Added doMarkReadRequest prop to Channel component, to override markRead api calls [49a058b8](https://github.com/GetStream/stream-chat-react/commit/49a058b8489699fb3de4fc5f7041a4d09d9acd39)
+
+## [2.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.3) 2020-07-27
+
+- Fix empty reaction showing bubble [#473](https://github.com/GetStream/stream-chat-react/pull/473)
+
+## [2.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.2) 2020-07-27
+
+- Add formatDate to docs [#469](https://github.com/GetStream/stream-chat-react/pull/469)
+- Allow reaction override in Message components [#470](https://github.com/GetStream/stream-chat-react/pull/470)
+- Fix runtime require in browser bundle [#472](https://github.com/GetStream/stream-chat-react/pull/472)
+
+## [2.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.1) 2020-07-22
+
+- Bumped `react-file-utils` to `0.3.15` which includes an upgraded version of `blueimp-load-image` which makes it easier to use this library in SSR apps.
+
+## [2.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.1.0) 2020-07-22
+
+- Rename exported component `File` to `FileAttachment` to avoid overriding `window.File` in bundled release
+
+## [2.0.4](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.4) 2020-07-21
+
+- Fixed type issues
+- Fixed an issue with the mobile navigation
+- Added the ability to customize the datetime stamp on Message components using the `formatDate` prop
+
+## [2.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.3) 2020-07-20
+
+- All components using mutes get them using the useContext hook.
+- Performance updates
+- Fix for document.title when read_events are disabled
+- Added docs on using included hooks
+
 ## [2.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.0.2) 2020-07-16
 
 - Fixed some issues with editing messages
@@ -134,7 +179,7 @@ We’re bumping `stream-chat-react` to version 2.0.1 because over the past three
 
 We've already been on a v1 release for a while but never updated our versioning. Right now we're in the process of rewriting our components to be more future proof and we started using hooks, hence the v1.0.0 today.
 
-**Breaking change:** `stream-chat-react` no relies on hooks and will need at least `v16.8.x` of `react` to work.
+**Breaking change:** `stream-chat-react` now relies on hooks and will need at least `v16.8.x` of `react` to work.
 
 - Fixed some issues with mutes
 - Fixed issues with attachments

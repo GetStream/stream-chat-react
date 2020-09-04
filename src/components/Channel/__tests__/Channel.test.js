@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Visibility from 'visibilityjs';
 import Immutable from 'seamless-immutable';
 import Channel from '../Channel';
 import { Chat } from '../../Chat';
@@ -23,8 +22,6 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
   LoadingErrorIndicator: jest.fn(() => <div />),
 }));
-
-jest.mock('visibilityjs');
 
 let chatClient;
 let channel;
@@ -183,6 +180,16 @@ describe('Channel', () => {
     renderComponent();
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
+  });
+  it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
+    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const doMarkReadRequest = jest.fn();
+
+    renderComponent({
+      doMarkReadRequest,
+    });
+
+    await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
   });
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -651,7 +658,6 @@ describe('Channel', () => {
 
       it('should mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
         const markReadSpy = jest.spyOn(channel, 'markRead');
-        jest.spyOn(Visibility, 'state').mockImplementation(() => 'visible');
 
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher({ message });

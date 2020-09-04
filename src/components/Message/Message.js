@@ -6,7 +6,6 @@ import { ChannelContext } from '../../context';
 import MessageSimple from './MessageSimple';
 import {
   MESSAGE_ACTIONS,
-  isUserMuted,
   getMessageActions,
   areMessagePropsEqual,
 } from './utils';
@@ -39,7 +38,6 @@ const Message = (props) => {
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
     message,
-    mutes,
     channel: propChannel,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
@@ -49,6 +47,7 @@ const Message = (props) => {
     onMentionsHover: propOnMentionsHover,
     Message: MessageUIComponent = MessageSimple,
     messageActions = Object.keys(MESSAGE_ACTIONS),
+    formatDate,
     groupStyles = [],
   } = props;
   const { channel: contextChannel } = useContext(ChannelContext);
@@ -78,7 +77,6 @@ const Message = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const isMuted = isUserMuted(message, mutes);
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
@@ -103,6 +101,7 @@ const Message = (props) => {
       <MessageUIComponent
         {...props}
         editing={editing}
+        formatDate={formatDate}
         clearEditingState={clearEdit}
         setEditingState={setEdit}
         groupStyles={groupStyles}
@@ -117,7 +116,6 @@ const Message = (props) => {
         handleEdit={setEdit}
         handleRetry={handleRetry}
         handleOpenThread={handleOpenThread}
-        isUserMuted={() => isMuted}
         isMyMessage={() => isMyMessage}
         channelConfig={channelConfig}
         onMentionsClickMessage={onMentionsClick}
@@ -150,6 +148,9 @@ Message.propTypes = {
   readBy: PropTypes.array,
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles: PropTypes.array,
+
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
   /**
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
@@ -160,6 +161,15 @@ Message.propTypes = {
    * All props are passed into this component.
    */
   MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
   /**
    * Attachment UI component to display attachment in individual message.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)

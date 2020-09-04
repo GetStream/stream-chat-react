@@ -1,9 +1,12 @@
 // @ts-check
-import React, { useContext, useRef } from 'react';
 import { MML } from 'mml-react';
+import React, { useMemo, useContext, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
-import { ReactionsList, ReactionSelector } from '../Reactions';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
 import {
   useReactionHandler,
   useReactionClick,
@@ -18,6 +21,8 @@ import MessageOptions from './MessageOptions';
  */
 const MessageTextComponent = (props) => {
   const {
+    ReactionsList = DefaultReactionList,
+    ReactionSelector = DefaultReactionSelector,
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
     customWrapperClass,
@@ -43,6 +48,10 @@ const MessageTextComponent = (props) => {
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
   const handleActionMML = useActionHandlerMML(message);
+  const messageText = useMemo(
+    () => renderText(message?.text, message?.mentioned_users),
+    [message?.text, message?.mentioned_users],
+  );
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass ||
@@ -55,7 +64,7 @@ const MessageTextComponent = (props) => {
   const renderedText = message?.mml ? (
     <MML source={message.mml} onSubmit={handleActionMML} />
   ) : (
-    renderText(message)
+    messageText
   );
 
   return (

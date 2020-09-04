@@ -166,13 +166,12 @@ export const truncate = (input, length, end = '...') => {
   return input;
 };
 
-export const renderText = (message) => {
+export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
   // translate links
-  const { text, mentioned_users } = message;
   if (!text) return null;
 
-  let newText = message.text;
+  let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
   // extract all valid links/emails within text and replace it with proper markup
   linkifyFind(newText).forEach(({ type, href, value }) => {
@@ -211,7 +210,7 @@ export const renderText = (message) => {
         if (uri.startsWith('app://')) {
           return uri;
         } else {
-          return require('react-markdown').uriTransformer(uri);
+          return ReactMarkdown.uriTransformer(uri);
         }
       }}
     />

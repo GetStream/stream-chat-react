@@ -72,7 +72,6 @@ const normalBundle = {
     'emoji-regex',
     'seamless-immutable',
     'isomorphic-ws',
-    'visibilityjs',
     'custom-event',
     'textarea-caret',
     '@braintree/sanitize-url',
