@@ -25,6 +25,21 @@ const theme = urlParams.get('theme') || 'light';
 //   urlParams.get('user_token') ||
 //   process.env.REACT_APP_CHAT_API_DEFAULT_USER_TOKEN;
 
+const filters = { type: 'team', example: 1 };
+const sort = {
+  last_message_at: -1,
+  cid: 1,
+};
+const options = {
+  member: true,
+  watch: true,
+  limit: 30,
+};
+
+const Paginator = (props) => (
+  <InfiniteScrollPaginator threshold={300} {...props} />
+);
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -39,16 +54,6 @@ class App extends Component {
   }
 
   render() {
-    const filters = { type: 'team', example: 1 };
-    const sort = {
-      last_message_at: -1,
-      cid: 1,
-    };
-    const options = {
-      member: true,
-      watch: true,
-      limit: 30,
-    };
     return (
       <Chat client={this.chatClient} theme={`team ${theme}`}>
         <ChannelList
@@ -56,9 +61,7 @@ class App extends Component {
           sort={sort}
           options={options}
           List={ChannelListTeam}
-          Paginator={(props) => (
-            <InfiniteScrollPaginator threshold={300} {...props} />
-          )}
+          Paginator={Paginator}
         />
         <Channel
           onMentionsHover={(e, user) => console.log(e, user)}

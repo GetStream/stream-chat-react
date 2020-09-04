@@ -6,6 +6,7 @@ import {
   getTestClientWithUser,
   generateUser,
   generateMessage,
+  generateReaction,
 } from 'mock-builders';
 import { MESSAGE_ACTIONS } from '../utils';
 import { ChannelContext, TranslationContext } from '../../../context';
@@ -126,6 +127,56 @@ describe('<MessageSimple />', () => {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
+  });
+
+  it('should render reaction selector with custom component when one is given', async () => {
+    const message = generateBobMessage({ text: undefined });
+    // Passing the ref prevents a react warning
+    // eslint-disable-next-line no-unused-vars
+    const CustomReactionSelector = ({ handleReaction }, ref) => (
+      <ul data-testid="custom-reaction-selector">
+        <li>
+          <button onClick={(e) => handleReaction('smile-emoticon', e)}>
+            :)
+          </button>
+        </li>
+        <li>
+          <button onClick={(e) => handleReaction('sad-emoticon', e)}>:(</button>
+        </li>
+      </ul>
+    );
+    const { getByTestId } = await renderMessageSimple(message, {
+      ReactionSelector: React.forwardRef(CustomReactionSelector),
+    });
+    const { onReactionListClick } = MessageOptionsMock.mock.calls[0][0];
+    act(() => onReactionListClick());
+    expect(getByTestId('custom-reaction-selector')).toBeInTheDocument();
+  });
+
+  it('should render reaction list with custom component when one is given', async () => {
+    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const message = generateAliceMessage({
+      text: undefined,
+      latest_reactions: [bobReaction],
+    });
+    const CustomReactionsList = ({ reactions }) => (
+      <ul data-testid="custom-reaction-list">
+        {reactions.map((reaction) => {
+          if (reaction.type === 'cool-reaction') {
+            return <li key={reaction.type + reaction.user_id}>:)</li>;
+          }
+          return <li key={reaction.type + reaction.user_id}>?</li>;
+        })}
+      </ul>
+    );
+    const { getByTestId } = await renderMessageSimple(
+      message,
+      {
+        ReactionsList: CustomReactionsList,
+      },
+      { reactions: true },
+    );
+    expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
 
   it('should render an edit form in a modal when in edit mode', async () => {

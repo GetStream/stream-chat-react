@@ -6,7 +6,10 @@ import {
   generateMessage,
   generateUser,
 } from 'mock-builders';
-import { useFlagHandler } from '../useFlagHandler';
+import {
+  useFlagHandler,
+  missingUseFlagHandlerParameterWarning,
+} from '../useFlagHandler';
 import { ChannelContext } from '../../../../context';
 
 const alice = generateUser({ name: 'alice' });
@@ -45,6 +48,17 @@ describe('useHandleFlag custom hook', () => {
   it('should generate function that handles mutes', async () => {
     const handleFlag = await renderUseHandleFlagHook();
     expect(typeof handleFlag).toBe('function');
+  });
+
+  it('should throw a warning when there are missing parameters and the handler is called', async () => {
+    const consoleWarnSpy = jest
+      .spyOn(console, 'warn')
+      .mockImplementationOnce(() => null);
+    const handleFlag = await renderUseHandleFlagHook(undefined);
+    await handleFlag(mouseEventMock);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      missingUseFlagHandlerParameterWarning,
+    );
   });
 
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {

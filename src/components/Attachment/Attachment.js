@@ -8,7 +8,7 @@ import DefaultAttachmentActions from './AttachmentActions';
 
 import DefaultAudio from './Audio';
 import DefaultCard from './Card';
-import DefaultFile from './File';
+import DefaultFile from './FileAttachment';
 
 import { Image as DefaultImage } from '../Gallery';
 
@@ -284,8 +284,6 @@ Attachment.propTypes = {
   attachment: PropTypes.object.isRequired,
   /**
    *
-   * Handler for actions. Actions in combination with attachments can be used to build [commands](https://getstream.io/chat/docs/#channel_commands).
-   *
    * @param name {string} Name of action
    * @param value {string} Value of action
    * @param event Dom event that triggered this handler
@@ -300,7 +298,7 @@ Attachment.propTypes = {
    * Custom UI component for file type attachment
    * Defaults to [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/File.js)
    */
-  File: /** @type {PropTypes.Validator<React.ComponentType<import('types').FileProps>>} */ (PropTypes.elementType),
+  File: /** @type {PropTypes.Validator<React.ComponentType<import('types').FileAttachmentProps>>} */ (PropTypes.elementType),
   /**
    * Custom UI component for image type attachment
    * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.js)

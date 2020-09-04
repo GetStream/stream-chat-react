@@ -682,15 +682,6 @@ describe('<Message /> component', () => {
     expect(openThread).toHaveBeenCalledWith(message, mouseEventMock);
   });
 
-  it('should correctly tell if message owner is muted', async () => {
-    const message = generateMessage({ user: bob });
-    await renderComponent(message, {
-      mutes: [{ target: { id: bob.id } }],
-    });
-    const { isUserMuted } = getRenderedProps();
-    expect(isUserMuted()).toBe(true);
-  });
-
   it('should correctly tell if message belongs to currently set user', async () => {
     const message = generateMessage({ user: alice });
     const client = await getTestClientWithUser(alice);

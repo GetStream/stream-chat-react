@@ -2,6 +2,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TranslationContext } from '../../context';
+import { ReplyIcon } from './icons';
 
 /** @type {React.FC<import("types").MessageRepliesCountButtonProps>} */
 const MessageRepliesCountButton = ({
@@ -39,12 +40,7 @@ const MessageRepliesCountButton = ({
         className="str-chat__message-replies-count-button"
         onClick={onClick}
       >
-        <svg width="18" height="15" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M.56 10.946H.06l-.002-.498L.025.92a.5.5 0 1 1 1-.004l.032 9.029H9.06v-4l9 4.5-9 4.5v-4H.56z"
-            fillRule="nonzero"
-          />
-        </svg>
+        <ReplyIcon />
         {reply_count === 1 ? singleReplyText : pluralReplyText}
       </button>
     );

@@ -1,10 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import File from '../File';
+import FileAttachment from '../FileAttachment';
 
 const getComponent = (attachment) => {
-  return <File attachment={attachment} />;
+  return <FileAttachment attachment={attachment} />;
 };
 
 describe('File', () => {

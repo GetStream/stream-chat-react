@@ -35,43 +35,80 @@ module.exports = {
       usageMode: 'expand',
     },
     {
-      name: 'Message Components',
-      components: [
-        'src/components/Message/Message.js',
-        'src/components/Message/MessageSimple.js',
-        'src/components/Message/MessageTeam.js',
-        'src/components/Message/MessageLivestream.js',
-        'src/components/Attachment/Attachment.js',
-        'src/components/Attachment/AttachmentActions.js',
-        'src/components/Reactions/ReactionSelector.js',
-        'src/components/MessageActions/MessageActionsBox.js',
-      ],
-      exampleMode: 'collapse',
+      name: 'Message',
       usageMode: 'expand',
-    },
-    {
-      name: 'Message Input',
       sections: [
         {
           name: 'Components',
           components: [
-            'src/components/MessageInput/MessageInput.js',
-            'src/components/MessageInput/MessageInputSmall.js',
-            'src/components/MessageInput/MessageInputLarge.js',
-            'src/components/MessageInput/MessageInputFlat.js',
-            'src/components/ChatAutoComplete/ChatAutoComplete.js',
-            'src/components/EditMessageForm/EditMessageForm.js',
+            'src/components/Message/Message.js',
+            'src/components/Message/MessageSimple.js',
+            'src/components/Message/MessageTeam.js',
+            'src/components/Message/MessageLivestream.js',
+            'src/components/Attachment/Attachment.js',
+            'src/components/Attachment/AttachmentActions.js',
+            'src/components/Reactions/ReactionSelector.js',
+            'src/components/MessageActions/MessageActionsBox.js',
           ],
+          exampleMode: 'collapse',
         },
         {
           name: 'Custom Hooks',
+          content: 'src/docs/MessageCustomHooks.md',
           sections: [
             {
-              name: 'useMessageInputState',
-              content: 'src/docs/MessageInputHooks.md',
+              name: 'useDeleteHandler',
+              content: 'src/docs/useDeleteHandler.md',
+            },
+            {
+              name: 'useEditHandler',
+              content: 'src/docs/useEditHandler.md',
+            },
+            {
+              name: 'useFlagHandler',
+              content: 'src/docs/useFlagHandler.md',
+            },
+            {
+              name: 'useMentionsHandler',
+              content: 'src/docs/useMentionsHandler.md',
+            },
+            {
+              name: 'useMuteHandler',
+              content: 'src/docs/useMuteHandler.md',
+            },
+            {
+              name: 'useOpenThreadHandler',
+              content: 'src/docs/useOpenThreadHandler.md',
+            },
+            {
+              name: 'useReactionHandler',
+              content: 'src/docs/useReactionHandler.md',
+            },
+            {
+              name: 'useRetryHandler',
+              content: 'src/docs/useRetryHandler.md',
+            },
+            {
+              name: 'useUserHandler',
+              content: 'src/docs/useUserHandler.md',
+            },
+            {
+              name: 'useUserRole',
+              content: 'src/docs/useUserRole.md',
             },
           ],
         },
+      ],
+    },
+    {
+      name: 'Message Input',
+      components: [
+        'src/components/MessageInput/MessageInput.js',
+        'src/components/MessageInput/MessageInputSmall.js',
+        'src/components/MessageInput/MessageInputLarge.js',
+        'src/components/MessageInput/MessageInputFlat.js',
+        'src/components/ChatAutoComplete/ChatAutoComplete.js',
+        'src/components/EditMessageForm/EditMessageForm.js',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
