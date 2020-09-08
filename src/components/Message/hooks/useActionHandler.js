@@ -22,7 +22,7 @@ export const useActionHandler = (message) => {
     if (messageID) {
       const data = await channel.sendAction(messageID, formData);
 
-      if (data && data.message) {
+      if (data?.message) {
         updateMessage(data.message);
       } else {
         removeMessage(message);
