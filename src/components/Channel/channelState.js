@@ -50,7 +50,7 @@ export const channelReducer = (state, action) => {
         ...state,
         messages: channel.state.messages,
         threadMessages: parentId
-          ? channel.state.threads[parentId] || []
+          ? channel.state.threads[parentId] || Immutable([])
           : state.threadMessages,
       };
     }
@@ -60,7 +60,7 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         threadMessages: state.thread?.id
-          ? channel.state.threads[state.thread.id]
+          ? channel.state.threads[state.thread.id] || Immutable([])
           : Immutable([]),
         thread:
           message?.id === state.thread.id
@@ -74,7 +74,7 @@ export const channelReducer = (state, action) => {
         ...state,
         thread: message,
         threadMessages: message.id
-          ? channel.state.threads[message.id]
+          ? channel.state.threads[message.id] || Immutable([])
           : Immutable([]),
       };
     }

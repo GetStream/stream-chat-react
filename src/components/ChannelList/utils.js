@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @param {string} [cid]
+ * @param {string | undefined} cid
  * @param {import('stream-chat').Channel[]} channels
  */
 export const moveChannelUp = (cid, channels) => {
