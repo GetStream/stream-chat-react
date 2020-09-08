@@ -54,6 +54,8 @@ The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream
 
 The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
 
+## Typescript
+
 **Note:** The [stream-chat-js](https://github.com/getstream/stream-chat-js) library allows for fully typed responses using generics, currently the React SDK does not allow for user defined types via generics, so custom fields will be returned with type `unknown` and need to be ignored using `@ts-ignore` when using custom components in typescript.
 
 ## Commands
