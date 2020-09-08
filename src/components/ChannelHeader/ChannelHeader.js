@@ -39,7 +39,7 @@ const ChannelHeader = ({ title, live }) => {
             </span>
           )}
         </p>
-        {channel && channel.data?.subtitle && (
+        {channel?.data?.subtitle && (
           <p className="str-chat__header-livestream-left--subtitle">
             {channel.data?.subtitle}
           </p>
