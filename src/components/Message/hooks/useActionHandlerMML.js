@@ -16,13 +16,13 @@ export const useActionHandlerMML = (message) => {
     }
     const messageID = message.id;
 
+    /**
+     * @type {Object.<string, string>}
+     */
     const formData = {};
+
     for (let i = 0; i < values.length; i += 1) {
-      const value =
-        values[i].value instanceof Date
-          ? values[i].value.toISOString()
-          : values[i].value.toString();
-      formData[values[i].name] = value;
+      formData[values[i].name] = values[i].value.toString();
     }
 
     const data = await channel.sendAction(messageID, formData);
