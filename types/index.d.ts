@@ -100,7 +100,7 @@ export interface ChannelContextValue extends ChatContextValue {
   maxNumberOfFiles?: number;
   sendMessage?(message: {
     text: string;
-    attachments: (
+    attachments?: (
       | Client.Attachment<Record<string, unknown>>
       | {
           type: string;
@@ -115,8 +115,9 @@ export interface ChannelContextValue extends ChatContextValue {
           file_size: number;
         }
     )[];
-    mentioned_users: string[];
+    mentioned_users?: string[];
     parent?: StreamChatReactMessageResponse;
+    id?: string;
   }): Promise<any>;
   editMessage?(
     updatedMessage: StreamChatReactMessage,
