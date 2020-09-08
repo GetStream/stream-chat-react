@@ -30,7 +30,8 @@ const EventComponent = ({ message }) => {
 
   if (
     type === 'channel.event' &&
-    (event?.type === 'member.removed' || event?.type === 'member.added')
+    event &&
+    (event.type === 'member.removed' || event.type === 'member.added')
   ) {
     const name = event?.user?.name || event?.user?.id;
     const sentence = `${name} ${
