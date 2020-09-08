@@ -151,10 +151,7 @@ const ChannelInner = ({
   );
 
   const markRead = useCallback(() => {
-    if (
-      channel.disconnected ||
-      !channel.getConfig()?.read_events
-    ) {
+    if (channel.disconnected || !channel.getConfig()?.read_events) {
       return;
     }
     lastRead.current = new Date();
@@ -467,7 +464,10 @@ const ChannelInner = ({
     dispatch({ type: 'startLoadingThread' });
     const parentID = state.thread.id;
 
-    if (!parentID) return;
+    if (!parentID) {
+      dispatch({ type: 'closeThread' });
+      return;
+    }
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0]?.id;
     const limit = 50;
