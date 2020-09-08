@@ -23,7 +23,7 @@ const ChannelHeader = ({ title, live }) => {
         <span className="str-chat__header-hamburger--line"></span>
         <span className="str-chat__header-hamburger--line"></span>
       </div>
-      {channel && channel.data?.image && (
+      {channel?.data?.image && (
         <Avatar
           image={channel.data.image}
           shape="rounded"
