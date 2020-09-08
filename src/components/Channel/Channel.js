@@ -153,7 +153,6 @@ const ChannelInner = ({
   const markRead = useCallback(() => {
     if (
       channel.disconnected ||
-      !channel.getConfig() ||
       !channel.getConfig()?.read_events
     ) {
       return;
