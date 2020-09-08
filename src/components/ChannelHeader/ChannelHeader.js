@@ -32,7 +32,7 @@ const ChannelHeader = ({ title, live }) => {
       )}
       <div className="str-chat__header-livestream-left">
         <p className="str-chat__header-livestream-left--title">
-          {title || (channel && channel.data?.name)}{' '}
+          {title || (channel?.data?.name)}{' '}
           {live && (
             <span className="str-chat__header-livestream-left--livelabel">
               {t('live')}
