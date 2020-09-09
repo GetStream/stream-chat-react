@@ -18,7 +18,7 @@ import { MessageInput, MessageInputSmall } from '../MessageInput';
  * - additionalMessageInputProps
  *
  * @example ../../docs/Thread.md
- * @typedef { import('types').ThreadProps & import('types').ChannelContextValue & import('types').TranslationContextValue} Props
+ * @typedef {Omit<import('types').ThreadProps & import('types').ChannelContextValue & import('types').TranslationContextValue, 'client'>} Props
  * @extends PureComponent<Props, any>
  */
 class Thread extends PureComponent {

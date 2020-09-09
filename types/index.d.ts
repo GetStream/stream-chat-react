@@ -782,7 +782,6 @@ export interface MessageDeletedProps extends TranslationContextValue {
 
 export interface ThreadProps {
   channel?: ReturnType<StreamChatReactClient['channel']>;
-  loadMoreThread?(): void;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** Make input focus on mounting thread */
@@ -1280,7 +1279,10 @@ export class MessageDeleted extends React.PureComponent<
   any
 > {}
 
-export class Thread extends React.PureComponent<ThreadProps, any> {}
+export class Thread extends React.PureComponent<
+  Omit<ThreadProps & ChannelContextValue & TranslationContextValue, 'client'>,
+  any
+> {}
 export const TypingIndicator: React.FC<TypingIndicatorProps>;
 export class ReactionSelector extends React.PureComponent<
   ReactionSelectorProps,
