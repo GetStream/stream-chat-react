@@ -80,13 +80,13 @@ describe('<MessageCommerce />', () => {
   it('should not render anything if message is of type message.read', async () => {
     const message = generateAliceMessage({ type: 'message.read' });
     const { container } = await renderMessageCommerce(message);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should not render anything if message is of type message.date', async () => {
     const message = generateAliceMessage({ type: 'message.date' });
     const { container } = await renderMessageCommerce(message);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
