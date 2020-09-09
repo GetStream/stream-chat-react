@@ -55,13 +55,13 @@ const VirtualizedMessageList = ({
 
     /* if list is already at the bottom make it sticky */
     if (atBottom.current) {
-      setTimeout(() => virtuoso.current.scrollToIndex(messages.length)); // setTimeout is needed to delay the scroll until react flushes
+      setTimeout(() => virtuoso.current?.scrollToIndex(messages.length)); // setTimeout is needed to delay the scroll until react flushes
       return;
     }
 
     /* if the new message belongs to current user scroll to bottom */
     if (lastMessage.user.id === client.userID) {
-      setTimeout(() => virtuoso.current.scrollToIndex(messages.length));
+      setTimeout(() => virtuoso.current?.scrollToIndex(messages.length));
       return;
     }
 
@@ -129,7 +129,7 @@ const VirtualizedMessageList = ({
         <MessageNotification
           showNotification={newMessagesNotification}
           onClick={() => {
-            virtuoso.current.scrollToIndex(messages.length);
+            virtuoso.current?.scrollToIndex(messages.length);
             setNewMessagesNotification(false);
           }}
         >
