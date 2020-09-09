@@ -160,6 +160,7 @@ const ChatAutoComplete = (props) => {
               if (nameB?.indexOf(q) === 0) {
                 nameB = `0${nameB}`;
               }
+              // Should confirm possible null / undefined when TS is fully implemented
               if (nameA != null && nameB != null) {
                 if (nameA < nameB) {
                   return -1;

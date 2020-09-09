@@ -73,11 +73,7 @@ const MessageTimestamp = (props) => {
   }
 
   return (
-    <time
-      className={customClass}
-      dateTime={message?.created_at}
-      title={message?.created_at}
-    >
+    <time className={customClass} dateTime={createdAt} title={createdAt}>
       {when}
     </time>
   );
