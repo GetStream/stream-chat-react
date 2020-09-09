@@ -20,9 +20,10 @@ const FileAttachment = ({ attachment }) => {
         <SafeAnchor href={attachment.asset_url} target="_blank" download>
           {attachment.title}
         </SafeAnchor>
-        {attachment.file_size && (
-          <span>{prettybytes(attachment.file_size)}</span>
-        )}
+        {attachment.file_size &&
+          Number.isFinite(Number(attachment.file_size)) && (
+            <span>{prettybytes(attachment.file_size)}</span>
+          )}
       </div>
     </div>
   );
