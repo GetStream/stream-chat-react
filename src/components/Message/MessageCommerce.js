@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { smartRender } from '../../utils';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
 import {
   ReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
@@ -14,7 +13,6 @@ import {
   areMessagePropsEqual,
   messageHasReactions,
   messageHasAttachments,
-  getImages,
 } from './utils';
 import MessageOptions from './MessageOptions';
 import MessageText from './MessageText';
@@ -72,7 +70,6 @@ const MessageCommerce = (props) => {
   }`;
 
   const hasAttachment = messageHasAttachments(message);
-  const images = getImages(message);
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
@@ -149,17 +146,12 @@ const MessageCommerce = (props) => {
             </React.Fragment>
           )}
 
-          {message?.attachments &&
-            (!images || images.length <= 1) &&
-            message.attachments.map((attachment, index) => (
-              <Attachment
-                key={`${message.id}-${index}`}
-                attachment={attachment}
-                actionHandler={propHandleAction || handleAction}
-              />
-            ))}
-
-          {!!images.length && <Gallery images={images} />}
+          {message?.attachments && Attachment && (
+            <Attachment
+              attachments={message.attachments}
+              actionHandler={propHandleAction || handleAction}
+            />
+          )}
 
           {message?.text && (
             <MessageText
@@ -219,7 +211,7 @@ MessageCommerce.propTypes = {
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

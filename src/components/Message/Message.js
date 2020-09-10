@@ -174,7 +174,7 @@ Message.propTypes = {
    * Attachment UI component to display attachment in individual message.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /**
