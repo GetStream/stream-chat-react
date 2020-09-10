@@ -1,7 +1,6 @@
 // @ts-check
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, {
-  useState,
   useEffect,
   useCallback,
   useContext,
@@ -138,7 +137,7 @@ const ChannelInner = ({
   const originalTitle = useRef('');
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
-  const [online, setOnline] = useState(true);
+  const online = useRef(true);
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,7 +177,7 @@ const ChannelInner = ({
     (e) => {
       dispatch({ type: 'updateThreadOnEvent', message: e.message, channel });
       if (e.type === 'connection.changed') {
-        setOnline(e.online);
+        online.current = e.online;
       }
 
       if (e.type === 'message.new') {
@@ -284,7 +283,7 @@ const ChannelInner = ({
 
   const loadMore = useCallback(
     async (limit = 100) => {
-      if (!online) return;
+      if (!online.current) return;
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
       if (state.loadingMore || oldestMessage?.status !== 'received') return;
