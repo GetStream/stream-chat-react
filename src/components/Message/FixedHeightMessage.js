@@ -1,10 +1,13 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useRef, useCallback } from 'react';
 
 import MessageTimestamp from './MessageTimestamp';
 import { Avatar } from '../Avatar';
 import { renderText } from '../../utils';
 import { ChatContext } from '../../context';
 import { Gallery } from '../Gallery';
+import { MessageActions } from '../MessageActions';
+import { useUserRole } from './hooks';
+import { getMessageActions } from './utils';
 
 const selectColor = (number, dark) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -24,8 +27,11 @@ const getUserColor = (theme, userId) => {
   return selectColor(hashUserId(userId), theme.includes('dark'));
 };
 
-const FixedHeightMessage = ({ userID, message }) => {
+const FixedHeightMessage = ({ message }) => {
   const { theme } = useContext(ChatContext);
+  const role = useUserRole(message);
+  const messageWrapperRef = useRef();
+
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
     [message.text, message.mentioned_users],
@@ -36,15 +42,19 @@ const FixedHeightMessage = ({ userID, message }) => {
     theme,
   ]);
 
+  const messageActionsHandler = useCallback(
+    () => getMessageActions(['delete'], { canDelete: role.canDeleteMessage }),
+    [role],
+  );
+
   const images = message?.attachments?.filter(({ type }) => type === 'image');
 
   return (
     <div
+      ref={messageWrapperRef}
       key={message.id}
       className={`str-chat__virtual-message__wrapper ${
-        message.user.id === userID
-          ? 'str-chat__virtual-message__wrapper--me'
-          : ''
+        role.isMyMessage ? 'str-chat__virtual-message__wrapper--me' : ''
       } `}
     >
       <Avatar
@@ -53,20 +63,28 @@ const FixedHeightMessage = ({ userID, message }) => {
         image={message.user.image}
         name={message.user.name || message.user.id}
       />
+
       <div className="str-chat__virtual-message__content">
         <div className="str-chat__virtual-message__meta">
-          <span
+          <div
             className="str-chat__virtual-message__author"
             style={{ color: userColor }}
           >
             <strong>{message.user.name || 'unknown'}</strong>
-          </span>
-          <span className="str-chat__virtual-message__date">
-            <MessageTimestamp
-              customClass="str-chat__message-simple-timestamp"
+          </div>
+          <div className="str-chat__virtual-message__meta--right">
+            <MessageActions
               message={message}
+              customWrapperClass="str-chat__virtual-message__actions"
+              getMessageActions={messageActionsHandler}
             />
-          </span>
+            <span className="str-chat__virtual-message__date">
+              <MessageTimestamp
+                customClass="str-chat__message-simple-timestamp"
+                message={message}
+              />
+            </span>
+          </div>
         </div>
 
         {images && <Gallery images={images} />}

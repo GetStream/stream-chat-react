@@ -2,6 +2,8 @@
   display: flex;
   padding: 10px 40px;
   flex-direction: row;
+  position: relative;
+
   &:hover {
     background: ghostwhite;
   }
@@ -31,9 +33,18 @@
 
 .str-chat__virtual-message__meta {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
 }
+
+.str-chat__virtual-message__meta--right {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
 .str-chat__virtual-message__author {
   color: $secondary-color;
   font-size: 1rem;
@@ -42,7 +53,28 @@
 .str-chat__virtual-message__date {
   font-size: 0.7rem;
   opacity: 0.5;
-  padding-left: 4px;
+  padding-left: 8px;
+}
+
+.str-chat__virtual-message__actions {
+  position: relative;
+  cursor: pointer;
+  svg {
+    fill: #000;
+    opacity: 0.5;
+  }
+  &:hover {
+    svg {
+      opacity: 1;
+    }
+  }
+
+  .str-chat__message-actions-box {
+    bottom: 10px;
+    left: unset;
+    right: 100%;
+    border-radius: 16px 16px 2px 16px;
+  }
 }
 
 .str-chat__virtual-message__content {
