@@ -114,9 +114,11 @@ const MessageTeam = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+  const messageTextItem = message?.text;
+  const messageMentionedUsersItem = message?.mentioned_users;
   const messageText = useMemo(
-    () => renderText(message?.text, message?.mentioned_users),
-    [message?.text, message?.mentioned_users],
+    () => renderText(messageTextItem, messageMentionedUsersItem),
+    [messageTextItem, messageMentionedUsersItem],
   );
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
@@ -227,7 +229,7 @@ const MessageTeam = (props) => {
                     <ReactionSelector
                       handleReaction={propHandleReaction || handleReaction}
                       latest_reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts}
+                      reaction_counts={message.reaction_counts || undefined}
                       detailedView={true}
                       ref={reactionSelectorRef}
                     />
@@ -294,7 +296,7 @@ const MessageTeam = (props) => {
                 onMouseOver={onMentionsHover}
                 onClick={onMentionsClick}
               >
-                {unsafeHTML ? (
+                {unsafeHTML && message.html ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 ) : (
                   messageText
@@ -314,7 +316,7 @@ const MessageTeam = (props) => {
               message.latest_reactions.length !== 0 &&
               message.text !== '' && (
                 <ReactionsList
-                  reaction_counts={message.reaction_counts}
+                  reaction_counts={message.reaction_counts || undefined}
                   handleReaction={propHandleReaction || handleReaction}
                   reactions={message.latest_reactions}
                 />
@@ -356,7 +358,7 @@ const MessageTeam = (props) => {
             message.latest_reactions.length !== 0 &&
             message.text === '' && (
               <ReactionsList
-                reaction_counts={message.reaction_counts}
+                reaction_counts={message.reaction_counts || undefined}
                 handleReaction={propHandleReaction || handleReaction}
                 reactions={message.latest_reactions}
               />
@@ -409,8 +411,8 @@ const MessageTeamStatus = (props) => {
       <span className="str-chat__message-team-status">
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          name={lastReadUser && lastReadUser.name ? lastReadUser.name : null}
-          image={lastReadUser && lastReadUser.image ? lastReadUser.image : null}
+          name={lastReadUser?.name}
+          image={lastReadUser?.image}
           size={15}
         />
         {readBy.length - 1 > 1 && (

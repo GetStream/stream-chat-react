@@ -25,6 +25,7 @@ const ChannelListTeam = ({
   children,
 }) => {
   const { client } = useContext(ChatContext);
+  const { id, image, name, status } = client.user || {};
 
   if (error) {
     return <LoadingErrorIndicator type="Connection Error" />;
@@ -44,20 +45,16 @@ const ChannelListTeam = ({
       <div className="str-chat__channel-list-team__main">
         <div className="str-chat__channel-list-team__header">
           <div className="str-chat__channel-list-team__header--left">
-            <Avatar
-              image={client.user.image}
-              name={client.user.name || client.user.id}
-              size={40}
-            />
+            <Avatar image={image} name={name || id} size={40} />
           </div>
           <div className="str-chat__channel-list-team__header--middle">
             <div className="str-chat__channel-list-team__header--title">
-              {client.user.name || client.user.id}
+              {name || id}
             </div>
             <div
-              className={`str-chat__channel-list-team__header--status ${client.user.status}`}
+              className={`str-chat__channel-list-team__header--status ${status}`}
             >
-              {client.user.status}
+              {status}
             </div>
           </div>
           <div className="str-chat__channel-list-team__header--right">

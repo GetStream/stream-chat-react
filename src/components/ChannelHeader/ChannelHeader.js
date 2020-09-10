@@ -15,6 +15,7 @@ const ChannelHeader = ({ title, live }) => {
   /** @type {import("types").ChannelContextValue} */
   const { channel, watcher_count } = useContext(ChannelContext);
   const { openMobileNav } = useContext(ChatContext);
+  const { image, member_count, name, subtitle } = channel?.data || {};
 
   return (
     <div className="str-chat__header-livestream">
@@ -23,39 +24,36 @@ const ChannelHeader = ({ title, live }) => {
         <span className="str-chat__header-hamburger--line"></span>
         <span className="str-chat__header-hamburger--line"></span>
       </div>
-      {channel && channel.data.image && (
+      {image && (
         <Avatar
-          image={channel.data.image}
+          image={image}
           shape="rounded"
-          size={channel.type === 'commerce' ? 60 : 40}
+          size={channel?.type === 'commerce' ? 60 : 40}
         />
       )}
       <div className="str-chat__header-livestream-left">
         <p className="str-chat__header-livestream-left--title">
-          {title || (channel && channel.data.name)}{' '}
+          {title || name}{' '}
           {live && (
             <span className="str-chat__header-livestream-left--livelabel">
               {t('live')}
             </span>
           )}
         </p>
-        {channel && channel.data.subtitle && (
+        {subtitle && (
           <p className="str-chat__header-livestream-left--subtitle">
-            {channel.data.subtitle}
+            {subtitle}
           </p>
         )}
         <p className="str-chat__header-livestream-left--members">
-          {!live &&
-            channel &&
-            channel.data.member_count &&
-            channel.data.member_count > 0 && (
-              <>
-                {t('{{ memberCount }} members', {
-                  memberCount: channel.data.member_count,
-                })}
-                ,{' '}
-              </>
-            )}
+          {!live && !!member_count && member_count > 0 && (
+            <>
+              {t('{{ memberCount }} members', {
+                memberCount: member_count,
+              })}
+              ,{' '}
+            </>
+          )}
           {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
         </p>
       </div>

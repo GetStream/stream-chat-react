@@ -6,7 +6,7 @@ import { ChatContext } from '../../../context';
 import { getChannel } from '../utils';
 
 /**
- * @typedef {import('stream-chat').Event<string>} ChannelVisibleEvent
+ * @typedef {import('stream-chat').Event} ChannelVisibleEvent
  * @typedef {React.Dispatch<React.SetStateAction<import('stream-chat').Channel[]>>} SetChannels
  * @param {SetChannels} setChannels
  * @param {(setChannels: SetChannels, event: ChannelVisibleEvent) => void} [customHandler]
@@ -14,11 +14,11 @@ import { getChannel } from '../utils';
 export const useChannelVisibleListener = (setChannels, customHandler) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = async (e) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, e);
-      } else if (e?.type) {
+      } else if (e?.type && e.channel_type && e.channel_id) {
         const channel = await getChannel(client, e.channel_type, e.channel_id);
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }

@@ -36,7 +36,7 @@ const ChatAutoComplete = (props) => {
     const watcherUsers = watchers ? Object.values(watchers) : [];
     const users = [...memberUsers, ...watcherUsers];
     // make sure we don't list users twice
-    /** @type {{ [key: string]: import('stream-chat').User}} */
+    /** @type {{ [key: string]: import('seamless-immutable').ImmutableObject<import('stream-chat').UserResponse<import('types').StreamChatReactUserType>> }} */
     const uniqueUsers = {};
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {
@@ -147,24 +147,27 @@ const ChatAutoComplete = (props) => {
               return [];
             }
             const selectedCommands = commands.filter(
-              (c) => c.name.indexOf(q) !== -1,
+              (c) => c.name?.indexOf(q) !== -1,
             );
 
             // sort alphabetically unless the you're matching the first char
             selectedCommands.sort((a, b) => {
-              let nameA = a.name.toLowerCase();
-              let nameB = b.name.toLowerCase();
-              if (nameA.indexOf(q) === 0) {
+              let nameA = a.name?.toLowerCase();
+              let nameB = b.name?.toLowerCase();
+              if (nameA?.indexOf(q) === 0) {
                 nameA = `0${nameA}`;
               }
-              if (nameB.indexOf(q) === 0) {
+              if (nameB?.indexOf(q) === 0) {
                 nameB = `0${nameB}`;
               }
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
+              // Should confirm possible null / undefined when TS is fully implemented
+              if (nameA != null && nameB != null) {
+                if (nameA < nameB) {
+                  return -1;
+                }
+                if (nameA > nameB) {
+                  return 1;
+                }
               }
 
               return 0;

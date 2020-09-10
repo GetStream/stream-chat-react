@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const generateMessage = (options) => {
   return {
+    __html: '<p>regular</p>',
     id: uuidv4(),
     text: uuidv4(),
     type: 'regular',
@@ -10,6 +11,7 @@ export const generateMessage = (options) => {
     created_at: new Date(),
     updated_at: new Date(),
     user: null,
+    status: 'received',
     ...options,
   };
 };

@@ -20,7 +20,7 @@ describe('EmptyStateIndicator', () => {
 
   it('should return null if listType is message', () => {
     const { container } = render(<EmptyStateIndicator listType="message" />);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should display correct text when listType is channel', () => {

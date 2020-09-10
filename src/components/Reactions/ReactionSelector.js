@@ -71,23 +71,23 @@ const ReactionSelectorWithRef = (
    * @returns {string[] | undefined}
    * */
   const getUsersPerReactionType = (type) =>
-    latest_reactions
+    /** @type {string[] | undefined} */ (latest_reactions
       ?.map((reaction) => {
         if (reaction.type === type) {
           return reaction.user?.name || reaction.user?.id;
         }
         return null;
       })
-      .filter(Boolean);
+      .filter(Boolean));
 
   /**
    * @param {string | null} type
-   * @returns {import("stream-chat").User | undefined}
+   * @returns {import("types").StreamChatReactClient['user'] | undefined}
    * */
   const getLatestUserForReactionType = (type) =>
     latest_reactions?.find(
       (reaction) => reaction.type === type && !!reaction.user,
-    )?.user;
+    )?.user || undefined;
 
   return (
     <div
@@ -141,7 +141,7 @@ const ReactionSelectorWithRef = (
                       <Avatar
                         image={latestUser.image}
                         size={20}
-                        name={latestUser.name || null}
+                        name={latestUser.name}
                       />
                     ) : (
                       <div className="latest-user-not-found" />

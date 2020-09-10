@@ -4,12 +4,12 @@ import { useState } from 'react';
 /**
  * @type {(
  *   customInitialState?: boolean,
- *   customSetEditing?: (event: React.MouseEvent<HTMLElement>) => void,
- *   customClearEditing?: (event: React.MouseEvent<HTMLElement>) => void
+ *   customSetEditing?: (event?: React.MouseEvent<HTMLElement>) => void,
+ *   customClearEditingHandler?: (event?: React.MouseEvent<HTMLElement>) => void
  * ) => {
  *   editing: boolean,
- *   setEdit: (event: React.MouseEvent<HTMLElement>) => void,
- *   clearEdit: (event: React.MouseEvent<HTMLElement>) => void
+ *   setEdit: (event?: React.MouseEvent<HTMLElement>) => void,
+ *   clearEdit: (event?: React.MouseEvent<HTMLElement>) => void
  * }}
  */
 export const useEditHandler = (
@@ -22,13 +22,17 @@ export const useEditHandler = (
   const setEdit =
     customSetEditing ||
     ((event) => {
-      event?.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       setEditing(true);
     });
   const clearEdit =
     customClearEditingHandler ||
     ((event) => {
-      event?.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
       setEditing(false);
     });
   return { editing, setEdit, clearEdit };

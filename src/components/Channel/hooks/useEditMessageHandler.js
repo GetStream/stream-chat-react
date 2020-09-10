@@ -4,9 +4,9 @@ import { ChatContext } from '../../../context';
 
 /**
  * @typedef {import('stream-chat').Message} Message
- * @typedef {import('stream-chat').UpdateMessageAPIResponse} UpdateResponse
- * @param {((cid: string, updatedMessage: Message) => Promise<UpdateResponse>) | undefined} doUpdateMessageRequest
- * @returns {(updatedMessage: Message) => Promise<UpdateResponse>}
+ * @typedef {ReturnType<import('stream-chat').StreamChat['updateMessage']>} UpdateMessagePromise
+ * @param {((cid: string, updatedMessage: Message) => UpdateMessagePromise) | undefined} doUpdateMessageRequest
+ * @returns {(updatedMessage: Message) => UpdateMessagePromise}
  */
 const useEditMessageHandler = (doUpdateMessageRequest) => {
   const { channel, client } = useContext(ChatContext);

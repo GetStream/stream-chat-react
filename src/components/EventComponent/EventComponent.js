@@ -11,7 +11,7 @@ import { TranslationContext } from '../../context';
  */
 const EventComponent = ({ message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
-  const { type, text, event, created_at } = message;
+  const { type, text, event, created_at = '' } = message;
 
   if (type === 'system')
     return (
@@ -30,9 +30,10 @@ const EventComponent = ({ message }) => {
 
   if (
     type === 'channel.event' &&
+    event &&
     (event.type === 'member.removed' || event.type === 'member.added')
   ) {
-    const name = event.user.name || event.user.id;
+    const name = event?.user?.name || event?.user?.id;
     const sentence = `${name} ${
       event.type === 'member.added'
         ? 'has joined the chat'
@@ -41,7 +42,7 @@ const EventComponent = ({ message }) => {
 
     return (
       <div className="str-chat__event-component__channel-event">
-        <Avatar image={event.user.image} name={name} />
+        <Avatar image={event?.user?.image} name={name} />
         <div className="str-chat__event-component__channel-event__content">
           <em className="str-chat__event-component__channel-event__sentence">
             {sentence}

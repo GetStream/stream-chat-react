@@ -12,7 +12,7 @@ afterEach(cleanup); // eslint-disable-line
 describe('LoadingErrorIndicator', () => {
   it('should return null if no error is provided', () => {
     const { container } = render(<LoadingErrorIndicator />);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render when an error is passed', () => {

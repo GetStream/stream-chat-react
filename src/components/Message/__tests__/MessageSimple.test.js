@@ -99,13 +99,13 @@ describe('<MessageSimple />', () => {
   it('should not render anything if message is of type message.read', async () => {
     const message = generateAliceMessage({ type: 'message.read' });
     const { container } = await renderMessageSimple(message);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should not render anything if message is of type message.date', async () => {
     const message = generateAliceMessage({ type: 'message.date' });
     const { container } = await renderMessageSimple(message);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render deleted message with default MessageDelete component when message was deleted', async () => {
