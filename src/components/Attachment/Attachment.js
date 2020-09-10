@@ -267,15 +267,15 @@ const Attachment = ({
 }) => {
   const gallery = {
     type: 'gallery',
-    images: attachments.filter(
+    images: attachments?.filter(
       /** @param {import('types').ExtendedAttachment} a */ (a) =>
         a.type === 'image',
     ),
   };
   let newAttachments;
-  if (gallery.images.length >= 2) {
+  if (gallery.images?.length >= 2) {
     newAttachments = [
-      ...attachments.filter(
+      ...attachments?.filter(
         /** @param {import('types').ExtendedAttachment} a */ (a) =>
           a.type !== 'image',
       ),
@@ -299,7 +299,7 @@ const Attachment = ({
 
   return (
     <>
-      {newAttachments.map(
+      {newAttachments?.map(
         /** @param {any} attachment */ (attachment) => {
           if (isGalleryAttachment(attachment)) {
             return renderGallery({ ...propsWithDefault, attachment });
