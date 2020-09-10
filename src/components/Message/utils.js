@@ -44,10 +44,10 @@ export const MESSAGE_ACTIONS = {
 
 /**
  * @typedef {{
- *   canEdit: boolean;
- *   canDelete: boolean;
- *   canMute: boolean;
- *   canFlag: boolean;
+ *   canEdit?: boolean;
+ *   canDelete?: boolean;
+ *   canMute?: boolean;
+ *   canFlag?: boolean;
  * }} Capabilities
  * @type {(actions: string[] | boolean, capabilities: Capabilities) => string[]} Typescript syntax
  */
