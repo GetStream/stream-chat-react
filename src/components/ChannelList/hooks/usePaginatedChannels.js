@@ -5,9 +5,9 @@ import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 /**
  * @typedef {import('stream-chat').Channel} Channel
  * @param {import('stream-chat').StreamChat} client
- * @param {import('types').ChannelFilters} filters
- * @param {import('types').ChannelSort} [sort]
- * @param {import('types').ChannelOptions} [options]
+ * @param {import('stream-chat').ChannelFilters} filters
+ * @param {import('stream-chat').ChannelSort} [sort]
+ * @param {import('stream-chat').ChannelOptions} [options]
  * @param {(channels: Channel[], setChannels: React.Dispatch<React.SetStateAction<Channel[]>>) => void} [activeChannelHandler]
  */
 export const usePaginatedChannels = (

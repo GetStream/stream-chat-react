@@ -302,11 +302,11 @@ export interface ChannelListProps {
   ): void;
   setActiveChannelOnMount?: boolean;
   /** Object containing query filters */
-  filters: ChannelFilters;
+  filters?: Client.ChannelFilters;
   /** Object containing query options */
-  options?: ChannelOptions;
+  options?: Client.ChannelOptions;
   /** Object containing sort parameters */
-  sort?: ChannelSort;
+  sort?: Client.ChannelSort;
   showSidebar?: boolean;
   watchers?: { limit?: number; offset?: number };
   customActiveChannel?: string;
