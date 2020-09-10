@@ -267,12 +267,18 @@ const Attachment = ({
 }) => {
   const gallery = {
     type: 'gallery',
-    images: attachments.filter(/** @param {any} a */ (a) => a.type === 'image'),
+    images: attachments.filter(
+      /** @param {import('types').ExtendedAttachment} a */ (a) =>
+        a.type === 'image',
+    ),
   };
   let newAttachments;
   if (gallery.images.length >= 2) {
     newAttachments = [
-      ...attachments.filter(/** @param {any} a */ (a) => a.type !== 'image'),
+      ...attachments.filter(
+        /** @param {import('types').ExtendedAttachment} a */ (a) =>
+          a.type !== 'image',
+      ),
       gallery,
     ];
   } else {
@@ -291,30 +297,34 @@ const Attachment = ({
     ...rest,
   };
 
-  return newAttachments.map(
-    /** @param {any} attachment */ (attachment) => {
-      if (isGalleryAttachment(attachment)) {
-        return renderGallery({ ...propsWithDefault, attachment });
-      }
+  return (
+    <>
+      {newAttachments.map(
+        /** @param {any} attachment */ (attachment) => {
+          if (isGalleryAttachment(attachment)) {
+            return renderGallery({ ...propsWithDefault, attachment });
+          }
 
-      if (isImageAttachment(attachment)) {
-        return renderImage({ ...propsWithDefault, attachment });
-      }
+          if (isImageAttachment(attachment)) {
+            return renderImage({ ...propsWithDefault, attachment });
+          }
 
-      if (isFileAttachment(attachment)) {
-        return renderFile({ ...propsWithDefault, attachment });
-      }
+          if (isFileAttachment(attachment)) {
+            return renderFile({ ...propsWithDefault, attachment });
+          }
 
-      if (isAudioAttachment(attachment)) {
-        return renderAudio({ ...propsWithDefault, attachment });
-      }
+          if (isAudioAttachment(attachment)) {
+            return renderAudio({ ...propsWithDefault, attachment });
+          }
 
-      if (isMediaAttachment(attachment)) {
-        return renderMedia({ ...propsWithDefault, attachment });
-      }
+          if (isMediaAttachment(attachment)) {
+            return renderMedia({ ...propsWithDefault, attachment });
+          }
 
-      return renderCard({ ...propsWithDefault, attachment });
-    },
+          return renderCard({ ...propsWithDefault, attachment });
+        },
+      )}
+    </>
   );
 };
 
