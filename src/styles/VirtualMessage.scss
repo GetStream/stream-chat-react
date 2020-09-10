@@ -24,7 +24,8 @@
 .str-chat__virtual-list {
   .str-chat__message.str-chat__message--deleted {
     align-items: initial;
-    margin: 16px 42px;
+    padding: 16px 42px;
+    margin: 0;
   }
 }
 
