@@ -24,8 +24,9 @@ const ChannelPreviewCompact = (props) => {
 
   const onSelectChannel = () => {
     props.setActiveChannel(props.channel, props.watchers);
-    // eslint-disable-next-line no-unused-expressions
-    channelPreviewButton?.current?.blur();
+    if (channelPreviewButton?.current) {
+      channelPreviewButton.current.blur();
+    }
   };
 
   return (

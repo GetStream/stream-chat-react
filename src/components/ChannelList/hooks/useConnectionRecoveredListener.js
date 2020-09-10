@@ -10,7 +10,9 @@ export const useConnectionRecoveredListener = (forceUpdate) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
     const handleEvent = () => {
-      forceUpdate?.();
+      if (forceUpdate) {
+        forceUpdate();
+      }
     };
 
     client.on('connection.recovered', handleEvent);

@@ -45,10 +45,13 @@ const MessageTextComponent = (props) => {
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
+  const messageTextItem = message?.text;
+  const messageMentionedUsersItem = message?.mentioned_users;
   const messageText = useMemo(
-    () => renderText(message?.text, message?.mentioned_users),
-    [message?.text, message?.mentioned_users],
+    () => renderText(messageTextItem, messageMentionedUsersItem),
+    [messageTextItem, messageMentionedUsersItem],
   );
+
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass ||
@@ -89,7 +92,7 @@ const MessageTextComponent = (props) => {
           </div>
         )}
 
-        {unsafeHTML ? (
+        {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
           messageText
@@ -99,7 +102,7 @@ const MessageTextComponent = (props) => {
         {hasReactions && !showDetailedReactions && (
           <ReactionsList
             reactions={message.latest_reactions}
-            reaction_counts={message.reaction_counts}
+            reaction_counts={message.reaction_counts || undefined}
             onClick={onReactionListClick}
             reverse={true}
           />
@@ -108,7 +111,7 @@ const MessageTextComponent = (props) => {
           <ReactionSelector
             handleReaction={handleReaction}
             detailedView
-            reaction_counts={message.reaction_counts}
+            reaction_counts={message.reaction_counts || undefined}
             latest_reactions={message.latest_reactions}
             ref={reactionSelectorRef}
           />

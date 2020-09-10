@@ -39,7 +39,8 @@
     "jest/no-hooks": 0,
     "sonarjs/cognitive-complexity": ["error", 30],
     "no-unused-expressions": "off",
-    "babel/no-unused-expressions": "error"
+    "babel/no-unused-expressions": "error",
+    "jest/no-if": "off"
   },
   "env": {
     "es6": true,

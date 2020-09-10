@@ -30,7 +30,7 @@ const ChannelPreview = (props) => {
   }, [channel]);
 
   useEffect(() => {
-    /** @type {(event: StreamChat.Event) => void} Typescript syntax */
+    /** @type {(event: import('stream-chat').Event) => void} Typescript syntax */
     const handleEvent = (event) => {
       const isActive = activeChannel?.cid === channel.cid;
       setLastMessage(event.message);

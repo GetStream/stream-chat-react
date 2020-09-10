@@ -4,17 +4,64 @@
 import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
-import { MessageResponse } from 'stream-chat';
+import { MessageResponse, UnknownType } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 
+export type Mute = Client.Mute<StreamChatReactUserType>;
+export type StreamChatReactUserType = {
+  status?: string;
+  image?: string;
+  mutes?: Array<Mute>;
+};
+export type StreamChatReactChannelType = {
+  image?: string;
+  subtitle?: string;
+  member_count?: number;
+};
+export type StreamChatMessageType = {
+  event?: Client.Event<
+    UnknownType,
+    UnknownType,
+    StreamChatReactChannelType,
+    StreamChatMessageType,
+    UnknownType,
+    StreamChatReactUserType
+  >;
+};
+export type StreamChatReactMessage = Client.Message<
+  StreamChatMessageType,
+  UnknownType,
+  StreamChatReactUserType
+>;
+export type StreamChatReactMessageResponse = Client.MessageResponse<
+  StreamChatMessageType,
+  UnknownType,
+  StreamChatReactChannelType,
+  UnknownType,
+  StreamChatReactUserType
+>;
+export type StreamChatReactClient = Client.StreamChat<
+  StreamChatReactChannelType,
+  StreamChatReactUserType,
+  StreamChatMessageType
+>;
+export type StreamChatChannelState = Client.ChannelState<
+  UnknownType,
+  StreamChatReactChannelType,
+  UnknownType,
+  StreamChatMessageType,
+  UnknownType,
+  StreamChatReactUserType
+>;
+
 export interface ChatContextValue {
-  client: Client.StreamChat;
-  channel?: Client.Channel;
+  client: StreamChatReactClient;
+  channel?: ReturnType<StreamChatReactClient['channel']>;
   setActiveChannel?(
-    channel?: Client.Channel,
+    channel?: ReturnType<StreamChatReactClient['channel']>,
     watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ): void;
@@ -22,49 +69,62 @@ export interface ChatContextValue {
   openMobileNav?(): void;
   closeMobileNav?(): void;
   theme?: string;
-  mutes?: Client.Mute[];
+  mutes?: Mute[];
 }
 
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<AttachmentUIComponentProps>;
-  messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  messages?: StreamChatChannelState['messages'];
+  typing?: StreamChatChannelState['typing'];
+  watchers?: StreamChatChannelState['watchers'];
+  members?: StreamChatChannelState['members'];
+  read?: Client.ChannelState['read'];
+  thread?: ReturnType<StreamChatChannelState['messageToImmutable']> | null;
   online?: boolean;
-  typing?: SeamlessImmutable.Immutable<{
-    [user_id: string]: SeamlessImmutable.Immutable<
-      Client.Event<Client.TypingStartEvent>
-    >;
-  }>;
   watcher_count?: number;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.User }>;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  read?: {
-    [user_id: string]: SeamlessImmutable.Immutable<{
-      last_read: string;
-      user: Client.UserResponse;
-    }>;
-  };
   error?: Error | null;
-  // Loading the intial content of the channel
+  // Loading the initial content of the channel
   loading?: boolean;
   // Loading more messages
   loadingMore?: boolean;
   hasMore?: boolean;
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
-  thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
-  threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  threadMessages?: SeamlessImmutable.ImmutableArray<
+    ReturnType<StreamChatChannelState['messageToImmutable']>
+  >;
 
   multipleUploads?: boolean;
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
-  sendMessage?(message: Client.Message): Promise<any>;
+  sendMessage?(message: {
+    text: string;
+    attachments?: (
+      | Client.Attachment<Record<string, unknown>>
+      | {
+          type: string;
+          image_url: string | undefined;
+          fallback: string;
+        }
+      | {
+          type: string;
+          asset_url: string;
+          title: string;
+          mime_type: string;
+          file_size: number;
+        }
+    )[];
+    mentioned_users?: string[];
+    parent?: StreamChatReactMessageResponse;
+    id?: string;
+  }): Promise<any>;
   editMessage?(
-    updatedMessage: Client.Message,
+    updatedMessage: StreamChatReactMessage,
   ): Promise<Client.UpdateMessageAPIResponse | void>;
   /** Via Context: The function to update a message, handled by the Channel component */
   updateMessage?(
-    updatedMessage: Client.MessageResponse,
+    updatedMessage: StreamChatReactMessageResponse,
     extraState?: object,
   ): void;
   /** Function executed when user clicks on link to open thread */
@@ -129,7 +189,7 @@ export interface ChannelProps {
   doSendMessageRequest?(
     channelId: string,
     message: Client.Message,
-  ): Promise<Client.MessageResponse> | void;
+  ): ReturnType<Client.Channel['sendMessage']> | void;
   doMarkReadRequest?(
     channel: Client.Channel,
   ): Promise<Client.MessageResponse> | void;
@@ -208,37 +268,37 @@ export interface ChannelListProps {
   lockChannelOrder?: boolean;
   onMessageNew?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   /** Function that overrides default behaviour when users gets added to a channel */
   onAddedToChannel?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   /** Function that overrides default behaviour when users gets removed from a channel */
   onRemovedFromChannel?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelHidden?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelVisible?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelUpdated?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelDeleted?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   onChannelTruncated?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
-    e: Client.Event<string>,
+    e: Client.Event,
   ): void;
   setActiveChannelOnMount?: boolean;
   /** Object containing query filters */
@@ -429,8 +489,12 @@ export interface MessageListProps {
   hasMore?: boolean;
   loadingMore?: boolean;
   openThread?(): void;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
-  watchers?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  members?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse;
+  }>;
+  watchers?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse;
+  }>;
   channel?: Client.Channel;
   retrySendMessage?(message: Client.Message): Promise<void>;
 
@@ -474,7 +538,7 @@ export interface MessageInputProps {
   autocompleteTriggers?: object;
 
   /** The parent message object when replying on a thread */
-  parent?: Client.MessageResponse;
+  parent?: StreamChatReactMessageResponse;
 
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputProps>;
@@ -486,13 +550,13 @@ export interface MessageInputProps {
   doImageUploadRequest?(
     file: object,
     channel: Client.Channel,
-  ): Promise<Client.FileUploadAPIResponse>;
+  ): Promise<Client.SendFileAPIResponse>;
 
   /** Override file upload request */
   doFileUploadRequest?(
     file: File,
     channel: Client.Channel,
-  ): Promise<Client.FileUploadAPIResponse>;
+  ): Promise<Client.SendFileAPIResponse>;
 
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?(
@@ -568,6 +632,7 @@ export interface FileAttachmentProps {
 }
 
 export interface ExtendedAttachment extends Client.Attachment {
+  id?: string;
   asset_url?: string;
   mime_type?: string;
 }
@@ -596,11 +661,11 @@ export interface AttachmentUIComponentProps {
 export interface MessageProps extends TranslationContextValue {
   addNotification?(notificationText: string, type: string): any;
   /** The message object */
-  message?: Client.MessageResponse;
+  message?: StreamChatReactMessageResponse;
   /** The client connection object for connecting to Stream */
-  client?: Client.StreamChat;
+  client?: StreamChatReactClient;
   /** A list of users that have read this message **/
-  readBy?: Array<Client.UserResponse>;
+  readBy?: Array<Client.UserResponse<StreamChatReactUserType>>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
@@ -617,14 +682,22 @@ export interface MessageProps extends TranslationContextValue {
   lastReceivedId?: string | null;
   messageListRect?: DOMRect;
   updateMessage?(
-    updatedMessage: Client.MessageResponse,
+    updatedMessage: StreamChatReactMessageResponse,
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(
+    message: StreamChatReactMessageResponse,
+  ): string;
+  getFlagMessageErrorNotification?(
+    message: StreamChatReactMessageResponse,
+  ): string;
+  getMuteUserSuccessNotification?(
+    message: StreamChatReactMessageResponse,
+  ): string;
+  getMuteUserErrorNotification?(
+    message: StreamChatReactMessageResponse,
+  ): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
@@ -654,7 +727,9 @@ export interface MessageComponentProps
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string> | boolean;
-  members?: SeamlessImmutable.Immutable<{ [user_id: string]: Client.Member }>;
+  members?: SeamlessImmutable.Immutable<{
+    [user_id: string]: Client.ChannelMemberResponse<StreamChatReactUserType>;
+  }>;
   retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -706,13 +781,7 @@ export interface MessageDeletedProps extends TranslationContextValue {
 }
 
 export interface ThreadProps {
-  Message?: React.ElementType<MessageUIComponentProps>;
-  threadLoadingMore?: boolean;
-  threadHasMore?: boolean;
-  thread?: SeamlessImmutable.Immutable<Client.MessageResponse> | null;
-  threadMessages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
-  channel?: Client.Channel;
-  loadMoreThread?(): void;
+  channel?: ReturnType<StreamChatReactClient['channel']>;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** Make input focus on mounting thread */
@@ -889,7 +958,7 @@ export interface UserItemProps {
 }
 
 export interface EventComponentProps {
-  message: Client.MessageResponse;
+  message: StreamChatReactMessageResponse;
 }
 
 export interface GalleryProps {
@@ -1135,8 +1204,8 @@ export interface MessageTeamStatusProps {
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
-  message?: Client.MessageResponse;
-  readBy?: Array<Client.UserResponse>;
+  message?: StreamChatReactMessageResponse;
+  readBy?: Array<Client.UserResponse<StreamChatReactUserType>>;
 }
 export class MessageTeam extends React.PureComponent<
   MessageUIComponentProps,
@@ -1210,7 +1279,10 @@ export class MessageDeleted extends React.PureComponent<
   any
 > {}
 
-export class Thread extends React.PureComponent<ThreadProps, any> {}
+export class Thread extends React.PureComponent<
+  Omit<ThreadProps & ChannelContextValue & TranslationContextValue, 'client'>,
+  any
+> {}
 export const TypingIndicator: React.FC<TypingIndicatorProps>;
 export class ReactionSelector extends React.PureComponent<
   ReactionSelectorProps,

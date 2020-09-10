@@ -81,7 +81,9 @@ const Gallery = ({ images }) => {
 };
 
 Gallery.propTypes = {
-  images: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+  images: /** @type { PropTypes.Validator<import('types').GalleryProps['images']> } */ (PropTypes.arrayOf(
+    PropTypes.object.isRequired,
+  ).isRequired),
 };
 
 export default React.memo(Gallery);

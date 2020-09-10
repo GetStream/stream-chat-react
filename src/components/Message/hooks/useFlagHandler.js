@@ -27,7 +27,7 @@ export const useFlagHandler = (message, notifications = {}) => {
       getErrorNotification,
     } = notifications;
 
-    if (!client || !t || !notify || !message) {
+    if (!client || !t || !notify || !message?.id) {
       console.warn(missingUseFlagHandlerParameterWarning);
       return;
     }

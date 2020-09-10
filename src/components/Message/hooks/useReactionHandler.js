@@ -20,7 +20,7 @@ export const useReactionHandler = (message) => {
       return;
     }
 
-    let userExistingReaction = null;
+    let userExistingReaction = /** @type { import('stream-chat').ReactionResponse<Record<String, unknown>, import('types').StreamChatReactUserType> | null } */ (null);
 
     const currentUser = client.userID;
     if (message.own_reactions) {
@@ -48,28 +48,29 @@ export const useReactionHandler = (message) => {
     - Make the API call in the background
     - If it fails, revert to the old message...
      */
-    if (userExistingReaction) {
-      reactionChangePromise = channel.deleteReaction(
-        message.id,
-        // @ts-ignore Typescript doesn't understand that the userExistingReaction variable might have been mutated inside the foreach loop
-        userExistingReaction.type,
-      );
-    } else {
-      // add the reaction
-      const messageID = message.id;
+    if (message.id) {
+      if (userExistingReaction) {
+        reactionChangePromise = channel.deleteReaction(
+          message.id,
+          userExistingReaction.type,
+        );
+      } else {
+        // add the reaction
+        const messageID = message.id;
 
-      const reaction = { type: reactionType };
+        const reaction = { type: reactionType };
 
-      // this.props.channel.state.addReaction(tmpReaction, this.props.message);
-      reactionChangePromise = channel.sendReaction(messageID, reaction);
-    }
+        // this.props.channel.state.addReaction(tmpReaction, this.props.message);
+        reactionChangePromise = channel.sendReaction(messageID, reaction);
+      }
 
-    try {
-      // only wait for the API call after the state is updated
-      await reactionChangePromise;
-    } catch (e) {
-      // revert to the original message if the API call fails
-      updateMessage(originalMessage);
+      try {
+        // only wait for the API call after the state is updated
+        await reactionChangePromise;
+      } catch (e) {
+        // revert to the original message if the API call fails
+        updateMessage(originalMessage);
+      }
     }
   };
 };
