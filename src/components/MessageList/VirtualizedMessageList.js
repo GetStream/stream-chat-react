@@ -129,7 +129,8 @@ const VirtualizedMessageList = ({
         <MessageNotification
           showNotification={newMessagesNotification}
           onClick={() => {
-            virtuoso.current?.scrollToIndex(messages.length);
+            if (virtuoso.current)
+              virtuoso.current.scrollToIndex(messages.length);
             setNewMessagesNotification(false);
           }}
         >
