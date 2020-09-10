@@ -12,7 +12,7 @@
     padding-left: 12px;
   }
 
-  .str-chat__avatar--rounded { 
+  .str-chat__avatar--rounded {
     border-radius: 12px;
   }
 
@@ -20,18 +20,26 @@
     background-color: lightslategray;
   }
 }
+
+.str-chat__virtual-list {
+  .str-chat__message.str-chat__message--deleted {
+    align-items: initial;
+    margin: 16px 42px;
+  }
+}
+
 .str-chat__virtual-message__meta {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  }
+}
 .str-chat__virtual-message__author {
   color: $secondary-color;
-  font-size: 1rem; 
+  font-size: 1rem;
 }
 
 .str-chat__virtual-message__date {
-  font-size: 0.7rem; 
+  font-size: 0.7rem;
   opacity: 0.5;
   padding-left: 4px;
 }
@@ -56,7 +64,7 @@
 .dark {
   .str-chat__virtual-message__wrapper {
     &:hover {
-      background: rgba(0,0,0,0.15);
+      background: rgba(0, 0, 0, 0.15);
     }
   }
   .str-chat__virtual-message__text {

@@ -8,12 +8,16 @@ import React, {
 import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
 
+import { smartRender } from '../../utils';
 import MessageNotification from './MessageNotification';
 import { ChannelContext, TranslationContext } from '../../context';
-import { FixedHeightMessage } from '../Message';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import {
+  FixedHeightMessage,
+  MessageDeleted as DefaultMessageDeleted,
+} from '../Message';
 
 /**
  * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -33,6 +37,7 @@ const VirtualizedMessageList = ({
   EmptyStateIndicator,
   MessageSystem,
   Message,
+  MessageDeleted,
 }) => {
   const { t } = useContext(TranslationContext);
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
@@ -88,9 +93,12 @@ const VirtualizedMessageList = ({
       if (message.type === 'channel.event' || message.type === 'system')
         return <MessageSystem message={message} />;
 
+      if (message.deleted_at)
+        return smartRender(MessageDeleted, { message }, null);
+
       return <Message userID={client.userID} message={message} />;
     },
-    [client.userID],
+    [client.userID, MessageDeleted],
   );
 
   return (
@@ -198,6 +206,7 @@ VirtualizedMessageList.defaultProps = {
   overscan: 200,
   Message: FixedHeightMessage,
   MessageSystem: EventComponent,
+  MessageDeleted: DefaultMessageDeleted,
   LoadingIndicator: DefaultLoadingIndicator,
   EmptyStateIndicator: DefaultEmptyStateIndicator,
 };
