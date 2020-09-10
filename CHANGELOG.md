@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.3.0) 2020-09-10
+
+- Upgraded `stream-chat` package to `v2.2.0`
+
+  - `stream-chat` package has been migrated to complete typescript in 2.x.x. There were no breaking change with underlying
+    javascript api and also typescript except for [Event type](https://github.com/GetStream/stream-chat-js/blob/master/CHANGELOG.md#august-26-2020---200). We recommend you to check the changelog for stream-chat-js repository as well for more details
+    if you are planning to upgrade from `stream-chat-react@2.2.x` to `stream-chat-react@2.3.x`
+  - This PR which contains typescript related changes in stream-chat-react for given upgrade - https://github.com/GetStream/stream-chat-react/pull/499/files
+
 ## [2.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.2.2) 2020-08-21
 
 - Separated ConnectionStatus component from MessageList [82c8927](https://github.com/GetStream/stream-chat-react/commit/82c892773cd4aebed275259c93829ba6cb34b0be)
