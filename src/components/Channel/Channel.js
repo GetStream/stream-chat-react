@@ -151,7 +151,7 @@ const ChannelInner = ({
   );
 
   const markRead = useCallback(() => {
-    if (channel.disconnected || !channel.getConfig().read_events) {
+    if (channel.disconnected || !channel.getConfig()?.read_events) {
       return;
     }
     lastRead.current = new Date();
@@ -187,7 +187,7 @@ const ChannelInner = ({
         ) {
           if (!document.hidden) {
             markReadThrottled();
-          } else if (channel.getConfig().read_events) {
+          } else if (channel.getConfig()?.read_events) {
             const unread = channel.countUnread(lastRead.current);
             document.title = `(${unread}) ${originalTitle.current}`;
           }
@@ -260,7 +260,7 @@ const ChannelInner = ({
     debounce(
       /**
        * @param {boolean} hasMore
-       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} messages
+       * @param {import('stream-chat').ChannelState['messages']} messages
        */
       (hasMore, messages) => {
         dispatch({ type: 'loadMoreFinished', hasMore, messages });
@@ -281,7 +281,7 @@ const ChannelInner = ({
       if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
       dispatch({ type: 'setLoadingMore', loadingMore: true });
 
-      const oldestID = oldestMessage?.id || null;
+      const oldestID = oldestMessage?.id;
 
       const perPage = limit;
       let queryResponse;
@@ -445,7 +445,7 @@ const ChannelInner = ({
     debounce(
       /**
        * @param {boolean} threadHasMore
-       * @param {import('seamless-immutable').ImmutableArray<import('stream-chat').MessageResponse>} threadMessages
+       * @param {import('seamless-immutable').ImmutableArray<ReturnType<import('stream-chat').ChannelState['messageToImmutable']>>} threadMessages
        */
       (threadHasMore, threadMessages) => {
         dispatch({
@@ -465,8 +465,13 @@ const ChannelInner = ({
     if (state.threadLoadingMore || !state.thread) return;
     dispatch({ type: 'startLoadingThread' });
     const parentID = state.thread.id;
+
+    if (!parentID) {
+      dispatch({ type: 'closeThread' });
+      return;
+    }
     const oldMessages = channel.state.threads[parentID] || [];
-    const oldestMessageID = oldMessages[0] ? oldMessages[0].id : null;
+    const oldestMessageID = oldMessages[0]?.id;
     const limit = 50;
     const queryResponse = await channel.getReplies(parentID, {
       limit,

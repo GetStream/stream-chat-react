@@ -9,7 +9,7 @@ export const useDeleteHandler = (message) => {
   const { updateMessage, client } = useContext(ChannelContext);
   return async (event) => {
     event.preventDefault();
-    if (!message || !client || !updateMessage) {
+    if (!message?.id || !client || !updateMessage) {
       return;
     }
     const data = await client.deleteMessage(message.id);

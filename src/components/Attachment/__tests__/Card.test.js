@@ -207,6 +207,6 @@ describe('Card', () => {
 
   it('should return null if no og_scrape_url && no title_link', () => {
     const { container } = render(<Card title="test card" />);
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
 });

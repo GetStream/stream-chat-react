@@ -14,7 +14,7 @@ const ConnectionStatus = () => {
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const connectionChanged = (e) => {
       if (e.online !== online) setOnline(/** @type {boolean} */ (e.online));
     };

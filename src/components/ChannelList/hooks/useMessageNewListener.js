@@ -15,7 +15,7 @@ export const useMessageNewListener = (
 ) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event<string>} e */
+    /** @param {import('stream-chat').Event} e */
     const handleEvent = (e) => {
       setChannels((channels) => {
         if (!lockChannelOrder) return moveChannelUp(e.cid, channels);

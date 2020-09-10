@@ -117,7 +117,7 @@ describe('Audio', () => {
     fireEvent.click(getByTestId(playButtonTestId));
 
     await waitFor(() => {
-      expect(getByTestId('audio-progress').style.width).toBe('50%');
+      expect(getByTestId('audio-progress')).toHaveStyle({ width: '50%' });
     });
   });
 });

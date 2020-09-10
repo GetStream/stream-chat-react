@@ -115,9 +115,11 @@ const MessageLivestreamComponent = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+  const messageTextItem = message?.text;
+  const messageMentionedUsersItem = message?.mentioned_users;
   const messageText = useMemo(
-    () => renderText(message?.text, message?.mentioned_users),
-    [message?.text, message?.mentioned_users],
+    () => renderText(messageTextItem, messageMentionedUsersItem),
+    [messageTextItem, messageMentionedUsersItem],
   );
 
   const hasAttachment = messageHasAttachments(message);
@@ -180,7 +182,7 @@ const MessageLivestreamComponent = (props) => {
             handleReaction={handleReaction}
             detailedView
             latest_reactions={message?.latest_reactions}
-            reaction_counts={message?.reaction_counts}
+            reaction_counts={message?.reaction_counts || undefined}
             ref={reactionSelectorRef}
           />
         )}
@@ -234,7 +236,8 @@ const MessageLivestreamComponent = (props) => {
 
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
-                unsafeHTML && (
+                unsafeHTML &&
+                !!message.html && (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 )}
 
@@ -285,7 +288,7 @@ const MessageLivestreamComponent = (props) => {
             {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
 
             <ReactionsList
-              reaction_counts={message.reaction_counts}
+              reaction_counts={message.reaction_counts || undefined}
               reactions={message.latest_reactions}
               handleReaction={propHandleReaction || handleReaction}
             />

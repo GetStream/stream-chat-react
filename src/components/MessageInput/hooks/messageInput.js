@@ -13,7 +13,7 @@ import { generateRandomId } from '../../../utils';
 /**
  * @typedef {import("types").MessageInputState} State
  * @typedef {import("types").MessageInputProps} Props
- * @typedef {import("stream-chat").FileUploadAPIResponse} FileUploadAPIResponse
+ * @typedef {import('stream-chat').Unpacked<ReturnType<import("types").StreamChatReactClient['sendFile']>>} FileUploadAPIResponse
  * @typedef {import('stream-chat').UserResponse} UserResponse
  */
 
@@ -325,10 +325,9 @@ export default function useMessageInputState(props) {
 
   // Commands / mentions
 
-  const getCommands = useCallback(
-    () => channel && channel.getConfig().commands,
-    [channel],
-  );
+  const getCommands = useCallback(() => channel?.getConfig()?.commands, [
+    channel,
+  ]);
 
   const getUsers = useCallback(() => {
     if (!channel) return [];

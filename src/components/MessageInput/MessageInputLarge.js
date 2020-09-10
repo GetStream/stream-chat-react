@@ -28,7 +28,7 @@ const MessageInputLarge = (props) => {
    */
   const constructTypingString = (typingUsers) => {
     const otherTypingUsers = Object.values(typingUsers)
-      .filter(({ user }) => channelContext.client?.user.id !== user?.id)
+      .filter(({ user }) => channelContext.client?.user?.id !== user?.id)
       .map(({ user }) => user?.name || user?.id);
     if (otherTypingUsers.length === 0) return '';
     if (otherTypingUsers.length === 1) {

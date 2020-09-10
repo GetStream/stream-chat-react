@@ -61,16 +61,11 @@ const MessageTimestamp = (props) => {
     TranslationContext,
   );
   const tDateTimeParser = propTDatetimeParser || contextTDateTimeParser;
+  const createdAt = message?.created_at;
   const when = useMemo(
     () =>
-      getDateString(
-        message?.created_at,
-        formatDate,
-        calendar,
-        tDateTimeParser,
-        format,
-      ),
-    [formatDate, calendar, tDateTimeParser, format, message?.created_at],
+      getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),
+    [formatDate, calendar, tDateTimeParser, format, createdAt],
   );
 
   if (!when) {
@@ -78,11 +73,7 @@ const MessageTimestamp = (props) => {
   }
 
   return (
-    <time
-      className={customClass}
-      dateTime={message?.created_at}
-      title={message?.created_at}
-    >
+    <time className={customClass} dateTime={createdAt} title={createdAt}>
       {when}
     </time>
   );
