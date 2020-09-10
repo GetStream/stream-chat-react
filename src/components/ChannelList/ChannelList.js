@@ -333,7 +333,7 @@ ChannelList.propTypes = {
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.
    * */
-  filters: /** @type {PropTypes.Validator<import('types').ChannelFilters>} */ (PropTypes.object),
+  filters: /** @type {PropTypes.Validator<import('stream-chat').ChannelFilters>} */ (PropTypes.object),
   /**
    * Object containing query options
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for options.
@@ -343,7 +343,7 @@ ChannelList.propTypes = {
    * Object containing sort parameters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for sort.
    * */
-  sort: /** @type {PropTypes.Validator<import('types').ChannelSort>} */ (PropTypes.object),
+  sort: /** @type {PropTypes.Validator<import('stream-chat').ChannelSort>} */ (PropTypes.object),
   /**
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/channel_pagination/?language=js) for a list of available fields for sort.

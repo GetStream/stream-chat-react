@@ -42,7 +42,7 @@
     "react-textarea-autosize": "^8.2.0",
     "react-virtuoso": "0.20.0",
     "seamless-immutable": "^7.1.4",
-    "stream-chat": "2.2.0",
+    "stream-chat": "2.2.1",
     "textarea-caret": "^3.1.0",
     "uuid": "^7.0.3"
   },
