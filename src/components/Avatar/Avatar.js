@@ -33,11 +33,11 @@ const Avatar = ({
       className={`str-chat__avatar str-chat__avatar--${shape}`}
       title={name}
       style={{
-        width: size,
-        height: size,
-        flexBasis: size,
+        width: `${size}px`,
+        height: `${size}px`,
+        flexBasis: `${size}px`,
         lineHeight: `${size}px`,
-        fontSize: size / 2,
+        fontSize: `${size / 2}px`,
       }}
       onClick={onClick}
       onMouseOver={onMouseOver}
@@ -51,9 +51,9 @@ const Avatar = ({
             loaded ? ' str-chat__avatar-image--loaded' : ''
           }`}
           style={{
-            width: size,
-            height: size,
-            flexBasis: size,
+            width: `${size}px`,
+            height: `${size}px`,
+            flexBasis: `${size}px`,
             objectFit: 'cover',
           }}
           onLoad={() => setLoaded(true)}
