@@ -19,11 +19,11 @@ describe('Avatar', () => {
         onMouseOver={[Function]}
         style={
           Object {
-            "flexBasis": 32,
-            "fontSize": 16,
-            "height": 32,
+            "flexBasis": "32px",
+            "fontSize": "16px",
+            "height": "32px",
             "lineHeight": "32px",
-            "width": 32,
+            "width": "32px",
           }
         }
       >
@@ -47,11 +47,11 @@ describe('Avatar', () => {
         onMouseOver={[Function]}
         style={
           Object {
-            "flexBasis": 32,
-            "fontSize": 16,
-            "height": 32,
+            "flexBasis": "32px",
+            "fontSize": "16px",
+            "height": "32px",
             "lineHeight": "32px",
-            "width": 32,
+            "width": "32px",
           }
         }
       >
@@ -64,10 +64,10 @@ describe('Avatar', () => {
           src="random"
           style={
             Object {
-              "flexBasis": 32,
-              "height": 32,
+              "flexBasis": "32px",
+              "height": "32px",
               "objectFit": "cover",
-              "width": 32,
+              "width": "32px",
             }
           }
         />
@@ -86,11 +86,11 @@ describe('Avatar', () => {
     const size = 24;
     const { getByTestId } = render(<Avatar size={size} />);
     expect(getByTestId('avatar')).toHaveStyle({
-      width: size,
-      height: size,
-      flexBasis: size,
+      width: `${size}px`,
+      height: `${size}px`,
+      flexBasis: `${size}px`,
       lineHeight: `${size}px`,
-      fontSize: size / 2,
+      fontSize: `${size / 2}px`,
     });
   });
 
@@ -98,9 +98,9 @@ describe('Avatar', () => {
     const size = 24;
     const { getByTestId } = render(<Avatar size={size} image="randomImage" />);
     expect(getByTestId('avatar-img')).toHaveStyle({
-      width: size,
-      height: size,
-      flexBasis: size,
+      width: `${size}px`,
+      height: `${size}px`,
+      flexBasis: `${size}px`,
       objectFit: 'cover',
     });
   });
