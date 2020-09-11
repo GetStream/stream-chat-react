@@ -83,15 +83,15 @@ describe('ChannelHeader', () => {
       },
     });
     expect(getByTestId('avatar-img')).toHaveStyle({
-      width: 60,
-      height: 60,
-      flexBasis: 60,
+      width: '60px',
+      height: '60px',
+      flexBasis: '60px',
       objectFit: 'cover',
     });
     expect(getByTestId('avatar')).toHaveStyle({
-      width: 60,
-      height: 60,
-      flexBasis: 60,
+      width: '60px',
+      height: '60px',
+      flexBasis: '60px',
       lineHeight: '60px',
       fontSize: 30,
     });
