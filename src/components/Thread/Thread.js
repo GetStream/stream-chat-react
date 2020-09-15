@@ -2,8 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { Channel } from 'stream-chat';
-import { smartRender } from '../../utils';
+import { checkChannelPropType, smartRender } from '../../utils';
 import { withChannelContext, withTranslationContext } from '../../context';
 import { Message } from '../Message';
 import { MessageList } from '../MessageList';
@@ -28,8 +27,8 @@ class Thread extends PureComponent {
     /** Make input focus on mounting thread */
     autoFocus: PropTypes.bool,
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-    channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.instanceOf(
-      Channel,
+    channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
+      checkChannelPropType,
     ).isRequired),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
@@ -74,7 +73,7 @@ class Thread extends PureComponent {
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      * */
     additionalMessageInputProps: PropTypes.object,
-    /** Customized MessageInput component to used within Thread instead of default MessageInput 
+    /** Customized MessageInput component to used within Thread instead of default MessageInput
         Useable as follows:
         ```
         <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
