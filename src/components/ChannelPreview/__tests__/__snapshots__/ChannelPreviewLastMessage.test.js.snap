@@ -18,11 +18,11 @@ exports[`ChannelPreviewLastMessage should render correctly 1`] = `
       onMouseOver={[Function]}
       style={
         Object {
-          "flexBasis": 32,
-          "fontSize": 16,
-          "height": 32,
+          "flexBasis": "32px",
+          "fontSize": "16px",
+          "height": "32px",
           "lineHeight": "32px",
-          "width": 32,
+          "width": "32px",
         }
       }
     >
@@ -35,10 +35,10 @@ exports[`ChannelPreviewLastMessage should render correctly 1`] = `
         src="https://randomimage.com/src.jpg"
         style={
           Object {
-            "flexBasis": 32,
-            "height": 32,
+            "flexBasis": "32px",
+            "height": "32px",
             "objectFit": "cover",
-            "width": 32,
+            "width": "32px",
           }
         }
       />

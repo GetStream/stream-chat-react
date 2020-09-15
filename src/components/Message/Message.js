@@ -136,8 +136,8 @@ Message.propTypes = {
       type: PropTypes.string.isRequired,
       reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
       reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired),
-      created_at: PropTypes.string.isRequired,
-      updated_at: PropTypes.string.isRequired,
+      created_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+      updated_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     },
   ).isRequired),
   /** The client connection object for connecting to Stream */

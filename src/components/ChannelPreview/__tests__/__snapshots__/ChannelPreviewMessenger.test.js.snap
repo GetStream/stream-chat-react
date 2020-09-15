@@ -16,11 +16,11 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
       onMouseOver={[Function]}
       style={
         Object {
-          "flexBasis": 40,
-          "fontSize": 20,
-          "height": 40,
+          "flexBasis": "40px",
+          "fontSize": "20px",
+          "height": "40px",
           "lineHeight": "40px",
-          "width": 40,
+          "width": "40px",
         }
       }
     >
@@ -33,10 +33,10 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
         src="https://randomimage.com/src.jpg"
         style={
           Object {
-            "flexBasis": 40,
-            "height": 40,
+            "flexBasis": "40px",
+            "height": "40px",
             "objectFit": "cover",
-            "width": 40,
+            "width": "40px",
           }
         }
       />

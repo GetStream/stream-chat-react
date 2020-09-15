@@ -76,11 +76,11 @@ export const defaultMinimalEmojis = [
   },
 ];
 
-const d = Object.assign({}, data);
-d.emojis = {};
-
 // use this only for small lists like in ReactionSelector
-export const emojiData = d;
+export const emojiData = /** @type {import('emoji-mart').Data} */ ({
+  ...data,
+  emojis: {},
+});
 
 export const isOnlyEmojis = (text) => {
   if (!text) return false;
