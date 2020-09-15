@@ -2,7 +2,7 @@
 import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import { getReadByTooltipText, smartRender } from '../../utils';
+import { smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
@@ -30,6 +30,7 @@ import {
   areMessagePropsEqual,
   messageHasReactions,
   messageHasAttachments,
+  getReadByTooltipText,
 } from './utils';
 import { DeliveredCheckIcon } from './icons';
 import MessageTimestamp from './MessageTimestamp';
