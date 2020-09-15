@@ -250,13 +250,3 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   }
   return <ComponentOrLiteral {...props} />;
 };
-
-export const filterEmoji = (emoji) => {
-  if (
-    emoji.name === 'White Smiling Face' ||
-    emoji.name === 'White Frowning Face'
-  ) {
-    return false;
-  }
-  return true;
-};
