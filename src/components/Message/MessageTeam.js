@@ -3,12 +3,7 @@ import React, { useMemo, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import {
-  isOnlyEmojis,
-  renderText,
-  getReadByTooltipText,
-  smartRender,
-} from '../../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
@@ -31,7 +26,7 @@ import {
   useMentionsUIHandler,
   useEditHandler,
 } from './hooks';
-import { areMessagePropsEqual } from './utils';
+import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
   ReactionIcon,
   ThreadIcon,
