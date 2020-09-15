@@ -5,7 +5,8 @@ import RootReactMarkdown from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
-import { find as linkifyFind } from 'linkifyjs';
+import * as linkify from 'linkifyjs';
+import { Channel, StreamChat } from 'stream-chat';
 
 export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
@@ -154,7 +155,7 @@ export const renderText = (text, mentioned_users) => {
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
   // extract all valid links/emails within text and replace it with proper markup
-  linkifyFind(newText).forEach(({ type, href, value }) => {
+  linkify.find(newText).forEach(({ type, href, value }) => {
     // check if message is already  markdown
     const noParsingNeeded =
       markdownLinks &&
@@ -232,4 +233,28 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   }
   // @ts-ignore
   return <ComponentOrLiteral {...props} />;
+};
+
+/**
+ * @type { import('prop-types').Validator<any> }
+ **/
+export const checkChannelPropType = (propValue, _, componentName) => {
+  if (propValue?.constructor?.name !== Channel.name) {
+    return Error(
+      `Failed prop type: Invalid prop \`channel\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${Channel.name}\`.`,
+    );
+  }
+  return null;
+};
+
+/**
+ * @type { import('prop-types').Validator<any> }
+ **/
+export const checkClientPropType = (propValue, _, componentName) => {
+  if (propValue?.constructor?.name !== StreamChat.name) {
+    return Error(
+      `Failed prop type: Invalid prop \`client\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${StreamChat.name}\`.`,
+    );
+  }
+  return null;
 };
