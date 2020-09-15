@@ -93,6 +93,7 @@ export const renderAttachmentWithinContainer = (
   return (
     <div
       className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${attachment.type} str-chat__message-attachment--${componentType}--${extra}`}
+      key={`${attachment?.id}-${attachment.type || 'none'} `}
     >
       {children}
     </div>
