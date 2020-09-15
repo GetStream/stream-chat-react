@@ -1,18 +1,12 @@
 // @ts-check
-import React, { Fragment, useMemo, useContext, useRef } from 'react';
+import React, { useMemo, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
-import {
-  isOnlyEmojis,
-  renderText,
-  getReadByTooltipText,
-  smartRender,
-} from '../../utils';
+import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
@@ -32,11 +26,7 @@ import {
   useMentionsUIHandler,
   useEditHandler,
 } from './hooks';
-import {
-  getNonImageAttachments,
-  areMessagePropsEqual,
-  getImages,
-} from './utils';
+import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
   ReactionIcon,
   ThreadIcon,
@@ -125,9 +115,6 @@ const MessageTeam = (props) => {
     () => renderText(messageTextItem, messageMentionedUsersItem),
     [messageTextItem, messageMentionedUsersItem],
   );
-
-  const galleryImages = getImages(message);
-  const attachments = getNonImageAttachments(message);
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
   if (message?.type === 'message.read') {
@@ -312,8 +299,6 @@ const MessageTeam = (props) => {
               </span>
             )}
 
-            {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
-
             {message && message.text === '' && (
               <MessageTeamAttachments
                 Attachment={props.Attachment}
@@ -357,7 +342,7 @@ const MessageTeam = (props) => {
             lastReceivedId={props.lastReceivedId}
             t={propT}
           />
-          {message && message.text !== '' && attachments && (
+          {message && message.text !== '' && message.attachments && (
             <MessageTeamAttachments
               Attachment={props.Attachment}
               message={message}
@@ -465,21 +450,12 @@ const MessageTeamAttachments = (props) => {
     handleAction: propHandleAction,
   } = props;
   const handleAction = useActionHandler(message);
-  const attachments = getNonImageAttachments(message);
-  if (attachments.length > 0 && Attachment) {
+  if (message?.attachments && Attachment) {
     return (
-      <Fragment>
-        {attachments.map(
-          /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
-          (attachment, index) => (
-            <Attachment
-              key={`${message?.id}-${index}`}
-              attachment={attachment}
-              actionHandler={propHandleAction || handleAction}
-            />
-          ),
-        )}
-      </Fragment>
+      <Attachment
+        attachments={message.attachments}
+        actionHandler={propHandleAction || handleAction}
+      />
     );
   }
   return null;
@@ -493,7 +469,7 @@ MessageTeam.propTypes = {
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

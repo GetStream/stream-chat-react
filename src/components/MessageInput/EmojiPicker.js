@@ -3,7 +3,17 @@ import React, { useContext } from 'react';
 // @ts-ignore
 import { Picker } from 'emoji-mart';
 import { TranslationContext } from '../../context';
-import { filterEmoji } from '../../utils';
+
+/** @type { (emoji: import('emoji-mart').EmojiData) => boolean } */
+const filterEmoji = (emoji) => {
+  if (
+    emoji.name === 'White Smiling Face' ||
+    emoji.name === 'White Frowning Face'
+  ) {
+    return false;
+  }
+  return true;
+};
 
 /** @type {React.FC<import("types").MessageInputEmojiPickerProps>} */
 const EmojiPicker = ({
