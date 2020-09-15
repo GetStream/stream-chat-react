@@ -19,7 +19,8 @@
     "paths": {
       "*": ["src/@types/*"],
       "types": ["types/index.d.ts"]
-    }
+    },
+    "resolveJsonModule": true
   },
   "include": ["./src/**/*"]
 }
