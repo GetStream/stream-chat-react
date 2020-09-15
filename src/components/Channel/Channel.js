@@ -283,7 +283,7 @@ const ChannelInner = ({
 
   const loadMore = useCallback(
     async (limit = 100) => {
-      if (!online.current) return;
+      if (!online.current) return 0;
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
       if (state.loadingMore || oldestMessage?.status !== 'received') return 0;

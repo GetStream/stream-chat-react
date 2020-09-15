@@ -91,7 +91,7 @@ const VirtualizedMessageList = ({
 
   const messageRenderer = useCallback(
     (message) => {
-      if (!message) return null;
+      if (!message) return <></>;
 
       if (message.type === 'channel.event' || message.type === 'system')
         return <MessageSystem message={message} />;
