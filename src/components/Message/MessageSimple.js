@@ -6,7 +6,6 @@ import { getReadByTooltipText, smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
@@ -88,13 +87,6 @@ const MessageSimple = (props) => {
   const messageClasses = isMyMessage
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
-
-  const images =
-    hasAttachment &&
-    message?.attachments?.filter(
-      /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
-      (item) => item.type === 'image',
-    );
 
   if (message?.type === 'message.read' || message?.type === 'message.date') {
     return null;
@@ -187,28 +179,13 @@ const MessageSimple = (props) => {
               </React.Fragment>
             )}
 
-            <div className="str-chat__message-attachment-container">
-              {hasAttachment &&
-                message.attachments?.map(
-                  /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
-                  (attachment, index) => {
-                    if (
-                      attachment.type === 'image' &&
-                      images &&
-                      images.length > 1
-                    )
-                      return null;
-                    return (
-                      <Attachment
-                        key={`${message.id}-${index}`}
-                        attachment={attachment}
-                        actionHandler={propHandleAction || handleAction}
-                      />
-                    );
-                  },
-                )}
-            </div>
-            {images && images.length > 1 && <Gallery images={images} />}
+            {message?.attachments && Attachment && (
+              <Attachment
+                attachments={message.attachments}
+                actionHandler={propHandleAction || handleAction}
+              />
+            )}
+
             {message.text && (
               <MessageText
                 {...props}
@@ -337,7 +314,7 @@ MessageSimple.propTypes = {
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *

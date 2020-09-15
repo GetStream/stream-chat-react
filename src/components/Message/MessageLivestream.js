@@ -16,7 +16,6 @@ import { ChannelContext, TranslationContext } from '../../context';
 
 import { Avatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { Gallery } from '../Gallery';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import {
   SimpleReactionsList as DefaultReactionsList,
@@ -32,12 +31,7 @@ import {
   useMentionsUIHandler,
   useEditHandler,
 } from './hooks';
-import {
-  messageHasAttachments,
-  getImages,
-  getNonImageAttachments,
-  areMessagePropsEqual,
-} from './utils';
+import { areMessagePropsEqual } from './utils';
 import { MessageActions } from '../MessageActions';
 import { ReactionIcon, ThreadIcon, ErrorIcon } from './icons';
 import MessageTimestamp from './MessageTimestamp';
@@ -122,9 +116,6 @@ const MessageLivestreamComponent = (props) => {
     [messageTextItem, messageMentionedUsersItem],
   );
 
-  const hasAttachment = messageHasAttachments(message);
-  const galleryImages = getImages(message);
-  const attachments = getNonImageAttachments(message);
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
   if (
@@ -273,19 +264,12 @@ const MessageLivestreamComponent = (props) => {
               )}
             </div>
 
-            {hasAttachment &&
-              attachments.map(
-                /** @type {(item: import('stream-chat').Attachment) => React.ReactElement | null} Typescript syntax */
-                (attachment, index) => (
-                  <Attachment
-                    key={`${message?.id}-${index}`}
-                    attachment={attachment}
-                    actionHandler={propHandleAction || handleAction}
-                  />
-                ),
-              )}
-
-            {galleryImages.length !== 0 && <Gallery images={galleryImages} />}
+            {message?.attachments && Attachment && (
+              <Attachment
+                attachments={message.attachments}
+                actionHandler={propHandleAction || handleAction}
+              />
+            )}
 
             <ReactionsList
               reaction_counts={message.reaction_counts || undefined}
@@ -414,7 +398,7 @@ MessageLivestreamComponent.propTypes = {
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').AttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

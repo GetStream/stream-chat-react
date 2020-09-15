@@ -74,7 +74,7 @@ export interface ChatContextValue {
 
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   messages?: StreamChatChannelState['messages'];
   typing?: StreamChatChannelState['typing'];
   watchers?: StreamChatChannelState['watchers'];
@@ -173,7 +173,7 @@ export interface ChannelProps {
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   EmptyPlaceholder?: React.ReactElement;
   mutes?: Client.Mute[];
   multipleUploads?: boolean;
@@ -635,11 +635,11 @@ export interface ExtendedAttachment extends Client.Attachment {
   id?: string;
   asset_url?: string;
   mime_type?: string;
+  images?: Array;
 }
 
-export interface AttachmentUIComponentProps {
+export interface BaseAttachmentUIComponentProps {
   /** The attachment to render */
-  attachment: ExtendedAttachment;
   /**
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
@@ -652,9 +652,20 @@ export interface AttachmentUIComponentProps {
   Card?: React.ComponentType<CardProps>;
   File?: React.ComponentType<FileAttachmentProps>;
   Image?: React.ComponentType<ImageProps>;
+  Gallery?: React.ComponentType<GalleryProps>;
   Audio?: React.ComponentType<AudioProps>;
   Media?: React.ComponentType<ReactPlayerProps>;
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
+}
+
+export interface WrapperAttachmentUIComponentProps
+  extends BaseAttachmentUIComponentProps {
+  attachments: ExtendedAttachment[];
+}
+
+export interface InnerAttachmentUIComponentProps
+  extends BaseAttachmentUIComponentProps {
+  attachment: ExtendedAttachment;
 }
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
@@ -676,7 +687,7 @@ export interface MessageProps extends TranslationContextValue {
   ReactionSelector?: React.ElementType<ReactionSelectorProps>;
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;
@@ -1144,7 +1155,7 @@ export class MessageInputSmall extends React.PureComponent<
 > {}
 
 export class Attachment extends React.PureComponent<
-  AttachmentUIComponentProps
+  WrapperAttachmentUIComponentProps
 > {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
@@ -1192,7 +1203,7 @@ export type MessageTeamState = {
 };
 export interface MessageTeamProps extends MessageUIComponentProps {}
 export interface MessageTeamAttachmentsProps {
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   message?: Client.MessageResponse;
   handleAction?(
     name: string,
