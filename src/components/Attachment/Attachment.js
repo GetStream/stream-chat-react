@@ -267,7 +267,7 @@ const Attachment = ({
 }) => {
   const gallery = {
     type: 'gallery',
-    images: attachments?.filter(
+    images: attachments.filter(
       /** @param {import('types').ExtendedAttachment} a */ (a) =>
         a.type === 'image' && !(a.og_scrape_url || a.title_link),
     ),
@@ -275,7 +275,7 @@ const Attachment = ({
   let newAttachments;
   if (gallery.images?.length >= 2) {
     newAttachments = [
-      ...attachments?.filter(
+      ...attachments.filter(
         /** @param {import('types').ExtendedAttachment} a */ (a) =>
           !(a.type === 'image' && !(a.og_scrape_url || a.title_link)),
       ),
