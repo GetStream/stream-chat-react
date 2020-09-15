@@ -269,7 +269,7 @@ const Attachment = ({
     type: 'gallery',
     images: attachments?.filter(
       /** @param {import('types').ExtendedAttachment} a */ (a) =>
-        a.type === 'image',
+        a.type === 'image' && !(a.og_scrape_url || a.title_link),
     ),
   };
   let newAttachments;
@@ -277,7 +277,7 @@ const Attachment = ({
     newAttachments = [
       ...attachments?.filter(
         /** @param {import('types').ExtendedAttachment} a */ (a) =>
-          a.type !== 'image',
+          !(a.type === 'image' && !(a.og_scrape_url || a.title_link)),
       ),
       gallery,
     ];

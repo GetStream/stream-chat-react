@@ -78,6 +78,47 @@ describe('Attachment', () => {
       expect(getByTestId('card-attachment')).toBeInTheDocument();
     });
   });
+
+  describe('gallery  type attachment', () => {
+    it('should render Gallery component if attachments contains multiple type "image" attachments', async () => {
+      const image = generateImageAttachment({
+        title_link: undefined,
+        og_scrape_url: undefined,
+      });
+      const attachments = [image, image, image];
+      const { getByTestId } = render(getAttachmentComponent({ attachments }));
+      await waitFor(() => {
+        expect(getByTestId('gallery-attachment')).toBeInTheDocument();
+      });
+    });
+    it('should render Image and Card if one image has title_link or og_scrape_url', async () => {
+      const image = generateImageAttachment({
+        title_link: undefined,
+        og_scrape_url: undefined,
+      });
+      const card = generateImageAttachment();
+      const attachments = [card, image];
+      const { getByTestId } = render(getAttachmentComponent({ attachments }));
+      await waitFor(() => {
+        expect(getByTestId('image-attachment')).toBeInTheDocument();
+        expect(getByTestId('card-attachment')).toBeInTheDocument();
+      });
+    });
+
+    it('should render Gallery and Card if threres multiple images without and image with title_link or og_scrape_url', async () => {
+      const image = generateImageAttachment({
+        title_link: undefined,
+        og_scrape_url: undefined,
+      });
+      const card = generateImageAttachment();
+      const attachments = [image, image, card];
+      const { getByTestId } = render(getAttachmentComponent({ attachments }));
+      await waitFor(() => {
+        expect(getByTestId('gallery-attachment')).toBeInTheDocument();
+        expect(getByTestId('card-attachment')).toBeInTheDocument();
+      });
+    });
+  });
   describe('image type attachment', () => {
     it('should render Card component if attachment has title_link or og_scrape_url', async () => {
       const attachment = generateImageAttachment();
