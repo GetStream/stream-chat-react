@@ -42,13 +42,13 @@
     "react-textarea-autosize": "^8.2.0",
     "react-virtuoso": "0.20.0",
     "seamless-immutable": "^7.1.4",
-    "stream-chat": "^2.3.0",
     "textarea-caret": "^3.1.0",
     "uuid": "^7.0.3"
   },
   "peerDependencies": {
     "react": "^16.8.x",
-    "react-dom": "^16.8.x"
+    "react-dom": "^16.8.x",
+    "stream-chat": "2.3.x"
   },
   "files": [
     "dist",
@@ -127,6 +127,7 @@
     "rollup-plugin-url": "^3.0.1",
     "sass": "^1.26.10",
     "sass-loader": "^10.0.2",
+    "stream-chat": "^2.3.0",
     "style-loader": "^1.2.1",
     "stylelint": "^13.7.0",
     "stylelint-config-recommended-scss": "^4.2.0",

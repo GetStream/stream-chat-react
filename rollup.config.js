@@ -48,7 +48,6 @@ const normalBundle = {
     'dayjs/plugin/localizedFormat',
     'dayjs/plugin/localeData',
     'dayjs/plugin/relativeTime',
-    'stream-chat-client',
     'react-images',
     'lodash.debounce',
     'lodash.throttle',
@@ -81,7 +80,6 @@ const normalBundle = {
     'immutable',
     'react-virtuoso',
     'url-parse',
-    'stream-chat',
     'pretty-bytes',
     'stream-analytics',
     'react-textarea-autosize',
@@ -157,6 +155,7 @@ const fullBrowserBundle = {
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
+        'stream-chat': 'StreamChat',
       },
     },
   ],
