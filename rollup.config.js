@@ -10,6 +10,7 @@ import globals from 'rollup-plugin-node-globals';
 import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
+import { terser } from 'rollup-plugin-terser';
 
 import process from 'process';
 import pkg from './package.json';
@@ -155,7 +156,7 @@ const fullBrowserBundle = {
       dirname: false,
       filename: false,
     }),
-    // terser(),
+    terser(),
   ],
 };
 

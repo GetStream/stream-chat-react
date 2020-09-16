@@ -124,6 +124,7 @@
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-peer-deps-external": "^2.2.3",
     "rollup-plugin-scss": "^2.6.0",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-url": "^3.0.1",
     "rollup-plugin-visualizer": "^4.1.1",
     "sass": "^1.26.10",
