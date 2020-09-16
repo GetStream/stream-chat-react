@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VirtualizedMessageList should render empty list of messages 1`] = `
+<div
+  className="str-chat str-chat-channel messaging light"
+>
+  <div
+    className="str-chat__container"
+  >
+    <div
+      className="str-chat__virtual-list"
+    >
+      <div
+        style={
+          Object {
+            "WebkitOverflowScrolling": "touch",
+            "height": "100%",
+            "outline": "none",
+            "overflowY": "auto",
+            "position": "relative",
+          }
+        }
+        tabIndex={0}
+      >
+        <div
+          style={
+            Object {
+              "height": "100%",
+              "position": "absolute",
+              "top": 0,
+              "width": "100%",
+            }
+          }
+        >
+          <div
+            style={
+              Object {
+                "marginTop": "0px",
+              }
+            }
+          >
+            <header>
+              <div
+                className="str-chat__virtual-list__loading"
+                style={
+                  Object {
+                    "visibility": "hidden",
+                  }
+                }
+              >
+                <div>
+                  LoadingIndicator
+                </div>
+              </div>
+            </header>
+            <div
+              data-index={0}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={1}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={2}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={3}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={4}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={5}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={6}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={7}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={8}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={9}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={10}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={11}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={12}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={13}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={14}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={15}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={16}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={17}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={18}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={19}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={20}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={21}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={22}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+            <div
+              data-index={23}
+              data-known-size={30}
+            >
+              <div>
+                FixedHeightMessage
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style={
+            Object {
+              "height": "3030px",
+              "position": "absolute",
+              "top": 0,
+            }
+          }
+        >
+           
+        </div>
+      </div>
+      <div
+        className="str-chat__list-notifications"
+      >
+        <button
+          className="str-chat__message-notification"
+          data-testid="message-notification"
+          onClick={[Function]}
+        >
+          New Messages!
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
