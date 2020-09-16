@@ -8,6 +8,7 @@
     "react-dom": "^16.12.0",
     "react-markdown": "^4.0.6",
     "react-scripts": "2.1.4",
+    "stream-chat": "^2.3.0",
     "stream-chat-react": "0.12.1"
   },
   "scripts": {
