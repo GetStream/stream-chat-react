@@ -1,17 +1,15 @@
-// @flow
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
 import external from 'rollup-plugin-peer-deps-external';
-import commonjs from 'rollup-plugin-commonjs';
 import scss from 'rollup-plugin-scss';
-import json from 'rollup-plugin-json';
 import url from 'rollup-plugin-url';
 import copy from 'rollup-plugin-copy-glob';
-import resolve from 'rollup-plugin-node-resolve';
-import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import visualizer from 'rollup-plugin-visualizer';
-import PropTypes from 'prop-types';
 import replace from '@rollup/plugin-replace';
+import builtins from '@stream-io/rollup-plugin-node-builtins';
 
 import process from 'process';
 import pkg from './package.json';
@@ -83,9 +81,10 @@ const basePlugins = [
   // Remove peer-dependencies from final bundle
   external(),
   babel({
-    runtimeHelpers: true,
+    babelHelpers: 'runtime',
     exclude: 'node_modules/**',
   }),
+  commonjs(),
   // import files as data-uris or es modules
   url(),
   copy(
@@ -119,7 +118,7 @@ const normalBundle = {
     },
   ],
   external: externalDependencies,
-  plugins: [...basePlugins, commonjs()],
+  plugins: [...basePlugins],
 };
 
 const fullBrowserBundle = {
@@ -148,13 +147,6 @@ const fullBrowserBundle = {
     builtins(),
     resolve({
       browser: true,
-    }),
-    commonjs({
-      namedExports: {
-        'prop-types': Object.keys(PropTypes),
-        'node_modules/react-is/index.js': ['isValidElementType'],
-        'node_modules/linkifyjs/index.js': ['find'],
-      },
     }),
     globals({
       process: true,
