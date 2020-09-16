@@ -9,8 +9,8 @@ import copy from 'rollup-plugin-copy-glob';
 import resolve from 'rollup-plugin-node-resolve';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
+import visualizer from 'rollup-plugin-visualizer';
 import PropTypes from 'prop-types';
-
 import replace from '@rollup/plugin-replace';
 
 import process from 'process';
@@ -101,6 +101,7 @@ const basePlugins = [
   ),
   // Json to ES modules conversion
   json(),
+  process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
 
 const normalBundle = {
