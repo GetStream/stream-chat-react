@@ -18,14 +18,6 @@ import pkg from './package.json';
 
 process.env.NODE_ENV = 'production';
 
-const baseConfig = {
-  input: 'src/index.js',
-  cache: false,
-  watch: {
-    chokidar: false,
-  },
-};
-
 const styleBundle = {
   input: 'src/styles/index.scss',
   cache: false,
@@ -38,6 +30,14 @@ const styleBundle = {
       prefix: `@import "./variables.scss";`,
     }),
   ],
+};
+
+const baseConfig = {
+  input: 'src/index.js',
+  cache: false,
+  watch: {
+    chokidar: false,
+  },
 };
 
 const externalDependencies = [
@@ -70,6 +70,39 @@ const externalDependencies = [
   /uuid/,
 ];
 
+const basePlugins = [
+  replace({
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  }),
+  // Replace our alias for a relative path so the jsdoc resolution still
+  // works after bundling.
+  replace({
+    "import('types')": "import('../types')",
+    delimiters: ['', ''],
+  }),
+  // Remove peer-dependencies from final bundle
+  external(),
+  babel({
+    runtimeHelpers: true,
+    exclude: 'node_modules/**',
+  }),
+  // import files as data-uris or es modules
+  url(),
+  copy(
+    [
+      { files: 'src/styles/**/*', dest: 'dist/scss' },
+      { files: 'src/assets/*', dest: 'dist/assets' },
+      { files: 'src/i18n/*.json', dest: 'dist/i18n' },
+    ],
+    {
+      verbose: true,
+      watch: process.env.ROLLUP_WATCH,
+    },
+  ),
+  // Json to ES modules conversion
+  json(),
+];
+
 const normalBundle = {
   ...baseConfig,
   output: [
@@ -85,34 +118,7 @@ const normalBundle = {
     },
   ],
   external: externalDependencies,
-  plugins: [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-    replace({
-      "import('types')": "import('../types')",
-      delimiters: ['', ''],
-    }),
-    external(),
-    babel({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**',
-    }),
-    copy(
-      [
-        { files: 'src/styles/**/*', dest: 'dist/scss' },
-        { files: 'src/assets/*', dest: 'dist/assets' },
-        { files: 'src/i18n/*.json', dest: 'dist/i18n' },
-      ],
-      {
-        verbose: true,
-        watch: process.env.ROLLUP_WATCH,
-      },
-    ),
-    url(),
-    commonjs(),
-    json(),
-  ],
+  plugins: [...basePlugins, commonjs()],
 };
 
 const fullBrowserBundle = {
@@ -132,18 +138,7 @@ const fullBrowserBundle = {
     },
   ],
   plugins: [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-    replace({
-      "import('types')": "import('../types')",
-      delimiters: ['', ''],
-    }),
-    external(),
-    babel({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**',
-    }),
+    ...basePlugins,
     {
       name: 'ignore-css-and-scss',
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
@@ -153,7 +148,6 @@ const fullBrowserBundle = {
     resolve({
       browser: true,
     }),
-    url(),
     commonjs({
       namedExports: {
         'prop-types': Object.keys(PropTypes),
@@ -161,7 +155,6 @@ const fullBrowserBundle = {
         'node_modules/linkifyjs/index.js': ['find'],
       },
     }),
-    json(),
     globals({
       process: true,
       globals: false,
@@ -169,7 +162,6 @@ const fullBrowserBundle = {
       dirname: false,
       filename: false,
     }),
-    copy([{ files: 'src/i18n/*.json', dest: 'dist/i18n' }]),
     // terser(),
   ],
 };
