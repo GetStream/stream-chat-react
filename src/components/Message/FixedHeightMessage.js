@@ -102,7 +102,9 @@ const FixedHeightMessage = ({ message }) => {
 
         {images && <Gallery images={images} />}
 
-        <div className="str-chat__virtual-message__text">{renderedText}</div>
+        <div className="str-chat__virtual-message__text" data-testid="msg-text">
+          {renderedText}
+        </div>
       </div>
     </div>
   );
