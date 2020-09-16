@@ -147,8 +147,9 @@
   "scripts": {
     "test": "rm -rf built && jest",
     "coverage": "yarn test --collectCoverage && codecov",
-    "start": "mkdir -p dist/assets assets && yarn build-translations && rollup -c -w",
-    "build": "mkdir -p dist/assets assets && yarn build-translations && rollup -c",
+    "bundle": "rollup -c",
+    "start": "mkdir -p dist/assets assets && yarn build-translations && yarn bundle -w",
+    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn bundle",
     "types": "tsc --strict",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
