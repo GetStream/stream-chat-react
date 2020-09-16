@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.3.3) 2020-09-15
+
+- Refactored Attachment component to now also accept a Gallery prop that will handle when the attachments array contains multiple images.
+- Upgraded react-file-utils which fixes image previews not displaying on the EditMessageForm
+- Fix PropType errors
+- Fix an issue with the infinite scroll on the MessageList when the client is offline
+
 ## [2.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.3.2) 2020-09-10
 
 - Upgrading stream-chat to 2.2.2
