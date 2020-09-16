@@ -26,6 +26,20 @@ const baseConfig = {
   },
 };
 
+const styleBundle = {
+  input: 'src/styles/index.scss',
+  cache: false,
+  watch: {
+    chokidar: false,
+  },
+  plugins: [
+    scss({
+      output: pkg.style,
+      prefix: `@import "./variables.scss";`,
+    }),
+  ],
+};
+
 const normalBundle = {
   ...baseConfig,
   output: [
@@ -122,9 +136,6 @@ const normalBundle = {
       runtimeHelpers: true,
       exclude: 'node_modules/**',
     }),
-    scss({
-      output: pkg.style,
-      prefix: `@import "./variables.scss";`,
     }),
     copy(
       [
@@ -203,4 +214,6 @@ const fullBrowserBundle = {
 };
 
 export default () =>
-  process.env.ROLLUP_WATCH ? [normalBundle] : [normalBundle, fullBrowserBundle];
+  process.env.ROLLUP_WATCH
+    ? [styleBundle, normalBundle]
+    : [styleBundle, normalBundle, fullBrowserBundle];
