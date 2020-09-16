@@ -12,6 +12,7 @@ import { ReactPlayerProps } from 'react-player';
 import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
+export type AnyType = Record<string, any>;
 export type StreamChatReactUserType = {
   status?: string;
   image?: string;
@@ -24,37 +25,44 @@ export type StreamChatReactChannelType = {
 };
 export type StreamChatMessageType = {
   event?: Client.Event<
-    UnknownType,
-    UnknownType,
+    AnyType,
     StreamChatReactChannelType,
+    string & {},
+    AnyType,
     StreamChatMessageType,
-    UnknownType,
+    AnyType,
     StreamChatReactUserType
   >;
 };
 export type StreamChatReactMessage = Client.Message<
+  AnyType,
   StreamChatMessageType,
-  UnknownType,
   StreamChatReactUserType
 >;
 export type StreamChatReactMessageResponse = Client.MessageResponse<
-  StreamChatMessageType,
-  UnknownType,
+  AnyType,
   StreamChatReactChannelType,
-  UnknownType,
+  string & {},
+  StreamChatMessageType,
+  AnyType,
   StreamChatReactUserType
 >;
 export type StreamChatReactClient = Client.StreamChat<
+  AnyType,
   StreamChatReactChannelType,
-  StreamChatReactUserType,
-  StreamChatMessageType
+  string & {},
+  AnyType,
+  StreamChatMessageType,
+  AnyType,
+  StreamChatReactUserType
 >;
 export type StreamChatChannelState = Client.ChannelState<
-  UnknownType,
+  AnyType,
   StreamChatReactChannelType,
-  UnknownType,
+  string & {},
+  AnyType,
   StreamChatMessageType,
-  UnknownType,
+  AnyType,
   StreamChatReactUserType
 >;
 
