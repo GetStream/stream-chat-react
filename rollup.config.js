@@ -94,7 +94,7 @@ const basePlugins = [
       { files: 'src/i18n/*.json', dest: 'dist/i18n' },
     ],
     {
-      verbose: true,
+      verbose: process.env.VERBOSE,
       watch: process.env.ROLLUP_WATCH,
     },
   ),
