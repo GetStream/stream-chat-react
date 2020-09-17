@@ -11,6 +11,7 @@ import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import { terser } from 'rollup-plugin-terser';
+import { prepend } from 'rollup-plugin-insert';
 import PropTypes from 'prop-types';
 import process from 'process';
 import pkg from './package.json';
@@ -162,6 +163,11 @@ const fullBrowserBundle = {
       dirname: false,
       filename: false,
     }),
+    // To work with globals rollup expects them to be namespaced, what is not the case with stream-chat.
+    // This injects some code to define stream-chat globals as expected by rollup.
+    prepend(
+      'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;',
+    ),
     terser(),
   ],
 };

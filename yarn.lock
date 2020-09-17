@@ -10383,6 +10383,14 @@ rollup-plugin-copy@^3.3.0:
     globby "10.0.1"
     is-plain-object "^3.0.0"
 
+rollup-plugin-insert@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-insert/-/rollup-plugin-insert-1.3.1.tgz#1afa4376a3a100370eb810798a12a5938e0cb22b"
+  integrity sha512-RvsvTPCxHRmqDeRjrrgZVI5PsbTOK162V80wAWnUTqanNjK8zec7pcXG3j2fJ65krEHouQ074DKC6RuBzXy1Sg==
+  dependencies:
+    magic-string "^0.25.7"
+    rollup-pluginutils "^2.8.2"
+
 rollup-plugin-node-globals@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/rollup-plugin-node-globals/-/rollup-plugin-node-globals-1.4.0.tgz#5e1f24a9bb97c0ef51249f625e16c7e61b7c020b"
