@@ -129,11 +129,11 @@ const normalBundle = {
   plugins: [...basePlugins],
 };
 
-const fullBrowserBundle = {
+const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
   output: [
     {
-      file: pkg.jsdelivr,
+      file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
       sourcemap: true,
       name: 'window', // write all exported values to window
@@ -168,11 +168,16 @@ const fullBrowserBundle = {
     prepend(
       'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;',
     ),
-    terser(),
+    min ? terser() : null,
   ],
-};
+});
 
 export default () =>
   process.env.ROLLUP_WATCH
     ? [styleBundle, normalBundle]
-    : [styleBundle, normalBundle, fullBrowserBundle];
+    : [
+        styleBundle,
+        normalBundle,
+        fullBrowserBundle({ min: true }),
+        fullBrowserBundle(),
+      ];
