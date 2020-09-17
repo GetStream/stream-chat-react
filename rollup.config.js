@@ -1,5 +1,5 @@
 import babel from '@rollup/plugin-babel';
-import commonjs from '@rollup/plugin-commonjs';
+import commonjs from 'rollup-plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import external from 'rollup-plugin-peer-deps-external';
@@ -11,7 +11,7 @@ import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import { terser } from 'rollup-plugin-terser';
-
+import PropTypes from 'prop-types';
 import process from 'process';
 import pkg from './package.json';
 
@@ -85,7 +85,13 @@ const basePlugins = [
     babelHelpers: 'runtime',
     exclude: 'node_modules/**',
   }),
-  commonjs(),
+  commonjs({
+    namedExports: {
+      'prop-types': Object.keys(PropTypes),
+      'node_modules/react-is/index.js': ['isValidElementType'],
+      'node_modules/linkifyjs/index.js': ['find'],
+    },
+  }),
   // import files as data-uris or es modules
   url(),
   copy(
