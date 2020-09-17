@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.4.0) 2020-09-17
+
+### Feature
+
+- [VirtualizedMessageList](https://github.com/GetStream/stream-chat-react/blob/master/src/docs/VirtualizedMessageList.md) is a new component that can handle thousands of messages in a channel. It uses a virtualized list under the hood. #487
+
+### Fix
+
+- Typescript generics of stream chat js are ABC adjusted #521
+
 ## [2.3.3](https://github.com/GetStream/stream-chat-react/releases/tag/v2.3.3) 2020-09-15
 
 - Refactored Attachment component to now also accept a Gallery prop that will handle when the attachments array contains multiple images.
