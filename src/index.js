@@ -50,6 +50,7 @@ import './styles/SmallMessageInput.scss';
 import './styles/Thread.scss';
 import './styles/TypingIndicator.scss';
 import './styles/Tooltip.scss';
+import './styles/VirtualMessage.scss';
 
 //
 export * from './context';

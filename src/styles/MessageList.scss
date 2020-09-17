@@ -128,3 +128,29 @@
     }
   }
 }
+
+.str-chat__virtual-list {
+  position: relative;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
+  background: white;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  &__loading {
+    display: flex;
+    padding-top: 8px;
+    justify-content: center;
+  }
+
+  p {
+    margin: 0 !important; // always use padding, margin mess up the height calculations
+  }
+}
+
+.dark .str-chat__virtual-list {
+  background: rgba(255, 255, 255, 0.04);
+}

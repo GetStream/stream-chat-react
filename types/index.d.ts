@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
+import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
@@ -147,7 +148,7 @@ export interface ChannelContextValue extends ChatContextValue {
     event: React.SyntheticEvent,
   ): void;
 
-  loadMore?(): void;
+  loadMore?(messageLimit?: number): Promise<number>;
   // thread related
   closeThread?(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
@@ -459,6 +460,50 @@ export interface SendButtonProps {
   sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void;
 }
 
+export interface FixedHeightMessageProps {
+  message: Client.MessageResponse;
+}
+
+export interface VirtualizedMessageListInternalProps {
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  client: StreamChatReactClient;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  messages: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadMore(messageLimit?: number): Promise<number>;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  hasMore: boolean;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadingMore: boolean;
+  /** Set the limit to use when paginating messages */
+  messageLimit: number;
+  /** Custom UI component to display messages. */
+  Message: React.ElementType<FixedHeightMessageProps>;
+  /** Custom UI component to display deleted messages. */
+  MessageDeleted: React.ElementType<MessageDeletedProps>;
+  /** Custom UI component to display system messages */
+  MessageSystem: React.ElementType<EventComponentProps>;
+  /** The UI Indicator to use when MessagerList or ChannelList is empty */
+  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
+  /** Component to render at the top of the MessageList while loading new messages */
+  LoadingIndicator: React.ElementType<LoadingIndicatorProps>;
+  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
+  overscan: number;
+  /** Performance improvement by showing placeholders if user scrolls fast through list
+   * it can be used like this:
+   *  {
+   *    enter: (velocity) => Math.abs(velocity) > 120,
+   *    exit: (velocity) => Math.abs(velocity) < 40,
+   *    change: () => null,
+   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
+   *  }
+   */
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration;
+}
+
+export interface VirtualizedMessageListProps
+  extends Partial<VirtualizedMessageListInternalProps> {}
+
 export interface MessageListProps {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
@@ -485,7 +530,7 @@ export interface MessageListProps {
   getMuteUserErrorNotification?(message: MessageResponse): string;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
-  loadMore?(): any;
+  loadMore?(messageLimit?: number): Promise<number>;
   MessageSystem?: React.ElementType;
   messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
   read?: {
@@ -1018,7 +1063,7 @@ export interface ModalImageProps {
 }
 
 export interface ReverseInfiniteScrollProps {
-  loadMore(): any;
+  loadMore(messageLimit?: number): Promise<number>;
   hasMore?: boolean;
   initialLoad?: boolean;
   isReverse?: boolean;
@@ -1061,6 +1106,7 @@ export interface MessageActionsBoxProps {
 export interface MessageNotificationProps {
   showNotification: boolean;
   onClick: React.MouseEventHandler;
+  children?: any;
 }
 export interface MessageRepliesCountButtonProps
   extends TranslationContextValue {
