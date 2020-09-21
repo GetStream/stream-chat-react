@@ -3,7 +3,7 @@
 import emojiRegex from 'emoji-regex';
 import RootReactMarkdown from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
-import data from 'emoji-mart/data/all.json';
+import data from './stream-emoji.json';
 import React from 'react';
 import * as linkify from 'linkifyjs';
 import { Channel, StreamChat } from 'stream-chat';
