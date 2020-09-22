@@ -2,16 +2,14 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { generateUser, generateReaction } from 'mock-builders';
-import { NimbleEmoji as EmojiComponentMock } from 'emoji-mart';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import ReactionSelector from '../ReactionSelector';
 import { defaultMinimalEmojis } from '../../../utils';
 import { Avatar as AvatarMock } from '../../Avatar';
 
-jest.mock('emoji-mart', () => ({
-  NimbleEmoji: jest.fn(({ emoji }) => (
-    <div data-testid={`emoji-${emoji.id}`} />
-  )),
-}));
+jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
+  jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
+);
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div data-testid="avatar" />),

@@ -7,7 +7,8 @@ import React, {
   useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
-import { NimbleEmoji } from 'emoji-mart';
+// @ts-ignore
+import NimbleEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';

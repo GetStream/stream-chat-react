@@ -2,14 +2,12 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { generateReaction } from 'mock-builders';
-import { NimbleEmoji as EmojiComponentMock } from 'emoji-mart';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import ReactionsList from '../ReactionsList';
 
-jest.mock('emoji-mart', () => ({
-  NimbleEmoji: jest.fn(({ emoji }) => (
-    <div data-testid={`emoji-${emoji.id}`} />
-  )),
-}));
+jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
+  jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
+);
 
 const renderComponent = ({ reaction_counts = {}, ...props }) => {
   const reactions = Object.entries(reaction_counts)

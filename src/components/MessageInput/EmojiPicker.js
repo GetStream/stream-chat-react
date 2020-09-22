@@ -1,7 +1,8 @@
 // @ts-check
 import React, { useContext } from 'react';
 // @ts-ignore
-import { Picker } from 'emoji-mart';
+import NimblePicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
+import data from '../../stream-emoji.json';
 import { TranslationContext } from '../../context';
 
 /** @type { (emoji: import('emoji-mart').EmojiData) => boolean } */
@@ -30,8 +31,10 @@ const EmojiPicker = ({
 
     return (
       <div className={className} ref={emojiPickerRef}>
-        <Picker
+        <NimblePicker
           native
+          data={data}
+          set={'facebook'}
           emoji="point_up"
           title={t('Pick your emoji')}
           onSelect={onSelectEmoji}
@@ -39,6 +42,7 @@ const EmojiPicker = ({
           showPreview={false}
           useButton={true}
           emojisToShowFilter={filterEmoji}
+          showSkinTones={false}
         />
       </div>
     );

@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
-import { NimbleEmoji } from 'emoji-mart';
+import NimbleEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
 
