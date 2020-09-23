@@ -505,8 +505,6 @@ export interface VirtualizedMessageListProps
   extends Partial<VirtualizedMessageListInternalProps> {}
 
 export interface MessageListProps {
-  /** Typing indicator component to render  */
-  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ElementType;
   /** Component to render at the top of the MessageList */
@@ -856,10 +854,7 @@ export interface ThreadProps {
   MessageInput?: React.ElementType<MessageInputProps>;
 }
 
-export interface TypingIndicatorProps {
-  typing: object;
-  client: Client.StreamChat;
-}
+export interface TypingIndicatorProps {}
 
 export interface ReactionSelectorProps {
   /**
