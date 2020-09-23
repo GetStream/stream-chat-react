@@ -1,56 +1,42 @@
 // @ts-check
-
 import React from 'react';
 import PropTypes from 'prop-types';
-
-// @ts-ignore
-import Emoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-// @ts-ignore
-import EmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
-// @ts-ignore
-import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
 import { ChatContext, EmojiContext, TranslationContext } from '../../context';
 import {
   commonEmoji,
   defaultMinimalEmojis,
   emojiSetDef,
 } from '../../context/EmojiContext';
-import emojiData from '../../stream-emoji.json';
-
 import { useChat } from './hooks/useChat';
 
 /**
- * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
- * This Chat component provides the ChatContext to all other components.
+ * CustomChat - This component is a replacement for the Chat component. The only difference between both is
+ * that the CustomChat component does not come with a default set of emojis, allowing for a custom set of emoji
+ * related components
  *
- * The ChatContext provides the following props:
- *
- * - client (the client connection)
- * - channels (the list of channels)
- * - setActiveChannel (a function to set the currently active channel)
- * - channel (the currently active channel)
- *
- * It also exposes the withChatContext HOC which you can use to consume the ChatContext
- *
- * @example ../../docs/Chat.md
+ * @example ../../docs/CustomChat.md
  * @typedef {import('stream-chat').Channel | undefined} ChannelState
- * @type {React.FC<import('types').ChatProps>}
+ * @type {React.FC<import('types').CustomChatProps>}>}
  */
-const Chat = ({
+const CustomChat = ({
   client,
   theme = 'messaging light',
   i18nInstance,
   initialNavOpen = true,
   children,
+  emojiData,
+  EmojiPicker,
+  EmojiIndex,
+  Emoji,
 }) => {
   const emojiConfig = {
     emojiData,
     EmojiPicker,
     Emoji,
+    EmojiIndex,
     defaultMinimalEmojis,
     commonEmoji,
     emojiSetDef,
-    EmojiIndex,
   };
   const {
     setActiveChannel,
@@ -86,7 +72,7 @@ const Chat = ({
   );
 };
 
-Chat.propTypes = {
+CustomChat.propTypes = {
   /** The StreamChat client object */
   client: /** @type {PropTypes.Validator<import('stream-chat').StreamChat>} */ (PropTypes
     .object.isRequired),
@@ -132,4 +118,4 @@ Chat.propTypes = {
   initialNavOpen: PropTypes.bool,
 };
 
-export default Chat;
+export default CustomChat;

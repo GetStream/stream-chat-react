@@ -24,6 +24,13 @@ export type StreamChatReactUserType = AnyType & {
   mutes?: Array<Mute>;
 };
 
+export interface CustomChatProps extends ChatProps {
+  EmojiPicker: React.ElementType<NimblePickerProps> | null;
+  EmojiIndex: NimbleEmojiIndex | null;
+  Emoji: React.ElementType<NimbleEmojiProps> | null;
+  emojiData: EmojiMartData;
+}
+
 export type StreamChatReactChannelType = AnyType & {
   image?: string;
   subtitle?: string;
