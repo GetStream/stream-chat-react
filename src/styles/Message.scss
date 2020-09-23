@@ -217,8 +217,8 @@
     align-items: center;
     width: 100%;
     flex-direction: column;
-    padding: 0 40px;
-    margin: 40px 0;
+    padding: 40px;
+    box-sizing: border-box;
     font-size: 10px;
 
     &__text {

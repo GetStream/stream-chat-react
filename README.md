@@ -35,6 +35,25 @@ With these chat components, you can support any chat use case:
 
 The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make frequently required changes.
 
+## Installation
+
+### Install with NPM
+
+`npm install --save react react-dom stream-chat stream-chat-react`
+
+### Install with Yarn
+
+`yarn add react react-dom stream-chat stream-chat-react`
+
+### Using JS deliver
+
+```
+<script src="https://cdn.jsdelivr.net/npm/react@16.13.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stream-chat"></script>
+<script src="https://cdn.jsdelivr.net/npm/stream-chat-react"></script>
+```
+
 ## Example Apps
 
 This repo includes 4 example apps. You can try them out like this:

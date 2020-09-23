@@ -1,9 +1,12 @@
+// @ts-check
 /* eslint-disable */
 import emojiRegex from 'emoji-regex';
+import RootReactMarkdown from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
 import data from 'emoji-mart/data/all.json';
 import React from 'react';
-import { find as linkifyFind } from 'linkifyjs/lib/linkify';
+import * as linkify from 'linkifyjs';
+import { Channel, StreamChat } from 'stream-chat';
 
 export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
@@ -13,11 +16,13 @@ export const emojiSetDef = {
   sheetSize: 64,
 };
 
+/** @type {import("types").commonEmojiInterface} */
 export const commonEmoji = {
   emoticons: [],
   short_names: [],
   custom: true,
 };
+
 /** @type {import("types").MinimalEmojiInterface[]} */
 export const defaultMinimalEmojis = [
   {
@@ -76,12 +81,13 @@ export const defaultMinimalEmojis = [
   },
 ];
 
-const d = Object.assign({}, data);
-d.emojis = {};
-
 // use this only for small lists like in ReactionSelector
-export const emojiData = d;
+export const emojiData = /** @type {import('emoji-mart').Data} */ ({
+  ...data,
+  emojis: {},
+});
 
+/** @type {(text: string | undefined) => boolean} */
 export const isOnlyEmojis = (text) => {
   if (!text) return false;
 
@@ -90,47 +96,16 @@ export const isOnlyEmojis = (text) => {
   return !noSpace;
 };
 
-export const isPromise = (thing) => thing && typeof thing.then === 'function';
+/** @type {(thing: any) => boolean} */
+export const isPromise = (thing) => typeof thing?.then === 'function';
 
+/**
+ * @typedef {{created_at: number}} Datelike
+ * @type {(a: Datelike, b: Datelike) => number}
+ **/
 export const byDate = (a, b) => a.created_at - b.created_at;
 
-// https://stackoverflow.com/a/29234240/7625485
-/**
- * @deprecated This function is deprecated and will be removed in future major release.
- * @param {*} dict
- * @param {*} currentUserId
- */
-export const formatArray = (dict, currentUserId) => {
-  const arr2 = Object.keys(dict);
-  const arr3 = [];
-  arr2.forEach((item, i) => {
-    if (currentUserId === dict[arr2[i]].user.id) {
-      return;
-    }
-
-    arr3.push(dict[arr2[i]].user.name || dict[arr2[i]].user.id);
-  });
-  let outStr = '';
-  if (arr3.length === 1) {
-    outStr = arr3[0] + ' is typing...';
-    dict;
-  } else if (arr3.length === 2) {
-    //joins all with "and" but =no commas
-    //example: "bob and sam"
-    outStr = arr3.join(' and ') + ' are typing...';
-  } else if (arr3.length > 2) {
-    //joins all with commas, but last one gets ", and" (oxford comma!)
-    //example: "bob, joe, and sam"
-    outStr =
-      arr3.slice(0, -1).join(', ') +
-      ', and ' +
-      arr3.slice(-1) +
-      ' are typing...';
-  }
-
-  return outStr;
-};
-
+/** @type {import('react-markdown').NodeType[]} */
 const allowedMarkups = [
   'html',
   'root',
@@ -148,17 +123,22 @@ const allowedMarkups = [
   'delete',
 ];
 
+/** @type {(message: string) => (string|null)[]} */
 const matchMarkdownLinks = (message) => {
   const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm;
   const matches = message.match(regexMdLinks);
   const singleMatch = /\[([^\[]+)\]\((.*)\)/;
 
   const links = matches
-    ? matches.map((match) => singleMatch.exec(match)[2])
+    ? matches.map((match) => {
+        const i = singleMatch.exec(match);
+        return i && i[2];
+      })
     : [];
   return links;
 };
 
+/** @type {(input: string, length: number) => string} */
 export const truncate = (input, length, end = '...') => {
   if (input.length > length) {
     return `${input.substring(0, length - end.length)}${end}`;
@@ -166,6 +146,7 @@ export const truncate = (input, length, end = '...') => {
   return input;
 };
 
+/** @type {(input: string | undefined, mentioned_users: import('stream-chat').UserResponse[] | undefined) => React.ReactNode} */
 export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -174,11 +155,11 @@ export const renderText = (text, mentioned_users) => {
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
   // extract all valid links/emails within text and replace it with proper markup
-  linkifyFind(newText).forEach(({ type, href, value }) => {
+  linkify.find(newText).forEach(({ type, href, value }) => {
     // check if message is already  markdown
     const noParsingNeeded =
       markdownLinks &&
-      markdownLinks.filter((text) => text.indexOf(href) !== -1);
+      markdownLinks.filter((text) => text?.indexOf(href) !== -1);
     if (noParsingNeeded.length > 0) return;
 
     const displayLink =
@@ -210,7 +191,7 @@ export const renderText = (text, mentioned_users) => {
         if (uri.startsWith('app://')) {
           return uri;
         } else {
-          return ReactMarkdown.uriTransformer(uri);
+          return RootReactMarkdown.uriTransformer(uri);
         }
       }}
     />
@@ -227,6 +208,7 @@ function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
 
+// @ts-ignore
 export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   if (ElementOrComponentOrLiteral === undefined) {
     ElementOrComponentOrLiteral = fallback;
@@ -238,6 +220,7 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   }
 
   // Flow cast through any to remove React.Element after previous check
+  /** @type {React.Component} */
   const ComponentOrLiteral = ElementOrComponentOrLiteral;
 
   if (
@@ -248,55 +231,30 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   ) {
     return ComponentOrLiteral;
   }
+  // @ts-ignore
   return <ComponentOrLiteral {...props} />;
 };
 
-export const filterEmoji = (emoji) => {
-  if (
-    emoji.name === 'White Smiling Face' ||
-    emoji.name === 'White Frowning Face'
-  ) {
-    return false;
+/**
+ * @type { import('prop-types').Validator<any> }
+ **/
+export const checkChannelPropType = (propValue, _, componentName) => {
+  if (propValue?.constructor?.name !== Channel.name) {
+    return Error(
+      `Failed prop type: Invalid prop \`channel\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${Channel.name}\`.`,
+    );
   }
-  return true;
+  return null;
 };
 
-export const getReadByTooltipText = (users, t, client) => {
-  let outStr = '';
-  // first filter out client user, so restLength won't count it
-  const otherUsers = users
-    .filter((item) => item && item.id !== client.user.id)
-    .map((item) => item.name || item.id);
-
-  const slicedArr = otherUsers.slice(0, 5);
-  const restLength = otherUsers.length - slicedArr.length;
-
-  if (slicedArr.length === 1) {
-    outStr = slicedArr[0] + ' ';
-  } else if (slicedArr.length === 2) {
-    //joins all with "and" but =no commas
-    //example: "bob and sam"
-    outStr = t('{{ firstUser }} and {{ secondUser }}', {
-      firstUser: slicedArr[0],
-      secondUser: slicedArr[1],
-    });
-  } else if (slicedArr.length > 2) {
-    //joins all with commas, but last one gets ", and" (oxford comma!)
-    //example: "bob, joe, sam and 4 more"
-    if (restLength === 0) {
-      // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
-      outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        lastUser,
-      });
-    } else {
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
-    }
+/**
+ * @type { import('prop-types').Validator<any> }
+ **/
+export const checkClientPropType = (propValue, _, componentName) => {
+  if (propValue?.constructor?.name !== StreamChat.name) {
+    return Error(
+      `Failed prop type: Invalid prop \`client\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${StreamChat.name}\`.`,
+    );
   }
-
-  return outStr;
+  return null;
 };

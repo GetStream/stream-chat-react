@@ -1,22 +1,36 @@
-// @flow
-import babel from 'rollup-plugin-babel';
-import external from 'rollup-plugin-peer-deps-external';
+import babel from '@rollup/plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import external from 'rollup-plugin-peer-deps-external';
 import scss from 'rollup-plugin-scss';
-import json from 'rollup-plugin-json';
 import url from 'rollup-plugin-url';
 import copy from 'rollup-plugin-copy-glob';
-import resolve from 'rollup-plugin-node-resolve';
-import builtins from '@stream-io/rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
-import PropTypes from 'prop-types';
-
+import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
-
+import builtins from '@stream-io/rollup-plugin-node-builtins';
+import { terser } from 'rollup-plugin-terser';
+import { prepend } from 'rollup-plugin-insert';
+import PropTypes from 'prop-types';
 import process from 'process';
 import pkg from './package.json';
 
 process.env.NODE_ENV = 'production';
+
+const styleBundle = {
+  input: 'src/styles/index.scss',
+  cache: false,
+  watch: {
+    chokidar: false,
+  },
+  plugins: [
+    scss({
+      output: pkg.style,
+      prefix: `@import "./variables.scss";`,
+    }),
+  ],
+};
 
 const baseConfig = {
   input: 'src/index.js',
@@ -25,6 +39,77 @@ const baseConfig = {
     chokidar: false,
   },
 };
+
+const externalDependencies = [
+  /@babel/,
+  '@braintree/sanitize-url',
+  '@fortawesome/free-regular-svg-icons',
+  '@fortawesome/react-fontawesome',
+  'custom-event',
+  /dayjs/,
+  /emoji-mart/,
+  'emoji-regex',
+  'i18next',
+  'isomorphic-ws',
+  'linkifyjs',
+  'lodash.debounce',
+  'lodash.throttle',
+  'lodash.uniqby',
+  'pretty-bytes',
+  'prop-types',
+  'react-fast-compare',
+  /react-file-utils/,
+  'react-images',
+  'react-is',
+  /react-markdown/,
+  'react-player',
+  'react-textarea-autosize',
+  'react-virtuoso',
+  'seamless-immutable',
+  'textarea-caret',
+  /uuid/,
+];
+
+const basePlugins = [
+  replace({
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  }),
+  // Replace our alias for a relative path so the jsdoc resolution still
+  // works after bundling.
+  replace({
+    "import('types')": "import('../types')",
+    delimiters: ['', ''],
+  }),
+  // Remove peer-dependencies from final bundle
+  external(),
+  babel({
+    babelHelpers: 'runtime',
+    exclude: 'node_modules/**',
+  }),
+  commonjs({
+    namedExports: {
+      'prop-types': Object.keys(PropTypes),
+      'node_modules/react-is/index.js': ['isValidElementType'],
+      'node_modules/linkifyjs/index.js': ['find'],
+    },
+  }),
+  // import files as data-uris or es modules
+  url(),
+  copy(
+    [
+      { files: 'src/styles/**/*', dest: 'dist/scss' },
+      { files: 'src/assets/*', dest: 'dist/assets' },
+      { files: 'src/i18n/*.json', dest: 'dist/i18n' },
+    ],
+    {
+      verbose: process.env.VERBOSE,
+      watch: process.env.ROLLUP_WATCH,
+    },
+  ),
+  // Json to ES modules conversion
+  json(),
+  process.env.BUNDLE_SIZE ? visualizer() : null,
+];
 
 const normalBundle = {
   ...baseConfig,
@@ -40,116 +125,15 @@ const normalBundle = {
       sourcemap: true,
     },
   ],
-  external: [
-    'linkifyjs',
-    'linkifyjs/lib/linkify',
-    'dayjs',
-    'dayjs/plugin/calendar',
-    'dayjs/plugin/updateLocale',
-    'dayjs/plugin/localizedFormat',
-    'dayjs/plugin/localeData',
-    'dayjs/plugin/relativeTime',
-    'stream-chat-client',
-    'react-images',
-    'lodash.debounce',
-    'lodash.throttle',
-    'lodash/truncate',
-    'i18next',
-    'moment',
-    'dayjs/locale/nl',
-    'dayjs/locale/it',
-    'dayjs/locale/ru',
-    'dayjs/locale/tr',
-    'dayjs/locale/fr',
-    'dayjs/locale/hi',
-    'dayjs/locale/es',
-    'dayjs/locale/en',
-    'lodash/uniq',
-    'lodash.uniqby',
-    'lodash.truncate',
-    'emoji-mart',
-    'emoji-mart/data/all.json',
-    'emoji-regex',
-    'seamless-immutable',
-    'isomorphic-ws',
-    'custom-event',
-    'textarea-caret',
-    '@braintree/sanitize-url',
-    'emoji-mart/css/emoji-mart.css',
-    'react-dropzone',
-    'react-markdown',
-    'react-fast-compare',
-    'immutable',
-    'url-parse',
-    'stream-chat',
-    'pretty-bytes',
-    'stream-analytics',
-    'react-textarea-autosize',
-    'prop-types',
-    'react-player',
-    'react-markdown/with-html',
-    'react-file-utils',
-    'react-file-utils/dist/index.css',
-    'uuid/v4',
-    'uuid',
-    '@fortawesome/react-fontawesome',
-    '@fortawesome/free-regular-svg-icons',
-    '@babel/runtime/regenerator',
-    '@babel/runtime/helpers/asyncToGenerator',
-    '@babel/runtime/helpers/objectWithoutProperties',
-    '@babel/runtime/helpers/toConsumableArray',
-    '@babel/runtime/helpers/objectSpread',
-    '@babel/runtime/helpers/extends',
-    '@babel/runtime/helpers/defineProperty',
-    '@babel/runtime/helpers/assertThisInitialized',
-    '@babel/runtime/helpers/inherits',
-    '@babel/runtime/helpers/getPrototypeOf',
-    '@babel/runtime/helpers/possibleConstructorReturn',
-    '@babel/runtime/helpers/createClass',
-    '@babel/runtime/helpers/classCallCheck',
-    '@babel/runtime/helpers/slicedToArray',
-    '@babel/runtime/helpers/typeof',
-    'react-is',
-  ],
-  plugins: [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-    replace({
-      "import('types')": "import('../types')",
-      delimiters: ['', ''],
-    }),
-    external(),
-    babel({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**',
-    }),
-    scss({
-      output: pkg.style,
-      prefix: `@import "./variables.scss";`,
-    }),
-    copy(
-      [
-        { files: 'src/styles/**/*', dest: 'dist/scss' },
-        { files: 'src/assets/*', dest: 'dist/assets' },
-        { files: 'src/i18n/*.json', dest: 'dist/i18n' },
-      ],
-      {
-        verbose: true,
-        watch: process.env.ROLLUP_WATCH,
-      },
-    ),
-    url(),
-    commonjs(),
-    json(),
-  ],
+  external: externalDependencies,
+  plugins: [...basePlugins],
 };
 
-const fullBrowserBundle = {
+const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
   output: [
     {
-      file: pkg.jsdelivr,
+      file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
       sourcemap: true,
       name: 'window', // write all exported values to window
@@ -157,22 +141,12 @@ const fullBrowserBundle = {
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
+        'stream-chat': 'StreamChat',
       },
     },
   ],
   plugins: [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-    replace({
-      "import('types')": "import('../types')",
-      delimiters: ['', ''],
-    }),
-    external(),
-    babel({
-      runtimeHelpers: true,
-      exclude: 'node_modules/**',
-    }),
+    ...basePlugins,
     {
       name: 'ignore-css-and-scss',
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
@@ -182,14 +156,6 @@ const fullBrowserBundle = {
     resolve({
       browser: true,
     }),
-    url(),
-    commonjs({
-      namedExports: {
-        'prop-types': Object.keys(PropTypes),
-        'node_modules/react-is/index.js': ['isValidElementType'],
-      },
-    }),
-    json(),
     globals({
       process: true,
       globals: false,
@@ -197,10 +163,21 @@ const fullBrowserBundle = {
       dirname: false,
       filename: false,
     }),
-    copy([{ files: 'src/i18n/*.json', dest: 'dist/i18n' }]),
-    // terser(),
+    // To work with globals rollup expects them to be namespaced, what is not the case with stream-chat.
+    // This injects some code to define stream-chat globals as expected by rollup.
+    prepend(
+      'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;',
+    ),
+    min ? terser() : null,
   ],
-};
+});
 
 export default () =>
-  process.env.ROLLUP_WATCH ? [normalBundle] : [normalBundle, fullBrowserBundle];
+  process.env.ROLLUP_WATCH
+    ? [styleBundle, normalBundle]
+    : [
+        styleBundle,
+        normalBundle,
+        fullBrowserBundle({ min: true }),
+        fullBrowserBundle(),
+      ];

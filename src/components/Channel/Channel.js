@@ -1,4 +1,5 @@
 // @ts-check
+/* eslint-disable sonarjs/no-duplicate-string */
 import React, {
   useEffect,
   useCallback,
@@ -136,6 +137,7 @@ const ChannelInner = ({
   const originalTitle = useRef('');
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
+  const online = useRef(true);
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,6 +176,9 @@ const ChannelInner = ({
   const handleEvent = useCallback(
     (e) => {
       dispatch({ type: 'updateThreadOnEvent', message: e.message, channel });
+      if (e.type === 'connection.changed') {
+        online.current = e.online;
+      }
 
       if (e.type === 'message.new') {
         let mainChannelUpdated = true;
@@ -231,6 +236,7 @@ const ChannelInner = ({
         // The more complex sync logic is done in chat.js
         // listen to client.connection.recovered and all channel events
         document.addEventListener('visibilitychange', onVisibilityChange);
+        chatContext.client.on('connection.changed', handleEvent);
         chatContext.client.on('connection.recovered', handleEvent);
         channel.on(handleEvent);
       }
@@ -239,6 +245,7 @@ const ChannelInner = ({
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.off(handleEvent);
+      chatContext.client.off('connection.changed', handleEvent);
       chatContext.client.off('connection.recovered', handleEvent);
     };
   }, [channel, chatContext.client, handleEvent, markRead, props.channel]);
@@ -276,9 +283,10 @@ const ChannelInner = ({
 
   const loadMore = useCallback(
     async (limit = 100) => {
+      if (!online.current) return 0;
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
-      if (state.loadingMore || oldestMessage?.status !== 'received') return;
+      if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
       dispatch({ type: 'setLoadingMore', loadingMore: true });
 
       const oldestID = oldestMessage?.id;
@@ -292,13 +300,15 @@ const ChannelInner = ({
       } catch (e) {
         console.warn('message pagination request failed with error', e);
         dispatch({ type: 'setLoadingMore', loadingMore: false });
-        return;
+        return 0;
       }
       const hasMoreMessages = queryResponse.messages.length === perPage;
 
       loadMoreFinished(hasMoreMessages, channel.state.messages);
+
+      return queryResponse.messages.length;
     },
-    [channel, loadMoreFinished, state.loadingMore, state.messages],
+    [channel, loadMoreFinished, state.loadingMore, state.messages, online],
   );
 
   const updateMessage = useCallback(

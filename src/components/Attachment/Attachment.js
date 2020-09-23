@@ -10,7 +10,7 @@ import DefaultAudio from './Audio';
 import DefaultCard from './Card';
 import DefaultFile from './FileAttachment';
 
-import { Image as DefaultImage } from '../Gallery';
+import { Image as DefaultImage, Gallery as DefaultGallery } from '../Gallery';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
@@ -21,9 +21,16 @@ export const SUPPORTED_VIDEO_FORMATS = [
 
 /**
  * @typedef {import('types').ExtendedAttachment} ExtendedAttachment
- * @typedef {Required<Pick<import('types').AttachmentUIComponentProps, 'Card' | 'File' | 'Image' | 'Audio' | 'Media' | 'AttachmentActions'>>} DefaultProps
- * @typedef {Omit<import('types').AttachmentUIComponentProps, 'Card' | 'File' | 'Image' | 'Audio' | 'Media' | 'AttachmentActions'> & DefaultProps} AttachmentProps
+ * @typedef {Required<Pick<import('types').InnerAttachmentUIComponentProps, 'Card' | 'File' | 'Gallery' |'Image' | 'Audio' | 'Media' | 'AttachmentActions'>>} DefaultProps
+ * @typedef {Omit<import('types').InnerAttachmentUIComponentProps, 'Card' | 'File' | 'Image'| 'Gallery' | 'Audio' | 'Media' | 'AttachmentActions'> & DefaultProps} AttachmentProps
  */
+
+/**
+ * @param {ExtendedAttachment} a
+ */
+export const isGalleryAttachment = (a) => {
+  return a.type === 'gallery';
+};
 
 /**
  * @param {ExtendedAttachment} a
@@ -86,6 +93,7 @@ export const renderAttachmentWithinContainer = (
   return (
     <div
       className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${attachment.type} str-chat__message-attachment--${componentType}--${extra}`}
+      key={`${attachment?.id}-${attachment.type || 'none'} `}
     >
       {children}
     </div>
@@ -110,6 +118,18 @@ export const renderAttachmentActions = (props) => {
       key={`key-actions-${a.id}`}
       actionHandler={actionHandler}
     />
+  );
+};
+
+/**
+ * @param {AttachmentProps} props
+ */
+export const renderGallery = (props) => {
+  const { attachment: a, Gallery } = props;
+  return renderAttachmentWithinContainer(
+    <Gallery images={a.images} key="gallery" />,
+    a,
+    'gallery',
   );
 };
 
@@ -233,46 +253,80 @@ export const renderMedia = (props) => {
  * Attachment - The message attachment
  *
  * @example ../../docs/Attachment.md
- * @type { React.FC<import('types').AttachmentUIComponentProps> }
+ * @type { React.FC<import('types').WrapperAttachmentUIComponentProps> }
  */
 const Attachment = ({
-  attachment,
+  attachments,
   Card = DefaultCard,
   Image = DefaultImage,
+  Gallery = DefaultGallery,
   Audio = DefaultAudio,
   File = DefaultFile,
   Media = DefaultMedia,
   AttachmentActions = DefaultAttachmentActions,
   ...rest
 }) => {
+  const gallery = {
+    type: 'gallery',
+    images: attachments.filter(
+      /** @param {import('types').ExtendedAttachment} a */ (a) =>
+        a.type === 'image' && !(a.og_scrape_url || a.title_link),
+    ),
+  };
+  let newAttachments;
+  if (gallery.images?.length >= 2) {
+    newAttachments = [
+      ...attachments.filter(
+        /** @param {import('types').ExtendedAttachment} a */ (a) =>
+          !(a.type === 'image' && !(a.og_scrape_url || a.title_link)),
+      ),
+      gallery,
+    ];
+  } else {
+    newAttachments = attachments;
+  }
+
   const propsWithDefault = {
-    attachment,
     Card,
     Image,
     Audio,
     File,
     Media,
+    Gallery,
     AttachmentActions,
+    attachments: newAttachments,
     ...rest,
   };
 
-  if (isImageAttachment(attachment)) {
-    return renderImage(propsWithDefault);
-  }
+  return (
+    <>
+      {newAttachments?.map(
+        /** @param {any} attachment */ (attachment) => {
+          if (isGalleryAttachment(attachment)) {
+            return renderGallery({ ...propsWithDefault, attachment });
+          }
 
-  if (isFileAttachment(attachment)) {
-    return renderFile(propsWithDefault);
-  }
+          if (isImageAttachment(attachment)) {
+            return renderImage({ ...propsWithDefault, attachment });
+          }
 
-  if (isAudioAttachment(attachment)) {
-    return renderAudio(propsWithDefault);
-  }
+          if (isFileAttachment(attachment)) {
+            return renderFile({ ...propsWithDefault, attachment });
+          }
 
-  if (isMediaAttachment(attachment)) {
-    return renderMedia(propsWithDefault);
-  }
+          if (isAudioAttachment(attachment)) {
+            return renderAudio({ ...propsWithDefault, attachment });
+          }
 
-  return renderCard(propsWithDefault);
+          if (isMediaAttachment(attachment)) {
+            return renderMedia({ ...propsWithDefault, attachment });
+          }
+
+          return renderCard({ ...propsWithDefault, attachment });
+        },
+      )}
+    </>
+  );
 };
 
 Attachment.propTypes = {
@@ -281,8 +335,8 @@ Attachment.propTypes = {
    * @see See [Attachment structure](https://getstream.io/chat/docs/#message_format)
    *
    *  */
-  attachment: /** @type {PropTypes.Validator<ExtendedAttachment>} */ (PropTypes
-    .object.isRequired),
+  attachments: /** @type {PropTypes.Validator<ExtendedAttachment[]>} */ (PropTypes
+    .array.isRequired),
   /**
    *
    * @param name {string} Name of action
@@ -300,6 +354,11 @@ Attachment.propTypes = {
    * Defaults to [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/File.js)
    */
   File: /** @type {PropTypes.Validator<React.ComponentType<import('types').FileAttachmentProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component for attachment actions
+   * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.js)
+   */
+  Gallery: /** @type {PropTypes.Validator<React.ComponentType<import('types').GalleryProps>>} */ (PropTypes.elementType),
   /**
    * Custom UI component for image type attachment
    * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.js)

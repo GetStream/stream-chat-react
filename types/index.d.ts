@@ -9,8 +9,10 @@ import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
+import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
+export type AnyType = Record<string, any>;
 export type StreamChatReactUserType = {
   status?: string;
   image?: string;
@@ -23,37 +25,44 @@ export type StreamChatReactChannelType = {
 };
 export type StreamChatMessageType = {
   event?: Client.Event<
-    UnknownType,
-    UnknownType,
+    AnyType,
     StreamChatReactChannelType,
+    string & {},
+    AnyType,
     StreamChatMessageType,
-    UnknownType,
+    AnyType,
     StreamChatReactUserType
   >;
 };
 export type StreamChatReactMessage = Client.Message<
+  AnyType,
   StreamChatMessageType,
-  UnknownType,
   StreamChatReactUserType
 >;
 export type StreamChatReactMessageResponse = Client.MessageResponse<
-  StreamChatMessageType,
-  UnknownType,
+  AnyType,
   StreamChatReactChannelType,
-  UnknownType,
+  string & {},
+  StreamChatMessageType,
+  AnyType,
   StreamChatReactUserType
 >;
 export type StreamChatReactClient = Client.StreamChat<
+  AnyType,
   StreamChatReactChannelType,
-  StreamChatReactUserType,
-  StreamChatMessageType
+  string & {},
+  AnyType,
+  StreamChatMessageType,
+  AnyType,
+  StreamChatReactUserType
 >;
 export type StreamChatChannelState = Client.ChannelState<
-  UnknownType,
+  AnyType,
   StreamChatReactChannelType,
-  UnknownType,
+  string & {},
+  AnyType,
   StreamChatMessageType,
-  UnknownType,
+  AnyType,
   StreamChatReactUserType
 >;
 
@@ -74,7 +83,7 @@ export interface ChatContextValue {
 
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   messages?: StreamChatChannelState['messages'];
   typing?: StreamChatChannelState['typing'];
   watchers?: StreamChatChannelState['watchers'];
@@ -139,7 +148,7 @@ export interface ChannelContextValue extends ChatContextValue {
     event: React.SyntheticEvent,
   ): void;
 
-  loadMore?(): void;
+  loadMore?(messageLimit?: number): Promise<number>;
   // thread related
   closeThread?(event: React.SyntheticEvent): void;
   loadMoreThread?(): void;
@@ -173,7 +182,7 @@ export interface ChannelProps {
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
   Message?: React.ElementType<MessageUIComponentProps>;
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   EmptyPlaceholder?: React.ReactElement;
   mutes?: Client.Mute[];
   multipleUploads?: boolean;
@@ -451,6 +460,50 @@ export interface SendButtonProps {
   sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void;
 }
 
+export interface FixedHeightMessageProps {
+  message: Client.MessageResponse;
+}
+
+export interface VirtualizedMessageListInternalProps {
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  client: StreamChatReactClient;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  messages: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadMore(messageLimit?: number): Promise<number>;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  hasMore: boolean;
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  loadingMore: boolean;
+  /** Set the limit to use when paginating messages */
+  messageLimit: number;
+  /** Custom UI component to display messages. */
+  Message: React.ElementType<FixedHeightMessageProps>;
+  /** Custom UI component to display deleted messages. */
+  MessageDeleted: React.ElementType<MessageDeletedProps>;
+  /** Custom UI component to display system messages */
+  MessageSystem: React.ElementType<EventComponentProps>;
+  /** The UI Indicator to use when MessagerList or ChannelList is empty */
+  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
+  /** Component to render at the top of the MessageList while loading new messages */
+  LoadingIndicator: React.ElementType<LoadingIndicatorProps>;
+  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
+  overscan: number;
+  /** Performance improvement by showing placeholders if user scrolls fast through list
+   * it can be used like this:
+   *  {
+   *    enter: (velocity) => Math.abs(velocity) > 120,
+   *    exit: (velocity) => Math.abs(velocity) < 40,
+   *    change: () => null,
+   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
+   *  }
+   */
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration;
+}
+
+export interface VirtualizedMessageListProps
+  extends Partial<VirtualizedMessageListInternalProps> {}
+
 export interface MessageListProps {
   /** Typing indicator component to render  */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
@@ -477,7 +530,7 @@ export interface MessageListProps {
   getMuteUserErrorNotification?(message: MessageResponse): string;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
-  loadMore?(): any;
+  loadMore?(messageLimit?: number): Promise<number>;
   MessageSystem?: React.ElementType;
   messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
   read?: {
@@ -635,11 +688,11 @@ export interface ExtendedAttachment extends Client.Attachment {
   id?: string;
   asset_url?: string;
   mime_type?: string;
+  images?: Array;
 }
 
-export interface AttachmentUIComponentProps {
+export interface BaseAttachmentUIComponentProps {
   /** The attachment to render */
-  attachment: ExtendedAttachment;
   /**
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
@@ -652,9 +705,20 @@ export interface AttachmentUIComponentProps {
   Card?: React.ComponentType<CardProps>;
   File?: React.ComponentType<FileAttachmentProps>;
   Image?: React.ComponentType<ImageProps>;
+  Gallery?: React.ComponentType<GalleryProps>;
   Audio?: React.ComponentType<AudioProps>;
   Media?: React.ComponentType<ReactPlayerProps>;
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
+}
+
+export interface WrapperAttachmentUIComponentProps
+  extends BaseAttachmentUIComponentProps {
+  attachments: ExtendedAttachment[];
+}
+
+export interface InnerAttachmentUIComponentProps
+  extends BaseAttachmentUIComponentProps {
+  attachment: ExtendedAttachment;
 }
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
@@ -676,7 +740,7 @@ export interface MessageProps extends TranslationContextValue {
   ReactionSelector?: React.ElementType<ReactionSelectorProps>;
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;
@@ -999,7 +1063,7 @@ export interface ModalImageProps {
 }
 
 export interface ReverseInfiniteScrollProps {
-  loadMore(): any;
+  loadMore(messageLimit?: number): Promise<number>;
   hasMore?: boolean;
   initialLoad?: boolean;
   isReverse?: boolean;
@@ -1042,6 +1106,7 @@ export interface MessageActionsBoxProps {
 export interface MessageNotificationProps {
   showNotification: boolean;
   onClick: React.MouseEventHandler;
+  children?: any;
 }
 export interface MessageRepliesCountButtonProps
   extends TranslationContextValue {
@@ -1144,7 +1209,7 @@ export class MessageInputSmall extends React.PureComponent<
 > {}
 
 export class Attachment extends React.PureComponent<
-  AttachmentUIComponentProps
+  WrapperAttachmentUIComponentProps
 > {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
@@ -1192,7 +1257,7 @@ export type MessageTeamState = {
 };
 export interface MessageTeamProps extends MessageUIComponentProps {}
 export interface MessageTeamAttachmentsProps {
-  Attachment?: React.ElementType<AttachmentUIComponentProps>;
+  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
   message?: Client.MessageResponse;
   handleAction?(
     name: string,

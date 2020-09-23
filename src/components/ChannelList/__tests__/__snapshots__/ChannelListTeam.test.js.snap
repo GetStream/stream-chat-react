@@ -20,11 +20,11 @@ exports[`ChannelListTeam by default, should render sidebar, userbar and children
           onMouseOver={[Function]}
           style={
             Object {
-              "flexBasis": 40,
-              "fontSize": 20,
-              "height": 40,
+              "flexBasis": "40px",
+              "fontSize": "20px",
+              "height": "40px",
               "lineHeight": "40px",
-              "width": 40,
+              "width": "40px",
             }
           }
           title="vishal"

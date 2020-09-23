@@ -28,6 +28,7 @@ module.exports = {
         'src/components/Channel/Channel.js',
         'src/components/ChannelList/ChannelList.js',
         'src/components/MessageList/MessageList.js',
+        'src/components/MessageList/VirtualizedMessageList.js',
         'src/components/ChannelHeader/ChannelHeader.js',
         'src/components/Thread/Thread.js',
       ],
