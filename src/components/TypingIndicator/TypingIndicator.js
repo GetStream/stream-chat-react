@@ -18,7 +18,6 @@ const TypingIndicator = () => {
     ({ user }) => user?.id !== client.user?.id,
   );
 
-  console.log('users :>> ', users);
 
   return (
     <div
