@@ -9,6 +9,12 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
+import {
+  NimblePickerProps,
+  NimbleEmojiProps,
+  Data as EmojiMartData,
+  NimbleEmojiIndex,
+} from 'emoji-mart';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
@@ -17,6 +23,7 @@ export type StreamChatReactUserType = AnyType & {
   image?: string;
   mutes?: Array<Mute>;
 };
+
 export type StreamChatReactChannelType = AnyType & {
   image?: string;
   subtitle?: string;
@@ -78,6 +85,22 @@ export interface ChatContextValue {
   closeMobileNav?(): void;
   theme?: string;
   mutes?: Mute[];
+}
+
+export interface EmojiContextValue {
+  emojiData: EmojiMartData;
+  commonEmoji: commonEmojiInterface;
+  defaultMinimalEmojis: MinimalEmojiInterface[];
+  EmojiPicker: React.ElementType<NimblePickerProps> | null;
+  EmojiIndex: NimbleEmojiIndex | null;
+  Emoji: React.ElementType<NimbleEmojiProps> | null;
+  emojiSetDef: {
+    spriteUrl: string;
+    size: number;
+    sheetColumns: number;
+    sheetRows: number;
+    sheetSize: number;
+  };
 }
 
 export interface ChannelContextValue extends ChatContextValue {

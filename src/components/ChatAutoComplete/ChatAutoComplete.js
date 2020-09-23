@@ -1,37 +1,38 @@
 // @ts-check
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
-import NimbleEmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
 import debounce from 'lodash.debounce';
-import emojiData from '../../stream-emoji.json';
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { LoadingIndicator } from '../Loading';
 import { EmoticonItem } from '../EmoticonItem';
 import { UserItem } from '../UserItem';
 import { CommandItem } from '../CommandItem';
-import { ChannelContext } from '../../context/ChannelContext';
-
-/** @type {import('emoji-mart').NimbleEmojiIndex} */
-const emojiIndex = new NimbleEmojiIndex(emojiData);
-/** @param {string} word */
-const emojiReplace = (word) => {
-  const found = emojiIndex.search(word) || [];
-  const emoji = found
-    .slice(0, 10)
-    .find(({ emoticons }) => emoticons?.includes(word));
-  if (!emoji || !('native' in emoji)) return null;
-  return emoji.native;
-};
+import { ChannelContext, EmojiContext } from '../../context';
 
 /** @type {React.FC<import("types").ChatAutoCompleteProps>} */
 const ChatAutoComplete = (props) => {
   const { commands, onSelectItem, triggers } = props;
 
   const { channel } = useContext(ChannelContext);
-
+  const { emojiData, EmojiIndex } = useContext(EmojiContext);
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
+  // @ts-ignore
+  const emojiIndex = useMemo(() => new EmojiIndex(emojiData), [
+    emojiData,
+    EmojiIndex,
+  ]);
+  /** @param {string} word */
+  const emojiReplace = (word) => {
+    const found = emojiIndex.search(word) || [];
+    const emoji = found.slice(0, 10).find(
+      /** @type {{ ({ emoticons } : import('emoji-mart').EmojiData): boolean }} */
+      ({ emoticons }) => !!emoticons?.includes(word),
+    );
+    if (!emoji || !('native' in emoji)) return null;
+    return emoji.native;
+  };
 
   const getMembersAndWatchers = useCallback(() => {
     const memberUsers = members
@@ -196,6 +197,7 @@ const ChatAutoComplete = (props) => {
       onSelectItem,
       queryMembersdebounced,
       triggers,
+      emojiIndex,
     ],
   );
 

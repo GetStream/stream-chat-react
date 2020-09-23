@@ -3,7 +3,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { ChatContext, TranslationContext } from '../../context';
+// @ts-ignore
+import Emoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+// @ts-ignore
+import EmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
+// @ts-ignore
+import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
+import { ChatContext, EmojiContext, TranslationContext } from '../../context';
+import {
+  commonEmoji,
+  defaultMinimalEmojis,
+  emojiSetDef,
+} from '../../context/EmojiContext';
+import emojiData from '../../stream-emoji.json';
 
 import { useChat } from './hooks/useChat';
 
@@ -31,6 +43,15 @@ const Chat = ({
   initialNavOpen = true,
   children,
 }) => {
+  const emojiConfig = {
+    emojiData,
+    EmojiPicker,
+    Emoji,
+    defaultMinimalEmojis,
+    commonEmoji,
+    emojiSetDef,
+    EmojiIndex,
+  };
   const {
     setActiveChannel,
     navOpen,
@@ -57,7 +78,9 @@ const Chat = ({
       }}
     >
       <TranslationContext.Provider value={translators}>
-        {children}
+        <EmojiContext.Provider value={emojiConfig}>
+          {children}
+        </EmojiContext.Provider>
       </TranslationContext.Provider>
     </ChatContext.Provider>
   );

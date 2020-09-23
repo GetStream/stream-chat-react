@@ -1,10 +1,11 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateUser, generateReaction } from 'mock-builders';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import { generateUser, generateReaction, emojiMockConfig } from 'mock-builders';
+import { EmojiContext } from '../../../context';
+import { defaultMinimalEmojis } from '../../../context/EmojiContext';
 import ReactionSelector from '../ReactionSelector';
-import { defaultMinimalEmojis } from '../../../utils';
 import { Avatar as AvatarMock } from '../../Avatar';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
@@ -29,7 +30,11 @@ const bob = generateUser({
 const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
-  render(<ReactionSelector handleReaction={handleReactionMock} {...props} />);
+  render(
+    <EmojiContext.Provider value={emojiMockConfig}>
+      <ReactionSelector handleReaction={handleReactionMock} {...props} />
+    </EmojiContext.Provider>,
+  );
 
 describe('ReactionSelector', () => {
   afterEach(() => {

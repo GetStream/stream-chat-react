@@ -1,19 +1,27 @@
 // @ts-check
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 // @ts-ignore
-import NimbleEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-
-import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
+import { EmojiContext, getStrippedEmojiData } from '../../context';
 
 /** @type {React.FC<import("types").ReactionsListProps>} */
 const ReactionsList = ({
   reactions,
   reaction_counts,
-  reactionOptions = defaultMinimalEmojis,
+  reactionOptions: reactionOptionsProp,
   reverse = false,
   onClick,
 }) => {
+  const {
+    emojiData: fullEmojiData,
+    emojiSetDef,
+    defaultMinimalEmojis,
+    Emoji,
+  } = useContext(EmojiContext);
+  const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
+    fullEmojiData,
+  ]);
+  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
   const getTotalReactionCount = () =>
     Object.values(reaction_counts || {}).reduce(
       (total, count) => total + count,
@@ -46,16 +54,18 @@ const ReactionsList = ({
           const emojiDefinition = getOptionForType(reactionType);
           return emojiDefinition ? (
             <li key={emojiDefinition.id}>
-              <NimbleEmoji
-                // emoji-mart type defs don't support spriteSheet use case
-                // (but implementation does)
-                // @ts-ignore
-                emoji={emojiDefinition}
-                {...emojiSetDef}
-                size={16}
-                data={emojiData}
-              />{' '}
-              &nbsp;
+              {Emoji && (
+                <Emoji
+                  // emoji-mart type defs don't support spriteSheet use case
+                  // (but implementation does)
+                  // @ts-ignore
+                  emoji={emojiDefinition}
+                  {...emojiSetDef}
+                  size={16}
+                  data={emojiData}
+                />
+              )}
+              ${' '}
             </li>
           ) : null;
         })}

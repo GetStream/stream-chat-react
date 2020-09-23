@@ -7,13 +7,14 @@ import {
   generateUser,
   generateMessage,
   generateReaction,
+  emojiMockConfig,
 } from 'mock-builders';
 
 import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext } from '../../../context';
+import { ChannelContext, EmojiContext } from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -39,7 +40,9 @@ async function renderMessageLivestream(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider value={{ client, channel }}>
-      <MessageLivestream message={message} typing={false} {...props} />
+      <EmojiContext.Provider value={emojiMockConfig}>
+        <MessageLivestream message={message} typing={false} {...props} />
+      </EmojiContext.Provider>
     </ChannelContext.Provider>,
   );
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateReaction } from 'mock-builders';
+import { generateReaction, emojiMockConfig } from 'mock-builders';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import ReactionsList from '../ReactionsList';
+import { EmojiContext } from '../../../context';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
   jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
@@ -19,11 +20,13 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
     .flat();
 
   return render(
-    <ReactionsList
-      reaction_counts={reaction_counts}
-      reactions={reactions}
-      {...props}
-    />,
+    <EmojiContext.Provider value={emojiMockConfig}>
+      <ReactionsList
+        reaction_counts={reaction_counts}
+        reactions={reactions}
+        {...props}
+      />
+    </EmojiContext.Provider>,
   );
 };
 

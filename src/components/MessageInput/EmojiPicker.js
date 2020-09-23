@@ -1,9 +1,7 @@
 // @ts-check
 import React, { useContext } from 'react';
 // @ts-ignore
-import NimblePicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
-import data from '../../stream-emoji.json';
-import { TranslationContext } from '../../context';
+import { EmojiContext, TranslationContext } from '../../context';
 
 /** @type { (emoji: import('emoji-mart').EmojiData) => boolean } */
 const filterEmoji = (emoji) => {
@@ -24,6 +22,7 @@ const EmojiPicker = ({
   small,
 }) => {
   const { t } = useContext(TranslationContext);
+  const { EmojiPicker: Picker, emojiData } = useContext(EmojiContext);
   if (emojiPickerIsOpen) {
     const className = small
       ? 'str-chat__small-message-input-emojipicker'
@@ -31,19 +30,21 @@ const EmojiPicker = ({
 
     return (
       <div className={className} ref={emojiPickerRef}>
-        <NimblePicker
-          native
-          data={data}
-          set={'facebook'}
-          emoji="point_up"
-          title={t('Pick your emoji')}
-          onSelect={onSelectEmoji}
-          color="#006CFF"
-          showPreview={false}
-          useButton={true}
-          emojisToShowFilter={filterEmoji}
-          showSkinTones={false}
-        />
+        {Picker && (
+          <Picker
+            native
+            data={emojiData}
+            set={'facebook'}
+            emoji="point_up"
+            title={t('Pick your emoji')}
+            onSelect={onSelectEmoji}
+            color="#006CFF"
+            showPreview={false}
+            useButton={true}
+            emojisToShowFilter={filterEmoji}
+            showSkinTones={false}
+          />
+        )}
       </div>
     );
   }
