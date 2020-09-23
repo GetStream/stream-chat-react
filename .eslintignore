@@ -1,5 +1,6 @@
 node_modules
 build
+src/stream-emoji.json
 /.cache/
 /public/static/styles.js
 examples/*/src/serviceWorker.js
