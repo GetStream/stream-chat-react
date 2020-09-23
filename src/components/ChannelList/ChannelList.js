@@ -29,6 +29,9 @@ import { useMobileNavigation } from './hooks/useMobileNavigation';
 
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
+const DEFAULT_FILTERS = {};
+const DEFAULT_OPTIONS = {};
+const DEFAULT_SORT = {};
 /**
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
  * @example ../../docs/ChannelList.md
@@ -108,9 +111,9 @@ const ChannelList = (props) => {
     setChannels,
   } = usePaginatedChannels(
     client,
-    props.filters || {},
-    props.sort || {},
-    props.options || {},
+    props.filters || DEFAULT_FILTERS,
+    props.sort || DEFAULT_SORT,
+    props.options || DEFAULT_OPTIONS,
     activeChannelHandler,
   );
 
