@@ -23,7 +23,14 @@ const styleBundle = {
   cache: false,
   watch: {
     chokidar: false,
+    include: 'src/styles/',
   },
+  output: [
+    {
+      dir: 'dist/css',
+      format: 'es',
+    },
+  ],
   plugins: [
     scss({
       output: pkg.style,
