@@ -854,7 +854,9 @@ export interface ThreadProps {
   MessageInput?: React.ElementType<MessageInputProps>;
 }
 
-export interface TypingIndicatorProps {}
+export interface TypingIndicatorProps {
+  avatarSize?: number;
+}
 
 export interface ReactionSelectorProps {
   /**

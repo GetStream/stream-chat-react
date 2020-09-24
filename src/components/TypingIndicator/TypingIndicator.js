@@ -9,7 +9,7 @@ import { Avatar } from '../Avatar';
  * @typedef {import('types').TypingIndicatorProps} Props
  * @type {React.FC<Props>}
  */
-const TypingIndicator = () => {
+const TypingIndicator = ({ avatarSize = 32 }) => {
   const { typing, client } = useContext(ChannelContext);
 
   if (!typing || !client) return null;
@@ -28,7 +28,7 @@ const TypingIndicator = () => {
         {users.map(({ user }) => (
           <Avatar
             image={user?.image}
-            size={32}
+            size={avatarSize}
             name={user?.name || user?.id}
             key={user?.id}
           />
