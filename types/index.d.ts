@@ -476,19 +476,21 @@ export interface VirtualizedMessageListInternalProps {
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   loadingMore: boolean;
   /** Set the limit to use when paginating messages */
-  messageLimit: number;
+  messageLimit?: number;
   /** Custom UI component to display messages. */
-  Message: React.ElementType<FixedHeightMessageProps>;
+  Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
-  MessageDeleted: React.ElementType<MessageDeletedProps>;
+  MessageDeleted?: React.ElementType<MessageDeletedProps>;
   /** Custom UI component to display system messages */
-  MessageSystem: React.ElementType<EventComponentProps>;
+  MessageSystem?: React.ElementType<EventComponentProps>;
   /** The UI Indicator to use when MessagerList or ChannelList is empty */
-  EmptyStateIndicator: React.ElementType<EmptyStateIndicatorProps>;
+  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  /** The UI Indicator to use when someone is typing */
+  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList while loading new messages */
-  LoadingIndicator: React.ElementType<LoadingIndicatorProps>;
+  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
-  overscan: number;
+  overscan?: number;
   /** Performance improvement by showing placeholders if user scrolls fast through list
    * it can be used like this:
    *  {

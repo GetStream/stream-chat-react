@@ -29,6 +29,10 @@
     padding: 16px 42px;
     margin: 0;
   }
+
+  .str-chat__typing-indicator {
+    padding: 5px 40px; // important: div height should be big enough to fully contain the avatars
+  }
 }
 
 .str-chat__virtual-message__meta {
