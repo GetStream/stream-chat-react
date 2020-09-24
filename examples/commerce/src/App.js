@@ -9,7 +9,6 @@ import {
   MessageInputFlat,
   MessageCommerce,
   ChannelHeader,
-  TypingIndicator,
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -70,7 +69,6 @@ class App extends Component {
               <Window>
                 <ChannelHeader />
                 {this.state.open && <MessageList Message={MessageCommerce} />}
-                <TypingIndicator />
                 <MessageInput
                   onFocus={!this.state.open ? this.toggleDemo : null}
                   Input={MessageInputFlat}
