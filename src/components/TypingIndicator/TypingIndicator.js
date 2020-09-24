@@ -18,7 +18,6 @@ const TypingIndicator = () => {
     ({ user }) => user?.id !== client.user?.id,
   );
 
-
   return (
     <div
       className={`str-chat__typing-indicator ${
