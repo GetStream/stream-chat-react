@@ -290,7 +290,7 @@ const MessageListInner = (props) => {
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>
-      <TypingIndicator />
+      {!threadList && <TypingIndicator />}
       <div key="bottom" ref={bottomRef} />
     </InfiniteScroll>
   );

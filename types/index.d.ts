@@ -510,6 +510,7 @@ export interface MessageListProps {
   /** Component to render at the top of the MessageList */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   DateSeparator?: React.ElementType<DateSeparatorProps>;
