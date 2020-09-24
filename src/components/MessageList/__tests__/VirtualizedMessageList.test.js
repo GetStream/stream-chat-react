@@ -35,6 +35,10 @@ jest.mock('../../Message', () => ({
   FixedHeightMessage: jest.fn(() => <div>FixedHeightMessage</div>),
 }));
 
+jest.mock('../../TypingIndicator', () => ({
+  TypingIndicator: jest.fn(() => <div>TypingIndicator</div>),
+}));
+
 async function createChannel() {
   const user1 = generateUser();
   const user2 = generateUser();

@@ -15,7 +15,6 @@ import {
   ChannelList,
   Window,
   Thread,
-  TypingIndicator,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -68,7 +67,7 @@ class App extends Component {
         <Channel>
           <Window>
             <ChannelHeader />
-            <MessageList TypingIndicator={TypingIndicator} />
+            <MessageList />
             <MessageInput Input={MessageInputFlat} focus />
           </Window>
           <Thread Message={MessageSimple} />
