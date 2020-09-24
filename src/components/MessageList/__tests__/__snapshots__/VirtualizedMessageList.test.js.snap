@@ -245,6 +245,11 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
                 FixedHeightMessage
               </div>
             </div>
+            <footer>
+              <div>
+                TypingIndicator
+              </div>
+            </footer>
           </div>
         </div>
         <div

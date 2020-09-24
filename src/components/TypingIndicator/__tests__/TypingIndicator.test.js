@@ -4,15 +4,47 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser } from 'mock-builders';
+import { getTestClientWithUser, generateUser } from 'mock-builders';
 
+import { ChannelContext } from '../../../context';
 import TypingIndicator from '../TypingIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 
+const alice = generateUser();
+
+async function renderComponent(typing = {}) {
+  const client = await getTestClientWithUser(alice);
+
+  return render(
+    <ChannelContext.Provider value={{ client, typing }}>
+      <TypingIndicator />
+    </ChannelContext.Provider>,
+  );
+}
+
 describe('TypingIndicator', () => {
-  it('should render with default props', () => {
-    const tree = renderer.create(<TypingIndicator typing={{}} />).toJSON();
+  it('should render null without proper context values', () => {
+    const tree = renderer
+      .create(
+        <ChannelContext.Provider value={{}}>
+          <TypingIndicator />
+        </ChannelContext.Provider>,
+      )
+      .toJSON();
+    expect(tree).toMatchInlineSnapshot(`null`);
+  });
+
+  it('should render hidden indicator with empty typing', async () => {
+    const client = await getTestClientWithUser(alice);
+    const tree = renderer
+      .create(
+        <ChannelContext.Provider value={{ client, typing: {} }}>
+          <TypingIndicator />
+        </ChannelContext.Provider>,
+      )
+      .toJSON();
+
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__typing-indicator "
@@ -38,13 +70,7 @@ describe('TypingIndicator', () => {
   });
 
   it("should not render TypingIndicator when it's just you typing", async () => {
-    const fritsClient = await getTestClientWithUser({ id: 'frits' });
-    const { container } = render(
-      <TypingIndicator
-        client={fritsClient}
-        typing={{ frits: { user: { id: 'frits' } } }}
-      />,
-    );
+    const { container } = await renderComponent({ alice: { user: alice } });
     expect(
       container.firstChild.classList.contains(
         'str-chat__typing-indicator--typing',
@@ -53,15 +79,10 @@ describe('TypingIndicator', () => {
   });
 
   it('should render TypingIndicator when someone else is typing', async () => {
-    const fritsClient = await getTestClientWithUser({ id: 'frits' });
-    const { container, getByTestId } = render(
-      <TypingIndicator
-        client={fritsClient}
-        typing={{
-          jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
-        }}
-      />,
-    );
+    const { container, getByTestId } = await renderComponent({
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+    });
+
     expect(
       container.firstChild.classList.contains(
         'str-chat__typing-indicator--typing',
@@ -71,37 +92,27 @@ describe('TypingIndicator', () => {
   });
 
   it('should render TypingIndicator when you and someone else are typing', async () => {
-    const fritsClient = await getTestClientWithUser({ id: 'frits' });
-    const { container, getByTestId } = render(
-      <TypingIndicator
-        client={fritsClient}
-        typing={{
-          frits: { user: { id: 'frits' } },
-          jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
-        }}
-      />,
-    );
+    const { container, getByTestId, getAllByTestId } = await renderComponent({
+      alice: { user: alice },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+    });
+
     expect(
       container.firstChild.classList.contains(
         'str-chat__typing-indicator--typing',
       ),
     ).toBe(true);
+    expect(getAllByTestId('avatar-img')).toHaveLength(1);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
   });
 
   it('should render multiple avatars', async () => {
-    const fritsClient = await getTestClientWithUser({ id: 'frits' });
-    const { getAllByTestId } = render(
-      <TypingIndicator
-        client={fritsClient}
-        typing={{
-          frits: { user: { id: 'frits' } },
-          jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
-          joris: { user: { id: 'joris', image: 'joris.jpg' } },
-          margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
-        }}
-      />,
-    );
+    const { getAllByTestId } = await renderComponent({
+      alice: { user: alice },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+      joris: { user: { id: 'joris', image: 'joris.jpg' } },
+      margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
+    });
     expect(getAllByTestId('avatar-img')).toHaveLength(3);
   });
 });
