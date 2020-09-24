@@ -48,7 +48,7 @@
   "peerDependencies": {
     "react": "^16.8.x",
     "react-dom": "^16.8.x",
-    "stream-chat": "2.3.x"
+    "stream-chat": "2.4.x"
   },
   "files": [
     "dist",
@@ -130,7 +130,7 @@
     "rollup-plugin-visualizer": "^4.1.1",
     "sass": "^1.26.10",
     "sass-loader": "^10.0.2",
-    "stream-chat": "^2.3.0",
+    "stream-chat": "^2.4.0",
     "style-loader": "^1.2.1",
     "stylelint": "^13.7.0",
     "stylelint-config-recommended-scss": "^4.2.0",

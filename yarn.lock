@@ -11122,10 +11122,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^2.3.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-2.3.1.tgz#f2fc0daa8eebfc30ebf75e5eef62c48a952f38f9"
-  integrity sha512-HujIIz6r9fBR9R9GRW+1uHFdURld5qXH8JgIlSnR/Zz/WqeYr3ssZr8ZuvlNhE3xBbhqVJ4t5lkBStykp3E3IA==
+stream-chat@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-2.4.0.tgz#48ee0b8d81fddc43885ded4435865b0465cf64fb"
+  integrity sha512-CmiZB9AmvTEc9IGLITJifEr8/3rQ0gqqz5kdECcmZJGAyN6dZ21uEiSchKBVfR9zZjPuZDZSInpfpPtBe0hN4Q==
   dependencies:
     "@babel/runtime" "^7.3.1"
     "@types/jsonwebtoken" "^8.3.5"
