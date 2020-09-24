@@ -8,7 +8,6 @@
   &__avatars {
     display: flex;
     .str-chat__avatar {
-      border: 2px solid white;
       margin-right: -8px;
       &:last-of-type {
         margin-right: 8px;
@@ -19,7 +18,7 @@
     position: relative;
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 1px 5px;
+    padding: 5px 10px;
     border-radius: $border-radius $border-radius $border-radius 2px;
   }
   &__dot {
