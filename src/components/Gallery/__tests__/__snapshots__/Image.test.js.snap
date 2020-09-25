@@ -5,5 +5,6 @@ exports[`Image should render component with default props 1`] = `
   className="str-chat__message-attachment--img"
   data-testid="image-test"
   onClick={[Function]}
+  src="about:blank"
 />
 `;

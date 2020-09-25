@@ -17,6 +17,37 @@ describe('Image', () => {
     expect(tree).toMatchSnapshot();
   });
 
+  describe('it should prevent unsafe image uri protocols in the rendered image src', () => {
+    it('should prevent javascript protocol in image src', () => {
+      // eslint-disable-next-line no-script-url
+      const xssJavascriptUri = 'javascript:alert("p0wn3d")';
+      const { getByTestId } = render(<Image image_url={xssJavascriptUri} />);
+      expect(getByTestId('image-test')).not.toHaveAttribute(
+        'src',
+        xssJavascriptUri,
+      );
+    });
+    it('should prevent javascript protocol in thumbnail src', () => {
+      // eslint-disable-next-line no-script-url
+      const xssJavascriptUri = 'javascript:alert("p0wn3d")';
+      const { getByTestId } = render(<Image thumb_url={xssJavascriptUri} />);
+      expect(getByTestId('image-test')).not.toHaveAttribute(
+        'src',
+        xssJavascriptUri,
+      );
+    });
+    it('should prevent dataUris in image src', () => {
+      const xssDataUri = 'data:image/svg+xml;base64,DANGEROUSENCODEDSVG';
+      const { getByTestId } = render(<Image image_url={xssDataUri} />);
+      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssDataUri);
+    });
+    it('should prevent dataUris in thumb src', () => {
+      const xssDataUri = 'data:image/svg+xml;base64,DANGEROUSENCODEDSVG';
+      const { getByTestId } = render(<Image thumb_url={xssDataUri} />);
+      expect(getByTestId('image-test')).not.toHaveAttribute('src', xssDataUri);
+    });
+  });
+
   it('should open modal on image click', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => null);
     const { getByTestId, getByTitle } = render(
