@@ -25,9 +25,10 @@ exports[`ChannelPreviewLastMessage should render correctly 1`] = `
           "width": "32px",
         }
       }
+      title="Channel name"
     >
       <img
-        alt=""
+        alt="C"
         className="str-chat__avatar-image"
         data-testid="avatar-img"
         onError={[Function]}

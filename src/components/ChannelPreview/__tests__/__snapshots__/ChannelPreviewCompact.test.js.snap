@@ -23,9 +23,10 @@ exports[`ChannelPreviewCompact should render correctly 1`] = `
           "width": "20px",
         }
       }
+      title="Channel name"
     >
       <img
-        alt=""
+        alt="C"
         className="str-chat__avatar-image"
         data-testid="avatar-img"
         onError={[Function]}
