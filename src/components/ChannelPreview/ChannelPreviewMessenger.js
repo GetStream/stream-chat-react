@@ -36,7 +36,13 @@ const ChannelPreviewMessenger = (props) => {
       data-testid="channel-preview-button"
     >
       <div className="str-chat__channel-preview-messenger--left">
-        {<Avatar image={props.displayImage} size={40} />}
+        {
+          <Avatar
+            image={props.displayImage}
+            name={props.displayTitle}
+            size={40}
+          />
+        }
       </div>
       <div className="str-chat__channel-preview-messenger--right">
         <div className="str-chat__channel-preview-messenger--name">

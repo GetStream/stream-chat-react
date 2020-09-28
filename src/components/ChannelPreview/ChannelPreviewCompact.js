@@ -37,7 +37,11 @@ const ChannelPreviewCompact = (props) => {
       className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
     >
       <div className="str-chat__channel-preview-compact--left">
-        <Avatar image={props.displayImage} size={20} />
+        <Avatar
+          image={props.displayImage}
+          name={props.displayTitle}
+          size={20}
+        />
       </div>
       <div className="str-chat__channel-preview-compact--right">
         {props.displayTitle}

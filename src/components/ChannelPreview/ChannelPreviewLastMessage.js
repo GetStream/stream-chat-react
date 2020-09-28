@@ -36,7 +36,7 @@ const ChannelPreviewLastMessage = (props) => {
         {props.unread >= 1 && (
           <div className="str-chat__channel-preview--dot" />
         )}
-        <Avatar image={props.displayImage} />
+        <Avatar image={props.displayImage} name={props.displayTitle} />
         <div className="str-chat__channel-preview-info">
           <span className="str-chat__channel-preview-title">
             {props.displayTitle}
