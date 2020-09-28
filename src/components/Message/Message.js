@@ -78,6 +78,8 @@ const Message = (props) => {
     onUserHoverHandler: propOnUserHover,
   });
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
+  const canReact = true;
+  const canReply = true;
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
   const messageActionsHandler = useCallback(() => {
@@ -88,10 +90,21 @@ const Message = (props) => {
     return getMessageActions(messageActions, {
       canDelete,
       canEdit,
+      canReply,
+      canReact,
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
     });
-  }, [channelConfig, message, messageActions, canDelete, canEdit, isMyMessage]);
+  }, [
+    channelConfig,
+    message,
+    messageActions,
+    canDelete,
+    canEdit,
+    canReply,
+    canReact,
+    isMyMessage,
+  ]);
 
   const actionsEnabled =
     message && message.type === 'regular' && message.status === 'received';
