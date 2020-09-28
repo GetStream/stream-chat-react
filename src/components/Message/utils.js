@@ -40,6 +40,8 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   flag: 'flag',
   mute: 'mute',
+  react: 'react',
+  reply: 'reply',
 };
 
 /**
@@ -48,12 +50,14 @@ export const MESSAGE_ACTIONS = {
  *   canDelete?: boolean;
  *   canMute?: boolean;
  *   canFlag?: boolean;
+ *   canReact?: boolean;
+ *   canReply?: boolean;
  * }} Capabilities
  * @type {(actions: string[] | boolean, capabilities: Capabilities) => string[]} Typescript syntax
  */
 export const getMessageActions = (
   actions,
-  { canDelete, canFlag, canEdit, canMute },
+  { canDelete, canFlag, canEdit, canMute, canReact, canReply },
 ) => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
@@ -81,6 +85,14 @@ export const getMessageActions = (
 
   if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
+  }
+
+  if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.react);
+  }
+
+  if (canReply && messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.reply);
   }
 
   return messageActionsAfterPermission;
