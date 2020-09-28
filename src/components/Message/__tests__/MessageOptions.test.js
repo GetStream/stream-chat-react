@@ -9,6 +9,7 @@ import {
 } from 'mock-builders';
 import { ChannelContext } from '../../../context';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MESSAGE_ACTIONS } from '../utils';
 import MessageOptions from '../MessageOptions';
 
 jest.mock('../../MessageActions', () => ({
@@ -22,6 +23,7 @@ const defaultProps = {
   threadList: false,
   messageWrapperRef: { current: document.createElement('div') },
   onReactionListClick: () => {},
+  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
 };
 
 function generateAliceMessage(messageOptions) {

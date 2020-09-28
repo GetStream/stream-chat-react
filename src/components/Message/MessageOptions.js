@@ -34,6 +34,7 @@ const MessageOptionsComponent = (props) => {
     messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 &&
     channelConfig &&
     channelConfig.reactions;
+
   const shouldShowReplies =
     messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 &&
     displayReplies &&
@@ -41,7 +42,6 @@ const MessageOptionsComponent = (props) => {
     channelConfig &&
     channelConfig.replies;
 
-  console.log(messageActions);
   if (
     !message ||
     message.type === 'error' ||

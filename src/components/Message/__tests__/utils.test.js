@@ -75,6 +75,8 @@ describe('Message utils', () => {
       canEdit: true,
       canFlag: true,
       canMute: true,
+      canReply: true,
+      canReact: true,
     };
     const actions = Object.values(MESSAGE_ACTIONS);
 
