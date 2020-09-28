@@ -238,6 +238,7 @@ class MessageList extends PureComponent {
             noGroupByUser={this.props.noGroupByUser}
             threadList={this.props.threadList}
             client={this.props.client}
+            channel={this.props.channel}
             read={this.props.read}
             bottomRef={this.bottomRef}
             onMessageLoadCaptured={this.onMessageLoadCaptured}
