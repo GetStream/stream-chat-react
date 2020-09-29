@@ -127,7 +127,7 @@ export const renderAttachmentActions = (props) => {
 export const renderGallery = (props) => {
   const { attachment: a, Gallery } = props;
   return renderAttachmentWithinContainer(
-    <Gallery images={a.images} key="gallery" />,
+    <Gallery images={a.images || []} key="gallery" />,
     a,
     'gallery',
   );
