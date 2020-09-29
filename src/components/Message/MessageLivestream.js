@@ -187,6 +187,7 @@ const MessageLivestreamComponent = (props) => {
           tDateTimeParser={propTDateTimeParser}
           channelConfig={channelConfig}
           threadList={props.threadList}
+          addNotification={props.addNotification}
           handleOpenThread={propHandleOpenThread || handleOpenThread}
           setEditingState={setEdit}
         />
