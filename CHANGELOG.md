@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.0) 2020-09-29
+
+### Feature
+
+- New messages date indicator in MessageList and VritualizedMessageList [#548](https://github.com/GetStream/stream-chat-react/pull/548)
+- Reply/Reactions are available in messageActions [#547](https://github.com/GetStream/stream-chat-react/pull/547)
+
+### Fix
+
+- Fix opacity on emoji in EditMessageForm [#540](https://github.com/GetStream/stream-chat-react/pull/540)
+- Sanitize URL image sources in Image component [#543](https://github.com/GetStream/stream-chat-react/pull/543)
+- Add first letter of display name to avatar [#545](https://github.com/GetStream/stream-chat-react/pull/545)
+
 ## [2.5.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.5.0) 2020-09-24
 
 ### Feature
