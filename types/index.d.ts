@@ -691,7 +691,10 @@ export interface ExtendedAttachment extends Client.Attachment {
   id?: string;
   asset_url?: string;
   mime_type?: string;
-  images?: Array;
+  images?: Array<{
+    image_url?: string;
+    thumb_url?: string;
+  }>;
 }
 
 export interface BaseAttachmentUIComponentProps {
