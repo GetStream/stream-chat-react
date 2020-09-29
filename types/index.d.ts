@@ -1240,6 +1240,7 @@ export const MessageCommerce: React.FC<MessageCommerceProps>;
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
 export interface MessageLivestreamActionProps {
+  addNotification?(notificationText: string, type: string): any;
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
