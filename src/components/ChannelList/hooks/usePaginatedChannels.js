@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 /**
  * @typedef {import('stream-chat').Channel} Channel
- * @param {import('stream-chat').StreamChat} client
+ * @param {import('types').StreamChatReactClient} client
  * @param {import('stream-chat').ChannelFilters} filters
  * @param {import('stream-chat').ChannelSort} [sort]
  * @param {import('stream-chat').ChannelOptions} [options]
