@@ -37,7 +37,7 @@ async function renderMessageCommerce(
     >
       <MessageCommerce
         message={message}
-        getMessageActions={() => ['flag', 'mute']}
+        getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
         {...props}
       />
     </ChannelContext.Provider>,

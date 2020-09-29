@@ -35,7 +35,8 @@ const getReadStates = (messages, read) => {
   return readData;
 };
 
-const insertDates = (messages) => {
+const insertDates = (messages, lastRead, userID) => {
+  let unread = false;
   const newMessages = [];
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
@@ -49,7 +50,21 @@ const insertDates = (messages) => {
       prevMessageDate = messages[i - 1].created_at.toDateString();
     }
 
-    if (i === 0 || messageDate !== prevMessageDate) {
+    if (!unread) {
+      unread = lastRead && lastRead.getTime() < message.created_at.getTime();
+      // userId check makes sure New is not shown for current user messages
+      if (unread && message.user.id !== userID)
+        newMessages.push({
+          type: 'message.date',
+          date: message.created_at,
+          unread,
+        });
+    }
+
+    if (
+      (i === 0 || messageDate !== prevMessageDate) &&
+      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // prevent two subsequent DateSeparator
+    ) {
       newMessages.push(
         { type: 'message.date', date: message.created_at },
         message,
@@ -173,17 +188,18 @@ const MessageListInner = (props) => {
     noGroupByUser,
     client,
     threadList,
+    channel,
     read,
     internalMessageProps,
     internalInfiniteScrollProps,
   } = props;
+  const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
   const enrichedMessages = useMemo(() => {
-    const messageWithDates = insertDates(messages);
-    // messageWithDates.sort((a, b) => a.created_at - b.created_at); // TODO: remove if no issue came up
+    const messageWithDates = insertDates(messages, lastRead, client.userID);
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
     return messageWithDates;
-  }, [HeaderComponent, headerPosition, messages]);
+  }, [messages, lastRead, client.userID, HeaderComponent, headerPosition]);
 
   const messageGroupStyles = useMemo(
     () =>
@@ -221,7 +237,7 @@ const MessageListInner = (props) => {
 
         return (
           <li key={`${message.date.toISOString()}-i`}>
-            <DateSeparator date={message.date} />
+            <DateSeparator date={message.date} unread={message.unread} />
           </li>
         );
       }

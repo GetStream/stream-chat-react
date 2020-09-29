@@ -444,6 +444,8 @@ export interface AvatarProps {
 export interface DateSeparatorProps extends TranslationContextValue {
   /** The date to format */
   date: Date;
+  /** If following messages are not new */
+  unread?: boolean;
   /** Set the position of the date in the separator */
   position?: 'left' | 'center' | 'right';
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */

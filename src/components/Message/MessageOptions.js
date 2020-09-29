@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { useUserRole, useOpenThreadHandler } from './hooks';
 import { ChannelContext } from '../../context';
 import { MessageActions } from '../MessageActions';
+import { MESSAGE_ACTIONS } from './utils';
 import { ThreadIcon, ReactionIcon } from './icons';
 
 /**
@@ -28,9 +29,19 @@ const MessageOptionsComponent = (props) => {
    */
   const { channel } = useContext(ChannelContext);
   const channelConfig = channel?.getConfig();
+  const messageActions = props.getMessageActions();
+  const shouldShowReactions =
+    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 &&
+    channelConfig &&
+    channelConfig.reactions;
+
   const shouldShowReplies =
-    displayReplies && !threadList && channelConfig && channelConfig.replies;
-  const shouldShowReactions = channelConfig && channelConfig.reactions;
+    messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 &&
+    displayReplies &&
+    !threadList &&
+    channelConfig &&
+    channelConfig.replies;
+
   if (
     !message ||
     message.type === 'error' ||
@@ -53,7 +64,7 @@ const MessageOptionsComponent = (props) => {
           <div
             data-testid="thread-action"
             onClick={propHandleOpenThread || handleOpenThread}
-            className={`str-chat__message-${theme} str-chat__message-${theme}__actions__action--thread`}
+            className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
           >
             <ThreadIcon />
           </div>
