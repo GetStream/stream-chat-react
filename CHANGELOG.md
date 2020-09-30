@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.2) 2020-09-29
+
+### Fix
+
+- Fixed several type issues [#552](https://github.com/GetStream/stream-chat-react/pull/552)
+
 ## [2.6.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.1) 2020-09-29
 
 ### Fix
