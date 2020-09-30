@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.0) 2020-09-30
+
+### BREAKING CHANGES
+
+- Image component renamed to ImageComponent [#554](https://github.com/GetStream/stream-chat-react/pull/554)
+
 ## [2.6.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.2) 2020-09-29
 
 ### Fix
