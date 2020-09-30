@@ -22,7 +22,7 @@ export const moveChannelUp = (cid, channels) => {
 };
 
 /**
- * @param {import('stream-chat').StreamChat} client
+ * @param {import('types').StreamChatReactClient} client
  * @param {string} type
  * @param {string} id
  */
