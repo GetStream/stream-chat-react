@@ -10,7 +10,10 @@ import DefaultAudio from './Audio';
 import DefaultCard from './Card';
 import DefaultFile from './FileAttachment';
 
-import { Image as DefaultImage, Gallery as DefaultGallery } from '../Gallery';
+import {
+  ImageComponent as DefaultImage,
+  Gallery as DefaultGallery,
+} from '../Gallery';
 
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
