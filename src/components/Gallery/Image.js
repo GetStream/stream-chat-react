@@ -11,7 +11,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
  * @example ../../docs/Image.md
  * @extends {React.PureComponent<import('type').ImageProps>}
  */
-class Image extends React.PureComponent {
+class ImageComponent extends React.PureComponent {
   static propTypes = {
     /** The full size image url */
     image_url: PropTypes.string,
@@ -56,4 +56,4 @@ class Image extends React.PureComponent {
   }
 }
 
-export default Image;
+export default ImageComponent;
