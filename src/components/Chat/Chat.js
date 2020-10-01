@@ -52,6 +52,7 @@ const Chat = ({
   const clientMutes = client?.user?.mutes;
 
   useEffect(() => {
+    if (!client) return;
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {
       // should result in something like:
@@ -61,7 +62,7 @@ const Chat = ({
     // don't want client in dep array because it is a required
     // prop for this component and we only want this run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [client]);
 
   useEffect(() => {
     setMutes(clientMutes || []);
