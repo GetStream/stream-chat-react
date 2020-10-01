@@ -181,6 +181,9 @@
       "block-no-empty": null
     }
   },
+  "resolutions": {
+    "ast-types": "^0.14.0"
+  },
   "browserslist": [
     ">0.2%",
     "not ie <= 11",
