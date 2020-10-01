@@ -691,7 +691,10 @@ export interface ExtendedAttachment extends Client.Attachment {
   id?: string;
   asset_url?: string;
   mime_type?: string;
-  images?: Array;
+  images?: Array<{
+    image_url?: string;
+    thumb_url?: string;
+  }>;
 }
 
 export interface BaseAttachmentUIComponentProps {
@@ -1240,6 +1243,7 @@ export const MessageCommerce: React.FC<MessageCommerceProps>;
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
 export interface MessageLivestreamActionProps {
+  addNotification?(notificationText: string, type: string): any;
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;

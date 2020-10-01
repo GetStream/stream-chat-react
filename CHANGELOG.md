@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.0) 2020-09-30
+
+### BREAKING CHANGES
+
+- Image component renamed to ImageComponent [#554](https://github.com/GetStream/stream-chat-react/pull/554)
+
+## [2.6.2](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.2) 2020-09-29
+
+### Fix
+
+- Fixed several type issues [#552](https://github.com/GetStream/stream-chat-react/pull/552)
+
+## [2.6.1](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.1) 2020-09-29
+
+### Fix
+
+- Fixed an issue with MessageLivestream where mutes and flags were not happening [#551](https://github.com/GetStream/stream-chat-react/pull/551)
+
 ## [2.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v2.6.0) 2020-09-29
 
 ### Feature
