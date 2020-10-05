@@ -23,6 +23,7 @@ export const channelReducer = (state, action) => {
         messages: channel.state.messages,
         read: channel.state.read,
         watchers: channel.state.watchers,
+        members: channel.state.members,
         typing: channel.state.typing,
         watcherCount: channel.state.watcher_count,
       };
