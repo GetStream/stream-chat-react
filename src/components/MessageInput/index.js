@@ -4,5 +4,6 @@ export { default as MessageInputLarge } from './MessageInputLarge';
 export { default as MessageInputSmall } from './MessageInputSmall';
 export { default as MessageInputSimple } from './MessageInputSimple';
 export { default as EditMessageForm } from './EditMessageForm';
+export { default as EmojiPicker } from './EmojiPicker';
 export { default as SendButton } from './SendButton';
 export * from './hooks';
