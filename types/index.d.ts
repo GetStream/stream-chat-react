@@ -13,17 +13,17 @@ import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekE
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
-export type StreamChatReactUserType = {
+export type StreamChatReactUserType = AnyType & {
   status?: string;
   image?: string;
   mutes?: Array<Mute>;
 };
-export type StreamChatReactChannelType = {
+export type StreamChatReactChannelType = AnyType & {
   image?: string;
   subtitle?: string;
   member_count?: number;
 };
-export type StreamChatMessageType = {
+export type StreamChatMessageType = AnyType & {
   event?: Client.Event<
     AnyType,
     StreamChatReactChannelType,
