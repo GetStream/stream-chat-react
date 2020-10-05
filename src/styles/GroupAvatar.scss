@@ -1,0 +1,12 @@
+.str-chat__group-avatar {
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    flex-wrap: wrap;
+    overflow: hidden;
+    margin-right: 14px;
+}
+
+.str-chat__group-avatar__image {
+    object-fit: cover;
+}

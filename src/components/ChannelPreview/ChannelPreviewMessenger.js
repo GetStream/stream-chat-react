@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { truncate } from '../../utils';
 
-import { Avatar } from '../Avatar';
+import { Avatar, GroupAvatar } from '../Avatar';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -27,7 +27,6 @@ const ChannelPreviewMessenger = (props) => {
       channelPreviewButton.current.blur();
     }
   };
-
   return (
     <button
       onClick={onSelectChannel}
@@ -36,17 +35,19 @@ const ChannelPreviewMessenger = (props) => {
       data-testid="channel-preview-button"
     >
       <div className="str-chat__channel-preview-messenger--left">
-        {
+        {props.displayImage ? (
           <Avatar
             image={props.displayImage}
             name={props.displayTitle}
             size={40}
           />
-        }
+        ) : (
+          <GroupAvatar size={40} images={props.groupImages} />
+        )}
       </div>
       <div className="str-chat__channel-preview-messenger--right">
         <div className="str-chat__channel-preview-messenger--name">
-          <span>{props.displayTitle}</span>
+          <span>{truncate(props.displayTitle, 30)}</span>
         </div>
         <div className="str-chat__channel-preview-messenger--last-message">
           {truncate(props.latestMessage, props.latestMessageLength)}

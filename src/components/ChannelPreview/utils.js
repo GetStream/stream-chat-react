@@ -22,15 +22,16 @@ export const getLatestMessagePreview = (channel, t) => {
 };
 
 export const getDisplayTitle = (channel, currentUser) => {
-  let title = channel.data.name;
-  const members = Object.values(channel.state.members);
+  const title = channel.data.name;
 
-  if (!title && members.length === 2) {
-    const otherMember = members.find((m) => m.user.id !== currentUser.id);
-    title = otherMember.user.name;
+  if (title) {
+    return title;
   }
-
-  return title;
+  const members = Object.values(channel.state.members);
+  const otherMembers = members.filter((m) => m.user.id !== currentUser.id);
+  return otherMembers
+    .map((member) => member.user.name || member.user.id || 'Unnamed User')
+    .join(', ');
 };
 
 export const getDisplayImage = (channel, currentUser) => {
@@ -43,4 +44,23 @@ export const getDisplayImage = (channel, currentUser) => {
   }
 
   return image;
+};
+
+export const getGroupImages = (channel, currentUser) => {
+  const { image } = channel.data;
+  const members = Object.values(channel.state.members);
+  let images = [];
+  if (!image) {
+    images = members
+      .map((mem) => {
+        if (mem.user.id !== currentUser.id) {
+          return mem.user.image;
+        }
+        return null;
+      })
+      .filter((img) => !!img)
+      .slice(0, 4);
+  }
+
+  return images;
 };

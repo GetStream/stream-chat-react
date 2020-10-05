@@ -9,6 +9,7 @@ import {
   getLatestMessagePreview,
   getDisplayTitle,
   getDisplayImage,
+  getGroupImages,
 } from './utils';
 
 /**
@@ -76,6 +77,7 @@ const ChannelPreview = (props) => {
       latestMessage={getLatestMessagePreview(channel, t)}
       displayTitle={getDisplayTitle(channel, client.user)}
       displayImage={getDisplayImage(channel, client.user)}
+      groupImages={getGroupImages(channel, client.user)}
       active={activeChannel && activeChannel.cid === channel.cid}
     />
   );
