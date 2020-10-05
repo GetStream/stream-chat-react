@@ -35,7 +35,7 @@ const ChannelPreviewMessenger = (props) => {
       data-testid="channel-preview-button"
     >
       <div className="str-chat__channel-preview-messenger--left">
-        {props.displayImage ? (
+        {props.displayImage || !props.groupImages.length ? (
           <Avatar
             image={props.displayImage}
             name={props.displayTitle}

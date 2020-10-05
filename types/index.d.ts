@@ -373,6 +373,7 @@ export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
   displayTitle?: string;
   /** Image of channel to display */
   displayImage?: string;
+  groupImages?: string[];
   /** Latest message's text. */
   latestMessage?: string;
   setActiveChannel?(
@@ -439,6 +440,11 @@ export interface AvatarProps {
   onClick?(e: React.MouseEvent): void;
   /** onMouseOver handler */
   onMouseOver?(e: React.MouseEvent): void;
+}
+
+export interface GroupAvatarProps {
+  images: string[];
+  size?: number;
 }
 
 export interface DateSeparatorProps extends TranslationContextValue {
@@ -1237,6 +1243,7 @@ export const ChannelSearch: React.FC<any>;
 export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
+export const GroupAvatar: React.FC<GroupAvatarProps>;
 
 export interface MessageCommerceProps extends MessageUIComponentProps {}
 export const MessageCommerce: React.FC<MessageCommerceProps>;
