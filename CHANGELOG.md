@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.1) 2020-10-05
+
+- Bumped dependencies [#558](https://github.com/GetStream/stream-chat-react/pull/558)
+
+## Fix
+
+- Fixed issues on docs [#556](https://github.com/GetStream/stream-chat-react/pull/556)
+- Fix type issues [#557](https://github.com/GetStream/stream-chat-react/pull/557)
+- Keep channel.members in sync [#561](https://github.com/GetStream/stream-chat-react/pull/561)
+
+## Added
+
+- Export EmojiPicker [#560](https://github.com/GetStream/stream-chat-react/pull/560)
+
 ## [3.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.0) 2020-09-30
 
 ### BREAKING CHANGES
