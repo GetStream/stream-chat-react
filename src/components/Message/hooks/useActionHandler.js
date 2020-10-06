@@ -10,15 +10,26 @@ export const handleActionWarning = `Action handler was called, but it is missing
 export const useActionHandler = (message) => {
   const { channel, updateMessage, removeMessage } = useContext(ChannelContext);
   return async (name, value, event) => {
-    event.preventDefault();
+    if (event) event.preventDefault();
     if (!message || !updateMessage || !removeMessage || !channel) {
       console.warn(handleActionWarning);
       return;
     }
     const messageID = message.id;
-    const formData = {
-      [name]: value,
-    };
+
+    /** @type {Record<string, string>} */
+    const formData = {};
+
+    // MML callback is array, TODO: generalize this
+    if (Array.isArray(name)) {
+      name.forEach((mmlData) => {
+        // @ts-ignore
+        formData[mmlData.name] = mmlData.value;
+      });
+    } else {
+      formData[name] = value;
+    }
+
     if (messageID) {
       const data = await channel.sendAction(messageID, formData);
 
