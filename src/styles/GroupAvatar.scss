@@ -1,12 +1,25 @@
 .str-chat__group-avatar {
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-    flex-wrap: wrap;
-    overflow: hidden;
-    margin-right: 14px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  flex-wrap: wrap;
+  overflow: hidden;
+  margin-right: 14px;
+
+  &--circle {
+    border-radius: 50%;
+  }
+
+  &--rounded {
+    border-radius: 6px;
+  }
+
+  &--square {
+    border-radius: 0;
+  }
+
 }
 
 .str-chat__group-avatar__image {
-    object-fit: cover;
+  object-fit: cover;
 }

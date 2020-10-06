@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { truncate } from '../../utils';
 
-import { Avatar, GroupAvatar } from '../Avatar';
+import { Avatar } from '../Avatar';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -35,15 +35,12 @@ const ChannelPreviewMessenger = (props) => {
       data-testid="channel-preview-button"
     >
       <div className="str-chat__channel-preview-messenger--left">
-        {props.displayImage || !props.groupImages.length ? (
-          <Avatar
-            image={props.displayImage}
-            name={props.displayTitle}
-            size={40}
-          />
-        ) : (
-          <GroupAvatar size={40} images={props.groupImages} />
-        )}
+        <Avatar
+          image={props.displayImage}
+          images={props.groupImages}
+          name={props.displayTitle}
+          size={40}
+        />
       </div>
       <div className="str-chat__channel-preview-messenger--right">
         <div className="str-chat__channel-preview-messenger--name">

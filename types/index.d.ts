@@ -430,6 +430,7 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
 export interface AvatarProps {
   /** image url */
   image?: string | null;
+  images?: string[];
   /** name of the picture, used for title tag fallback */
   name?: string;
   /** shape of the avatar, circle, rounded or square */
@@ -445,6 +446,7 @@ export interface AvatarProps {
 export interface GroupAvatarProps {
   images: string[];
   size?: number;
+  shape?: 'circle' | 'rounded' | 'square';
 }
 
 export interface DateSeparatorProps extends TranslationContextValue {

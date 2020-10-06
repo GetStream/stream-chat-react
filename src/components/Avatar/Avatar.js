@@ -1,6 +1,7 @@
 // @ts-check
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import GroupAvatar from './GroupAvatar';
 
 /**
  * Avatar - A round avatar image with fallback to username's first letter
@@ -14,6 +15,7 @@ const Avatar = ({
   name,
   shape = 'circle',
   image,
+  images,
   onClick = () => {},
   onMouseOver = () => {},
 }) => {
@@ -26,6 +28,10 @@ const Avatar = ({
   }, [image]);
 
   const initials = (name || '').charAt(0);
+
+  if (images && images?.length > 1) {
+    return <GroupAvatar images={images} size={size} shape={shape} />;
+  }
 
   return (
     <div

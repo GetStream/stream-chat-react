@@ -2,17 +2,16 @@
 import React from 'react';
 
 /**
- * Avatar - A round avatar image with fallback to username's first letter
+ * GroupAvatar - A variation of our Avatar that displays up to 4 images.
  *
- * @example ../../docs/Avatar.md
  * @typedef {import('types').GroupAvatarProps} Props
  * @type { React.FC<Props>}
  */
-const GroupAvatar = ({ images, size = 32 }) => {
+const GroupAvatar = ({ size = 32, shape = 'circle', images }) => {
   return (
     <div
-      className="str-chat__group-avatar"
-      style={{ width: size, height: size, borderRadius: size }}
+      className={`str-chat__group-avatar  str-chat__group-avatar--${shape}`}
+      style={{ width: size, height: size }}
     >
       {images.slice(0, 4).map((img) => (
         <img
