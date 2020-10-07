@@ -1,0 +1,47 @@
+
+.messaging__channel-list {
+    padding: 20px 10px 10px 10px;
+    min-width: 300px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .messaging__channel-list__header {
+    display: flex;
+    align-items: center;
+    
+    padding: 10px 0 10px 10px;
+  }
+  
+  .messaging__channel-list__header__name {
+    display: flex;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 20px;
+    color: #000;
+  }
+  
+  .str-chat.dark .messaging__channel-list__header__name {
+    color: white;
+  }
+  
+.messaging__channel-list__header__button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    cursor: pointer;
+    background: #FFFFFF;
+    filter: drop-shadow(0px 5px 9px rgba(0, 95, 255, 0.15));
+    border-radius: 20px;
+}
+
+.messaging__channel-list__header__button svg path {
+    fill: #005FFF;
+}
+
+.str-chat.dark .messaging__channel-list__header__button {
+    background: #3E3E41;
+}

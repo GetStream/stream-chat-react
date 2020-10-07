@@ -6,16 +6,18 @@ import {
   Channel,
   MessageList,
   MessageInput,
-  MessageInputFlat,
   MessageSimple,
-  ChannelHeader,
   ChannelPreviewMessenger,
   InfiniteScrollPaginator,
-  ChannelListMessenger,
   ChannelList,
   Window,
   Thread,
 } from 'stream-chat-react';
+import {
+  MessagingInput,
+  MessagingChannelHeader,
+  MessagingChannelList,
+} from './components';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 
@@ -57,7 +59,7 @@ class App extends Component {
     return (
       <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
-          List={ChannelListMessenger}
+          List={MessagingChannelList}
           Preview={ChannelPreviewMessenger}
           filters={filters}
           sort={sort}
@@ -66,11 +68,16 @@ class App extends Component {
         />
         <Channel>
           <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageInput Input={MessageInputFlat} focus />
+            <MessagingChannelHeader />
+            <MessageList TypingIndicator={() => null} />
+            <MessageInput Input={MessagingInput} focus />
           </Window>
-          <Thread Message={MessageSimple} />
+          <Thread
+            Message={MessageSimple}
+            additionalMessageInputProps={{
+              Input: MessagingInput,
+            }}
+          />
         </Channel>
       </Chat>
     );

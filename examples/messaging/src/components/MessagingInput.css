@@ -1,0 +1,78 @@
+.str-chat__messaging-input {
+  background: #ffffff;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  position: relative;
+}
+
+.str-chat__messaging-input > *:not(:first-of-type) {
+  margin-left: 8px;
+}
+
+.str-chat__messaging-input .str-chat__textarea textarea {
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: inset 0px 0px 0px 2px transparent;
+  height: 40px;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 16px;
+  transition: box-shadow 0.2s ease-in-out;
+  color: rgba(0,0,0,0.9);
+}
+
+.str-chat__messaging-input .str-chat__textarea textarea:focus {
+  box-shadow: inset 0px 0px 0px 2px #005fff;
+}
+
+.str-chat__messaging-input .messaging-input__button {
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.str-chat__messaging-input .messaging-input__button svg path {
+    transition: fill .2s ease-in-out;
+    fill: black;
+}
+
+.str-chat__messaging-input .messaging-input__button:hover {
+  opacity: 1;
+}
+
+.str-chat__messaging-input .messaging-input__button:hover svg path {
+  fill: #005fff;
+}
+
+.str-chat__messaging-input .rta__autocomplete {
+  z-index: 20;
+}
+
+.str-chat__messaging-input .str-chat__input--emojipicker {
+  z-index: 1;
+}
+
+.str-chat__messaging-input .emoji-mart-bar,
+.str-chat__messaging-input .emoji-mart-search input {
+  border-color: rgba(0, 0, 0, 0.36);
+}
+
+.str-chat.dark .str-chat__messaging-input {
+  background: #2e3033;
+  border-top: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.str-chat.dark .str-chat__messaging-input .str-chat__textarea textarea {
+  background: #323437;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  color: rgba(255,255,255,0.9);
+}
+
+.str-chat.dark .str-chat__messaging-input .messaging-input__button svg path {
+  fill: white;
+}
