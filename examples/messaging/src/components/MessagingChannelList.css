@@ -45,3 +45,7 @@
 .str-chat.dark .messaging__channel-list__header__button {
     background: #3E3E41;
 }
+
+.str-chat.dark .messaging__channel-list__header__button svg path {
+    fill: #E9E9EA;
+}

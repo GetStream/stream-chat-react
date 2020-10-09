@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   useMessageInput,
   ChatAutoComplete,
@@ -9,7 +9,26 @@ import './MessagingInput.css';
 
 const MessagingInput = (props) => {
   const messageInput = useMessageInput(props);
+  const [giphyState, setGiphyState] = useState(false)
   const { t } = useContext(TranslationContext);
+  
+  const setGiphy = useCallback(() => {
+    
+  }, [messageInput.text])
+
+  const onChange = useCallback((e) => {
+    if(messageInput.text.startsWith('/giphy')) {
+      setGiphyState(true)
+    } else {
+      setGiphyState(false);      
+    }
+    messageInput.handleChange(e)
+  }, [messageInput.text])
+
+  const onClickCommand = () => {
+    messageInput.textareaRef.current.focus();
+    messageInput.handleChange({ target: { value: '/' }, preventDefault: () => null })
+  }
 
   return (
     <div className="str-chat__messaging-input">
@@ -55,6 +74,7 @@ const MessagingInput = (props) => {
         className="messaging-input__button"
         role="button"
         aria-roledescription="button"
+        onClick={onClickCommand}
       >
         <svg
           width="8"
@@ -74,7 +94,7 @@ const MessagingInput = (props) => {
         innerRef={messageInput.textareaRef}
         handleSubmit={messageInput.handleSubmit}
         onSelectItem={messageInput.onSelectItem}
-        onChange={messageInput.handleChange}
+        onChange={onChange}
         value={messageInput.text}
         rows={1}
         maxRows={props.maxRows}
