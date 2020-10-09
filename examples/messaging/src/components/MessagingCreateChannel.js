@@ -8,9 +8,9 @@ const MessagingCreateChannel = ({ onClose, visible }) => {
   // add listener
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown, false);
-    //removelistener
+    // removelistener
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleKeyDown]);
 
   if (!visible) return null;
 

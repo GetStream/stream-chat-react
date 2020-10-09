@@ -30,7 +30,10 @@ const MessagingChannelList = ({
         <div className="messaging__channel-list__header__name">
           {name || id}
         </div>
-        <button className="messaging__channel-list__header__button" onClick={onCreateChannel}>
+        <button
+          className="messaging__channel-list__header__button"
+          onClick={onCreateChannel}
+        >
           <svg
             width="18"
             height="18"
