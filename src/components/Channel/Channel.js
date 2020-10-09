@@ -138,6 +138,7 @@ const ChannelInner = ({
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
   const online = useRef(true);
+  const isMounted = useRef(true);
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,7 +242,9 @@ const ChannelInner = ({
         channel.on(handleEvent);
       }
     })();
+    isMounted.current = true;
     return () => {
+      isMounted.current = false;
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.off(handleEvent);
@@ -270,6 +273,7 @@ const ChannelInner = ({
        * @param {import('stream-chat').ChannelState['messages']} messages
        */
       (hasMore, messages) => {
+        if (!isMounted.current) return;
         dispatch({ type: 'loadMoreFinished', hasMore, messages });
       },
       2000,
