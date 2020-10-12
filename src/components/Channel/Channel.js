@@ -23,6 +23,7 @@ import {
 } from '../Loading';
 import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
+import useIsMounted from './hooks/useIsMounted';
 import { channelReducer, initialState } from './channelState';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
@@ -138,7 +139,7 @@ const ChannelInner = ({
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
   const online = useRef(true);
-  const isMounted = useRef(true);
+  const isMounted = useIsMounted();
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -242,9 +243,7 @@ const ChannelInner = ({
         channel.on(handleEvent);
       }
     })();
-    isMounted.current = true;
     return () => {
-      isMounted.current = false;
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.off(handleEvent);
