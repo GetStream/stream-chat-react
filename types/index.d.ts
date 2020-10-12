@@ -570,6 +570,13 @@ export interface MessageListProps {
     e: React.MouseEvent,
     mentioned_users: Client.UserResponse[],
   ): void;
+  /**
+   * When true, enables optimizations on DOM level.
+   * - If user is at bottom of message list, then only load latest 100 (can be adjusted using messageLimit prop) messages in DOM. So everytime new message arrives, we keep moving that sliced window to latest 100 messages.
+   * - If user has scrolled up a little and new message arrives, then keep adding those new messages to DOM (no slicing). So DOM messages will keep on going up and if user scrolls to bottom again, we again reset DOM messages to latest 100.
+   * - After 2nd scenario, channel may have loaded 1000 messages (e.g.) in channel (in memory), but on DOM we only have 100 messages. At this point, pagination will work from already loaded messages in channel to avoid redundant paginated api calls.
+   * */
+  optimizedDOM?: boolean;
 }
 
 export interface ChannelHeaderProps {
