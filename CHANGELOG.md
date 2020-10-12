@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.2) 2020-10-12
+
+- Bump stream-chat to v2.6.0 [#568](https://github.com/GetStream/stream-chat-react/pull/568)
+
 ## [3.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.1) 2020-10-05
 
 - Bumped dependencies [#558](https://github.com/GetStream/stream-chat-react/pull/558)
