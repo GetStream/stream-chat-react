@@ -47,24 +47,34 @@ class MessageList extends PureComponent {
     this.scrollToBottom();
     const messageListRect = this.messageList.current.getBoundingClientRect();
 
-    this.setState({
-      messageListRect,
-      // Load only last 100 (max) messages in DOM.
-      slicedMessages: this.props.messages.slice(-this.props.messageLimit),
-    });
+    if (this.props.optimizedDOM) {
+      this.setState({
+        messageListRect,
+        // Load only last 100 (max) messages in DOM.
+        slicedMessages: this.props.messages.slice(-this.props.messageLimit),
+      });
+    } else {
+      this.setState({
+        messageListRect,
+      });
+    }
   }
 
   componentWillUnmount() {
     this.notificationTimeouts.forEach(clearTimeout);
   }
 
-  getSnapshotBeforeUpdate() {
+  getSnapshotBeforeUpdate(prevProps) {
     if (this.props.threadList) {
       return null;
     }
+    const shouldGetSnapshot = this.props.optimizedDOM
+      ? this.state.slicedMessages.length < this.props.messages.length
+      : prevProps.messages.length < this.props.messages.length;
+
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
-    if (this.state.slicedMessages.length < this.props.messages.length) {
+    if (shouldGetSnapshot) {
       const list = this.messageList.current;
       return {
         offsetTop: list.scrollTop,
@@ -97,14 +107,16 @@ class MessageList extends PureComponent {
     const scrollToBottom = hasNewMessage && (isOwner || !userScrolledUp);
 
     if (scrollToBottom) {
-      if (this.props.messages.length > this.props.messageLimit) {
-        this.setState({
-          slicedMessages: this.props.messages.slice(-this.props.messageLimit),
-        });
-      } else {
-        this.setState({
-          slicedMessages: this.props.messages,
-        });
+      if (this.props.optimizedDOM) {
+        if (this.props.messages.length > this.props.messageLimit) {
+          this.setState({
+            slicedMessages: this.props.messages.slice(-this.props.messageLimit),
+          });
+        } else {
+          this.setState({
+            slicedMessages: this.props.messages,
+          });
+        }
       }
 
       this.scrollToBottom();
@@ -116,18 +128,20 @@ class MessageList extends PureComponent {
       return;
     }
 
-    // Making following state updates as async, so that when we update scroll position,
-    // we have the updated scrollHeight of the list.
-    if (hasNewMessage) {
-      await this.setAsyncState({
-        slicedMessages: this.props.messages.slice(
-          -(this.state.slicedMessages.length + 1),
-        ),
-      });
-    } else if (prevProps.messages.length < this.props.messages.length) {
-      await this.setAsyncState({
-        slicedMessages: this.props.messages,
-      });
+    if (this.props.optimizedDOM) {
+      // Making following state updates as async, so that when we update scroll position,
+      // we have the updated scrollHeight of the list.
+      if (hasNewMessage) {
+        await this.setAsyncState({
+          slicedMessages: this.props.messages.slice(
+            -(this.state.slicedMessages.length + 1),
+          ),
+        });
+      } else if (prevProps.messages.length < this.props.messages.length) {
+        await this.setAsyncState({
+          slicedMessages: this.props.messages,
+        });
+      }
     }
 
     if (snapshot !== null) {
@@ -246,7 +260,10 @@ class MessageList extends PureComponent {
   };
 
   loadMore = () => {
-    if (this.props.messages.length > this.state.slicedMessages.length) {
+    if (
+      this.props.optimizedDOM &&
+      this.props.messages.length > this.state.slicedMessages.length
+    ) {
       // If channel already has loaded more messages, then simply get more messages from channel (this.props.messages).
       this.setState({
         slicedMessages: this.props.messages.slice(
@@ -257,11 +274,7 @@ class MessageList extends PureComponent {
     }
 
     // Otherwise fetch from server.
-    if (this.props.messageLimit) {
-      this.props.loadMore(this.props.messageLimit);
-    } else {
-      this.props.loadMore();
-    }
+    this.props.loadMore(this.props.messageLimit);
   };
 
   render() {
@@ -282,7 +295,11 @@ class MessageList extends PureComponent {
             HeaderComponent={this.props.HeaderComponent}
             headerPosition={this.props.headerPosition}
             DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
-            messages={this.state.slicedMessages}
+            messages={
+              this.props.optimizedDOM
+                ? this.state.slicedMessages
+                : this.props.messages
+            }
             noGroupByUser={this.props.noGroupByUser}
             threadList={this.props.threadList}
             client={this.props.client}
@@ -475,6 +492,13 @@ MessageList.propTypes = {
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps: PropTypes.object,
+  /**
+   * When true, enables optimizations on DOM level.
+   * - If user is at bottom of message list, then only load latest 100 (can be adjusted using messageLimit prop) messages in DOM. So everytime new message arrives, we keep moving that sliced window to latest 100 messages.
+   * - If user has scrolled up a little and new message arrives, then keep adding those new messages to DOM (no slicing). So DOM messages will keep on going up and if user scrolls to bottom again, we again reset DOM messages to latest 100.
+   * - After 2nd scenario, channel may have loaded 1000 messages (e.g.) in channel (in memory), but on DOM we only have 100 messages. At this point, pagination will work from already loaded messages in channel to avoid redundant paginated api calls.
+   * */
+  optimizedDOM: PropTypes.bool,
 };
 
 MessageList.defaultProps = {
@@ -490,6 +514,7 @@ MessageList.defaultProps = {
   noGroupByUser: false,
   messageActions: Object.keys(MESSAGE_ACTIONS),
   messageLimit: 100,
+  optimizedDOM: false,
 };
 
 export default withTranslationContext((props) => (
