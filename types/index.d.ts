@@ -480,8 +480,8 @@ export interface VirtualizedMessageListInternalProps {
   loadingMore: boolean;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
-  /** Group messages belong to the same user if false, otherwise show each message individually, default to false */
-  noGroupByUser?: boolean;
+  /** Group messages belong to the same user if true, otherwise show each message individually, default to true */
+  shouldGroupByUser?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer(
     messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
