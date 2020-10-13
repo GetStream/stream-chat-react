@@ -85,7 +85,13 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
           >
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
-          <div className="str-chat__virtual-message__meta--right">
+        </div>
+
+        {images && <Gallery images={images} />}
+
+        <div className="str-chat__virtual-message__text" data-testid="msg-text">
+          {renderedText}
+          <div className="str-chat__virtual-message__data">
             <MessageActions
               message={message}
               customWrapperClass="str-chat__virtual-message__actions"
@@ -98,12 +104,6 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
               />
             </span>
           </div>
-        </div>
-
-        {images && <Gallery images={images} />}
-
-        <div className="str-chat__virtual-message__text" data-testid="msg-text">
-          {renderedText}
         </div>
       </div>
     </div>
