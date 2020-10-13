@@ -128,6 +128,7 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
+        maxRangeSize={2000} // reset the cache once it reaches 2k
         scrollSeek={scrollSeekPlaceHolder}
         item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
