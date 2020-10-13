@@ -146,6 +146,18 @@ export const truncate = (input, length, end = '...') => {
   return input;
 };
 
+const markDownRenderers = {
+  /** @param {{ href: string | undefined; children: React.ReactNode; }} props   */
+  link: (props) => {
+    if (!props.href || !props.href.startsWith('http')) return props.children; // could cause issue for app:// links?
+    return (
+      <a href={props.href} target="_blank" rel="nofollow noreferrer noopener">
+        {props.children}
+      </a>
+    );
+  },
+};
+
 /** @type {(input: string | undefined, mentioned_users: import('stream-chat').UserResponse[] | undefined) => React.ReactNode} */
 export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
@@ -182,8 +194,8 @@ export const renderText = (text, mentioned_users) => {
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       source={newText}
-      linkTarget="_blank"
-      plugins={[]}
+      // @ts-ignore
+      renderers={markDownRenderers}
       escapeHtml={true}
       skipHtml={false}
       unwrapDisallowed={true}
