@@ -32,10 +32,10 @@ jest.mock('../../Loading', () => ({
 }));
 
 jest.mock('../../Message', () => ({
-  FixedHeightMessage: jest.fn(({ message, groupedByUser }) => {
+  FixedHeightMessage: jest.fn(({ groupedByUser }) => {
     return (
       <div>
-        FixedHeightMessage {message.user.id}: groupedByUser:
+        FixedHeightMessage groupedByUser:
         {groupedByUser ? 'true' : 'false'}
       </div>
     );

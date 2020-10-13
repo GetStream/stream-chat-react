@@ -58,9 +58,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                18a75b70-ed9c-415b-b19b-ee53d6169594
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -69,9 +67,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -80,9 +76,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -91,9 +85,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -102,9 +94,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -113,9 +103,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                18a75b70-ed9c-415b-b19b-ee53d6169594
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -124,9 +112,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -135,9 +121,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -146,9 +130,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -157,9 +139,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -168,9 +148,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                18a75b70-ed9c-415b-b19b-ee53d6169594
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -179,9 +157,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -190,9 +166,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -201,9 +175,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -212,9 +184,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -223,9 +193,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                18a75b70-ed9c-415b-b19b-ee53d6169594
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -234,9 +202,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -245,9 +211,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -256,9 +220,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -267,9 +229,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -278,9 +238,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                18a75b70-ed9c-415b-b19b-ee53d6169594
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -289,9 +247,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 false
               </div>
             </div>
@@ -300,9 +256,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
@@ -311,9 +265,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
               data-known-size={30}
             >
               <div>
-                FixedHeightMessage 
-                fef7c967-e1f4-45d5-9727-c923740f141f
-                : groupedByUser:
+                FixedHeightMessage groupedByUser:
                 true
               </div>
             </div>
