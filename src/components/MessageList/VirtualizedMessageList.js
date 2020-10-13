@@ -53,7 +53,7 @@ const VirtualizedMessageList = ({
   const mounted = useRef(false);
   const atBottom = useRef(false);
   const lastMessageId = useRef('');
-
+  window.current = virtuoso.current;
   useEffect(() => {
     /* handle scrolling behavior for new messages */
     if (!messages.length) return;
@@ -128,7 +128,7 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
-        maxRangeSize={2000} // reset the cache once it reaches 2k
+        maxHeightCacheSize={2000} // reset the cache once it reaches 2k
         scrollSeek={scrollSeekPlaceHolder}
         item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
