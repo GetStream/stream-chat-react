@@ -34,6 +34,8 @@ const VirtualizedMessageList = ({
   loadingMore,
   messageLimit = 100,
   overscan = 200,
+  noGroupByUser = false,
+  customMessageRenderer,
   scrollSeekPlaceHolder,
   Message = FixedHeightMessage,
   MessageSystem = EventComponent,
@@ -92,7 +94,11 @@ const VirtualizedMessageList = ({
   }, [messages.length]);
 
   const messageRenderer = useCallback(
-    (message) => {
+    (messageList, i) => {
+      // use custom renderer supplied by client if present and skip the rest
+      if (customMessageRenderer) return customMessageRenderer(messageList, i);
+
+      const message = messageList[i];
       if (!message) return <></>;
 
       if (message.type === 'channel.event' || message.type === 'system')
@@ -101,9 +107,18 @@ const VirtualizedMessageList = ({
       if (message.deleted_at)
         return smartRender(MessageDeleted, { message }, null);
 
-      return <Message message={message} />;
+      return (
+        <Message
+          message={message}
+          groupedByUser={
+            !noGroupByUser &&
+            i > 0 &&
+            message.user.id === messageList[i - 1].user.id
+          }
+        />
+      );
     },
-    [MessageDeleted],
+    [MessageDeleted, customMessageRenderer, noGroupByUser],
   );
 
   return (
@@ -114,7 +129,7 @@ const VirtualizedMessageList = ({
         totalCount={messages.length}
         overscan={overscan}
         scrollSeek={scrollSeekPlaceHolder}
-        item={(i) => messageRenderer(messages[i])}
+        item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
         header={() => (
           <div

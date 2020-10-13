@@ -32,7 +32,14 @@ jest.mock('../../Loading', () => ({
 }));
 
 jest.mock('../../Message', () => ({
-  FixedHeightMessage: jest.fn(() => <div>FixedHeightMessage</div>),
+  FixedHeightMessage: jest.fn(({ message, groupedByUser }) => {
+    return (
+      <div>
+        FixedHeightMessage {message.user.id}: groupedByUser:
+        {groupedByUser ? 'true' : 'false'}
+      </div>
+    );
+  }),
 }));
 
 jest.mock('../../TypingIndicator', () => ({
@@ -47,7 +54,7 @@ async function createChannel() {
     messages: ' '
       .repeat(100)
       .split(' ')
-      .map(() => generateMessage({ user: user1 })),
+      .map((v, i) => generateMessage({ user: i % 5 ? user1 : user2 })),
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
