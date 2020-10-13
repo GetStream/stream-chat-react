@@ -134,6 +134,7 @@ function messageInputReducer(state, action) {
       };
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
+      if (!imageAlreadyExists && !action.file) return state;
       const imageOrder = imageAlreadyExists
         ? state.imageOrder
         : state.imageOrder.concat(action.id);
@@ -152,6 +153,7 @@ function messageInputReducer(state, action) {
     }
     case 'setFileUpload': {
       const fileAlreadyExists = state.fileUploads[action.id];
+      if (!fileAlreadyExists && !action.file) return state;
       const fileOrder = fileAlreadyExists
         ? state.fileOrder
         : state.fileOrder.concat(action.id);
@@ -560,7 +562,6 @@ export default function useMessageInputState(props) {
         }
         return;
       }
-      if (!imageUploads[id]) return; // removed before done
       dispatch({
         type: 'setImageUpload',
         id,
