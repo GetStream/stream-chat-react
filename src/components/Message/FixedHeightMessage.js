@@ -43,7 +43,7 @@ const getUserColor = (theme, userId) => {
  * It uses fixed height elements to make sure it works well in VirtualizedMessageList
  * @type {React.FC<import('types').FixedHeightMessageProps>}
  */
-const FixedHeightMessage = ({ message }) => {
+const FixedHeightMessage = ({ message, groupedByUser }) => {
   const { theme } = useContext(ChatContext);
   const role = useUserRole(message);
 
@@ -67,7 +67,7 @@ const FixedHeightMessage = ({ message }) => {
       key={message.id}
       className={`str-chat__virtual-message__wrapper ${
         role.isMyMessage ? 'str-chat__virtual-message__wrapper--me' : ''
-      } `}
+      } ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}`}
     >
       <Avatar
         shape="rounded"

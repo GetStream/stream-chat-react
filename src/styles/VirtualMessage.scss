@@ -98,7 +98,35 @@
   }
 }
 
-.dark {
+.str-chat__virtual-message__wrapper--group { 
+  padding-top: 0;
+  & > .str-chat__avatar {
+    display: none;
+  }
+
+  .str-chat__virtual-message__content {
+    padding-left: 50px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .str-chat__gallery {
+      width: 100%;
+      margin:0;
+      justify-content: unset;
+    }
+  }
+  
+  .str-chat__virtual-message__author {
+    display: none;
+  }
+  .str-chat__virtual-message__meta {
+    display: inline-flex;
+    margin-left: auto;
+    width: auto;
+    order: 2;
+  }
+}
+
+  .dark {
   .str-chat__virtual-message__wrapper {
     &:hover {
       background: rgba(0, 0, 0, 0.15);
