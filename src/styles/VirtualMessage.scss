@@ -120,6 +120,9 @@
       margin:0;
       justify-content: unset;
     }
+    .str-chat__virtual-message__text {
+      flex: 1;
+    }
   }
   
   .str-chat__virtual-message__author {
