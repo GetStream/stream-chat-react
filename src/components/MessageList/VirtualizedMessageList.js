@@ -34,7 +34,7 @@ const VirtualizedMessageList = ({
   loadingMore,
   messageLimit = 100,
   overscan = 200,
-  noGroupByUser = false,
+  shouldGroupByUser = true,
   customMessageRenderer,
   scrollSeekPlaceHolder,
   Message = FixedHeightMessage,
@@ -111,14 +111,14 @@ const VirtualizedMessageList = ({
         <Message
           message={message}
           groupedByUser={
-            !noGroupByUser &&
+            shouldGroupByUser &&
             i > 0 &&
             message.user.id === messageList[i - 1].user.id
           }
         />
       );
     },
-    [MessageDeleted, customMessageRenderer, noGroupByUser],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
   return (
