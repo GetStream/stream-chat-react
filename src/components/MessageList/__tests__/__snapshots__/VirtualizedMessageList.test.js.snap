@@ -77,7 +77,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
             >
               <div>
                 FixedHeightMessage groupedByUser:
-                true
+                false
               </div>
             </div>
             <div
@@ -221,7 +221,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
             >
               <div>
                 FixedHeightMessage groupedByUser:
-                false
+                true
               </div>
             </div>
             <div
@@ -239,7 +239,7 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
             >
               <div>
                 FixedHeightMessage groupedByUser:
-                true
+                false
               </div>
             </div>
             <div
