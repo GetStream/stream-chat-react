@@ -498,7 +498,7 @@ export interface VirtualizedMessageListInternalProps {
   MessageSystem?: React.ElementType<EventComponentProps>;
   /** The UI Indicator to use when MessagerList or ChannelList is empty */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
-  /** The UI Indicator to use when someone is typing */
+  /** The UI Indicator to use when someone is typing, default to null */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;

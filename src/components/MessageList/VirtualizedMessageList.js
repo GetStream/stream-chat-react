@@ -14,7 +14,6 @@ import { ChannelContext, TranslationContext } from '../../context';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import {
   FixedHeightMessage,
   MessageDeleted as DefaultMessageDeleted,
@@ -40,7 +39,7 @@ const VirtualizedMessageList = ({
   Message = FixedHeightMessage,
   MessageSystem = EventComponent,
   MessageDeleted = DefaultMessageDeleted,
-  TypingIndicator = DefaultTypingIndicator,
+  TypingIndicator = null,
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
 }) => {
@@ -140,6 +139,7 @@ const VirtualizedMessageList = ({
             <LoadingIndicator size={20} />
           </div>
         )}
+        // @ts-ignore
         footer={() => TypingIndicator && <TypingIndicator avatarSize={24} />}
         startReached={() => {
           // mounted.current prevents immediate loadMore on first render
