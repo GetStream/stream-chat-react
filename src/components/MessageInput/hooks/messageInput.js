@@ -1,5 +1,12 @@
 // @ts-check
-import { useReducer, useEffect, useContext, useRef, useCallback } from 'react';
+import {
+  useReducer,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import Immutable from 'seamless-immutable';
 import { logChatPromiseExecution } from 'stream-chat';
 import {
@@ -669,11 +676,16 @@ export default function useMessageInputState(props) {
   );
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
-  const maxFilesLeft =
-    Math.min(
-      channelContext.maxNumberOfFiles || apiMaxNumberOfFiles,
-      apiMaxNumberOfFiles,
-    ) - numberOfUploads;
+  // If multipleUploads is false, we only want to allow a single upload.
+  const maxFilesAllowed = useMemo(() => {
+    if (!channelContext.multipleUploads) return 1;
+    if (channelContext.maxNumberOfFiles === undefined) {
+      return apiMaxNumberOfFiles;
+    }
+    return channelContext.maxNumberOfFiles;
+  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
+
+  const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   return {
     ...state,

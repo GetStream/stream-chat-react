@@ -75,7 +75,11 @@ const MessageInputSmall = (props) => {
               className="str-chat__fileupload-wrapper"
               data-testid="fileinput"
             >
-              <Tooltip>{t('Attach files')}</Tooltip>
+              <Tooltip>
+                {messageInput.maxFilesLeft
+                  ? t('Attach files')
+                  : t("You've reached the maximum number of files")}
+              </Tooltip>
               <FileUploadButton
                 multiple={channelContext.multipleUploads}
                 disabled={messageInput.maxFilesLeft === 0}

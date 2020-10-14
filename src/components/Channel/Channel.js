@@ -35,6 +35,10 @@ const Channel = ({ EmptyPlaceholder = null, ...props }) => {
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
+Channel.defaultProps = {
+  multipleUploads: true,
+};
+
 Channel.propTypes = {
   /** Which channel to connect to, will initialize the channel if it's not initialized yet */
   channel: PropTypes.instanceOf(StreamChannel),
@@ -96,7 +100,7 @@ Channel.propTypes = {
    * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
    */
   onMentionsHover: PropTypes.func,
-  /** Weather to allow multiple attachment uploads */
+  /** Whether to allow multiple attachment uploads */
   multipleUploads: PropTypes.bool,
   /** List of accepted file types */
   acceptedFiles: PropTypes.array,

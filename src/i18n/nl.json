@@ -35,6 +35,7 @@
   "Type your message": "Type je bericht",
   "Unmute": "Unmute",
   "You have no channels currently": "Er zijn geen chats beschikbaar",
+  "You've reached the maximum number of files": "",
   "live": "live",
   "this content could not be displayed": "Deze inhoud kan niet weergegeven worden",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} en {{ lastUser }} zijn aan het typen ...",
