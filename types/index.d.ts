@@ -472,6 +472,7 @@ export interface SendButtonProps {
 
 export interface FixedHeightMessageProps {
   message: Client.MessageResponse;
+  groupedByUser: boolean;
 }
 
 export interface VirtualizedMessageListInternalProps {
@@ -487,6 +488,16 @@ export interface VirtualizedMessageListInternalProps {
   loadingMore: boolean;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
+  /**
+   * Group messages belong to the same user if true, otherwise show each message individually, default to false
+   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
+   */
+  shouldGroupByUser?: boolean;
+  /** Custom render function, if passed, certain UI props are ignored */
+  customMessageRenderer(
+    messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
+    index: number,
+  ): React.ReactElement;
   /** Custom UI component to display messages. */
   Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
@@ -495,7 +506,7 @@ export interface VirtualizedMessageListInternalProps {
   MessageSystem?: React.ElementType<EventComponentProps>;
   /** The UI Indicator to use when MessagerList or ChannelList is empty */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
-  /** The UI Indicator to use when someone is typing */
+  /** The UI Indicator to use when someone is typing, default to null */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
