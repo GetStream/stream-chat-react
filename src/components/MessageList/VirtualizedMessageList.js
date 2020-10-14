@@ -34,7 +34,7 @@ const VirtualizedMessageList = ({
   loadingMore,
   messageLimit = 100,
   overscan = 200,
-  shouldGroupByUser = true,
+  shouldGroupByUser = false,
   customMessageRenderer,
   scrollSeekPlaceHolder,
   Message = FixedHeightMessage,
@@ -53,7 +53,7 @@ const VirtualizedMessageList = ({
   const mounted = useRef(false);
   const atBottom = useRef(false);
   const lastMessageId = useRef('');
-  window.current = virtuoso.current;
+
   useEffect(() => {
     /* handle scrolling behavior for new messages */
     if (!messages.length) return;

@@ -480,7 +480,10 @@ export interface VirtualizedMessageListInternalProps {
   loadingMore: boolean;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
-  /** Group messages belong to the same user if true, otherwise show each message individually, default to true */
+  /**
+   * Group messages belong to the same user if true, otherwise show each message individually, default to false
+   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
+   */
   shouldGroupByUser?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer(
