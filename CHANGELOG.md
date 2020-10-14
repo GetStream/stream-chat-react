@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.1) 2020-10-14
+
+## Fix
+
+- FixedHeightMessage text overflow [#573](https://github.com/GetStream/stream-chat-react/pull/573)
+- Prevent state updates on unmounted Channel component [#566](https://github.com/GetStream/stream-chat-react/pull/566)
+
+## [3.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.0) 2020-10-14
+
+## Feature
+
+- VirtualizedMessageList supports message grouping [#571](https://github.com/GetStream/stream-chat-react/pull/571)
+
+```js
+<VirtualizedMessageList shouldGroupByUser />
+```
+
+## Fix
+
+- VirtualizedMessageList TypingIndicator is disabled by default [#571](https://github.com/GetStream/stream-chat-react/pull/571)
+
 ## [3.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.0.3) 2020-10-13
 
 ## Fix

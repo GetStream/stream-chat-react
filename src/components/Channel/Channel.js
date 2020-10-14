@@ -23,6 +23,7 @@ import {
 } from '../Loading';
 import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
+import useIsMounted from './hooks/useIsMounted';
 import { channelReducer, initialState } from './channelState';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
@@ -138,6 +139,7 @@ const ChannelInner = ({
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
   const online = useRef(true);
+  const isMounted = useIsMounted();
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -270,6 +272,7 @@ const ChannelInner = ({
        * @param {import('stream-chat').ChannelState['messages']} messages
        */
       (hasMore, messages) => {
+        if (!isMounted.current) return;
         dispatch({ type: 'loadMoreFinished', hasMore, messages });
       },
       2000,
