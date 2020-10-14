@@ -33,6 +33,8 @@ const emptyFileUploads = {};
 /** @type {{ [id: string]: import('types').ImageUpload }} */
 const emptyImageUploads = {};
 
+const apiMaxNumberOfFiles = 10;
+
 /**
  * Initializes the state. Empty if the message prop is falsy.
  * @param {import("stream-chat").MessageResponse | undefined} message
@@ -666,8 +668,16 @@ export default function useMessageInputState(props) {
     [uploadNewFiles, insertText],
   );
 
+  // Number of files that the user can still add. Should never be more than the amount allowed by the API.
+  const maxFilesLeft =
+    Math.min(
+      channelContext.maxNumberOfFiles || apiMaxNumberOfFiles,
+      apiMaxNumberOfFiles,
+    ) - numberOfUploads;
+
   return {
     ...state,
+    maxFilesLeft,
     // refs
     textareaRef,
     emojiPickerRef,

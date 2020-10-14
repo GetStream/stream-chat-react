@@ -28,10 +28,8 @@ const MessageInputFlat = (props) => {
       <ImageDropzone
         accept={channelContext.acceptedFiles}
         multiple={channelContext.multipleUploads}
-        disabled={
-          channelContext.maxNumberOfFiles !== undefined &&
-          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
-        }
+        disabled={messageInput.maxFilesLeft === 0}
+        maxNumberOfFiles={messageInput.maxFilesLeft}
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input-flat-wrapper">
@@ -78,11 +76,7 @@ const MessageInputFlat = (props) => {
               <Tooltip>{t('Attach files')}</Tooltip>
               <FileUploadButton
                 multiple={channelContext.multipleUploads}
-                disabled={
-                  channelContext.maxNumberOfFiles !== undefined &&
-                  messageInput.numberOfUploads >=
-                    channelContext.maxNumberOfFiles
-                }
+                disabled={messageInput.maxFilesLeft === 0}
                 accepts={channelContext.acceptedFiles}
                 handleFiles={messageInput.uploadNewFiles}
               >
