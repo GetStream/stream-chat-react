@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.2) 2020-10-14
+
+# Fix
+
+Event handler for `message.new` by default moves the channel to top of the list. But it didn't handle the case where channel was not already present in list. `useMessageNewHandler` has been updated to handle this case. [c563252](https://github.com/GetStream/stream-chat-react/commit/c5632521566fe8ad8c3a05a6648b4cdc3c4daafe)
+
 ## [3.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.1) 2020-10-14
 
 ## Fix
