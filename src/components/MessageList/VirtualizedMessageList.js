@@ -14,7 +14,6 @@ import { ChannelContext, TranslationContext } from '../../context';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import {
   FixedHeightMessage,
   MessageDeleted as DefaultMessageDeleted,
@@ -34,11 +33,13 @@ const VirtualizedMessageList = ({
   loadingMore,
   messageLimit = 100,
   overscan = 200,
+  shouldGroupByUser = false,
+  customMessageRenderer,
   scrollSeekPlaceHolder,
   Message = FixedHeightMessage,
   MessageSystem = EventComponent,
   MessageDeleted = DefaultMessageDeleted,
-  TypingIndicator = DefaultTypingIndicator,
+  TypingIndicator = null,
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
 }) => {
@@ -92,7 +93,11 @@ const VirtualizedMessageList = ({
   }, [messages.length]);
 
   const messageRenderer = useCallback(
-    (message) => {
+    (messageList, i) => {
+      // use custom renderer supplied by client if present and skip the rest
+      if (customMessageRenderer) return customMessageRenderer(messageList, i);
+
+      const message = messageList[i];
       if (!message) return <></>;
 
       if (message.type === 'channel.event' || message.type === 'system')
@@ -101,9 +106,18 @@ const VirtualizedMessageList = ({
       if (message.deleted_at)
         return smartRender(MessageDeleted, { message }, null);
 
-      return <Message message={message} />;
+      return (
+        <Message
+          message={message}
+          groupedByUser={
+            shouldGroupByUser &&
+            i > 0 &&
+            message.user.id === messageList[i - 1].user.id
+          }
+        />
+      );
     },
-    [MessageDeleted],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
   return (
@@ -113,8 +127,9 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
+        maxHeightCacheSize={2000} // reset the cache once it reaches 2k
         scrollSeek={scrollSeekPlaceHolder}
-        item={(i) => messageRenderer(messages[i])}
+        item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
         header={() => (
           <div
@@ -124,6 +139,7 @@ const VirtualizedMessageList = ({
             <LoadingIndicator size={20} />
           </div>
         )}
+        // @ts-ignore
         footer={() => TypingIndicator && <TypingIndicator avatarSize={24} />}
         startReached={() => {
           // mounted.current prevents immediate loadMore on first render
