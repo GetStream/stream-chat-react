@@ -34,21 +34,25 @@ const App = () => {
 
   return (
     <Chat client={chatClient} theme={`team ${theme}`}>
-      <ChannelListContainer />
-      <Channel
-        onMentionsHover={(e, user) => console.log(e, user)}
-        onMentionsClick={(e, user) => console.log(e, user)}
-      >
-        <Window>
-          <ChannelHeader />
-          <MessageList
-            Message={MessageTeam}
-            TypingIndicator={TeamTypingIndicator}
-          />
-          <MessageInput focus />
-        </Window>
-        <Thread Message={MessageTeam} />
-      </Channel>
+      <div style={{ display: 'flex' }}>
+        <ChannelListContainer />
+        <div style={{ height: '800px', width: '100%' }}>
+          <Channel
+            onMentionsHover={(e, user) => console.log(e, user)}
+            onMentionsClick={(e, user) => console.log(e, user)}
+          >
+            <Window>
+              <ChannelHeader />
+              <MessageList
+                Message={MessageTeam}
+                TypingIndicator={TeamTypingIndicator}
+              />
+              <MessageInput focus />
+            </Window>
+            <Thread Message={MessageTeam} />
+          </Channel>
+        </div>
+      </div>
     </Chat>
   );
 };

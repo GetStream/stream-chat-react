@@ -1,50 +1,104 @@
 .team__channel-list__container {
   display: flex;
-  border: 1px solid red;
   height: 800px;
 }
 
 .team__channel-list__sidebar {
-  /* display: flex;
-  flex-direction: column; */
-  position: absolute;
   width: 72px;
-  left: 0px;
-  top: 0%;
-  bottom: 0%;
-
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
     #4e1d9d;
   box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.25);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
 }
 
 .team__channel-list__sidebar__icon1 {
-  position: absolute;
   width: 44px;
   height: 44px;
-  left: 14px;
-  top: 14px;
-
+  margin: 14px;
   background: linear-gradient(
       150.64deg,
       rgba(0, 0, 0, 0.1) 12.73%,
       rgba(0, 0, 0, 0) 89.32%
     ),
     #ffffff;
-  border: 1px solid #ffffff;
-  box-sizing: border-box;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.33);
   border-radius: 9999px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.33);
+}
+
+.icon1__inner {
+  font-family: Helvetica Neue;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .team__channel-list__sidebar__icon2 {
-  position: absolute;
   width: 44px;
   height: 44px;
-  left: 14px;
-  top: 72px;
-
+  margin-left: 14px;
   background: linear-gradient(0deg, #000000, #000000);
   /* url(shrekdonkey_wide-89db9721fc009fe615cf25133a6a3a5d3988444a.jpg), #000000; */
   border-radius: 9999px;
+}
+
+.icon2__inner {
+  font-family: Helvetica Neue;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team__channel-list__header {
+  display: flex;
+  align-items: center;
+  height: 62px;
+  padding-left: 15px;
+  background: #4e1d9d;
+}
+
+.team__channel-list__header__text {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.team__channel-search__container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70px;
+  border-top: 1px solid #00000033;
+}
+
+.team__channel-search__input__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.team__channel-search__input__icon {
+  width: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.team__channel-search__input__text {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.66);
+  font-family: Helvetica Neue;
+  font-size: 16px;
+  outline: none;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.66);
 }

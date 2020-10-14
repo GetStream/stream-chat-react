@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  // ChannelListTeam,
+  ChannelListTeam,
   ChannelList,
   InfiniteScrollPaginator,
 } from 'stream-chat-react';
@@ -22,26 +22,26 @@ const Paginator = (props) => (
   <InfiniteScrollPaginator threshold={300} {...props} />
 );
 
-const SideBar = () => {
-  return (
-    <div className="team__channel-list__sidebar">
-      <div className="team__channel-list__sidebar__icon1">
-        <div>
-          <svg
-            width="22"
-            height="16"
-            viewBox="0 0 22 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.0903 16L21.3143 0.291999H17.9263L15.3523 11.116H15.3083L12.6243 0.291999H9.39031L6.6623 10.984H6.6183L4.1323 0.291999H0.678305L4.8363 16H8.3343L10.9523 5.308H10.9963L13.6583 16H17.0903Z"
-              fill="#4E1D9D"
-            />
-          </svg>
-        </div>
+const SideBar = () => (
+  <div className="team__channel-list__sidebar">
+    <div className="team__channel-list__sidebar__icon1">
+      <div className="icon1__inner">
+        <svg
+          width="22"
+          height="16"
+          viewBox="0 0 22 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M17.0903 16L21.3143 0.291999H17.9263L15.3523 11.116H15.3083L12.6243 0.291999H9.39031L6.6623 10.984H6.6183L4.1323 0.291999H0.678305L4.8363 16H8.3343L10.9523 5.308H10.9963L13.6583 16H17.0903Z"
+            fill="#4E1D9D"
+          />
+        </svg>
       </div>
-      <div className="team__channel-list__sidebar__icon2">
+    </div>
+    <div className="team__channel-list__sidebar__icon2">
+      <div className="icon2__inner">
         <svg
           width="20"
           height="22"
@@ -56,6 +56,49 @@ const SideBar = () => {
         </svg>
       </div>
     </div>
+  </div>
+);
+
+const CompanyHeader = () => (
+  <div className="team__channel-list__header">
+    <p className="team__channel-list__header__text">Worksly</p>
+  </div>
+);
+
+const ChannelSearch = () => {
+  const onSearch = (e) => {
+    e.preventDefault();
+    console.log(e.target.value);
+  };
+
+  return (
+    <div className="team__channel-search__container">
+      <div className="team__channel-search__input__wrapper">
+        <div className="team__channel-search__input__icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="none"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill="#fff"
+              fillOpacity="0.66"
+              fillRule="evenodd"
+              d="M2.7 6.95a4.25 4.25 0 117.306 2.954 1.001 1.001 0 00-.102.102A4.25 4.25 0 012.7 6.95zm7.906 5.07a6.25 6.25 0 111.414-1.414l2.987 2.987a1 1 0 11-1.414 1.414l-2.987-2.987z"
+              clipRule="evenodd"
+            ></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Search"
+          onChange={onSearch}
+          className="team__channel-search__input__text"
+        />
+      </div>
+    </div>
   );
 };
 
@@ -63,12 +106,20 @@ export const ChannelListContainer = () => {
   return (
     <div className="team__channel-list__container">
       <SideBar />
-      <div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#4E1D9D',
+        }}
+      >
+        <CompanyHeader />
+        <ChannelSearch />
         <ChannelList
           filters={filters}
           sort={sort}
           options={options}
-          // List={ChannelListTeam}
+          List={ChannelListTeam}
           Paginator={Paginator}
         />
       </div>
