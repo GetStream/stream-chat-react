@@ -203,10 +203,13 @@ class MessageList extends PureComponent {
     this.notificationTimeouts.push(ct);
   };
 
-  onMessageLoadCaptured = () => {
+  onMessageLoadCaptured = (e) => {
     // A load event (emitted by e.g. an <img>) was captured on a message.
     // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
-    if (!this.userScrolledUp()) {
+    if (
+      e.target.classList.contains('str-chat__message-attachment--img') &&
+      !this.userScrolledUp()
+    ) {
       this.scrollToBottom();
     }
   };

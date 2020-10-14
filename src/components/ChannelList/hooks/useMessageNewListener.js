@@ -9,6 +9,7 @@ import { moveChannelUp } from '../utils';
  * @param {SetChannels} setChannels
  * @param {boolean} [lockChannelOrder]
  */
+
 export const useMessageNewListener = (
   setChannels,
   lockChannelOrder = false,
@@ -22,9 +23,7 @@ export const useMessageNewListener = (
         return channels;
       });
     };
-
     client.on('message.new', handleEvent);
-
     return () => {
       client.off('message.new', handleEvent);
     };
