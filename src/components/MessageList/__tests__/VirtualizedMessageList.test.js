@@ -22,7 +22,7 @@ jest.mock('react-virtuoso', () => {
   const { forwardRef } = jest.requireActual('react');
   return {
     Virtuoso: forwardRef((props, ref) => (
-      <Virtuoso ref={ref} {...props} initialItemCount={10} />
+      <Virtuoso ref={ref} {...props} initialItemCount={20} />
     )),
   };
 });
@@ -32,12 +32,17 @@ jest.mock('../../Loading', () => ({
 }));
 
 jest.mock('../../Message', () => ({
-  FixedHeightMessage: jest.fn(() => <div>FixedHeightMessage</div>),
+  FixedHeightMessage: jest.fn(({ groupedByUser }) => {
+    return (
+      <div>
+        FixedHeightMessage groupedByUser:
+        {groupedByUser ? 'true' : 'false'}
+      </div>
+    );
+  }),
 }));
 
-jest.mock('../../TypingIndicator', () => ({
-  TypingIndicator: jest.fn(() => <div>TypingIndicator</div>),
-}));
+const TypingIndicator = jest.fn(() => <div>TypingIndicator</div>);
 
 async function createChannel() {
   const user1 = generateUser();
@@ -45,9 +50,9 @@ async function createChannel() {
   const mockedChannel = generateChannel({
     members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
     messages: ' '
-      .repeat(100)
+      .repeat(20)
       .split(' ')
-      .map(() => generateMessage({ user: user1 })),
+      .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
@@ -71,6 +76,26 @@ describe('VirtualizedMessageList', () => {
         <Chat client={client}>
           <Channel channel={channel}>
             <VirtualizedMessageList />
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    expect(tree.toJSON()).toMatchSnapshot();
+  });
+
+  it('should render empty list of messages with message grouping', async () => {
+    const { client, channel } = await createChannel();
+
+    let tree;
+    await renderer.act(async () => {
+      tree = await renderer.create(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList
+              shouldGroupByUser
+              TypingIndicator={TypingIndicator}
+            />
           </Channel>
         </Chat>,
       );
