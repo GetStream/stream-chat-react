@@ -99,6 +99,10 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  word-break: break-word;
+  p {
+    padding-right: 16px; 
+  }
   a {
     color: $secondary-color;
     text-decoration: none;
