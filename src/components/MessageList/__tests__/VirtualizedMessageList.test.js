@@ -22,7 +22,7 @@ jest.mock('react-virtuoso', () => {
   const { forwardRef } = jest.requireActual('react');
   return {
     Virtuoso: forwardRef((props, ref) => (
-      <Virtuoso ref={ref} {...props} initialItemCount={10} />
+      <Virtuoso ref={ref} {...props} initialItemCount={20} />
     )),
   };
 });
@@ -50,7 +50,7 @@ async function createChannel() {
   const mockedChannel = generateChannel({
     members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
     messages: ' '
-      .repeat(100)
+      .repeat(20)
       .split(' ')
       .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
   });
