@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.1) 2020-10-14
+
+## Fix
+
+- FixedHeightMessage text overflow [#573](https://github.com/GetStream/stream-chat-react/pull/573)
+- Prevent state updates on unmounted Channel component [#566](https://github.com/GetStream/stream-chat-react/pull/566)
+
 ## [3.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.0) 2020-10-14
 
 ## Feature
