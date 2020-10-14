@@ -42,9 +42,7 @@ jest.mock('../../Message', () => ({
   }),
 }));
 
-jest.mock('../../TypingIndicator', () => ({
-  TypingIndicator: jest.fn(() => <div>TypingIndicator</div>),
-}));
+const TypingIndicator = jest.fn(() => <div>TypingIndicator</div>);
 
 async function createChannel() {
   const user1 = generateUser();
@@ -78,6 +76,26 @@ describe('VirtualizedMessageList', () => {
         <Chat client={client}>
           <Channel channel={channel}>
             <VirtualizedMessageList />
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    expect(tree.toJSON()).toMatchSnapshot();
+  });
+
+  it('should render empty list of messages with message grouping', async () => {
+    const { client, channel } = await createChannel();
+
+    let tree;
+    await renderer.act(async () => {
+      tree = await renderer.create(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList
+              shouldGroupByUser
+              TypingIndicator={TypingIndicator}
+            />
           </Channel>
         </Chat>,
       );
