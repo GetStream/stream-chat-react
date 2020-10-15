@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.3) 2020-10-15
+
+## Fix
+
+- Better handling of offsets during loadMore [#578](https://github.com/GetStream/stream-chat-react/pull/578)
+
 ## [3.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.2) 2020-10-14
 
 # Fix
