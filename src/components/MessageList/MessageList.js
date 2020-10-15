@@ -165,10 +165,11 @@ class MessageList extends PureComponent {
     this.setState({ newMessagesNotification: false });
   };
 
-  userScrolledUp = () => this.scrollOffset > 310;
+  userScrolledUp = () => this.scrollOffset > 200;
 
-  listenToScroll = (offset) => {
+  listenToScroll = (offset, reverseOffset, threshold) => {
     this.scrollOffset = offset;
+    this.closeToTop = reverseOffset < threshold;
     if (this.state.newMessagesNotification && !this.userScrolledUp()) {
       this.setState({ newMessagesNotification: false });
     }
@@ -206,7 +207,7 @@ class MessageList extends PureComponent {
   onMessageLoadCaptured = () => {
     // A load event (emitted by e.g. an <img>) was captured on a message.
     // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
-    if (!this.userScrolledUp()) {
+    if (!this.userScrolledUp() && !this.closeToTop) {
       this.scrollToBottom();
     }
   };
