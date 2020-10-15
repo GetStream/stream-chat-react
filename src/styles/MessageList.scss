@@ -3,7 +3,10 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  padding: 75px 0 0 0;
+  padding: 0 0 0 0;
+  .str-chat__reverse-infinite-scroll {
+    padding-top: 75px;
+  }
 
   &-wrapper {
     flex: 1;
@@ -28,9 +31,6 @@
   list-style-type: none;
   padding: 0;
   margin: 0;
-}
-
-.str-chat__reverse-infinite-scroll {
 }
 
 .str-chat__custom-notification {
@@ -76,9 +76,11 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 55px 40px 0;
+        padding: 0 40px 0;
         background: white;
-
+        .str-chat__reverse-infinite-scroll {
+          padding-top: 55px;
+        }
         &-notifications {
           background: white;
         }
@@ -87,7 +89,10 @@
     @media screen and (max-width: 960px) {
       .str-chat {
         &__list {
-          padding: 55px 10px 0;
+          padding: 0 10px 0;
+          .str-chat__reverse-infinite-scroll {
+            padding-top: 55px;
+          }
           &-notifications {
             padding: 0 10px;
           }
@@ -109,7 +114,10 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 55px 10px;
+        padding: 0 10px;
+        .str-chat__reverse-infinite-scroll {
+          padding-top: 55px;
+        }
       }
     }
   }
@@ -119,7 +127,10 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 75px 20px 0;
+        padding: 0 20px 0;
+        .str-chat__reverse-infinite-scroll {
+          padding-top: 75px;
+        }
         &-notifications {
           padding-left: 22px;
           padding-right: 22px;
