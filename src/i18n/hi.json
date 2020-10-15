@@ -35,7 +35,7 @@
   "Type your message": "अपना मैसेज लिखे",
   "Unmute": "अनम्यूट",
   "You have no channels currently": "आपके पास कोई चैनल नहीं है",
-  "You've reached the maximum number of files": "",
+  "You've reached the maximum number of files": "आप अधिकतम फ़ाइलों तक पहुँच गए हैं",
   "live": "लाइव",
   "this content could not be displayed": "यह कॉन्टेंट लोड नहीं हो पाया",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} और {{ lastUser }} टाइप कर रहे हैं...",
