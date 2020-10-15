@@ -1071,7 +1071,11 @@ export interface InfiniteScrollProps {
   loader?: React.ReactNode;
   threshold?: number;
   children?: any;
-  listenToScroll?: (offset: number, reverseOffset: number) => void;
+  listenToScroll?: (
+    offset: number,
+    reverseOffset: number,
+    threshold: number,
+  ) => void;
 }
 
 export interface ModalImageProps {
