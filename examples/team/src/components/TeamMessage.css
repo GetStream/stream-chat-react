@@ -1,0 +1,133 @@
+.str-chat__message-team {
+  /* background: #fff; */
+}
+
+.str-chat__message-team:hover {
+  background: #e9e9ea;
+}
+
+.str-chat__message-team--top {
+  height: 50px;
+}
+
+.str-chat__message-team-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.str-chat__message-team-content p {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 120%;
+  color: #000000;
+  margin: 0;
+  background: none;
+}
+
+.str-chat__message-team:hover .str-chat__message-team-content {
+  background: none;
+}
+
+.str-chat__message-team--bottom time {
+  display: none;
+}
+
+.str-chat__message-team--middle time {
+  display: none;
+}
+
+.str-chat__message-team--top time {
+  visibility: visible;
+  z-index: 2;
+}
+
+.str-chat__message-team-author strong {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 120%;
+  color: #858688;
+  margin: 0;
+  margin-right: 8px;
+}
+
+.str-chat__message-team-content--text {
+  border-left: none;
+}
+
+.str-chat__message-team--received {
+  padding-left: 20px;
+}
+
+.team-message__user__time {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 120%;
+  color: #858688;
+  margin: 0;
+}
+
+/* .team-message__container {
+  padding: 0 20px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.team-message__avatar {
+  height: 100%;
+}
+
+.team-message__details {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.team-message__user {
+  display: flex;
+  margin: 0;
+  align-items: center;
+}
+
+.team-message__user__name {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 120%;
+  color: #858688;
+  margin: 0;
+  margin-right: 8px;
+}
+
+.team-message__user__time {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 120%;
+  color: #858688;
+  margin: 0;
+}
+
+.team-message__message__wrapper {
+  height: 15px;
+}
+
+.team-message__message__text {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 120%;
+  color: #000000;
+  margin: 0;
+} */

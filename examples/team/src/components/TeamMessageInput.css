@@ -1,0 +1,44 @@
+.team-message-input__wrapper {
+  display: flex;
+  flex-direction: column;
+  background: #f7f6f8;
+  padding: 15px 20px 28px;
+}
+
+.team-message-input__inner {
+  border: 1px solid #4e1d9d;
+  border-radius: 8px;
+}
+
+.team-message-input__top {
+  display: flex;
+  align-items: center;
+}
+
+.team-message-input__button {
+  position: absolute;
+  right: 40px;
+}
+
+.str-chat__textarea textarea {
+  display: flex;
+  background: #fff;
+  border: none;
+  outline: none;
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.str-chat__textarea textarea:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: #fff;
+}
+
+.str-chat__textarea textarea::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}

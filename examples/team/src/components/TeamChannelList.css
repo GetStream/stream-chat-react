@@ -1,0 +1,18 @@
+.team-channel-list {
+  padding: 0 16px;
+}
+
+.team-channel-list__message {
+  color: #ffffff;
+}
+
+.team-channel-list__header {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 13px;
+  line-height: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.66);
+  margin-bottom: 10px;
+}

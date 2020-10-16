@@ -1,0 +1,25 @@
+.channel-preview__wrapper {
+  height: 37px;
+  display: flex;
+  align-items: center;
+}
+
+.channel-preview__wrapper:hover p {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.channel-preview__item {
+  display: flex;
+  align-items: center;
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  color: #ffffff;
+  padding-left: 10px;
+  height: 100%;
+  width: 100%;
+}

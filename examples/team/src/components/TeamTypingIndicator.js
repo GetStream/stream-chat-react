@@ -23,7 +23,7 @@ export const TeamTypingIndicator = () => {
     text = '';
   }
   return (
-    <div className="team__typing-indicator">
+    <div className="typing-indicator">
       {text && (
         <div className="dots">
           <span className="dot" />

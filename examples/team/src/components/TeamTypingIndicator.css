@@ -1,4 +1,4 @@
-.team__typing-indicator {
+.typing-indicator {
   display: flex;
   align-items: center;
   font-style: normal;
@@ -9,13 +9,13 @@
   opacity: 0.5;
 }
 
-.team__typing-indicator .dots {
+.typing-indicator .dots {
   position: relative;
   top: -2px;
   margin-right: 8px;
 }
 
-.team__typing-indicator .dots .dot {
+.typing-indicator .dots .dot {
   display: inline-block;
   width: 4px;
   height: 4px;
@@ -25,20 +25,20 @@
   animation: wave2 1.1s linear infinite;
 }
 
-.str-chat.dark .team__typing-indicator {
+.str-chat.dark .typing-indicator {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.str-chat.dark .team__typing-indicator .dots .dot {
+.str-chat.dark .typing-indicator .dots .dot {
   background: white;
 }
 
-.team__typing-indicator .dots .dot:nth-child(2) {
+.typing-indicator .dots .dot:nth-child(2) {
   animation-delay: -0.9s;
   opacity: 0.5;
 }
 
-.team__typing-indicator .dots .dot:nth-child(3) {
+.typing-indicator .dots .dot:nth-child(3) {
   animation-delay: -0.8s;
   opacity: 0.2;
 }

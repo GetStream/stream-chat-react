@@ -1,9 +1,9 @@
-.team__channel-list__container {
+.channel-list__container {
   display: flex;
   height: 800px;
 }
 
-.team__channel-list__sidebar {
+.channel-list__sidebar {
   width: 72px;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
     #4e1d9d;
@@ -12,7 +12,7 @@
   border-bottom-left-radius: 16px;
 }
 
-.team__channel-list__sidebar__icon1 {
+.channel-list__sidebar__icon1 {
   width: 44px;
   height: 44px;
   margin: 14px;
@@ -34,12 +34,12 @@
   justify-content: center;
 }
 
-.team__channel-list__sidebar__icon2 {
+.channel-list__sidebar__icon2 {
   width: 44px;
   height: 44px;
   margin-left: 14px;
   background: linear-gradient(0deg, #000000, #000000);
-  /* url(shrekdonkey_wide-89db9721fc009fe615cf25133a6a3a5d3988444a.jpg), #000000; */
+  opacity: 50%;
   border-radius: 9999px;
 }
 
@@ -51,46 +51,46 @@
   justify-content: center;
 }
 
-.team__channel-list__header {
-  display: flex;
-  align-items: center;
-  height: 62px;
-  padding-left: 15px;
+.channel-list__header {
+  padding-left: 16px;
   background: #4e1d9d;
+  height: 62px;
 }
 
-.team__channel-list__header__text {
+.channel-list__header__text {
   font-family: Helvetica Neue;
   font-style: normal;
   font-weight: bold;
   font-size: 18px;
+  line-height: 28px;
   color: #ffffff;
 }
 
-.team__channel-search__container {
+.channel-search__container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 70px;
+  padding-top: 16px;
   border-top: 1px solid #00000033;
 }
 
-.team__channel-search__input__wrapper {
+.channel-search__input__wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 40px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
+  margin-bottom: 8px;
 }
 
-.team__channel-search__input__icon {
+.channel-search__input__icon {
   width: 32px;
   display: flex;
   justify-content: center;
 }
 
-.team__channel-search__input__text {
+.channel-search__input__text {
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.66);

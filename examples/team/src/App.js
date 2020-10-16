@@ -4,9 +4,8 @@ import {
   Chat,
   Channel,
   MessageList,
-  MessageInput,
-  ChannelHeader,
-  MessageTeam,
+  // MessageInput,
+  // MessageTeam,
   Window,
   Thread,
 } from 'stream-chat-react';
@@ -14,14 +13,15 @@ import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
 
-import { TeamTypingIndicator } from './components/TeamTypingIndicator';
 import { ChannelListContainer } from './components/ChannelListContainer';
+import { TeamChannelHeader } from './components/TeamChannelHeader';
+import { TeamMessage } from './components/TeamMessage';
+import { TeamMessageInput } from './components/TeamMessageInput';
+import { TeamTypingIndicator } from './components/TeamTypingIndicator';
 
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
-const user = urlParams.get('user') || {
-  id: 'example-user',
-};
+const user = urlParams.get('user') || 'example-user';
 const theme = urlParams.get('theme') || 'light';
 const userToken =
   urlParams.get('user_token') ||
@@ -29,27 +29,26 @@ const userToken =
 
 const App = () => {
   const chatClient = new StreamChat(apiKey);
-
-  chatClient.setUser(user, userToken);
+  chatClient.setUser({ id: user }, userToken);
 
   return (
     <Chat client={chatClient} theme={`team ${theme}`}>
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', height: '800px' }}>
         <ChannelListContainer />
-        <div style={{ height: '800px', width: '100%' }}>
+        <div style={{ width: '100%' }}>
           <Channel
-            onMentionsHover={(e, user) => console.log(e, user)}
-            onMentionsClick={(e, user) => console.log(e, user)}
+            onMentionsHover={(e, mentionUser) => console.log(e, mentionUser)}
+            onMentionsClick={(e, mentionUser) => console.log(e, mentionUser)}
           >
             <Window>
-              <ChannelHeader />
+              <TeamChannelHeader />
               <MessageList
-                Message={MessageTeam}
+                Message={TeamMessage}
                 TypingIndicator={TeamTypingIndicator}
               />
-              <MessageInput focus />
+              <TeamMessageInput focus />
             </Window>
-            <Thread Message={MessageTeam} />
+            <Thread Message={TeamMessage} />
           </Channel>
         </div>
       </div>
