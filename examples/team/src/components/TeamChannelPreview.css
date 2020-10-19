@@ -11,6 +11,7 @@
   border-bottom-right-radius: 8px;
   font-weight: bold;
   margin-right: 16px;
+  cursor: pointer;
 }
 
 .channel-preview__item {

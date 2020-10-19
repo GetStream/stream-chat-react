@@ -30,6 +30,11 @@
   background: none;
 }
 
+.str-chat__message-team-meta {
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .str-chat__message-team--bottom time {
   display: none;
 }
@@ -67,71 +72,41 @@
   font-style: normal;
   font-weight: normal;
   font-size: 10px;
-  line-height: 120%;
   color: #858688;
+  position: absolute;
+  left: 20%;
   margin: 0;
+}
+
+.str-chat__li--middle .team-message__user__time {
+  display: none;
+}
+.str-chat__li--bottom .team-message__user__time {
+  display: none;
 }
 
 .str-chat__message-replies-count-button {
   z-index: 2;
-}
-
-/* .team-message__container {
-  padding: 0 20px;
-  height: 42px;
   display: flex;
-  align-items: center;
-  margin: 8px 0;
-}
-
-.team-message__avatar {
-  height: 100%;
-}
-
-.team-message__details {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.team-message__user {
-  display: flex;
-  margin: 0;
-  align-items: center;
-}
-
-.team-message__user__name {
+  justify-content: flex-end;
   font-family: Helvetica Neue;
   font-style: normal;
-  font-weight: 500;
-  font-size: 11px;
-  line-height: 120%;
-  color: #858688;
-  margin: 0;
-  margin-right: 8px;
-}
-
-.team-message__user__time {
-  font-family: Helvetica Neue;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 10px;
-  line-height: 120%;
-  color: #858688;
-  margin: 0;
-}
-
-.team-message__message__wrapper {
-  height: 15px;
-}
-
-.team-message__message__text {
-  font-family: Helvetica Neue;
-  font-style: normal;
-  font-weight: normal;
+  font-weight: bold;
   font-size: 15px;
-  line-height: 120%;
-  color: #000000;
-  margin: 0;
-} */
+  color: #4e1d9d;
+}
+
+.str-chat__message-replies-count-button:focus {
+  outline: none;
+}
+
+.str-chat__message-team-actions {
+  right: -3px;
+}
+
+.str-chat__date-separator-date {
+  color: #858688;
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+}
