@@ -23,10 +23,8 @@ const MessageInputSmall = (props) => {
       <ImageDropzone
         accept={channelContext.acceptedFiles}
         multiple={channelContext.multipleUploads}
-        disabled={
-          channelContext.maxNumberOfFiles !== undefined &&
-          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
-        }
+        disabled={messageInput.maxFilesLeft === 0}
+        maxNumberOfFiles={messageInput.maxFilesLeft}
         handleFiles={messageInput.uploadNewFiles}
       >
         <div
@@ -77,14 +75,14 @@ const MessageInputSmall = (props) => {
               className="str-chat__fileupload-wrapper"
               data-testid="fileinput"
             >
-              <Tooltip>{t('Attach files')}</Tooltip>
+              <Tooltip>
+                {messageInput.maxFilesLeft
+                  ? t('Attach files')
+                  : t("You've reached the maximum number of files")}
+              </Tooltip>
               <FileUploadButton
                 multiple={channelContext.multipleUploads}
-                disabled={
-                  channelContext.maxNumberOfFiles !== undefined &&
-                  messageInput.numberOfUploads >=
-                    channelContext.maxNumberOfFiles
-                }
+                disabled={messageInput.maxFilesLeft === 0}
                 accepts={channelContext.acceptedFiles}
                 handleFiles={messageInput.uploadNewFiles}
               >
