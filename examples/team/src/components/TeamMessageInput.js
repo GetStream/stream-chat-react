@@ -1,19 +1,35 @@
 import React, { useCallback, useContext, useState } from 'react';
 import {
-  useMessageInput,
+  ChannelContext,
   ChatAutoComplete,
   EmojiPicker,
-  TranslationContext,
+  useMessageInput,
 } from 'stream-chat-react';
 
 import './TeamMessageInput.css';
 
+import { BoldIcon } from '../assets/BoldIcon';
+import { CodeSnippet } from '../assets/CodeSnippet';
+import { ItalicsIcon } from '../assets/ItalicsIcon';
+import { LightningBolt } from '../assets/LightningBolt';
 import { SendButton } from '../assets/SendButton';
+import { SmileyFace } from '../assets/SmileyFace';
+import { StrikeThroughIcon } from '../assets/StrikeThroughIcon';
 
 export const TeamMessageInput = (props) => {
+  const { channel } = useContext(ChannelContext);
   const messageInput = useMessageInput(props);
+
   const [giphyState, setGiphyState] = useState(false);
-  const { t } = useContext(TranslationContext);
+
+  const getPlaceholder = () => {
+    if (channel.type === 'team') {
+      return `#${channel.data.id || 'random'}`;
+    }
+
+    const members = Object.values(channel.state.members);
+    return members[0]?.user.name || 'Johnny Blaze';
+  };
 
   const setGiphy = useCallback(() => {}, []);
 
@@ -39,7 +55,7 @@ export const TeamMessageInput = (props) => {
 
   return (
     <div className="team-message-input__wrapper">
-      <div className="team-message-input__inner">
+      <div className="team-message-input__input">
         <div className="team-message-input__top">
           <ChatAutoComplete
             commands={messageInput.getCommands()}
@@ -50,7 +66,7 @@ export const TeamMessageInput = (props) => {
             value={messageInput.text}
             rows={1}
             maxRows={props.maxRows}
-            placeholder={t('Type your message')}
+            placeholder={`Message ${getPlaceholder()}`}
             onPaste={messageInput.onPaste}
             triggers={props.autocompleteTriggers}
             grow={props.grow}
@@ -66,6 +82,17 @@ export const TeamMessageInput = (props) => {
             onClick={messageInput.handleSubmit}
           >
             <SendButton />
+          </div>
+        </div>
+        <div className="team-message-input__bottom">
+          <div className="team-message-input__icons">
+            <SmileyFace />
+            <LightningBolt />
+            <div className="icon-divider"></div>
+            <BoldIcon />
+            <ItalicsIcon />
+            <StrikeThroughIcon />
+            <CodeSnippet />
           </div>
         </div>
         <EmojiPicker {...messageInput} />

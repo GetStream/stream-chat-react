@@ -7,7 +7,8 @@ export const TeamChannelList = ({ error = false, loading, children, type }) => {
     return (
       <div className="team-channel-list">
         <p className="team-channel-list__message">
-          Connection error, please wait a moment and try again.
+          {type === 'team' &&
+            'Connection error, please wait a moment and try again.'}
         </p>
       </div>
     );

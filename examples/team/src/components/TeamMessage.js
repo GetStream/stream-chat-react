@@ -1,27 +1,29 @@
 import React from 'react';
-import { Avatar, MessageTeam } from 'stream-chat-react';
+import {
+  // Avatar,
+  MessageTeam,
+} from 'stream-chat-react';
 
 import './TeamMessage.css';
 
 export const TeamMessage = (props) => {
-  const { message } = props;
-  // console.log('TeamMessage -> message', message);
+  // const { message } = props;
 
-  const formatTime = (time) => {
-    let hours = time.getHours();
-    let minutes = time.getMinutes();
-    const period = hours > 12 ? 'PM' : 'AM';
+  // const formatTime = (time) => {
+  //   let hours = time.getHours();
+  //   let minutes = time.getMinutes();
+  //   const period = hours > 12 ? 'PM' : 'AM';
 
-    if (hours > 12) {
-      hours -= 12;
-    }
+  //   if (hours > 12) {
+  //     hours -= 12;
+  //   }
 
-    if (String(minutes).length === 1) {
-      minutes = `0${minutes}`;
-    }
+  //   if (String(minutes).length === 1) {
+  //     minutes = `0${minutes}`;
+  //   }
 
-    return `${hours}:${minutes} ${period}`;
-  };
+  //   return `${hours}:${minutes} ${period}`;
+  // };
 
   return (
     <div>

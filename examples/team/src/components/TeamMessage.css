@@ -72,6 +72,10 @@
   margin: 0;
 }
 
+.str-chat__message-replies-count-button {
+  z-index: 2;
+}
+
 /* .team-message__container {
   padding: 0 20px;
   height: 42px;
