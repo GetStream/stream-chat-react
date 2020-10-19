@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.5](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.5) 2020-10-19
+
+## Feature
+
+- Disable upload dropzone and input button in Input components based on channel config [#585](https://github.com/GetStream/stream-chat-react/pull/585)
+
+## Fix
+
+- Disable the upload dropzone and input button when the maximum number of allowed attachments is reached [#577](https://github.com/GetStream/stream-chat-react/pull/577)
+
 ## [3.1.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.4) 2020-10-19
 
 ## Fix
