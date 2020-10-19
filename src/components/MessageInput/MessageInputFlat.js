@@ -29,8 +29,9 @@ const MessageInputFlat = (props) => {
         accept={channelContext.acceptedFiles}
         multiple={channelContext.multipleUploads}
         disabled={
-          channelContext.maxNumberOfFiles !== undefined &&
-          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
+          !messageInput.isUploadEnabled ||
+          (channelContext.maxNumberOfFiles !== undefined &&
+            messageInput.numberOfUploads >= channelContext.maxNumberOfFiles)
         }
         handleFiles={messageInput.uploadNewFiles}
       >
@@ -38,7 +39,9 @@ const MessageInputFlat = (props) => {
           <EmojiPicker {...messageInput} />
 
           <div className="str-chat__input-flat--textarea-wrapper">
-            <UploadsPreview {...messageInput} />
+            {messageInput.isUploadEnabled && (
+              <UploadsPreview {...messageInput} />
+            )}
             <ChatAutoComplete
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
@@ -71,36 +74,39 @@ const MessageInputFlat = (props) => {
                 </svg>
               </span>
             </div>
-            <div
-              className="str-chat__fileupload-wrapper"
-              data-testid="fileinput"
-            >
-              <Tooltip>{t('Attach files')}</Tooltip>
-              <FileUploadButton
-                multiple={channelContext.multipleUploads}
-                disabled={
-                  channelContext.maxNumberOfFiles !== undefined &&
-                  messageInput.numberOfUploads >=
-                    channelContext.maxNumberOfFiles
-                }
-                accepts={channelContext.acceptedFiles}
-                handleFiles={messageInput.uploadNewFiles}
+
+            {messageInput.isUploadEnabled && (
+              <div
+                className="str-chat__fileupload-wrapper"
+                data-testid="fileinput"
               >
-                <span className="str-chat__input-flat-fileupload">
-                  <svg
-                    width="14"
-                    height="14"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <title>{t('Attach files')}</title>
-                    <path
-                      d="M1.667.333h10.666c.737 0 1.334.597 1.334 1.334v10.666c0 .737-.597 1.334-1.334 1.334H1.667a1.333 1.333 0 0 1-1.334-1.334V1.667C.333.93.93.333 1.667.333zm2 1.334a1.667 1.667 0 1 0 0 3.333 1.667 1.667 0 0 0 0-3.333zm-2 9.333v1.333h10.666v-4l-2-2-4 4-2-2L1.667 11z"
-                      fillRule="nonzero"
-                    />
-                  </svg>
-                </span>
-              </FileUploadButton>
-            </div>
+                <Tooltip>{t('Attach files')}</Tooltip>
+                <FileUploadButton
+                  multiple={channelContext.multipleUploads}
+                  disabled={
+                    channelContext.maxNumberOfFiles !== undefined &&
+                    messageInput.numberOfUploads >=
+                      channelContext.maxNumberOfFiles
+                  }
+                  accepts={channelContext.acceptedFiles}
+                  handleFiles={messageInput.uploadNewFiles}
+                >
+                  <span className="str-chat__input-flat-fileupload">
+                    <svg
+                      width="14"
+                      height="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>{t('Attach files')}</title>
+                      <path
+                        d="M1.667.333h10.666c.737 0 1.334.597 1.334 1.334v10.666c0 .737-.597 1.334-1.334 1.334H1.667a1.333 1.333 0 0 1-1.334-1.334V1.667C.333.93.93.333 1.667.333zm2 1.334a1.667 1.667 0 1 0 0 3.333 1.667 1.667 0 0 0 0-3.333zm-2 9.333v1.333h10.666v-4l-2-2-4 4-2-2L1.667 11z"
+                        fillRule="nonzero"
+                      />
+                    </svg>
+                  </span>
+                </FileUploadButton>
+              </div>
+            )}
           </div>
           {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
         </div>

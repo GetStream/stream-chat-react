@@ -665,8 +665,11 @@ export default function useMessageInputState(props) {
     [uploadNewFiles, insertText],
   );
 
+  const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+
   return {
     ...state,
+    isUploadEnabled,
     // refs
     textareaRef,
     emojiPickerRef,
