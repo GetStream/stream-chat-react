@@ -408,6 +408,65 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
     });
 
+    describe('Uploads disabled in Channel config', () => {
+      let originalConfig;
+      beforeAll(() => {
+        originalConfig = channel.getConfig;
+        channel.getConfig = () => ({ uploads: false });
+      });
+      afterAll(() => {
+        channel.getConfig = originalConfig;
+      });
+
+      it('should not render file upload button', () => {
+        const { queryByTestId } = renderComponent();
+        expect(queryByTestId('fileinput')).toBeNull();
+      });
+
+      it('Pasting images and files should do nothing', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const doFileUploadRequest = mockUploadApi();
+        const { findByPlaceholderText, queryByText } = renderComponent({
+          doFileUploadRequest,
+          doImageUploadRequest,
+        });
+
+        const file = getFile();
+        const image = getImage();
+
+        const clipboardEvent = new Event('paste', { bubbles: true });
+        // set `clipboardData`. Mock DataTransfer object
+        clipboardEvent.clipboardData = {
+          items: [
+            { kind: 'file', getAsFile: () => file },
+            { kind: 'file', getAsFile: () => image },
+          ],
+        };
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        formElement.dispatchEvent(clipboardEvent);
+        await waitFor(() => {
+          expect(queryByText(filename)).toBeNull();
+          expect(doFileUploadRequest).not.toHaveBeenCalled();
+          expect(doImageUploadRequest).not.toHaveBeenCalled();
+        });
+      });
+
+      it('Should not upload an image when it is dropped on the dropzone', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const { findByPlaceholderText } = renderComponent({
+          doImageUploadRequest,
+        });
+        // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        const file = getImage();
+        dropFile(file, formElement);
+
+        await waitFor(() => {
+          expect(doImageUploadRequest).not.toHaveBeenCalled();
+        });
+      });
+    });
+
     describe('Submitting', () => {
       it('Should submit the input value when clicking the submit button', async () => {
         const { submit, findByPlaceholderText } = renderComponent();

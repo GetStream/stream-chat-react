@@ -687,8 +687,11 @@ export default function useMessageInputState(props) {
 
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
+  const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+
   return {
     ...state,
+    isUploadEnabled,
     maxFilesLeft,
     // refs
     textareaRef,
