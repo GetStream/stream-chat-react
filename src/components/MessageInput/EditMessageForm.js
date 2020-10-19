@@ -38,9 +38,9 @@ const EditMessageForm = (props) => {
         accept={channelContext.acceptedFiles}
         multiple={channelContext.multipleUploads}
         disabled={
-          !messageInput.isUploadEnabled &&
-          channelContext.maxNumberOfFiles !== undefined &&
-          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
+          !messageInput.isUploadEnabled ||
+          (channelContext.maxNumberOfFiles !== undefined &&
+            messageInput.numberOfUploads >= channelContext.maxNumberOfFiles)
         }
         handleFiles={messageInput.uploadNewFiles}
       >
