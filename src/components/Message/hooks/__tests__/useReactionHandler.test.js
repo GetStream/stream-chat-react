@@ -134,6 +134,37 @@ describe('useReactionClick custom hook', () => {
     expect(result.current.showDetailedReactions).toBe(true);
   });
 
+  it('should retrun correct value for isReactionEnabled', () => {
+    const channel = generateChannel({
+      getConfig: () => ({ reactions: false }),
+    });
+
+    const { result, rerender } = renderHook(
+      () =>
+        useReactionClick(
+          generateMessage(),
+          React.createRef(),
+          React.createRef(),
+        ),
+      {
+        // eslint-disable-next-line react/display-name
+        wrapper: ({ children }) => (
+          <ChannelContext.Provider value={{ channel }}>
+            {children}
+          </ChannelContext.Provider>
+        ),
+      },
+    );
+
+    expect(result.current.isReactionEnabled).toBe(false);
+    channel.getConfig = () => ({ reactions: true });
+    rerender();
+    expect(result.current.isReactionEnabled).toBe(true);
+    channel.getConfig = () => null;
+    rerender();
+    expect(result.current.isReactionEnabled).toBe(true);
+  });
+
   it('should set event listener to close reaction list on document click when list is opened', () => {
     const clickMock = {
       target: document.createElement('div'),

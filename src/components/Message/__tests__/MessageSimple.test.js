@@ -48,7 +48,7 @@ const retrySendMessageMock = jest.fn();
 async function renderMessageSimple(
   message,
   props = {},
-  channelConfig = { replies: true },
+  channelConfig = { replies: true, reactions: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -153,6 +153,21 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-reaction-selector')).toBeInTheDocument();
   });
 
+  it('should not render reaction list if reaction is disbaled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      text: undefined,
+      latest_reactions: [bobReaction],
+    });
+
+    const { queryByTestId } = await renderMessageSimple(
+      message,
+      {},
+      { reactions: false },
+    );
+    expect(queryByTestId('reaction-list')).toBeNull();
+  });
+
   it('should render reaction list with custom component when one is given', async () => {
     const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
     const message = generateAliceMessage({
@@ -169,13 +184,9 @@ describe('<MessageSimple />', () => {
         })}
       </ul>
     );
-    const { getByTestId } = await renderMessageSimple(
-      message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
-      { reactions: true },
-    );
+    const { getByTestId } = await renderMessageSimple(message, {
+      ReactionsList: CustomReactionsList,
+    });
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
 
