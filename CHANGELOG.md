@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.1.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.4) 2020-10-19
+
+## Fix
+
+- Fixed a bug with ChannelList pagination with low limits or high thresholds [#583](https://github.com/GetStream/stream-chat-react/pull/583)
+
+## Added
+
+- Disable reactions based on channel config [#581](https://github.com/GetStream/stream-chat-react/pull/581)
+- Disable Thread based on channel config [#580](https://github.com/GetStream/stream-chat-react/pull/580)
+- Disable TypingIndicator based on channel config [#579](https://github.com/GetStream/stream-chat-react/pull/579)
+
 ## [3.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.3) 2020-10-15
 
 ## Fix
