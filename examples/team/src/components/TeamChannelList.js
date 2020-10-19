@@ -2,6 +2,8 @@ import React from 'react';
 
 import './TeamChannelList.css';
 
+import { AddChannel } from '../assets/AddChannel';
+
 export const TeamChannelList = ({ error = false, loading, children, type }) => {
   if (error) {
     return (
@@ -26,9 +28,12 @@ export const TeamChannelList = ({ error = false, loading, children, type }) => {
 
   return (
     <div className="team-channel-list">
-      <p className="team-channel-list__header">
-        {type === 'team' ? 'Channels' : 'Direct Messages'}
-      </p>
+      <div className="team-channel-list__header">
+        <p className="team-channel-list__header__title">
+          {type === 'team' ? 'Channels' : 'Direct Messages'}
+        </p>
+        <AddChannel />
+      </div>
       {children}
     </div>
   );

@@ -1,12 +1,20 @@
 .team-channel-list {
-  padding: 0 16px;
+  width: 100%;
 }
 
 .team-channel-list__message {
   color: #ffffff;
+  padding: 0 16px;
 }
 
 .team-channel-list__header {
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-channel-list__header__title {
   font-family: Helvetica Neue;
   font-style: normal;
   font-weight: normal;

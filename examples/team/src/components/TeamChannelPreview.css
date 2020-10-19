@@ -2,12 +2,15 @@
   height: 37px;
   display: flex;
   align-items: center;
+  padding-right: 16px;
 }
 
-.channel-preview__wrapper:hover p {
+.channel-preview__wrapper:hover {
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
   font-weight: bold;
+  margin-right: 16px;
 }
 
 .channel-preview__item {
@@ -17,9 +20,8 @@
   font-style: normal;
   font-weight: normal;
   font-size: 14px;
-  line-height: 17px;
   color: #ffffff;
-  padding-left: 10px;
+  padding-left: 26px;
   height: 100%;
   width: 100%;
 }

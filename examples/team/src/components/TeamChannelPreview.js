@@ -1,5 +1,5 @@
 import React from 'react';
-// import { Avatar } from 'stream-chat-react';
+import { Avatar } from 'stream-chat-react';
 
 import './TeamChannelPreview.css';
 
@@ -14,12 +14,10 @@ export const TeamChannelPreview = (props) => {
     const members = Object.values(channel.state.members);
 
     return (
-      <>
-        {/* <Avatar image={message.user.image} size={40} /> */}
-        <p className="channel-preview__item">
-          {members[0]?.user.name || 'Johnny Blaze'}
-        </p>
-      </>
+      <div className="channel-preview__item">
+        <Avatar image={members[0]?.user.image || undefined} size={24} />
+        <p>{members[0]?.user.name || 'Johnny Blaze'}</p>
+      </div>
     );
   };
 
