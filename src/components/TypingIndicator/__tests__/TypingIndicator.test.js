@@ -4,7 +4,13 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser, generateUser } from 'mock-builders';
+import {
+  useMockedApis,
+  getTestClientWithUser,
+  generateUser,
+  getOrCreateChannelApi,
+  generateChannel,
+} from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
 import TypingIndicator from '../TypingIndicator';
@@ -114,5 +120,23 @@ describe('TypingIndicator', () => {
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
     expect(getAllByTestId('avatar-img')).toHaveLength(3);
+  });
+
+  it('should render null if typing_events is disabled', async () => {
+    const client = await getTestClientWithUser();
+    const ch = generateChannel({ config: { typing_events: false } });
+    useMockedApis(client, [getOrCreateChannelApi(ch)]);
+    const channel = client.channel('messaging', ch.id);
+    await channel.watch();
+
+    const tree = renderer
+      .create(
+        <ChannelContext.Provider value={{ client, typing: {}, channel }}>
+          <TypingIndicator />
+        </ChannelContext.Provider>,
+      )
+      .toJSON();
+
+    expect(tree).toMatchInlineSnapshot(`null`);
   });
 });
