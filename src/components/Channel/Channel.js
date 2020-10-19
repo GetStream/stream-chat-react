@@ -318,7 +318,7 @@ const ChannelInner = ({
     (updatedMessage) => {
       // adds the message to the local channel state..
       // this adds to both the main channel state as well as any reply threads
-      channel.state.addMessageSorted(updatedMessage);
+      channel.state.addMessageSorted(updatedMessage, true);
 
       dispatch({
         type: 'copyMessagesFromChannel',
