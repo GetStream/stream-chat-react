@@ -10,9 +10,10 @@ import { Avatar } from '../Avatar';
  * @type {React.FC<Props>}
  */
 const TypingIndicator = ({ avatarSize = 32 }) => {
-  const { typing, client } = useContext(ChannelContext);
+  const { typing, client, channel } = useContext(ChannelContext);
 
-  if (!typing || !client) return null;
+  if (!typing || !client || channel?.getConfig()?.typing_events === false)
+    return null;
 
   const users = Object.values(typing).filter(
     ({ user }) => user?.id !== client.user?.id,
