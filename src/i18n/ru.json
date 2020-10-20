@@ -35,6 +35,7 @@
   "Type your message": "Ваше сообщение",
   "Unmute": "Включить уведомления",
   "You have no channels currently": "У вас нет каналов в данный момент",
+  "You've reached the maximum number of files": "Вы достигли максимального количества файлов",
   "live": "В прямом эфире",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} и {{ lastUser }} пишут...",

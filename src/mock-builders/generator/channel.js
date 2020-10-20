@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const generateChannel = (options = { channel: {} }) => {
-  const { channel: optionsChannel, ...optionsBesidesChannel } = options;
+  const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
   const id = (optionsChannel && optionsChannel.id) || uuidv4();
   const type = (optionsChannel && optionsChannel.type) || 'messaging';
   return {
@@ -49,6 +49,7 @@ export const generateChannel = (options = { channel: {} }) => {
             set: 'fun_set',
           },
         ],
+        ...config,
       },
       ...optionsChannel,
     },

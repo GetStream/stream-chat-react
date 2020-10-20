@@ -71,10 +71,11 @@ const MessageSimple = (props) => {
   });
   const reactionSelectorRef = React.createRef();
   const messageWrapperRef = useRef(null);
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
+  const {
+    onReactionListClick,
+    showDetailedReactions,
+    isReactionEnabled,
+  } = useReactionClick(message, reactionSelectorRef);
   const {
     Attachment = DefaultAttachment,
     MessageDeleted = DefaultMessageDeleted,
@@ -118,7 +119,7 @@ const MessageSimple = (props) => {
 						str-chat__message--${message.status}
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
-						${hasReactions ? 'str-chat__message--with-reactions' : ''}
+						${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
 					`.trim()}
           ref={messageWrapperRef}
         >
@@ -160,15 +161,17 @@ const MessageSimple = (props) => {
                   />
                 }
                 {/* if reactions show them */}
-                {hasReactions && !showDetailedReactions && (
-                  <ReactionsList
-                    reactions={message.latest_reactions}
-                    reaction_counts={message.reaction_counts || undefined}
-                    onClick={onReactionListClick}
-                    reverse={true}
-                  />
-                )}
-                {showDetailedReactions && (
+                {hasReactions &&
+                  !showDetailedReactions &&
+                  isReactionEnabled && (
+                    <ReactionsList
+                      reactions={message.latest_reactions}
+                      reaction_counts={message.reaction_counts || undefined}
+                      onClick={onReactionListClick}
+                      reverse={true}
+                    />
+                  )}
+                {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
                     handleReaction={propHandleReaction || handleReaction}
                     detailedView
