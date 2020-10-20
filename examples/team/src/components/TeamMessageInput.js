@@ -31,7 +31,7 @@ export const TeamMessageInput = (props) => {
     return members[0]?.user.name || 'Johnny Blaze';
   };
 
-  const setGiphy = useCallback(() => {}, []);
+  // const setGiphy = useCallback(() => {}, []);
 
   const onChange = useCallback(
     (e) => {
@@ -45,13 +45,13 @@ export const TeamMessageInput = (props) => {
     [messageInput],
   );
 
-  const onClickCommand = () => {
-    messageInput.textareaRef.current.focus();
-    messageInput.handleChange({
-      target: { value: '/' },
-      preventDefault: () => null,
-    });
-  };
+  // const onClickCommand = () => {
+  //   messageInput.textareaRef.current.focus();
+  //   messageInput.handleChange({
+  //     target: { value: '/' },
+  //     preventDefault: () => null,
+  //   });
+  // };
 
   return (
     <div className="team-message-input__wrapper">
@@ -86,7 +86,7 @@ export const TeamMessageInput = (props) => {
         </div>
         <div className="team-message-input__bottom">
           <div className="team-message-input__icons">
-            <SmileyFace />
+            <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
             <LightningBolt />
             <div className="icon-divider"></div>
             <BoldIcon />
@@ -95,8 +95,8 @@ export const TeamMessageInput = (props) => {
             <CodeSnippet />
           </div>
         </div>
-        <EmojiPicker {...messageInput} />
       </div>
+      <EmojiPicker {...messageInput} />
     </div>
   );
 };

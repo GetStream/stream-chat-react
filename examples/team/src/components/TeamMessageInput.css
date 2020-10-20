@@ -72,3 +72,10 @@
   height: 40px;
   background: rgba(204, 204, 204, 0.5);
 }
+
+.str-chat__input--emojipicker {
+  z-index: 3;
+  bottom: calc(100% - 800px + 113px);
+  left: 332px;
+  width: 338px;
+}

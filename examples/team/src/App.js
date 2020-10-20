@@ -1,14 +1,6 @@
 import React from 'react';
 import { StreamChat } from 'stream-chat';
-import {
-  Chat,
-  Channel,
-  MessageList,
-  // MessageInput,
-  // MessageTeam,
-  Window,
-  Thread,
-} from 'stream-chat-react';
+import { Chat, Channel, MessageList, Window, Thread } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
@@ -35,7 +27,7 @@ const App = () => {
     <Chat client={chatClient} theme={`team ${theme}`}>
       <div style={{ display: 'flex', height: '800px' }}>
         <ChannelListContainer />
-        <div style={{ width: '100%' }}>
+        <div style={{ height: '800px', width: '100%' }}>
           <Channel
             onMentionsHover={(e, mentionUser) => console.log(e, mentionUser)}
             onMentionsClick={(e, mentionUser) => console.log(e, mentionUser)}
