@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { ChannelContext } from 'stream-chat-react';
+
 import './TeamTypingIndicator.css';
 
 export const TeamTypingIndicator = () => {

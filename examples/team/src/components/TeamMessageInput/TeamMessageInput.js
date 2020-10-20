@@ -8,13 +8,13 @@ import {
 
 import './TeamMessageInput.css';
 
-import { BoldIcon } from '../assets/BoldIcon';
-import { CodeSnippet } from '../assets/CodeSnippet';
-import { ItalicsIcon } from '../assets/ItalicsIcon';
-import { LightningBolt } from '../assets/LightningBolt';
-import { SendButton } from '../assets/SendButton';
-import { SmileyFace } from '../assets/SmileyFace';
-import { StrikeThroughIcon } from '../assets/StrikeThroughIcon';
+import { BoldIcon } from '../../assets/BoldIcon';
+import { CodeSnippet } from '../../assets/CodeSnippet';
+import { ItalicsIcon } from '../../assets/ItalicsIcon';
+import { LightningBolt } from '../../assets/LightningBolt';
+import { SendButton } from '../../assets/SendButton';
+import { SmileyFace } from '../../assets/SmileyFace';
+import { StrikeThroughIcon } from '../../assets/StrikeThroughIcon';
 
 export const TeamMessageInput = (props) => {
   const { channel } = useContext(ChannelContext);

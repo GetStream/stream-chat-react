@@ -1,11 +1,11 @@
 import React from 'react';
 import { ChannelList } from 'stream-chat-react';
 
-import { TeamChannelList } from './TeamChannelList';
-import { TeamChannelPreview } from './TeamChannelPreview';
-import { SideBarLogo } from '../assets/SideBarLogo';
-import { SideBarFlag } from '../assets/SideBarFlag';
-import { SearchIcon } from '../assets/SearchIcon';
+import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
+import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
+import { SideBarLogo } from '../../assets/SideBarLogo';
+import { SideBarFlag } from '../../assets/SideBarFlag';
+import { SearchIcon } from '../../assets/SearchIcon';
 
 import './ChannelListContainer.css';
 
@@ -56,7 +56,7 @@ const ChannelSearch = () => {
 export const ChannelListContainer = () => {
   const teamFilters = { type: 'team' };
   const directFilters = { type: 'messaging' };
-  const sort = { last_message_at: -1, cid: 1 };
+  const sort = { last_message_at: -1 };
   const options = {
     member: true,
     watch: true,

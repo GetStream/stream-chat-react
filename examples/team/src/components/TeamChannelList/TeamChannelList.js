@@ -2,7 +2,7 @@ import React from 'react';
 
 import './TeamChannelList.css';
 
-import { AddChannel } from '../assets/AddChannel';
+import { AddChannel } from '../../assets/AddChannel';
 
 export const TeamChannelList = ({ error = false, loading, children, type }) => {
   if (error) {

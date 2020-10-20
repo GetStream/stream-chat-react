@@ -157,4 +157,13 @@
 
 .str-chat__message-attachment-actions-button:hover {
   font-weight: 700;
+  border: 1px solid #4e1d9d;
+}
+
+.str-chat__message-attachment-actions-button:focus {
+  box-shadow: none;
+}
+
+.str-chat__message-team-status {
+  display: none;
 }
