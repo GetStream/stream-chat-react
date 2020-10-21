@@ -98,7 +98,7 @@
   font-family: Helvetica Neue;
   font-style: normal;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 14px;
   color: #4e1d9d;
 }
 
@@ -155,15 +155,29 @@
   cursor: pointer;
 }
 
+.str-chat__message-attachment-actions-button:focus {
+  box-shadow: none;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+}
+
 .str-chat__message-attachment-actions-button:hover {
   font-weight: 700;
   border: 1px solid #4e1d9d;
 }
 
-.str-chat__message-attachment-actions-button:focus {
-  box-shadow: none;
-}
-
 .str-chat__message-team-status {
   display: none;
+}
+
+.str-chat__message-actions-list-item:hover {
+  color: #4e1d9d;
+  font-weight: 700;
+}
+
+.emoji-mart-anchor-selected {
+  color: #4e1d9d !important;
+}
+
+.emoji-mart-anchor-bar {
+  background: #4e1d9d !important;
 }

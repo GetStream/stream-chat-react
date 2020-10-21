@@ -17,6 +17,7 @@ import { ChannelListContainer } from './components/ChannelListContainer/ChannelL
 import { TeamChannelHeader } from './components/TeamChannelHeader/TeamChannelHeader';
 import { TeamMessage } from './components/TeamMessage/TeamMessage';
 import { TeamMessageInput } from './components/TeamMessageInput/TeamMessageInput';
+import { ThreadMessageInput } from './components/TeamMessageInput/ThreadMessageInput';
 import { TeamTypingIndicator } from './components/TeamTypingIndicator/TeamTypingIndicator';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -41,14 +42,14 @@ const App = () => {
   chatClient.setUser({ id: user }, userToken);
 
   return (
-    <Chat
-      client={chatClient}
-      i18nInstance={i18nInstance}
-      theme={`team ${theme}`}
-    >
-      <div style={{ display: 'flex', height: '800px' }}>
+    <div style={{ display: 'flex', height: '800px' }}>
+      <Chat
+        client={chatClient}
+        i18nInstance={i18nInstance}
+        theme={`team ${theme}`}
+      >
         <ChannelListContainer />
-        <div style={{ height: '800px', width: '100%' }}>
+        <div className="channel__wrapper">
           <Channel
             onMentionsHover={(e, mentionUser) => console.log(e, mentionUser)}
             onMentionsClick={(e, mentionUser) => console.log(e, mentionUser)}
@@ -61,11 +62,11 @@ const App = () => {
               />
               <TeamMessageInput focus />
             </Window>
-            <Thread Message={TeamMessage} />
+            <Thread Message={TeamMessage} MessageInput={ThreadMessageInput} />
           </Channel>
         </div>
-      </div>
-    </Chat>
+      </Chat>
+    </div>
   );
 };
 
