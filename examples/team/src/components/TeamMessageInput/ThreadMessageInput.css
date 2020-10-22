@@ -84,6 +84,27 @@
   width: 100%;
 }
 
+.thread-message-input__wrapper .giphy-icon__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 24px;
+  width: 63px;
+  border-top-left-radius: 8px;
+  background: #4e1d9d;
+  border-radius: 12px;
+  margin-left: 8px;
+}
+
+.thread-message-input__wrapper .giphy-icon__text {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 8px;
+  color: #ffffff;
+}
+
 .thread-message-input__input {
   border: 1px solid #4e1d9d;
   border-radius: 8px;

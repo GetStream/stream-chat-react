@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { logChatPromiseExecution } from 'stream-chat';
 import {
   ChannelContext,
   ChatAutoComplete,
@@ -9,40 +10,59 @@ import {
 import './ThreadMessageInput.css';
 
 import { LightningBolt } from '../../assets/LightningBolt';
+import { LightningBoltSmall } from '../../assets/LightningBoltSmall';
 import { SendButton } from '../../assets/SendButton';
 import { SmileyFace } from '../../assets/SmileyFace';
 
 export const ThreadMessageInput = (props) => {
-  const { channel } = useContext(ChannelContext);
-  const messageInput = useMessageInput(props);
-
+  const { sendMessage } = useContext(ChannelContext);
   const [giphyState, setGiphyState] = useState(false);
 
-  // const setGiphy = useCallback(() => {}, []);
+  const overrideSubmitHandler = (message) => {
+    let updatedMessage;
+
+    if (giphyState) {
+      const updatedText = `/giphy ${message.text}`;
+      updatedMessage = { ...message, text: updatedText };
+    }
+
+    const sendMessagePromise = sendMessage(updatedMessage || message);
+    logChatPromiseExecution(sendMessagePromise, 'send message');
+    setGiphyState(false);
+  };
+
+  const messageInput = useMessageInput({ ...props, overrideSubmitHandler });
 
   const onChange = useCallback(
     (e) => {
-      if (messageInput.text.startsWith('/giphy')) {
-        setGiphyState(true);
-      } else {
+      if (
+        messageInput.text.length === 1 &&
+        e.nativeEvent.inputType === 'deleteContentBackward'
+      ) {
         setGiphyState(false);
       }
+
+      if (messageInput.text.startsWith('/giphy') && !giphyState) {
+        e.target.value = e.target.value.replace('/giphy', '');
+        setGiphyState(true);
+      }
+
       messageInput.handleChange(e);
     },
-    [messageInput],
+    [giphyState, messageInput],
   );
 
-  // const onClickCommand = () => {
-  //   messageInput.textareaRef.current.focus();
-  //   messageInput.handleChange({
-  //     target: { value: '/' },
-  //     preventDefault: () => null,
-  //   });
-  // };
+  const GiphyIcon = () => (
+    <div className="giphy-icon__wrapper">
+      <LightningBoltSmall />
+      <p className="giphy-icon__text">GIPHY</p>
+    </div>
+  );
 
   return (
     <div className="thread-message-input__wrapper">
       <div className="thread-message-input__input">
+        {giphyState && <GiphyIcon />}
         <ChatAutoComplete
           commands={messageInput.getCommands()}
           innerRef={messageInput.textareaRef}

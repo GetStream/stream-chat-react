@@ -1,13 +1,14 @@
 import React from 'react';
 import { ChannelList } from 'stream-chat-react';
 
+import './ChannelListContainer.css';
+
 import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
 import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
+
 import { SideBarLogo } from '../../assets/SideBarLogo';
 import { SideBarFlag } from '../../assets/SideBarFlag';
 import { SearchIcon } from '../../assets/SearchIcon';
-
-import './ChannelListContainer.css';
 
 const SideBar = () => (
   <div className="channel-list__sidebar">
