@@ -1,13 +1,5 @@
-.str-chat__message-team {
-  /* background: #fff; */
-}
-
 .str-chat__message-team:hover {
   background: #e9e9ea;
-}
-
-.str-chat__message-team--top {
-  height: 50px;
 }
 
 .str-chat__message-team-group {
@@ -200,4 +192,45 @@ ul.str-chat__simple-reactions-list:hover {
 
 .emoji-mart-anchor-bar {
   background: #4e1d9d !important;
+}
+
+.str-chat__message-team--editing {
+  background: #e9e9ea;
+  box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06), inset 0 1px 0 0 #4e1d9d,
+    inset 0 -1px 0 0 #4e1d9d;
+  padding: 15px 20px;
+}
+
+.str-chat__message-team--editing .str-chat__message-team-form-footer {
+  padding: 10px 0 0;
+}
+
+.str-chat__edit-message-form
+  .str-chat__message-team-form-footer
+  button[type='submit'] {
+  color: #4e1d9d;
+}
+
+.str-chat__edit-message-form .str-chat__message-team-form-footer button {
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.33);
+  font-family: Helvetica Neue;
+  font-size: 14px;
+}
+
+.str-chat__edit-message-form .str-chat__message-team-form-footer button:focus {
+  outline: none;
+}
+
+.str-chat__edit-message-form textarea {
+  box-shadow: 0 0 0 1px #4e1d9d;
+}
+
+.str-chat__edit-message-form textarea:focus {
+  border: 1px solid #4e1d9d;
+  box-shadow: 0 0 0 1px #4e1d9d;
+}
+
+.str-chat__edit-message-form svg {
+  display: none;
 }

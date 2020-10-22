@@ -55,6 +55,7 @@
   position: relative;
   width: 0;
   right: 32px;
+  cursor: pointer;
 }
 
 .team-message-input__wrapper .str-chat__textarea textarea {

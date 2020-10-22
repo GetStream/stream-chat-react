@@ -116,6 +116,7 @@
 
 .thread-message-input__button {
   display: flex;
+  cursor: pointer;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.05);

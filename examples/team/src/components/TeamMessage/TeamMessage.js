@@ -8,7 +8,7 @@ export const TeamMessage = (props) => {
 
   return (
     <div>
-      <MessageTeam {...props} formatDate="h:mm A" />
+      <MessageTeam {...props} />
     </div>
   );
 };
