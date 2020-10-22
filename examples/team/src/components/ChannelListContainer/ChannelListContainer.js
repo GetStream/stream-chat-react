@@ -2,7 +2,6 @@ import React from 'react';
 import { ChannelList } from 'stream-chat-react';
 
 import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
-import { DirectChannelList } from '../TeamChannelList/DirectChannelList';
 import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
 import { SideBarLogo } from '../../assets/SideBarLogo';
 import { SideBarFlag } from '../../assets/SideBarFlag';
@@ -85,8 +84,10 @@ export const ChannelListContainer = () => {
           filters={{ type: 'messaging' }}
           sort={{ last_message_at: -1 }}
           options={options}
-          List={(props) => <DirectChannelList {...props} type="direct" />}
-          Preview={(props) => <TeamChannelPreview {...props} type="direct" />}
+          List={(props) => <TeamChannelList {...props} type="messaging" />}
+          Preview={(props) => (
+            <TeamChannelPreview {...props} type="messaging" />
+          )}
         />
       </div>
     </div>

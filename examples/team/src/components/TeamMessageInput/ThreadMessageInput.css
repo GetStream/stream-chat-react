@@ -149,3 +149,7 @@
   right: 0px;
   width: 338px;
 }
+
+.emoji-mart .emoji-mart-emoji:focus {
+  outline: none;
+}

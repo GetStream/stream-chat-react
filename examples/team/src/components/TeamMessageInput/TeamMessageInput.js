@@ -8,6 +8,8 @@ import {
 
 import './TeamMessageInput.css';
 
+import { TeamTypingIndicator } from '../TeamTypingIndicator/TeamTypingIndicator';
+
 import { BoldIcon } from '../../assets/BoldIcon';
 import { CodeSnippet } from '../../assets/CodeSnippet';
 import { ItalicsIcon } from '../../assets/ItalicsIcon';
@@ -97,6 +99,7 @@ export const TeamMessageInput = (props) => {
         </div>
       </div>
       <EmojiPicker {...messageInput} />
+      <TeamTypingIndicator type="input" />
     </div>
   );
 };

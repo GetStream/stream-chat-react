@@ -1,44 +1,60 @@
-.typing-indicator {
+.typing-indicator__input {
+  position: absolute;
+  bottom: calc(100% - 800px + 7px);
   display: flex;
   align-items: center;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 12px;
-  line-height: 16px;
   color: rgba(0, 0, 0, 0.9);
   opacity: 0.5;
 }
 
-.typing-indicator .dots {
-  position: relative;
-  top: -2px;
-  margin-right: 8px;
+.typing-indicator__list {
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 0.5;
 }
 
-.typing-indicator .dots .dot {
-  display: inline-block;
-  width: 4px;
-  height: 4px;
+.dots {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  margin-right: 3px;
-  background: black;
+  margin-right: 2px;
   animation: wave2 1.1s linear infinite;
 }
 
-.str-chat.dark .typing-indicator {
-  color: rgba(255, 255, 255, 0.9);
+.typing-indicator__input__text {
+  margin-left: 5px;
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  line-height: 13px;
+  color: rgba(0, 0, 0, 0.9);
 }
 
-.str-chat.dark .typing-indicator .dots .dot {
-  background: white;
+.typing-indicator__list .dots .dot {
+  background: #fff;
 }
 
-.typing-indicator .dots .dot:nth-child(2) {
+.typing-indicator__input .dots .dot {
+  background: #000;
+}
+
+.typing-indicator__list .dots .dot:nth-child(2),
+.typing-indicator__input .dots .dot:nth-child(2) {
   animation-delay: -0.9s;
   opacity: 0.5;
 }
 
-.typing-indicator .dots .dot:nth-child(3) {
+.typing-indicator__list .dots .dot:nth-child(3),
+.typing-indicator__input .dots .dot:nth-child(3) {
   animation-delay: -0.8s;
   opacity: 0.2;
 }

@@ -73,24 +73,6 @@
   padding-left: 20px;
 }
 
-/* .team-message__user__time {
-  font-family: Helvetica Neue;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 10px;
-  color: #858688;
-  position: absolute;
-  left: 20%;
-  margin: 0;
-}
-
-.str-chat__li--middle .team-message__user__time {
-  display: none;
-}
-.str-chat__li--bottom .team-message__user__time {
-  display: none;
-} */
-
 .str-chat__message-replies-count-button {
   z-index: 2;
   display: flex;
@@ -136,6 +118,44 @@
 
 .str-chat__message-team .str-chat__message-attachment-card--content {
   background: #fff;
+}
+
+ul.str-chat__simple-reactions-list {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  background: #ffffff;
+  border: 1px solid #e9e9ea;
+  box-sizing: border-box;
+  border-radius: 50vw;
+  padding: 6px 6px 4px 6px;
+  z-index: 3;
+}
+
+ul.str-chat__simple-reactions-list:hover {
+  border: 1px solid #4e1d9d;
+}
+
+.str-chat__simple-reactions-list-item span {
+  display: flex;
+  align-items: center;
+}
+
+.str-chat__message-team-content ul {
+  margin-top: 4px;
+}
+
+.emoji-mart-emoji-custom span {
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.str-chat__simple-reactions-list-item--last-number {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  color: #2c2c30;
 }
 
 .str-chat__message-attachment-actions-form {

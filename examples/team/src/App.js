@@ -18,7 +18,6 @@ import { TeamChannelHeader } from './components/TeamChannelHeader/TeamChannelHea
 import { TeamMessage } from './components/TeamMessage/TeamMessage';
 import { TeamMessageInput } from './components/TeamMessageInput/TeamMessageInput';
 import { ThreadMessageInput } from './components/TeamMessageInput/ThreadMessageInput';
-import { TeamTypingIndicator } from './components/TeamTypingIndicator/TeamTypingIndicator';
 
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
@@ -50,19 +49,17 @@ const App = () => {
       >
         <ChannelListContainer />
         <div className="channel__wrapper">
-          <Channel
-            onMentionsHover={(e, mentionUser) => console.log(e, mentionUser)}
-            onMentionsClick={(e, mentionUser) => console.log(e, mentionUser)}
-          >
+          <Channel>
             <Window>
               <TeamChannelHeader />
-              <MessageList
-                Message={TeamMessage}
-                TypingIndicator={TeamTypingIndicator}
-              />
+              <MessageList Message={TeamMessage} TypingIndicator={() => null} />
               <TeamMessageInput focus />
             </Window>
-            <Thread Message={TeamMessage} MessageInput={ThreadMessageInput} />
+            <Thread
+              additionalMessageListProps={{ TypingIndicator: () => null }}
+              Message={TeamMessage}
+              MessageInput={ThreadMessageInput}
+            />
           </Channel>
         </div>
       </Chat>

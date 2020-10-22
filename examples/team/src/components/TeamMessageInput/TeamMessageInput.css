@@ -63,8 +63,13 @@
   align-items: center;
   width: 250px;
 }
+
 .team-message-input__icons svg:hover path {
   fill-opacity: 60%;
+}
+
+.team-message-input__icons svg:hover {
+  cursor: pointer;
 }
 
 .icon-divider {
@@ -78,4 +83,8 @@
   bottom: calc(100% - 800px + 113px);
   left: 332px;
   width: 338px;
+}
+
+.emoji-mart .emoji-mart-emoji:focus {
+  outline: none;
 }
