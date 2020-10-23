@@ -3,12 +3,12 @@ import { ChannelList } from 'stream-chat-react';
 
 import './ChannelListContainer.css';
 
+import { ChannelSearch } from '../ChannelSearch/ChannelSearch';
 import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
 import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
 
 import { SideBarLogo } from '../../assets/SideBarLogo';
 import { SideBarFlag } from '../../assets/SideBarFlag';
-import { SearchIcon } from '../../assets/SearchIcon';
 
 const SideBar = () => (
   <div className="channel-list__sidebar">
@@ -30,29 +30,6 @@ const CompanyHeader = () => (
     <p className="channel-list__header__text">Worksly</p>
   </div>
 );
-
-const ChannelSearch = () => {
-  const onSearch = (e) => {
-    e.preventDefault();
-    console.log(e.target.value);
-  };
-
-  return (
-    <div className="channel-search__container">
-      <div className="channel-search__input__wrapper">
-        <div className="channel-search__input__icon">
-          <SearchIcon />
-        </div>
-        <input
-          type="text"
-          placeholder="Search"
-          onChange={onSearch}
-          className="channel-search__input__text"
-        />
-      </div>
-    </div>
-  );
-};
 
 export const ChannelListContainer = () => {
   const options = {

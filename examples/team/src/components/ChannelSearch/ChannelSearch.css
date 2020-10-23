@@ -1,0 +1,109 @@
+.channel-search__container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #00000033;
+}
+
+.channel-search__input__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.channel-search__input__icon {
+  width: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.channel-search__input__text {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: Helvetica Neue;
+  font-size: 16px;
+  outline: none;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.channel-search__results {
+  position: absolute;
+  height: fit-content;
+  /* height: 300px; */
+  width: 300px;
+  background: #fff;
+  border: 1px solid #e9e9ea;
+  box-sizing: border-box;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  z-index: 10;
+  left: 300px;
+  top: 79px;
+}
+
+.channel-search__results-header {
+  width: fit-content;
+  /* height: 48px; */
+  display: flex;
+  align-items: center;
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 120%;
+  color: #858688;
+  margin-left: 12px;
+}
+
+.channel-search__result-container {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.channel-search__result-container:hover {
+  background: rgba(78, 29, 157, 0.1);
+  cursor: pointer;
+}
+
+.channel-search__result-user {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}
+
+.result-hashtag {
+  height: 24px;
+  width: 28px;
+  background: #4e1d9d;
+  border-radius: 24px;
+  margin: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Helvetica Neue;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 120%;
+  color: #ffffff;
+}
+
+.channel-search__result-text {
+  width: 100%;
+  /* margin-left: 8px; */
+  font-family: Helvetica Neue;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 120%;
+  color: #2c2c30;
+}
