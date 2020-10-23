@@ -12,7 +12,7 @@
 }
 
 .team-message-input__top {
-  height: 43px;
+  min-height: 43px;
   display: flex;
   align-items: center;
   width: 100%;
@@ -112,4 +112,17 @@
 
 .emoji-mart .emoji-mart-emoji:focus {
   outline: none;
+}
+
+div.rfu-dropzone:focus {
+  outline: none;
+}
+
+.rfu-image-previewer {
+  flex: none;
+  margin-left: 12px;
+}
+
+.rfu-image-previewer__image {
+  margin-bottom: 0;
 }
