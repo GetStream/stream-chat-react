@@ -64,6 +64,11 @@
   margin-left: 12px;
 }
 
+.channel-search__results-header i {
+  font-weight: normal;
+  margin-left: 12px;
+}
+
 .channel-search__result-container {
   width: 100%;
   height: 48px;

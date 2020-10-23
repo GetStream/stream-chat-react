@@ -39,6 +39,7 @@ const SearchResult = ({ channel, setChannel, type }) => {
 const ResultsDropdown = ({
   teamChannels,
   directChannels,
+  loading,
   setChannel,
   setQuery,
 }) => {
@@ -47,6 +48,16 @@ const ResultsDropdown = ({
   return (
     <div className="channel-search__results">
       <p className="channel-search__results-header">Channels</p>
+      {loading && (
+        <p className="channel-search__results-header">
+          <i>Loading...</i>
+        </p>
+      )}
+      {!teamChannels.length && !loading && (
+        <p className="channel-search__results-header">
+          <i>No channels found</i>
+        </p>
+      )}
       {teamChannels.map((channel, i) => (
         <SearchResult
           channel={channel}
@@ -56,7 +67,16 @@ const ResultsDropdown = ({
         />
       ))}
       <p className="channel-search__results-header">Users</p>
-      {/* {!directChannels.length && } */}
+      {loading && (
+        <p className="channel-search__results-header">
+          <i>Loading...</i>
+        </p>
+      )}
+      {!directChannels.length && !loading && (
+        <p className="channel-search__results-header">
+          <i>No direct messages found</i>
+        </p>
+      )}
       {directChannels.map((channel, i) => (
         <SearchResult
           channel={channel}
@@ -74,6 +94,7 @@ export const ChannelSearch = () => {
 
   const [teamChannels, setTeamChannels] = useState([]);
   const [directChannels, setDirectChannels] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -100,6 +121,8 @@ export const ChannelSearch = () => {
     setDirectChannels(() => {
       return response.filter((channel) => channel.type === 'messaging');
     });
+
+    setLoading(false);
   };
 
   const getChannelsDebounce = _debounce(getChannels, 100, {
@@ -109,6 +132,7 @@ export const ChannelSearch = () => {
   const onSearch = (e) => {
     e.preventDefault();
 
+    setLoading(true);
     setQuery(e.target.value);
     if (!e.target.value) return;
 
@@ -133,6 +157,7 @@ export const ChannelSearch = () => {
         <ResultsDropdown
           teamChannels={teamChannels}
           directChannels={directChannels}
+          loading={loading}
           setChannel={setChannel}
           setQuery={setQuery}
         />
