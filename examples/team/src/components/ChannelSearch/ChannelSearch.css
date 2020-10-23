@@ -16,6 +16,10 @@
   margin-bottom: 8px;
 }
 
+.channel-search__input__wrapper:focus-within {
+  border: 1px solid #fff;
+}
+
 .channel-search__input__icon {
   width: 32px;
   display: flex;

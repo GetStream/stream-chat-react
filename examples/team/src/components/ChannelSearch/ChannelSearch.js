@@ -110,17 +110,22 @@ export const ChannelSearch = () => {
   };
 
   const getChannels = async (text) => {
-    const response = await client.queryChannels({
-      name: { $autocomplete: text },
-    });
+    try {
+      const response = await client.queryChannels({
+        name: { $autocomplete: text },
+      });
 
-    setTeamChannels(() => {
-      return response.filter((channel) => channel.type === 'team');
-    });
+      setTeamChannels(() => {
+        return response.filter((channel) => channel.type === 'team');
+      });
 
-    setDirectChannels(() => {
-      return response.filter((channel) => channel.type === 'messaging');
-    });
+      setDirectChannels(() => {
+        return response.filter((channel) => channel.type === 'messaging');
+      });
+    } catch (e) {
+      setQuery('');
+      console.log(e);
+    }
 
     setLoading(false);
   };

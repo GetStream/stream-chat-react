@@ -10,7 +10,8 @@ body {
 }
 
 .str-chat-channel-list {
-  height: 20%;
+  height: fit-content;
+  margin-bottom: 8px;
 }
 
 .str-chat-channel {

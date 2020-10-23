@@ -146,9 +146,9 @@ export const TeamMessageInput = (props) => {
             </div>
           </div>
         </div>
-        <EmojiPicker {...messageInput} />
-        <TeamTypingIndicator type="input" />
       </ImageDropzone>
+      <TeamTypingIndicator type="input" />
+      <EmojiPicker {...messageInput} />
     </div>
   );
 };
