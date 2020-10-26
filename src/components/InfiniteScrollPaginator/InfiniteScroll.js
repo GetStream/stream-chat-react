@@ -78,21 +78,24 @@ const InfiniteScroll = ({
         el.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
       reverseOffset = parentElement.scrollTop;
     }
-    if (listenToScroll) listenToScroll(offset, reverseOffset);
+    if (listenToScroll) {
+      listenToScroll(offset, reverseOffset, threshold);
+    }
 
     // Here we make sure the element is visible as well as checking the offset
     if (
       (isReverse ? reverseOffset : offset) < Number(threshold) &&
       el.offsetParent !== null &&
-      typeof loadMore === 'function'
+      typeof loadMore === 'function' &&
+      hasMore
     ) {
       loadMore();
     }
-  }, [useWindow, isReverse, threshold, listenToScroll, loadMore]);
+  }, [hasMore, useWindow, isReverse, threshold, listenToScroll, loadMore]);
 
   useEffect(() => {
     const scrollEl = useWindow ? window : scrollComponent.current?.parentNode;
-    if (!hasMore || isLoading || !scrollEl) {
+    if (isLoading || !scrollEl) {
       return () => {};
     }
 
@@ -107,7 +110,7 @@ const InfiniteScroll = ({
       scrollEl.removeEventListener('scroll', scrollListener, useCapture);
       scrollEl.removeEventListener('resize', scrollListener, useCapture);
     };
-  }, [hasMore, initialLoad, isLoading, scrollListener, useCapture, useWindow]);
+  }, [initialLoad, isLoading, scrollListener, useCapture, useWindow]);
 
   useEffect(() => {
     const scrollEl = useWindow ? window : scrollComponent.current?.parentNode;

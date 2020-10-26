@@ -22,7 +22,14 @@ jest.mock('react-virtuoso', () => {
   const { forwardRef } = jest.requireActual('react');
   return {
     Virtuoso: forwardRef((props, ref) => (
-      <Virtuoso ref={ref} {...props} initialItemCount={20} />
+      <Virtuoso
+        ref={ref}
+        {...props}
+        initialItemCount={20}
+        overscan={0}
+        initialTopMostItemIndex={0}
+        itemHeight={30}
+      />
     )),
   };
 });
