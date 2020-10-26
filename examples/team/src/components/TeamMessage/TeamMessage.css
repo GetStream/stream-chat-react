@@ -234,3 +234,7 @@ ul.str-chat__simple-reactions-list:hover {
 .str-chat__edit-message-form svg {
   display: none;
 }
+
+.str-chat__message-team-content p a {
+  color: #4e1d9d;
+}

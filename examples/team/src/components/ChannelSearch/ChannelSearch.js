@@ -1,101 +1,54 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Avatar, ChatContext } from 'stream-chat-react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ChatContext } from 'stream-chat-react';
 import _debounce from 'lodash.debounce';
 
 import './ChannelSearch.css';
 
+import { ResultsDropdown } from './ResultsDropdown';
+
 import { SearchIcon } from '../../assets/SearchIcon';
-
-const SearchResult = ({ channel, setChannel, type }) => {
-  if (type === 'channel') {
-    return (
-      <div
-        onClick={() => setChannel(channel)}
-        className="channel-search__result-container"
-      >
-        <div className="result-hashtag">#</div>
-        <p className="channel-search__result-text">{channel.data.name}</p>
-      </div>
-    );
-  }
-
-  const members = Object.values(channel.state.members);
-
-  return (
-    <div
-      onClick={() => setChannel(channel)}
-      className="channel-search__result-container"
-    >
-      <div className="channel-search__result-user">
-        <Avatar image={members[0]?.user.image || undefined} size={24} />
-        <p className="channel-search__result-text">
-          {members[0]?.user.name || 'Johnny Blaze'}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-const ResultsDropdown = ({
-  teamChannels,
-  directChannels,
-  loading,
-  setChannel,
-  setQuery,
-}) => {
-  document.addEventListener('click', () => setQuery(''));
-
-  return (
-    <div className="channel-search__results">
-      <p className="channel-search__results-header">Channels</p>
-      {loading && (
-        <p className="channel-search__results-header">
-          <i>Loading...</i>
-        </p>
-      )}
-      {!teamChannels.length && !loading && (
-        <p className="channel-search__results-header">
-          <i>No channels found</i>
-        </p>
-      )}
-      {teamChannels.map((channel, i) => (
-        <SearchResult
-          channel={channel}
-          key={i}
-          setChannel={setChannel}
-          type="channel"
-        />
-      ))}
-      <p className="channel-search__results-header">Users</p>
-      {loading && (
-        <p className="channel-search__results-header">
-          <i>Loading...</i>
-        </p>
-      )}
-      {!directChannels.length && !loading && (
-        <p className="channel-search__results-header">
-          <i>No direct messages found</i>
-        </p>
-      )}
-      {directChannels.map((channel, i) => (
-        <SearchResult
-          channel={channel}
-          key={i}
-          setChannel={setChannel}
-          type="user"
-        />
-      ))}
-    </div>
-  );
-};
 
 export const ChannelSearch = () => {
   const { client, setActiveChannel } = useContext(ChatContext);
 
+  const [allChannels, setAllChannels] = useState([]);
   const [teamChannels, setTeamChannels] = useState([]);
   const [directChannels, setDirectChannels] = useState([]);
+
+  const [focused, setFocused] = useState(undefined);
+  const [focusedId, setFocusedId] = useState('');
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
+
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === 'ArrowDown') {
+        setFocused((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === allChannels.length - 1 ? 0 : prevFocused + 1;
+        });
+      } else if (event.key === 'ArrowUp') {
+        setFocused((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === 0 ? allChannels.length - 1 : prevFocused - 1;
+        });
+      } else if (event.keyCode === 13) {
+        event.preventDefault();
+        setActiveChannel(allChannels[focused]);
+        setFocused(undefined);
+        setFocusedId('');
+        setQuery('');
+      }
+    },
+    [allChannels, focused, setActiveChannel],
+  );
+
+  useEffect(() => {
+    if (query) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown, query]);
 
   useEffect(() => {
     if (!query) {
@@ -103,6 +56,12 @@ export const ChannelSearch = () => {
       setDirectChannels([]);
     }
   }, [query]);
+
+  useEffect(() => {
+    if (focused >= 0) {
+      setFocusedId(allChannels[focused]?.id);
+    }
+  }, [allChannels, focused]);
 
   const setChannel = (channel) => {
     setQuery('');
@@ -122,6 +81,12 @@ export const ChannelSearch = () => {
       setDirectChannels(() => {
         return response.filter((channel) => channel.type === 'messaging');
       });
+
+      setAllChannels(() => {
+        return response
+          .filter((channel) => channel.type === 'team')
+          .concat(response.filter((channel) => channel.type === 'messaging'));
+      });
     } catch (e) {
       setQuery('');
       console.log(e);
@@ -134,14 +99,15 @@ export const ChannelSearch = () => {
     trailing: true,
   });
 
-  const onSearch = (e) => {
-    e.preventDefault();
+  const onSearch = (event) => {
+    event.preventDefault();
 
     setLoading(true);
-    setQuery(e.target.value);
-    if (!e.target.value) return;
+    setFocused(undefined);
+    setQuery(event.target.value);
+    if (!event.target.value) return;
 
-    getChannelsDebounce(e.target.value);
+    getChannelsDebounce(event.target.value);
   };
 
   return (
@@ -151,17 +117,18 @@ export const ChannelSearch = () => {
           <SearchIcon />
         </div>
         <input
-          type="text"
-          placeholder="Search"
-          onChange={onSearch}
-          value={query}
           className="channel-search__input__text"
+          onChange={onSearch}
+          placeholder="Search"
+          type="text"
+          value={query}
         />
       </div>
       {query && (
         <ResultsDropdown
           teamChannels={teamChannels}
           directChannels={directChannels}
+          focusedId={focusedId}
           loading={loading}
           setChannel={setChannel}
           setQuery={setQuery}
