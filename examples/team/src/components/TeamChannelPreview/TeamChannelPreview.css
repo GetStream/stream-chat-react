@@ -5,6 +5,19 @@
   padding-right: 16px;
 }
 
+.channel-preview__wrapper__selected {
+  height: 37px;
+  display: flex;
+  align-items: center;
+  padding-right: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  font-weight: bold;
+  margin-right: 16px;
+  cursor: pointer;
+}
+
 .channel-preview__wrapper:hover {
   background: rgba(0, 0, 0, 0.2);
   border-top-right-radius: 8px;
