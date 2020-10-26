@@ -41,14 +41,7 @@ export const ChannelListContainer = () => {
   return (
     <div className="channel-list__container">
       <SideBar />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          background: '#4E1D9D',
-          width: '240px',
-        }}
-      >
+      <div className="channel-list__list__wrapper">
         <CompanyHeader />
         <ChannelSearch />
         <ChannelList

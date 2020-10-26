@@ -57,7 +57,7 @@ export const ResultsDropdown = ({
           <i>Loading...</i>
         </p>
       )}
-      {!teamChannels.length && !loading ? (
+      {!loading && !teamChannels.length ? (
         <p className="channel-search__results-header">
           <i>No channels found</i>
         </p>
@@ -78,7 +78,7 @@ export const ResultsDropdown = ({
           <i>Loading...</i>
         </p>
       )}
-      {!directChannels.length && !loading ? (
+      {!loading && !directChannels.length ? (
         <p className="channel-search__results-header">
           <i>No direct messages found</i>
         </p>

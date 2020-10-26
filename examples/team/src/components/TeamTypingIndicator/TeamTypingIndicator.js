@@ -4,9 +4,9 @@ import { ChannelContext } from 'stream-chat-react';
 import './TeamTypingIndicator.css';
 
 export const TeamTypingIndicator = ({ type }) => {
-  const { typing, client } = useContext(ChannelContext);
+  const { client, typing } = useContext(ChannelContext);
 
-  if (!typing || !client) return null;
+  if (!client || !typing) return null;
 
   if (type === 'list') {
     return (

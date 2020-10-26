@@ -33,6 +33,15 @@ export const TeamMessageInput = (props) => {
 
   const [giphyState, setGiphyState] = useState(false);
 
+  const getPlaceholder = () => {
+    if (channel.type === 'team') {
+      return `#${channel.data.id || 'random'}`;
+    }
+
+    const members = Object.values(channel.state.members);
+    return members[0]?.user.name || 'Johnny Blaze';
+  };
+
   const overrideSubmitHandler = (message) => {
     let updatedMessage;
 
@@ -52,15 +61,6 @@ export const TeamMessageInput = (props) => {
   };
 
   const messageInput = useMessageInput({ ...props, overrideSubmitHandler });
-
-  const getPlaceholder = () => {
-    if (channel.type === 'team') {
-      return `#${channel.data.id || 'random'}`;
-    }
-
-    const members = Object.values(channel.state.members);
-    return members[0]?.user.name || 'Johnny Blaze';
-  };
 
   const onChange = useCallback(
     (e) => {

@@ -4,11 +4,10 @@ import { MessageTeam } from 'stream-chat-react';
 import './TeamMessage.css';
 
 export const TeamMessage = (props) => {
-  // const { message } = props;
-
   return (
     <div>
       <MessageTeam {...props} />
+      {/** potentially add replies component here */}
     </div>
   );
 };

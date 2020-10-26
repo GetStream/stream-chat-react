@@ -3,16 +3,16 @@ import { ImagePreviewer, FilePreviewer } from 'react-file-utils';
 import { ChannelContext } from 'stream-chat-react';
 
 export const UploadsPreview = ({
-  imageOrder,
-  imageUploads,
-  removeImage,
-  uploadImage,
-  uploadNewFiles,
-  numberOfUploads,
   fileOrder,
   fileUploads,
+  imageOrder,
+  imageUploads,
+  numberOfUploads,
   removeFile,
+  removeImage,
   uploadFile,
+  uploadImage,
+  uploadNewFiles,
 }) => {
   const channelContext = useContext(ChannelContext);
 
