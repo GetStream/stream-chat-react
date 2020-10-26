@@ -30,7 +30,7 @@
   background: none;
   border: none;
   color: #fff;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-size: 16px;
   outline: none;
 }
@@ -57,7 +57,7 @@
   width: fit-content;
   display: flex;
   align-items: center;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -106,7 +106,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-weight: bold;
   font-size: 14px;
   line-height: 120%;
@@ -116,7 +116,7 @@
 .channel-search__result-text {
   width: 100%;
   /* margin-left: 8px; */
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-weight: 500;
   font-size: 14px;
   line-height: 120%;

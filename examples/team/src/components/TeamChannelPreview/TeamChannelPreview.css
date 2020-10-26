@@ -30,7 +30,7 @@
 .channel-preview__item {
   display: flex;
   align-items: center;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 14px;

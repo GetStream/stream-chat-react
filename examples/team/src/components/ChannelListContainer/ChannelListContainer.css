@@ -27,7 +27,7 @@
 }
 
 .icon1__inner {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   height: 100%;
   display: flex;
   align-items: center;
@@ -44,7 +44,7 @@
 }
 
 .icon2__inner {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   height: 100%;
   display: flex;
   align-items: center;
@@ -58,7 +58,7 @@
 }
 
 .channel-list__header__text {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 18px;

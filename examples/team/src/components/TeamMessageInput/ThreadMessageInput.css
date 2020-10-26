@@ -18,7 +18,7 @@
 }
 
 .str-chat__thread-header-details strong {
-  font-family: Helvetica Neue;
+  font-family: Helvetica, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 18px;
@@ -28,7 +28,7 @@
 }
 
 .str-chat__thread-header-details small {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 14px;
@@ -90,14 +90,13 @@
   justify-content: space-evenly;
   height: 24px;
   width: 63px;
-  border-top-left-radius: 8px;
   background: #4e1d9d;
   border-radius: 12px;
   margin-left: 8px;
 }
 
 .thread-message-input__wrapper .giphy-icon__text {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 11px;
@@ -132,7 +131,7 @@
   background: #fff;
   border: none;
   outline: none;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 15px;

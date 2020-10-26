@@ -10,7 +10,7 @@
 }
 
 .team-channel-header__name {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 18px;
@@ -18,7 +18,7 @@
 }
 
 .team-channel-header__watchers {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 14px;

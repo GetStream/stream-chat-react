@@ -9,7 +9,7 @@
 }
 
 .str-chat__message-team-content p {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   line-height: 120%;
@@ -38,7 +38,7 @@
 .str-chat__message-team-meta time {
   visibility: visible;
   z-index: 2;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 10px;
@@ -47,7 +47,7 @@
 }
 
 .str-chat__message-team-author strong {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 11px;
@@ -69,7 +69,7 @@
   z-index: 2;
   display: flex;
   justify-content: flex-end;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 14px;
@@ -86,7 +86,7 @@
 
 .str-chat__date-separator-date {
   color: #858688;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
 }
@@ -143,7 +143,7 @@ ul.str-chat__simple-reactions-list:hover {
 }
 
 .str-chat__simple-reactions-list-item--last-number {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 11px;
@@ -214,7 +214,7 @@ ul.str-chat__simple-reactions-list:hover {
 .str-chat__edit-message-form .str-chat__message-team-form-footer button {
   cursor: pointer;
   color: rgba(0, 0, 0, 0.33);
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-size: 14px;
 }
 

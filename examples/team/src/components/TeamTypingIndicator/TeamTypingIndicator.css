@@ -31,7 +31,7 @@
 
 .typing-indicator__input__text {
   margin-left: 5px;
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 11px;
