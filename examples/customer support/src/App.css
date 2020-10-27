@@ -31,6 +31,7 @@ body {
 
 .wrapper--open .str-chat {
   height: 100%;
+  width: 340px;
   display: flex;
   align-items: flex-end;
   border-radius: 32px;
@@ -50,8 +51,8 @@ body {
 }
 
 .str-chat__list {
-  min-height: 350px;
-  max-height: 450px;
+  height: 400px;
+  width: 340px;
   background: #ffffff;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
@@ -83,4 +84,51 @@ body {
   .str-chat-channel .str-chat__container {
     width: 360px;
   }
+}
+
+.commerce.str-chat .str-chat__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.commerce.str-chat .str-chat__list .str-chat__reverse-infinite-scroll {
+  margin-top: 200px;
+}
+
+.commerce.str-chat .str-chat__date-separator {
+  padding: 0;
+}
+
+.str-chat__date-separator-date {
+  font-family: Inter, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  line-height: 120%;
+  color: #858688;
+}
+
+.str-chat__date-separator-line {
+  background: #e9e9ea;
+}
+
+.str-chat__message-commerce-text-inner--is-emoji {
+  padding: 10px 4px;
+}
+
+.str-chat__message-commerce-text-inner.str-chat__message-commerce-text-inner--is-emoji {
+  margin: 0;
+}
+
+.str-chat__message-commerce__actions {
+  display: none;
+}
+
+.str-chat__message-commerce--right.str-chat__message-commerce
+  .str-chat__message-commerce-data {
+  display: none;
+}
+
+.str-chat__message-commerce-text-inner p {
+  max-width: 220px;
 }

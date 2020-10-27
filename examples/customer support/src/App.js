@@ -3,10 +3,9 @@ import { StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
+  MessageCommerce,
   MessageList,
   MessageInput,
-  MessageInputFlat,
-  MessageCommerce,
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
@@ -15,6 +14,7 @@ import './App.css';
 
 import { EmptyStateIndicator } from './components/EmptyStateIndicator/EmptyStateIndicator';
 import { SupportChannelHeader } from './components/ChannelHeader/SupportChannelHeader';
+import { SupportMessageInput } from './components/MessageInput/SupportMessageInput';
 
 import { ToggleButton } from './assets/ToggleButton';
 
@@ -22,7 +22,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
 const user = urlParams.get('user') || 'example-user';
 const theme = urlParams.get('theme') || 'light';
-const channelName = urlParams.get('channel') || 'support-demo';
+const channelId = urlParams.get('channel') || 'support-demo';
 const userToken =
   urlParams.get('user_token') ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZXhhbXBsZS11c2VyIn0.HlC0dMKL43y3K_XbfvQS_Yc3V314HU4Z7LrBLil777g';
@@ -37,12 +37,12 @@ const App = () => {
   useEffect(() => {
     const getChannel = async () => {
       const [existingChannel] = await chatClient.queryChannels({
-        id: channelName,
+        id: channelId,
       });
 
       if (existingChannel) await existingChannel.delete();
 
-      const newChannel = chatClient.channel('commerce', channelName, {
+      const newChannel = chatClient.channel('commerce', channelId, {
         image: 'https://i.stack.imgur.com/e7G42m.jpg',
         name: 'Hello',
         subtitle: 'We are here to help.',
@@ -72,14 +72,16 @@ const App = () => {
               {open && (
                 <div style={{ background: '#005fff' }}>
                   <MessageList
-                    EmptyStateIndicator={EmptyStateIndicator}
+                    EmptyStateIndicator={(props) => (
+                      <EmptyStateIndicator {...props} channel={channel} />
+                    )}
                     Message={MessageCommerce}
                   />
                 </div>
               )}
               <MessageInput
                 onFocus={!open ? toggleDemo : null}
-                Input={MessageInputFlat}
+                Input={SupportMessageInput}
                 focus
               />
             </Window>
