@@ -13,6 +13,7 @@ import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
 
+import { EmptyStateIndicator } from './components/EmptyStateIndicator/EmptyStateIndicator';
 import { SupportChannelHeader } from './components/ChannelHeader/SupportChannelHeader';
 
 import { ToggleButton } from './assets/ToggleButton';
@@ -57,7 +58,7 @@ const App = () => {
     if (chatClient) {
       getChannel();
     }
-  }, []); // eslint-disable-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleDemo = () => setOpen(!open);
 
@@ -68,7 +69,14 @@ const App = () => {
           <Channel channel={channel}>
             <Window>
               <SupportChannelHeader />
-              {open && <MessageList Message={MessageCommerce} />}
+              {open && (
+                <div style={{ background: '#005fff' }}>
+                  <MessageList
+                    EmptyStateIndicator={EmptyStateIndicator}
+                    Message={MessageCommerce}
+                  />
+                </div>
+              )}
               <MessageInput
                 onFocus={!open ? toggleDemo : null}
                 Input={MessageInputFlat}

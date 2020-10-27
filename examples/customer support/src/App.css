@@ -14,8 +14,7 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  background: url('https://images.pexels.com/photos/1421903/pexels-photo-1421903.jpeg')
-    top left no-repeat;
+  background: url('./assets/support-background.jpeg') top left no-repeat;
   background-size: cover;
 }
 
@@ -35,6 +34,15 @@ body {
   display: flex;
   align-items: flex-end;
   border-radius: 32px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+}
+
+.wrapper .str-chat {
+  height: 100%;
+  border-radius: 32px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 
 .str-chat__container {
@@ -42,45 +50,33 @@ body {
 }
 
 .str-chat__list {
-  min-height: 100px;
-  max-height: 400px;
+  min-height: 350px;
+  max-height: 450px;
+  background: #ffffff;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
 }
 
 .toggle-button {
   height: 60px;
   width: 60px;
   margin-top: 16px;
-  border-radius: 60px;
+  border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 60px;
-
   background: #ffffff;
-  background-image: linear-gradient(
-    -180deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.24);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
   cursor: pointer;
 }
 
 .toggle-button svg {
-  fill: #000;
   opacity: 0.8;
 }
 
 .toggle-button:hover svg {
   opacity: 1;
-}
-
-.toggle-button .button--closed svg {
-  position: relative;
-  left: 3px;
-  fill: #0043f7;
 }
 
 @media screen and (max-width: 414px) {

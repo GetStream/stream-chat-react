@@ -22,7 +22,7 @@ export const ToggleButton = ({ open, onClick }) => (
       <svg width="24" height="20" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M.011 20L24 10 .011 0 0 7.778 17.143 10 0 12.222z"
-          fill="#858688"
+          fill="#005fff"
           fillRule="evenodd"
         />
       </svg>
