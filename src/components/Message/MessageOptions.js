@@ -59,7 +59,9 @@ const MessageOptionsComponent = (props) => {
         data-testid="message-options-left"
         className={`str-chat__message-${theme}__actions`}
       >
-        {<MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
+        {displayActions && (
+          <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
+        )}
         {shouldShowReplies && (
           <div
             data-testid="thread-action"

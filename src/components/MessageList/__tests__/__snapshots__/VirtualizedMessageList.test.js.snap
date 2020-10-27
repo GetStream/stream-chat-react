@@ -233,22 +233,13 @@ exports[`VirtualizedMessageList should render empty list of messages 1`] = `
                 false
               </div>
             </div>
-            <div
-              data-index={20}
-              data-known-size={30}
-            >
-              <div>
-                FixedHeightMessage groupedByUser:
-                false
-              </div>
-            </div>
             <footer />
           </div>
         </div>
         <div
           style={
             Object {
-              "height": "630px",
+              "height": "1890px",
               "position": "absolute",
               "top": 0,
             }
@@ -506,15 +497,6 @@ exports[`VirtualizedMessageList should render empty list of messages with messag
                 false
               </div>
             </div>
-            <div
-              data-index={20}
-              data-known-size={30}
-            >
-              <div>
-                FixedHeightMessage groupedByUser:
-                true
-              </div>
-            </div>
             <footer>
               <div>
                 TypingIndicator
@@ -525,7 +507,7 @@ exports[`VirtualizedMessageList should render empty list of messages with messag
         <div
           style={
             Object {
-              "height": "630px",
+              "height": "1890px",
               "position": "absolute",
               "top": 0,
             }
