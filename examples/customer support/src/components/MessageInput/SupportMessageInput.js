@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FileUploadButton } from 'react-file-utils';
 import {
   ChatAutoComplete,
@@ -12,7 +12,14 @@ import { FileIcon } from '../../assets/FileIcon';
 import { SmileyFace } from '../../assets/SmileyFace';
 
 export const SupportMessageInput = (props) => {
+  const { open, setOpen } = props;
   const messageInput = useMessageInput(props);
+
+  useEffect(() => {
+    if (!open && messageInput.textareaRef.current) {
+      setOpen(!open);
+    }
+  }, [messageInput.textareaRef, open, setOpen]);
 
   return (
     <div className="support-message-input__wrapper">
