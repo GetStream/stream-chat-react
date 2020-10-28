@@ -125,3 +125,31 @@ div.rfu-dropzone:focus {
 .rfu-image-previewer__image {
   margin-bottom: 0;
 }
+
+div.rta__autocomplete.str-chat__emojisearch {
+  z-index: 10;
+  position: relative;
+  width: 100%;
+  background: #fff;
+  margin: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.rta__entity--selected {
+  background: #4e1d9d;
+}
+
+.str-chat__slash-command:hover {
+  background: #4e1d9d;
+  cursor: pointer;
+}
+
+.rta__list-header {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 14px;
+  line-height: 16px;
+  color: #2c2c30;
+  mix-blend-mode: normal;
+  opacity: 0.9;
+}

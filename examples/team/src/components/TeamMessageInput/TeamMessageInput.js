@@ -99,7 +99,7 @@ export const TeamMessageInput = (props) => {
     (e) => {
       if (
         messageInput.text.length === 1 &&
-        e.nativeEvent.inputType === 'deleteContentBackward'
+        e.nativeEvent?.inputType === 'deleteContentBackward'
       ) {
         setGiphyState(false);
       }
@@ -117,6 +117,23 @@ export const TeamMessageInput = (props) => {
     },
     [giphyState, messageInput],
   );
+
+  const onCommandClick = (e) => {
+    e.preventDefault();
+
+    if (messageInput.textareaRef.current) {
+      messageInput.textareaRef.current.focus();
+    }
+
+    const newEvent = {
+      ...e,
+      preventDefault: () => null,
+      target: { ...e.target, value: '/' },
+    };
+
+    logChatPromiseExecution(channel.keystroke(), 'start typing event');
+    messageInput.handleChange(newEvent);
+  };
 
   const GiphyIcon = () => (
     <div className="giphy-icon__wrapper">
@@ -142,6 +159,7 @@ export const TeamMessageInput = (props) => {
             {giphyState && !messageInput.numberOfUploads && <GiphyIcon />}
             <UploadsPreview {...messageInput} />
             <ChatAutoComplete
+              commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
               onSelectItem={messageInput.onSelectItem}
@@ -170,7 +188,7 @@ export const TeamMessageInput = (props) => {
           <div className="team-message-input__bottom">
             <div className="team-message-input__icons">
               <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-              <LightningBolt />
+              <LightningBolt {...{ onCommandClick }} />
               <div className="icon-divider"></div>
               <BoldIcon {...{ boldState, resetIconState, setBoldState }} />
               <ItalicsIcon

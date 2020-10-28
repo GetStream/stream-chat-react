@@ -64,7 +64,6 @@ export const ThreadMessageInput = (props) => {
       <div className="thread-message-input__input">
         {giphyState && <GiphyIcon />}
         <ChatAutoComplete
-          commands={messageInput.getCommands()}
           innerRef={messageInput.textareaRef}
           handleSubmit={messageInput.handleSubmit}
           onSelectItem={messageInput.onSelectItem}
