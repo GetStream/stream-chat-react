@@ -31,7 +31,18 @@ export const TeamMessageInput = (props) => {
     sendMessage,
   } = useContext(ChannelContext);
 
+  const [boldState, setBoldState] = useState(false);
+  const [codeState, setCodeState] = useState(false);
   const [giphyState, setGiphyState] = useState(false);
+  const [italicState, setItalicState] = useState(false);
+  const [strikeThroughState, setStrikeThroughState] = useState(false);
+
+  const resetIconState = () => {
+    setBoldState(false);
+    setCodeState(false);
+    setItalicState(false);
+    setStrikeThroughState(false);
+  };
 
   const getPlaceholder = () => {
     if (channel.type === 'team') {
@@ -53,11 +64,33 @@ export const TeamMessageInput = (props) => {
     if (giphyState) {
       const updatedText = `/giphy ${message.text}`;
       updatedMessage = { ...message, text: updatedText };
+    } else {
+      if (boldState) {
+        const updatedText = `**${message.text}**`;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (codeState) {
+        const updatedText = `\`${message.text}\``;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (italicState) {
+        const updatedText = `*${message.text}*`;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (strikeThroughState) {
+        const updatedText = `~~${message.text}~~`;
+        updatedMessage = { ...message, text: updatedText };
+      }
     }
 
     const sendMessagePromise = sendMessage(updatedMessage || message);
     logChatPromiseExecution(sendMessagePromise, 'send message');
+
     setGiphyState(false);
+    resetIconState();
   };
 
   const messageInput = useMessageInput({ ...props, overrideSubmitHandler });
@@ -139,10 +172,18 @@ export const TeamMessageInput = (props) => {
               <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
               <LightningBolt />
               <div className="icon-divider"></div>
-              <BoldIcon />
-              <ItalicsIcon />
-              <StrikeThroughIcon />
-              <CodeSnippet />
+              <BoldIcon {...{ boldState, resetIconState, setBoldState }} />
+              <ItalicsIcon
+                {...{ italicState, resetIconState, setItalicState }}
+              />
+              <StrikeThroughIcon
+                {...{
+                  resetIconState,
+                  strikeThroughState,
+                  setStrikeThroughState,
+                }}
+              />
+              <CodeSnippet {...{ codeState, resetIconState, setCodeState }} />
             </div>
           </div>
         </div>
