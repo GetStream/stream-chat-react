@@ -527,7 +527,7 @@ export default function useMessageInputState(props) {
         return;
       }
 
-      // If doImageUploadRequest returns any falsy value, then don't remove the upload preview.
+      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
       // This is for the case if someone wants to handle failure on app level.
       if (!response) {
         removeFile(id);
@@ -586,7 +586,7 @@ export default function useMessageInputState(props) {
         return;
       }
 
-      // If doImageUploadRequest returns any falsy value, then don't remove the upload preview.
+      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
       // This is for the case if someone wants to handle failure on app level.
       if (!response) {
         removeImage(id);
