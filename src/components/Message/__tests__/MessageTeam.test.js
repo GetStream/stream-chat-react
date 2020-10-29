@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -34,7 +35,7 @@ const carol = generateUser({ name: 'carol', image: 'carol-avatar.jpg' });
 async function renderMessageTeam(
   message,
   props = {},
-  channelConfig = { replies: true },
+  channelConfig = { replies: true, reactions: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -455,6 +456,20 @@ describe('<MessageTeam />', () => {
     expect(getByTestId('simple-reaction-list')).toBeInTheDocument();
   });
 
+  it('should not display the reaction list with non empty text if disabled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+      text: 'Welcome, bob!',
+    });
+    const { queryByTestId } = await renderMessageTeam(
+      message,
+      {},
+      { reactions: false },
+    );
+    expect(queryByTestId('simple-reaction-list')).toBeNull();
+  });
+
   it('should allow message to be retried when it failed', async () => {
     const handleRetry = jest.fn();
     const message = generateAliceMessage({ status: 'failed' });
@@ -521,6 +536,20 @@ describe('<MessageTeam />', () => {
     });
     const { getByTestId } = await renderMessageTeam(message);
     expect(getByTestId('simple-reaction-list')).toBeInTheDocument();
+  });
+
+  it('should not display the reaction list with empty text if disabled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+      text: '',
+    });
+    const { queryByTestId } = await renderMessageTeam(
+      message,
+      {},
+      { reactions: false },
+    );
+    expect(queryByTestId('simple-reaction-list')).toBeNull();
   });
 
   it('should display a message reply button when not on a thread and message has replies', async () => {

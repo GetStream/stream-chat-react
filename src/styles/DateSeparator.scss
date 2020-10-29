@@ -1,6 +1,6 @@
 .str-chat__date-separator {
   display: flex;
-  margin: 40px;
+  padding: 40px;
   align-items: center;
 
   &-date {
@@ -25,7 +25,7 @@
 
 .commerce.str-chat {
   .str-chat__date-separator {
-    margin: 40px 0;
+    padding: 40px 0;
   }
 }
 

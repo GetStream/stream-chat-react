@@ -76,7 +76,7 @@ export const useReactionHandler = (message) => {
 };
 
 /**
- * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
+ * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean, isReactionEnabled: boolean }} ReactionClickHandler
  * @type {(
  *   message: import('stream-chat').MessageResponse | undefined,
  *   reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
@@ -88,7 +88,9 @@ export const useReactionClick = (
   reactionSelectorRef,
   messageWrapperRef,
 ) => {
+  const { channel } = useContext(ChannelContext);
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
+  const isReactionEnabled = channel?.getConfig?.()?.reactions !== false;
   const messageDeleted = !!message?.deleted_at;
   const hasListener = useRef(false);
   /** @type {EventListener} */
@@ -161,8 +163,10 @@ export const useReactionClick = (
   const onReactionListClick = () => {
     setShowDetailedReactions(true);
   };
+
   return {
     onReactionListClick,
     showDetailedReactions,
+    isReactionEnabled,
   };
 };

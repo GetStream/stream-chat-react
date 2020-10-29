@@ -33,7 +33,7 @@ const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
 async function renderMessageLivestream(
   message,
   props = {},
-  channelConfig = { replies: true },
+  channelConfig = { replies: true, reactions: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -470,6 +470,20 @@ describe('<MessageLivestream />', () => {
     });
     const { getByTestId } = await renderMessageLivestream(message);
     expect(getByTestId('simple-reaction-list')).toBeInTheDocument();
+  });
+
+  it('should not display the reaction list if disabled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+    });
+    const { queryByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      { reactions: false },
+    );
+
+    expect(queryByTestId('simple-reaction-list')).toBeNull();
   });
 
   it('should display a message reply button when not on a thread and message has replies', async () => {

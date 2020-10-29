@@ -100,11 +100,11 @@ const MessageLivestreamComponent = (props) => {
   const clearEdit = propClearEdit || ownClearEditing;
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-    messageWrapperRef,
-  );
+  const {
+    onReactionListClick,
+    showDetailedReactions,
+    isReactionEnabled,
+  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
@@ -167,7 +167,7 @@ const MessageLivestreamComponent = (props) => {
         }`}
         ref={messageWrapperRef}
       >
-        {showDetailedReactions && (
+        {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             reverse={false}
             handleReaction={handleReaction}
@@ -272,11 +272,13 @@ const MessageLivestreamComponent = (props) => {
               />
             )}
 
-            <ReactionsList
-              reaction_counts={message.reaction_counts || undefined}
-              reactions={message.latest_reactions}
-              handleReaction={propHandleReaction || handleReaction}
-            />
+            {isReactionEnabled && (
+              <ReactionsList
+                reaction_counts={message.reaction_counts || undefined}
+                reactions={message.latest_reactions}
+                handleReaction={propHandleReaction || handleReaction}
+              />
+            )}
 
             {!initialMessage && (
               <MessageRepliesCountButton

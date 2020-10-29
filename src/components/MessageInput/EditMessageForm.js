@@ -24,7 +24,6 @@ const EditMessageForm = (props) => {
   useEffect(() => {
     /** @type {(event: KeyboardEvent) => void} Typescript syntax */
     const onKeyDown = (event) => {
-      console.log('event.keyCode :>> ', event.keyCode);
       if (event.keyCode === KEY_CODES.ESC && clearEditingState)
         clearEditingState();
     };
@@ -39,13 +38,13 @@ const EditMessageForm = (props) => {
         accept={channelContext.acceptedFiles}
         multiple={channelContext.multipleUploads}
         disabled={
-          channelContext.maxNumberOfFiles !== undefined &&
-          messageInput.numberOfUploads >= channelContext.maxNumberOfFiles
+          !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
         }
+        maxNumberOfFiles={messageInput.maxFilesLeft}
         handleFiles={messageInput.uploadNewFiles}
       >
         <form onSubmit={messageInput.handleSubmit}>
-          <UploadsPreview {...messageInput} />
+          {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
           <EmojiPicker {...messageInput} small />
           <ChatAutoComplete
             commands={messageInput.getCommands()}
@@ -75,36 +74,38 @@ const EditMessageForm = (props) => {
                   />
                 </svg>
               </span>
-              <div
-                className="str-chat__fileupload-wrapper"
-                data-testid="fileinput"
-              >
-                <Tooltip>{t('Attach files')}</Tooltip>
-                <FileUploadButton
-                  multiple={channelContext.multipleUploads}
-                  disabled={
-                    channelContext.maxNumberOfFiles !== undefined &&
-                    messageInput.numberOfUploads >=
-                      channelContext.maxNumberOfFiles
-                  }
-                  accepts={channelContext.acceptedFiles}
-                  handleFiles={messageInput.uploadNewFiles}
+              {messageInput.isUploadEnabled && (
+                <div
+                  className="str-chat__fileupload-wrapper"
+                  data-testid="fileinput"
                 >
-                  <span className="str-chat__input-fileupload">
-                    <svg
-                      width="14"
-                      height="14"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <title>{t('Attach files')}</title>
-                      <path
-                        d="M7 .5c3.59 0 6.5 2.91 6.5 6.5s-2.91 6.5-6.5 6.5S.5 10.59.5 7 3.41.5 7 .5zm0 12c3.031 0 5.5-2.469 5.5-5.5S10.031 1.5 7 1.5A5.506 5.506 0 0 0 1.5 7c0 3.034 2.469 5.5 5.5 5.5zM7.506 3v3.494H11v1.05H7.506V11h-1.05V7.544H3v-1.05h3.456V3h1.05z"
-                        fillRule="nonzero"
-                      />
-                    </svg>
-                  </span>
-                </FileUploadButton>
-              </div>
+                  <Tooltip>
+                    {messageInput.maxFilesLeft
+                      ? t('Attach files')
+                      : t("You've reached the maximum number of files")}
+                  </Tooltip>
+                  <FileUploadButton
+                    multiple={channelContext.multipleUploads}
+                    disabled={messageInput.maxFilesLeft === 0}
+                    accepts={channelContext.acceptedFiles}
+                    handleFiles={messageInput.uploadNewFiles}
+                  >
+                    <span className="str-chat__input-fileupload">
+                      <svg
+                        width="14"
+                        height="14"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <title>{t('Attach files')}</title>
+                        <path
+                          d="M7 .5c3.59 0 6.5 2.91 6.5 6.5s-2.91 6.5-6.5 6.5S.5 10.59.5 7 3.41.5 7 .5zm0 12c3.031 0 5.5-2.469 5.5-5.5S10.031 1.5 7 1.5A5.506 5.506 0 0 0 1.5 7c0 3.034 2.469 5.5 5.5 5.5zM7.506 3v3.494H11v1.05H7.506V11h-1.05V7.544H3v-1.05h3.456V3h1.05z"
+                          fillRule="nonzero"
+                        />
+                      </svg>
+                    </span>
+                  </FileUploadButton>
+                </div>
+              )}
             </div>
             <div>
               <button onClick={props.clearEditingState}>{t('Cancel')}</button>

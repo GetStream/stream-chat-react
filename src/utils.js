@@ -183,7 +183,10 @@ export const renderText = (text, mentioned_users) => {
 
   if (mentioned_users && mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
-      const username = mentioned_users[i].name || mentioned_users[i].id;
+      let username = mentioned_users[i].name || mentioned_users[i].id;
+      if (username) {
+        username = escapeRegExp(username);
+      }
       const mkdown = `**@${username}**`;
       const re = new RegExp(`@${username}`, 'g');
       newText = newText.replace(re, mkdown);
@@ -209,6 +212,11 @@ export const renderText = (text, mentioned_users) => {
     />
   );
 };
+
+/** @param { string } text */
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
+}
 
 // https://stackoverflow.com/a/6860916/2570866
 export function generateRandomId() {

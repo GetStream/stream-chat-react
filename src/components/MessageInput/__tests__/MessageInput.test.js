@@ -1,5 +1,11 @@
 import React, { useContext, useEffect } from 'react';
-import { cleanup, render, waitFor, fireEvent } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  waitFor,
+  fireEvent,
+  act,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import MessageInput from '../MessageInput';
 import MessageInputLarge from '../MessageInputLarge';
@@ -43,8 +49,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
-].forEach(({ InputComponent, name }) => {
-  const renderComponent = (props = {}) => {
+].forEach(({ InputComponent, name: componentName }) => {
+  const renderComponent = (props = {}, channelProps = {}) => {
     // MessageInput components rely on ChannelContext.
     // ChannelContext is created by Channel component,
     // Which relies on ChatContext, created by Chat component.
@@ -54,6 +60,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         <Channel
           doSendMessageRequest={submitMock}
           doUpdateMessageRequest={editMock}
+          {...channelProps}
         >
           <MessageInput Input={InputComponent} {...props} />
         </Channel>
@@ -69,7 +76,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     return { submit, ...renderResult };
   };
 
-  describe(`${name}`, () => {
+  describe(`${componentName}`, () => {
     const inputPlaceholder = 'Type your message';
     const username = 'username';
     const userid = 'userid';
@@ -96,6 +103,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       fireEvent.drop(formElement, {
         dataTransfer: {
           files: [file],
+          types: ['Files'],
         },
       });
     }
@@ -105,8 +113,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     const getImage = () =>
       new File(['content'], filename, { type: 'image/png' });
-    const getFile = () =>
-      new File(['content'], filename, { type: 'text/plain' });
+    const getFile = (name = filename) =>
+      new File(['content'], name, { type: 'text/plain' });
 
     const mockUploadApi = () =>
       jest.fn().mockImplementation(() =>
@@ -326,8 +334,137 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         );
       });
 
+      it('should not set multiple attribute on the file input if mutltipleUploads is false', async () => {
+        const { findByTestId } = renderComponent(
+          {},
+          {
+            multipleUploads: false,
+          },
+        );
+        const input = (await findByTestId('fileinput')).querySelector('input');
+        expect(input).not.toHaveAttribute('multiple');
+      });
+
+      it('should set multiple attribute on the file input if mutltipleUploads is true', async () => {
+        const { findByTestId } = renderComponent(
+          {},
+          {
+            multipleUploads: true,
+          },
+        );
+        const input = (await findByTestId('fileinput')).querySelector('input');
+        expect(input).toHaveAttribute('multiple');
+      });
+
+      const filename1 = '1.txt';
+      const filename2 = '2.txt';
+      it('should only allow dropping maxNumberOfFiles files into the dropzone', async () => {
+        const { findByPlaceholderText, queryByText } = renderComponent(
+          {
+            doFileUploadRequest: mockUploadApi(),
+          },
+          {
+            maxNumberOfFiles: 1,
+          },
+        );
+
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+
+        const file = getFile(filename1);
+        dropFile(file, formElement);
+        await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
+
+        const file2 = getFile(filename2);
+        act(() => dropFile(file2, formElement));
+        await waitFor(() =>
+          expect(queryByText(filename2)).not.toBeInTheDocument(),
+        );
+      });
+
+      it('should only allow uploading 1 file if multipleUploads is false', async () => {
+        const { findByPlaceholderText, queryByText } = renderComponent(
+          {
+            doFileUploadRequest: mockUploadApi(),
+          },
+          {
+            multipleUploads: false,
+          },
+        );
+
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+
+        const file = getFile(filename1);
+        dropFile(file, formElement);
+        await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
+
+        const file2 = getFile(filename2);
+        act(() => dropFile(file2, formElement));
+        await waitFor(() =>
+          expect(queryByText(filename2)).not.toBeInTheDocument(),
+        );
+      });
+
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
       // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
+    });
+
+    describe('Uploads disabled in Channel config', () => {
+      let originalConfig;
+      beforeAll(() => {
+        originalConfig = channel.getConfig;
+        channel.getConfig = () => ({ uploads: false });
+      });
+      afterAll(() => {
+        channel.getConfig = originalConfig;
+      });
+
+      it('should not render file upload button', () => {
+        const { queryByTestId } = renderComponent();
+        expect(queryByTestId('fileinput')).toBeNull();
+      });
+
+      it('Pasting images and files should do nothing', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const doFileUploadRequest = mockUploadApi();
+        const { findByPlaceholderText, queryByText } = renderComponent({
+          doFileUploadRequest,
+          doImageUploadRequest,
+        });
+
+        const file = getFile();
+        const image = getImage();
+
+        const clipboardEvent = new Event('paste', { bubbles: true });
+        // set `clipboardData`. Mock DataTransfer object
+        clipboardEvent.clipboardData = {
+          items: [
+            { kind: 'file', getAsFile: () => file },
+            { kind: 'file', getAsFile: () => image },
+          ],
+        };
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        formElement.dispatchEvent(clipboardEvent);
+        await waitFor(() => {
+          expect(queryByText(filename)).toBeNull();
+          expect(doFileUploadRequest).not.toHaveBeenCalled();
+          expect(doImageUploadRequest).not.toHaveBeenCalled();
+        });
+      });
+
+      it('Should not upload an image when it is dropped on the dropzone', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const { findByPlaceholderText } = renderComponent({
+          doImageUploadRequest,
+        });
+        // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        const file = getImage();
+        dropFile(file, formElement);
+
+        await waitFor(() => {
+          expect(doImageUploadRequest).not.toHaveBeenCalled();
+        });
+      });
     });
 
     describe('Submitting', () => {
