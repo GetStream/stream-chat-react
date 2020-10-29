@@ -617,21 +617,35 @@ export default function useMessageInputState(props) {
     // TODO: cancel upload if still uploading
   }, []);
 
+  // Number of files that the user can still add. Should never be more than the amount allowed by the API.
+  // If multipleUploads is false, we only want to allow a single upload.
+  const maxFilesAllowed = useMemo(() => {
+    if (!channelContext.multipleUploads) return 1;
+    if (channelContext.maxNumberOfFiles === undefined) {
+      return apiMaxNumberOfFiles;
+    }
+    return channelContext.maxNumberOfFiles;
+  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
+
+  const maxFilesLeft = maxFilesAllowed - numberOfUploads;
+
   const uploadNewFiles = useCallback(
     /**
      * @param {FileList} files
      */
     (files) => {
-      Array.from(files).forEach((file) => {
-        const id = generateRandomId();
-        if (file.type.startsWith('image/')) {
-          dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
-        } else if (file instanceof File && !noFiles) {
-          dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
-        }
-      });
+      Array.from(files)
+        .slice(0, maxFilesLeft)
+        .forEach((file) => {
+          const id = generateRandomId();
+          if (file.type.startsWith('image/')) {
+            dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
+          } else if (file instanceof File && !noFiles) {
+            dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
+          }
+        });
     },
-    [noFiles],
+    [maxFilesLeft, noFiles],
   );
 
   const onPaste = useCallback(
@@ -674,18 +688,6 @@ export default function useMessageInputState(props) {
     },
     [uploadNewFiles, insertText],
   );
-
-  // Number of files that the user can still add. Should never be more than the amount allowed by the API.
-  // If multipleUploads is false, we only want to allow a single upload.
-  const maxFilesAllowed = useMemo(() => {
-    if (!channelContext.multipleUploads) return 1;
-    if (channelContext.maxNumberOfFiles === undefined) {
-      return apiMaxNumberOfFiles;
-    }
-    return channelContext.maxNumberOfFiles;
-  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
-
-  const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
 
