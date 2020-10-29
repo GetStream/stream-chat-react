@@ -14,12 +14,21 @@ import { SmileyFace } from '../../assets/SmileyFace';
 export const SupportMessageInput = (props) => {
   const { open, setOpen } = props;
   const messageInput = useMessageInput(props);
+  console.log('SupportMessageInput -> messageInput', messageInput);
 
   useEffect(() => {
-    if (!open && messageInput.textareaRef.current) {
-      setOpen(!open);
+    if (open) {
+      messageInput.textareaRef.current.focus();
+    } else {
+      messageInput.textareaRef.current.blur();
     }
-  }, [messageInput.textareaRef, open, setOpen]);
+  }, [messageInput.textareaRef, open]);
+
+  useEffect(() => {
+    if (messageInput.text) {
+      setOpen(true);
+    }
+  }, [messageInput.text, setOpen]);
 
   return (
     <div className="support-message-input__wrapper">

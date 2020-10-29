@@ -26,10 +26,10 @@
 .support-message-input__wrapper .str-chat__textarea textarea {
   border: none;
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
   font-size: 17px;
-  color: #000;
+  max-height: 48px !important;
+  border-radius: 12px;
+  line-height: 160%;
 }
 
 .support-message-input__wrapper .str-chat__textarea textarea:focus {
@@ -39,4 +39,15 @@
 
 .support-message-input__wrapper .str-chat__textarea textarea::placeholder {
   color: rgba(0, 0, 0, 0.2);
+}
+
+.str-chat__input--emojipicker {
+  position: absolute;
+  bottom: 146px;
+  right: 1px;
+  z-index: 10;
+}
+
+.emoji-mart .emoji-mart-emoji:focus {
+  outline: none;
 }

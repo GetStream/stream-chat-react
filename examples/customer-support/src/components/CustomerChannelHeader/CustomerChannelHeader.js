@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import { ChannelContext } from 'stream-chat-react';
 
-import './SupportChannelHeader.css';
+import './CustomerChannelHeader.css';
 
 import { ClockIcon } from '../../assets/ClockIcon';
 

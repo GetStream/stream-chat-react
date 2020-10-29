@@ -18,7 +18,19 @@ body {
   background-size: cover;
 }
 
-.wrapper {
+.agent-wrapper {
+  position: absolute;
+  background: #fff;
+  border-radius: 16px;
+  height: 800px;
+  width: 800px;
+  bottom: 60px;
+  left: 60px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+}
+
+.customer-wrapper {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -29,7 +41,7 @@ body {
   width: 340px;
 }
 
-.wrapper--open .str-chat {
+.customer-wrapper--open .str-chat {
   height: 100%;
   width: 340px;
   display: flex;
@@ -39,7 +51,7 @@ body {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 
-.wrapper .str-chat {
+.customer-wrapper .str-chat {
   height: 100%;
   border-radius: 32px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
