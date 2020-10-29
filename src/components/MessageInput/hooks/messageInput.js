@@ -477,6 +477,11 @@ export default function useMessageInputState(props) {
     dispatch({ type: 'setFileUpload', id, state: 'uploading' });
   }, []);
 
+  const removeFile = useCallback((id) => {
+    // TODO: cancel upload if still uploading
+    dispatch({ type: 'removeFileUpload', id });
+  }, []);
+
   useEffect(() => {
     (async () => {
       if (!channel) return;
@@ -510,6 +515,14 @@ export default function useMessageInputState(props) {
         }
         return;
       }
+
+      // If doImageUploadRequest returns any falsy value, then don't remove the upload preview.
+      // This is for the case if someone wants to handle failure on app level.
+      if (!response) {
+        removeFile(id);
+        return;
+      }
+
       dispatch({
         type: 'setFileUpload',
         id,
@@ -517,14 +530,14 @@ export default function useMessageInputState(props) {
         url: response.file,
       });
     })();
-  }, [fileUploads, channel, doFileUploadRequest, errorHandler]);
-
-  const removeFile = useCallback((id) => {
-    // TODO: cancel upload if still uploading
-    dispatch({ type: 'removeFileUpload', id });
-  }, []);
+  }, [fileUploads, channel, doFileUploadRequest, errorHandler, removeFile]);
 
   // Images
+
+  const removeImage = useCallback((id) => {
+    dispatch({ type: 'removeImageUpload', id });
+    // TODO: cancel upload if still uploading
+  }, []);
 
   const uploadImage = useCallback(
     async (id) => {
@@ -549,6 +562,7 @@ export default function useMessageInputState(props) {
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {
+          console.warn('>>');
           dispatch({ type: 'setImageUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
@@ -560,6 +574,14 @@ export default function useMessageInputState(props) {
         }
         return;
       }
+
+      // If doImageUploadRequest returns any falsy value, then don't remove the upload preview.
+      // This is for the case if someone wants to handle failure on app level.
+      if (!response) {
+        removeImage(id);
+        return;
+      }
+
       if (!imageUploads[id]) return; // removed before done
       dispatch({
         type: 'setImageUpload',
@@ -568,7 +590,7 @@ export default function useMessageInputState(props) {
         url: response.file,
       });
     },
-    [imageUploads, channel, doImageUploadRequest, errorHandler],
+    [imageUploads, channel, doImageUploadRequest, errorHandler, removeImage],
   );
 
   useEffect(() => {
@@ -601,11 +623,6 @@ export default function useMessageInputState(props) {
     }
     return () => {};
   }, [imageUploads, uploadImage]);
-
-  const removeImage = useCallback((id) => {
-    dispatch({ type: 'removeImageUpload', id });
-    // TODO: cancel upload if still uploading
-  }, []);
 
   const uploadNewFiles = useCallback(
     /**
