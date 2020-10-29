@@ -120,18 +120,19 @@ export const TeamMessageInput = (props) => {
 
   const onCommandClick = (e) => {
     e.preventDefault();
+    logChatPromiseExecution(channel.keystroke(), 'start typing event');
 
-    if (messageInput.textareaRef.current) {
-      messageInput.textareaRef.current.focus();
-    }
+    messageInput.textareaRef.current.focus();
+
+    const event = new Event('input', { bubbles: true });
+    messageInput.textareaRef.current.dispatchEvent(event);
 
     const newEvent = {
-      ...e,
+      ...event,
       preventDefault: () => null,
-      target: { ...e.target, value: '/' },
+      target: { ...event.target, value: '/' },
     };
 
-    logChatPromiseExecution(channel.keystroke(), 'start typing event');
     messageInput.handleChange(newEvent);
   };
 
