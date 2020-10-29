@@ -573,7 +573,6 @@ export default function useMessageInputState(props) {
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {
-          console.warn('>>');
           dispatch({ type: 'setImageUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
