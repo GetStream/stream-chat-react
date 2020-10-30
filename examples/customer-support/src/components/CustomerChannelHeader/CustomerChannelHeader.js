@@ -37,8 +37,10 @@ export const SupportChannelHeader = () => {
           <div className="channel-header__active" />
         </div>
         <div className="channel-header__text">
-          <p className="channel-header__name">{channel.data.name}</p>
-          <p className="channel-header__subtitle">{channel.data.subtitle}</p>
+          <p className="channel-header__name">{channel.data.name || 'Hello'}</p>
+          <p className="channel-header__subtitle">
+            {channel.data.subtitle || 'We are here to help.'}
+          </p>
         </div>
       </div>
       <div className="channel-header__wait__wrapper">

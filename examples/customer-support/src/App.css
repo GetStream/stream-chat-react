@@ -30,6 +30,20 @@ body {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 
+.agent-channel-wrapper {
+  width: 540px;
+}
+
+.agent-wrapper .str-chat.messaging,
+.str-chat.commerce {
+  height: 740px;
+  border-bottom-left-radius: 16px;
+}
+
+.agent-wrapper .str-chat-channel.messaging .str-chat__main-panel {
+  padding: 0;
+}
+
 .customer-wrapper {
   display: flex;
   flex-direction: column;
@@ -58,11 +72,11 @@ body {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 
-.str-chat__container {
+.customer-wrapper .str-chat__container {
   border-radius: 32px;
 }
 
-.str-chat__list {
+.customer-wrapper .str-chat__list {
   height: 400px;
   width: 340px;
   background: #ffffff;
@@ -103,7 +117,10 @@ body {
   flex-direction: column;
 }
 
-.commerce.str-chat .str-chat__list .str-chat__reverse-infinite-scroll {
+.customer-wrapper
+  .commerce.str-chat
+  .str-chat__list
+  .str-chat__reverse-infinite-scroll {
   margin-top: 200px;
 }
 

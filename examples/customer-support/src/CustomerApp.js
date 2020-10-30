@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  Chat,
   Channel,
   MessageCommerce,
   MessageList,
   MessageInput,
   Window,
+  ChatContext,
 } from 'stream-chat-react';
 
 import { EmptyStateIndicator } from './components/CustomerEmptyStateIndicator/EmptyStateIndicator';
@@ -15,9 +15,10 @@ import { SupportMessageInput } from './components/MessageInput/SupportMessageInp
 import { ToggleButton } from './assets/ToggleButton';
 
 const customerChannelId = 'support-demo';
-const theme = 'light';
 
-export const CustomerApp = ({ customerClient }) => {
+export const CustomerApp = () => {
+  const { client: customerClient } = useContext(ChatContext);
+
   const [customerChannel, setCustomerChannel] = useState();
   const [open, setOpen] = useState(true);
 
@@ -29,11 +30,15 @@ export const CustomerApp = ({ customerClient }) => {
 
       if (existingChannel) await existingChannel.delete();
 
-      const newChannel = customerClient.channel('commerce', customerChannelId, {
-        image: 'https://i.stack.imgur.com/e7G42m.jpg',
-        name: 'Hello',
-        subtitle: 'We are here to help.',
-      });
+      const newChannel = await customerClient.channel(
+        'commerce',
+        customerChannelId,
+        {
+          image: 'https://i.stack.imgur.com/e7G42m.jpg',
+          name: 'Hello',
+          subtitle: 'We are here to help.',
+        },
+      );
 
       await newChannel.watch();
 
@@ -47,34 +52,29 @@ export const CustomerApp = ({ customerClient }) => {
 
   return (
     <div className={`customer-wrapper ${open ? 'wrapper--open' : ''}`}>
-      <Chat client={customerClient} theme={`commerce ${theme}`}>
-        {customerChannel && (
-          <Channel channel={customerChannel}>
-            <Window>
-              <SupportChannelHeader />
-              {open && (
-                <div style={{ background: '#005fff' }}>
-                  <MessageList
-                    EmptyStateIndicator={(props) => (
-                      <EmptyStateIndicator
-                        {...props}
-                        channel={customerChannel}
-                      />
-                    )}
-                    Message={MessageCommerce}
-                  />
-                </div>
+      {customerChannel && (
+        <Channel channel={customerChannel}>
+          <Window>
+            <SupportChannelHeader />
+            {open && (
+              <div style={{ background: '#005fff' }}>
+                <MessageList
+                  EmptyStateIndicator={(props) => (
+                    <EmptyStateIndicator {...props} channel={customerChannel} />
+                  )}
+                  Message={MessageCommerce}
+                />
+              </div>
+            )}
+            <MessageInput
+              Input={(props) => (
+                <SupportMessageInput {...props} {...{ open, setOpen }} />
               )}
-              <MessageInput
-                Input={(props) => (
-                  <SupportMessageInput {...props} {...{ open, setOpen }} />
-                )}
-                focus
-              />
-            </Window>
-          </Channel>
-        )}
-      </Chat>
+              focus
+            />
+          </Window>
+        </Channel>
+      )}
       <ToggleButton {...{ open, setOpen }} />
     </div>
   );

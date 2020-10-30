@@ -3,6 +3,9 @@ import { ChannelList } from 'stream-chat-react';
 
 import './AgentChannelListContainer.css';
 
+import { AgentChannelList } from '../AgentChannelList/AgentChannelList';
+import { AgentChannelPreview } from '../AgentChannelList/AgentChannelPreview';
+
 import { SearchIcon } from '../../assets/SearchIcon';
 
 const ChannelSearch = () => (
@@ -41,6 +44,8 @@ export const AgentChannelListContainer = () => {
         }}
         sort={{ last_message_at: -1 }}
         options={options}
+        List={AgentChannelList}
+        Preview={AgentChannelPreview}
       />
     </div>
   );

@@ -12,7 +12,6 @@
   justify-content: center;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid #00000033;
 }
 
 .channel-search__input__wrapper {
@@ -52,8 +51,6 @@
 
 .agent-channel-list__conversation-header {
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
   font-size: 12px;
   line-height: 12px;
   color: #ffffff;

@@ -1,0 +1,14 @@
+.agent-channel-list {
+  background: #001537;
+  height: 640px;
+  display: flex;
+  flex-direction: column;
+  border-bottom-left-radius: 16px;
+}
+
+.agent-channel-list__message {
+  color: #ffffff;
+  background: #001537;
+  padding: 0 16px;
+  height: 100%;
+}

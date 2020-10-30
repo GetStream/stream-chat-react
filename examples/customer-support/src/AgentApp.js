@@ -1,12 +1,23 @@
-import React, { useEffect } from 'react';
-import { Chat } from 'stream-chat-react';
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  Channel,
+  Window,
+  MessageList,
+  MessageCommerce,
+  MessageInput,
+  ChatContext,
+} from 'stream-chat-react';
 
 import { AgentHeader } from './components/AgentHeader/AgentHeader';
-import { AgentChannelListContainer } from './components/AgentChannelList/AgentChannelListContainer';
+import { AgentChannelListContainer } from './components/AgentChannelListContainer/AgentChannelListContainer';
 
 const agentChannelId = 'agent-demo';
 
-export const AgentApp = ({ agentClient }) => {
+export const AgentApp = () => {
+  const { client: agentClient, setActiveChannel } = useContext(ChatContext);
+
+  const [agentChannel, setAgentChannel] = useState();
+
   useEffect(() => {
     const getAgentChannel = async () => {
       const [existingChannel] = await agentClient.queryChannels({
@@ -15,21 +26,16 @@ export const AgentApp = ({ agentClient }) => {
 
       if (existingChannel) await existingChannel.delete();
 
-      const newChannel = agentClient.channel('commerce', agentChannelId, {
-        image: 'https://i.stack.imgur.com/e7G42m.jpg',
+      const newChannel = await agentClient.channel('commerce', agentChannelId, {
+        image: require('./assets/jen-avatar.png'), // eslint-disable-line global-require
         name: 'Jen Alexander',
-        subtitle: 'We are here to help.',
+        subtitle: '#572 Enterprise Inquiry',
       });
 
       await newChannel.watch();
 
-      await newChannel.sendMessage({
-        text: 'I have a question about Enterprise',
-      });
-      await newChannel.sendMessage({
-        text:
-          'My company is looking to upgrade our account to Enterprise. Can you provide me with some additional pricing information?',
-      });
+      setAgentChannel(newChannel);
+      setActiveChannel(newChannel);
     };
 
     if (agentClient) {
@@ -37,12 +43,37 @@ export const AgentApp = ({ agentClient }) => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const sendMessages = async () => {
+      await agentChannel.sendMessage({
+        text: 'I have a question about Enterprise',
+      });
+
+      await agentChannel.sendMessage({
+        text:
+          'My company is looking to upgrade our account to Enterprise. Can you provide me with some additional pricing information?',
+      });
+    };
+
+    if (agentChannel && !agentChannel.state.messages.length) {
+      sendMessages();
+    }
+  }, [agentChannel]);
+
   return (
     <div className="agent-wrapper">
-      <Chat client={agentClient}>
-        <AgentHeader />
+      <AgentHeader />
+      <div style={{ display: 'flex' }}>
         <AgentChannelListContainer />
-      </Chat>
+        <div className="agent-channel-wrapper">
+          <Channel>
+            <Window>
+              <MessageList Message={MessageCommerce} />
+              <MessageInput focus />
+            </Window>
+          </Channel>
+        </div>
+      </div>
     </div>
   );
 };

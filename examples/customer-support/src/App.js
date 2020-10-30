@@ -1,4 +1,5 @@
 import React from 'react';
+import { Chat } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
 
 import 'stream-chat-react/dist/css/index.css';
@@ -9,6 +10,7 @@ import { AgentApp } from './AgentApp';
 import { CustomerApp } from './CustomerApp';
 
 const apiKey = 'qk4nn7rpcn75';
+const theme = 'light';
 
 const customerUserId = 'manuela';
 const customerUserToken =
@@ -27,8 +29,12 @@ const App = () => {
 
   return (
     <>
-      <AgentApp {...{ agentClient }} />
-      <CustomerApp {...{ customerClient }} />
+      <Chat client={agentClient}>
+        <AgentApp />
+      </Chat>
+      <Chat client={customerClient} theme={`commerce ${theme}`}>
+        <CustomerApp />
+      </Chat>
     </>
   );
 };
