@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Chat,
   Channel,
@@ -14,23 +14,52 @@ import { SupportMessageInput } from './components/MessageInput/SupportMessageInp
 
 import { ToggleButton } from './assets/ToggleButton';
 
+const customerChannelId = 'support-demo';
 const theme = 'light';
 
-export const CustomerApp = ({ channel, open, setOpen, supportClient }) => {
-  const toggleDemo = () => setOpen(!open);
+export const CustomerApp = ({ customerClient }) => {
+  const [customerChannel, setCustomerChannel] = useState();
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const getCustomerChannel = async () => {
+      const [existingChannel] = await customerClient.queryChannels({
+        id: customerChannelId,
+      });
+
+      if (existingChannel) await existingChannel.delete();
+
+      const newChannel = customerClient.channel('commerce', customerChannelId, {
+        image: 'https://i.stack.imgur.com/e7G42m.jpg',
+        name: 'Hello',
+        subtitle: 'We are here to help.',
+      });
+
+      await newChannel.watch();
+
+      setCustomerChannel(newChannel);
+    };
+
+    if (customerClient) {
+      getCustomerChannel();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`customer-wrapper ${open ? 'wrapper--open' : ''}`}>
-      <Chat client={supportClient} theme={`commerce ${theme}`}>
-        {channel && (
-          <Channel {...{ channel }}>
+      <Chat client={customerClient} theme={`commerce ${theme}`}>
+        {customerChannel && (
+          <Channel channel={customerChannel}>
             <Window>
               <SupportChannelHeader />
               {open && (
                 <div style={{ background: '#005fff' }}>
                   <MessageList
                     EmptyStateIndicator={(props) => (
-                      <EmptyStateIndicator {...props} {...{ channel }} />
+                      <EmptyStateIndicator
+                        {...props}
+                        channel={customerChannel}
+                      />
                     )}
                     Message={MessageCommerce}
                   />
@@ -46,7 +75,7 @@ export const CustomerApp = ({ channel, open, setOpen, supportClient }) => {
           </Channel>
         )}
       </Chat>
-      <ToggleButton onClick={toggleDemo} open={open} />
+      <ToggleButton {...{ open, setOpen }} />
     </div>
   );
 };

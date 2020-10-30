@@ -14,7 +14,6 @@ import { SmileyFace } from '../../assets/SmileyFace';
 export const SupportMessageInput = (props) => {
   const { open, setOpen } = props;
   const messageInput = useMessageInput(props);
-  console.log('SupportMessageInput -> messageInput', messageInput);
 
   useEffect(() => {
     if (open) {

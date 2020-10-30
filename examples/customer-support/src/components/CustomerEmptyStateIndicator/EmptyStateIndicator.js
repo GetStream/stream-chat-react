@@ -4,7 +4,7 @@ import './EmptyStateIndicator.css';
 
 const openingPrompts = [
   'I have a pricing question',
-  'I have a question about enterprise',
+  'I have a question about Enterprise',
   'I would like to learn more about the company',
   'Other',
 ];

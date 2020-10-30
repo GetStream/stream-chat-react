@@ -1,8 +1,8 @@
 import React from 'react';
 
-export const ToggleButton = ({ open, onClick }) => (
+export const ToggleButton = ({ open, setOpen }) => (
   <div
-    onClick={onClick}
+    onClick={() => setOpen(!open)}
     className={`toggle-button ${open ? 'button--open' : 'button--closed'}`}
   >
     {open ? (
