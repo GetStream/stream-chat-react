@@ -15,9 +15,7 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
       : `${lastMessageText.slice(0, 70)}...`;
   };
 
-  if (!channel.state.messages.length) {
-    return null;
-  }
+  if (!channel.state.messages.length) return null;
 
   return (
     <div

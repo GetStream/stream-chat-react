@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Channel,
-  MessageCommerce,
-  MessageList,
-  MessageInput,
-  Window,
   ChatContext,
+  MessageCommerce,
+  MessageInput,
+  MessageList,
+  Window,
 } from 'stream-chat-react';
 
 import { EmptyStateIndicator } from './components/CustomerEmptyStateIndicator/EmptyStateIndicator';
@@ -34,9 +34,9 @@ export const CustomerApp = () => {
         'commerce',
         customerChannelId,
         {
-          image: 'https://i.stack.imgur.com/e7G42m.jpg',
-          name: 'Hello',
-          subtitle: 'We are here to help.',
+          name: 'Kevin Rosen',
+          image: require('./assets/kevin-avatar.png'), // eslint-disable-line
+          subtitle: '#853 Company Inquiry',
         },
       );
 

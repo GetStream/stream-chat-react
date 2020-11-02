@@ -1,0 +1,20 @@
+.agent-loading__container {
+  display: flex;
+}
+
+.agent-loading__list {
+  height: 740px;
+  width: 260px;
+  background: #001537;
+  border-bottom-left-radius: 16px;
+}
+
+.agent-loading__channel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 540px;
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 18px;
+  color: #2c2c30;
+}
