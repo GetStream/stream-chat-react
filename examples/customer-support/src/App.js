@@ -44,7 +44,7 @@ const App = () => {
   const [initialChannel, setInitialChannel] = useState();
 
   /**
-   * Creates and watches a channel with a mock customer as user
+   * Creates and watches a channel with a mock customer as the user
    */
   useEffect(() => {
     const getInitialChannel = async () => {

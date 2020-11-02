@@ -19,12 +19,11 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
 
   return (
     <div
-      className={'agent-channel-preview__wrapper'}
-      // className={
-      //   channel?.id === activeChannel?.id
-      //     ? 'agent-channel-preview__wrapper__selected'
-      //     : 'agent-channel-preview__wrapper'
-      // }
+      className={
+        channel?.id === activeChannel?.id
+          ? 'agent-channel-preview__wrapper selected'
+          : 'agent-channel-preview__wrapper'
+      }
       onClick={() => setActiveChannel(channel)}
     >
       <div className="agent-channel-preview__top">
