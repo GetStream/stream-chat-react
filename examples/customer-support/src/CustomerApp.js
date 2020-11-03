@@ -36,9 +36,14 @@ export const CustomerApp = () => {
         {
           name: 'Kevin Rosen',
           image: require('./assets/kevin-avatar.png'), // eslint-disable-line
+          issue: 'Company Inquiry',
           subtitle: '#853 Company Inquiry',
         },
       );
+
+      if (newChannel.state.messages.length) {
+        newChannel.state.clearMessages();
+      }
 
       await newChannel.watch();
 

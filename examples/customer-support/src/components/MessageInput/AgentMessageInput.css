@@ -1,29 +1,32 @@
-.support-message-input__wrapper {
-  width: 340px;
+.agent-message-input__wrapper {
   height: 70px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 20px;
+  padding-top: 20px;
+  margin-bottom: 20px;
+  background: #fff;
 }
 
-.support-message-input__input {
-  width: 300px;
+.agent-message-input__input {
+  width: 100%;
   height: 50px;
   display: flex;
   align-items: center;
   border: 1px solid #005fff;
   border-radius: 12px;
   padding-right: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
-.support-message-input__wrapper .str-chat__textarea {
+.agent-message-input__wrapper .str-chat__textarea {
   height: 100%;
   display: flex;
   align-items: center;
 }
 
-.support-message-input__wrapper .str-chat__textarea textarea {
+.agent-message-input__wrapper .str-chat__textarea textarea {
   border: none;
   font-family: Helvetica Neue, sans-serif;
   font-size: 17px;
@@ -32,19 +35,19 @@
   line-height: 160%;
 }
 
-.support-message-input__wrapper .str-chat__textarea textarea:focus {
+.agent-message-input__wrapper .str-chat__textarea textarea:focus {
   border: none;
   box-shadow: none;
 }
 
-.support-message-input__wrapper .str-chat__textarea textarea::placeholder {
+.agent-message-input__wrapper .str-chat__textarea textarea::placeholder {
   color: rgba(0, 0, 0, 0.2);
 }
 
-.support-message-input__wrapper .str-chat__input--emojipicker {
+.agent-message-input__wrapper .str-chat__input--emojipicker {
   position: absolute;
-  bottom: 146px;
-  right: 1px;
+  bottom: 70px;
+  right: 20px;
   z-index: 10;
 }
 
@@ -52,6 +55,6 @@
   outline: none;
 }
 
-.support-message-input__wrapper svg:hover {
+.agent-message-input__wrapper svg:hover {
   cursor: pointer;
 }

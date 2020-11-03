@@ -8,6 +8,8 @@ import {
 } from 'stream-chat-react';
 
 import { AgentChannelListContainer } from './components/AgentChannelListContainer/AgentChannelListContainer';
+import { AgentChannelHeader } from './components/AgentChannelHeader/AgentChannelHeader';
+import { AgentMessageInput } from './components/MessageInput/AgentMessageInput';
 
 export const AgentApp = () => (
   <div style={{ display: 'flex' }}>
@@ -15,8 +17,9 @@ export const AgentApp = () => (
     <div className="agent-channel-wrapper">
       <Channel>
         <Window>
+          <AgentChannelHeader />
           <MessageList Message={MessageCommerce} />
-          <MessageInput focus />
+          <MessageInput focus Input={AgentMessageInput} />
         </Window>
       </Channel>
     </div>

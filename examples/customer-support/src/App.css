@@ -38,10 +38,13 @@ body {
 .str-chat.commerce {
   height: 740px;
   border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .agent-wrapper .str-chat-channel.messaging .str-chat__main-panel {
   padding: 0;
+  background: #ffffff;
+  border-bottom-right-radius: 16px;
 }
 
 .customer-wrapper {
@@ -160,4 +163,12 @@ body {
 
 .str-chat__message-commerce-text-inner p {
   max-width: 220px;
+}
+
+.str-chat__typing-indicator {
+  z-index: 100;
+}
+
+.agent-channel-wrapper .str-chat__message-commerce-data {
+  display: none;
 }

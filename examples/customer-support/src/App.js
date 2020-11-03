@@ -35,6 +35,8 @@ const App = () => {
       id: customerUserId,
       name: 'Kevin Rosen',
       image: require('./assets/kevin-avatar.png'),
+      phone: '+1 (303) 555-1212',
+      email: 'kevinrosen@aol.com',
     },
     customerUserToken,
   );
@@ -54,6 +56,8 @@ const App = () => {
           id: previousUserId,
           name: 'Jen Alexander',
           image: require('./assets/jen-avatar.png'),
+          phone: '+1 (614) 823-1291',
+          email: 'jenalexander@gmail.com',
         },
         previousUserToken,
       );
@@ -68,8 +72,13 @@ const App = () => {
       const newChannel = await client.channel('commerce', agentChannelId, {
         image: require('./assets/jen-avatar.png'),
         name: 'Jen Alexander',
+        issue: 'Enterprise Inquiry',
         subtitle: '#572 Enterprise Inquiry',
       });
+
+      if (newChannel.state.messages.length) {
+        newChannel.state.clearMessages();
+      }
 
       await newChannel.watch();
 
@@ -100,7 +109,10 @@ const App = () => {
       await initialClient.disconnect();
 
       const client = new StreamChat(apiKey);
-      await client.setUser({ id: agentUserId }, agentUserToken);
+      await client.setUser(
+        { id: agentUserId, image: require('./assets/user1.png') },
+        agentUserToken,
+      );
 
       const [existingChannel] = await client.queryChannels({
         id: agentChannelId,
