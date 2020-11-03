@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.7](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.7) 2020-10-29
+
+## Fix
+
+- Improved errorHandling on failed uploads. [#596](https://github.com/GetStream/stream-chat-react/pull/596)
+- Escape special characters in mentioned_users names [#591](https://github.com/GetStream/stream-chat-react/pull/591)
+- Improve handling max files(10) in MessageInput [#593](https://github.com/GetStream/stream-chat-react/pull/593)
+
 ## [3.1.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.6) 2020-10-21
 
 ## Fix
