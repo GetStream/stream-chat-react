@@ -1,15 +1,14 @@
 .support-message-input__wrapper {
   width: 340px;
-  height: 70px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 20px;
+  padding: 20px 0;
 }
 
 .support-message-input__input {
   width: 300px;
-  height: 50px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   border: 1px solid #005fff;
@@ -37,6 +36,10 @@
   box-shadow: none;
 }
 
+.support-message-input__input:focus {
+  outline: none;
+}
+
 .support-message-input__wrapper .str-chat__textarea textarea::placeholder {
   color: rgba(0, 0, 0, 0.2);
 }
@@ -54,4 +57,17 @@
 
 .support-message-input__wrapper svg:hover {
   cursor: pointer;
+}
+
+.support-message-input__wrapper div.rfu-dropzone:focus {
+  outline: none;
+}
+
+.support-message-input__wrapper .rfu-image-previewer {
+  flex: none;
+  margin-left: 12px;
+}
+
+.support-message-input__wrapper .rfu-image-previewer__image {
+  margin-bottom: 0;
 }

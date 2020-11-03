@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { FileUploadButton } from 'react-file-utils';
+import React, { useContext, useEffect } from 'react';
+import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 import {
+  ChannelContext,
   ChatAutoComplete,
   EmojiPicker,
   useMessageInput,
@@ -8,12 +9,18 @@ import {
 
 import './SupportMessageInput.css';
 
+import { UploadsPreview } from './UploadsPreview';
+
 import { FileIcon } from '../../assets/FileIcon';
 import { SmileyFace } from '../../assets/SmileyFace';
 
 export const SupportMessageInput = (props) => {
   const { open, setOpen } = props;
   const messageInput = useMessageInput(props);
+
+  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useContext(
+    ChannelContext,
+  );
 
   useEffect(() => {
     if (open) {
@@ -31,30 +38,43 @@ export const SupportMessageInput = (props) => {
 
   return (
     <div className="support-message-input__wrapper">
-      <div className="support-message-input__input">
-        <ChatAutoComplete
-          commands={messageInput.getCommands()}
-          innerRef={messageInput.textareaRef}
-          handleSubmit={messageInput.handleSubmit}
-          onSelectItem={messageInput.onSelectItem}
-          onChange={messageInput.handleChange}
-          value={messageInput.text}
-          rows={1}
-          maxRows={props.maxRows}
-          placeholder="Ask us a question"
-          onPaste={messageInput.onPaste}
-          triggers={props.autocompleteTriggers}
-          grow={props.grow}
-          disabled={props.disabled}
-          additionalTextareaProps={{
-            ...props.additionalTextareaProps,
-          }}
-        />
-        <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-        <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
-          <FileIcon />
-        </FileUploadButton>
-      </div>
+      <ImageDropzone
+        accept={acceptedFiles}
+        handleFiles={messageInput.uploadNewFiles}
+        multiple={multipleUploads}
+        disabled={
+          maxNumberOfFiles !== undefined &&
+          messageInput.numberOfUploads >= maxNumberOfFiles
+        }
+      >
+        <div className="support-message-input__input">
+          <UploadsPreview {...messageInput} />
+          <ChatAutoComplete
+            commands={messageInput.getCommands()}
+            innerRef={messageInput.textareaRef}
+            handleSubmit={messageInput.handleSubmit}
+            onSelectItem={messageInput.onSelectItem}
+            onChange={messageInput.handleChange}
+            value={messageInput.text}
+            rows={1}
+            maxRows={props.maxRows}
+            placeholder={
+              !messageInput.numberOfUploads ? 'Ask us a question' : ''
+            }
+            onPaste={messageInput.onPaste}
+            triggers={props.autocompleteTriggers}
+            grow={props.grow}
+            disabled={props.disabled}
+            additionalTextareaProps={{
+              ...props.additionalTextareaProps,
+            }}
+          />
+          <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
+          <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
+            <FileIcon />
+          </FileUploadButton>
+        </div>
+      </ImageDropzone>
       <EmojiPicker {...messageInput} />
     </div>
   );
