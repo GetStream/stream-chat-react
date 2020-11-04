@@ -391,6 +391,24 @@ export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
   lastRead?: Date;
 }
 
+/** Channel custom hooks */
+export function useEditMessageHandler(
+  doUpdateMessageRequest?: (
+    cid: string,
+    updatedMessage: Client.Message,
+  ) => ReturnType<Client.StreamChat['updateMessage']>,
+): (
+  updatedMessage: Client.Message,
+) => ReturnType<Client.StreamChat['updateMessage']>;
+
+export function useMentionsHandlers(
+  onMentionsHover?: (e: React.MouseEvent, user?: Client.UserResponse) => void,
+  onMentionsClick?: (e: React.MouseEvent, user?: Client.UserResponse) => void,
+): (
+  e: React.MouseEvent<HTMLSpanElement>,
+  mentioned_users: UserResponse[],
+) => void;
+
 export interface PaginatorProps {
   /** callback to load the next page */
   loadNextPage(): void;

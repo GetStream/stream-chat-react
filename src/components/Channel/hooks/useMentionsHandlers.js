@@ -2,14 +2,10 @@
 import { useCallback } from 'react';
 
 /**
- * @typedef {import('stream-chat').UserResponse} UserResponse
- * @typedef {(e: React.MouseEvent, user?: UserResponse) => void} MentionsHandler
- * @param {MentionsHandler=} onMentionsHover
- * @param {MentionsHandler=} onMentionsClick
+ * @type {import('types').useMentionsHandlers}
  */
 const useMentionsHandlers = (onMentionsHover, onMentionsClick) => {
   return useCallback(
-    /** @type {(e: React.MouseEvent<HTMLSpanElement>, mentioned_users: UserResponse[]) => void} */
     (e, mentioned_users) => {
       if (!onMentionsHover && !onMentionsClick) return;
       // eslint-disable-next-line prefer-destructuring
