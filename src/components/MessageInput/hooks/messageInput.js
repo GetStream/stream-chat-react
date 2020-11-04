@@ -210,7 +210,7 @@ function messageInputReducer(state, action) {
  * hook for MessageInput state
  * @type{import('types').useMessageInput}
  */
-export default function useMessageInputState(props) {
+export default function useMessageInput(props) {
   const {
     doImageUploadRequest,
     doFileUploadRequest,
