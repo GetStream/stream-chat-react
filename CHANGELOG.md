@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.0) 2020-11-04
+
+## Chore
+
+- Support React v17 [#588](https://github.com/GetStream/stream-chat-react/pull/588)
+
 ## [3.1.7](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.7) 2020-10-29
 
 ## Fix
