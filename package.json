@@ -40,7 +40,7 @@
     "react-markdown": "^4.3.1",
     "react-player": "^2.6.2",
     "react-textarea-autosize": "^8.2.0",
-    "react-virtuoso": "0.20.0",
+    "react-virtuoso": "^0.20.1",
     "seamless-immutable": "^7.1.4",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
