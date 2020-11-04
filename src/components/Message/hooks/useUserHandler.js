@@ -1,8 +1,6 @@
 // @ts-check
 /**
- * @typedef {React.EventHandler<React.SyntheticEvent>} Handler
- * @typedef {(e: React.MouseEvent, user: import('stream-chat').User) => void} UserEventHandler
- * @type {(message: import('stream-chat').MessageResponse | undefined, eventHandlers: {onUserClickHandler?: UserEventHandler, onUserHoverHandler?: UserEventHandler}) => { onUserClick: Handler, onUserHover: Handler }}
+ * @type {import('types').useUserHandler}
  */
 export const useUserHandler = (message, eventHandlers) => {
   return {

@@ -3,9 +3,7 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @type {(
- *  customRetrySendMessage?: (message: import('stream-chat').Message) => Promise<void>
- * ) => (message: import('stream-chat').Message | undefined) => Promise<void>}
+ * @type {import('types').useRetryHandler}
  */
 export const useRetryHandler = (customRetrySendMessage) => {
   /**
