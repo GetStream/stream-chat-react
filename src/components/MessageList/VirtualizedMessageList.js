@@ -64,11 +64,8 @@ const VirtualizedMessageList = ({
     /* do nothing if new messages are loaded from top(loadMore)  */
     if (lastMessage.id === prevMessageId) return;
 
-    /* if list is already at the bottom make it sticky */
-    if (atBottom.current) {
-      setTimeout(() => virtuoso.current?.scrollToIndex(messages.length)); // setTimeout is needed to delay the scroll until react flushes
-      return;
-    }
+    /* if list is already at the bottom return, followOutput will do the job */
+    if (atBottom.current) return;
 
     /* if the new message belongs to current user scroll to bottom */
     if (lastMessage.user?.id === client.userID) {
@@ -127,20 +124,23 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
+        followOutput={true}
         maxHeightCacheSize={2000} // reset the cache once it reaches 2k
         scrollSeek={scrollSeekPlaceHolder}
         item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
-        header={() => (
-          <div
-            className="str-chat__virtual-list__loading"
-            style={{ visibility: loadingMore ? undefined : 'hidden' }}
-          >
-            <LoadingIndicator size={20} />
-          </div>
-        )}
-        // @ts-ignore
-        footer={() => TypingIndicator && <TypingIndicator avatarSize={24} />}
+        header={() =>
+          loadingMore ? (
+            <div className="str-chat__virtual-list__loading">
+              <LoadingIndicator size={20} />
+            </div>
+          ) : (
+            <></>
+          )
+        }
+        footer={() =>
+          TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>
+        }
         startReached={() => {
           // mounted.current prevents immediate loadMore on first render
           if (mounted.current && hasMore) {
