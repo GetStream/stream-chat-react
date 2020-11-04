@@ -1,14 +1,34 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ChatContext } from 'stream-chat-react';
 
 import './AgentChannelHeader.css';
+
+import { NotificationPopup } from './NotificationPopup';
 
 import { DownIconSmall } from '../../assets/DownIconSmall';
 import { EmailIcon } from '../../assets/EmailIcon';
 import { PhoneIcon } from '../../assets/PhoneIcon';
 
 export const AgentChannelHeader = () => {
-  const { channel } = useContext(ChatContext);
+  const { channel, client } = useContext(ChatContext);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [previewText, setPreviewText] = useState('');
+
+  useEffect(() => {
+    client.on('message.new', (event) => {
+      if (event.channel_id !== channel.id) {
+        setPreviewText(event.message.text);
+        setPopupVisible(true);
+      }
+    });
+    return () => client.off('message.new');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (popupVisible) {
+      setTimeout(() => setPopupVisible(false), 3000);
+    }
+  }, [popupVisible]);
 
   return (
     <div className="agent-channel-header__container">
@@ -52,6 +72,9 @@ export const AgentChannelHeader = () => {
         <DownIconSmall />
       </div>
       <div className="agent-channel-header__bottom__border" />
+      {popupVisible && previewText && (
+        <NotificationPopup {...{ previewText, setPopupVisible }} />
+      )}
     </div>
   );
 };

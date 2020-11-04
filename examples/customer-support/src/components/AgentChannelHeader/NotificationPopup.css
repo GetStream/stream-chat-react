@@ -1,0 +1,78 @@
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+}
+
+.notification-popup__container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 16px 20px;
+  right: 20px;
+  top: 80px;
+  height: 94px;
+  width: 300px;
+  background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0) 100%
+    ),
+    rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  z-index: 100;
+  animation: fade 3s linear;
+}
+
+.notification-popup__top-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-popup__top-text {
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  padding: 0;
+}
+
+.notification-popup__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.notification-popup__waiting-text {
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 17px;
+  color: #ffffff;
+  margin: 6px 0;
+  padding: 0;
+}
+
+.notification-popup__message-preview {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 12px;
+  line-height: 14px;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+}

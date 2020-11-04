@@ -11,12 +11,12 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
 
   useEffect(() => {
     client.on('message.read', () => setUnreadCount(0));
-    return client.off('message.read');
+    return () => client.off('message.read');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     client.on('message.new', () => setUnreadCount(channel.state.unreadCount));
-    return client.off('message.new');
+    return () => client.off('message.new');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderMessageText = () => {
@@ -28,7 +28,11 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
       : `${lastMessageText.slice(0, 70)}...`;
   };
 
-  if (!channel.state.messages.length) return null;
+  if (
+    !channel.state.messages.length ||
+    (channel.id !== 'agent-demo' && channel.id !== 'support-demo')
+  )
+    return null;
 
   return (
     <div

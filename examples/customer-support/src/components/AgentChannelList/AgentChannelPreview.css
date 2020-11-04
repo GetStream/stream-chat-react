@@ -88,6 +88,8 @@
 .agent-channel-preview__unread-count {
   display: flex;
   justify-content: center;
+  align-items: center;
+  font-size: 12px;
   width: 18px;
   height: 18px;
   background: #e02020;
