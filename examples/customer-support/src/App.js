@@ -126,7 +126,7 @@ const App = () => {
     if (initialChannel && !initialChannel.state.messages.length) {
       sendMessages();
     }
-  }, [initialChannel, initialClient]);
+  }, [initialChannel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

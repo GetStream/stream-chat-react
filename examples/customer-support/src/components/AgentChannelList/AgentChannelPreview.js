@@ -1,10 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ChatContext } from 'stream-chat-react';
 
 import './AgentChannelPreview.css';
 
 export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
-  const { channel: activeChannel } = useContext(ChatContext);
+  const { channel: activeChannel, client } = useContext(ChatContext);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const selected = channel?.id === activeChannel?.id;
+
+  useEffect(() => {
+    client.on('message.read', () => setUnreadCount(0));
+    return client.off('message.read');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    client.on('message.new', () => setUnreadCount(channel.state.unreadCount));
+    return client.off('message.new');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderMessageText = () => {
     const lastMessageText =
@@ -20,7 +33,7 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
   return (
     <div
       className={
-        channel?.id === activeChannel?.id
+        selected
           ? 'agent-channel-preview__wrapper selected'
           : 'agent-channel-preview__wrapper'
       }
@@ -36,7 +49,14 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
           />
         </div>
         <div className="agent-channel-preview__name-wrapper">
-          <p className="agent-channel-preview__text">{channel.data.name}</p>
+          <div className="agent-channel-preview__name-count-wrapper">
+            <p className="agent-channel-preview__name">{channel.data.name}</p>
+            {!!unreadCount && !selected && (
+              <div className="agent-channel-preview__unread-count">
+                {unreadCount}
+              </div>
+            )}
+          </div>
           <p className="agent-channel-preview__text-inquiry">
             {channel.data.subtitle}
           </p>
