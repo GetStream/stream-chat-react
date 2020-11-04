@@ -711,6 +711,34 @@ export interface MessageInputEmojiPickerProps extends MessageInputState {
   small?: boolean;
 }
 
+interface MessageInputHookProps {
+  isUploadEnabled: boolean;
+  maxFilesLeft: number;
+  // refs
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
+  // handlers
+  uploadNewFiles(files: FileList): void;
+  removeImage(id: string): void;
+  uploadImage(id: string): void;
+  removeFile(id: string): void;
+  uploadFile(id: string): void;
+  onSelectEmoji(emoji: { native: string }): void;
+  getUsers(): (
+    | ImmutableObject<Client.ChannelMemberAPIResponse<StreamChatReactUserType>>
+    | undefined
+  )[];
+  getCommands(): Client.CommandResponse[] | undefined;
+  handleSubmit(event: React.FormEvent | React.MouseEvent): void;
+  handleChange(event: React.ChangeEventHandler): void;
+  onPaste(event: React.ClipboardEvent): void;
+  onSelectItem(item: Client.UserResponse): void;
+  openEmojiPicker(): void;
+}
+export function useMessageInput(
+  props: MessageInputProps,
+): MessageInputState & MessageInputHookProps;
+
 export interface FileAttachmentProps {
   attachment: Client.Attachment & { asset_url?: string };
 }

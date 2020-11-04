@@ -208,7 +208,7 @@ function messageInputReducer(state, action) {
 }
 /**
  * hook for MessageInput state
- * @param {Props} props
+ * @type{import('types').useMessageInput}
  */
 export default function useMessageInputState(props) {
   const {
@@ -665,6 +665,7 @@ export default function useMessageInputState(props) {
   );
 
   const onPaste = useCallback(
+    /** (e: React.ClipboardEvent) */
     (e) => {
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
