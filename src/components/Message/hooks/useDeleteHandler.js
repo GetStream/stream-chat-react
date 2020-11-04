@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) =>  (event: React.MouseEvent<HTMLElement>) => Promise<void>}
+ * @type {import('types').useDeleteHandler}
  */
 export const useDeleteHandler = (message) => {
   const { updateMessage, client } = useContext(ChannelContext);
