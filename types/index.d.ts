@@ -4,7 +4,6 @@
 import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
-import { MessageResponse, UnknownType } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
@@ -538,10 +537,10 @@ export interface MessageListProps {
   messageLimit?: number;
   messageActions?: Array<string>;
   mutes?: Client.Mute[];
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
   loadMore?(messageLimit?: number): Promise<number>;
@@ -1327,10 +1326,10 @@ export interface MessageActionsProps {
   handleMute?(event?: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute[];
   getMessageActions(): Array<string>;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
