@@ -74,6 +74,7 @@ export const MessageActions = (props) => {
       document.removeEventListener('click', hideOptions);
     };
   }, [actionsBoxOpen, hideOptions]);
+
   if (messageActions.length === 0) {
     return null;
   }
@@ -123,8 +124,11 @@ const MessageActionsWrapper = (props) => {
     typeof customWrapperClass === 'string'
       ? customWrapperClass
       : defaultWrapperClass;
-  /** @type {() => void} Typescript syntax */
-  const onClickOptionsAction = () => setActionsBoxOpen(true);
+  /** @type {(e: React.MouseEvent) => void} Typescript syntax */
+  const onClickOptionsAction = (e) => {
+    e.stopPropagation();
+    setActionsBoxOpen(true);
+  };
   const wrapperProps = {
     'data-testid': 'message-actions',
     onClick: onClickOptionsAction,
