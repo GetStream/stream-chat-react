@@ -5,7 +5,7 @@ import './AgentChannelPreview.css';
 
 export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
   const { channel: activeChannel, client } = useContext(ChatContext);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(channel.state.unreadCount);
 
   const selected = channel?.id === activeChannel?.id;
 

@@ -44,6 +44,7 @@ const App = () => {
   const [agentClient, setAgentClient] = useState();
   const [initialClient, setInitialClient] = useState();
   const [initialChannel, setInitialChannel] = useState();
+  // const [customerFocused, setCustomerFocused] = useState(true);
 
   /**
    * Creates and watches a channel with a mock customer as the user
@@ -130,7 +131,13 @@ const App = () => {
 
   return (
     <>
-      <div className="agent-wrapper">
+      <div
+        className="agent-wrapper"
+        // className={`agent-wrapper ${customerFocused ? 'unfocused' : 'focused'}`}
+        // onClick={() => {
+        //   if (customerFocused) setCustomerFocused(!customerFocused);
+        // }}
+      >
         <AgentHeader />
         {agentClient ? (
           <Chat client={agentClient}>
@@ -140,11 +147,20 @@ const App = () => {
           <AgentLoading />
         )}
       </div>
+      {/* <div
+        className={`customer-background ${
+          customerFocused ? 'focused' : 'unfocused'
+        }`}
+        onClick={() => {
+          if (!customerFocused) setCustomerFocused(!customerFocused);
+        }}
+      > */}
       {customerClient && (
         <Chat client={customerClient} theme={`commerce ${theme}`}>
           <CustomerApp />
         </Chat>
       )}
+      {/* </div> */}
     </>
   );
 };
