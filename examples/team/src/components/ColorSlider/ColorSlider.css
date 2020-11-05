@@ -19,7 +19,7 @@
 }
 
 .color-slider__top__text {
-  font-family: Inter;
+  font-family: Inter, serif;
   font-weight: bold;
   font-size: 12px;
   letter-spacing: 0.8px;
