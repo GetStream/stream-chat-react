@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.2) 2020-11-05
+
+## Fix
+
+- `VirtualizedMessageList` breaking the list for falsy messages [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- `FixedHeightMessage` action box not opening in React@17 [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- Missing custom hooks type [#601](https://github.com/GetStream/stream-chat-react/pull/601)
+
 ## [3.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.1) 2020-11-04
 
 ## Fix
