@@ -7,12 +7,7 @@ export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
 /**
- * @typedef {{
- *   notify?: import('types').MessageComponentProps['addNotification'],
- *   getSuccessNotification?: import('types').MessageComponentProps['getMuteUserSuccessNotification'],
- *   getErrorNotification?: import('types').MessageComponentProps['getMuteUserErrorNotification'],
- * }} NotificationArg
- * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
+ * @type {import('types').useFlagHandler}
  */
 export const useFlagHandler = (message, notifications = {}) => {
   const { client } = useContext(ChannelContext);

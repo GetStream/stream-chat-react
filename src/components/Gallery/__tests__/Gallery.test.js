@@ -71,7 +71,7 @@ describe('Gallery', () => {
         <Gallery images={mockGalleryAssets} />,
       </Chat>,
     );
-    waitFor(() => {
+    await waitFor(() => {
       expect(getByText('3 more')).toBeInTheDocument();
     });
   });

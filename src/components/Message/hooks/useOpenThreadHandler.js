@@ -3,10 +3,7 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @type {(
- *   message: import('stream-chat').MessageResponse | undefined,
- *   customOpenThread?: (message: import('stream-chat').MessageResponse, event: React.SyntheticEvent) => void
- * ) => (event: React.SyntheticEvent) => void}
+ * @type {import('types').useOpenThreadHandler}
  */
 export const useOpenThreadHandler = (message, customOpenThread) => {
   /**

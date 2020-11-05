@@ -7,12 +7,7 @@ export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
 /**
- * @typedef {{
- *   notify?: import('types').MessageComponentProps['addNotification'],
- *   getSuccessNotification?: import('types').MessageComponentProps['getMuteUserSuccessNotification'],
- *   getErrorNotification?: import('types').MessageComponentProps['getMuteUserErrorNotification'],
- * }} NotificationArg
- * @type {(message: import('stream-chat').MessageResponse | undefined, notification: NotificationArg) => (event: React.MouseEvent<HTMLElement>) => Promise<void>}
+ * @type {import('types').useMuteHandler}
  */
 export const useMuteHandler = (message, notifications = {}) => {
   const { client, mutes } = useContext(ChannelContext);

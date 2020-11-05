@@ -4,7 +4,6 @@
 import * as React from 'react';
 import * as Client from 'stream-chat';
 import SeamlessImmutable from 'seamless-immutable';
-import { MessageResponse, UnknownType } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
@@ -392,6 +391,24 @@ export interface ChannelPreviewUIComponentProps extends ChannelPreviewProps {
   lastRead?: Date;
 }
 
+/** Channel custom hooks */
+export function useEditMessageHandler(
+  doUpdateMessageRequest?: (
+    cid: string,
+    updatedMessage: Client.Message,
+  ) => ReturnType<Client.StreamChat['updateMessage']>,
+): (
+  updatedMessage: Client.Message,
+) => ReturnType<Client.StreamChat['updateMessage']>;
+
+export function useMentionsHandlers(
+  onMentionsHover?: (e: React.MouseEvent, user?: Client.UserResponse) => void,
+  onMentionsClick?: (e: React.MouseEvent, user?: Client.UserResponse) => void,
+): (
+  e: React.MouseEvent<HTMLSpanElement>,
+  mentioned_users: UserResponse[],
+) => void;
+
 export interface PaginatorProps {
   /** callback to load the next page */
   loadNextPage(): void;
@@ -538,10 +555,10 @@ export interface MessageListProps {
   messageLimit?: number;
   messageActions?: Array<string>;
   mutes?: Client.Mute[];
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
   loadMore?(messageLimit?: number): Promise<number>;
@@ -693,6 +710,34 @@ export interface MessageInputEmojiPickerProps extends MessageInputState {
   emojiPickerRef: React.RefObject<HTMLDivElement>;
   small?: boolean;
 }
+
+interface MessageInputHookProps {
+  isUploadEnabled: boolean;
+  maxFilesLeft: number;
+  // refs
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
+  // handlers
+  uploadNewFiles(files: FileList): void;
+  removeImage(id: string): void;
+  uploadImage(id: string): void;
+  removeFile(id: string): void;
+  uploadFile(id: string): void;
+  onSelectEmoji(emoji: { native: string }): void;
+  getUsers(): (
+    | ImmutableObject<Client.ChannelMemberAPIResponse<StreamChatReactUserType>>
+    | undefined
+  )[];
+  getCommands(): Client.CommandResponse[] | undefined;
+  handleSubmit(event: React.FormEvent | React.MouseEvent): void;
+  handleChange(event: React.ChangeEventHandler): void;
+  onPaste(event: React.ClipboardEvent): void;
+  onSelectItem(item: Client.UserResponse): void;
+  openEmojiPicker(): void;
+}
+export function useMessageInput(
+  props: MessageInputProps,
+): MessageInputState & MessageInputHookProps;
 
 export interface FileAttachmentProps {
   attachment: Client.Attachment & { asset_url?: string };
@@ -1327,10 +1372,10 @@ export interface MessageActionsProps {
   handleMute?(event?: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute[];
   getMessageActions(): Array<string>;
-  getFlagMessageSuccessNotification?(message: MessageResponse): string;
-  getFlagMessageErrorNotification?(message: MessageResponse): string;
-  getMuteUserSuccessNotification?(message: MessageResponse): string;
-  getMuteUserErrorNotification?(message: MessageResponse): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
@@ -1364,6 +1409,111 @@ export class MessageDeleted extends React.PureComponent<
   MessageDeletedProps,
   any
 > {}
+
+/** Custom Message Hooks **/
+export function useActionHandler(
+  message: Client.MessageResponse | undefined,
+): (
+  name: string,
+  value: string,
+  event: React.MouseEvent<HTMLElement>,
+) => Promise<void>;
+
+export function useDeleteHandler(
+  message: Client.MessageResponse | undefined,
+): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+
+interface MessageNotificationArguments {
+  notify?: MessageComponentProps['addNotification'];
+  getSuccessNotification?: MessageComponentProps['getMuteUserSuccessNotification'];
+  getErrorNotification?: MessageComponentProps['getMuteUserErrorNotification'];
+}
+export function useFlagHandler(
+  message: Client.MessageResponse | undefined,
+  notification: MessageNotificationArguments,
+): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+
+type CustomMentionHandler = (
+  event: React.MouseEvent,
+  user: Client.UserResponse[],
+) => void;
+export function useMentionsHandler(
+  message: Client.MessageResponse | undefined,
+  customMentionHandler?: {
+    onMentionsClick?: CustomMentionHandler;
+    onMentionsHover?: CustomMentionHandler;
+  },
+): {
+  onMentionsClick: React.EventHandler<React.SyntheticEvent>;
+  onMentionsHover: React.EventHandler<React.SyntheticEvent>;
+};
+export function useMentionsUIHandler(
+  message: Client.MessageResponse | undefined,
+  eventHandlers?: {
+    onMentionsClick?: React.EventHandler<React.SyntheticEvent>;
+    onMentionsHover?: React.EventHandler<React.SyntheticEvent>;
+  },
+): {
+  onMentionsClick: React.EventHandler<React.SyntheticEvent>;
+  onMentionsHover: React.EventHandler<React.SyntheticEvent>;
+};
+
+export function useMuteHandler(
+  message: Client.MessageResponse | undefined,
+  notification: MessageNotificationArguments,
+): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+
+export function useOpenThreadHandler(
+  message: Client.MessageResponse | undefined,
+  customOpenThread?: (
+    message: Client.MessageResponse,
+    event: React.SyntheticEvent,
+  ) => void,
+): (event: React.SyntheticEvent) => void;
+
+export function useReactionHandler(
+  message: Client.MessageResponse | undefined,
+): (reactionType: string, event: React.MouseEvent) => Promise<void>;
+
+export function useReactionClick(
+  message: Client.MessageResponse | undefined,
+  reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
+  messageWrapperRef?: React.RefObject<HTMLElement | null>,
+): {
+  onReactionListClick: () => void;
+  showDetailedReactions: boolean;
+  isReactionEnabled: boolean;
+};
+
+export function useRetryHandler(
+  customRetrySendMessage?: (message: Client.Message) => Promise<void>,
+): (message: Client.Message | undefined) => Promise<void>;
+
+type UserEventHandler = (e: React.MouseEvent, user: Client.User) => void;
+export function useUserHandler(
+  message: Client.MessageResponse | undefined,
+  eventHandlers: {
+    onUserClickHandler?: UserEventHandler;
+    onUserHoverHandler?: UserEventHandler;
+  },
+): {
+  onUserClick: React.EventHandler<React.SyntheticEvent>;
+  onUserHover: React.EventHandler<React.SyntheticEvent>;
+};
+
+interface UserRoles {
+  isMyMessage: boolean;
+  isAdmin: boolean;
+  isModerator: boolean;
+  isOwner: boolean;
+}
+interface UserCapabilities {
+  canEditMessage: boolean;
+  canDeleteMessage: boolean;
+}
+export function useUserRole(
+  message: Client.MessageResponse | undefined,
+): UserRoles & UserCapabilities;
 
 export class Thread extends React.PureComponent<
   Omit<ThreadProps & ChannelContextValue & TranslationContextValue, 'client'>,

@@ -3,15 +3,7 @@ import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
 /**
- * @typedef {{
- *   isMyMessage: boolean;
- *   isAdmin: boolean;
- *   isModerator: boolean;
- *   isOwner: boolean;
- *   canEditMessage: boolean;
- *   canDeleteMessage: boolean;
- * }} UserRoles
- * @type {(message: import('stream-chat').MessageResponse | undefined) => UserRoles} Typescript syntax
+ * @type {import('types').useUserRole}
  */
 export const useUserRole = (message) => {
   const { client, channel } = useContext(ChannelContext);

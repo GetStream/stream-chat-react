@@ -39,20 +39,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
               }
             }
           >
-            <header>
-              <div
-                className="str-chat__virtual-list__loading"
-                style={
-                  Object {
-                    "visibility": "hidden",
-                  }
-                }
-              >
-                <div>
-                  LoadingIndicator
-                </div>
-              </div>
-            </header>
+            <header />
             <footer />
           </div>
         </div>

@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.2) 2020-11-05
+
+## Fix
+
+- `VirtualizedMessageList` breaking the list for falsy messages [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- `FixedHeightMessage` action box not opening in React@17 [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- Missing custom hooks type [#601](https://github.com/GetStream/stream-chat-react/pull/601)
+
+## [3.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.1) 2020-11-04
+
+## Fix
+
+- `VirtualizedMessageList` stick to bottom [#597](https://github.com/GetStream/stream-chat-react/pull/597)
+
+## [3.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.0) 2020-11-04
+
+## Chore
+
+- Support React v17 [#588](https://github.com/GetStream/stream-chat-react/pull/588)
+
+## [3.1.7](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.7) 2020-10-29
+
+## Fix
+
+- Improved errorHandling on failed uploads. [#596](https://github.com/GetStream/stream-chat-react/pull/596)
+- Escape special characters in mentioned_users names [#591](https://github.com/GetStream/stream-chat-react/pull/591)
+- Improve handling max files(10) in MessageInput [#593](https://github.com/GetStream/stream-chat-react/pull/593)
+
 ## [3.1.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.6) 2020-10-21
 
 ## Fix

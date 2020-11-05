@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { ChannelContext } from '../../../context';
 
-/** @type {(fn: Function | undefined, message: import('stream-chat').MessageResponse | undefined) => Handler} * */
+/** @type {(fn: Function | undefined, message: import('stream-chat').MessageResponse | undefined) => React.EventHandler<React.SyntheticEvent>} * */
 function createEventHandler(fn, message) {
   return (e) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
@@ -13,16 +13,7 @@ function createEventHandler(fn, message) {
 }
 
 /**
- * @typedef {React.EventHandler<React.SyntheticEvent>} Handler
- * @typedef { import('stream-chat').MessageResponse | undefined } Message
- * @typedef { (event: React.MouseEvent, user: import('stream-chat').UserResponse[] ) => void } CustomMentionHandler
- * @type {(
- *   message: Message,
- *   customMentionHandler?: {
- *     onMentionsClick?: CustomMentionHandler,
- *     onMentionsHover?: CustomMentionHandler
- *   }
- * ) => { onMentionsClick: Handler, onMentionsHover: Handler }}
+ * @type {import('types').useMentionsHandler}
  */
 export const useMentionsHandler = (message, customMentionHandler) => {
   /**
@@ -50,13 +41,7 @@ export const useMentionsHandler = (message, customMentionHandler) => {
 };
 
 /**
- * @type {(
- *   message: Message,
- *   eventHandlers?: {
- *     onMentionsClick?: Handler,
- *     onMentionsHover?: Handler,
- *   },
- * ) => { onMentionsClick: Handler, onMentionsHover: Handler }}
+ * @type {import('types').useMentionsUIHandler}
  */
 export const useMentionsUIHandler = (message, eventHandlers) => {
   /**
