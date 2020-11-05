@@ -95,7 +95,7 @@ const VirtualizedMessageList = ({
       if (customMessageRenderer) return customMessageRenderer(messageList, i);
 
       const message = messageList[i];
-      if (!message) return <></>;
+      if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
       if (message.type === 'channel.event' || message.type === 'system')
         return <MessageSystem message={message} />;
