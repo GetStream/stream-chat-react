@@ -4,10 +4,11 @@
   background: #f7f6f8;
   padding: 15px 20px 28px;
   width: 100%;
+  border-bottom-right-radius: 16px;
 }
 
 .team-message-input__input {
-  border: 1px solid #4e1d9d;
+  border: 1px solid var(--primary-color);
   border-radius: 8px;
 }
 
@@ -27,7 +28,7 @@
   justify-content: space-evenly;
   height: 24px;
   width: 63px;
-  background: #4e1d9d;
+  background: var(--primary-color);
   border-radius: 12px;
   margin-left: 8px;
 }
@@ -137,11 +138,11 @@ div.rta__autocomplete.str-chat__emojisearch {
 }
 
 .rta__entity--selected {
-  background: #4e1d9d;
+  background: var(--primary-color);
 }
 
 .str-chat__slash-command:hover {
-  background: #4e1d9d;
+  background: var(--primary-color);
   cursor: pointer;
 }
 

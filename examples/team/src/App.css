@@ -9,6 +9,13 @@ body {
   height: 100%;
 }
 
+.app__wrapper {
+  display: flex;
+  height: 800px;
+  border-radius: 16px;
+  box-shadow: rgba(0, 0, 0, 0.33) 0px 1px 4px 0px;
+}
+
 .str-chat-channel-list {
   height: fit-content;
   margin-bottom: 8px;
