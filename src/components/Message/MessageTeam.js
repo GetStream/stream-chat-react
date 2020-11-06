@@ -225,6 +225,7 @@ const MessageTeam = (props) => {
                       handleReaction={propHandleReaction || handleReaction}
                       latest_reactions={message.latest_reactions}
                       reaction_counts={message.reaction_counts || undefined}
+                      own_reactions={message.own_reactions}
                       detailedView={true}
                       ref={reactionSelectorRef}
                     />
@@ -315,6 +316,7 @@ const MessageTeam = (props) => {
                   reaction_counts={message.reaction_counts || undefined}
                   handleReaction={propHandleReaction || handleReaction}
                   reactions={message.latest_reactions}
+                  own_reactions={message.own_reactions}
                 />
               )}
             {message?.status === 'failed' && (
@@ -358,6 +360,7 @@ const MessageTeam = (props) => {
                 reaction_counts={message.reaction_counts || undefined}
                 handleReaction={propHandleReaction || handleReaction}
                 reactions={message.latest_reactions}
+                own_reactions={message.own_reactions}
               />
             )}
           {!threadList && message && (
