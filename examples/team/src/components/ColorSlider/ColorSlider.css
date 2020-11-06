@@ -31,7 +31,7 @@
   width: 22px;
   height: 22px;
   border-radius: 11px;
-  background: var(--primary-color);
+  background: rgb(var(--primary-color));
   box-shadow: rgba(0, 0, 0, 0.33) 0px 1px 4px 0px;
 }
 
@@ -54,7 +54,7 @@
   position: absolute;
   top: -6px;
   border-radius: 15px;
-  background: var(--primary-color);
+  background: rgb(var(--primary-color));
   height: 24px;
   width: 24px;
   transform: translate(-9px, -1px);

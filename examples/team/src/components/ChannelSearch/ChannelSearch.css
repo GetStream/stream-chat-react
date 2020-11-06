@@ -50,7 +50,7 @@
   border-radius: 8px;
   z-index: 10;
   left: 300px;
-  top: 79px;
+  top: 159px;
 }
 
 .channel-search__results-header {
@@ -83,11 +83,11 @@
   height: 48px;
   display: flex;
   align-items: center;
-  background: rgba(78, 29, 157, 0.1);
+  background: rgba(var(--primary-color), 0.1);
 }
 
 .channel-search__result-container:hover {
-  background: rgba(78, 29, 157, 0.1);
+  background: rgba(var(--primary-color), 0.1);
   cursor: pointer;
 }
 
@@ -100,7 +100,7 @@
 .result-hashtag {
   height: 24px;
   width: 28px;
-  background: var(--primary-color);
+  background: rgb(var(--primary-color));
   border-radius: 24px;
   margin: 12px;
   display: flex;
@@ -115,7 +115,6 @@
 
 .channel-search__result-text {
   width: 100%;
-  /* margin-left: 8px; */
   font-family: Helvetica Neue, sans-serif;
   font-weight: 500;
   font-size: 14px;

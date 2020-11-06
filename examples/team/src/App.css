@@ -37,6 +37,11 @@ body {
   margin: 16px 24px;
 }
 
+.str-chat__message-notification {
+  background: rgb(var(--primary-color));
+  cursor: pointer;
+}
+
 .channel__wrapper {
   height: 100%;
   width: 100%;

@@ -16,8 +16,10 @@ export const ColorSlider = ({ primaryColor, setPrimaryColor }) => {
       {sliderOpen && (
         <div className="color-slider__picker-wrapper">
           <HuePicker
-            color={primaryColor}
-            onChange={(color) => setPrimaryColor(color.hex)}
+            color={`rgb(${primaryColor})`}
+            onChange={(color) => {
+              setPrimaryColor(`${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
+            }}
             height="10px"
             width="200px"
             pointer={() => <div className="color-slider__pointer" />}

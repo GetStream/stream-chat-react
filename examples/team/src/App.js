@@ -46,7 +46,7 @@ const GlobalColor = createGlobalStyle`
 `;
 
 const App = () => {
-  const [primaryColor, setPrimaryColor] = useState('#4e1d9d');
+  const [primaryColor, setPrimaryColor] = useState('78, 29, 157');
 
   const chatClient = new StreamChat(apiKey);
   chatClient.setUser({ id: user }, userToken);
