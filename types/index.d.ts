@@ -949,6 +949,7 @@ export interface ReactionSelectorProps {
   reaction_counts?: {
     [reaction_type: string]: number;
   };
+  own_reactions?: StreamChatReactMessageResponse['own_reactions'];
   /** Enable the avatar display */
   detailedView?: boolean;
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
@@ -992,6 +993,7 @@ export interface ReactionsListProps {
   reaction_counts?: {
     [reaction_type: string]: number;
   };
+  own_reactions?: StreamChatReactMessageResponse['own_reactions'];
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmojiInterface[];
   onClick?(): void;
