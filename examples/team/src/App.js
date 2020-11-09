@@ -1,25 +1,14 @@
 import React, { useState } from 'react';
 import { StreamChat } from 'stream-chat';
-import {
-  Channel,
-  Chat,
-  enTranslations,
-  MessageList,
-  Streami18n,
-  Thread,
-  Window,
-} from 'stream-chat-react';
+import { Chat, enTranslations, Streami18n } from 'stream-chat-react';
 import { createGlobalStyle } from 'styled-components';
 import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
 import './components/ColorSlider/ColorSlider.css';
 
+import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { ChannelListContainer } from './components/ChannelListContainer/ChannelListContainer';
-import { TeamChannelHeader } from './components/TeamChannelHeader/TeamChannelHeader';
-import { TeamMessage } from './components/TeamMessage/TeamMessage';
-import { TeamMessageInput } from './components/TeamMessageInput/TeamMessageInput';
-import { ThreadMessageInput } from './components/TeamMessageInput/ThreadMessageInput';
 import { ColorSlider } from './components/ColorSlider/ColorSlider';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -62,23 +51,7 @@ const App = () => {
           theme={`team ${theme}`}
         >
           <ChannelListContainer />
-          <div className="channel__wrapper">
-            <Channel>
-              <Window>
-                <TeamChannelHeader />
-                <MessageList
-                  Message={TeamMessage}
-                  TypingIndicator={() => null}
-                />
-                <TeamMessageInput focus />
-              </Window>
-              <Thread
-                additionalMessageListProps={{ TypingIndicator: () => null }}
-                Message={TeamMessage}
-                MessageInput={ThreadMessageInput}
-              />
-            </Channel>
-          </div>
+          <ChannelContainer />
         </Chat>
       </div>
     </>

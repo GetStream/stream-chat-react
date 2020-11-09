@@ -2,9 +2,7 @@ import React from 'react';
 
 import './TeamChannelList.css';
 
-import { AddChannel } from '../../assets/AddChannel';
-
-export const TeamChannelList = ({ error = false, loading, children, type }) => {
+export const TeamChannelList = ({ children, error = false, loading, type }) => {
   /**
    * This work around removes children of the other channel type since we have
    * two ChannelList components and each receives the `message.new` event,
@@ -58,7 +56,6 @@ export const TeamChannelList = ({ error = false, loading, children, type }) => {
         <p className="team-channel-list__header__title">
           {type === 'team' ? 'Channels' : 'Direct Messages'}
         </p>
-        <AddChannel />
       </div>
       {newChildren}
     </div>
