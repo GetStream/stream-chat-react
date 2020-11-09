@@ -31,7 +31,7 @@ export const ChannelContainer = () => {
         />
       </div>
       {isCreating && createType ? (
-        <CreateChannel createType={createType} />
+        <CreateChannel {...{ createType, setIsCreating }} />
       ) : (
         <Channel>
           <Window>
