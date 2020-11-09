@@ -1,17 +1,54 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ChatContext } from 'stream-chat-react';
+import { Avatar, ChatContext } from 'stream-chat-react';
 
 import './UserList.css';
 
-const UserItem = ({ user }) => {
+import { InviteIcon } from '../../assets/InviteIcon';
+
+const UserItem = ({ index, setSelectedUsers, user }) => {
+  const [selected, setSelected] = useState(false);
+
+  const getLastActive = (i) => {
+    switch (i) {
+      case 0:
+        return '12 min ago';
+      case 1:
+        return '27 min ago';
+      case 2:
+        return '6 hours ago';
+      case 3:
+        return '14 hours ago';
+      case 4:
+        return 'Yesterday';
+      default:
+        return 'Yesterday';
+    }
+  };
+
+  const handleClick = () => {
+    if (selected) {
+      setSelectedUsers((prevUsers) =>
+        prevUsers.filter((prevUser) => prevUser !== user.id),
+      );
+    } else {
+      setSelectedUsers((prevUsers) => [...prevUsers, user.id]);
+    }
+    setSelected(!selected);
+  };
+
   return (
-    <div className="user-item__wrapper">
-      <p>{user.name}</p>
+    <div className="user-item__wrapper" onClick={handleClick}>
+      <div className="user-item__name-wrapper">
+        <Avatar image={user.image} size={32} />
+        <p className="user-item__name">{user.name}</p>
+      </div>
+      <p className="user-item__last-active">{getLastActive(index)}</p>
+      {selected ? <InviteIcon /> : <div className="user-item__invite-empty" />}
     </div>
   );
 };
 
-export const UserList = () => {
+export const UserList = ({ setSelectedUsers }) => {
   const { client } = useContext(ChatContext);
 
   const [loading, setLoading] = useState(false);
@@ -22,7 +59,7 @@ export const UserList = () => {
       setLoading(true);
       const response = await client.queryUsers(
         {},
-        { last_active: -1 },
+        { last_active: -1, role: -1 },
         { limit: 5 },
       );
 
@@ -44,10 +81,14 @@ export const UserList = () => {
         <div className="user-list__loading">Loading users...</div>
       ) : (
         users.length &&
-        users.map((user) => {
-          console.log(user);
-          return <UserItem key={user.id} user={user} />;
-        })
+        users.map((user, i) => (
+          <UserItem
+            index={i}
+            key={user.id}
+            setSelectedUsers={setSelectedUsers}
+            user={user}
+          />
+        ))
       )}
     </div>
   );

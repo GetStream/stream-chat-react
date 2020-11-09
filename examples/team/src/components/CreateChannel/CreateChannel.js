@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { ChatContext } from 'stream-chat-react';
 
 import './CreateChannel.css';
 
@@ -27,7 +28,18 @@ const ChannelNameInput = ({ channelName, setChannelName }) => {
 };
 
 export const CreateChannel = ({ createType, setIsCreating }) => {
+  const { client, setActiveChannel } = useContext(ChatContext);
+
   const [channelName, setChannelName] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
+  const createChannel = (event) => {
+    event.preventDefault();
+    console.log(channelName);
+    console.log(selectedUsers);
+    setChannelName('');
+    setSelectedUsers([]);
+  };
 
   return (
     <div className="create-channel__container">
@@ -42,7 +54,10 @@ export const CreateChannel = ({ createType, setIsCreating }) => {
       {createType === 'team' && (
         <ChannelNameInput {...{ channelName, setChannelName }} />
       )}
-      <UserList />
+      <UserList setSelectedUsers={setSelectedUsers} />
+      <div className="create-channel__button-wrapper" onClick={createChannel}>
+        <p>Create Channel</p>
+      </div>
     </div>
   );
 };

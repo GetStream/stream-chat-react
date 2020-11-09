@@ -63,3 +63,27 @@
   font-weight: 300;
   color: rgba(0, 0, 0, 0.5);
 }
+
+.create-channel__button-wrapper {
+  position: absolute;
+  top: 798px;
+  height: 82px;
+  width: 885px;
+  background: #f7f6f8;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom-right-radius: 16px;
+}
+
+.create-channel__button-wrapper p {
+  background: rgb(var(--primary-color));
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 10px 20px;
+  color: #ffffff;
+  margin-right: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+}
