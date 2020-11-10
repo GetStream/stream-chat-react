@@ -43,7 +43,7 @@ export const TeamChannelList = ({ children, error = false, loading, type }) => {
   if (loading) {
     return (
       <div className="team-channel-list">
-        <p className="team-channel-list__message">
+        <p className="team-channel-list__message loading">
           {type === 'team' ? 'Channels' : 'Messages'} loading....
         </p>
       </div>

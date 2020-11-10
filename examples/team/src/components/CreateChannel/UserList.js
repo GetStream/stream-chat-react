@@ -60,7 +60,7 @@ export const UserList = ({ setSelectedUsers }) => {
       const response = await client.queryUsers(
         {},
         { last_active: -1, role: -1 },
-        { limit: 5 },
+        { limit: 6 },
       );
 
       if (response.users.length) setUsers(response.users);

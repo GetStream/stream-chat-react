@@ -7,6 +7,10 @@
   padding: 0 16px;
 }
 
+.team-channel-list__message.loading {
+  height: 115px;
+}
+
 .team-channel-list__header {
   padding: 0 16px;
   display: flex;
