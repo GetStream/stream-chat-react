@@ -50,7 +50,11 @@ export const TeamMessageInput = (props) => {
     }
 
     const members = Object.values(channel.state.members);
-    return members[0]?.user.name || 'Johnny Blaze';
+    if (!members.length || members.length === 1) {
+      return members[0]?.user.name || 'Johnny Blaze';
+    }
+
+    return 'the group';
   };
 
   const overrideSubmitHandler = (message) => {

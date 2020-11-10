@@ -16,12 +16,26 @@ export const TeamChannelPreview = (props) => {
 
   const DirectPreview = () => {
     const members = Object.values(channel.state.members);
+    const defaultName = 'Johnny Blaze';
+
+    if (!members.length || members.length === 1) {
+      return (
+        <div className="channel-preview__item single">
+          <Avatar image={members[0]?.user.image || undefined} size={24} />
+          <p>{members[0]?.user.name || defaultName}</p>
+          <TeamTypingIndicator type="list" />
+        </div>
+      );
+    }
 
     return (
-      <div className="channel-preview__item">
-        <Avatar image={members[0]?.user.image || undefined} size={24} />
-        <p>{members[0]?.user.name || 'Johnny Blaze'}</p>
-        <TeamTypingIndicator type="list" />
+      <div className="channel-preview__item multi">
+        <Avatar image={members[0]?.user.image || undefined} size={18} />
+        <Avatar image={members[1]?.user.image || undefined} size={18} />
+        <p>
+          {members[0]?.user.name || defaultName},{' '}
+          {members[1]?.user.name || defaultName}
+        </p>
       </div>
     );
   };

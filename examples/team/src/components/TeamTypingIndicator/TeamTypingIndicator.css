@@ -1,6 +1,6 @@
 .typing-indicator__input {
   position: absolute;
-  bottom: calc(100% - 800px + 7px);
+  bottom: calc(100% - 880px + 7px);
   display: flex;
   align-items: center;
   color: rgba(0, 0, 0, 0.9);
