@@ -7,7 +7,7 @@ import { UserList } from './UserList';
 
 import { CloseCreateChannel } from '../../assets/CloseCreateChannel';
 
-const ChannelNameInput = ({ channelName, setChannelName }) => {
+const ChannelNameInput = ({ channelName = '', setChannelName }) => {
   const handleChange = (event) => {
     event.preventDefault();
     setChannelName(event.target.value);
@@ -30,15 +30,23 @@ const ChannelNameInput = ({ channelName, setChannelName }) => {
 export const CreateChannel = ({ createType, setIsCreating }) => {
   const { client, setActiveChannel } = useContext(ChatContext);
 
-  const [channelName, setChannelName] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [channelName, setChannelName] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([client.userID]);
 
-  const createChannel = (event) => {
+  const createChannel = async (event) => {
     event.preventDefault();
-    console.log(channelName);
-    console.log(selectedUsers);
-    setChannelName('');
-    setSelectedUsers([]);
+
+    const newChannel = await client.channel(createType, channelName, {
+      name: channelName,
+      members: selectedUsers,
+    });
+
+    await newChannel.watch();
+
+    setChannelName(null);
+    setIsCreating(false);
+    setSelectedUsers([client.userID]);
+    setActiveChannel(newChannel);
   };
 
   return (

@@ -49,15 +49,17 @@
   margin-right: 0;
 }
 
-.channel-preview__item.multi div:first-child {
+.channel-preview__item.multi span:first-child {
   position: relative;
   z-index: 2;
-  margin-bottom: 6px;
+  bottom: 6px;
 }
 
 .channel-preview__item.multi div:nth-child(2) {
   position: relative;
   right: 10px;
+  z-index: 1;
+  margin-bottom: 0px;
 }
 
 .channel-preview__item.multi p {

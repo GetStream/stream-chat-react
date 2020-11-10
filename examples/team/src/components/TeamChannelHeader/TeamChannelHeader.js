@@ -1,15 +1,18 @@
 import React, { useContext } from 'react';
-import { Avatar, ChannelContext } from 'stream-chat-react';
+import { Avatar, ChannelContext, ChatContext } from 'stream-chat-react';
 
 import './TeamChannelHeader.css';
 
 export const TeamChannelHeader = () => {
+  const { client } = useContext(ChatContext);
   const { channel, watcher_count } = useContext(ChannelContext);
 
   const teamHeader = `# ${channel.data.id || 'random'}`;
 
   const getMessagingHeader = () => {
-    const members = Object.values(channel.state.members);
+    const members = Object.values(channel.state.members).filter(
+      ({ user }) => user.id !== client.userID,
+    );
     const additionalMembers = members.length - 4;
 
     if (!members.length) {

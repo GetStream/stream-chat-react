@@ -4,6 +4,7 @@ import { Channel, MessageList, Thread, Window } from 'stream-chat-react';
 import './ChannelContainer.css';
 
 import { AddChannel } from '../../assets/AddChannel';
+import { ChannelEmptyState } from '../ChannelEmptyState/ChannelEmptyState';
 import { CreateChannel } from '../CreateChannel/CreateChannel';
 import { TeamChannelHeader } from '../TeamChannelHeader/TeamChannelHeader';
 import { TeamMessage } from '../TeamMessage/TeamMessage';
@@ -36,7 +37,11 @@ export const ChannelContainer = () => {
         <Channel>
           <Window>
             <TeamChannelHeader />
-            <MessageList Message={TeamMessage} TypingIndicator={() => null} />
+            <MessageList
+              EmptyStateIndicator={ChannelEmptyState}
+              Message={TeamMessage}
+              TypingIndicator={() => null}
+            />
             <TeamMessageInput focus />
           </Window>
           <Thread

@@ -4,6 +4,7 @@ import { logChatPromiseExecution } from 'stream-chat';
 import {
   ChannelContext,
   ChatAutoComplete,
+  ChatContext,
   EmojiPicker,
   useMessageInput,
 } from 'stream-chat-react';
@@ -30,6 +31,7 @@ export const TeamMessageInput = (props) => {
     multipleUploads,
     sendMessage,
   } = useContext(ChannelContext);
+  const { client } = useContext(ChatContext);
 
   const [boldState, setBoldState] = useState(false);
   const [codeState, setCodeState] = useState(false);
@@ -49,7 +51,10 @@ export const TeamMessageInput = (props) => {
       return `#${channel.data.id || 'random'}`;
     }
 
-    const members = Object.values(channel.state.members);
+    const members = Object.values(channel.state.members).filter(
+      ({ user }) => user.id !== client.userID,
+    );
+
     if (!members.length || members.length === 1) {
       return members[0]?.user.name || 'Johnny Blaze';
     }
