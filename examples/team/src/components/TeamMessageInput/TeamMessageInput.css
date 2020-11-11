@@ -7,6 +7,10 @@
   border-bottom-right-radius: 16px;
 }
 
+.team-message-input__wrapper.thread-open {
+  border-bottom-right-radius: 0px;
+}
+
 .team-message-input__input {
   border: 1px solid rgb(var(--primary-color));
   border-radius: 8px;

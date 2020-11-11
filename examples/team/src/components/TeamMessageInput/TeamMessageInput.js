@@ -30,6 +30,7 @@ export const TeamMessageInput = (props) => {
     maxNumberOfFiles,
     multipleUploads,
     sendMessage,
+    thread,
   } = useContext(ChannelContext);
   const { client } = useContext(ChatContext);
 
@@ -153,7 +154,7 @@ export const TeamMessageInput = (props) => {
   );
 
   return (
-    <div className="team-message-input__wrapper">
+    <div className={`team-message-input__wrapper ${!!thread && 'thread-open'}`}>
       <ImageDropzone
         accept={acceptedFiles}
         handleFiles={messageInput.uploadNewFiles}
