@@ -43,7 +43,11 @@ export const TeamChannelList = ({ children, error = false, loading, type }) => {
   if (loading) {
     return (
       <div className="team-channel-list">
-        <p className="team-channel-list__message loading">
+        <p
+          className={`team-channel-list__message loading ${
+            type === 'team' && 'type-team'
+          }`}
+        >
           {type === 'team' ? 'Channels' : 'Messages'} loading....
         </p>
       </div>
@@ -51,13 +55,15 @@ export const TeamChannelList = ({ children, error = false, loading, type }) => {
   }
 
   return (
-    <div className="team-channel-list">
+    <div className={`team-channel-list ${type === 'team' && 'type-team'}`}>
       <div className="team-channel-list__header">
         <p className="team-channel-list__header__title">
           {type === 'team' ? 'Channels' : 'Direct Messages'}
         </p>
       </div>
-      {newChildren}
+      <div className={`${type === 'team' && 'type-team-wrapper'}`}>
+        {newChildren}
+      </div>
     </div>
   );
 };
