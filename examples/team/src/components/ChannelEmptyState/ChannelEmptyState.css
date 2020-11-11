@@ -1,0 +1,54 @@
+.channel-empty__container {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-bottom: 20px;
+}
+
+.channel-empty__avatars {
+  display: flex;
+}
+
+.channel-empty__avatars div:first-child {
+  z-index: 3;
+}
+
+.channel-empty__avatars div:nth-child(2) {
+  position: relative;
+  right: 32px;
+  z-index: 2;
+}
+
+.channel-empty__avatars div:nth-child(3) {
+  position: relative;
+  right: 64px;
+  z-index: 1;
+}
+
+.channel-empty__avatars .str-chat__avatar {
+  margin-right: 0;
+}
+
+.channel-empty__first {
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 120%;
+  color: #2c2c30;
+  margin-bottom: 10px;
+}
+
+.channel-empty__first .channel-empty__user-name {
+  color: rgb(var(--primary-color));
+}
+
+.channel-empty__second {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 14px;
+  line-height: 120%;
+  margin: 0;
+  color: #858688;
+}

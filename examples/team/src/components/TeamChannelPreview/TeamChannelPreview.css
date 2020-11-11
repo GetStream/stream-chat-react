@@ -2,14 +2,12 @@
   height: 37px;
   display: flex;
   align-items: center;
-  padding-right: 16px;
 }
 
 .channel-preview__wrapper__selected {
   height: 37px;
   display: flex;
   align-items: center;
-  padding-right: 16px;
   background: rgba(0, 0, 0, 0.2);
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
@@ -31,11 +29,41 @@
   display: flex;
   align-items: center;
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
   font-size: 14px;
   color: #ffffff;
   padding-left: 26px;
   height: 100%;
   width: 100%;
+  text-overflow: ellipsis;
+}
+
+.channel-preview__item.multi {
+  max-width: 220px;
+}
+
+.channel-preview__item.single .str-chat__avatar {
+  margin-right: 12px;
+}
+
+.channel-preview__item.multi .str-chat__avatar {
+  margin-right: 0;
+}
+
+.channel-preview__item.multi span:first-child {
+  position: relative;
+  z-index: 2;
+  bottom: 6px;
+}
+
+.channel-preview__item.multi div:nth-child(2) {
+  position: relative;
+  right: 10px;
+  z-index: 1;
+  margin-bottom: 0px;
+}
+
+.channel-preview__item.multi p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

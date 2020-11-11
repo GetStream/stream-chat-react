@@ -43,11 +43,11 @@
 }
 
 .str-chat__square-button svg {
-  fill: #4e1d9d;
+  fill: rgb(var(--primary-color));
 }
 
 .str-chat__square-button:hover {
-  border: 1px solid #4e1d9d;
+  border: 1px solid rgb(var(--primary-color));
   cursor: pointer;
 }
 
@@ -90,7 +90,7 @@
   justify-content: space-evenly;
   height: 24px;
   width: 63px;
-  background: #4e1d9d;
+  background: rgb(var(--primary-color));
   border-radius: 12px;
   margin-left: 8px;
 }
@@ -105,7 +105,7 @@
 }
 
 .thread-message-input__input {
-  border: 1px solid #4e1d9d;
+  border: 1px solid rgb(var(--primary-color));
   border-radius: 8px;
   display: flex;
   align-items: center;

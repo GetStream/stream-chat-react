@@ -9,18 +9,39 @@
   border-top-right-radius: 16px;
 }
 
+.team-channel-header__name-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.team-channel-header__name-multi {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.team-channel-header__name-multi:nth-child(4) {
+  margin-right: 0px;
+}
+
+.team-channel-header__name-wrapper .str-chat__avatar {
+  margin-right: 8px;
+}
+
 .team-channel-header__name {
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
   font-weight: bold;
   font-size: 18px;
   color: #2c2c30;
 }
 
+.team-channel-header__name.user {
+  font-weight: 500;
+  font-size: 14px;
+}
+
 .team-channel-header__watchers {
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
   font-size: 14px;
   color: #858688;
 }

@@ -8,20 +8,38 @@ import { TeamTypingIndicator } from '../TeamTypingIndicator/TeamTypingIndicator'
 export const TeamChannelPreview = (props) => {
   const { channel, setActiveChannel, type } = props;
 
-  const { channel: activeChannel } = useContext(ChatContext);
+  const { channel: activeChannel, client } = useContext(ChatContext);
 
   const ChannelPreview = () => (
     <p className="channel-preview__item"># {channel.data.id || 'random'}</p>
   );
 
   const DirectPreview = () => {
-    const members = Object.values(channel.state.members);
+    const members = Object.values(channel.state.members).filter(
+      ({ user }) => user.id !== client.userID,
+    );
+    const defaultName = 'Johnny Blaze';
+
+    if (!members.length || members.length === 1) {
+      return (
+        <div className="channel-preview__item single">
+          <Avatar image={members[0]?.user.image || undefined} size={24} />
+          <p>{members[0]?.user.name || defaultName}</p>
+          <TeamTypingIndicator type="list" />
+        </div>
+      );
+    }
 
     return (
-      <div className="channel-preview__item">
-        <Avatar image={members[0]?.user.image || undefined} size={24} />
-        <p>{members[0]?.user.name || 'Johnny Blaze'}</p>
-        <TeamTypingIndicator type="list" />
+      <div className="channel-preview__item multi">
+        <span>
+          <Avatar image={members[0]?.user.image || undefined} size={18} />
+        </span>
+        <Avatar image={members[1]?.user.image || undefined} size={18} />
+        <p>
+          {members[0]?.user.name || defaultName},{' '}
+          {members[1]?.user.name || defaultName}
+        </p>
       </div>
     );
   };

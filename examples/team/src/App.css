@@ -9,6 +9,13 @@ body {
   height: 100%;
 }
 
+.app__wrapper {
+  display: flex;
+  height: 800px;
+  border-radius: 16px;
+  box-shadow: rgba(0, 0, 0, 0.33) 0px 1px 4px 0px;
+}
+
 .str-chat-channel-list {
   height: fit-content;
   margin-bottom: 8px;
@@ -30,8 +37,7 @@ body {
   margin: 16px 24px;
 }
 
-.channel__wrapper {
-  height: 100%;
-  width: 100%;
-  box-shadow: inset 1px 0px 0px rgba(0, 0, 0, 0.1);
+.str-chat__message-notification {
+  background: rgb(var(--primary-color));
+  cursor: pointer;
 }

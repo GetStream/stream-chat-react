@@ -4,6 +4,7 @@ import { logChatPromiseExecution } from 'stream-chat';
 import {
   ChannelContext,
   ChatAutoComplete,
+  ChatContext,
   EmojiPicker,
   useMessageInput,
 } from 'stream-chat-react';
@@ -29,17 +30,37 @@ export const TeamMessageInput = (props) => {
     maxNumberOfFiles,
     multipleUploads,
     sendMessage,
+    thread,
   } = useContext(ChannelContext);
+  const { client } = useContext(ChatContext);
 
+  const [boldState, setBoldState] = useState(false);
+  const [codeState, setCodeState] = useState(false);
   const [giphyState, setGiphyState] = useState(false);
+  const [italicState, setItalicState] = useState(false);
+  const [strikeThroughState, setStrikeThroughState] = useState(false);
+
+  const resetIconState = () => {
+    setBoldState(false);
+    setCodeState(false);
+    setItalicState(false);
+    setStrikeThroughState(false);
+  };
 
   const getPlaceholder = () => {
     if (channel.type === 'team') {
       return `#${channel.data.id || 'random'}`;
     }
 
-    const members = Object.values(channel.state.members);
-    return members[0]?.user.name || 'Johnny Blaze';
+    const members = Object.values(channel.state.members).filter(
+      ({ user }) => user.id !== client.userID,
+    );
+
+    if (!members.length || members.length === 1) {
+      return members[0]?.user.name || 'Johnny Blaze';
+    }
+
+    return 'the group';
   };
 
   const overrideSubmitHandler = (message) => {
@@ -53,11 +74,33 @@ export const TeamMessageInput = (props) => {
     if (giphyState) {
       const updatedText = `/giphy ${message.text}`;
       updatedMessage = { ...message, text: updatedText };
+    } else {
+      if (boldState) {
+        const updatedText = `**${message.text}**`;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (codeState) {
+        const updatedText = `\`${message.text}\``;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (italicState) {
+        const updatedText = `*${message.text}*`;
+        updatedMessage = { ...message, text: updatedText };
+      }
+
+      if (strikeThroughState) {
+        const updatedText = `~~${message.text}~~`;
+        updatedMessage = { ...message, text: updatedText };
+      }
     }
 
     const sendMessagePromise = sendMessage(updatedMessage || message);
     logChatPromiseExecution(sendMessagePromise, 'send message');
+
     setGiphyState(false);
+    resetIconState();
   };
 
   const messageInput = useMessageInput({ ...props, overrideSubmitHandler });
@@ -66,7 +109,7 @@ export const TeamMessageInput = (props) => {
     (e) => {
       if (
         messageInput.text.length === 1 &&
-        e.nativeEvent.inputType === 'deleteContentBackward'
+        e.nativeEvent?.inputType === 'deleteContentBackward'
       ) {
         setGiphyState(false);
       }
@@ -85,6 +128,24 @@ export const TeamMessageInput = (props) => {
     [giphyState, messageInput],
   );
 
+  const onCommandClick = (e) => {
+    e.preventDefault();
+    logChatPromiseExecution(channel.keystroke(), 'start typing event');
+
+    messageInput.textareaRef.current.focus();
+
+    const event = new Event('input', { bubbles: true });
+    messageInput.textareaRef.current.dispatchEvent(event);
+
+    const newEvent = {
+      ...event,
+      preventDefault: () => null,
+      target: { ...event.target, value: '/' },
+    };
+
+    messageInput.handleChange(newEvent);
+  };
+
   const GiphyIcon = () => (
     <div className="giphy-icon__wrapper">
       <LightningBoltSmall />
@@ -93,7 +154,7 @@ export const TeamMessageInput = (props) => {
   );
 
   return (
-    <div className="team-message-input__wrapper">
+    <div className={`team-message-input__wrapper ${!!thread && 'thread-open'}`}>
       <ImageDropzone
         accept={acceptedFiles}
         handleFiles={messageInput.uploadNewFiles}
@@ -109,6 +170,7 @@ export const TeamMessageInput = (props) => {
             {giphyState && !messageInput.numberOfUploads && <GiphyIcon />}
             <UploadsPreview {...messageInput} />
             <ChatAutoComplete
+              commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
               onSelectItem={messageInput.onSelectItem}
@@ -137,12 +199,20 @@ export const TeamMessageInput = (props) => {
           <div className="team-message-input__bottom">
             <div className="team-message-input__icons">
               <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-              <LightningBolt />
+              <LightningBolt {...{ onCommandClick }} />
               <div className="icon-divider"></div>
-              <BoldIcon />
-              <ItalicsIcon />
-              <StrikeThroughIcon />
-              <CodeSnippet />
+              <BoldIcon {...{ boldState, resetIconState, setBoldState }} />
+              <ItalicsIcon
+                {...{ italicState, resetIconState, setItalicState }}
+              />
+              <StrikeThroughIcon
+                {...{
+                  resetIconState,
+                  strikeThroughState,
+                  setStrikeThroughState,
+                }}
+              />
+              <CodeSnippet {...{ codeState, resetIconState, setCodeState }} />
             </div>
           </div>
         </div>

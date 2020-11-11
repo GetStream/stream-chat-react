@@ -1,23 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StreamChat } from 'stream-chat';
-import {
-  Channel,
-  Chat,
-  enTranslations,
-  MessageList,
-  Streami18n,
-  Thread,
-  Window,
-} from 'stream-chat-react';
+import { Chat, enTranslations, Streami18n } from 'stream-chat-react';
+import { createGlobalStyle } from 'styled-components';
 import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
+import './components/ColorSlider/ColorSlider.css';
 
+import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { ChannelListContainer } from './components/ChannelListContainer/ChannelListContainer';
-import { TeamChannelHeader } from './components/TeamChannelHeader/TeamChannelHeader';
-import { TeamMessage } from './components/TeamMessage/TeamMessage';
-import { TeamMessageInput } from './components/TeamMessageInput/TeamMessageInput';
-import { ThreadMessageInput } from './components/TeamMessageInput/ThreadMessageInput';
+import { ColorSlider } from './components/ColorSlider/ColorSlider';
 
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
@@ -36,34 +28,33 @@ const i18nInstance = new Streami18n({
   },
 });
 
+const GlobalColor = createGlobalStyle`
+  body {
+    --primary-color: ${(props) => props.color};
+  }
+`;
+
 const App = () => {
+  const [primaryColor, setPrimaryColor] = useState('78, 29, 157');
+
   const chatClient = new StreamChat(apiKey);
   chatClient.setUser({ id: user }, userToken);
 
   return (
-    <div style={{ display: 'flex', height: '800px' }}>
-      <Chat
-        client={chatClient}
-        i18nInstance={i18nInstance}
-        theme={`team ${theme}`}
-      >
-        <ChannelListContainer />
-        <div className="channel__wrapper">
-          <Channel>
-            <Window>
-              <TeamChannelHeader />
-              <MessageList Message={TeamMessage} TypingIndicator={() => null} />
-              <TeamMessageInput focus />
-            </Window>
-            <Thread
-              additionalMessageListProps={{ TypingIndicator: () => null }}
-              Message={TeamMessage}
-              MessageInput={ThreadMessageInput}
-            />
-          </Channel>
-        </div>
-      </Chat>
-    </div>
+    <>
+      <GlobalColor color={primaryColor} />
+      <ColorSlider {...{ primaryColor, setPrimaryColor }} />
+      <div className="app__wrapper">
+        <Chat
+          client={chatClient}
+          i18nInstance={i18nInstance}
+          theme={`team ${theme}`}
+        >
+          <ChannelListContainer />
+          <ChannelContainer />
+        </Chat>
+      </div>
+    </>
   );
 };
 

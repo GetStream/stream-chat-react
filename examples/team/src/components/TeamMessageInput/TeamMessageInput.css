@@ -4,10 +4,15 @@
   background: #f7f6f8;
   padding: 15px 20px 28px;
   width: 100%;
+  border-bottom-right-radius: 16px;
+}
+
+.team-message-input__wrapper.thread-open {
+  border-bottom-right-radius: 0px;
 }
 
 .team-message-input__input {
-  border: 1px solid #4e1d9d;
+  border: 1px solid rgb(var(--primary-color));
   border-radius: 8px;
 }
 
@@ -27,7 +32,7 @@
   justify-content: space-evenly;
   height: 24px;
   width: 63px;
-  background: #4e1d9d;
+  background: rgb(var(--primary-color));
   border-radius: 12px;
   margin-left: 8px;
 }
@@ -104,7 +109,7 @@
 
 .team-message-input__wrapper .str-chat__input--emojipicker {
   z-index: 3;
-  bottom: calc(100% - 800px + 113px);
+  bottom: calc(100% - 800px + 33px);
   left: 332px;
   width: 338px;
 }
@@ -124,4 +129,32 @@ div.rfu-dropzone:focus {
 
 .rfu-image-previewer__image {
   margin-bottom: 0;
+}
+
+div.rta__autocomplete.str-chat__emojisearch {
+  z-index: 10;
+  position: relative;
+  width: 100%;
+  background: #fff;
+  margin: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.rta__entity--selected {
+  background: rgb(var(--primary-color));
+}
+
+.str-chat__slash-command:hover {
+  background: rgb(var(--primary-color));
+  cursor: pointer;
+}
+
+.rta__list-header {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 14px;
+  line-height: 16px;
+  color: #2c2c30;
+  mix-blend-mode: normal;
+  opacity: 0.9;
 }
