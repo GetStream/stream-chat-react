@@ -1,5 +1,71 @@
 # Changelog
 
+## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.2) 2020-11-05
+
+## Fix
+
+- `VirtualizedMessageList` breaking the list for falsy messages [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- `FixedHeightMessage` action box not opening in React@17 [#602](https://github.com/GetStream/stream-chat-react/pull/602)
+- Missing custom hooks type [#601](https://github.com/GetStream/stream-chat-react/pull/601)
+
+## [3.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.1) 2020-11-04
+
+## Fix
+
+- `VirtualizedMessageList` stick to bottom [#597](https://github.com/GetStream/stream-chat-react/pull/597)
+
+## [3.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.0) 2020-11-04
+
+## Chore
+
+- Support React v17 [#588](https://github.com/GetStream/stream-chat-react/pull/588)
+
+## [3.1.7](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.7) 2020-10-29
+
+## Fix
+
+- Improved errorHandling on failed uploads. [#596](https://github.com/GetStream/stream-chat-react/pull/596)
+- Escape special characters in mentioned_users names [#591](https://github.com/GetStream/stream-chat-react/pull/591)
+- Improve handling max files(10) in MessageInput [#593](https://github.com/GetStream/stream-chat-react/pull/593)
+
+## [3.1.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.6) 2020-10-21
+
+## Fix
+
+- `displayActions` prop is respected in `MessageOptions` component [#587](https://github.com/GetStream/stream-chat-react/pull/587)
+
+## Chore
+
+- `stream-chat-js` required version bumped to `2.7.x` [#582](https://github.com/GetStream/stream-chat-react/pull/582)
+
+## [3.1.5](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.5) 2020-10-19
+
+## Feature
+
+- Disable upload dropzone and input button in Input components based on channel config [#585](https://github.com/GetStream/stream-chat-react/pull/585)
+
+## Fix
+
+- Disable the upload dropzone and input button when the maximum number of allowed attachments is reached [#577](https://github.com/GetStream/stream-chat-react/pull/577)
+
+## [3.1.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.4) 2020-10-19
+
+## Fix
+
+- Fixed a bug with ChannelList pagination with low limits or high thresholds [#583](https://github.com/GetStream/stream-chat-react/pull/583)
+
+## Added
+
+- Disable reactions based on channel config [#581](https://github.com/GetStream/stream-chat-react/pull/581)
+- Disable Thread based on channel config [#580](https://github.com/GetStream/stream-chat-react/pull/580)
+- Disable TypingIndicator based on channel config [#579](https://github.com/GetStream/stream-chat-react/pull/579)
+
+## [3.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.3) 2020-10-15
+
+## Fix
+
+- Better handling of offsets during loadMore [#578](https://github.com/GetStream/stream-chat-react/pull/578)
+
 ## [3.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.1.2) 2020-10-14
 
 # Fix

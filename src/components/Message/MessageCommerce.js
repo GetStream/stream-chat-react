@@ -56,10 +56,11 @@ const MessageCommerce = (props) => {
   const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const reactionSelectorRef = useRef(null);
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
+  const {
+    onReactionListClick,
+    showDetailedReactions,
+    isReactionEnabled,
+  } = useReactionClick(message, reactionSelectorRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
@@ -99,7 +100,11 @@ const MessageCommerce = (props) => {
                 : 'str-chat__message-commerce--has-no-text'
             }
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
-						${hasReactions ? 'str-chat__message-commerce--with-reactions' : ''}
+						${
+              hasReactions && isReactionEnabled
+                ? 'str-chat__message-commerce--with-reactions'
+                : ''
+            }
 						${`str-chat__message-commerce--${firstGroupStyle}`}
 					`.trim()}
       >
@@ -126,20 +131,22 @@ const MessageCommerce = (props) => {
                 />
               }
               {/* if reactions show them */}
-              {hasReactions && !showDetailedReactions && (
+              {hasReactions && !showDetailedReactions && isReactionEnabled && (
                 <ReactionsList
                   reactions={message.latest_reactions}
                   reaction_counts={message.reaction_counts || undefined}
+                  own_reactions={message.own_reactions}
                   onClick={onReactionListClick}
                 />
               )}
-              {showDetailedReactions && (
+              {showDetailedReactions && isReactionEnabled && (
                 <ReactionSelector
                   reverse={false}
                   handleReaction={propHandleReaction || handleReaction}
                   detailedView
                   reaction_counts={message.reaction_counts || undefined}
                   latest_reactions={message.latest_reactions}
+                  own_reactions={message.own_reactions}
                   ref={reactionSelectorRef}
                 />
               )}

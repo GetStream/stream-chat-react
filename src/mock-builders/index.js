@@ -2,6 +2,7 @@
 /* eslint no-param-reassign: 0 */
 
 import { StreamChat } from 'stream-chat';
+import { v4 as uuidv4 } from 'uuid';
 
 const apiKey = 'API_KEY';
 const token = 'dummy_token';
@@ -33,7 +34,7 @@ export const getTestClient = () => {
   return mockClient(new StreamChat(apiKey));
 };
 
-export const getTestClientWithUser = async (user) => {
+export const getTestClientWithUser = async (user = { id: uuidv4() }) => {
   const client = mockClient(new StreamChat(apiKey));
   await setUser(client, user);
   return client;

@@ -35,6 +35,7 @@
   "Type your message": "Scrivi il tuo messaggio",
   "Unmute": "Riattiva le notifiche",
   "You have no channels currently": "Al momento non sono presenti canali",
+  "You've reached the maximum number of files": "Hai raggiunto il numero massimo di file",
   "live": "live",
   "this content could not be displayed": "questo contenuto non puó essere mostrato",
   "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} e {{ lastUser }} stanno scrivendo...",

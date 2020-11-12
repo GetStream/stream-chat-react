@@ -37,10 +37,11 @@ const MessageTextComponent = (props) => {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
+  const {
+    onReactionListClick,
+    showDetailedReactions,
+    isReactionEnabled,
+  } = useReactionClick(message, reactionSelectorRef);
   const { t } = useContext(TranslationContext);
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
@@ -99,20 +100,22 @@ const MessageTextComponent = (props) => {
         )}
 
         {/* if reactions show them */}
-        {hasReactions && !showDetailedReactions && (
+        {hasReactions && !showDetailedReactions && isReactionEnabled && (
           <ReactionsList
             reactions={message.latest_reactions}
             reaction_counts={message.reaction_counts || undefined}
+            own_reactions={message.own_reactions}
             onClick={onReactionListClick}
             reverse={true}
           />
         )}
-        {showDetailedReactions && (
+        {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             handleReaction={handleReaction}
             detailedView
             reaction_counts={message.reaction_counts || undefined}
             latest_reactions={message.latest_reactions}
+            own_reactions={message.own_reactions}
             ref={reactionSelectorRef}
           />
         )}

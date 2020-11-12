@@ -22,7 +22,14 @@ jest.mock('react-virtuoso', () => {
   const { forwardRef } = jest.requireActual('react');
   return {
     Virtuoso: forwardRef((props, ref) => (
-      <Virtuoso ref={ref} {...props} initialItemCount={20} />
+      <Virtuoso
+        ref={ref}
+        {...props}
+        initialItemCount={20}
+        overscan={0}
+        initialTopMostItemIndex={0}
+        itemHeight={30}
+      />
     )),
   };
 });
@@ -34,7 +41,7 @@ jest.mock('../../Loading', () => ({
 jest.mock('../../Message', () => ({
   FixedHeightMessage: jest.fn(({ groupedByUser }) => {
     return (
-      <div>
+      <div data-testid="msg">
         FixedHeightMessage groupedByUser:
         {groupedByUser ? 'true' : 'false'}
       </div>
@@ -42,22 +49,22 @@ jest.mock('../../Message', () => ({
   }),
 }));
 
-const TypingIndicator = jest.fn(() => <div>TypingIndicator</div>);
-
-async function createChannel() {
+async function createChannel(empty = false) {
   const user1 = generateUser();
   const user2 = generateUser();
   const mockedChannel = generateChannel({
     members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-    messages: ' '
-      .repeat(20)
-      .split(' ')
-      .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
+    messages: empty
+      ? []
+      : ' '
+          .repeat(20)
+          .split(' ')
+          .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
   const channel = client.channel('messaging', mockedChannel.id);
-  await channel.query();
+  await channel.watch();
 
   return { client, channel };
 }
@@ -67,35 +74,14 @@ describe('VirtualizedMessageList', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
 
-  it('should render empty list of messages', async () => {
-    const { client, channel } = await createChannel();
-
+  it('should render the list without any message', async () => {
+    const { client, channel } = await createChannel(true);
     let tree;
     await renderer.act(async () => {
       tree = await renderer.create(
         <Chat client={client}>
           <Channel channel={channel}>
             <VirtualizedMessageList />
-          </Channel>
-        </Chat>,
-      );
-    });
-
-    expect(tree.toJSON()).toMatchSnapshot();
-  });
-
-  it('should render empty list of messages with message grouping', async () => {
-    const { client, channel } = await createChannel();
-
-    let tree;
-    await renderer.act(async () => {
-      tree = await renderer.create(
-        <Chat client={client}>
-          <Channel channel={channel}>
-            <VirtualizedMessageList
-              shouldGroupByUser
-              TypingIndicator={TypingIndicator}
-            />
           </Channel>
         </Chat>,
       );

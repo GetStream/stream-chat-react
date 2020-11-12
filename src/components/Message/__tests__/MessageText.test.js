@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react';
@@ -36,12 +37,12 @@ function generateAliceMessage(messageOptions) {
 
 async function renderMessageText(
   customProps,
-  channelConfig,
+  channelConfig = {},
   renderer = render,
 ) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
-    getConfig: () => channelConfig,
+    getConfig: () => ({ reactions: true, ...channelConfig }),
   });
   return renderer(
     <ChannelContext.Provider
@@ -170,6 +171,19 @@ describe('<MessageText />', () => {
     });
     const { getByTestId } = await renderMessageText({ message });
     expect(getByTestId('reaction-list')).toBeInTheDocument();
+  });
+
+  it('should not show reaction list if disabled in channelConfig', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+    });
+    const { queryByTestId } = await renderMessageText(
+      { message },
+      { reactions: false },
+    );
+
+    expect(queryByTestId('reaction-list')).toBeNull();
   });
 
   it('should show reaction selector when message has reaction and reaction list is clicked', async () => {

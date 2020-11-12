@@ -1,7 +1,15 @@
 import React from 'react';
+import renderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateUser, generateMessage } from '../../../mock-builders';
+import {
+  generateUser,
+  generateMessage,
+  useMockedApis,
+  getTestClientWithUser,
+  getOrCreateChannelApi,
+  generateChannel,
+} from 'mock-builders';
 import { Message as MessageMock } from '../../Message';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
@@ -158,5 +166,25 @@ describe('Thread', () => {
     renderComponent();
 
     expect(channelContextMock.loadMoreThread).toHaveBeenCalledTimes(1);
+  });
+
+  it('should render null if replies is disabled', async () => {
+    const client = await getTestClientWithUser();
+    const ch = generateChannel({ config: { replies: false } });
+    useMockedApis(client, [getOrCreateChannelApi(ch)]);
+    const channel = client.channel('messaging', ch.id);
+    await channel.watch();
+
+    const tree = renderer
+      .create(
+        <ChannelContext.Provider
+          value={{ ...channelContextMock, client, channel }}
+        >
+          <Thread />
+        </ChannelContext.Provider>,
+      )
+      .toJSON();
+
+    expect(tree).toMatchInlineSnapshot(`null`);
   });
 });
