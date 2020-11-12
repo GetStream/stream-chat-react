@@ -1,30 +1,30 @@
-/* eslint-disable */
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
+  ChannelList,
+  ChannelPreviewMessenger,
+  // InfiniteScrollPaginator,
   MessageList,
   MessageInput,
   MessageSimple,
-  ChannelPreviewMessenger,
-  InfiniteScrollPaginator,
-  ChannelList,
   Window,
   Thread,
 } from 'stream-chat-react';
-import {
-  MessagingInput,
-  MessagingChannelHeader,
-  MessagingChannelList,
-  MessagingCreateChannel,
-} from './components';
+
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 
+import {
+  CreateChannel,
+  MessagingInput,
+  MessagingChannelHeader,
+  MessagingChannelList,
+} from './components';
+
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
-urlParams.get('user') || 'example-user';
 const user = urlParams.get('user') || 'example-user';
 const theme = urlParams.get('theme') || 'dark';
 const userToken =
@@ -37,75 +37,50 @@ const sort = {
   updated_at: -1,
   cid: 1,
 };
-
 const options = { state: true, watch: true, presence: true, limit: 10 };
-const Paginator = (props) => (
-  <InfiniteScrollPaginator threshold={300} {...props} />
-);
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.chatClient = new StreamChat(apiKey);
-    // if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
-    //   this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-    // }
-    this.chatClient.setUser(
-      {
-        id: user,
-      },
-      userToken,
-    );
-    this.state = {
-      createChannel: false,
-    };
-  }
+const App = () => {
+  const [isCreating, setIsCreating] = useState(false);
 
-  onClose = () => {
-    this.setState({
-      createChannel: false,
-    });
-  };
+  const chatClient = new StreamChat(apiKey);
+  chatClient.setUser({ id: user }, userToken);
 
-  onOpen = () => {
-    this.setState({
-      createChannel: true,
-    });
-  };
-
-  render() {
-    return (
-      <Chat client={this.chatClient} theme={`messaging ${theme}`}>
-        <ChannelList
-          List={(props) => (
-            <MessagingChannelList {...props} onCreateChannel={this.onOpen} />
-          )}
-          Preview={ChannelPreviewMessenger}
-          filters={filters}
-          sort={sort}
-          options={options}
-          // Paginator={Paginator}
+  return (
+    <Chat client={chatClient} theme={`messaging ${theme}`}>
+      <ChannelList
+        filters={filters}
+        sort={sort}
+        options={options}
+        List={(props) => (
+          <MessagingChannelList
+            {...props}
+            onCreateChannel={() => setIsCreating(true)}
+          />
+        )}
+        Preview={ChannelPreviewMessenger}
+        // Paginator={(props) => (
+        //   <InfiniteScrollPaginator threshold={10} {...props} />
+        // )}
+      />
+      <Channel maxNumberOfFiles={10} multipleUploads={true}>
+        <CreateChannel
+          onClose={() => setIsCreating(false)}
+          visible={isCreating}
         />
-        <Channel maxNumberOfFiles={10} multipleUploads={true}>
-          <MessagingCreateChannel
-            onClose={this.onClose}
-            visible={this.state.createChannel}
-          />
-          <Window>
-            <MessagingChannelHeader />
-            <MessageList TypingIndicator={() => null} />
-            <MessageInput focus />
-          </Window>
-          <Thread
-            Message={MessageSimple}
-            additionalMessageInputProps={{
-              Input: MessagingInput,
-            }}
-          />
-        </Channel>
-      </Chat>
-    );
-  }
-}
+        <Window>
+          <MessagingChannelHeader />
+          <MessageList TypingIndicator={() => null} />
+          <MessageInput focus Input={MessagingInput} />
+        </Window>
+        <Thread
+          Message={MessageSimple}
+          additionalMessageInputProps={{
+            Input: MessagingInput,
+          }}
+        />
+      </Channel>
+    </Chat>
+  );
+};
 
 export default App;

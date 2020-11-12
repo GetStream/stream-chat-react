@@ -1,20 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Avatar } from 'stream-chat-react';
-import './MessagingCreateChannel.css';
 
-const MessagingCreateChannel = ({ onClose, visible }) => {
+import './CreateChannel.css';
+
+const CreateChannel = ({ onClose, visible }) => {
   const [users, setUsers] = useState(['merel', 'jaap', 'frits']);
 
-  // add listener
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown, false);
-    // removelistener
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  const addUser = (e) => {
+    if (e) e.preventDefault();
+    console.log('addUser');
+  };
 
-  if (!visible) return null;
+  const removeUser = (user) => {
+    const newUsers = users.filter((item) => item !== user);
+    setUsers(newUsers);
+  };
 
-  const handleKeyDown = (e) => {
+  const onSearch = (e) => {
+    e.preventDefault();
+    console.log(e.target.value);
+  };
+
+  const handleKeyDown = useCallback((e) => {
     // check for up(38) or down(40) key
     if (e.which === 38) {
       console.log('1 user up');
@@ -26,21 +33,14 @@ const MessagingCreateChannel = ({ onClose, visible }) => {
       console.log('submit selected user');
       addUser();
     }
-  };
-  const removeUser = (user) => {
-    const newUsers = users.filter((item) => item !== user);
-    setUsers(newUsers);
-  };
+  }, []);
 
-  const addUser = (e) => {
-    if (e) e.preventDefault();
-    console.log('addUser');
-  };
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
-  const onSearch = (e) => {
-    e.preventDefault();
-    console.log(e.target.value);
-  };
+  if (!visible) return null;
 
   return (
     <div className="messaging-create-channel">
@@ -96,4 +96,4 @@ const UserResult = () => {
   );
 };
 
-export default React.memo(MessagingCreateChannel);
+export default React.memo(CreateChannel);

@@ -1,4 +1,4 @@
-export { default as MessagingInput } from './MessagingInput';
-export { default as MessagingChannelHeader } from './MessagingChannelHeader';
-export { default as MessagingChannelList } from './MessagingChannelList';
-export { default as MessagingCreateChannel } from './MessagingCreateChannel';
+export { default as CreateChannel } from './CreateChannel/CreateChannel';
+export { default as MessagingChannelHeader } from './MessagingChannelHeader/MessagingChannelHeader';
+export { default as MessagingChannelList } from './MessagingChannelList/MessagingChannelList';
+export { default as MessagingInput } from './MessagingInput/MessagingInput';

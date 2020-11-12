@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { ChannelContext } from 'stream-chat-react';
-import './MessagingTypingIndicator.css';
 
-export const MessagingTypingIndicator = () => {
-  const { typing, client } = useContext(ChannelContext);
+import './TypingIndicator.css';
 
-  if (!typing || !client) return null;
+export const TypingIndicator = () => {
+  const { client, typing } = useContext(ChannelContext);
+
+  if (!client || !typing) return null;
 
   const users = Object.values(typing)
     .filter(({ user }) => user?.id !== client.user?.id)
@@ -22,6 +23,7 @@ export const MessagingTypingIndicator = () => {
   } else {
     text = '';
   }
+
   return (
     <div className="messaging__typing-indicator">
       {text && (
