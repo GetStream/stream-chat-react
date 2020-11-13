@@ -11,8 +11,7 @@ import './AgentMessageInput.css';
 
 import { UploadsPreview } from './UploadsPreview';
 
-import { FileIcon } from '../../assets/FileIcon';
-import { SmileyFace } from '../../assets/SmileyFace';
+import { FileIcon, SmileyFace } from '../../assets';
 
 export const AgentMessageInput = (props) => {
   const messageInput = useMessageInput(props);

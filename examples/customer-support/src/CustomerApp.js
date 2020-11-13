@@ -12,7 +12,7 @@ import { EmptyStateIndicator } from './components/CustomerEmptyStateIndicator/Em
 import { SupportChannelHeader } from './components/CustomerChannelHeader/CustomerChannelHeader';
 import { SupportMessageInput } from './components/MessageInput/SupportMessageInput';
 
-import { ToggleButton } from './assets/ToggleButton';
+import { ToggleButton } from './assets';
 
 const customerChannelId = 'support-demo';
 

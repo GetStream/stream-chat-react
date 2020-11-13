@@ -5,9 +5,7 @@ import './AgentChannelHeader.css';
 
 import { NotificationPopup } from './NotificationPopup';
 
-import { DownIconSmall } from '../../assets/DownIconSmall';
-import { EmailIcon } from '../../assets/EmailIcon';
-import { PhoneIcon } from '../../assets/PhoneIcon';
+import { DownIconSmall, EmailIcon, PhoneIcon } from '../../assets';
 
 export const AgentChannelHeader = () => {
   const { channel, client } = useContext(ChatContext);

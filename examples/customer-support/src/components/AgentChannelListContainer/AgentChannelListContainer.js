@@ -6,7 +6,7 @@ import './AgentChannelListContainer.css';
 import { AgentChannelList } from '../AgentChannelList/AgentChannelList';
 import { AgentChannelPreview } from '../AgentChannelList/AgentChannelPreview';
 
-import { SearchIcon } from '../../assets/SearchIcon';
+import { SearchIcon } from '../../assets';
 
 const ChannelSearch = () => (
   <div className="channel-search__container">

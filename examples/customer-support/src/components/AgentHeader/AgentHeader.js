@@ -2,10 +2,7 @@ import React from 'react';
 
 import './AgentHeader.css';
 
-import { BellIcon } from '../../assets/BellIcon';
-import { DownIcon } from '../../assets/DownIcon';
-import { HeadsetIcon } from '../../assets/HeadsetIcon';
-import { TalkingIcon } from '../../assets/TalkingIcon';
+import { BellIcon, DownIcon, HeadsetIcon, TalkingIcon } from '../../assets';
 
 export const AgentHeader = () => {
   return (

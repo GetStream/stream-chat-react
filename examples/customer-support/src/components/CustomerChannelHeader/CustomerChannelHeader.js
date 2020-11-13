@@ -3,7 +3,7 @@ import React from 'react';
 
 import './CustomerChannelHeader.css';
 
-import { ClockIcon } from '../../assets/ClockIcon';
+import { ClockIcon } from '../../assets';
 
 export const SupportChannelHeader = () => (
   <div className="channel-header__container">

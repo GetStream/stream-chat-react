@@ -2,7 +2,7 @@ import React from 'react';
 
 import './NotificationPopup.css';
 
-import { CloseIcon } from '../../assets/CloseIcon';
+import { CloseIcon } from '../../assets';
 
 export const NotificationPopup = ({ previewText, setPopupVisible }) => {
   const getMessagePreview = () => {
