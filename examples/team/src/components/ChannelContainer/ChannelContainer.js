@@ -3,13 +3,14 @@ import { Channel, MessageList, Thread, Window } from 'stream-chat-react';
 
 import './ChannelContainer.css';
 
-import { AddChannel } from '../../assets/AddChannel';
 import { ChannelEmptyState } from '../ChannelEmptyState/ChannelEmptyState';
 import { CreateChannel } from '../CreateChannel/CreateChannel';
 import { TeamChannelHeader } from '../TeamChannelHeader/TeamChannelHeader';
 import { TeamMessage } from '../TeamMessage/TeamMessage';
 import { TeamMessageInput } from '../TeamMessageInput/TeamMessageInput';
 import { ThreadMessageInput } from '../TeamMessageInput/ThreadMessageInput';
+
+import { AddChannel } from '../../assets';
 
 export const ChannelContainer = () => {
   const [createType, setCreateType] = useState('');

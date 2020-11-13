@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const LightningBolt = ({ onCommandClick }) => (
-  <div onClick={onCommandClick}>
+  <div onClick={onCommandClick} style={{ display: 'flex' }}>
     <svg
       width="8"
       height="16"

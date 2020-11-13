@@ -3,7 +3,7 @@ import { Avatar, ChatContext } from 'stream-chat-react';
 
 import './UserList.css';
 
-import { InviteIcon } from '../../assets/InviteIcon';
+import { InviteIcon } from '../../assets';
 
 const UserItem = ({ index, setSelectedUsers, user }) => {
   const [selected, setSelected] = useState(false);

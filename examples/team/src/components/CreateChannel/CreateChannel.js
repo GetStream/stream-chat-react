@@ -5,7 +5,7 @@ import './CreateChannel.css';
 
 import { UserList } from './UserList';
 
-import { CloseCreateChannel } from '../../assets/CloseCreateChannel';
+import { CloseCreateChannel } from '../../assets';
 
 const ChannelNameInput = ({ channelName = '', setChannelName }) => {
   const handleChange = (event) => {

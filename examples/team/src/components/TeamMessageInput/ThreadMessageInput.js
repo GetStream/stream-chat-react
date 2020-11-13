@@ -9,10 +9,12 @@ import {
 
 import './ThreadMessageInput.css';
 
-import { LightningBolt } from '../../assets/LightningBolt';
-import { LightningBoltSmall } from '../../assets/LightningBoltSmall';
-import { SendButton } from '../../assets/SendButton';
-import { SmileyFace } from '../../assets/SmileyFace';
+import {
+  LightningBolt,
+  LightningBoltSmall,
+  SendButton,
+  SmileyFace,
+} from '../../assets';
 
 export const ThreadMessageInput = (props) => {
   const { sendMessage } = useContext(ChannelContext);

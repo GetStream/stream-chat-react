@@ -3,7 +3,7 @@ import { Avatar, ChatContext } from 'stream-chat-react';
 
 import './ChannelEmptyState.css';
 
-import { HashIcon } from '../../assets/HashIcon';
+import { HashIcon } from '../../assets';
 
 export const ChannelEmptyState = () => {
   const { channel, client } = useContext(ChatContext);

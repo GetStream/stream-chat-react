@@ -14,14 +14,16 @@ import './TeamMessageInput.css';
 import { UploadsPreview } from './UploadsPreview';
 import { TeamTypingIndicator } from '../TeamTypingIndicator/TeamTypingIndicator';
 
-import { BoldIcon } from '../../assets/BoldIcon';
-import { CodeSnippet } from '../../assets/CodeSnippet';
-import { ItalicsIcon } from '../../assets/ItalicsIcon';
-import { LightningBolt } from '../../assets/LightningBolt';
-import { LightningBoltSmall } from '../../assets/LightningBoltSmall';
-import { SendButton } from '../../assets/SendButton';
-import { SmileyFace } from '../../assets/SmileyFace';
-import { StrikeThroughIcon } from '../../assets/StrikeThroughIcon';
+import {
+  BoldIcon,
+  CodeSnippet,
+  ItalicsIcon,
+  LightningBolt,
+  LightningBoltSmall,
+  SendButton,
+  SmileyFace,
+  StrikeThroughIcon,
+} from '../../assets';
 
 export const TeamMessageInput = (props) => {
   const {

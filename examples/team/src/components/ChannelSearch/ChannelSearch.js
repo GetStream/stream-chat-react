@@ -6,7 +6,7 @@ import './ChannelSearch.css';
 
 import { ResultsDropdown } from './ResultsDropdown';
 
-import { SearchIcon } from '../../assets/SearchIcon';
+import { SearchIcon } from '../../assets';
 
 export const ChannelSearch = () => {
   const { client, setActiveChannel } = useContext(ChatContext);

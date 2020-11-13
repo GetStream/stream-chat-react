@@ -7,8 +7,7 @@ import { ChannelSearch } from '../ChannelSearch/ChannelSearch';
 import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
 import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
 
-import { SideBarLogo } from '../../assets/SideBarLogo';
-import { SideBarFlag } from '../../assets/SideBarFlag';
+import { SideBarLogo, SideBarFlag } from '../../assets';
 
 const SideBar = () => (
   <div className="channel-list__sidebar">
