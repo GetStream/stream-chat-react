@@ -108,6 +108,7 @@ export const byDate = (a, b) => a.created_at - b.created_at;
 /** @type {import('react-markdown').NodeType[]} */
 const allowedMarkups = [
   'html',
+  // @ts-ignore
   'root',
   'text',
   'break',
@@ -147,9 +148,15 @@ export const truncate = (input, length, end = '...') => {
 };
 
 const markDownRenderers = {
-  /** @param {{ href: string | undefined; children: React.ReactNode; }} props   */
+  /** @param {{ href: string | undefined; children: React.ReactElement; }} props   */
   link: (props) => {
-    if (!props.href || !props.href.startsWith('http')) return props.children; // could cause issue for app:// links?
+    if (
+      !props.href ||
+      (!props.href.startsWith('http') && !props.href.startsWith('mailto:'))
+    ) {
+      return props.children;
+    }
+
     return (
       <a href={props.href} target="_blank" rel="nofollow noreferrer noopener">
         {props.children}
@@ -197,18 +204,12 @@ export const renderText = (text, mentioned_users) => {
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       source={newText}
-      // @ts-ignore
       renderers={markDownRenderers}
       escapeHtml={true}
-      skipHtml={false}
       unwrapDisallowed={true}
-      transformLinkUri={(uri) => {
-        if (uri.startsWith('app://')) {
-          return uri;
-        } else {
-          return RootReactMarkdown.uriTransformer(uri);
-        }
-      }}
+      transformLinkUri={(uri) =>
+        uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
+      }
     />
   );
 };
