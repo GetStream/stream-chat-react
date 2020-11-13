@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.3) 2020-11-13
+
+## Fix
+
+- Email links are clickable [#607](https://github.com/GetStream/stream-chat-react/pull/607)
+- `message.own_reactions` passed into Reaction components [#604](https://github.com/GetStream/stream-chat-react/pull/604)
+
 ## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.2) 2020-11-05
 
 ## Fix
