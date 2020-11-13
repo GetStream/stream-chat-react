@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.2.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.3) 2020-11-13
+## [3.2.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.3) 2020-11-13
 
 ## Fix
 
