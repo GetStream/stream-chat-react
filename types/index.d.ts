@@ -264,7 +264,7 @@ export interface ChannelOptions {
 }
 
 export interface ChannelListProps {
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
@@ -328,12 +328,7 @@ export interface ChannelListUIComponentProps {
   loading?: boolean;
   sidebarImage?: string | null;
   showSidebar?: boolean;
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /**
    * Loading indicator UI Component. It will be displayed if `loading` prop is true.
    *
@@ -357,11 +352,6 @@ export interface ChannelPreviewProps {
   channel: Client.Channel;
   /** Current selected channel object */
   activeChannel?: Client.Channel;
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
   Avatar?: React.ComponentType<AvatarProps>;
   /**
    * Available built-in options (also accepts the same props as):
@@ -521,7 +511,7 @@ export interface VirtualizedMessageListInternalProps {
     messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
     index: number,
   ): React.ReactElement;
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** Custom UI component to display messages. */
   Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
@@ -604,7 +594,7 @@ export interface MessageListProps {
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   Message?: React.ElementType;
   Attachment?: React.ElementType;
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   onMentionsClick?(
     e: React.MouseEvent,
     mentioned_users: Client.UserResponse[],
@@ -617,8 +607,7 @@ export interface MessageListProps {
 }
 
 export interface ChannelHeaderProps {
-  /** Allows you to overwrite the avatar component */
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
@@ -821,8 +810,7 @@ export interface MessageProps extends TranslationContextValue {
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
-  /** Allows you to overwrite the avatar component */
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;
@@ -939,10 +927,12 @@ export interface ThreadProps {
 }
 
 export interface TypingIndicatorProps {
+  Avatar?: React.ComponentType<AvatarProps>;
   avatarSize?: number;
 }
 
 export interface ReactionSelectorProps {
+  Avatar?: React.ComponentType<AvatarProps>;
   /**
    * Array of latest reactions.
    * Reaction object has following structure:
@@ -1102,10 +1092,12 @@ export interface UserItemProps {
     id?: string | null;
     image?: string | null;
   };
+  Avatar?: React.ComponentType<AvatarProps>;
 }
 
 export interface EventComponentProps {
   message: StreamChatReactMessageResponse;
+  Avatar?: React.ComponentType<AvatarProps>;
 }
 
 export interface GalleryProps {
@@ -1354,7 +1346,7 @@ export interface MessageTeamAttachmentsProps {
   ): void;
 }
 export interface MessageTeamStatusProps {
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
