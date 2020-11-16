@@ -2,7 +2,7 @@
 import React, { useMemo, useContext, useCallback } from 'react';
 
 import MessageTimestamp from './MessageTimestamp';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { renderText } from '../../utils';
 import { ChatContext } from '../../context';
 import { Gallery } from '../Gallery';
@@ -43,7 +43,11 @@ const getUserColor = (theme, userId) => {
  * It uses fixed height elements to make sure it works well in VirtualizedMessageList
  * @type {React.FC<import('types').FixedHeightMessageProps>}
  */
-const FixedHeightMessage = ({ message, groupedByUser }) => {
+const FixedHeightMessage = ({
+  Avatar = DefaultAvatar,
+  message,
+  groupedByUser,
+}) => {
   const { theme } = useContext(ChatContext);
   const role = useUserRole(message);
 

@@ -482,6 +482,7 @@ export interface SendButtonProps {
 export interface FixedHeightMessageProps {
   message: Client.MessageResponse;
   groupedByUser: boolean;
+  Avatar?: React.ComponentType<AvatarProps>;
 }
 
 export interface VirtualizedMessageListInternalProps {
@@ -507,6 +508,7 @@ export interface VirtualizedMessageListInternalProps {
     messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
     index: number,
   ): React.ReactElement;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** Custom UI component to display messages. */
   Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
