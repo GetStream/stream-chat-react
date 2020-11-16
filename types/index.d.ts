@@ -264,6 +264,7 @@ export interface ChannelOptions {
 }
 
 export interface ChannelListProps {
+  Avatar?: React.ElementType<AvatarProps>;
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
@@ -328,6 +329,12 @@ export interface ChannelListUIComponentProps {
   sidebarImage?: string | null;
   showSidebar?: boolean;
   /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar?: React.ElementType<AvatarProps>;
+  /**
    * Loading indicator UI Component. It will be displayed if `loading` prop is true.
    *
    * Defaults to and accepts same props as:
@@ -350,6 +357,12 @@ export interface ChannelPreviewProps {
   channel: Client.Channel;
   /** Current selected channel object */
   activeChannel?: Client.Channel;
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar?: React.ComponentType<AvatarProps>;
   /**
    * Available built-in options (also accepts the same props as):
    *
@@ -604,6 +617,8 @@ export interface MessageListProps {
 }
 
 export interface ChannelHeaderProps {
+  /** Allows you to overwrite the avatar component */
+  Avatar?: React.ElementType<AvatarProps>;
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */

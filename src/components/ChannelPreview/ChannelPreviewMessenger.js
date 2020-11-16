@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { truncate } from '../../utils';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
@@ -14,6 +14,7 @@ import { Avatar } from '../Avatar';
  * @type {import('types').ChannelPreviewMessenger}
  */
 const ChannelPreviewMessenger = (props) => {
+  const { Avatar = DefaultAvatar } = props;
   /** @type {React.MutableRefObject<HTMLButtonElement | null>} Typescript syntax */
   const channelPreviewButton = useRef(null);
   const unreadClass =
@@ -61,6 +62,12 @@ ChannelPreviewMessenger.propTypes = {
   channel: PropTypes.object.isRequired,
   /** Current selected channel object */
   activeChannel: PropTypes.object,
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /** Setter for selected channel */
   setActiveChannel: PropTypes.func.isRequired,
   /**

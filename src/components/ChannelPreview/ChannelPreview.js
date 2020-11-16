@@ -88,6 +88,12 @@ ChannelPreview.propTypes = {
   /** Current selected channel object */
   activeChannel: /** @type {PropTypes.Validator<import('stream-chat').Channel | null | undefined>} */ (PropTypes.object),
   /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /**
    * Available built-in options (also accepts the same props as):
    *
    * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
