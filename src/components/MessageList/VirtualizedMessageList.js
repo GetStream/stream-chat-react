@@ -19,6 +19,33 @@ import {
   MessageDeleted as DefaultMessageDeleted,
 } from '../Message';
 
+/** @type {React.FC<{ resizeCallback: () => void }>} */
+const ResizeObserverWrapper = (props) => {
+  const wrapper = useRef(/** @type {HTMLDivElement | null} */ (null));
+  const prevHeight = useRef(/** @type {number | null} */ (null));
+  const resizeObserver = useRef(
+    new ResizeObserver((entries) => {
+      const newHeight = entries[0]?.contentRect.height;
+      if (prevHeight.current !== null && newHeight !== prevHeight.current) {
+        props.resizeCallback();
+      }
+      prevHeight.current = newHeight;
+    }),
+  );
+
+  useEffect(() => {
+    const observer = resizeObserver.current;
+    if (wrapper.current) observer.observe(wrapper.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <>
+      <div ref={wrapper}>{props.children}</div>
+    </>
+  );
+};
+
 /**
  * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  * It is pretty fast for rendering thousands of messages but it needs its Message componet to have fixed height
@@ -52,6 +79,17 @@ const VirtualizedMessageList = ({
   const mounted = useRef(false);
   const atBottom = useRef(false);
   const lastMessageId = useRef('');
+
+  const followOutputOnResize = useCallback(() => {
+    if (atBottom.current) {
+      setTimeout(() => {
+        virtuoso.current?.scrollToIndex({
+          index: messages.length - 1,
+          align: 'end',
+        });
+      });
+    }
+  }, [messages.length]);
 
   useEffect(() => {
     /* handle scrolling behavior for new messages */
@@ -92,7 +130,13 @@ const VirtualizedMessageList = ({
   const messageRenderer = useCallback(
     (messageList, i) => {
       // use custom renderer supplied by client if present and skip the rest
-      if (customMessageRenderer) return customMessageRenderer(messageList, i);
+      if (customMessageRenderer) {
+        return (
+          <ResizeObserverWrapper resizeCallback={followOutputOnResize}>
+            {customMessageRenderer(messageList, i)}
+          </ResizeObserverWrapper>
+        );
+      }
 
       const message = messageList[i];
       if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
@@ -104,17 +148,24 @@ const VirtualizedMessageList = ({
         return smartRender(MessageDeleted, { message }, null);
 
       return (
-        <Message
-          message={message}
-          groupedByUser={
-            shouldGroupByUser &&
-            i > 0 &&
-            message.user.id === messageList[i - 1].user.id
-          }
-        />
+        <ResizeObserverWrapper resizeCallback={followOutputOnResize}>
+          <Message
+            message={message}
+            groupedByUser={
+              shouldGroupByUser &&
+              i > 0 &&
+              message.user.id === messageList[i - 1].user.id
+            }
+          />
+        </ResizeObserverWrapper>
       );
     },
-    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
+    [
+      MessageDeleted,
+      customMessageRenderer,
+      followOutputOnResize,
+      shouldGroupByUser,
+    ],
   );
 
   return (

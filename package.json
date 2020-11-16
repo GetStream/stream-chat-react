@@ -80,6 +80,7 @@
     "@types/lodash.throttle": "^4.1.6",
     "@types/lodash.uniqby": "^4.7.6",
     "@types/react-dom": "^16.9.8",
+    "@types/resize-observer-browser": "^0.1.4",
     "@types/seamless-immutable": "7.1.13",
     "@types/uuid": "^8.3.0",
     "autoprefixer": "^10.0.1",
