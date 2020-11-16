@@ -508,7 +508,7 @@ export interface VirtualizedMessageListInternalProps {
     messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
     index: number,
   ): React.ReactElement;
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ElementType<AvatarProps>;
   /** Custom UI component to display messages. */
   Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
@@ -591,6 +591,7 @@ export interface MessageListProps {
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   Message?: React.ElementType;
   Attachment?: React.ElementType;
+  Avatar?: React.ElementType<AvatarProps>;
   onMentionsClick?(
     e: React.MouseEvent,
     mentioned_users: Client.UserResponse[],
@@ -805,6 +806,8 @@ export interface MessageProps extends TranslationContextValue {
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
+  /** Allows you to overwrite the avatar component */
+  Avatar?: React.ElementType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;
@@ -1336,6 +1339,7 @@ export interface MessageTeamAttachmentsProps {
   ): void;
 }
 export interface MessageTeamStatusProps {
+  Avatar?: React.ElementType<AvatarProps>;
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;
