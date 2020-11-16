@@ -18,7 +18,9 @@ export const ColorSlider = ({ primaryColor, setPrimaryColor }) => {
           <HuePicker
             color={`rgb(${primaryColor})`}
             onChange={(color) => {
-              setPrimaryColor(`${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}`);
+              setPrimaryColor(
+                `${color.rgb.r - 50}, ${color.rgb.g - 50}, ${color.rgb.b - 50}`,
+              );
             }}
             height="10px"
             width="200px"
