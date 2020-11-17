@@ -18,41 +18,55 @@ import {
   FixedHeightMessage,
   MessageDeleted as DefaultMessageDeleted,
 } from '../Message';
+import useResizeObserver from './hooks/useResizeObserver';
 
-/** @type {React.FC<{ virtuoso: React.MutableRefObject<import('react-virtuoso').VirtuosoMethods | undefined>, atBottom: React.MutableRefObject<Boolean>, lastIndex: React.MutableRefObject<number> }>} */
-const ResizeObserverWrapper = ({ atBottom, virtuoso, lastIndex, children }) => {
+/**
+ * @typedef {{
+ *  virtuoso: React.MutableRefObject<import('react-virtuoso').VirtuosoMethods | undefined>,
+ *  atBottom: React.MutableRefObject<Boolean>,
+ *  lastIndex: React.MutableRefObject<number>,
+ *  observe: (target: HTMLElement, callback: (height: number) => void) => void,
+ *  unobserve: (target: HTMLElement) => void,
+ * }} ResizeObserverWrapperProps
+ */
+/** @type {React.FC<ResizeObserverWrapperProps>} */
+const ResizeObserverWrapper = ({
+  atBottom,
+  virtuoso,
+  lastIndex,
+  observe,
+  unobserve,
+  children,
+}) => {
   const wrapper = useRef(/** @type {HTMLDivElement | null} */ (null));
   const prevHeight = useRef(/** @type {number | null} */ (null));
-  const resizeObserver = useRef(
-    new ResizeObserver((entries) => {
-      const newHeight = entries[0]?.contentRect.height;
+
+  const onResize = useCallback(
+    (newHeight) => {
       if (
         prevHeight.current !== null &&
         newHeight !== prevHeight.current &&
         atBottom.current
       ) {
-        setTimeout(() => {
-          virtuoso.current?.scrollToIndex({
-            index: lastIndex.current,
-            align: 'end',
-          });
+        virtuoso.current?.scrollToIndex({
+          index: lastIndex.current,
+          align: 'end',
         });
       }
       prevHeight.current = newHeight;
-    }),
+    },
+    [atBottom, lastIndex, virtuoso],
   );
 
   useEffect(() => {
-    const observer = resizeObserver.current;
-    if (wrapper.current) observer.observe(wrapper.current);
-    return () => observer.disconnect();
-  }, []);
+    const target = wrapper.current;
+    if (target) observe(target, onResize);
+    return () => {
+      if (target) unobserve(target);
+    };
+  }, [observe, onResize, unobserve]);
 
-  return (
-    <>
-      <div ref={wrapper}>{children}</div>
-    </>
-  );
+  return <div ref={wrapper}>{children}</div>;
 };
 
 /**
@@ -127,6 +141,8 @@ const VirtualizedMessageList = ({
     }
   }, [messages.length]);
 
+  const { observe, unobserve } = useResizeObserver();
+
   const messageRenderer = useCallback(
     (messageList, i) => {
       // use custom renderer supplied by client if present and skip the rest
@@ -136,6 +152,8 @@ const VirtualizedMessageList = ({
             lastIndex={lastMessageIndex}
             virtuoso={virtuoso}
             atBottom={atBottom}
+            observe={observe}
+            unobserve={unobserve}
           >
             {customMessageRenderer(messageList, i)}
           </ResizeObserverWrapper>
@@ -156,6 +174,8 @@ const VirtualizedMessageList = ({
           lastIndex={lastMessageIndex}
           virtuoso={virtuoso}
           atBottom={atBottom}
+          observe={observe}
+          unobserve={unobserve}
         >
           <Message
             message={message}
@@ -168,7 +188,13 @@ const VirtualizedMessageList = ({
         </ResizeObserverWrapper>
       );
     },
-    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
+    [
+      MessageDeleted,
+      customMessageRenderer,
+      observe,
+      shouldGroupByUser,
+      unobserve,
+    ],
   );
 
   return (
