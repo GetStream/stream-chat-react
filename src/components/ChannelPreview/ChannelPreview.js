@@ -59,7 +59,7 @@ const ChannelPreview = (props) => {
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
-  }, [activeChannel, channel, isActive, muted]);
+  }, [channel, isActive, muted]);
 
   if (!Preview) return null;
 
