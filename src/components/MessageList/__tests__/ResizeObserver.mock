@@ -1,0 +1,10 @@
+function ResizeObserver() {}
+
+ResizeObserver.prototype.observe = () => {};
+ResizeObserver.prototype.unobserve = () => {};
+
+window.ResizeObserver = ResizeObserver;
+
+module.exports = {
+  default: ResizeObserver,
+};

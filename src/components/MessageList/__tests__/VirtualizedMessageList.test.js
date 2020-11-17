@@ -1,6 +1,7 @@
 import React from 'react';
 import { cleanup } from '@testing-library/react';
 import renderer from 'react-test-renderer';
+import './ResizeObserver.mock';
 import '@testing-library/jest-dom';
 
 import {
