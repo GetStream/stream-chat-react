@@ -15,27 +15,35 @@ import {
  * @type {React.FC<import('types').ChannelPreviewProps>}
  */
 const ChannelPreview = (props) => {
-  const { t } = useContext(TranslationContext);
+  const { channel, Preview = ChannelPreviewCountOnly } = props;
+
   const { client, channel: activeChannel, setActiveChannel } = useContext(
     ChatContext,
   );
-  const { channel, Preview = ChannelPreviewCountOnly } = props;
+  const { t } = useContext(TranslationContext);
+
   const [lastMessage, setLastMessage] = useState(
     /** @type {import('stream-chat').MessageResponse | undefined} */ (undefined),
   );
   const [unread, setUnread] = useState(0);
 
-  useEffect(() => {
-    setUnread(channel.countUnread());
-  }, [channel]);
+  const isActive = activeChannel?.cid === channel.cid;
+  const { muted } = channel.muteStatus();
 
   useEffect(() => {
-    /** @type {(event: import('stream-chat').Event) => void} Typescript syntax */
+    if (isActive || muted) {
+      setUnread(0);
+    } else {
+      setUnread(channel.countUnread());
+    }
+  }, [channel, isActive, muted]);
+
+  useEffect(() => {
+    /** @type {(event: import('stream-chat').Event) => void} */
     const handleEvent = (event) => {
-      const isActive = activeChannel?.cid === channel.cid;
       setLastMessage(event.message);
 
-      if (!isActive) {
+      if (!isActive && !muted) {
         setUnread(channel.countUnread());
       } else {
         setUnread(0);
@@ -51,21 +59,9 @@ const ChannelPreview = (props) => {
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
-  }, [channel, activeChannel]);
+  }, [channel, isActive, muted]);
 
-  useEffect(() => {
-    const isActive = activeChannel?.cid === channel.cid;
-
-    if (isActive) {
-      setUnread(0);
-    } else {
-      setUnread(channel.countUnread());
-    }
-  }, [activeChannel, channel]);
-
-  if (!Preview) {
-    return null;
-  }
+  if (!Preview) return null;
 
   return (
     <Preview
@@ -76,7 +72,7 @@ const ChannelPreview = (props) => {
       latestMessage={getLatestMessagePreview(channel, t)}
       displayTitle={getDisplayTitle(channel, client.user)}
       displayImage={getDisplayImage(channel, client.user)}
-      active={activeChannel && activeChannel.cid === channel.cid}
+      active={isActive}
     />
   );
 };
