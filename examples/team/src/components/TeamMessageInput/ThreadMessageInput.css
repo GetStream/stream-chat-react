@@ -67,6 +67,10 @@
   padding: 0px;
 }
 
+.str-chat .str-chat__list--thread .str-chat__reverse-infinite-scroll {
+  padding-top: 0px;
+}
+
 .str-chat__thread-list {
   top: 62px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
