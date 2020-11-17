@@ -19,15 +19,24 @@ import {
   MessageDeleted as DefaultMessageDeleted,
 } from '../Message';
 
-/** @type {React.FC<{ resizeCallback: () => void }>} */
-const ResizeObserverWrapper = (props) => {
+/** @type {React.FC<{ virtuoso: React.MutableRefObject<import('react-virtuoso').VirtuosoMethods | undefined>, atBottom: React.MutableRefObject<Boolean>, lastIndex: React.MutableRefObject<number> }>} */
+const ResizeObserverWrapper = ({ atBottom, virtuoso, lastIndex, children }) => {
   const wrapper = useRef(/** @type {HTMLDivElement | null} */ (null));
   const prevHeight = useRef(/** @type {number | null} */ (null));
   const resizeObserver = useRef(
     new ResizeObserver((entries) => {
       const newHeight = entries[0]?.contentRect.height;
-      if (prevHeight.current !== null && newHeight !== prevHeight.current) {
-        props.resizeCallback();
+      if (
+        prevHeight.current !== null &&
+        newHeight !== prevHeight.current &&
+        atBottom.current
+      ) {
+        setTimeout(() => {
+          virtuoso.current?.scrollToIndex({
+            index: lastIndex.current,
+            align: 'end',
+          });
+        });
       }
       prevHeight.current = newHeight;
     }),
@@ -41,7 +50,7 @@ const ResizeObserverWrapper = (props) => {
 
   return (
     <>
-      <div ref={wrapper}>{props.children}</div>
+      <div ref={wrapper}>{children}</div>
     </>
   );
 };
@@ -78,18 +87,8 @@ const VirtualizedMessageList = ({
   );
   const mounted = useRef(false);
   const atBottom = useRef(false);
+  const lastMessageIndex = useRef(0);
   const lastMessageId = useRef('');
-
-  const followOutputOnResize = useCallback(() => {
-    if (atBottom.current) {
-      setTimeout(() => {
-        virtuoso.current?.scrollToIndex({
-          index: messages.length - 1,
-          align: 'end',
-        });
-      });
-    }
-  }, [messages.length]);
 
   useEffect(() => {
     /* handle scrolling behavior for new messages */
@@ -129,10 +128,15 @@ const VirtualizedMessageList = ({
 
   const messageRenderer = useCallback(
     (messageList, i) => {
+      lastMessageIndex.current = messageList.length - 1;
       // use custom renderer supplied by client if present and skip the rest
       if (customMessageRenderer) {
         return (
-          <ResizeObserverWrapper resizeCallback={followOutputOnResize}>
+          <ResizeObserverWrapper
+            lastIndex={lastMessageIndex}
+            virtuoso={virtuoso}
+            atBottom={atBottom}
+          >
             {customMessageRenderer(messageList, i)}
           </ResizeObserverWrapper>
         );
@@ -148,7 +152,11 @@ const VirtualizedMessageList = ({
         return smartRender(MessageDeleted, { message }, null);
 
       return (
-        <ResizeObserverWrapper resizeCallback={followOutputOnResize}>
+        <ResizeObserverWrapper
+          lastIndex={lastMessageIndex}
+          virtuoso={virtuoso}
+          atBottom={atBottom}
+        >
           <Message
             message={message}
             groupedByUser={
@@ -160,12 +168,7 @@ const VirtualizedMessageList = ({
         </ResizeObserverWrapper>
       );
     },
-    [
-      MessageDeleted,
-      customMessageRenderer,
-      followOutputOnResize,
-      shouldGroupByUser,
-    ],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
   return (
