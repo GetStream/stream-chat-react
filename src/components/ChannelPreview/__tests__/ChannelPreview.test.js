@@ -165,5 +165,34 @@ describe('ChannelPreview', () => {
       });
       await expectUnreadCountToBe(getByTestId, 0);
     });
+
+    // eslint-disable-next-line jest/expect-expect
+    it('should set unreadCount to 0, in case of muted channel', async () => {
+      const channelMuteSpy = jest
+        .spyOn(c0, 'muteStatus')
+        .mockImplementation(() => {
+          return { muted: true };
+        });
+
+      const { getByTestId } = renderComponent(
+        {
+          channel: c0,
+          activeChannel: c1,
+        },
+        render,
+      );
+
+      await waitFor(() => {
+        expect(channelMuteSpy).toHaveBeenCalledWith();
+      });
+
+      await expectUnreadCountToBe(getByTestId, 0);
+
+      const message = generateMessage();
+      act(() => {
+        dispatcher(chatClientUthred, message, c0);
+      });
+      await expectUnreadCountToBe(getByTestId, 0);
+    });
   });
 });
