@@ -36,7 +36,7 @@ const ChannelPreview = (props) => {
     } else {
       setUnread(channel.countUnread());
     }
-  }, [activeChannel, channel, isActive, muted]);
+  }, [channel, isActive, muted]);
 
   useEffect(() => {
     /** @type {(event: import('stream-chat').Event) => void} */
