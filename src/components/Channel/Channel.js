@@ -198,7 +198,10 @@ const ChannelInner = ({
         ) {
           if (!document.hidden) {
             markReadThrottled();
-          } else if (channel.getConfig()?.read_events) {
+          } else if (
+            channel.getConfig()?.read_events &&
+            !channel.muteStatus().muted
+          ) {
             const unread = channel.countUnread(lastRead.current);
             document.title = `(${unread}) ${originalTitle.current}`;
           }

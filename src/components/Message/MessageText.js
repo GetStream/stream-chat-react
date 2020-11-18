@@ -104,6 +104,7 @@ const MessageTextComponent = (props) => {
           <ReactionsList
             reactions={message.latest_reactions}
             reaction_counts={message.reaction_counts || undefined}
+            own_reactions={message.own_reactions}
             onClick={onReactionListClick}
             reverse={true}
           />
@@ -114,6 +115,7 @@ const MessageTextComponent = (props) => {
             detailedView
             reaction_counts={message.reaction_counts || undefined}
             latest_reactions={message.latest_reactions}
+            own_reactions={message.own_reactions}
             ref={reactionSelectorRef}
           />
         )}
