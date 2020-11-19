@@ -65,15 +65,17 @@
 }
 
 .create-channel__button-wrapper {
-  position: absolute;
-  top: 798px;
   height: 82px;
-  width: 885px;
   background: #f7f6f8;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   border-bottom-right-radius: 16px;
+}
+
+.create-channel__button-wrapper.messaging {
+  position: relative;
+  top: 169px;
 }
 
 .create-channel__button-wrapper p {

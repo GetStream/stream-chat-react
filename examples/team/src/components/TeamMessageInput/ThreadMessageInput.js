@@ -84,7 +84,7 @@ export const ThreadMessageInput = (props) => {
         />
         <div className="thread-message-input__icons">
           <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-          <LightningBolt />
+          <LightningBolt {...{ giphyState }} />
         </div>
         <div
           className="thread-message-input__button"

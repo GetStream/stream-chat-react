@@ -5,7 +5,6 @@ import { createGlobalStyle } from 'styled-components';
 import 'stream-chat-react/dist/css/index.css';
 
 import './App.css';
-import './components/ColorSlider/ColorSlider.css';
 
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { ChannelListContainer } from './components/ChannelListContainer/ChannelListContainer';
@@ -23,8 +22,8 @@ const i18nInstance = new Streami18n({
   language: 'en',
   translationsForLanguage: {
     ...enTranslations,
-    '1 reply': '1 thread reply',
-    '{{ replyCount }} replies': '{{ replyCount }} thread replies',
+    // '1 reply': '1 thread reply',
+    // '{{ replyCount }} replies': '{{ replyCount }} thread replies',
   },
 });
 

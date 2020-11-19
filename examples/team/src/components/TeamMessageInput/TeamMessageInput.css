@@ -12,8 +12,12 @@
 }
 
 .team-message-input__input {
-  border: 1px solid rgb(var(--primary-color));
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+}
+
+.team-message-input__input:focus-within {
+  border-color: rgb(var(--primary-color));
 }
 
 .team-message-input__top {
@@ -62,6 +66,11 @@
   cursor: pointer;
 }
 
+.team-message-input__input:focus-within .team-message-input__button path {
+  fill: rgb(var(--primary-color));
+  fill-opacity: 1;
+}
+
 .team-message-input__wrapper .str-chat__textarea textarea {
   display: flex;
   background: #fff;
@@ -94,7 +103,8 @@
 }
 
 .team-message-input__icons svg:hover path {
-  fill-opacity: 60%;
+  fill: rgb(var(--primary-color));
+  fill-opacity: 1;
 }
 
 .team-message-input__icons svg:hover {

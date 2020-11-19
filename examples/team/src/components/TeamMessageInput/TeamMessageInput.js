@@ -201,7 +201,7 @@ export const TeamMessageInput = (props) => {
           <div className="team-message-input__bottom">
             <div className="team-message-input__icons">
               <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-              <LightningBolt {...{ onCommandClick }} />
+              <LightningBolt {...{ giphyState, onCommandClick }} />
               <div className="icon-divider"></div>
               <BoldIcon {...{ boldState, resetIconState, setBoldState }} />
               <ItalicsIcon

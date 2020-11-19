@@ -14,6 +14,7 @@
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   margin-bottom: 8px;
+  border: 1px solid transparent;
 }
 
 .channel-search__input__wrapper:focus-within {

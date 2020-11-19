@@ -63,8 +63,13 @@ export const CreateChannel = ({ createType, setIsCreating }) => {
         <ChannelNameInput {...{ channelName, setChannelName }} />
       )}
       <UserList setSelectedUsers={setSelectedUsers} />
-      <div className="create-channel__button-wrapper" onClick={createChannel}>
-        <p>Create Channel</p>
+      <div
+        className={`create-channel__button-wrapper ${createType}`}
+        onClick={createChannel}
+      >
+        <p>
+          {createType === 'team' ? 'Create Channel' : 'Create Message Group'}
+        </p>
       </div>
     </div>
   );

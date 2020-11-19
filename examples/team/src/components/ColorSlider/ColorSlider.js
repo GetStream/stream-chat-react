@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { HuePicker } from 'react-color';
 
+import './ColorSlider.css';
+
 export const ColorSlider = ({ primaryColor, setPrimaryColor }) => {
   const [sliderOpen, setSliderOpen] = useState(false);
 

@@ -109,12 +109,16 @@
 }
 
 .thread-message-input__input {
-  border: 1px solid rgb(var(--primary-color));
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   display: flex;
   align-items: center;
   width: 100%;
   height: 44px;
+}
+
+.thread-message-input__input:focus-within {
+  border-color: rgb(var(--primary-color));
 }
 
 .thread-message-input__button {
@@ -127,6 +131,11 @@
   border-bottom-right-radius: 8px;
   height: 44px;
   width: 41px;
+}
+
+.thread-message-input__input:focus-within .thread-message-input__button path {
+  fill: rgb(var(--primary-color));
+  fill-opacity: 1;
 }
 
 .thread-message-input__wrapper .str-chat__textarea textarea {
@@ -161,7 +170,8 @@
 }
 
 .thread-message-input__icons svg:hover path {
-  fill-opacity: 60%;
+  fill: rgb(var(--primary-color));
+  fill-opacity: 1;
 }
 
 .thread-message-input__icons svg:hover {

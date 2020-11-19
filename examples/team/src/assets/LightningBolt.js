@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const LightningBolt = ({ onCommandClick }) => (
+export const LightningBolt = ({ giphyState, onCommandClick }) => (
   <div onClick={onCommandClick} style={{ display: 'flex' }}>
     <svg
       width="8"
@@ -11,8 +11,8 @@ export const LightningBolt = ({ onCommandClick }) => (
     >
       <path
         d="M3.66634 0.666672H7.66634L4.99967 6H7.66634L2.66634 15.3333L3.66634 8.66667H0.333008L3.66634 0.666672Z"
-        fill="black"
-        fillOpacity="0.2"
+        fill={giphyState ? 'rgb(var(--primary-color))' : 'black'}
+        fillOpacity={giphyState ? '1' : '0.2'}
       />
     </svg>
   </div>
