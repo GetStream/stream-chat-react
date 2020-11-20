@@ -60,3 +60,16 @@
   transform: translate(-9px, -1px);
   box-shadow: rgba(0, 0, 0, 0.33) 0px 1px 4px 0px;
 }
+
+div.hue-horizontal {
+  background: linear-gradient(
+    to right,
+    #cc0000 0%,
+    #cccc00 17%,
+    #00cc00 33%,
+    #00cccc 50%,
+    #0000cc 67%,
+    #cc00cc 83%,
+    #cc0000 100%
+  );
+}

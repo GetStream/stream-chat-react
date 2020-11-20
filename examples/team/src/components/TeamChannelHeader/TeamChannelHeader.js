@@ -3,6 +3,8 @@ import { Avatar, ChannelContext, ChatContext } from 'stream-chat-react';
 
 import './TeamChannelHeader.css';
 
+import { ChannelInfo, PinIcon } from '../../assets';
+
 export const TeamChannelHeader = () => {
   const { client } = useContext(ChatContext);
   const { channel, watcher_count } = useContext(ChannelContext);
@@ -57,11 +59,20 @@ export const TeamChannelHeader = () => {
       {channel.type === 'messaging' ? (
         getMessagingHeader()
       ) : (
-        <p className="team-channel-header__name">{teamHeader}</p>
+        <div className="team-channel-header__channel-wrapper">
+          <p className="team-channel-header__name">{teamHeader}</p>
+          <ChannelInfo />
+        </div>
       )}
-      <p className="team-channel-header__watchers">
-        {getWatcherText(watcher_count)}
-      </p>
+      <div className="team-channel-header__right">
+        <p className="team-channel-header__right-text">
+          {getWatcherText(watcher_count)}
+        </p>
+        <div className="team-channel-header__right-pin-wrapper">
+          <PinIcon />
+          <p className="team-channel-header__right-text">Pins</p>
+        </div>
+      </div>
     </div>
   );
 };

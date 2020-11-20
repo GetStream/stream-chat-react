@@ -181,7 +181,7 @@ ul.str-chat__simple-reactions-list:hover {
   display: none;
 }
 
-.str-chat__message-actions-list-item:hover {
+.str-chat__message-actions-list button:hover {
   color: rgb(var(--primary-color));
   font-weight: 700;
 }

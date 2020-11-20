@@ -1,5 +1,6 @@
 export { AddChannel } from './AddChannel';
 export { BoldIcon } from './BoldIcon';
+export { ChannelInfo } from './ChannelInfo';
 export { CloseCreateChannel } from './CloseCreateChannel';
 export { CodeSnippet } from './CodeSnippet';
 export { HashIcon } from './HashIcon';
@@ -7,6 +8,7 @@ export { InviteIcon } from './InviteIcon';
 export { ItalicsIcon } from './ItalicsIcon';
 export { LightningBolt } from './LightningBolt';
 export { LightningBoltSmall } from './LightningBoltSmall';
+export { PinIcon } from './PinIcon';
 export { SearchIcon } from './SearchIcon';
 export { SendButton } from './SendButton';
 export { SideBarFlag } from './SideBarFlag';
