@@ -77,22 +77,22 @@ export const TeamMessageInput = (props) => {
       const updatedText = `/giphy ${message.text}`;
       updatedMessage = { ...message, text: updatedText };
     } else {
-      if (boldState) {
+      if (boldState && !message.text.startsWith('**')) {
         const updatedText = `**${message.text}**`;
         updatedMessage = { ...message, text: updatedText };
       }
 
-      if (codeState) {
+      if (codeState && !message.text.startsWith('`')) {
         const updatedText = `\`${message.text}\``;
         updatedMessage = { ...message, text: updatedText };
       }
 
-      if (italicState) {
+      if (italicState && !message.text.startsWith('*')) {
         const updatedText = `*${message.text}*`;
         updatedMessage = { ...message, text: updatedText };
       }
 
-      if (strikeThroughState) {
+      if (strikeThroughState && !message.text.startsWith('~~')) {
         const updatedText = `~~${message.text}~~`;
         updatedMessage = { ...message, text: updatedText };
       }
@@ -109,10 +109,11 @@ export const TeamMessageInput = (props) => {
 
   const onChange = useCallback(
     (e) => {
-      if (
-        messageInput.text.length === 1 &&
-        e.nativeEvent?.inputType === 'deleteContentBackward'
-      ) {
+      const { value } = e.target;
+      const deletePressed =
+        e.nativeEvent?.inputType === 'deleteContentBackward';
+
+      if (messageInput.text.length === 1 && deletePressed) {
         setGiphyState(false);
       }
 
@@ -121,31 +122,67 @@ export const TeamMessageInput = (props) => {
         messageInput.text.startsWith('/giphy') &&
         !messageInput.numberOfUploads
       ) {
-        e.target.value = e.target.value.replace('/giphy', '');
+        e.target.value = value.replace('/giphy', '');
         setGiphyState(true);
+      }
+
+      if (boldState) {
+        if (deletePressed) {
+          e.target.value = `${value.slice(0, value.length - 2)}**`;
+        } else {
+          e.target.value = `**${value.replace(/\**/g, '')}**`;
+        }
+      } else if (codeState) {
+        if (deletePressed) {
+          e.target.value = `${value.slice(0, value.length - 1)}\``;
+        } else {
+          e.target.value = `\`${value.replace(/`/g, '')}\``;
+        }
+      } else if (italicState) {
+        if (deletePressed) {
+          e.target.value = `${value.slice(0, value.length - 1)}*`;
+        } else {
+          e.target.value = `*${value.replace(/\*/g, '')}*`;
+        }
+      } else if (strikeThroughState) {
+        if (deletePressed) {
+          e.target.value = `${value.slice(0, value.length - 2)}~~`;
+        } else {
+          e.target.value = `~~${value.replace(/~~/g, '')}~~`;
+        }
       }
 
       messageInput.handleChange(e);
     },
-    [giphyState, messageInput],
+    [
+      boldState,
+      codeState,
+      giphyState,
+      italicState,
+      messageInput,
+      strikeThroughState,
+    ],
   );
 
-  const onCommandClick = (e) => {
-    e.preventDefault();
-    logChatPromiseExecution(channel.keystroke(), 'start typing event');
-
+  const onCommandClick = (event) => {
+    event.preventDefault();
     messageInput.textareaRef.current.focus();
 
-    const event = new Event('input', { bubbles: true });
-    messageInput.textareaRef.current.dispatchEvent(event);
+    messageInput.textareaRef.current.addEventListener('change', () => {
+      messageInput.textareaRef.current.textContent = '/';
+    });
 
-    const newEvent = {
-      ...event,
+    const newEvent = new Event('change', { bubbles: true });
+
+    messageInput.textareaRef.current.dispatchEvent(newEvent);
+
+    const dispatchedEvent = {
+      ...newEvent,
       preventDefault: () => null,
-      target: { ...event.target, value: '/' },
+      target: { value: '/' },
     };
 
-    messageInput.handleChange(newEvent);
+    messageInput.handleChange(dispatchedEvent);
   };
 
   const GiphyIcon = () => (
