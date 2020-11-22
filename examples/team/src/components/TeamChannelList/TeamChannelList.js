@@ -2,7 +2,18 @@ import React from 'react';
 
 import './TeamChannelList.css';
 
-export const TeamChannelList = ({ children, error = false, loading, type }) => {
+import { AddChannel } from '../../assets';
+
+const ChannelList = (props) => {
+  const {
+    children,
+    error = false,
+    loading,
+    setCreateType,
+    setIsCreating,
+    type,
+  } = props;
+
   /**
    * This work around removes children of the other channel type since we have
    * two ChannelList components and each receives the `message.new` event,
@@ -30,24 +41,20 @@ export const TeamChannelList = ({ children, error = false, loading, type }) => {
     },
   };
 
-  if (error && type === 'team') {
-    return (
+  if (error) {
+    return type === 'team' ? (
       <div className="team-channel-list">
         <p className="team-channel-list__message">
           Connection error, please wait a moment and try again.
         </p>
       </div>
-    );
+    ) : null;
   }
 
   if (loading) {
     return (
       <div className="team-channel-list">
-        <p
-          className={`team-channel-list__message loading ${
-            type === 'team' && 'type-team'
-          }`}
-        >
+        <p className="team-channel-list__message loading">
           {type === 'team' ? 'Channels' : 'Messages'} loading....
         </p>
       </div>
@@ -55,15 +62,19 @@ export const TeamChannelList = ({ children, error = false, loading, type }) => {
   }
 
   return (
-    <div className={`team-channel-list ${type === 'team' && 'type-team'}`}>
+    <div className="team-channel-list">
       <div className="team-channel-list__header">
         <p className="team-channel-list__header__title">
           {type === 'team' ? 'Channels' : 'Direct Messages'}
         </p>
+        <AddChannel
+          {...{ setCreateType, setIsCreating }}
+          type={type === 'team' ? 'team' : 'messaging'}
+        />
       </div>
-      <div className={`${type === 'team' && 'type-team-wrapper'}`}>
-        {newChildren}
-      </div>
+      {newChildren}
     </div>
   );
 };
+
+export const TeamChannelList = React.memo(ChannelList);

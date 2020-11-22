@@ -3,20 +3,3 @@
   width: 100%;
   box-shadow: inset 1px 0px 0px rgba(0, 0, 0, 0.1);
 }
-
-.channel__add {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  left: 282px;
-  cursor: pointer;
-}
-
-.channel__add.first-button {
-  top: 236px;
-}
-
-.channel__add.second-button {
-  top: 422px;
-}

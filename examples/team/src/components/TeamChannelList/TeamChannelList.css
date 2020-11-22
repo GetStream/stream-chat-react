@@ -2,22 +2,13 @@
   width: 100%;
 }
 
-.team-channel-list.type-team {
-  margin-top: 16px;
-}
-
-.team-channel-list .type-team-wrapper {
-  overflow: scroll;
-  max-height: 150px;
-}
-
 .team-channel-list__message {
   color: #ffffff;
   padding: 0 16px;
 }
 
-.team-channel-list__message.loading.type-team {
-  padding-top: 16px;
+.team-channel-list__message.loading {
+  height: 115px;
 }
 
 .team-channel-list__header {
@@ -25,6 +16,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.team-channel-list__header svg {
+  cursor: pointer;
 }
 
 .team-channel-list__header__title {

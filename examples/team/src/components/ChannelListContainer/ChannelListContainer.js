@@ -7,7 +7,7 @@ import { ChannelSearch } from '../ChannelSearch/ChannelSearch';
 import { TeamChannelList } from '../TeamChannelList/TeamChannelList';
 import { TeamChannelPreview } from '../TeamChannelPreview/TeamChannelPreview';
 
-import { SideBarLogo, SideBarFlag } from '../../assets';
+import { SideBarFlag, SideBarLogo } from '../../assets';
 
 const SideBar = () => (
   <div className="channel-list__sidebar">
@@ -30,12 +30,8 @@ const CompanyHeader = () => (
   </div>
 );
 
-export const ChannelListContainer = () => {
-  const options = {
-    member: true,
-    watch: true,
-    limit: 3,
-  };
+export const ChannelListContainer = (props) => {
+  const { filters, options, setCreateType, setIsCreating, sort } = props;
 
   return (
     <div className="channel-list__container">
@@ -44,19 +40,41 @@ export const ChannelListContainer = () => {
         <CompanyHeader />
         <ChannelSearch />
         <ChannelList
-          filters={{ type: 'team' }}
-          sort={{ last_message_at: -1 }}
+          filters={filters[0]}
           options={options}
-          List={(props) => <TeamChannelList {...props} type="team" />}
-          Preview={(props) => <TeamChannelPreview {...props} type="team" />}
+          sort={sort}
+          List={(listProps) => (
+            <TeamChannelList
+              {...listProps}
+              {...{ setCreateType, setIsCreating }}
+              type="team"
+            />
+          )}
+          Preview={(previewProps) => (
+            <TeamChannelPreview
+              {...previewProps}
+              {...{ setIsCreating }}
+              type="team"
+            />
+          )}
         />
         <ChannelList
-          filters={{ type: 'messaging' }}
-          sort={{ last_message_at: -1 }}
+          filters={filters[1]}
           options={options}
-          List={(props) => <TeamChannelList {...props} type="messaging" />}
-          Preview={(props) => (
-            <TeamChannelPreview {...props} type="messaging" />
+          sort={sort}
+          List={(listProps) => (
+            <TeamChannelList
+              {...listProps}
+              {...{ setCreateType, setIsCreating }}
+              type="messaging"
+            />
+          )}
+          Preview={(previewProps) => (
+            <TeamChannelPreview
+              {...previewProps}
+              {...{ setIsCreating }}
+              type="messaging"
+            />
           )}
         />
       </div>

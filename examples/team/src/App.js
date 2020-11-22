@@ -33,24 +33,35 @@ const GlobalColor = createGlobalStyle`
   }
 `;
 
+const filters = [{ type: 'team' }, { type: 'messaging' }];
+const options = { state: true, watch: true, presence: true, limit: 3 };
+const sort = { last_message_at: -1, updated_at: -1 };
+
 const App = () => {
+  const [createType, setCreateType] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   const [primaryColor, setPrimaryColor] = useState('78, 29, 157');
 
-  const chatClient = new StreamChat(apiKey);
-  chatClient.setUser({ id: user }, userToken);
+  const client = new StreamChat(apiKey);
+  client.setUser({ id: user }, userToken);
 
   return (
     <>
       <GlobalColor color={primaryColor} />
       <ColorSlider {...{ primaryColor, setPrimaryColor }} />
       <div className="app__wrapper">
-        <Chat
-          client={chatClient}
-          i18nInstance={i18nInstance}
-          theme={`team ${theme}`}
-        >
-          <ChannelListContainer />
-          <ChannelContainer />
+        <Chat {...{ client, i18nInstance }} theme={`team ${theme}`}>
+          <ChannelListContainer
+            {...{
+              isCreating,
+              filters,
+              options,
+              setCreateType,
+              setIsCreating,
+              sort,
+            }}
+          />
+          <ChannelContainer {...{ createType, isCreating, setIsCreating }} />
         </Chat>
       </div>
     </>

@@ -4,11 +4,6 @@
   box-shadow: inset 1px 0px 0px rgba(0, 0, 0, 0.1);
 }
 
-.channel-list__container .str-chat-channel-list {
-  height: 187px;
-  margin-bottom: 16px;
-}
-
 .channel-list__sidebar {
   width: 72px;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),

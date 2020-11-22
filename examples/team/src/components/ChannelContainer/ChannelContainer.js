@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Channel, MessageList, Thread, Window } from 'stream-chat-react';
 
 import './ChannelContainer.css';
@@ -10,28 +10,11 @@ import { TeamMessage } from '../TeamMessage/TeamMessage';
 import { TeamMessageInput } from '../TeamMessageInput/TeamMessageInput';
 import { ThreadMessageInput } from '../TeamMessageInput/ThreadMessageInput';
 
-import { AddChannel } from '../../assets';
-
-export const ChannelContainer = () => {
-  const [createType, setCreateType] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+export const ChannelContainer = (props) => {
+  const { createType, isCreating, setIsCreating } = props;
 
   return (
     <div className="channel__container">
-      <div className="channel__add first-button">
-        <AddChannel
-          setCreateType={setCreateType}
-          setIsCreating={setIsCreating}
-          type="team"
-        />
-      </div>
-      <div className="channel__add second-button">
-        <AddChannel
-          setCreateType={setCreateType}
-          setIsCreating={setIsCreating}
-          type="messaging"
-        />
-      </div>
       {isCreating && createType ? (
         <CreateChannel {...{ createType, setIsCreating }} />
       ) : (
