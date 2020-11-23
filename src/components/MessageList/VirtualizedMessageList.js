@@ -14,7 +14,6 @@ import { ChannelContext, TranslationContext } from '../../context';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import {
   FixedHeightMessage,
   MessageDeleted as DefaultMessageDeleted,
@@ -34,11 +33,13 @@ const VirtualizedMessageList = ({
   loadingMore,
   messageLimit = 100,
   overscan = 200,
+  shouldGroupByUser = false,
+  customMessageRenderer,
   scrollSeekPlaceHolder,
   Message = FixedHeightMessage,
   MessageSystem = EventComponent,
   MessageDeleted = DefaultMessageDeleted,
-  TypingIndicator = DefaultTypingIndicator,
+  TypingIndicator = null,
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
 }) => {
@@ -63,11 +64,8 @@ const VirtualizedMessageList = ({
     /* do nothing if new messages are loaded from top(loadMore)  */
     if (lastMessage.id === prevMessageId) return;
 
-    /* if list is already at the bottom make it sticky */
-    if (atBottom.current) {
-      setTimeout(() => virtuoso.current?.scrollToIndex(messages.length)); // setTimeout is needed to delay the scroll until react flushes
-      return;
-    }
+    /* if list is already at the bottom return, followOutput will do the job */
+    if (atBottom.current) return;
 
     /* if the new message belongs to current user scroll to bottom */
     if (lastMessage.user?.id === client.userID) {
@@ -92,8 +90,12 @@ const VirtualizedMessageList = ({
   }, [messages.length]);
 
   const messageRenderer = useCallback(
-    (message) => {
-      if (!message) return <></>;
+    (messageList, i) => {
+      // use custom renderer supplied by client if present and skip the rest
+      if (customMessageRenderer) return customMessageRenderer(messageList, i);
+
+      const message = messageList[i];
+      if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
       if (message.type === 'channel.event' || message.type === 'system')
         return <MessageSystem message={message} />;
@@ -101,9 +103,18 @@ const VirtualizedMessageList = ({
       if (message.deleted_at)
         return smartRender(MessageDeleted, { message }, null);
 
-      return <Message message={message} />;
+      return (
+        <Message
+          message={message}
+          groupedByUser={
+            shouldGroupByUser &&
+            i > 0 &&
+            message.user.id === messageList[i - 1].user.id
+          }
+        />
+      );
     },
-    [MessageDeleted],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
   return (
@@ -113,18 +124,23 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
+        followOutput={true}
+        maxHeightCacheSize={2000} // reset the cache once it reaches 2k
         scrollSeek={scrollSeekPlaceHolder}
-        item={(i) => messageRenderer(messages[i])}
+        item={(i) => messageRenderer(messages, i)}
         emptyComponent={() => <EmptyStateIndicator listType="message" />}
-        header={() => (
-          <div
-            className="str-chat__virtual-list__loading"
-            style={{ visibility: loadingMore ? undefined : 'hidden' }}
-          >
-            <LoadingIndicator size={20} />
-          </div>
-        )}
-        footer={() => TypingIndicator && <TypingIndicator avatarSize={24} />}
+        header={() =>
+          loadingMore ? (
+            <div className="str-chat__virtual-list__loading">
+              <LoadingIndicator size={20} />
+            </div>
+          ) : (
+            <></>
+          )
+        }
+        footer={() =>
+          TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>
+        }
         startReached={() => {
           // mounted.current prevents immediate loadMore on first render
           if (mounted.current && hasMore) {

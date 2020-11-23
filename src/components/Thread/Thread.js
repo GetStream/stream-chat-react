@@ -91,16 +91,18 @@ class Thread extends PureComponent {
   };
 
   render() {
-    if (!this.props.thread) {
-      return null;
-    }
-    const parentID = this.props.thread.id;
-    const cid = this.props.channel && this.props.channel.cid;
+    const { thread, channel } = this.props;
 
-    const key = `thread-${parentID}-${cid}`;
+    if (!thread || channel?.getConfig?.()?.replies === false) return null;
+
     // We use a wrapper to make sure the key variable is set.
     // this ensures that if you switch thread the component is recreated
-    return <ThreadInner {...this.props} key={key} />;
+    return (
+      <ThreadInner
+        {...this.props}
+        key={`thread-${thread.id}-${channel?.cid}`}
+      />
+    );
   }
 }
 

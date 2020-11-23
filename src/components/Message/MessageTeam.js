@@ -100,11 +100,11 @@ const MessageTeam = (props) => {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
-  const { onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-    messageWrapperRef,
-  );
+  const {
+    onReactionListClick,
+    showDetailedReactions,
+    isReactionEnabled,
+  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
@@ -225,12 +225,13 @@ const MessageTeam = (props) => {
                       handleReaction={propHandleReaction || handleReaction}
                       latest_reactions={message.latest_reactions}
                       reaction_counts={message.reaction_counts || undefined}
+                      own_reactions={message.own_reactions}
                       detailedView={true}
                       ref={reactionSelectorRef}
                     />
                   )}
 
-                  {channelConfig && channelConfig.reactions && (
+                  {isReactionEnabled && (
                     <span
                       data-testid="message-team-reaction-icon"
                       title="Reactions"
@@ -239,7 +240,7 @@ const MessageTeam = (props) => {
                       <ReactionIcon />
                     </span>
                   )}
-                  {!threadList && channelConfig && channelConfig.replies && (
+                  {!threadList && channelConfig?.replies !== false && (
                     <span
                       data-testid="message-team-thread-icon"
                       title="Start a thread"
@@ -309,11 +310,13 @@ const MessageTeam = (props) => {
 
             {message?.latest_reactions &&
               message.latest_reactions.length !== 0 &&
-              message.text !== '' && (
+              message.text !== '' &&
+              isReactionEnabled && (
                 <ReactionsList
                   reaction_counts={message.reaction_counts || undefined}
                   handleReaction={propHandleReaction || handleReaction}
                   reactions={message.latest_reactions}
+                  own_reactions={message.own_reactions}
                 />
               )}
             {message?.status === 'failed' && (
@@ -351,11 +354,13 @@ const MessageTeam = (props) => {
           )}
           {message?.latest_reactions &&
             message.latest_reactions.length !== 0 &&
-            message.text === '' && (
+            message.text === '' &&
+            isReactionEnabled && (
               <ReactionsList
                 reaction_counts={message.reaction_counts || undefined}
                 handleReaction={propHandleReaction || handleReaction}
                 reactions={message.latest_reactions}
+                own_reactions={message.own_reactions}
               />
             )}
           {!threadList && message && (

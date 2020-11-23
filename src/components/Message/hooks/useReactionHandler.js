@@ -5,7 +5,7 @@ import { ChannelContext } from '../../../context';
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
       Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
 /**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => (reactionType: string, event: React.MouseEvent) => Promise<void>}
+ * @type {import('types').useReactionHandler}
  */
 export const useReactionHandler = (message) => {
   const { client, channel, updateMessage } = useContext(ChannelContext);
@@ -76,19 +76,16 @@ export const useReactionHandler = (message) => {
 };
 
 /**
- * @typedef {{ onReactionListClick: () => void, showDetailedReactions: boolean }} ReactionClickHandler
- * @type {(
- *   message: import('stream-chat').MessageResponse | undefined,
- *   reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
- *   messageWrapperRef?: React.RefObject<HTMLElement | null>
- * ) => ReactionClickHandler}
+ * @type {import('types').useReactionClick}
  */
 export const useReactionClick = (
   message,
   reactionSelectorRef,
   messageWrapperRef,
 ) => {
+  const { channel } = useContext(ChannelContext);
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
+  const isReactionEnabled = channel?.getConfig?.()?.reactions !== false;
   const messageDeleted = !!message?.deleted_at;
   const hasListener = useRef(false);
   /** @type {EventListener} */
@@ -161,8 +158,10 @@ export const useReactionClick = (
   const onReactionListClick = () => {
     setShowDetailedReactions(true);
   };
+
   return {
     onReactionListClick,
     showDetailedReactions,
+    isReactionEnabled,
   };
 };

@@ -211,6 +211,21 @@ describe('<MessageCommerce />', () => {
     );
   });
 
+  it('should not set css class modifier if reactions is disabled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+    });
+    const { getByTestId } = await renderMessageCommerce(
+      message,
+      {},
+      { reactions: false },
+    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).not.toContain(
+      '--with-reactions',
+    );
+  });
+
   it.each([['top'], ['bottom'], ['middle'], ['single']])(
     "should set correct css class modifier when message's first group style is %s",
     async (modifier) => {
@@ -252,6 +267,20 @@ describe('<MessageCommerce />', () => {
       }
     },
   );
+
+  it('should not show the reaction list if reactions disabled in channel config', async () => {
+    const bobReaction = generateReaction({ user: bob });
+    const message = generateAliceMessage({
+      latest_reactions: [bobReaction],
+      text: undefined,
+    });
+    const { queryByTestId } = await renderMessageCommerce(
+      message,
+      {},
+      { reactions: false },
+    );
+    expect(queryByTestId(reactionListTestId)).toBeNull();
+  });
 
   it('should show the reaction list when message has no text', async () => {
     const bobReaction = generateReaction({ user: bob });

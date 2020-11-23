@@ -56,9 +56,7 @@ export const usePaginatedChannels = (
       }
 
       setChannels(newChannels);
-      setRefreshing(false);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);
-
       // Set active channel only after first page.
       if (offset === 0 && activeChannelHandler) {
         activeChannelHandler(newChannels, setChannels);

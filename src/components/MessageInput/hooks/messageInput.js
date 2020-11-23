@@ -1,5 +1,12 @@
 // @ts-check
-import { useReducer, useEffect, useContext, useRef, useCallback } from 'react';
+import {
+  useReducer,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import Immutable from 'seamless-immutable';
 import { logChatPromiseExecution } from 'stream-chat';
 import {
@@ -32,6 +39,8 @@ const getAttachmentTypeFromMime = (mime) => {
 const emptyFileUploads = {};
 /** @type {{ [id: string]: import('types').ImageUpload }} */
 const emptyImageUploads = {};
+
+const apiMaxNumberOfFiles = 10;
 
 /**
  * Initializes the state. Empty if the message prop is falsy.
@@ -134,6 +143,7 @@ function messageInputReducer(state, action) {
       };
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
+      if (!imageAlreadyExists && !action.file) return state;
       const imageOrder = imageAlreadyExists
         ? state.imageOrder
         : state.imageOrder.concat(action.id);
@@ -152,6 +162,7 @@ function messageInputReducer(state, action) {
     }
     case 'setFileUpload': {
       const fileAlreadyExists = state.fileUploads[action.id];
+      if (!fileAlreadyExists && !action.file) return state;
       const fileOrder = fileAlreadyExists
         ? state.fileOrder
         : state.fileOrder.concat(action.id);
@@ -197,9 +208,9 @@ function messageInputReducer(state, action) {
 }
 /**
  * hook for MessageInput state
- * @param {Props} props
+ * @type{import('types').useMessageInput}
  */
-export default function useMessageInputState(props) {
+export default function useMessageInput(props) {
   const {
     doImageUploadRequest,
     doFileUploadRequest,
@@ -477,6 +488,11 @@ export default function useMessageInputState(props) {
     dispatch({ type: 'setFileUpload', id, state: 'uploading' });
   }, []);
 
+  const removeFile = useCallback((id) => {
+    // TODO: cancel upload if still uploading
+    dispatch({ type: 'removeFileUpload', id });
+  }, []);
+
   useEffect(() => {
     (async () => {
       if (!channel) return;
@@ -510,6 +526,14 @@ export default function useMessageInputState(props) {
         }
         return;
       }
+
+      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
+      // This is for the case if someone wants to handle failure on app level.
+      if (!response) {
+        removeFile(id);
+        return;
+      }
+
       dispatch({
         type: 'setFileUpload',
         id,
@@ -517,14 +541,14 @@ export default function useMessageInputState(props) {
         url: response.file,
       });
     })();
-  }, [fileUploads, channel, doFileUploadRequest, errorHandler]);
-
-  const removeFile = useCallback((id) => {
-    // TODO: cancel upload if still uploading
-    dispatch({ type: 'removeFileUpload', id });
-  }, []);
+  }, [fileUploads, channel, doFileUploadRequest, errorHandler, removeFile]);
 
   // Images
+
+  const removeImage = useCallback((id) => {
+    dispatch({ type: 'removeImageUpload', id });
+    // TODO: cancel upload if still uploading
+  }, []);
 
   const uploadImage = useCallback(
     async (id) => {
@@ -560,7 +584,14 @@ export default function useMessageInputState(props) {
         }
         return;
       }
-      if (!imageUploads[id]) return; // removed before done
+
+      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
+      // This is for the case if someone wants to handle failure on app level.
+      if (!response) {
+        removeImage(id);
+        return;
+      }
+
       dispatch({
         type: 'setImageUpload',
         id,
@@ -568,7 +599,7 @@ export default function useMessageInputState(props) {
         url: response.file,
       });
     },
-    [imageUploads, channel, doImageUploadRequest, errorHandler],
+    [imageUploads, channel, doImageUploadRequest, errorHandler, removeImage],
   );
 
   useEffect(() => {
@@ -602,29 +633,39 @@ export default function useMessageInputState(props) {
     return () => {};
   }, [imageUploads, uploadImage]);
 
-  const removeImage = useCallback((id) => {
-    dispatch({ type: 'removeImageUpload', id });
-    // TODO: cancel upload if still uploading
-  }, []);
+  // Number of files that the user can still add. Should never be more than the amount allowed by the API.
+  // If multipleUploads is false, we only want to allow a single upload.
+  const maxFilesAllowed = useMemo(() => {
+    if (!channelContext.multipleUploads) return 1;
+    if (channelContext.maxNumberOfFiles === undefined) {
+      return apiMaxNumberOfFiles;
+    }
+    return channelContext.maxNumberOfFiles;
+  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
+
+  const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   const uploadNewFiles = useCallback(
     /**
      * @param {FileList} files
      */
     (files) => {
-      Array.from(files).forEach((file) => {
-        const id = generateRandomId();
-        if (file.type.startsWith('image/')) {
-          dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
-        } else if (file instanceof File && !noFiles) {
-          dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
-        }
-      });
+      Array.from(files)
+        .slice(0, maxFilesLeft)
+        .forEach((file) => {
+          const id = generateRandomId();
+          if (file.type.startsWith('image/')) {
+            dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
+          } else if (file instanceof File && !noFiles) {
+            dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
+          }
+        });
     },
-    [noFiles],
+    [maxFilesLeft, noFiles],
   );
 
   const onPaste = useCallback(
+    /** (e: React.ClipboardEvent) */
     (e) => {
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
@@ -665,8 +706,12 @@ export default function useMessageInputState(props) {
     [uploadNewFiles, insertText],
   );
 
+  const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+
   return {
     ...state,
+    isUploadEnabled,
+    maxFilesLeft,
     // refs
     textareaRef,
     emojiPickerRef,

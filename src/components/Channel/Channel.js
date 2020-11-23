@@ -23,6 +23,7 @@ import {
 } from '../Loading';
 import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
+import useIsMounted from './hooks/useIsMounted';
 import { channelReducer, initialState } from './channelState';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
@@ -33,6 +34,10 @@ const Channel = ({ EmptyPlaceholder = null, ...props }) => {
     return EmptyPlaceholder;
   }
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
+};
+
+Channel.defaultProps = {
+  multipleUploads: true,
 };
 
 Channel.propTypes = {
@@ -96,7 +101,7 @@ Channel.propTypes = {
    * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
    */
   onMentionsHover: PropTypes.func,
-  /** Weather to allow multiple attachment uploads */
+  /** Whether to allow multiple attachment uploads */
   multipleUploads: PropTypes.bool,
   /** List of accepted file types */
   acceptedFiles: PropTypes.array,
@@ -138,6 +143,7 @@ const ChannelInner = ({
   const lastRead = useRef(new Date());
   const chatContext = useContext(ChatContext);
   const online = useRef(true);
+  const isMounted = useIsMounted();
   const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,7 +198,10 @@ const ChannelInner = ({
         ) {
           if (!document.hidden) {
             markReadThrottled();
-          } else if (channel.getConfig()?.read_events) {
+          } else if (
+            channel.getConfig()?.read_events &&
+            !channel.muteStatus().muted
+          ) {
             const unread = channel.countUnread(lastRead.current);
             document.title = `(${unread}) ${originalTitle.current}`;
           }
@@ -270,6 +279,7 @@ const ChannelInner = ({
        * @param {import('stream-chat').ChannelState['messages']} messages
        */
       (hasMore, messages) => {
+        if (!isMounted.current) return;
         dispatch({ type: 'loadMoreFinished', hasMore, messages });
       },
       2000,
@@ -283,7 +293,7 @@ const ChannelInner = ({
 
   const loadMore = useCallback(
     async (limit = 100) => {
-      if (!online.current) return 0;
+      if (!online.current || !window.navigator.onLine) return 0;
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
       if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
@@ -315,7 +325,7 @@ const ChannelInner = ({
     (updatedMessage) => {
       // adds the message to the local channel state..
       // this adds to both the main channel state as well as any reply threads
-      channel.state.addMessageSorted(updatedMessage);
+      channel.state.addMessageSorted(updatedMessage, true);
 
       dispatch({
         type: 'copyMessagesFromChannel',

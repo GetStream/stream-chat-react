@@ -108,6 +108,7 @@ export const byDate = (a, b) => a.created_at - b.created_at;
 /** @type {import('react-markdown').NodeType[]} */
 const allowedMarkups = [
   'html',
+  // @ts-ignore
   'root',
   'text',
   'break',
@@ -146,6 +147,24 @@ export const truncate = (input, length, end = '...') => {
   return input;
 };
 
+const markDownRenderers = {
+  /** @param {{ href: string | undefined; children: React.ReactElement; }} props   */
+  link: (props) => {
+    if (
+      !props.href ||
+      (!props.href.startsWith('http') && !props.href.startsWith('mailto:'))
+    ) {
+      return props.children;
+    }
+
+    return (
+      <a href={props.href} target="_blank" rel="nofollow noreferrer noopener">
+        {props.children}
+      </a>
+    );
+  },
+};
+
 /** @type {(input: string | undefined, mentioned_users: import('stream-chat').UserResponse[] | undefined) => React.ReactNode} */
 export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
@@ -171,7 +190,10 @@ export const renderText = (text, mentioned_users) => {
 
   if (mentioned_users && mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
-      const username = mentioned_users[i].name || mentioned_users[i].id;
+      let username = mentioned_users[i].name || mentioned_users[i].id;
+      if (username) {
+        username = escapeRegExp(username);
+      }
       const mkdown = `**@${username}**`;
       const re = new RegExp(`@${username}`, 'g');
       newText = newText.replace(re, mkdown);
@@ -182,21 +204,20 @@ export const renderText = (text, mentioned_users) => {
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       source={newText}
-      linkTarget="_blank"
-      plugins={[]}
+      renderers={markDownRenderers}
       escapeHtml={true}
-      skipHtml={false}
       unwrapDisallowed={true}
-      transformLinkUri={(uri) => {
-        if (uri.startsWith('app://')) {
-          return uri;
-        } else {
-          return RootReactMarkdown.uriTransformer(uri);
-        }
-      }}
+      transformLinkUri={(uri) =>
+        uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
+      }
     />
   );
 };
+
+/** @param { string } text */
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
+}
 
 // https://stackoverflow.com/a/6860916/2570866
 export function generateRandomId() {
