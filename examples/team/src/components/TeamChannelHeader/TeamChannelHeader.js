@@ -5,11 +5,11 @@ import './TeamChannelHeader.css';
 
 import { ChannelInfo, PinIcon } from '../../assets';
 
-export const TeamChannelHeader = () => {
+export const TeamChannelHeader = ({ setIsEditing }) => {
   const { client } = useContext(ChatContext);
   const { channel, watcher_count } = useContext(ChannelContext);
 
-  const teamHeader = `# ${channel.data.id || 'random'}`;
+  const teamHeader = `# ${channel.data.name || channel.data.id || 'random'}`;
 
   const getMessagingHeader = () => {
     const members = Object.values(channel.state.members).filter(
@@ -61,7 +61,9 @@ export const TeamChannelHeader = () => {
       ) : (
         <div className="team-channel-header__channel-wrapper">
           <p className="team-channel-header__name">{teamHeader}</p>
-          <ChannelInfo />
+          <span style={{ display: 'flex' }} onClick={() => setIsEditing(true)}>
+            <ChannelInfo />
+          </span>
         </div>
       )}
       <div className="team-channel-header__right">

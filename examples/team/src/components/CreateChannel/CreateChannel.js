@@ -62,7 +62,7 @@ export const CreateChannel = ({ createType, setIsCreating }) => {
       {createType === 'team' && (
         <ChannelNameInput {...{ channelName, setChannelName }} />
       )}
-      <UserList setSelectedUsers={setSelectedUsers} />
+      <UserList filters={{}} setSelectedUsers={setSelectedUsers} />
       <div
         className={`create-channel__button-wrapper ${createType}`}
         onClick={createChannel}

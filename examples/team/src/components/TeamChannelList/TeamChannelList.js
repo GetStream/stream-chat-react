@@ -11,6 +11,7 @@ const ChannelList = (props) => {
     loading,
     setCreateType,
     setIsCreating,
+    setIsEditing,
     type,
   } = props;
 
@@ -68,7 +69,7 @@ const ChannelList = (props) => {
           {type === 'team' ? 'Channels' : 'Direct Messages'}
         </p>
         <AddChannel
-          {...{ setCreateType, setIsCreating }}
+          {...{ setCreateType, setIsCreating, setIsEditing }}
           type={type === 'team' ? 'team' : 'messaging'}
         />
       </div>

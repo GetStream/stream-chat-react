@@ -6,12 +6,20 @@ import './TeamChannelPreview.css';
 import { TeamTypingIndicator } from '../TeamTypingIndicator/TeamTypingIndicator';
 
 export const TeamChannelPreview = (props) => {
-  const { channel, setActiveChannel, setIsCreating, type } = props;
+  const {
+    channel,
+    setActiveChannel,
+    setIsCreating,
+    setIsEditing,
+    type,
+  } = props;
 
   const { channel: activeChannel, client } = useContext(ChatContext);
 
   const ChannelPreview = () => (
-    <p className="channel-preview__item"># {channel.data.id || 'random'}</p>
+    <p className="channel-preview__item">
+      # {channel.data.name || channel.data.id || 'random'}
+    </p>
   );
 
   const DirectPreview = () => {
@@ -53,6 +61,7 @@ export const TeamChannelPreview = (props) => {
       }
       onClick={() => {
         setIsCreating(false);
+        setIsEditing(false);
         setActiveChannel(channel);
       }}
     >

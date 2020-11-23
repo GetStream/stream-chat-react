@@ -5,6 +5,21 @@ import './UserList.css';
 
 import { InviteIcon } from '../../assets';
 
+const ListHeader = ({ error = false }) => (
+  <>
+    <div className="user-list__header">
+      <p>User</p>
+      <p>Last Active</p>
+      <p>Invite</p>
+    </div>
+    {error && (
+      <p className="user-list__loading">
+        Error loading, please refresh and try again.
+      </p>
+    )}
+  </>
+);
+
 const UserItem = ({ index, setSelectedUsers, user }) => {
   const [selected, setSelected] = useState(false);
 
@@ -48,35 +63,46 @@ const UserItem = ({ index, setSelectedUsers, user }) => {
   );
 };
 
-export const UserList = ({ setSelectedUsers }) => {
+export const UserList = ({ filters = {}, setSelectedUsers }) => {
   const { client } = useContext(ChatContext);
 
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const getUsers = async () => {
+      if (loading) return;
       setLoading(true);
-      const response = await client.queryUsers(
-        {},
-        { last_active: -1, role: -1 },
-        { limit: 6 },
-      );
 
-      if (response.users.length) setUsers(response.users);
+      try {
+        const response = await client.queryUsers(
+          filters,
+          { id: 1 },
+          { limit: 6 },
+        );
+        if (response.users.length) setUsers(response.users);
+      } catch (e) {
+        setError(true);
+      }
+
       setLoading(false);
     };
 
     if (client) getUsers();
-  }, [client]);
+  }, [client, filters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (error) {
+    return (
+      <div className="user-list__container">
+        <ListHeader {...{ error }} />
+      </div>
+    );
+  }
 
   return (
     <div className="user-list__container">
-      <div className="user-list__header">
-        <p>User</p>
-        <p>Last Active</p>
-        <p>Invite</p>
-      </div>
+      <ListHeader />
       {loading ? (
         <div className="user-list__loading">Loading users...</div>
       ) : (

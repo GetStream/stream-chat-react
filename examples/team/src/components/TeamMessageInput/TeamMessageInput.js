@@ -51,7 +51,7 @@ export const TeamMessageInput = (props) => {
 
   const getPlaceholder = () => {
     if (channel.type === 'team') {
-      return `#${channel.data.id || 'random'}`;
+      return `#${channel.data.name || channel.data.id || 'random'}`;
     }
 
     const members = Object.values(channel.state.members).filter(

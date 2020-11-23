@@ -40,6 +40,7 @@ const sort = { last_message_at: -1, updated_at: -1 };
 const App = () => {
   const [createType, setCreateType] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [primaryColor, setPrimaryColor] = useState('78, 29, 157');
 
   const client = new StreamChat(apiKey);
@@ -58,10 +59,19 @@ const App = () => {
               options,
               setCreateType,
               setIsCreating,
+              setIsEditing,
               sort,
             }}
           />
-          <ChannelContainer {...{ createType, isCreating, setIsCreating }} />
+          <ChannelContainer
+            {...{
+              createType,
+              isCreating,
+              isEditing,
+              setIsCreating,
+              setIsEditing,
+            }}
+          />
         </Chat>
       </div>
     </>

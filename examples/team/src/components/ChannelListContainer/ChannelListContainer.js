@@ -31,7 +31,14 @@ const CompanyHeader = () => (
 );
 
 export const ChannelListContainer = (props) => {
-  const { filters, options, setCreateType, setIsCreating, sort } = props;
+  const {
+    filters,
+    options,
+    setCreateType,
+    setIsCreating,
+    setIsEditing,
+    sort,
+  } = props;
 
   return (
     <div className="channel-list__container">
@@ -46,14 +53,14 @@ export const ChannelListContainer = (props) => {
           List={(listProps) => (
             <TeamChannelList
               {...listProps}
-              {...{ setCreateType, setIsCreating }}
+              {...{ setCreateType, setIsCreating, setIsEditing }}
               type="team"
             />
           )}
           Preview={(previewProps) => (
             <TeamChannelPreview
               {...previewProps}
-              {...{ setIsCreating }}
+              {...{ setIsCreating, setIsEditing }}
               type="team"
             />
           )}
@@ -65,14 +72,14 @@ export const ChannelListContainer = (props) => {
           List={(listProps) => (
             <TeamChannelList
               {...listProps}
-              {...{ setCreateType, setIsCreating }}
+              {...{ setCreateType, setIsCreating, setIsEditing }}
               type="messaging"
             />
           )}
           Preview={(previewProps) => (
             <TeamChannelPreview
               {...previewProps}
-              {...{ setIsCreating }}
+              {...{ setIsCreating, setIsEditing }}
               type="messaging"
             />
           )}

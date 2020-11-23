@@ -1,6 +1,11 @@
 import React from 'react';
 
-export const AddChannel = ({ setCreateType, setIsCreating, type }) => (
+export const AddChannel = ({
+  setCreateType,
+  setIsCreating,
+  setIsEditing,
+  type,
+}) => (
   <svg
     width="14"
     height="14"
@@ -10,6 +15,7 @@ export const AddChannel = ({ setCreateType, setIsCreating, type }) => (
     onClick={() => {
       setCreateType(type);
       setIsCreating((prevState) => !prevState);
+      setIsEditing(false);
     }}
   >
     <path
