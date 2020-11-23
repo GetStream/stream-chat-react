@@ -18,17 +18,9 @@ export const useActionHandler = (message) => {
     const messageID = message.id;
 
     /** @type {Record<string, string>} */
-    const formData = {};
-
-    // MML callback is array, TODO: generalize this
-    if (Array.isArray(name)) {
-      name.forEach((mmlData) => {
-        // @ts-ignore
-        formData[mmlData.name] = mmlData.value;
-      });
-    } else {
-      formData[name] = value;
-    }
+    let formData = {};
+    if (typeof name === 'string') formData[name] = value;
+    else formData = { ...name };
 
     if (messageID) {
       const data = await channel.sendAction(messageID, formData);

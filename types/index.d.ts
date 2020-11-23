@@ -760,9 +760,9 @@ export interface BaseAttachmentUIComponentProps {
 		Examples include canceling a \/giphy command or shuffling the results.
 		*/
   actionHandler?(
-    name: string,
-    value: string,
-    event: React.BaseSyntheticEvent,
+    name: string | Record<string, any>,
+    value?: string,
+    event?: React.BaseSyntheticEvent,
   ): void;
   Card?: React.ComponentType<CardProps>;
   File?: React.ComponentType<FileAttachmentProps>;
