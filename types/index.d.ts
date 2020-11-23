@@ -107,7 +107,7 @@ export interface ChannelContextValue extends ChatContextValue {
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: {
-    text: string;
+    text?: string;
     attachments?: (
       | Client.Attachment<Record<string, unknown>>
       | {
