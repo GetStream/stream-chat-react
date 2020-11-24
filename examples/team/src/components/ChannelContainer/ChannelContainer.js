@@ -1,21 +1,12 @@
-import React, { useContext } from 'react';
-import {
-  Channel,
-  ChatContext,
-  MessageList,
-  Thread,
-  Window,
-} from 'stream-chat-react';
+import React, { useContext, useState } from 'react';
+import { Channel, ChatContext } from 'stream-chat-react';
 
 import './ChannelContainer.css';
 
-import { ChannelEmptyState } from '../ChannelEmptyState/ChannelEmptyState';
+import { ChannelInner } from './ChannelInner';
+
 import { CreateChannel } from '../CreateChannel/CreateChannel';
 import { EditChannel } from '../EditChannel/EditChannel';
-import { TeamChannelHeader } from '../TeamChannelHeader/TeamChannelHeader';
-import { TeamMessage } from '../TeamMessage/TeamMessage';
-import { TeamMessageInput } from '../TeamMessageInput/TeamMessageInput';
-import { ThreadMessageInput } from '../TeamMessageInput/ThreadMessageInput';
 
 export const ChannelContainer = (props) => {
   const {
@@ -27,6 +18,8 @@ export const ChannelContainer = (props) => {
   } = props;
 
   const { channel } = useContext(ChatContext);
+
+  const [pinsOpen, setPinsOpen] = useState(false);
 
   if (isEditing) {
     const filters = {};
@@ -51,19 +44,12 @@ export const ChannelContainer = (props) => {
         <CreateChannel {...{ createType, setIsCreating }} />
       ) : (
         <Channel>
-          <Window>
-            <TeamChannelHeader {...{ setIsEditing }} />
-            <MessageList
-              EmptyStateIndicator={ChannelEmptyState}
-              Message={TeamMessage}
-              TypingIndicator={() => null}
-            />
-            <TeamMessageInput focus />
-          </Window>
-          <Thread
-            additionalMessageListProps={{ TypingIndicator: () => null }}
-            Message={TeamMessage}
-            MessageInput={ThreadMessageInput}
+          <ChannelInner
+            {...{
+              pinsOpen,
+              setIsEditing,
+              setPinsOpen,
+            }}
           />
         </Channel>
       )}

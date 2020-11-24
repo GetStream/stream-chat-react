@@ -26,6 +26,8 @@ import {
 } from '../../assets';
 
 export const TeamMessageInput = (props) => {
+  const { pinsOpen } = props;
+
   const {
     acceptedFiles,
     channel,
@@ -193,7 +195,11 @@ export const TeamMessageInput = (props) => {
   );
 
   return (
-    <div className={`team-message-input__wrapper ${!!thread && 'thread-open'}`}>
+    <div
+      className={`team-message-input__wrapper ${
+        (!!thread || pinsOpen) && 'thread-open'
+      }`}
+    >
       <ImageDropzone
         accept={acceptedFiles}
         handleFiles={messageInput.uploadNewFiles}

@@ -5,7 +5,7 @@ import './TeamChannelHeader.css';
 
 import { ChannelInfo, PinIcon } from '../../assets';
 
-export const TeamChannelHeader = ({ setIsEditing }) => {
+export const TeamChannelHeader = ({ setIsEditing, setPinsOpen }) => {
   const { client } = useContext(ChatContext);
   const { channel, watcher_count } = useContext(ChannelContext);
 
@@ -70,10 +70,15 @@ export const TeamChannelHeader = ({ setIsEditing }) => {
         <p className="team-channel-header__right-text">
           {getWatcherText(watcher_count)}
         </p>
-        <div className="team-channel-header__right-pin-wrapper">
-          <PinIcon />
-          <p className="team-channel-header__right-text">Pins</p>
-        </div>
+        {channel.type === 'team' && (
+          <div
+            className="team-channel-header__right-pin-wrapper"
+            onClick={() => setPinsOpen((prevState) => !prevState)}
+          >
+            <PinIcon />
+            <p className="team-channel-header__right-text">Pins</p>
+          </div>
+        )}
       </div>
     </div>
   );

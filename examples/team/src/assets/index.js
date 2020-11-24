@@ -9,6 +9,8 @@ export { ItalicsIcon } from './ItalicsIcon';
 export { LightningBolt } from './LightningBolt';
 export { LightningBoltSmall } from './LightningBoltSmall';
 export { PinIcon } from './PinIcon';
+export { PinIconSmall } from './PinIconSmall';
+export { PinCloseIcon } from './PinCloseIcon';
 export { SearchIcon } from './SearchIcon';
 export { SendButton } from './SendButton';
 export { SideBarFlag } from './SideBarFlag';

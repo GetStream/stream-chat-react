@@ -239,3 +239,22 @@ ul.str-chat__simple-reactions-list:hover {
 .str-chat__message-team-content p a {
   color: rgb(var(--primary-color));
 }
+
+.pinned-message {
+  background: rgba(var(--primary-color), 0.1);
+}
+
+.pin-icon__wrapper {
+  display: flex;
+  align-items: center;
+  margin-left: 80px;
+  height: 16px;
+}
+
+.pin-icon__text {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 10px;
+  line-height: 120%;
+  color: #858688;
+  margin-left: 4px;
+}

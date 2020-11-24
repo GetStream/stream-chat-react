@@ -24,6 +24,7 @@ const i18nInstance = new Streami18n({
     ...enTranslations,
     // '1 reply': '1 thread reply',
     // '{{ replyCount }} replies': '{{ replyCount }} thread replies',
+    Flag: 'Pin to Channel',
   },
 });
 
