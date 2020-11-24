@@ -58,14 +58,16 @@ export const usePaginatedChannels = (
 
       if (searchStr.length > 2) {
         newChannels = newChannels.filter(({ data }) =>
-          Object.values(data || {}).some(
-            (v) =>
-              (v || '').toLowerCase().includes(searchStr.toLowerCase()) ||
-              (v || '')
-                .toLowerCase()
-                .replace(/\W/g, '')
-                .includes(searchStr.toLowerCase().replace(/\W/g, '')),
-          ),
+          Object.values(data || {})
+            .filter((v) => typeof v === 'string')
+            .some(
+              (v) =>
+                v.toLowerCase().includes(searchStr.toLowerCase()) ||
+                v
+                  .toLowerCase()
+                  .replace(/\W/g, '')
+                  .includes(searchStr.toLowerCase().replace(/\W/g, '')),
+            ),
         );
       }
 
