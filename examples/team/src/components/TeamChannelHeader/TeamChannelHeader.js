@@ -70,15 +70,13 @@ export const TeamChannelHeader = ({ setIsEditing, setPinsOpen }) => {
         <p className="team-channel-header__right-text">
           {getWatcherText(watcher_count)}
         </p>
-        {channel.type === 'team' && (
-          <div
-            className="team-channel-header__right-pin-wrapper"
-            onClick={() => setPinsOpen((prevState) => !prevState)}
-          >
-            <PinIcon />
-            <p className="team-channel-header__right-text">Pins</p>
-          </div>
-        )}
+        <div
+          className="team-channel-header__right-pin-wrapper"
+          onClick={() => setPinsOpen((prevState) => !prevState)}
+        >
+          <PinIcon />
+          <p className="team-channel-header__right-text">Pins</p>
+        </div>
       </div>
     </div>
   );

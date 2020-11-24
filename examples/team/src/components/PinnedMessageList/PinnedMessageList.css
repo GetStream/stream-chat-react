@@ -29,3 +29,7 @@
 .pinned-messages__list .str-chat__message-team-actions {
   display: none;
 }
+
+.pinned-messages__list .str-chat__message-replies-count-button {
+  display: none;
+}

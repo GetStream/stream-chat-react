@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { MessageList, Thread, Window } from 'stream-chat-react';
 
-import './ChannelContainer.css';
-
 import { ChannelEmptyState } from '../ChannelEmptyState/ChannelEmptyState';
 import { PinnedMessageList } from '../PinnedMessageList/PinnedMessageList';
 import { TeamChannelHeader } from '../TeamChannelHeader/TeamChannelHeader';
@@ -14,6 +12,7 @@ export const ChannelInner = (props) => {
   const { pinsOpen, setIsEditing, setPinsOpen } = props;
 
   const [pinnedMessages, setPinnedMessages] = useState({});
+  const pinnedMessagesIds = Object.keys(pinnedMessages);
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
@@ -24,7 +23,7 @@ export const ChannelInner = (props) => {
           Message={(messageProps) => (
             <TeamMessage
               {...messageProps}
-              {...{ pinnedMessages, setPinnedMessages }}
+              {...{ pinnedMessagesIds, setPinnedMessages }}
             />
           )}
           TypingIndicator={() => null}

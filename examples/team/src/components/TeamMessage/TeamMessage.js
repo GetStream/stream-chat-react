@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
-import { MessageTeam } from 'stream-chat-react';
+import React, { useContext, useState } from 'react';
+import { ChatContext, MessageTeam } from 'stream-chat-react';
 
 import './TeamMessage.css';
 
 import { PinIconSmall } from '../../assets';
 
 export const TeamMessage = (props) => {
-  const { message, pinnedMessages, setPinnedMessages } = props;
+  const { message, pinnedMessagesIds, setPinnedMessages } = props;
 
-  const messages = Object.values(pinnedMessages);
-  const isMessagePinned = messages.find((pin) => pin.id === message.id);
+  const { client } = useContext(ChatContext);
 
+  const isMessagePinned = pinnedMessagesIds?.find((id) => id === message.id);
   const [isPinned, setIsPinned] = useState(isMessagePinned);
 
-  const handleFlag = () => {
-    setPinnedMessages((prevState) => {
+  const handleFlag = async () => {
+    if (isPinned) {
+      setIsPinned(false);
+      setPinnedMessages((prevState) => {
+        const pinCopy = { ...prevState };
+        delete pinCopy[message.id];
+        return pinCopy;
+      });
+    } else {
       setIsPinned(true);
-      return {
+      setPinnedMessages((prevState) => ({
         ...prevState,
         [message.id]: message,
-      };
-    });
+      }));
+    }
+    await client.updateMessage({ ...message, pinned: Math.random() });
   };
 
   const getMessageActions = () => {
@@ -31,7 +39,7 @@ export const TeamMessage = (props) => {
   };
 
   return (
-    <div className={isPinned && 'pinned-message'}>
+    <div className={isPinned ? 'pinned-message' : 'unpinned-message'}>
       {isPinned && (
         <div className="pin-icon__wrapper">
           <PinIconSmall />
