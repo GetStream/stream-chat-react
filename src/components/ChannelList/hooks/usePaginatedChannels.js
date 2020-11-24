@@ -56,13 +56,16 @@ export const usePaginatedChannels = (
         newChannels = [...channels, ...channelQueryResponse];
       }
 
-      // TODO: make this more abstract
       if (searchStr.length > 2) {
-        newChannels = newChannels.filter(
-          ({ data: { name, orderId, phone } }) =>
-            name?.toLowerCase().includes(searchStr.toLowerCase()) ||
-            orderId?.toLowerCase().includes(searchStr.toLowerCase()) ||
-            phone?.replace(/\D/g, '').includes(searchStr.replace(/\W/g, '')),
+        newChannels = newChannels.filter(({ data }) =>
+          Object.values(data || {}).some(
+            (v) =>
+              (v || '').toLowerCase().includes(searchStr.toLowerCase()) ||
+              (v || '')
+                .toLowerCase()
+                .replace(/\W/g, '')
+                .includes(searchStr.toLowerCase().replace(/\W/g, '')),
+          ),
         );
       }
 
