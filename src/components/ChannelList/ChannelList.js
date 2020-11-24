@@ -115,6 +115,7 @@ const ChannelList = (props) => {
     props.sort || DEFAULT_SORT,
     props.options || DEFAULT_OPTIONS,
     activeChannelHandler,
+    props.searchStr,
   );
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);

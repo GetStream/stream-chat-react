@@ -16,6 +16,7 @@ export const usePaginatedChannels = (
   sort,
   options,
   activeChannelHandler,
+  searchStr,
 ) => {
   const [channels, setChannels] = useState(/** @type {Channel[]} */ ([]));
   const [loadingChannels, setLoadingChannels] = useState(true);
@@ -53,6 +54,16 @@ export const usePaginatedChannels = (
         newChannels = channelQueryResponse;
       } else {
         newChannels = [...channels, ...channelQueryResponse];
+      }
+
+      // TODO: make this more abstract
+      if (searchStr.length > 2) {
+        newChannels = newChannels.filter(
+          ({ data: { name, orderId, phone } }) =>
+            name?.toLowerCase().includes(searchStr.toLowerCase()) ||
+            orderId?.toLowerCase().includes(searchStr.toLowerCase()) ||
+            phone?.replace(/\D/g, '').includes(searchStr.replace(/\W/g, '')),
+        );
       }
 
       setChannels(newChannels);
