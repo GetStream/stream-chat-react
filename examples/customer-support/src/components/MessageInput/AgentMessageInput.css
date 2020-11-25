@@ -11,12 +11,20 @@
   width: 500px;
   min-height: 50px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   border: 1px solid #005fff;
   border-radius: 12px;
   padding-right: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
+}
+
+.agent-message-input__input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.agent-message-input__wrapper div.rfu-dropzone {
+  width: 500px;
 }
 
 .agent-message-input__wrapper .str-chat__textarea {

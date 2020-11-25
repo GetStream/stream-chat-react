@@ -12,7 +12,7 @@ import { EmptyStateIndicator } from './components/CustomerEmptyStateIndicator/Em
 import { CustomerChannelHeader } from './components/CustomerChannelHeader/CustomerChannelHeader';
 import { CustomerMessageInput } from './components/MessageInput/CustomerMessageInput';
 
-import { ToggleButton } from './assets';
+import { CloseCustomerIcon, OpenCustomerIcon } from './assets';
 
 const customerChannelId = 'support-demo';
 
@@ -57,7 +57,7 @@ export const CustomerApp = () => {
 
   return (
     <div className={`customer-wrapper ${open ? 'wrapper--open' : ''}`}>
-      {customerChannel && (
+      {customerChannel && open && (
         <Channel channel={customerChannel}>
           <Window>
             <CustomerChannelHeader />
@@ -80,7 +80,12 @@ export const CustomerApp = () => {
           </Window>
         </Channel>
       )}
-      <ToggleButton {...{ open, setOpen }} />
+      <div
+        className={`toggle-button ${open && 'close-button'}`}
+        onClick={() => setOpen(!open)}
+      >
+        {open ? <CloseCustomerIcon /> : <OpenCustomerIcon />}
+      </div>
     </div>
   );
 };

@@ -101,20 +101,17 @@ body {
 }
 
 .toggle-button {
-  height: 60px;
-  width: 60px;
   margin-top: 16px;
-  border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  border-radius: 30px;
+  cursor: pointer;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
-  cursor: pointer;
 }
 
-.toggle-button svg {
+.toggle-button.close-button svg {
   opacity: 0.8;
 }
 
@@ -184,6 +181,10 @@ body {
 
 .agent-channel-wrapper .str-chat__message-commerce-data {
   display: none;
+}
+
+.messaging.str-chat .str-chat__list {
+  padding: 0 20px 0;
 }
 
 /* .focused {

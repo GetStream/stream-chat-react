@@ -1,13 +1,14 @@
 export { BellIcon } from './BellIcon';
 export { ClockIcon } from './ClockIcon';
 export { CloseIcon } from './CloseIcon';
+export { CloseCustomerIcon } from './CloseCustomerIcon';
 export { DownIcon } from './DownIcon';
 export { DownIconSmall } from './DownIconSmall';
 export { EmailIcon } from './EmailIcon';
 export { FileIcon } from './FileIcon';
 export { HeadsetIcon } from './HeadsetIcon';
+export { OpenCustomerIcon } from './OpenCustomerIcon';
 export { PhoneIcon } from './PhoneIcon';
 export { SearchIcon } from './SearchIcon';
 export { SmileyFace } from './SmileyFace';
 export { TalkingIcon } from './TalkingIcon';
-export { ToggleButton } from './ToggleButton';

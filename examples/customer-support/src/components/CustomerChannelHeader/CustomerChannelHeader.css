@@ -14,13 +14,13 @@
   height: 60px;
 }
 
-/* .channel-header__heading img {
+.channel-header__heading img {
   background-blend-mode: normal;
   border: 2px solid #005fff;
   box-sizing: border-box;
   filter: drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.08));
   border-radius: 32px;
-} */
+}
 
 .channel-header__image-3 {
   position: absolute;
@@ -44,8 +44,8 @@
 
 .channel-header__active {
   position: relative;
-  left: 85px;
-  top: 16px;
+  left: 88px;
+  top: 19px;
   width: 16px;
   height: 16px;
   background: #20e070;

@@ -10,10 +10,16 @@
   width: 300px;
   min-height: 50px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   border: 1px solid #005fff;
   border-radius: 12px;
   padding-right: 20px;
+}
+
+.support-message-input__input-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 .support-message-input__wrapper .str-chat__textarea {
