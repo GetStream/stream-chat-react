@@ -9,8 +9,8 @@ import {
 } from 'stream-chat-react';
 
 import { EmptyStateIndicator } from './components/CustomerEmptyStateIndicator/EmptyStateIndicator';
-import { SupportChannelHeader } from './components/CustomerChannelHeader/CustomerChannelHeader';
-import { SupportMessageInput } from './components/MessageInput/SupportMessageInput';
+import { CustomerChannelHeader } from './components/CustomerChannelHeader/CustomerChannelHeader';
+import { CustomerMessageInput } from './components/MessageInput/CustomerMessageInput';
 
 import { ToggleButton } from './assets';
 
@@ -60,7 +60,7 @@ export const CustomerApp = () => {
       {customerChannel && (
         <Channel channel={customerChannel}>
           <Window>
-            <SupportChannelHeader />
+            <CustomerChannelHeader />
             {open && (
               <div style={{ background: '#005fff' }}>
                 <MessageList
@@ -73,7 +73,7 @@ export const CustomerApp = () => {
             )}
             <MessageInput
               Input={(props) => (
-                <SupportMessageInput {...props} {...{ open, setOpen }} />
+                <CustomerMessageInput {...props} {...{ open, setOpen }} />
               )}
               focus
             />

@@ -14,15 +14,15 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  background: url('./assets/support-background.jpeg') top left no-repeat;
+  /* background: url('./assets/support-background.jpeg') top left no-repeat; */
   background-size: cover;
 }
 
 .agent-wrapper {
   position: absolute;
   bottom: 60px;
-  /* right: 60px; */
-  left: 60px;
+  right: 60px;
+  /* left: 60px; */
   background: #fff;
   border-radius: 16px;
   height: 800px;
@@ -60,10 +60,10 @@ body {
 
 .customer-wrapper {
   position: absolute;
-  /* bottom: 20px;
-  left: 120px; */
-  right: 60px;
   bottom: 60px;
+  left: 60px;
+  /* right: 60px;
+  bottom: 60px; */
   display: flex;
   flex-direction: column;
   align-items: flex-end;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const DownIcon = () => (
-  <div style={{ display: 'flex', marginLeft: '60px' }}>
+  <div style={{ display: 'flex', marginLeft: '6px' }}>
     <svg
       width="13"
       height="7"

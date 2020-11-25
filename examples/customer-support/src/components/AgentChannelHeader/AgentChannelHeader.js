@@ -9,12 +9,19 @@ import { DownIconSmall, EmailIcon, PhoneIcon } from '../../assets';
 
 export const AgentChannelHeader = () => {
   const { channel, client } = useContext(ChatContext);
+
+  const [eventChannel, setEventChannel] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [previewText, setPreviewText] = useState('');
 
   useEffect(() => {
-    client.on('message.new', (event) => {
+    client.on('message.new', async (event) => {
       if (event.channel_id !== channel.id) {
+        const [response] = await client.queryChannels({
+          cid: event.cid,
+        });
+
+        setEventChannel(response);
         setPreviewText(event.message.text);
         setPopupVisible(true);
       }
@@ -71,7 +78,9 @@ export const AgentChannelHeader = () => {
       </div>
       <div className="agent-channel-header__bottom__border" />
       {popupVisible && previewText && (
-        <NotificationPopup {...{ previewText, setPopupVisible }} />
+        <NotificationPopup
+          {...{ eventChannel, previewText, setPopupVisible }}
+        />
       )}
     </div>
   );

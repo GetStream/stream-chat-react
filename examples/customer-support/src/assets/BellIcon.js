@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const BellIcon = () => (
-  <div style={{ display: 'flex', marginLeft: '4px' }}>
+  <div style={{ display: 'flex', marginLeft: '4px', marginRight: '20px' }}>
     <svg
       width="16"
       height="19"

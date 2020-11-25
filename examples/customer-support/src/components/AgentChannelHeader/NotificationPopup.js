@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ChatContext } from 'stream-chat-react';
 
 import './NotificationPopup.css';
 
 import { CloseIcon } from '../../assets';
 
-export const NotificationPopup = ({ previewText, setPopupVisible }) => {
+export const NotificationPopup = (props) => {
+  const { eventChannel, previewText, setPopupVisible } = props;
+
+  const { setActiveChannel } = useContext(ChatContext);
+
   const getMessagePreview = () => {
     return previewText.length > 40
       ? `"${previewText.slice(0, 40)}..."`
@@ -12,7 +17,12 @@ export const NotificationPopup = ({ previewText, setPopupVisible }) => {
   };
 
   return (
-    <div className="notification-popup__container">
+    <div
+      className="notification-popup__container"
+      onClick={() => {
+        if (eventChannel) setActiveChannel(eventChannel);
+      }}
+    >
       <div className="notification-popup__top-wrapper">
         <p className="notification-popup__top-text">AGENT DASHBOARD</p>
         <div

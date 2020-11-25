@@ -5,7 +5,7 @@ import './CustomerChannelHeader.css';
 
 import { ClockIcon } from '../../assets';
 
-export const SupportChannelHeader = () => (
+export const CustomerChannelHeader = () => (
   <div className="channel-header__container">
     <div className="channel-header__heading">
       <div style={{ width: '115px' }}>
@@ -19,14 +19,14 @@ export const SupportChannelHeader = () => (
         <img
           className="channel-header__image-2"
           src={require('../../assets/user2.png')}
-          alt="user-3"
+          alt="user-2"
           height="64"
           width="64"
         />
         <img
           className="channel-header__image-1"
           src={require('../../assets/user1.png')}
-          alt="user-3"
+          alt="user-1"
           height="64"
           width="64"
         />

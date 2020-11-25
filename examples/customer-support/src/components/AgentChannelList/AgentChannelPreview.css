@@ -13,6 +13,10 @@
   padding-left: 16px;
 }
 
+.agent-channel-preview__wrapper:hover {
+  cursor: pointer;
+}
+
 .agent-channel-preview__wrapper.selected {
   background: #005fff;
   border: none;

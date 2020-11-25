@@ -7,14 +7,15 @@ import {
   useMessageInput,
 } from 'stream-chat-react';
 
-import './SupportMessageInput.css';
+import './CustomerMessageInput.css';
 
 import { UploadsPreview } from './UploadsPreview';
 
 import { FileIcon, SmileyFace } from '../../assets';
 
-export const SupportMessageInput = (props) => {
+export const CustomerMessageInput = (props) => {
   const { open, setOpen } = props;
+
   const messageInput = useMessageInput(props);
 
   const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useContext(
