@@ -10,7 +10,7 @@ import {
 import './ThreadMessageInput.css';
 
 import {
-  LightningBolt,
+  // LightningBolt,
   LightningBoltSmall,
   SendButton,
   SmileyFace,
@@ -84,7 +84,7 @@ export const ThreadMessageInput = (props) => {
         />
         <div className="thread-message-input__icons">
           <SmileyFace openEmojiPicker={messageInput.openEmojiPicker} />
-          <LightningBolt {...{ giphyState }} />
+          {/* <LightningBolt {...{ giphyState }} /> */}
         </div>
         <div
           className="thread-message-input__button"
