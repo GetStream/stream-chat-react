@@ -7,7 +7,7 @@ import { NotificationPopup } from './NotificationPopup';
 
 import { DownIconSmall, EmailIcon, PhoneIcon } from '../../assets';
 
-export const AgentChannelHeader = () => {
+export const AgentChannelHeader = ({ customerUserId }) => {
   const { channel, client } = useContext(ChatContext);
 
   const [eventChannel, setEventChannel] = useState(null);
@@ -16,7 +16,7 @@ export const AgentChannelHeader = () => {
 
   useEffect(() => {
     client.on('message.new', async (event) => {
-      if (event.channel_id !== channel.id) {
+      if (event.channel_id !== channel.id && event.user.id === customerUserId) {
         const [response] = await client.queryChannels({
           cid: event.cid,
         });

@@ -2,7 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 20px;
   margin-bottom: 20px;
   background: #fff;
 }
@@ -13,9 +12,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid #005fff;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   padding-right: 20px;
+}
+
+.agent-message-input__input:focus-within {
+  background: #fff;
+  border: 1px solid #005fff;
 }
 
 .agent-message-input__input-wrapper {
@@ -39,6 +44,7 @@
   font-size: 17px;
   border-radius: 12px;
   line-height: 160%;
+  background: rgba(0, 0, 0, 0);
 }
 
 .agent-message-input__wrapper .str-chat__textarea textarea:focus {

@@ -141,7 +141,7 @@ const App = () => {
         <AgentHeader />
         {agentClient ? (
           <Chat client={agentClient}>
-            <AgentApp />
+            <AgentApp {...{ customerUserId }} />
           </Chat>
         ) : (
           <AgentLoading />

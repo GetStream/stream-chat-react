@@ -14,15 +14,12 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  /* background: url('./assets/support-background.jpeg') top left no-repeat; */
-  background-size: cover;
 }
 
 .agent-wrapper {
   position: absolute;
   bottom: 60px;
   right: 60px;
-  /* left: 60px; */
   background: #fff;
   border-radius: 16px;
   height: 800px;
@@ -62,8 +59,6 @@ body {
   position: absolute;
   bottom: 60px;
   left: 60px;
-  /* right: 60px;
-  bottom: 60px; */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -125,16 +120,8 @@ body {
   }
 }
 
-.commerce.str-chat .str-chat__list {
-  display: flex;
-  flex-direction: column;
-}
-
-.customer-wrapper
-  .commerce.str-chat
-  .str-chat__list
-  .str-chat__reverse-infinite-scroll {
-  margin-top: 200px;
+.str-chat__date-separator {
+  padding: 0;
 }
 
 .commerce.str-chat .str-chat__date-separator {
@@ -183,10 +170,6 @@ body {
   display: none;
 }
 
-.messaging.str-chat .str-chat__list {
-  padding: 0 20px 0;
-}
-
 /* .focused {
   opacity: 1;
   transform: scale(1);
@@ -200,3 +183,38 @@ body {
   transform: scale(0.8);
   transition: 0.5s ease all;
 } */
+
+.str-chat__ul {
+  overflow: scroll;
+}
+
+.agent-wrapper
+  .messaging.str-chat
+  .str-chat__list
+  .str-chat__reverse-infinite-scroll {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  top: 280px;
+}
+
+.customer-wrapper
+  .commerce.str-chat
+  .str-chat__list
+  .str-chat__reverse-infinite-scroll {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 85%;
+}
+
+.str-chat__typing-indicator {
+  position: relative;
+  bottom: 8px;
+  height: 30px;
+}
+
+.str-chat__typing-indicator__dot {
+  background: #858688;
+}

@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px 0;
+  margin-bottom: 20px;
 }
 
 .support-message-input__input {
@@ -12,9 +12,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid #005fff;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   padding-right: 20px;
+}
+
+.support-message-input__input:focus-within {
+  background: #fff;
+  border: 1px solid #005fff;
 }
 
 .support-message-input__input-wrapper {
@@ -34,6 +40,7 @@
   font-size: 17px;
   border-radius: 12px;
   line-height: 160%;
+  background: rgba(0, 0, 0, 0);
 }
 
 .support-message-input__wrapper .str-chat__textarea textarea:focus {
