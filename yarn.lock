@@ -1013,7 +1013,7 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@braintree/sanitize-url@*", "@braintree/sanitize-url@5.0.0", "@braintree/sanitize-url@^5.0.0":
+"@braintree/sanitize-url@5.0.0", "@braintree/sanitize-url@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.0.tgz#3ba791f37b90e7f6170d252b63aacfcae943c039"
   integrity sha512-WmKrB/575EJCzbeSJR3YQ5sET5FaizeljLRw1382qVUeGqzuWBgIS+AF5a0FO51uQTrDpoRgvuHC2IWVsgwkkA==
@@ -1490,13 +1490,6 @@
   integrity sha512-S63Dt4CZOkuTmpLGGWtT/mQdVORJOpx6SZWGVaP56dda/0Nx5nEe82K7/LAm8zYr6SfMq+1N2OreIOrHAx656w==
   dependencies:
     "@babel/types" "^7.3.0"
-
-"@types/braintree__sanitize-url@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@types/braintree__sanitize-url/-/braintree__sanitize-url-4.1.0.tgz#02129c2d161cffb6effc6598b29477cba59ff1f4"
-  integrity sha512-KxodiARPAuiuWJCSCLNaxWIfP0Ab1dv6wc8tdpk5C7wiBhOgWEtWbNuwimNi20fefWEpzU05oAW8Zj8DNlHcBA==
-  dependencies:
-    "@braintree/sanitize-url" "*"
 
 "@types/deep-equal@^1.0.1":
   version "1.0.1"
@@ -8029,14 +8022,13 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mml-react@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.2.0.tgz#7482b2b5304dfe953bec524a8ee98d8f579a3b63"
-  integrity sha512-2meKfffmgFrXjWjTsSWX9tRADNyp0p9+LTXW6TiVjTlOdCygS6rSHGk3VzQFHmQhour3a+XE8JY1LAYakdNxig==
+mml-react@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.2.1.tgz#18d1bc3fc0c4314604602ec353856af372f11d93"
+  integrity sha512-OiXF3uvDrhU6IR5yqhO1g7EJo6WnziCP5biXVOSbXl1m7x+ratCW9NTxCG5pLqARwCXxxdHGBkS9ZeLrYlu8Wg==
   dependencies:
     "@braintree/sanitize-url" "^5.0.0"
     "@rgrove/parse-xml" "^2.0.4"
-    "@types/braintree__sanitize-url" "^4.1.0"
     "@types/linkifyjs" "^2.1.3"
     "@types/rgrove__parse-xml" "^1.1.1"
     dayjs "^1.9.6"
