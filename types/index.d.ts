@@ -1275,9 +1275,7 @@ export class MessageInputSmall extends React.PureComponent<
   any
 > {}
 
-export class Attachment extends React.PureComponent<
-  WrapperAttachmentUIComponentProps
-> {}
+export class Attachment extends React.PureComponent<WrapperAttachmentUIComponentProps> {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
 export class ChannelListMessenger extends React.PureComponent<
