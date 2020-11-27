@@ -3,8 +3,6 @@
 import React from 'react';
 import DefaultMedia from 'react-player';
 import PropTypes from 'prop-types';
-// @ts-ignore TODO: remove once types added to mml lib
-import { MML } from 'mml-react';
 
 import DefaultAttachmentActions from './AttachmentActions';
 
@@ -52,13 +50,6 @@ export const isMediaAttachment = (a) => {
     (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1) ||
     a.type === 'video'
   );
-};
-
-/**
- * @param {ExtendedAttachment} a
- */
-export const isMMLAttachment = (a) => {
-  return a.type === 'mml';
 };
 
 /**
@@ -194,20 +185,6 @@ export const renderCard = (props) => {
 /**
  * @param {AttachmentProps} props
  */
-export const renderMML = (props) => {
-  const { actionHandler, attachment: a } = props;
-  if (!a.mml) return null;
-
-  return (
-    <div className="str-chat__attachment-mml " key={`key-mml-${a.id}`}>
-      <MML source={a.mml} onSubmit={actionHandler} />
-    </div>
-  );
-};
-
-/**
- * @param {AttachmentProps} props
- */
 export const renderFile = (props) => {
   const { attachment: a, File } = props;
   if (!a.asset_url) return null;
@@ -334,10 +311,6 @@ const Attachment = ({
 
           if (isImageAttachment(attachment)) {
             return renderImage({ ...propsWithDefault, attachment });
-          }
-
-          if (isMMLAttachment(attachment)) {
-            return renderMML({ ...propsWithDefault, attachment });
           }
 
           if (isFileAttachment(attachment)) {
