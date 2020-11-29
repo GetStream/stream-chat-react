@@ -443,6 +443,16 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
   error?: Error | null;
 }
 
+export interface MMLProps {
+  /** mml source string */
+  mml: string;
+  /**
+   * submit handler for mml actions
+   * @param data {object}
+   */
+  actionHandler?(data: Record<string, any>): void;
+}
+
 export interface AvatarProps {
   /** image url */
   image?: string | null;
