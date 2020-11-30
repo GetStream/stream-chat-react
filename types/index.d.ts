@@ -1424,9 +1424,9 @@ export class MessageDeleted extends React.PureComponent<
 export function useActionHandler(
   message: Client.MessageResponse | undefined,
 ): (
-  name: string,
-  value: string,
-  event: React.MouseEvent<HTMLElement>,
+  dataOrName: string | Record<string, any>,
+  value?: string,
+  event?: BaseSyntheticEvent,
 ) => Promise<void>;
 
 export function useDeleteHandler(
