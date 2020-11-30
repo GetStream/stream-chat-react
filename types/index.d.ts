@@ -107,7 +107,7 @@ export interface ChannelContextValue extends ChatContextValue {
   acceptedFiles?: string[];
   maxNumberOfFiles?: number;
   sendMessage?(message: {
-    text: string;
+    text?: string;
     attachments?: (
       | Client.Attachment<Record<string, unknown>>
       | {
@@ -1287,9 +1287,7 @@ export class MessageInputSmall extends React.PureComponent<
   any
 > {}
 
-export class Attachment extends React.PureComponent<
-  WrapperAttachmentUIComponentProps
-> {}
+export class Attachment extends React.PureComponent<WrapperAttachmentUIComponentProps> {}
 
 export class ChannelList extends React.PureComponent<ChannelListProps> {}
 export class ChannelListMessenger extends React.PureComponent<
