@@ -12,21 +12,34 @@ import { AgentHeader } from './components/AgentHeader/AgentHeader';
 import { AgentLoading } from './components/AgentLoading/AgentLoading';
 import { CustomerApp } from './CustomerApp';
 
-const apiKey = 'qk4nn7rpcn75';
+const apiKey = 'vw9vb798xcy6';
+// const apiKey = 'qk4nn7rpcn75';
 const agentChannelId = 'agent-demo';
 const theme = 'light';
 
-const agentUserId = 'daniel';
+const agentUserId = 'daniel-smith';
 const agentUserToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGFuaWVsIn0.93CpZFjrU-mrvQQWDkI4UMgK10Lim1t8X3WAVcmHHVw';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGFuaWVsLXNtaXRoIn0.YFYmT1pwXjeVdhaoFm9yBW3a1jC9cMUIoaRY9XXCw-g';
 
-const customerUserId = 'manuela';
+const customerUserId = 'kevin-rosen';
 const customerUserToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoibWFudWVsYSJ9.WeIvY03gXaTHty9RHVPHuTdNRvHx4F7nxH_i5TfdJdk';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoia2V2aW4tcm9zZW4ifQ.v5xTiLl8M1UL8xzOJrtJyIH7FD7ON2ojyc2ouhI0VfE';
 
-const previousUserId = 'roberto';
+const previousUserId = 'jen-alexander';
 const previousUserToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicm9iZXJ0byJ9.FTjMgoD1LtPSzVyssiXKUNWWNdOgrCKkkeHG5DfdWes';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiamVuLWFsZXhhbmRlciJ9.BqlhLnOJlJ-h-yAArJqdr0m7YGT-Uz_JMwv51DcoX_w';
+
+// const agentUserId = 'daniel';
+// const agentUserToken =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGFuaWVsIn0.93CpZFjrU-mrvQQWDkI4UMgK10Lim1t8X3WAVcmHHVw';
+
+// const customerUserId = 'manuela';
+// const customerUserToken =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoibWFudWVsYSJ9.WeIvY03gXaTHty9RHVPHuTdNRvHx4F7nxH_i5TfdJdk';
+
+// const previousUserId = 'roberto';
+// const previousUserToken =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicm9iZXJ0byJ9.FTjMgoD1LtPSzVyssiXKUNWWNdOgrCKkkeHG5DfdWes';
 
 const App = () => {
   const customerClient = new StreamChat(apiKey);
@@ -59,6 +72,7 @@ const App = () => {
           image: require('./assets/jen-avatar.png'),
           phone: '+1 (614) 823-1291',
           email: 'jenalexander@gmail.com',
+          role: 'moderator',
         },
         previousUserToken,
       );
@@ -141,7 +155,7 @@ const App = () => {
         <AgentHeader />
         {agentClient ? (
           <Chat client={agentClient}>
-            <AgentApp {...{ customerUserId }} />
+            <AgentApp />
           </Chat>
         ) : (
           <AgentLoading />

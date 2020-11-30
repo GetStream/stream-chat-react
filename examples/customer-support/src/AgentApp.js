@@ -11,13 +11,13 @@ import { AgentChannelListContainer } from './components/AgentChannelListContaine
 import { AgentChannelHeader } from './components/AgentChannelHeader/AgentChannelHeader';
 import { AgentMessageInput } from './components/MessageInput/AgentMessageInput';
 
-export const AgentApp = ({ customerUserId }) => (
+export const AgentApp = () => (
   <div style={{ display: 'flex' }}>
     <AgentChannelListContainer />
     <div className="agent-channel-wrapper">
       <Channel>
         <Window>
-          <AgentChannelHeader {...{ customerUserId }} />
+          <AgentChannelHeader />
           <MessageList Message={MessageCommerce} />
           <MessageInput focus Input={AgentMessageInput} />
         </Window>
