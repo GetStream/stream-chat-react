@@ -60,7 +60,10 @@ export const ChannelEmptyState = () => {
       <p className="channel-empty__first">
         This is the beginning of your chat history
         {channel.type === 'team' ? ' in ' : ' with '}
-        {channel.type === 'team' ? `#${channel.data.id}` : getUserText()}.
+        {channel.type === 'team'
+          ? `#${channel.data.name || channel.data.id}`
+          : getUserText()}
+        .
       </p>
       <p className="channel-empty__second">
         Send messages, attachments, links, emojis, and more.

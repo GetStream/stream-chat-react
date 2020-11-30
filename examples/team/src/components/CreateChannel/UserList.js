@@ -5,19 +5,15 @@ import './UserList.css';
 
 import { InviteIcon } from '../../assets';
 
-const ListHeader = ({ error = false }) => (
-  <>
+const ListContainer = ({ children }) => (
+  <div className="user-list__container">
     <div className="user-list__header">
       <p>User</p>
       <p>Last Active</p>
       <p>Invite</p>
     </div>
-    {error && (
-      <p className="user-list__loading">
-        Error loading, please refresh and try again.
-      </p>
-    )}
-  </>
+    {children}
+  </div>
 );
 
 const UserItem = ({ index, setSelectedUsers, user }) => {
@@ -67,6 +63,7 @@ export const UserList = ({ filters = {}, setSelectedUsers }) => {
   const { client } = useContext(ChatContext);
 
   const [error, setError] = useState(false);
+  const [listEmpty, setListEmpty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
 
@@ -77,11 +74,16 @@ export const UserList = ({ filters = {}, setSelectedUsers }) => {
 
       try {
         const response = await client.queryUsers(
-          filters,
+          { id: { $ne: client.userID }, ...filters },
           { id: 1 },
           { limit: 6 },
         );
-        if (response.users.length) setUsers(response.users);
+
+        if (response.users.length) {
+          setUsers(response.users);
+        } else {
+          setListEmpty(true);
+        }
       } catch (e) {
         setError(true);
       }
@@ -90,21 +92,30 @@ export const UserList = ({ filters = {}, setSelectedUsers }) => {
     };
 
     if (client) getUsers();
-  }, [client, filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (error) {
     return (
-      <div className="user-list__container">
-        <ListHeader {...{ error }} />
-      </div>
+      <ListContainer>
+        <div className="user-list__message">
+          Error loading, please refresh and try again.
+        </div>
+      </ListContainer>
+    );
+  }
+
+  if (listEmpty) {
+    return (
+      <ListContainer>
+        <div className="user-list__message">No users found.</div>
+      </ListContainer>
     );
   }
 
   return (
-    <div className="user-list__container">
-      <ListHeader />
+    <ListContainer>
       {loading ? (
-        <div className="user-list__loading">Loading users...</div>
+        <div className="user-list__message">Loading users...</div>
       ) : (
         users.length &&
         users.map((user, i) => (
@@ -116,6 +127,6 @@ export const UserList = ({ filters = {}, setSelectedUsers }) => {
           />
         ))
       )}
-    </div>
+    </ListContainer>
   );
 };

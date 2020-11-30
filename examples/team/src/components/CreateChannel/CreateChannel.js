@@ -27,10 +27,10 @@ const ChannelNameInput = ({ channelName = '', setChannelName }) => {
   );
 };
 
-export const CreateChannel = ({ createType, setIsCreating }) => {
+export const CreateChannel = ({ createType, filters, setIsCreating }) => {
   const { client, setActiveChannel } = useContext(ChatContext);
 
-  const [channelName, setChannelName] = useState(null);
+  const [channelName, setChannelName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([client.userID]);
 
   const createChannel = async (event) => {
@@ -43,7 +43,7 @@ export const CreateChannel = ({ createType, setIsCreating }) => {
 
     await newChannel.watch();
 
-    setChannelName(null);
+    setChannelName('');
     setIsCreating(false);
     setSelectedUsers([client.userID]);
     setActiveChannel(newChannel);
@@ -62,7 +62,7 @@ export const CreateChannel = ({ createType, setIsCreating }) => {
       {createType === 'team' && (
         <ChannelNameInput {...{ channelName, setChannelName }} />
       )}
-      <UserList filters={{}} setSelectedUsers={setSelectedUsers} />
+      <UserList {...{ filters, setSelectedUsers }} />
       <div
         className={`create-channel__button-wrapper ${createType}`}
         onClick={createChannel}

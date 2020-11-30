@@ -21,6 +21,16 @@ export const ChannelContainer = (props) => {
 
   const [pinsOpen, setPinsOpen] = useState(false);
 
+  if (isCreating) {
+    const filters = {};
+
+    return (
+      <div className="channel__container">
+        <CreateChannel {...{ createType, filters, setIsCreating }} />
+      </div>
+    );
+  }
+
   if (isEditing) {
     const filters = {};
 
@@ -40,19 +50,15 @@ export const ChannelContainer = (props) => {
 
   return (
     <div className="channel__container">
-      {isCreating && createType ? (
-        <CreateChannel {...{ createType, setIsCreating }} />
-      ) : (
-        <Channel>
-          <ChannelInner
-            {...{
-              pinsOpen,
-              setIsEditing,
-              setPinsOpen,
-            }}
-          />
-        </Channel>
-      )}
+      <Channel>
+        <ChannelInner
+          {...{
+            pinsOpen,
+            setIsEditing,
+            setPinsOpen,
+          }}
+        />
+      </Channel>
     </div>
   );
 };
