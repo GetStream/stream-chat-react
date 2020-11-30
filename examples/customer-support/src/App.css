@@ -45,16 +45,6 @@ body {
   border-bottom-right-radius: 16px;
 }
 
-/* .customer-background {
-  position: absolute;
-  left: 60px;
-  bottom: 60px;
-  background: url('./assets/support-background.jpeg') top left no-repeat;
-  height: 800px;
-  width: 768px;
-  border-radius: 16px;
-} */
-
 .customer-wrapper {
   position: absolute;
   bottom: 60px;
@@ -169,20 +159,6 @@ body {
 .agent-channel-wrapper .str-chat__message-commerce-data {
   display: none;
 }
-
-/* .focused {
-  opacity: 1;
-  transform: scale(1);
-  transition: 0.5s ease all;
-  z-index: 100;
-}
-
-.unfocused {
-  cursor: pointer;
-  opacity: 0.5;
-  transform: scale(0.8);
-  transition: 0.5s ease all;
-} */
 
 .str-chat__ul {
   overflow: scroll;

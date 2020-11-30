@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   Channel,
-  Window,
-  MessageList,
   MessageCommerce,
   MessageInput,
+  MessageList,
+  Window,
 } from 'stream-chat-react';
 
 import { AgentChannelListContainer } from './components/AgentChannelListContainer/AgentChannelListContainer';
