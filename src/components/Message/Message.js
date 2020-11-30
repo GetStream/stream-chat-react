@@ -173,7 +173,7 @@ Message.propTypes = {
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
-  Avatar: PropTypes.elementType,
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /**
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)

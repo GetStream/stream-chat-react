@@ -485,7 +485,6 @@ export interface SendButtonProps {
 export interface FixedHeightMessageProps {
   message: Client.MessageResponse;
   groupedByUser: boolean;
-  Avatar?: React.ElementType<AvatarProps>;
 }
 
 export interface VirtualizedMessageListInternalProps {
@@ -511,14 +510,13 @@ export interface VirtualizedMessageListInternalProps {
     messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
     index: number,
   ): React.ReactElement;
-  Avatar?: React.ElementType<AvatarProps>;
   /** Custom UI component to display messages. */
   Message?: React.ElementType<FixedHeightMessageProps>;
   /** Custom UI component to display deleted messages. */
   MessageDeleted?: React.ElementType<MessageDeletedProps>;
   /** Custom UI component to display system messages */
   MessageSystem?: React.ElementType<EventComponentProps>;
-  /** The UI Indicator to use when MessagerList or ChannelList is empty */
+  /** The UI Indicator to use when MessageList or ChannelList is empty */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The UI Indicator to use when someone is typing, default to null */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;

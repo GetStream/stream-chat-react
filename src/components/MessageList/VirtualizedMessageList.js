@@ -12,7 +12,6 @@ import { smartRender } from '../../utils';
 import MessageNotification from './MessageNotification';
 import { ChannelContext, TranslationContext } from '../../context';
 import { EventComponent } from '../EventComponent';
-import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import {
@@ -37,7 +36,6 @@ const VirtualizedMessageList = ({
   shouldGroupByUser = false,
   customMessageRenderer,
   scrollSeekPlaceHolder,
-  Avatar = DefaultAvatar,
   Message = FixedHeightMessage,
   MessageSystem = EventComponent,
   MessageDeleted = DefaultMessageDeleted,
@@ -107,7 +105,6 @@ const VirtualizedMessageList = ({
 
       return (
         <Message
-          Avatar={Avatar}
           message={message}
           groupedByUser={
             shouldGroupByUser &&
@@ -117,7 +114,7 @@ const VirtualizedMessageList = ({
         />
       );
     },
-    [Avatar, MessageDeleted, customMessageRenderer, shouldGroupByUser],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
   return (
