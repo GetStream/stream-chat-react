@@ -28,3 +28,9 @@
 .str-chat.dark .messaging__channel-header .channel-header__name {
   color: rgba(255, 255, 255, 0.9);
 }
+
+.messaging__channel-header__right {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
