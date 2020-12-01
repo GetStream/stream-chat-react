@@ -11,9 +11,9 @@ import { AgentChannelListContainer } from './components/AgentChannelListContaine
 import { AgentChannelHeader } from './components/AgentChannelHeader/AgentChannelHeader';
 import { AgentMessageInput } from './components/MessageInput/AgentMessageInput';
 
-export const AgentApp = () => (
+export const AgentApp = ({ agentChannelId, customerChannelId }) => (
   <div style={{ display: 'flex' }}>
-    <AgentChannelListContainer />
+    <AgentChannelListContainer {...{ agentChannelId, customerChannelId }} />
     <div className="agent-channel-wrapper">
       <Channel>
         <Window>

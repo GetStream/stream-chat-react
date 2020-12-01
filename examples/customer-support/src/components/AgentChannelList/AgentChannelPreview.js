@@ -3,7 +3,14 @@ import { ChatContext } from 'stream-chat-react';
 
 import './AgentChannelPreview.css';
 
-export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
+export const AgentChannelPreview = (props) => {
+  const {
+    agentChannelId,
+    channel,
+    customerChannelId,
+    setActiveChannel,
+  } = props;
+
   const { channel: activeChannel, client } = useContext(ChatContext);
   const [unreadCount, setUnreadCount] = useState(channel.state.unreadCount);
 
@@ -30,7 +37,7 @@ export const AgentChannelPreview = ({ channel, setActiveChannel }) => {
 
   if (
     !channel.state.messages.length ||
-    (channel.id !== 'agent-demo' && channel.id !== 'support-demo')
+    (channel.id !== agentChannelId && channel.id !== customerChannelId)
   )
     return null;
 

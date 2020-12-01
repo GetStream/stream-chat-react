@@ -14,9 +14,7 @@ import { CustomerMessageInput } from './components/MessageInput/CustomerMessageI
 
 import { CloseCustomerIcon, OpenCustomerIcon } from './assets';
 
-const customerChannelId = 'support-demo';
-
-export const CustomerApp = () => {
+export const CustomerApp = ({ customerChannelId }) => {
   const { client: customerClient } = useContext(ChatContext);
 
   const [customerChannel, setCustomerChannel] = useState();
@@ -24,12 +22,6 @@ export const CustomerApp = () => {
 
   useEffect(() => {
     const getCustomerChannel = async () => {
-      const [existingChannel] = await customerClient.queryChannels({
-        id: customerChannelId,
-      });
-
-      if (existingChannel) await existingChannel.delete();
-
       const newChannel = await customerClient.channel(
         'commerce',
         customerChannelId,
@@ -50,9 +42,7 @@ export const CustomerApp = () => {
       setCustomerChannel(newChannel);
     };
 
-    if (customerClient) {
-      getCustomerChannel();
-    }
+    getCustomerChannel();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

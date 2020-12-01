@@ -24,11 +24,19 @@ const ChannelSearch = () => (
   </div>
 );
 
-export const AgentChannelListContainer = () => {
-  const options = {
-    member: true,
-    watch: true,
-    limit: 3,
+const options = {
+  member: true,
+  watch: true,
+  limit: 3,
+};
+const sort = { last_message_at: -1 };
+
+export const AgentChannelListContainer = (props) => {
+  const { agentChannelId, customerChannelId } = props;
+
+  const filters = {
+    type: 'commerce',
+    id: { $in: [agentChannelId, customerChannelId] },
   };
 
   return (
@@ -38,14 +46,16 @@ export const AgentChannelListContainer = () => {
         Active Conversations
       </p>
       <ChannelList
-        filters={{
-          type: 'commerce',
-          id: { $in: ['agent-demo', 'support-demo'] },
-        }}
-        sort={{ last_message_at: -1 }}
+        filters={filters}
+        sort={sort}
         options={options}
         List={AgentChannelList}
-        Preview={AgentChannelPreview}
+        Preview={(previewProps) => (
+          <AgentChannelPreview
+            {...previewProps}
+            {...{ agentChannelId, customerChannelId }}
+          />
+        )}
       />
     </div>
   );

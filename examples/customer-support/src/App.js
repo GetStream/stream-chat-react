@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Chat } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
+import { v4 as uuidv4 } from 'uuid';
 
 import 'stream-chat-react/dist/css/index.css';
 
@@ -13,7 +14,8 @@ import { AgentLoading } from './components/AgentLoading/AgentLoading';
 import { CustomerApp } from './CustomerApp';
 
 const apiKey = 'vw9vb798xcy6';
-const agentChannelId = 'agent-demo';
+const agentChannelId = `agent-demo-${uuidv4()}`;
+const customerChannelId = `customer-demo-${uuidv4()}`;
 const theme = 'light';
 
 const agentUserId = 'daniel-smith';
@@ -63,12 +65,6 @@ const App = () => {
         previousUserToken,
       );
       setInitialClient(client);
-
-      const [existingChannel] = await client.queryChannels({
-        id: agentChannelId,
-      });
-
-      if (existingChannel) await existingChannel.delete();
 
       const newChannel = await client.channel('commerce', agentChannelId, {
         image: require('./assets/jen-avatar.png'),
@@ -133,7 +129,7 @@ const App = () => {
         <AgentHeader />
         {agentClient ? (
           <Chat client={agentClient}>
-            <AgentApp />
+            <AgentApp {...{ agentChannelId, customerChannelId }} />
           </Chat>
         ) : (
           <AgentLoading />
@@ -141,7 +137,7 @@ const App = () => {
       </div>
       {customerClient && (
         <Chat client={customerClient} theme={`commerce ${theme}`}>
-          <CustomerApp />
+          <CustomerApp {...{ customerChannelId }} />
         </Chat>
       )}
     </>
