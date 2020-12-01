@@ -15,6 +15,7 @@ const setUser = (client, user) => {
     client._user = { ...user };
     client.userID = user.id;
     client.userToken = token;
+    client.wsPromise = Promise.resolve(true);
     resolve();
   });
 };
