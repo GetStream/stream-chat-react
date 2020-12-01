@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const EmptyStateMessage = () => {
+const EmptyStateMessage = () => {
   const danMessage = () => {
     console.log('Hello I am empty State');
   };
@@ -17,3 +17,5 @@ export const EmptyStateMessage = () => {
     ></div>
   );
 };
+
+export default EmptyStateMessage;
