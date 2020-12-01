@@ -22,6 +22,7 @@ import {
   MessagingChannelHeader,
   MessagingChannelList,
 } from './components';
+import { EmptyStateMessage } from './components/EmptyStateMessage/EmptyStateMessage';
 
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || 'qk4nn7rpcn75';
@@ -69,7 +70,10 @@ const App = () => {
         />
         <Window>
           <MessagingChannelHeader />
-          <MessageList TypingIndicator={() => null} />
+          <MessageList
+            TypingIndicator={() => null}
+            EmptyStateIndicator={() => <EmptyStateMessage />}
+          />
           <MessageInput focus Input={MessagingInput} />
         </Window>
         <Thread
