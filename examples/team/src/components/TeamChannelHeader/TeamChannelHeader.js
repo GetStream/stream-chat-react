@@ -7,7 +7,7 @@ import { ChannelInfo, PinIcon } from '../../assets';
 
 export const TeamChannelHeader = ({ setIsEditing, setPinsOpen }) => {
   const { client } = useContext(ChatContext);
-  const { channel, watcher_count } = useContext(ChannelContext);
+  const { channel, closeThread, watcher_count } = useContext(ChannelContext);
 
   const teamHeader = `# ${channel.data.name || channel.data.id || 'random'}`;
 
@@ -36,8 +36,8 @@ export const TeamChannelHeader = ({ setIsEditing, setPinsOpen }) => {
               <Avatar image={user.image} size={32} />
               <p className="team-channel-header__name user">
                 {user.name || 'Johnny Blaze'}
+                {addComma && ','}
               </p>
-              {addComma && ','}
             </div>
           );
         })}
@@ -72,7 +72,10 @@ export const TeamChannelHeader = ({ setIsEditing, setPinsOpen }) => {
         </p>
         <div
           className="team-channel-header__right-pin-wrapper"
-          onClick={() => setPinsOpen((prevState) => !prevState)}
+          onClick={(e) => {
+            closeThread(e);
+            setPinsOpen((prevState) => !prevState);
+          }}
         >
           <PinIcon />
           <p className="team-channel-header__right-text">Pins</p>

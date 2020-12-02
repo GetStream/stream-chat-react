@@ -183,7 +183,6 @@ ul.str-chat__simple-reactions-list:hover {
 
 .str-chat__message-actions-list button:hover {
   color: rgb(var(--primary-color));
-  font-weight: 700;
 }
 
 .emoji-mart-anchor-selected {

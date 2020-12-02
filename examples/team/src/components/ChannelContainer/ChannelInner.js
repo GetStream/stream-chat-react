@@ -23,20 +23,18 @@ export const ChannelInner = (props) => {
           Message={(messageProps) => (
             <TeamMessage
               {...messageProps}
-              {...{ pinnedMessagesIds, setPinnedMessages }}
+              {...{ pinnedMessagesIds, setPinnedMessages, setPinsOpen }}
             />
           )}
           TypingIndicator={() => null}
         />
         <TeamMessageInput focus {...{ pinsOpen }} />
       </Window>
-      {!pinsOpen && (
-        <Thread
-          additionalMessageListProps={{ TypingIndicator: () => null }}
-          Message={TeamMessage}
-          MessageInput={ThreadMessageInput}
-        />
-      )}
+      <Thread
+        additionalMessageListProps={{ TypingIndicator: () => null }}
+        Message={TeamMessage}
+        MessageInput={ThreadMessageInput}
+      />
       {pinsOpen && <PinnedMessageList {...{ pinnedMessages, setPinsOpen }} />}
     </div>
   );

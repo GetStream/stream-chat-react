@@ -1,7 +1,9 @@
-import React from 'react';
-import { Avatar } from 'stream-chat-react';
+import React, { useContext } from 'react';
+import { Avatar, ChatContext } from 'stream-chat-react';
 
 const SearchResult = ({ channel, focusedId, setChannel, type }) => {
+  const { client, setActiveChannel } = useContext(ChatContext);
+
   if (type === 'channel') {
     return (
       <div
@@ -18,11 +20,25 @@ const SearchResult = ({ channel, focusedId, setChannel, type }) => {
     );
   }
 
-  const members = Object.values(channel.state.members);
-
   return (
     <div
-      onClick={() => setChannel(channel)}
+      onClick={async () => {
+        const [existingChannel] = await client.queryChannels({
+          type: 'messaging',
+          member_count: 2,
+          members: { $eq: [channel.id, client.userID] },
+        });
+
+        if (existingChannel) {
+          return setActiveChannel(existingChannel);
+        }
+
+        const newChannel = await client.channel('messaging', {
+          members: [channel.id, client.userID],
+        });
+
+        return setActiveChannel(newChannel);
+      }}
       className={
         focusedId === channel.id
           ? 'channel-search__result-container__focused'
@@ -30,9 +46,9 @@ const SearchResult = ({ channel, focusedId, setChannel, type }) => {
       }
     >
       <div className="channel-search__result-user">
-        <Avatar image={members[0]?.user.image || undefined} size={24} />
+        <Avatar image={channel.image || undefined} size={24} />
         <p className="channel-search__result-text">
-          {members[0]?.user.name || 'Johnny Blaze'}
+          {channel.name || 'Johnny Blaze'}
         </p>
       </div>
     </div>

@@ -33,3 +33,17 @@
 .pinned-messages__list .str-chat__message-replies-count-button {
   display: none;
 }
+
+div.pinned-messages__header > button {
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  margin-right: 20px;
+  height: 35px;
+  width: 35px;
+  border-radius: 18px;
+}
+
+div.pinned-messages__header > button:active {
+  background: #fff;
+}

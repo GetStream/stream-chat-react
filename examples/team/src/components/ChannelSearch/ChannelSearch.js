@@ -70,23 +70,29 @@ export const ChannelSearch = () => {
 
   const getChannels = async (text) => {
     try {
-      const response = await client.queryChannels({
-        name: { $autocomplete: text },
-      });
+      const channelResponse = client.queryChannels(
+        {
+          type: 'team',
+          name: { $autocomplete: text },
+        },
+        {},
+        { limit: 6 },
+      );
 
-      setTeamChannels(() => {
-        return response.filter((channel) => channel.type === 'team');
-      });
+      const userResponse = client.queryUsers(
+        { id: { $ne: client.userID }, name: { $autocomplete: text } },
+        { id: 1 },
+        { limit: 6 },
+      );
 
-      setDirectChannels(() => {
-        return response.filter((channel) => channel.type === 'messaging');
-      });
+      const [channels, { users }] = await Promise.all([
+        channelResponse,
+        userResponse,
+      ]);
 
-      setAllChannels(() => {
-        return response
-          .filter((channel) => channel.type === 'team')
-          .concat(response.filter((channel) => channel.type === 'messaging'));
-      });
+      setTeamChannels(channels);
+      setDirectChannels(users);
+      setAllChannels(channels.concat(users));
     } catch (e) {
       setQuery('');
       console.log(e);
