@@ -12,6 +12,7 @@ import { checkChannelPropType, smartRender } from '../../utils';
 
 import { ChannelContext, withTranslationContext } from '../../context';
 import { Attachment } from '../Attachment';
+import { Avatar } from '../Avatar';
 import { MessageSimple } from '../Message';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
@@ -268,6 +269,7 @@ class MessageList extends PureComponent {
               mutes: this.props.mutes,
               unsafeHTML: this.props.unsafeHTML,
               Attachment: this.props.Attachment,
+              Avatar: this.props.Avatar,
               onMentionsClick: this.props.onMentionsClick,
               onMentionsHover: this.props.onMentionsHover,
               messageActions: this.props.messageActions,
@@ -372,6 +374,12 @@ MessageList.propTypes = {
   client: PropTypes.object,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   Attachment: PropTypes.elementType,
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: PropTypes.elementType,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   Message: PropTypes.elementType,
   /**
@@ -431,10 +439,11 @@ MessageList.propTypes = {
 };
 
 MessageList.defaultProps = {
+  Attachment,
+  Avatar,
   Message: MessageSimple,
   MessageSystem: EventComponent,
   threadList: false,
-  Attachment,
   DateSeparator: DefaultDateSeparator,
   LoadingIndicator: DefaultLoadingIndicator,
   TypingIndicator: DefaultTypingIndicator,

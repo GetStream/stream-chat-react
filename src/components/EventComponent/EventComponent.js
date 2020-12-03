@@ -2,14 +2,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { TranslationContext } from '../../context';
 
 /**
  * EventComponent - Custom render component for system and channel event messages
  * @type {React.FC<import('types').EventComponentProps>}
  */
-const EventComponent = ({ message }) => {
+const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
   const { type, text, event, created_at = '' } = message;
 
@@ -62,6 +62,12 @@ EventComponent.propTypes = {
   /** Message object */
   // @ts-ignore
   message: PropTypes.object.isRequired,
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
 };
 
 export default React.memo(EventComponent);

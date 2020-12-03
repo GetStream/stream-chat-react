@@ -158,6 +158,16 @@ describe('<MessageCommerce />', () => {
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
 
+  it('should render custom avatar component when one is given', async () => {
+    const message = generateAliceMessage();
+    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const { getByTestId } = await renderMessageCommerce(message, {
+      Avatar: CustomAvatar,
+      groupStyles: ['bottom'],
+    });
+    expect(getByTestId('custom-avatar')).toBeInTheDocument();
+  });
+
   it('should position message to the right if it is from current user', async () => {
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageCommerce(message);
@@ -359,7 +369,7 @@ describe('<MessageCommerce />', () => {
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
   });
 
-  it('should render message text when messag has text', async () => {
+  it('should render message text when message has text', async () => {
     const message = generateAliceMessage({ text: 'Hello' });
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
