@@ -6,7 +6,7 @@ import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
@@ -53,6 +53,7 @@ const MessageTeam = (props) => {
     initialMessage,
     unsafeHTML,
     getMessageActions,
+    Avatar = DefaultAvatar,
     MessageDeleted,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
@@ -339,6 +340,7 @@ const MessageTeam = (props) => {
             )}
           </div>
           <MessageTeamStatus
+            Avatar={Avatar}
             readBy={props.readBy}
             message={message}
             threadList={threadList}
@@ -377,7 +379,14 @@ const MessageTeam = (props) => {
 
 /** @type {(props: import('types').MessageTeamStatusProps) => React.ReactElement | null} */
 const MessageTeamStatus = (props) => {
-  const { readBy, message, threadList, lastReceivedId, t: propT } = props;
+  const {
+    Avatar = DefaultAvatar,
+    readBy,
+    message,
+    threadList,
+    lastReceivedId,
+    t: propT,
+  } = props;
   const { client } = useContext(ChannelContext);
   const { t: contextT } = useContext(TranslationContext);
   const t = propT || contextT;
@@ -475,6 +484,12 @@ MessageTeam.propTypes = {
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
   Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

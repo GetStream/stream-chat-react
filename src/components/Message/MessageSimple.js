@@ -5,7 +5,7 @@ import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
@@ -78,6 +78,7 @@ const MessageSimple = (props) => {
   } = useReactionClick(message, reactionSelectorRef);
   const {
     Attachment = DefaultAttachment,
+    Avatar = DefaultAvatar,
     MessageDeleted = DefaultMessageDeleted,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
@@ -238,6 +239,7 @@ const MessageSimple = (props) => {
 
 /** @type { React.FC<import('types').MessageSimpleProps> } */
 const MessageSimpleStatus = ({
+  Avatar = DefaultAvatar,
   readBy,
   message,
   threadList,
@@ -321,6 +323,12 @@ MessageSimple.propTypes = {
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
   Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /**
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *

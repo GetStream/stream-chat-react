@@ -169,6 +169,12 @@ Message.propTypes = {
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate: PropTypes.func,
   /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /**
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
