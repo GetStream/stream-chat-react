@@ -135,6 +135,11 @@ body {
   padding: 10px 4px;
 }
 
+.str-chat__message-commerce--right.str-chat__message-commerce
+  .str-chat__message-commerce-text-inner--is-emoji {
+  background: #fff;
+}
+
 .str-chat__message-commerce-text-inner.str-chat__message-commerce-text-inner--is-emoji {
   margin: 0;
 }
@@ -158,10 +163,6 @@ body {
 
 .agent-channel-wrapper .str-chat__message-commerce-data {
   display: none;
-}
-
-.str-chat__ul {
-  overflow: scroll;
 }
 
 .agent-wrapper

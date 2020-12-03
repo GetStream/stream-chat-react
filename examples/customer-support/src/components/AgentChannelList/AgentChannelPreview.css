@@ -3,7 +3,6 @@
   width: 230px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: flex-start;
   background: none;
   border-radius: 12px;
@@ -11,6 +10,7 @@
   margin-bottom: 16px;
   margin-left: 16px;
   padding-left: 16px;
+  padding-top: 16px;
 }
 
 .agent-channel-preview__wrapper:hover {
@@ -34,7 +34,6 @@
   justify-content: center;
   align-items: center;
   height: 36px;
-  margin-top: 4px;
 }
 
 .agent-channel-preview__image-wrapper {

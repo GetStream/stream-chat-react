@@ -33,7 +33,12 @@ export const CustomerChannelHeader = () => (
         <div className="channel-header__active" />
       </div>
       <div className="channel-header__text">
-        <p className="channel-header__name">Hello</p>
+        <p className="channel-header__name">
+          Hello
+          <span role="img" aria-label="waving-hand">
+            👋
+          </span>
+        </p>
         <p className="channel-header__subtitle">We are here to help.</p>
       </div>
     </div>
