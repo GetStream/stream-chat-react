@@ -16,6 +16,7 @@ export const usePaginatedChannels = (
   sort,
   options,
   activeChannelHandler,
+  searchStr,
 ) => {
   const [channels, setChannels] = useState(/** @type {Channel[]} */ ([]));
   const [loadingChannels, setLoadingChannels] = useState(true);
@@ -53,6 +54,21 @@ export const usePaginatedChannels = (
         newChannels = channelQueryResponse;
       } else {
         newChannels = [...channels, ...channelQueryResponse];
+      }
+
+      if (searchStr.length > 2) {
+        newChannels = newChannels.filter(({ data }) =>
+          Object.values(data || {})
+            .filter((v) => typeof v === 'string')
+            .some(
+              (v) =>
+                v.toLowerCase().includes(searchStr.toLowerCase()) ||
+                v
+                  .toLowerCase()
+                  .replace(/\W/g, '')
+                  .includes(searchStr.toLowerCase().replace(/\W/g, '')),
+            ),
+        );
       }
 
       setChannels(newChannels);
