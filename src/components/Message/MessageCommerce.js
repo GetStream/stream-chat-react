@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { smartRender } from '../../utils';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
+import { MML } from '../MML';
 import {
   ReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
@@ -157,6 +158,14 @@ const MessageCommerce = (props) => {
             <Attachment
               attachments={message.attachments}
               actionHandler={propHandleAction || handleAction}
+            />
+          )}
+
+          {message?.mml && (
+            <MML
+              source={message.mml}
+              actionHandler={handleAction}
+              align={isMyMessage ? 'right' : 'left'}
             />
           )}
 

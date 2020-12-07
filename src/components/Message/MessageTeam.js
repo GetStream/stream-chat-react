@@ -7,6 +7,7 @@ import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
+import { MML } from '../MML';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
@@ -94,7 +95,10 @@ const MessageTeam = (props) => {
   const clearEdit = propClearEdit || ownClearEditing;
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
+  const handleAction = useActionHandler(message);
   const retryHandler = useRetryHandler();
+  const { isMyMessage } = useUserRole(message);
+
   const retry = propHandleRetry || retryHandler;
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
@@ -300,11 +304,19 @@ const MessageTeam = (props) => {
               </span>
             )}
 
+            {message?.mml && (
+              <MML
+                source={message.mml}
+                actionHandler={handleAction}
+                align={isMyMessage ? 'right' : 'left'}
+              />
+            )}
+
             {message && message.text === '' && (
               <MessageTeamAttachments
                 Attachment={props.Attachment}
                 message={message}
-                handleAction={propHandleAction}
+                handleAction={propHandleAction || handleAction}
               />
             )}
 
@@ -349,7 +361,7 @@ const MessageTeam = (props) => {
             <MessageTeamAttachments
               Attachment={props.Attachment}
               message={message}
-              handleAction={propHandleAction}
+              handleAction={propHandleAction || handleAction}
             />
           )}
           {message?.latest_reactions &&
@@ -449,17 +461,13 @@ const MessageTeamStatus = (props) => {
 
 /** @type {(props: import('types').MessageTeamAttachmentsProps) => React.ReactElement | null} Typescript syntax */
 const MessageTeamAttachments = (props) => {
-  const {
-    Attachment = DefaultAttachment,
-    message,
-    handleAction: propHandleAction,
-  } = props;
-  const handleAction = useActionHandler(message);
+  const { Attachment = DefaultAttachment, message, handleAction } = props;
+
   if (message?.attachments && Attachment) {
     return (
       <Attachment
         attachments={message.attachments}
-        actionHandler={propHandleAction || handleAction}
+        actionHandler={handleAction}
       />
     );
   }

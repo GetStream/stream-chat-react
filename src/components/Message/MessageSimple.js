@@ -6,6 +6,7 @@ import { smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar } from '../Avatar';
+import { MML } from '../MML';
 import { Modal } from '../Modal';
 import { MessageInput, EditMessageForm } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
@@ -205,6 +206,15 @@ const MessageSimple = (props) => {
                 reactionSelectorRef={reactionSelectorRef}
               />
             )}
+
+            {message.mml && (
+              <MML
+                source={message.mml}
+                actionHandler={handleAction}
+                align={isMyMessage ? 'right' : 'left'}
+              />
+            )}
+
             {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
