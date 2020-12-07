@@ -148,6 +148,15 @@ describe('<MessageTeam />', () => {
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
 
+  it('should render custom avatar component when one is given', async () => {
+    const message = generateAliceMessage();
+    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const { getByTestId } = await renderMessageTeam(message, {
+      Avatar: CustomAvatar,
+    });
+    expect(getByTestId('custom-avatar')).toBeInTheDocument();
+  });
+
   it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
     const updateMessage = jest.fn();

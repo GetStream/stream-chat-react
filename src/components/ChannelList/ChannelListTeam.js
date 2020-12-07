@@ -3,7 +3,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChatDown } from '../ChatDown';
 import { LoadingChannels } from '../Loading';
 import { ChatContext } from '../../context';
@@ -20,6 +20,7 @@ const ChannelListTeam = ({
   loading,
   sidebarImage,
   showSidebar,
+  Avatar = DefaultAvatar,
   LoadingErrorIndicator = ChatDown,
   LoadingIndicator = LoadingChannels,
   children,
@@ -78,6 +79,12 @@ ChannelListTeam.propTypes = {
   showSidebar: PropTypes.bool,
   /** Url for sidebar logo image. */
   sidebarImage: PropTypes.string,
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /**
    * Loading indicator UI Component. It will be displayed if `loading` prop is true.
    *

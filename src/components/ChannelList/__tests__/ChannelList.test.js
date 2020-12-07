@@ -36,6 +36,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
 import ChannelList from '../ChannelList';
+import {
+  ChannelPreviewCompact,
+  ChannelPreviewLastMessage,
+  ChannelPreviewMessenger,
+} from '../../ChannelPreview';
 
 /**
  * We are gonna use following custom UI components for preview and list.
@@ -189,6 +194,52 @@ describe('ChannelList', () => {
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
       expect(getByTestId('error-indicator')).toBeInTheDocument();
+    });
+  });
+
+  it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
+
+    const { getByTestId, rerender } = render(
+      <Chat client={chatClientUthred}>
+        <ChannelList
+          Avatar={() => <div data-testid="custom-avatar-compact">Avatar</div>}
+          Preview={ChannelPreviewCompact}
+          List={ChannelListComponent}
+        />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('custom-avatar-compact')).toBeInTheDocument();
+    });
+
+    rerender(
+      <Chat client={chatClientUthred}>
+        <ChannelList
+          Avatar={() => <div data-testid="custom-avatar-last">Avatar</div>}
+          Preview={ChannelPreviewLastMessage}
+          List={ChannelListComponent}
+        />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('custom-avatar-last')).toBeInTheDocument();
+    });
+
+    rerender(
+      <Chat client={chatClientUthred}>
+        <ChannelList
+          Avatar={() => <div data-testid="custom-avatar-messenger">Avatar</div>}
+          Preview={ChannelPreviewMessenger}
+          List={ChannelListComponent}
+        />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('custom-avatar-messenger')).toBeInTheDocument();
     });
   });
 

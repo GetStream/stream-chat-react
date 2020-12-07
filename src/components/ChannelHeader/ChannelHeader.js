@@ -1,7 +1,7 @@
 // @ts-check
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelContext, TranslationContext, ChatContext } from '../../context';
 
 /**
@@ -9,7 +9,7 @@ import { ChannelContext, TranslationContext, ChatContext } from '../../context';
  * @example ../../docs/ChannelHeader.md
  * @type {React.FC<import('types').ChannelHeaderProps>}
  */
-const ChannelHeader = ({ title, live }) => {
+const ChannelHeader = ({ Avatar = DefaultAvatar, title, live }) => {
   /** @type {import("types").TranslationContextValue} */
   const { t } = useContext(TranslationContext);
   /** @type {import("types").ChannelContextValue} */
@@ -62,6 +62,12 @@ const ChannelHeader = ({ title, live }) => {
 };
 
 ChannelHeader.propTypes = {
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /** Set title manually */
   title: PropTypes.string,
   /** Show a little indicator that the channel is live right now */

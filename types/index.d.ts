@@ -264,6 +264,7 @@ export interface ChannelOptions {
 }
 
 export interface ChannelListProps {
+  Avatar?: React.ElementType<AvatarProps>;
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
@@ -327,6 +328,7 @@ export interface ChannelListUIComponentProps {
   loading?: boolean;
   sidebarImage?: string | null;
   showSidebar?: boolean;
+  Avatar?: React.ElementType<AvatarProps>;
   /**
    * Loading indicator UI Component. It will be displayed if `loading` prop is true.
    *
@@ -350,6 +352,7 @@ export interface ChannelPreviewProps {
   channel: Client.Channel;
   /** Current selected channel object */
   activeChannel?: Client.Channel;
+  Avatar?: React.ElementType<AvatarProps>;
   /**
    * Available built-in options (also accepts the same props as):
    *
@@ -525,7 +528,7 @@ export interface VirtualizedMessageListInternalProps {
   MessageDeleted?: React.ElementType<MessageDeletedProps>;
   /** Custom UI component to display system messages */
   MessageSystem?: React.ElementType<EventComponentProps>;
-  /** The UI Indicator to use when MessagerList or ChannelList is empty */
+  /** The UI Indicator to use when MessageList or ChannelList is empty */
   EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The UI Indicator to use when someone is typing, default to null */
   TypingIndicator?: React.ElementType<TypingIndicatorProps>;
@@ -601,6 +604,7 @@ export interface MessageListProps {
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   Message?: React.ElementType;
   Attachment?: React.ElementType;
+  Avatar?: React.ElementType<AvatarProps>;
   onMentionsClick?(
     e: React.MouseEvent,
     mentioned_users: Client.UserResponse[],
@@ -613,6 +617,7 @@ export interface MessageListProps {
 }
 
 export interface ChannelHeaderProps {
+  Avatar?: React.ElementType<AvatarProps>;
   /** Set title manually */
   title?: string;
   /** Show a little indicator that the channel is live right now */
@@ -815,6 +820,7 @@ export interface MessageProps extends TranslationContextValue {
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
+  Avatar?: React.ElementType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;
@@ -931,10 +937,12 @@ export interface ThreadProps {
 }
 
 export interface TypingIndicatorProps {
+  Avatar?: React.ElementType<AvatarProps>;
   avatarSize?: number;
 }
 
 export interface ReactionSelectorProps {
+  Avatar?: React.ElementType<AvatarProps>;
   /**
    * Array of latest reactions.
    * Reaction object has following structure:
@@ -1094,10 +1102,12 @@ export interface UserItemProps {
     id?: string | null;
     image?: string | null;
   };
+  Avatar?: React.ElementType<AvatarProps>;
 }
 
 export interface EventComponentProps {
   message: StreamChatReactMessageResponse;
+  Avatar?: React.ElementType<AvatarProps>;
 }
 
 export interface GalleryProps {
@@ -1344,6 +1354,7 @@ export interface MessageTeamAttachmentsProps {
   ): void;
 }
 export interface MessageTeamStatusProps {
+  Avatar?: React.ElementType<AvatarProps>;
   t?: i18next.TFunction;
   threadList?: boolean;
   lastReceivedId?: string | null;

@@ -2,14 +2,14 @@
 import React, { useContext } from 'react';
 
 import { ChannelContext } from '../../context';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 /**
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  * @typedef {import('types').TypingIndicatorProps} Props
  * @type {React.FC<Props>}
  */
-const TypingIndicator = ({ avatarSize = 32 }) => {
+const TypingIndicator = ({ Avatar = DefaultAvatar, avatarSize = 32 }) => {
   const { typing, client, channel } = useContext(ChannelContext);
 
   if (!typing || !client || channel?.getConfig()?.typing_events === false)
