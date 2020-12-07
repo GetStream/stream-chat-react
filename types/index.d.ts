@@ -445,12 +445,14 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
 
 export interface MMLProps {
   /** mml source string */
-  mml: string;
+  source: string;
   /**
    * submit handler for mml actions
    * @param data {object}
    */
   actionHandler?(data: Record<string, any>): void;
+  /** align mml components to left/right */
+  align?: 'left' | 'right';
 }
 
 export interface AvatarProps {
