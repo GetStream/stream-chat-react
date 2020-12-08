@@ -8022,10 +8022,10 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mml-react@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.2.4.tgz#861d091d57706c5aecbd83ca82018f32ae04b066"
-  integrity sha512-mwqB1x4UTayICiKhnUqZh15gsQtkkTVG82ZDfabXaiMh8lVKMYjPA5I4lyhzbWzgoyKkpgaeedBNIqrtkN2RCg==
+mml-react@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.2.5.tgz#342e4b16c4cb6cd59c6fb568a418586426bb1a25"
+  integrity sha512-08k4pFgxdyiPihPPZTJ7mFZ6c+/UWxFkqtlK6TfeYEMYtaMsx+Pmq6WAf/n66F0i8hGmPzi60jC/yHyZKc0q4Q==
   dependencies:
     "@braintree/sanitize-url" "^5.0.0"
     "@rgrove/parse-xml" "^2.0.4"
