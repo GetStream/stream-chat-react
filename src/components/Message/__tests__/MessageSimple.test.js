@@ -13,6 +13,7 @@ import { ChannelContext, TranslationContext } from '../../../context';
 import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
+import { MML as MMLMock } from '../../MML';
 import MessageOptionsMock from '../MessageOptions';
 import MessageTextMock from '../MessageText';
 import {
@@ -22,10 +23,8 @@ import {
 
 jest.mock('../MessageOptions', () => jest.fn(() => <div />));
 jest.mock('../MessageText', () => jest.fn(() => <div />));
-
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
+jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 
 jest.mock('../../MessageInput', () => ({
   MessageInput: jest.fn(() => <div />),
@@ -306,6 +305,26 @@ describe('<MessageSimple />', () => {
         onReactionListClick: expect.any(Function),
         handleOpenThread: expect.any(Function),
       }),
+      {},
+    );
+  });
+
+  it('should render MML', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateAliceMessage({ mml });
+    await renderMessageSimple(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'right' }),
+      {},
+    );
+  });
+
+  it('should render MML on left for others', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateBobMessage({ mml });
+    await renderMessageSimple(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'left' }),
       {},
     );
   });
