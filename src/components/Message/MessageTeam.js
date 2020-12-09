@@ -98,7 +98,6 @@ const MessageTeam = (props) => {
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
   const retryHandler = useRetryHandler();
-  const { isMyMessage } = useUserRole(message);
 
   const retry = propHandleRetry || retryHandler;
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
@@ -309,7 +308,7 @@ const MessageTeam = (props) => {
               <MML
                 source={message.mml}
                 actionHandler={handleAction}
-                align={isMyMessage ? 'right' : 'left'}
+                align={'left'}
               />
             )}
 
