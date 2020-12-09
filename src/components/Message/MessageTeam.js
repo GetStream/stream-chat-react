@@ -308,7 +308,7 @@ const MessageTeam = (props) => {
               <MML
                 source={message.mml}
                 actionHandler={handleAction}
-                align={'left'}
+                align="left"
               />
             )}
 
