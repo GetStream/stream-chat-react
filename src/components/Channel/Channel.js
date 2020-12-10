@@ -488,6 +488,7 @@ const ChannelInner = ({
       dispatch({ type: 'closeThread' });
       return;
     }
+
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0]?.id;
     const limit = 50;
@@ -504,7 +505,7 @@ const ChannelInner = ({
       // next set loadingMore to false so we can start asking for more data...
       loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
     } catch (e) {
-      loadMoreThreadFinished(false, []);
+      loadMoreThreadFinished(false, oldMessages);
     }
   }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
