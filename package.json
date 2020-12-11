@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -171,7 +171,7 @@
     "build-translations": "rm -rf .tmpi18ncache || true && mkdir .tmpi18ncache && yarn run babel --config-file ./babel.i18next-extract.js 'src/**/*.{js,jsx,ts,tsx}' --out-dir '.tmpi18ncache/' && rm -rf .tmpi18ncache && prettier --write 'src/i18n/*.{js,json}'",
     "validate-translations": "node scripts/validate-translations.js",
     "prepare": "yarn run build",
-    "preversion": "make example-deps && git add yarn.lock && git add examples/*/yarn.lock",
+    "preversion": "yarn install && yarn lint && yarn test && make example-deps && git add yarn.lock && git add examples/*/yarn.lock",
     "version": "yarn docs && git add docs && git add yarn.lock examples/*/yarn.lock",
     "postversion": "git push && git push --tags && npm publish"
   },
