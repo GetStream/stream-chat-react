@@ -22,6 +22,8 @@ const MML = ({ source, actionHandler, align = 'right' }) => {
       source={source}
       className={`mml-align-${align}`}
       onSubmit={actionHandler}
+      Loading={null}
+      Success={null}
       theme={(theme || '').replace(' ', '-')}
     />
   );
