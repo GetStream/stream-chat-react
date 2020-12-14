@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.0) 2020-12-14
+
+## Feature
+
+- MML is supported by default in all Message components except `MessageLiveStream`. [#562](https://github.com/GetStream/stream-chat-react/pull/562)
+
+  For more detail about how to use MML please refer to [mml-react](https://getstream.github.io/mml-react/) docs.
+
 ## [3.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.3.2) 2020-12-11
 
 ## Fix
