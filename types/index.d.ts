@@ -446,6 +446,18 @@ export interface LoadingErrorIndicatorProps extends TranslationContextValue {
   error?: Error | null;
 }
 
+export interface MMLProps {
+  /** mml source string */
+  source: string;
+  /**
+   * submit handler for mml actions
+   * @param data {object}
+   */
+  actionHandler?(data: Record<string, any>): void;
+  /** align mml components to left/right */
+  align?: 'left' | 'right';
+}
+
 export interface AvatarProps {
   /** image url */
   image?: string | null;
@@ -765,9 +777,9 @@ export interface BaseAttachmentUIComponentProps {
 		Examples include canceling a \/giphy command or shuffling the results.
 		*/
   actionHandler?(
-    name: string,
-    value: string,
-    event: React.BaseSyntheticEvent,
+    name: string | Record<string, any>,
+    value?: string,
+    event?: React.BaseSyntheticEvent,
   ): void;
   Card?: React.ComponentType<CardProps>;
   File?: React.ComponentType<FileAttachmentProps>;
@@ -1425,9 +1437,9 @@ export class MessageDeleted extends React.PureComponent<
 export function useActionHandler(
   message: Client.MessageResponse | undefined,
 ): (
-  name: string,
-  value: string,
-  event: React.MouseEvent<HTMLElement>,
+  dataOrName: string | Record<string, any>,
+  value?: string,
+  event?: BaseSyntheticEvent,
 ) => Promise<void>;
 
 export function useDeleteHandler(

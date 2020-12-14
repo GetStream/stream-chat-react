@@ -75,6 +75,7 @@ const externalDependencies = [
   'seamless-immutable',
   'textarea-caret',
   /uuid/,
+  'mml-react',
 ];
 
 const basePlugins = [

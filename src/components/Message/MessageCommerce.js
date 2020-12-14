@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { smartRender } from '../../utils';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { MML } from '../MML';
 import {
   ReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
@@ -32,6 +33,7 @@ import MessageTimestamp from './MessageTimestamp';
  * @example ../../docs/MessageCommerce.md
  * @type { React.FC<import('types').MessageCommerceProps> }
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageCommerce = (props) => {
   const {
     message,
@@ -158,6 +160,14 @@ const MessageCommerce = (props) => {
             <Attachment
               attachments={message.attachments}
               actionHandler={propHandleAction || handleAction}
+            />
+          )}
+
+          {message?.mml && (
+            <MML
+              source={message.mml}
+              actionHandler={handleAction}
+              align={isMyMessage ? 'right' : 'left'}
             />
           )}
 

@@ -9,16 +9,20 @@ export const handleActionWarning = `Action handler was called, but it is missing
  */
 export const useActionHandler = (message) => {
   const { channel, updateMessage, removeMessage } = useContext(ChannelContext);
-  return async (name, value, event) => {
-    event.preventDefault();
+  return async (dataOrName, value, event) => {
+    if (event) event.preventDefault();
     if (!message || !updateMessage || !removeMessage || !channel) {
       console.warn(handleActionWarning);
       return;
     }
     const messageID = message.id;
-    const formData = {
-      [name]: value,
-    };
+
+    // deprecated: value&name should be removed in favor of data obj
+    /** @type {Record<string, any>} */
+    let formData = {};
+    if (typeof dataOrName === 'string') formData[dataOrName] = value;
+    else formData = { ...dataOrName };
+
     if (messageID) {
       const data = await channel.sendAction(messageID, formData);
 

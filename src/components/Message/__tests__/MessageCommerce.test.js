@@ -12,12 +12,11 @@ import {
 import { ChannelContext } from '../../../context';
 import MessageCommerce from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
+import { MML as MMLMock } from '../../MML';
 import MessageTextMock from '../MessageText';
 
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../MessageText', () => jest.fn(() => <div />));
 
 const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
@@ -332,6 +331,26 @@ describe('<MessageCommerce />', () => {
       { reactions: false },
     );
     expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
+  });
+
+  it('should render MML', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateAliceMessage({ mml });
+    await renderMessageCommerce(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'right' }),
+      {},
+    );
+  });
+
+  it('should render MML on left for others', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateBobMessage({ mml });
+    await renderMessageCommerce(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'left' }),
+      {},
+    );
   });
 
   it.each([

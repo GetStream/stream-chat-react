@@ -1013,7 +1013,7 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@braintree/sanitize-url@5.0.0":
+"@braintree/sanitize-url@5.0.0", "@braintree/sanitize-url@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.0.tgz#3ba791f37b90e7f6170d252b63aacfcae943c039"
   integrity sha512-WmKrB/575EJCzbeSJR3YQ5sET5FaizeljLRw1382qVUeGqzuWBgIS+AF5a0FO51uQTrDpoRgvuHC2IWVsgwkkA==
@@ -1304,6 +1304,11 @@
   version "2.5.4"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.5.4.tgz#de25b5da9f727985a3757fd59b5d028aba75841a"
   integrity sha512-ZpKr+WTb8zsajqgDkvCEWgp6d5eJT6Q63Ng2neTbzBO76Lbe91vX/iVIW9dikq+Fs3yEo+ls4cxeXABD2LtcbQ==
+
+"@rgrove/parse-xml@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@rgrove/parse-xml/-/parse-xml-2.0.4.tgz#244973dd3d9ee83eb7caafad2c17a719622d181f"
+  integrity sha512-344bRXnUMu1tWqq1GJO2nCSqJRGTzcNLErcG2HZbVhUo90R5xQ6YdsCqtuT0KaFyN/mlxWqt2SdHSRNzwDvT5g==
 
 "@rollup/plugin-babel@^5.2.1":
   version "5.2.1"
@@ -1682,6 +1687,11 @@
   integrity sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==
   dependencies:
     "@types/node" "*"
+
+"@types/rgrove__parse-xml@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@types/rgrove__parse-xml/-/rgrove__parse-xml-1.1.1.tgz#adf101efb3f38d531372a5fe5f12cb83c32452a5"
+  integrity sha512-S/4A5bn1gTlkHUScQyoPsodoLhyrzoUiU0lIWr/nnRc/mzIaMxW40DQ2E6HIuDxLzi8ozm+Cdy/3Gs/MM7dPaQ==
 
 "@types/seamless-immutable@7.1.13":
   version "7.1.13"
@@ -3754,6 +3764,11 @@ dayjs@^1.9.6:
   version "1.9.6"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.6.tgz#6f0c77d76ac1ff63720dd1197e5cb87b67943d70"
   integrity sha512-HngNLtPEBWRo8EFVmHFmSXAjtCX8rGNqeXQI0Gh7wCTSqwaKgPIDqu9m07wABVopNwzvOeCb+2711vQhDlcIXw==
+
+dayjs@^1.9.7:
+  version "1.9.7"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.7.tgz#4b260bb17dceed2d5f29038dfee03c65a6786fc0"
+  integrity sha512-IC877KBdMhBrCfBfJXHQlo0G8keZ0Opy7YIIq5QKtUbCuHMzim8S4PyiVK4YmihI3iOF9lhfUBW4AQWHTR5WHA==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.9:
   version "2.6.9"
@@ -5955,6 +5970,18 @@ i18next@^19.8.3, i18next@^19.8.4:
   dependencies:
     "@babel/runtime" "^7.12.0"
 
+ical-expander@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/ical-expander/-/ical-expander-3.1.0.tgz#e802e5736faf02ba7420edc248c222fbe543844b"
+  integrity sha512-O8svRo6diKUVL7NOplE/M2p5/N69FnGmBJ4KnS+2Bu3VLjda0GR6JgH1QybjSXL8DzX3GYkk4opQ2H5Qt/vl4w==
+  dependencies:
+    ical.js "^1.2.2"
+
+ical.js@^1.2.2:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/ical.js/-/ical.js-1.4.0.tgz#fc5619dc55fe03d909bf04362aa0677f4541b9d7"
+  integrity sha512-ltHZuOFNNjcyEYbzDgjemS7LWIFh2vydJeznxQHUh3dnarbxqOYsWONYteBVAq1MEOHnwXFGN2eskZReHclnrA==
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -7972,6 +7999,21 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
+
+mml-react@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.3.1.tgz#318be5e6fdc461efd472bd000adbaa7381193ca6"
+  integrity sha512-yq8aIlhu13h/kIXe0YH5We4TeGkcY25AemIhJATT3NwItCG5U0kIq1IVuyQzP14QUaCH9+sHyteHANeYNYbN4g==
+  dependencies:
+    "@braintree/sanitize-url" "^5.0.0"
+    "@rgrove/parse-xml" "^2.0.4"
+    "@types/linkifyjs" "^2.1.3"
+    "@types/rgrove__parse-xml" "^1.1.1"
+    dayjs "^1.9.7"
+    ical-expander "^3.1.0"
+    linkifyjs "^2.1.9"
+    react-markdown "^5.0.3"
+    react-virtuoso "^0.20.3"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
