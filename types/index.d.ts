@@ -934,6 +934,13 @@ export interface ThreadProps {
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
   MessageInput?: React.ElementType<MessageInputProps>;
+  ThreadHeader?: React.ElementType<ThreadHeaderProps>;
+}
+
+export interface ThreadHeaderProps {
+  closeThread?(event: React.SyntheticEvent): void;
+  t?: i18next.TFunction;
+  thread?: ReturnType<StreamChatChannelState['messageToImmutable']> | null;
 }
 
 export interface TypingIndicatorProps {

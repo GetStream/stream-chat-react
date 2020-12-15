@@ -32,6 +32,8 @@ class Thread extends PureComponent {
     ).isRequired),
     /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
     Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
+    /** **UI component used to override the default header of the thread** */
+    ThreadHeader: /** @type {PropTypes.Validator<React.ComponentType<import('types').ThreadHeaderProps>>} */ (PropTypes.elementType),
     /**
      * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
      * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
@@ -106,6 +108,40 @@ class Thread extends PureComponent {
   }
 }
 
+/**
+ * @type { React.FC<import('types').ThreadHeaderProps> }
+ */
+const DefaultThreadHeader = ({ closeThread, t, thread }) => {
+  const getReplyCount = () => {
+    if (!thread?.reply_count || !t) return '';
+    if (thread.reply_count === 1) return t('1 reply');
+    return t('{{ replyCount }} replies', {
+      replyCount: thread.reply_count,
+    });
+  };
+
+  return (
+    <div className="str-chat__thread-header">
+      <div className="str-chat__thread-header-details">
+        <strong>{t && t('Thread')}</strong>
+        <small>{getReplyCount()}</small>
+      </div>
+      <button
+        onClick={(e) => closeThread && closeThread(e)}
+        className="str-chat__square-button"
+        data-testid="close-button"
+      >
+        <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
+            fillRule="evenodd"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+};
+
 /** @extends {PureComponent<Props, any>} */
 class ThreadInner extends React.PureComponent {
   static propTypes = {
@@ -178,7 +214,12 @@ class ThreadInner extends React.PureComponent {
   }
 
   render() {
-    const { t, closeThread, thread } = this.props;
+    const {
+      t,
+      closeThread,
+      thread,
+      ThreadHeader = DefaultThreadHeader,
+    } = this.props;
 
     if (!thread) {
       return null;
@@ -191,30 +232,7 @@ class ThreadInner extends React.PureComponent {
           this.props.fullWidth ? 'str-chat__thread--full' : ''
         }`}
       >
-        <div className="str-chat__thread-header">
-          <div className="str-chat__thread-header-details">
-            <strong>{t && t('Thread')}</strong>
-            <small>
-              {' '}
-              {t &&
-                t('{{ replyCount }} replies', {
-                  replyCount: thread.reply_count,
-                })}
-            </small>
-          </div>
-          <button
-            onClick={(e) => closeThread && closeThread(e)}
-            className="str-chat__square-button"
-            data-testid="close-button"
-          >
-            <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
-                fillRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
+        <ThreadHeader {...{ closeThread, t, thread }} />
         <div className="str-chat__thread-list" ref={this.messageList}>
           <Message
             // @ts-ignore
