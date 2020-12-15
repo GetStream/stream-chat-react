@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateUser,
@@ -130,6 +130,28 @@ describe('Thread', () => {
       }),
       {},
     );
+  });
+
+  it('should render a custom ThreadHeader if it is passed as a prop', async () => {
+    const CustomThreadHeader = jest.fn(() => (
+      <div data-testid="custom-thread-header" />
+    ));
+
+    const { getByTestId } = renderComponent({
+      ThreadHeader: CustomThreadHeader,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('custom-thread-header')).toBeInTheDocument();
+      expect(CustomThreadHeader).toHaveBeenCalledWith(
+        expect.objectContaining({
+          closeThread: channelContextMock.closeThread,
+          t: i18nMock,
+          thread: threadStart,
+        }),
+        {},
+      );
+    });
   });
 
   it('should call the closeThread callback if the button is pressed', () => {
