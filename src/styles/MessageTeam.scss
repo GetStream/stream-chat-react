@@ -25,7 +25,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 88px;
+        width: 75px;
         height: $actionsHeight;
         border-radius: 100px;
         background: $white;
@@ -33,6 +33,7 @@
         box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
         z-index: 10;
         visibility: hidden;
+        padding: 0 4px 0;
 
         > span {
           position: relative;
