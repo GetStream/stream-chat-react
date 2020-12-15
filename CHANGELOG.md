@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.2) 2020-12-16
+
+## Adjustment
+
+- Changes default smiley face icon for reaction selector. [#645](https://github.com/GetStream/stream-chat-react/pull/645)
+
 ## [3.4.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.1) 2020-12-15
 
 ## Feature
