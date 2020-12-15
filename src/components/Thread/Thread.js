@@ -232,7 +232,7 @@ class ThreadInner extends React.PureComponent {
           this.props.fullWidth ? 'str-chat__thread--full' : ''
         }`}
       >
-        <ThreadHeader {...{ closeThread, t, thread }} />
+        <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
         <div className="str-chat__thread-list" ref={this.messageList}>
           <Message
             // @ts-ignore
