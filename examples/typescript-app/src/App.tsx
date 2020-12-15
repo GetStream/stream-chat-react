@@ -33,9 +33,9 @@ class App extends Component {
   constructor(props: Readonly<{}>) {
     super(props);
     this.chatClient = new StreamChat('qk4nn7rpcn75');
-    // if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
-    //   this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-    // }
+    if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
+      this.chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
+    }
     this.chatClient.setUser(
       {
         id: 'example-user',
