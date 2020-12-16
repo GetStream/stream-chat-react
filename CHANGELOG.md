@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.3) 2020-12-16
+
+## Fix
+
+- Browser bundle undefined variable
+
 ## [3.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.2) 2020-12-16
 
 ## Adjustment
