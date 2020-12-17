@@ -173,6 +173,7 @@ export const renderText = (text, mentioned_users) => {
 
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
+  console.log(`markdownLinks: ${JSON.stringify(markdownLinks, null, ' ')}`);
   // extract all valid links/emails within text and replace it with proper markup
   linkify.find(newText).forEach(({ type, href, value }) => {
     // check if message is already  markdown
@@ -208,12 +209,9 @@ export const renderText = (text, mentioned_users) => {
       escapeHtml={true}
       unwrapDisallowed={true}
       transformLinkUri={(uri) => {
-        const doNotTransform =
-          uri.startsWith('app://') ||
-          uri.includes('dtche') ||
-          uri.includes('dutchie');
-
-        return doNotTransform ? uri : RootReactMarkdown.uriTransformer(uri);
+        return uri.startsWith('app://')
+          ? uri
+          : RootReactMarkdown.uriTransformer(uri);
       }}
     />
   );
