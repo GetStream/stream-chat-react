@@ -207,7 +207,7 @@ export const renderText = (text, mentioned_users) => {
       renderers={markDownRenderers}
       escapeHtml={true}
       unwrapDisallowed={true}
-      transformLinkUri={(uri) => uri}
+      transformLinkUri={null}
     />
   );
 };
