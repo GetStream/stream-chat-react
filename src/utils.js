@@ -207,14 +207,14 @@ export const renderText = (text, mentioned_users) => {
       renderers={markDownRenderers}
       escapeHtml={true}
       unwrapDisallowed={true}
-      transformLinkUri={
-        (uri) => {
-          const doNotTransform = uri.startsWith('app://') ||
-            uri.includes('dtche') || uri.includes('dutchie');
+      transformLinkUri={(uri) => {
+        const doNotTransform =
+          uri.startsWith('app://') ||
+          uri.includes('dtche') ||
+          uri.includes('dutchie');
 
-          return doNotTransform ? uri : RootReactMarkdown.uriTransformer(uri)
-        }
-      }
+        return doNotTransform ? uri : RootReactMarkdown.uriTransformer(uri);
+      }}
     />
   );
 };
