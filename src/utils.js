@@ -169,7 +169,7 @@ const markDownRenderers = {
 export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
   // translate links
-  // if (!text) return null;
+  if (!text) return null;
 
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
@@ -178,14 +178,21 @@ export const renderText = (text, mentioned_users) => {
     // check if message is already  markdown
     const noParsingNeeded =
       markdownLinks &&
-      markdownLinks.filter((text) => text?.indexOf(href) !== -1) ;
+      markdownLinks.filter((text) => text?.indexOf(href) !== -1);
     if (noParsingNeeded.length > 0) return;
 
     const displayLink =
       type === 'email'
         ? value
         : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), 20);
-    newText = newText.replace(value, `[${displayLink}](${href.includes('dutchie') || href.includes('dtche') ? href : encodeURI(href)})`);
+    newText = newText.replace(
+      value,
+      `[${displayLink}](${
+        href.includes('dutchie') || href.includes('dtche')
+          ? href
+          : encodeURI(href)
+      })`,
+    );
   });
 
   if (mentioned_users && mentioned_users.length) {
