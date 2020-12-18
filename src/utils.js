@@ -172,33 +172,33 @@ export const renderText = (text, mentioned_users) => {
   // if (!text) return null;
 
   let newText = text;
-  // let markdownLinks = matchMarkdownLinks(newText);
-  // // extract all valid links/emails within text and replace it with proper markup
-  // linkify.find(newText).forEach(({ type, href, value }) => {
-  //   // check if message is already  markdown
-  //   const noParsingNeeded =
-  //     markdownLinks &&
-  //     markdownLinks.filter((text) => text?.indexOf(href) !== -1);
-  //   if (noParsingNeeded.length > 0) return;
+  let markdownLinks = matchMarkdownLinks(newText);
+  // extract all valid links/emails within text and replace it with proper markup
+  linkify.find(newText).forEach(({ type, href, value }) => {
+    // check if message is already  markdown
+    const noParsingNeeded =
+      markdownLinks &&
+      markdownLinks.filter((text) => text?.indexOf(href) !== -1) || href.includes('dutchie') || href.includes('dtche');
+    if (noParsingNeeded.length > 0) return;
 
-  //   const displayLink =
-  //     type === 'email'
-  //       ? value
-  //       : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), 20);
-  //   newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
-  // });
+    const displayLink =
+      type === 'email'
+        ? value
+        : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), 20);
+    newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
+  });
 
-  // if (mentioned_users && mentioned_users.length) {
-  //   for (let i = 0; i < mentioned_users.length; i++) {
-  //     let username = mentioned_users[i].name || mentioned_users[i].id;
-  //     if (username) {
-  //       username = escapeRegExp(username);
-  //     }
-  //     const mkdown = `**@${username}**`;
-  //     const re = new RegExp(`@${username}`, 'g');
-  //     newText = newText.replace(re, mkdown);
-  //   }
-  // }
+  if (mentioned_users && mentioned_users.length) {
+    for (let i = 0; i < mentioned_users.length; i++) {
+      let username = mentioned_users[i].name || mentioned_users[i].id;
+      if (username) {
+        username = escapeRegExp(username);
+      }
+      const mkdown = `**@${username}**`;
+      const re = new RegExp(`@${username}`, 'g');
+      newText = newText.replace(re, mkdown);
+    }
+  }
 
   return (
     <ReactMarkdown
