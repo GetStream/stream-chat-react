@@ -203,11 +203,14 @@ export const renderText = (text, mentioned_users) => {
   return (
     <ReactMarkdown
       allowedTypes={allowedMarkups}
+      skipHtml={true}
       source={newText}
       renderers={markDownRenderers}
       escapeHtml={true}
       unwrapDisallowed={true}
-      transformLinkUri={null}
+      transformLinkUri={(uri) =>
+        uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
+      }
     />
   );
 };
