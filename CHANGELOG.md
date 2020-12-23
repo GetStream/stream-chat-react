@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.4) 2020-12-23
+
+## Addition
+
+- Export the UploadsPreview component. [#647](https://github.com/GetStream/stream-chat-react/pull/647)
+
 ## [3.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.3) 2020-12-16
 
 ## Fix
