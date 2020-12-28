@@ -1,12 +1,17 @@
 // @ts-check
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
 import { MessageList } from '../MessageList';
 
-import { withChannelContext, withTranslationContext } from '../../context';
+import {
+  ChannelContext,
+  ChatContext,
+  TranslationContext,
+  withChannelContext,
+} from '../../context';
 import { checkChannelPropType, smartRender } from '../../utils';
 
 /**
@@ -53,12 +58,12 @@ const ThreadInner = (props) => {
     additionalMessageListProps,
     additionalParentMessageProps,
     autoFocus,
+    channel,
     closeThread,
     fullWidth,
     loadMoreThread,
-    Message: ThreadMessage,
+    Message: PropMessage,
     MessageInput: ThreadMessageInput,
-    t,
     thread,
     threadHasMore,
     threadLoadingMore,
@@ -66,7 +71,13 @@ const ThreadInner = (props) => {
     ThreadHeader = DefaultThreadHeader,
   } = props;
 
-  const messageList = useRef(null);
+  const { Message: ContextMessage } = useContext(ChannelContext);
+  const { client } = useContext(ChatContext);
+  const { t } = useContext(TranslationContext);
+
+  const ThreadMessage = PropMessage || ContextMessage;
+
+  const messageList = useRef(/** @type {HTMLDivElement | null} */ (null));
   const parentID = thread?.id;
 
   useEffect(() => {
@@ -77,12 +88,10 @@ const ThreadInner = (props) => {
 
   useEffect(() => {
     if (messageList.current && threadMessages?.length) {
-      // @ts-expect-error
       const { clientHeight, scrollTop, scrollHeight } = messageList.current;
       const scrollDown = clientHeight + scrollTop !== scrollHeight;
 
       if (scrollDown) {
-        // @ts-expect-error
         messageList.current.scrollTop = scrollHeight - clientHeight;
       }
     }
@@ -101,26 +110,26 @@ const ThreadInner = (props) => {
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className="str-chat__thread-list" ref={messageList}>
         <Message
+          channel={channel}
+          client={client}
+          initialMessage
           // @ts-expect-error
           message={thread}
-          initialMessage
-          threadList
           Message={ThreadMessage}
-          // TODO: remove the following line in next release, since we already have additionalParentMessageProps now.
-          {...props}
+          threadList
           {...additionalParentMessageProps}
         />
         <div className="str-chat__thread-start">
           {t && t('Start of a new thread')}
         </div>
         <MessageList
+          hasMore={threadHasMore}
+          loadMore={loadMoreThread}
+          loadingMore={threadLoadingMore}
           messages={threadMessages}
+          Message={ThreadMessage}
           read={read}
           threadList
-          loadMore={loadMoreThread}
-          hasMore={threadHasMore}
-          loadingMore={threadLoadingMore}
-          Message={ThreadMessage}
           {...additionalMessageListProps}
         />
       </div>
@@ -238,4 +247,4 @@ Thread.defaultProps = {
   MessageInput,
 };
 
-export default withChannelContext(withTranslationContext(Thread));
+export default withChannelContext(Thread);

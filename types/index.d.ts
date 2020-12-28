@@ -924,8 +924,7 @@ export interface MessageDeletedProps extends TranslationContextValue {
   isMyMessage?(message: Client.MessageResponse): boolean;
 }
 
-export interface ThreadProps
-  extends Omit<ChannelContextValue & TranslationContextValue, 'client'> {
+export interface ThreadProps extends Omit<ChannelContextValue, 'client'> {
   channel?: ReturnType<StreamChatReactClient['channel']>;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
