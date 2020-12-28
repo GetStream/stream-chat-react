@@ -1,5 +1,5 @@
 // @ts-check
-import React, { PureComponent } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { Message } from '../Message';
@@ -43,133 +43,108 @@ const DefaultThreadHeader = ({ closeThread, t, thread }) => {
   );
 };
 
-/** @extends {PureComponent<Props, any>} */
-class ThreadInner extends React.PureComponent {
-  static propTypes = {
-    /** Channel is passed via the Channel Context */
-    channel: PropTypes.object.isRequired,
-    /** the thread (just a message) that we're rendering */
-    thread: PropTypes.object.isRequired,
-  };
+/**
+ * @typedef {import('types').ThreadProps & {key: string}} ThreadInnerProps
+ * @type { React.FC<ThreadInnerProps>}
+ */
+const ThreadInner = (props) => {
+  const {
+    additionalMessageInputProps,
+    additionalMessageListProps,
+    additionalParentMessageProps,
+    autoFocus,
+    closeThread,
+    fullWidth,
+    loadMoreThread,
+    Message: ThreadMessage,
+    MessageInput: ThreadMessageInput,
+    t,
+    thread,
+    threadHasMore,
+    threadLoadingMore,
+    threadMessages,
+    ThreadHeader = DefaultThreadHeader,
+  } = props;
 
-  /** @param { any } props */
-  constructor(props) {
-    super(props);
-    this.messageList = React.createRef();
-  }
+  const messageList = useRef(null);
+  const parentID = thread?.id;
 
-  componentDidMount() {
-    const { thread, loadMoreThread } = this.props;
-    const parentID = thread && thread.id;
+  useEffect(() => {
     if (parentID && thread?.reply_count && loadMoreThread) {
       loadMoreThread();
     }
-  }
+  }, []); // eslint-disable-line
 
-  /** @param {Props} prevProps */
-  getSnapshotBeforeUpdate(prevProps) {
-    // Are we adding new items to the list?
-    // Capture the scroll position so we can adjust scroll later.
-    if (
-      prevProps.threadMessages &&
-      this.props.threadMessages &&
-      prevProps.threadMessages.length < this.props.threadMessages.length
-    ) {
-      const list = this.messageList.current;
-      return list.clientHeight + list.scrollTop === list.scrollHeight;
+  useEffect(() => {
+    if (messageList.current && threadMessages?.length) {
+      // @ts-expect-error
+      const { clientHeight, scrollTop, scrollHeight } = messageList.current;
+      const scrollDown = clientHeight + scrollTop !== scrollHeight;
+
+      if (scrollDown) {
+        // @ts-expect-error
+        messageList.current.scrollTop = scrollHeight - clientHeight;
+      }
     }
-    return null;
-  }
+  }, [threadMessages?.length]);
 
-  /**
-   * @param {Props} prevProps
-   * @param {any} prevState
-   * @param {number} snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { thread, threadMessages, loadMoreThread } = this.props;
-    const parentID = thread?.id;
+  if (!thread) return null;
 
-    if (
-      parentID &&
-      thread?.reply_count &&
-      thread.reply_count > 0 &&
-      threadMessages?.length === 0 &&
-      loadMoreThread
-    ) {
-      loadMoreThread();
-    }
+  const read = {};
 
-    // If we have a snapshot value, we've just added new items.
-    // Adjust scroll so these new items don't push the old ones out of view.
-    // (snapshot here is the value returned from getSnapshotBeforeUpdate)
-    if (snapshot !== null) {
-      const scrollDown = () => {
-        const list = this.messageList.current;
-        if (snapshot) list.scrollTop = list.scrollHeight;
-      };
-      scrollDown();
-      // scroll down after images load again
-      setTimeout(scrollDown, 100);
-    }
-  }
-
-  render() {
-    const {
-      t,
-      closeThread,
-      thread,
-      ThreadHeader = DefaultThreadHeader,
-    } = this.props;
-
-    if (!thread) {
-      return null;
-    }
-
-    const read = {};
-    return (
-      <div
-        className={`str-chat__thread ${
-          this.props.fullWidth ? 'str-chat__thread--full' : ''
-        }`}
-      >
-        <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
-        <div className="str-chat__thread-list" ref={this.messageList}>
-          <Message
-            // @ts-ignore
-            message={thread}
-            initialMessage
-            threadList
-            Message={this.props.Message}
-            // TODO: remove the following line in next release, since we already have additionalParentMessageProps now.
-            {...this.props}
-            {...this.props.additionalParentMessageProps}
-          />
-          <div className="str-chat__thread-start">
-            {t && t('Start of a new thread')}
-          </div>
-          <MessageList
-            messages={this.props.threadMessages}
-            read={read}
-            threadList
-            loadMore={this.props.loadMoreThread}
-            hasMore={this.props.threadHasMore}
-            loadingMore={this.props.threadLoadingMore}
-            Message={this.props.Message}
-            {...this.props.additionalMessageListProps}
-          />
+  return (
+    <div
+      className={`str-chat__thread ${
+        fullWidth ? 'str-chat__thread--full' : ''
+      }`}
+    >
+      <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
+      <div className="str-chat__thread-list" ref={messageList}>
+        <Message
+          // @ts-expect-error
+          message={thread}
+          initialMessage
+          threadList
+          Message={ThreadMessage}
+          // TODO: remove the following line in next release, since we already have additionalParentMessageProps now.
+          {...props}
+          {...additionalParentMessageProps}
+        />
+        <div className="str-chat__thread-start">
+          {t && t('Start of a new thread')}
         </div>
-        {smartRender(this.props.MessageInput, {
-          Input: MessageInputSmall,
-          parent: this.props.thread,
-          focus: this.props.autoFocus,
-          publishTypingEvent: false,
-          ...this.props.additionalMessageInputProps,
-        })}
+        <MessageList
+          messages={threadMessages}
+          read={read}
+          threadList
+          loadMore={loadMoreThread}
+          hasMore={threadHasMore}
+          loadingMore={threadLoadingMore}
+          Message={ThreadMessage}
+          {...additionalMessageListProps}
+        />
       </div>
-    );
-  }
-}
+      {smartRender(ThreadMessageInput, {
+        Input: MessageInputSmall,
+        parent: thread,
+        focus: autoFocus,
+        publishTypingEvent: false,
+        ...additionalMessageInputProps,
+      })}
+    </div>
+  );
+};
+
+ThreadInner.propTypes = {
+  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
+  channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
+    checkChannelPropType,
+  ).isRequired),
+  /**
+   * **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)**
+   * The thread (the parent [message object](https://getstream.io/chat/docs/#message_format)) */
+  thread: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatChannelState['messageToImmutable']> | null> } */ (PropTypes.object),
+};
 
 /**
  * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
@@ -180,12 +155,11 @@ class ThreadInner extends React.PureComponent {
  * - additionalMessageInputProps
  *
  * @example ../../docs/Thread.md
- * @typedef {import('types').ThreadProps} Props
- * @type { React.FC<Props>}
+ * @typedef {import('types').ThreadProps} ThreadProps
+ * @type { React.FC<ThreadProps>}
  */
 const Thread = (props) => {
-  // console.log('props', props);
-  const { thread, channel } = props;
+  const { channel, thread } = props;
 
   if (!thread || channel?.getConfig?.()?.replies === false) return null;
 
