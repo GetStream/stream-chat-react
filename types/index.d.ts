@@ -924,15 +924,13 @@ export interface MessageDeletedProps extends TranslationContextValue {
   isMyMessage?(message: Client.MessageResponse): boolean;
 }
 
-export interface ThreadProps extends Omit<ChannelContextValue, 'client'> {
-  channel?: ReturnType<StreamChatReactClient['channel']>;
-  /** Display the thread on 100% width of it's container. Useful for mobile style view */
+export interface ThreadProps {
   fullWidth?: boolean;
-  /** Make input focus on mounting thread */
   autoFocus?: boolean;
   additionalParentMessageProps?: object;
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
+  Message?: React.ElementType<MessageUIComponentProps>;
   MessageInput?: React.ElementType<MessageInputProps>;
   ThreadHeader?: React.ElementType<ThreadHeaderProps>;
 }

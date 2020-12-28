@@ -176,8 +176,8 @@ describe('Thread', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should not render anything if the thread prop is falsy', () => {
-    const { container } = renderComponent({ thread: null });
+  it('should not render anything if the thread in context is falsy', () => {
+    const { container } = renderComponent({}, { thread: null });
 
     expect(
       container.querySelector('.str-chat__thread'),
