@@ -10,6 +10,66 @@ import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 import { smartRender } from '../../utils';
 
 /**
+ * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
+ * The thread is only used for the list of replies to a message.
+ * Underlying MessageList, MessageInput and Message components can be customized using props:
+ * - additionalParentMessageProps
+ * - additionalMessageListProps
+ * - additionalMessageInputProps
+ *
+ * @example ../../docs/Thread.md
+ * @typedef {import('types').ThreadProps} ThreadProps
+ * @type { React.FC<ThreadProps>}
+ */
+const Thread = (props) => {
+  const { channel, thread } = useContext(ChannelContext);
+
+  if (!thread || channel?.getConfig?.()?.replies === false) return null;
+
+  // The wrapper ensures a key variable is set and the component recreates on thread switch
+  return <ThreadInner {...props} key={`thread-${thread.id}-${channel?.cid}`} />;
+};
+
+Thread.propTypes = {
+  /**
+   * Additional props for underlying MessageInput component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
+  additionalMessageInputProps: PropTypes.object,
+  /**
+   * Additional props for underlying MessageList component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messagelist
+   * */
+  additionalMessageListProps: PropTypes.object,
+  /**
+   * Additional props for underlying Message component of parent message at the top.
+   * Available props - https://getstream.github.io/stream-chat-react/#message
+   * */
+  additionalParentMessageProps: PropTypes.object,
+  /** Make input focus on mounting thread */
+  autoFocus: PropTypes.bool,
+  /** Display the thread on 100% width of it's container. Useful for mobile style view */
+  fullWidth: PropTypes.bool,
+  /** UI component to override the default Message stored in channel context */
+  Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
+  /** Customized MessageInput component to used within Thread instead of default MessageInput
+      Useable as follows:
+      ```
+      <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
+      ```
+  */
+  MessageInput: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageInputProps>>} */ (PropTypes.elementType),
+  /** UI component used to override the default header of the thread */
+  ThreadHeader: /** @type {PropTypes.Validator<React.ComponentType<import('types').ThreadHeaderProps>>} */ (PropTypes.elementType),
+};
+
+Thread.defaultProps = {
+  fullWidth: false,
+  autoFocus: true,
+  MessageInput,
+};
+
+/**
  * @type { React.FC<import('types').ThreadHeaderProps> }
  */
 const DefaultThreadHeader = ({ closeThread, t, thread }) => {
@@ -139,66 +199,6 @@ const ThreadInner = (props) => {
       })}
     </div>
   );
-};
-
-/**
- * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
- * The thread is only used for the list of replies to a message.
- * Underlying MessageList, MessageInput and Message components can be customized using props:
- * - additionalParentMessageProps
- * - additionalMessageListProps
- * - additionalMessageInputProps
- *
- * @example ../../docs/Thread.md
- * @typedef {import('types').ThreadProps} ThreadProps
- * @type { React.FC<ThreadProps>}
- */
-const Thread = (props) => {
-  const { channel, thread } = useContext(ChannelContext);
-
-  if (!thread || channel?.getConfig?.()?.replies === false) return null;
-
-  // The wrapper ensures a key variable is set and the component recreates on thread switch
-  return <ThreadInner {...props} key={`thread-${thread.id}-${channel?.cid}`} />;
-};
-
-Thread.propTypes = {
-  /**
-   * Additional props for underlying MessageInput component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-   * */
-  additionalMessageInputProps: PropTypes.object,
-  /**
-   * Additional props for underlying MessageList component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messagelist
-   * */
-  additionalMessageListProps: PropTypes.object,
-  /**
-   * Additional props for underlying Message component of parent message at the top.
-   * Available props - https://getstream.github.io/stream-chat-react/#message
-   * */
-  additionalParentMessageProps: PropTypes.object,
-  /** Make input focus on mounting thread */
-  autoFocus: PropTypes.bool,
-  /** Display the thread on 100% width of it's container. Useful for mobile style view */
-  fullWidth: PropTypes.bool,
-  /** UI component to override the default Message stored in channel context */
-  Message: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
-  /** Customized MessageInput component to used within Thread instead of default MessageInput
-      Useable as follows:
-      ```
-      <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
-      ```
-  */
-  MessageInput: /** @type {PropTypes.Validator<React.ComponentType<import('types').MessageInputProps>>} */ (PropTypes.elementType),
-  /** **UI component used to override the default header of the thread** */
-  ThreadHeader: /** @type {PropTypes.Validator<React.ComponentType<import('types').ThreadHeaderProps>>} */ (PropTypes.elementType),
-};
-
-Thread.defaultProps = {
-  fullWidth: false,
-  autoFocus: true,
-  MessageInput,
 };
 
 export default Thread;
