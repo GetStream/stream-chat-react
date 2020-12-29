@@ -51,7 +51,12 @@ const insertDates = (messages, lastRead, userID) => {
     }
 
     if (!unread) {
-      unread = lastRead && lastRead.getTime() < message.created_at.getTime();
+      if (typeof lastRead === 'string') {
+        unread =
+          lastRead && Date.parse(lastRead) < message.created_at.getTime();
+      } else {
+        unread = lastRead && lastRead.getTime() < message.created_at.getTime();
+      }
       // userId check makes sure New is not shown for current user messages
       if (unread && message.user.id !== userID)
         newMessages.push({
