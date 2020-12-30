@@ -1,4 +1,6 @@
 export function defaultScrollToItem(container, item) {
+  if (!item) return;
+
   const itemHeight = parseInt(
     getComputedStyle(item).getPropertyValue('height'),
     10,
