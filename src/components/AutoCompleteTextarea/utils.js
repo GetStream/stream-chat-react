@@ -1,5 +1,3 @@
-//
-
 export function defaultScrollToItem(container, item) {
   const itemHeight = parseInt(
     getComputedStyle(item).getPropertyValue('height'),

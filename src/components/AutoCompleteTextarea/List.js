@@ -4,7 +4,7 @@ import React from 'react';
 import Listeners, { KEY_CODES } from './listener';
 import Item from './Item';
 
-export class List extends React.Component {
+class List extends React.Component {
   state = {
     selectedItem: null,
   };

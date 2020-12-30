@@ -1,8 +1,6 @@
-//
-
 import React from 'react';
 
-export class Item extends React.Component {
+class Item extends React.Component {
   selectItem = () => {
     const { item, onSelectHandler } = this.props;
     onSelectHandler(item);
