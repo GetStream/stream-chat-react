@@ -166,7 +166,7 @@ class List extends React.Component {
         {values.map((item) => (
           <Item
             key={this.getId(item)}
-            innerRef={(ref) => {
+            ref={(ref) => {
               this.itemsRef[this.getId(item)] = ref;
             }}
             selected={this.isSelected(item)}
