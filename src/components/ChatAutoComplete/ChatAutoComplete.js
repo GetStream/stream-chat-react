@@ -227,6 +227,7 @@ const ChatAutoComplete = (props) => {
       value={props.value}
       grow={props.grow}
       disabled={props.disabled}
+      SuggestionList={props.SuggestionList}
       additionalTextareaProps={props.additionalTextareaProps}
     />
   );
@@ -249,11 +250,10 @@ ChatAutoComplete.propTypes = {
   handleSubmit: PropTypes.func,
   /** Function that runs on change */
   onChange: PropTypes.func,
-  /** Placeholder for the textare */
+  /** Placeholder for the textarea */
   placeholder: PropTypes.string,
   /** What loading component to use for the auto complete when loading results. */
-  // @ts-ignore
-  LoadingIndicator: PropTypes.elementType,
+  LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
   /** Minimum number of Character */
   minChar: PropTypes.number,
   /**
@@ -266,8 +266,10 @@ ChatAutoComplete.propTypes = {
   commands: PropTypes.array,
   /** Listener for onfocus event on textarea */
   onFocus: PropTypes.func,
+  /** Optional UI component prop to override the default List component that displays suggestions */
+  SuggestionList: /** @type {PropTypes.Validator<React.ElementType<import('types').SuggestionListProps>>} */ (PropTypes.elementType),
   /**
-   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
   additionalTextareaProps: PropTypes.object,
 };

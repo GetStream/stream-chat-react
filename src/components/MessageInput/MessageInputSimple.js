@@ -38,6 +38,7 @@ const MessageInputSimple = (props) => {
             triggers={props.autocompleteTriggers}
             grow={props.grow}
             disabled={props.disabled}
+            SuggestionList={props.SuggestionList}
             additionalTextareaProps={props.additionalTextareaProps}
           />
 
@@ -98,6 +99,8 @@ MessageInputSimple.propTypes = {
    * */
   // @ts-ignore
   SendButton: PropTypes.elementType,
+  /** Optional UI component prop to override the default List component that displays suggestions */
+  SuggestionList: /** @type {PropTypes.Validator<React.ElementType<import('types').SuggestionListProps>>} */ (PropTypes.elementType),
 };
 
 MessageInputSimple.defaultProps = {
