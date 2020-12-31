@@ -496,7 +496,7 @@ export interface SendButtonProps {
 
 export interface SuggestionListProps {
   className: string;
-  component: React.ElementType<unknown>;
+  component: React.ElementType<unknown> | null;
   dropdownScroll: (item: unknown) => void;
   getSelectedItem: (<D>(item: D) => D) | null;
   getTextToReplace: <D>(item: D) => D;
