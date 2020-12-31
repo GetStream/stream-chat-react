@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+
+import { TranslationContext } from '../../context/TranslationContext';
 
 import Item from './Item';
 import { KEY_CODES } from './listener';
@@ -17,6 +19,8 @@ const List = (props) => {
     value: propValue,
     values,
   } = props;
+
+  const { t } = useContext(TranslationContext);
 
   const [selectedItem, setSelectedItem] = useState(undefined);
 
@@ -94,15 +98,17 @@ const List = (props) => {
 
   const renderHeader = (value) => {
     if (value[0] === '/') {
-      return `Commands matching <strong>${value.replace('/', '')}</strong>`;
+      const html = `<strong>${value.replace('/', '')}</strong>`;
+      return `${t('Commands matching')} ${html}`;
     }
 
     if (value[0] === ':') {
-      return `Emoji matching <strong>${value.replace(':', '')}</strong>`;
+      const html = `<strong>${value.replace(':', '')}</strong>`;
+      return `${t('Emoji matching')} ${html}}`;
     }
 
     if (value[0] === '@') {
-      return `Searching for people`;
+      return t('Searching for people');
     }
 
     return null;
