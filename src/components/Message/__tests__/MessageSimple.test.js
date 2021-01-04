@@ -128,6 +128,31 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
+  it('should render custom edit message input component when one is given', async () => {
+    const message = generateAliceMessage();
+    const updateMessage = jest.fn();
+    const clearEditingState = jest.fn();
+
+    const CustomEditMessageInput = () => <div>Edit Input</div>;
+
+    await renderMessageSimple(message, {
+      clearEditingState,
+      editing: true,
+      updateMessage,
+      EditMessageInput: CustomEditMessageInput,
+    });
+
+    expect(MessageInputMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clearEditingState,
+        message,
+        Input: CustomEditMessageInput,
+        updateMessage,
+      }),
+      {},
+    );
+  });
+
   it('should render reaction selector with custom component when one is given', async () => {
     const message = generateBobMessage({ text: undefined });
     // Passing the ref prevents a react warning
