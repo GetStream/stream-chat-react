@@ -917,6 +917,7 @@ export interface MessageUIComponentProps
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
+  EditMessageInput?: React.FC<MessageInputProps>;
 }
 export interface MessageDeletedProps extends TranslationContextValue {
   /** The message object */
@@ -1327,7 +1328,7 @@ export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
 
-export interface MessageCommerceProps extends MessageUIComponentProps {}
+export interface MessageCommerceProps extends Omit<MessageUIComponentProps, 'EditMessageForm'> {}
 export const MessageCommerce: React.FC<MessageCommerceProps>;
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}

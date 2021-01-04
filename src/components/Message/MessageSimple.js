@@ -8,7 +8,10 @@ import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
-import { MessageInput, EditMessageForm } from '../MessageInput';
+import {
+  MessageInput,
+  EditMessageForm as DefaultEditMessageForm,
+} from '../MessageInput';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import {
@@ -47,6 +50,7 @@ const MessageSimple = (props) => {
   const {
     clearEditingState,
     editing,
+    EditMessageInput = DefaultEditMessageForm,
     message,
     threadList,
     formatDate,
@@ -104,7 +108,7 @@ const MessageSimple = (props) => {
       {editing && (
         <Modal open={editing} onClose={clearEditingState}>
           <MessageInput
-            Input={EditMessageForm}
+            Input={EditMessageInput}
             message={message}
             clearEditingState={clearEditingState}
             updateMessage={updateMessage}
@@ -339,6 +343,12 @@ MessageSimple.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to override default edit message input
+   *
+   * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
+   * */
+  EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
   /**
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *
