@@ -695,5 +695,35 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         ),
       );
     });
+
+    it('should override the default List component when SuggestionList is provided as a prop', async () => {
+      const SuggestionList = () => (
+        <div data-testid="suggestion-list">Suggestion List</div>
+      );
+
+      const {
+        findByPlaceholderText,
+        getByTestId,
+        queryByText,
+      } = renderComponent({
+        SuggestionList,
+      });
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+
+      await waitFor(() =>
+        expect(queryByText('Suggestion List')).not.toBeInTheDocument(),
+      );
+
+      fireEvent.change(formElement, {
+        target: { value: '/' },
+      });
+
+      if (componentName !== 'EditMessageForm') {
+        await waitFor(
+          () => expect(getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
+        );
+      }
+    });
   });
 });
