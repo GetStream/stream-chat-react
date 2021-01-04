@@ -201,7 +201,7 @@ Message.propTypes = {
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
    * */
   messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),

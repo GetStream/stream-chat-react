@@ -527,7 +527,7 @@ MessageTeam.propTypes = {
   channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
   /** If component is in thread list */
   threadList: PropTypes.bool,
-  /** Function to open thread on current messxage */
+  /** Function to open thread on current message */
   handleOpenThread: PropTypes.func,
   /** If the message is in edit state */
   editing: PropTypes.bool,
@@ -539,7 +539,7 @@ MessageTeam.propTypes = {
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate: PropTypes.func,
   /**
-   * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
+   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
   getMessageActions: /** @type {PropTypes.Validator<() => Array<string>>} */ (PropTypes.func),

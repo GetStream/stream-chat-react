@@ -373,7 +373,7 @@ MessageSimple.propTypes = {
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /**
-   * Function to open thread on current messxage
+   * Function to open thread on current message
    * @deprecated The component now relies on the useThreadHandler custom hook
    * You can customize the behaviour for your thread handler on the <Channel> component instead.
    */
@@ -385,7 +385,7 @@ MessageSimple.propTypes = {
   /** Returns true if message belongs to current user */
   isMyMessage: PropTypes.func,
   /**
-   * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
+   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
   getMessageActions: PropTypes.func.isRequired,

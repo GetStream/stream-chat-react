@@ -260,14 +260,14 @@ MessageCommerce.propTypes = {
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /**
-   * Function to open thread on current messxage
+   * Function to open thread on current message
    * @deprecated The component now relies on the useThreadHandler custom hook
    * You can customize the behaviour for your thread handler on the <Channel> component instead.
    */
   handleOpenThread: PropTypes.func,
   /** Returns true if message belongs to current user */
   isMyMessage: PropTypes.func,
-  /** Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute] */
+  /** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply'] */
   getMessageActions: PropTypes.func.isRequired,
   /**
    * Add or remove reaction on message
