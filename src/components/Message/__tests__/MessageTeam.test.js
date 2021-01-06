@@ -160,6 +160,31 @@ describe('<MessageTeam />', () => {
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
   });
 
+  it('should render custom edit message input component when one is given', async () => {
+    const message = generateAliceMessage();
+    const updateMessage = jest.fn();
+    const clearEditingState = jest.fn();
+
+    const CustomEditMessageInput = () => <div>Edit Input</div>;
+
+    await renderMessageTeam(message, {
+      clearEditingState,
+      editing: true,
+      updateMessage,
+      EditMessageInput: CustomEditMessageInput,
+    });
+
+    expect(MessageInputMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clearEditingState,
+        message,
+        Input: CustomEditMessageInput,
+        updateMessage,
+      }),
+      {},
+    );
+  });
+
   it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
     const updateMessage = jest.fn();
