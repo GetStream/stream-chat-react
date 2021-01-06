@@ -1328,7 +1328,8 @@ export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
 
-export interface MessageCommerceProps extends Omit<MessageUIComponentProps, 'EditMessageForm'> {}
+export interface MessageCommerceProps
+  extends Omit<MessageUIComponentProps, 'EditMessageForm'> {}
 export const MessageCommerce: React.FC<MessageCommerceProps>;
 
 export interface MessageLivestreamProps extends MessageUIComponentProps {}
