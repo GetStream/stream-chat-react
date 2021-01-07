@@ -961,6 +961,7 @@ export interface ThreadHeaderProps {
 export interface TypingIndicatorProps {
   Avatar?: React.ElementType<AvatarProps>;
   avatarSize?: number;
+  threadList?: boolean;
 }
 
 export interface ReactionSelectorProps {
