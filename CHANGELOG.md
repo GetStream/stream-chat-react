@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.5) 2021-01-07
+
+## Feature
+
+- Message components accept custom EditMessageInput component [#656](https://github.com/GetStream/stream-chat-react/pull/656)
+
+## Fix
+
+- Message actions default options doc [#654](https://github.com/GetStream/stream-chat-react/pull/654)
+- MessageList unread TypeError [#654](https://github.com/GetStream/stream-chat-react/pull/654)
+- ChannelHeader button css padding [#648](https://github.com/GetStream/stream-chat-react/pull/648)
+
+## Chore
+
+- Bump dependencies [#657](https://github.com/GetStream/stream-chat-react/pull/657) [#659](https://github.com/GetStream/stream-chat-react/pull/659)
+
 ## [3.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.4) 2020-12-23
 
 ## Addition
