@@ -3760,15 +3760,10 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-dayjs@^1.9.6:
-  version "1.9.6"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.6.tgz#6f0c77d76ac1ff63720dd1197e5cb87b67943d70"
-  integrity sha512-HngNLtPEBWRo8EFVmHFmSXAjtCX8rGNqeXQI0Gh7wCTSqwaKgPIDqu9m07wABVopNwzvOeCb+2711vQhDlcIXw==
-
-dayjs@^1.9.7:
-  version "1.9.7"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.7.tgz#4b260bb17dceed2d5f29038dfee03c65a6786fc0"
-  integrity sha512-IC877KBdMhBrCfBfJXHQlo0G8keZ0Opy7YIIq5QKtUbCuHMzim8S4PyiVK4YmihI3iOF9lhfUBW4AQWHTR5WHA==
+dayjs@^1.10.2:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.2.tgz#8f3a424ceb944a8193506804b0045a773d2d0672"
+  integrity sha512-h/YtykNNTR8Qgtd1Fxl5J1/SFP1b7SOk/M1P+Re+bCdFMV0IMkuKNgHPN7rlvvuhfw24w0LX78iYKt4YmePJNQ==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.9:
   version "2.6.9"
@@ -8000,16 +7995,16 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mml-react@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.3.1.tgz#318be5e6fdc461efd472bd000adbaa7381193ca6"
-  integrity sha512-yq8aIlhu13h/kIXe0YH5We4TeGkcY25AemIhJATT3NwItCG5U0kIq1IVuyQzP14QUaCH9+sHyteHANeYNYbN4g==
+mml-react@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.3.2.tgz#6c0c8bdce4b07f5ff7a4857b1d0e404e3a727809"
+  integrity sha512-NC9/dQ7YgrE7TLhNUavYGWQL2iCKap07YblbWNHK3Wo/+Q3ULKj69TI1d3660A5u+fdC+xdhZMpB3bp+O4kzfw==
   dependencies:
     "@braintree/sanitize-url" "^5.0.0"
     "@rgrove/parse-xml" "^2.0.4"
     "@types/linkifyjs" "^2.1.3"
     "@types/rgrove__parse-xml" "^1.1.1"
-    dayjs "^1.9.7"
+    dayjs "^1.10.2"
     ical-expander "^3.1.0"
     linkifyjs "^2.1.9"
     react-markdown "^5.0.3"
