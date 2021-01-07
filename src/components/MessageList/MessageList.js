@@ -326,7 +326,7 @@ MessageList.propTypes = {
   /** Set the limit to use when paginating messages */
   messageLimit: PropTypes.number,
   /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
    * */
   messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
