@@ -1,6 +1,10 @@
 .str-chat__typing-indicator {
   display: flex;
+  visibility: hidden;
   align-items: center;
+  &--typing {
+    visibility: visible;
+  }
   &__avatars {
     display: flex;
     .str-chat__avatar {

@@ -27,29 +27,31 @@ const TypingIndicator = ({
     (event) => event?.parent_id === thread?.id,
   );
 
-  if ((threadList && typingInThread) || (!threadList && users.length)) {
-    return (
-      <div className="str-chat__typing-indicator">
-        <div className="str-chat__typing-indicator__avatars">
-          {users.map(({ user }) => (
-            <Avatar
-              image={user?.image}
-              size={avatarSize}
-              name={user?.name || user?.id}
-              key={user?.id}
-            />
-          ))}
-        </div>
-        <div className="str-chat__typing-indicator__dots">
-          <span className="str-chat__typing-indicator__dot" />
-          <span className="str-chat__typing-indicator__dot" />
-          <span className="str-chat__typing-indicator__dot" />
-        </div>
+  return (
+    <div
+      className={`str-chat__typing-indicator ${
+        (threadList && typingInThread) || (!threadList && users.length)
+          ? 'str-chat__typing-indicator--typing'
+          : ''
+      }`}
+    >
+      <div className="str-chat__typing-indicator__avatars">
+        {users.map(({ user }) => (
+          <Avatar
+            image={user?.image}
+            size={avatarSize}
+            name={user?.name || user?.id}
+            key={user?.id}
+          />
+        ))}
       </div>
-    );
-  }
-
-  return null;
+      <div className="str-chat__typing-indicator__dots">
+        <span className="str-chat__typing-indicator__dot" />
+        <span className="str-chat__typing-indicator__dot" />
+        <span className="str-chat__typing-indicator__dot" />
+      </div>
+    </div>
+  );
 };
 
 export default React.memo(TypingIndicator);
