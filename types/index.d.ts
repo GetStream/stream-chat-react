@@ -926,14 +926,12 @@ export interface MessageDeletedProps extends TranslationContextValue {
 }
 
 export interface ThreadProps {
-  channel?: ReturnType<StreamChatReactClient['channel']>;
-  /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
-  /** Make input focus on mounting thread */
   autoFocus?: boolean;
   additionalParentMessageProps?: object;
   additionalMessageListProps?: object;
   additionalMessageInputProps?: object;
+  Message?: React.ElementType<MessageUIComponentProps>;
   MessageInput?: React.ElementType<MessageInputProps>;
   ThreadHeader?: React.ElementType<ThreadHeaderProps>;
 }
@@ -1547,10 +1545,8 @@ export function useUserRole(
   message: Client.MessageResponse | undefined,
 ): UserRoles & UserCapabilities;
 
-export class Thread extends React.PureComponent<
-  Omit<ThreadProps & ChannelContextValue & TranslationContextValue, 'client'>,
-  any
-> {}
+export const Thread: React.FC<ThreadProps>;
+
 export const TypingIndicator: React.FC<TypingIndicatorProps>;
 export class ReactionSelector extends React.PureComponent<
   ReactionSelectorProps,
