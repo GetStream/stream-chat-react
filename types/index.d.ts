@@ -409,7 +409,7 @@ export function useMentionsHandlers(
   onMentionsClick?: (e: React.MouseEvent, user?: Client.UserResponse) => void,
 ): (
   e: React.MouseEvent<HTMLSpanElement>,
-  mentioned_users: UserResponse[],
+  mentioned_users: Client.UserResponse[],
 ) => void;
 
 export interface PaginatorProps {
