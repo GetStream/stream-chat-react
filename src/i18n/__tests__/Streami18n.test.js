@@ -136,9 +136,11 @@ describe('Streami18n instance - with built-in langauge', () => {
       const localeConfig = tDateTimeParser().localeData();
       for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
         if (localeConfig[key]) {
-          expect(localeConfig[key]()).toStrictEqual(
-            streami18nOptions.dayjsLocaleConfigForLanguage[key],
-          );
+          expect(
+            typeof localeConfig[key] === 'function'
+              ? localeConfig[key]()
+              : localeConfig[key],
+          ).toStrictEqual(streami18nOptions.dayjsLocaleConfigForLanguage[key]);
         }
       }
     });
@@ -209,7 +211,11 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     const localeConfig = tDateTimeParser().localeData();
     for (const key in customDayjsLocaleConfig) {
       if (localeConfig[key]) {
-        expect(customDayjsLocaleConfig[key]).toStrictEqual(localeConfig[key]());
+        expect(customDayjsLocaleConfig[key]).toStrictEqual(
+          typeof localeConfig[key] === 'function'
+            ? localeConfig[key]()
+            : localeConfig[key],
+        );
       }
     }
   });
