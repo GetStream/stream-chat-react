@@ -82,6 +82,7 @@ const MessageInputLarge = (props) => {
               triggers={props.autocompleteTriggers}
               grow={props.grow}
               disabled={props.disabled}
+              SuggestionList={props.SuggestionList}
               additionalTextareaProps={props.additionalTextareaProps}
             />
             <div className="str-chat__emojiselect-wrapper">
@@ -193,6 +194,8 @@ MessageInputLarge.propTypes = {
    * */
   // @ts-ignore
   SendButton: PropTypes.elementType,
+  /** Optional UI component prop to override the default List component that displays suggestions */
+  SuggestionList: /** @type {PropTypes.Validator<React.ElementType<import('types').SuggestionListProps>>} */ (PropTypes.elementType),
 };
 
 MessageInputLarge.defaultProps = {

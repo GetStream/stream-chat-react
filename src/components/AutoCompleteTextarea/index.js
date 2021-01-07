@@ -1,6 +1,5 @@
 export { default as AutoCompleteTextarea } from './Textarea';
-export { KEY_CODES } from './listener';
-export { Item } from './Item';
-export { List } from './List';
+export { default as Item } from './Item';
+export { default as List } from './List';
+export { default as listener, KEY_CODES } from './listener';
 export { defaultScrollToItem } from './utils';
-export { default as listener } from './listener';

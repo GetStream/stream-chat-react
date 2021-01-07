@@ -494,6 +494,19 @@ export interface SendButtonProps {
   sendMessage(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void;
 }
 
+export interface SuggestionListProps {
+  className: string;
+  component: React.ElementType<unknown> | null;
+  dropdownScroll: (item: unknown) => void;
+  getSelectedItem: (<D>(item: D) => D) | null;
+  getTextToReplace: <D>(item: D) => D;
+  itemClassName: string;
+  onSelect: (newToken: unknown) => void;
+  values: Record<string, unknown>[] | null;
+  itemStyle?: React.CSSProperties;
+  value?: string;
+}
+
 export interface FixedHeightMessageProps {
   message: Client.MessageResponse;
   groupedByUser: boolean;
@@ -646,6 +659,9 @@ export interface MessageInputProps {
 
   /** Change the SendButton component */
   SendButton?: React.ElementType<SendButtonProps>;
+
+  /** Override default suggestion list component */
+  SuggestionList?: React.ElementType<SuggestionListProps>;
 
   /** Override image upload request */
   doImageUploadRequest?(
@@ -1076,6 +1092,7 @@ export interface ChatAutoCompleteProps {
   onPaste?: React.ClipboardEventHandler;
   additionalTextareaProps?: object;
   innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  SuggestionList?: React.ElementType<SuggestionListProps>;
 }
 
 export interface ChatDownProps extends TranslationContextValue {
