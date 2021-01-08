@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.6) 2021-01-08
+
+## Feature
+
+- Add SuggestionList as MessageInput prop to override default List and Item component to display trigger suggestions [#655](https://github.com/GetStream/stream-chat-react/pull/655)
+- Add allowNewMessagesFromUnfilteredChannels prop to ChannelList [#663](https://github.com/GetStream/stream-chat-react/pull/663)
+
+## Fix
+
+- Fix type for mentions handler [#660](https://github.com/GetStream/stream-chat-react/pull/660)
+
+## Chore
+
+- Convert Thread to functional component [#650](https://github.com/GetStream/stream-chat-react/pull/650)
+- Convert messaging sample app to functional component [#661](https://github.com/GetStream/stream-chat-react/pull/661)
+
 ## [3.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.5) 2021-01-07
 
 ## Feature
