@@ -14,6 +14,7 @@ import { moveChannelUp } from '../utils';
 export const useMessageNewListener = (
   setChannels,
   lockChannelOrder = false,
+  allowNewMessagesFromUnfilteredChannels = true,
 ) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
@@ -22,7 +23,7 @@ export const useMessageNewListener = (
       setChannels((channels) => {
         const channelInList =
           channels.filter((c) => c.cid === e.cid).length > 0;
-        if (!channelInList) {
+        if (!channelInList && allowNewMessagesFromUnfilteredChannels) {
           // @ts-ignore
           const channel = client.channel(e.channel_type, e.channel_id);
           return uniqBy([channel, ...channels], 'cid');
