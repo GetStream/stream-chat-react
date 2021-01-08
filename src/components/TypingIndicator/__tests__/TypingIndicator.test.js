@@ -168,6 +168,7 @@ describe('TypingIndicator', () => {
       ),
     ).toBe(true);
   });
+
   it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ config: { typing_events: true } });
@@ -196,6 +197,7 @@ describe('TypingIndicator', () => {
       ),
     ).toBe(false);
   });
+
   it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ config: { typing_events: true } });
@@ -224,6 +226,7 @@ describe('TypingIndicator', () => {
       ),
     ).toBe(false);
   });
+
   it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ config: { typing_events: true } });
