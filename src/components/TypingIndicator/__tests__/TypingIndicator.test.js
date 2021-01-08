@@ -29,6 +29,15 @@ async function renderComponent(typing = {}) {
   );
 }
 
+const renderWithTypingIndicator = (threadList, value = {}) => {
+  const { container } = render(
+    <ChannelContext.Provider value={value}>
+      <TypingIndicator threadList={threadList} />
+    </ChannelContext.Provider>,
+  );
+  return container;
+};
+
 describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
     const tree = renderer
@@ -147,25 +156,15 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const { container } = render(
-      <ChannelContext.Provider
-        value={{
-          client,
-          typing: {
-            example: { parent_id: 'sample-thread', user: 'test-user' },
-          },
-          channel,
-          thread: { id: 'sample-thread' },
-        }}
-      >
-        <TypingIndicator threadList />
-      </ChannelContext.Provider>,
-    );
-    console.log({ container });
     expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
+      renderWithTypingIndicator(true, {
+        client,
+        typing: {
+          example: { parent_id: 'sample-thread', user: 'test-user' },
+        },
+        channel,
+        thread: { id: 'sample-thread' },
+      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
     ).toBe(true);
   });
 
@@ -176,25 +175,15 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const { container } = render(
-      <ChannelContext.Provider
-        value={{
-          client,
-          typing: {
-            example: { parent_id: 'sample-thread', user: 'test-user' },
-          },
-          channel,
-          thread: { id: 'sample-thread' },
-        }}
-      >
-        <TypingIndicator />
-      </ChannelContext.Provider>,
-    );
-    console.log({ container });
     expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
+      renderWithTypingIndicator(false, {
+        client,
+        typing: {
+          example: { parent_id: 'sample-thread', user: 'test-user' },
+        },
+        channel,
+        thread: { id: 'sample-thread' },
+      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
     ).toBe(false);
   });
 
@@ -205,25 +194,15 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const { container } = render(
-      <ChannelContext.Provider
-        value={{
-          client,
-          typing: {
-            example: { user: 'test-user' },
-          },
-          channel,
-          thread: { id: 'sample-thread' },
-        }}
-      >
-        <TypingIndicator threadList />
-      </ChannelContext.Provider>,
-    );
-    console.log({ container });
     expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
+      renderWithTypingIndicator(true, {
+        client,
+        typing: {
+          example: { user: 'test-user' },
+        },
+        channel,
+        thread: { id: 'sample-thread' },
+      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
     ).toBe(false);
   });
 
@@ -234,25 +213,15 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
-    const { container } = render(
-      <ChannelContext.Provider
-        value={{
-          client,
-          typing: {
-            example: { parent_id: 'sample-thread-2', user: 'test-user' },
-          },
-          channel,
-          thread: { id: 'sample-thread' },
-        }}
-      >
-        <TypingIndicator threadList />
-      </ChannelContext.Provider>,
-    );
-    console.log({ container });
     expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
+      renderWithTypingIndicator(true, {
+        client,
+        typing: {
+          example: { parent_id: 'sample-thread-2', user: 'test-user' },
+        },
+        channel,
+        thread: { id: 'sample-thread' },
+      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
     ).toBe(false);
   });
 });
