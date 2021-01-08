@@ -286,7 +286,7 @@ export interface ChannelListProps {
    *
    * Default value is true.
    */
-  allowNewMessagesFromUnfilteredChannels?: PropTypes.bool;
+  allowNewMessagesFromUnfilteredChannels?: boolean;
   onMessageNew?(
     thisArg: React.Dispatch<React.SetStateAction<Client.Channel[]>>,
     e: Client.Event,
