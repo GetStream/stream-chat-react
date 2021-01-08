@@ -121,7 +121,11 @@ const ChannelList = (props) => {
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   // All the event listeners
-  useMessageNewListener(setChannels, props.lockChannelOrder);
+  useMessageNewListener(
+    setChannels,
+    props.lockChannelOrder,
+    props.allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationMessageNewListener(setChannels, props.onMessageNew);
   useNotificationAddedToChannelListener(setChannels, props.onAddedToChannel);
   useNotificationRemovedFromChannelListener(
@@ -381,6 +385,18 @@ ChannelList.propTypes = {
    * If true, channels won't be dynamically sorted by most recent message.
    */
   lockChannelOrder: PropTypes.bool,
+  /**
+   * When client receives an event `message.new`, we push that channel to top of the list.
+   *
+   * But If the channel doesn't exist in the list, then we get the channel from client
+   * (client maintains list of watched channels as `client.activeChannels`) and push
+   * that channel to top of the list by default. You can disallow this behavior by setting following
+   * prop to false. This is quite usefull where you have multiple tab structure and you don't want
+   * ChannelList in Tab1 to react to new message on some channel in Tab2.
+   *
+   * Default value is true.
+   */
+  allowNewMessagesFromUnfilteredChannels: PropTypes.bool,
 };
 
 export default React.memo(ChannelList);
