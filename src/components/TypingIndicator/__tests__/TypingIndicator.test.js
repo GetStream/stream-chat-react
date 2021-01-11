@@ -140,95 +140,90 @@ describe('TypingIndicator', () => {
     expect(tree).toMatchInlineSnapshot(`null`);
   });
 
-  it('should render TypingIndicator if user is typing in thread', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: true } });
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    await channel.watch();
+  describe('TypingIndicator in thread', () => {
+    let client;
+    let ch;
+    let channel;
 
-    const { container } = await renderComponent({}, true, {
-      client,
-      typing: {
-        example: { parent_id: 'sample-thread', user: 'test-user' },
-      },
-      channel,
-      thread: { id: 'sample-thread' },
+    beforeEach(async () => {
+      client = await getTestClientWithUser();
+      ch = generateChannel({ config: { typing_events: true } });
+      useMockedApis(client, [getOrCreateChannelApi(ch)]);
+      channel = client.channel('messaging', ch.id);
+      await channel.watch();
+    });
+    afterEach(cleanup);
+
+    it('should render TypingIndicator if user is typing in thread', async () => {
+      const { container } = await renderComponent(
+        { example: { parent_id: 'sample-thread', user: 'test-user' } },
+        true,
+        {
+          client,
+          channel,
+          thread: { id: 'sample-thread' },
+        },
+      );
+
+      expect(
+        container.firstChild.classList.contains(
+          'str-chat__typing-indicator--typing',
+        ),
+      ).toBe(true);
     });
 
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(true);
-  });
+    it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
+      const { container } = await renderComponent(
+        { example: { parent_id: 'sample-thread', user: 'test-user' } },
+        false,
+        {
+          client,
+          channel,
+          thread: { id: 'sample-thread' },
+        },
+      );
 
-  it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: true } });
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    await channel.watch();
-
-    const { container } = await renderComponent({}, false, {
-      client,
-      typing: {
-        example: { parent_id: 'sample-thread', user: 'test-user' },
-      },
-      channel,
-      thread: { id: 'sample-thread' },
+      expect(
+        container.firstChild.classList.contains(
+          'str-chat__typing-indicator--typing',
+        ),
+      ).toBe(false);
     });
 
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(false);
-  });
+    it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
+      const { container } = await renderComponent(
+        { example: { user: 'test-user' } },
+        true,
+        {
+          client,
+          channel,
+          thread: { id: 'sample-thread' },
+        },
+      );
 
-  it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: true } });
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    await channel.watch();
-
-    const { container } = await renderComponent({}, true, {
-      client,
-      typing: {
-        example: { user: 'test-user' },
-      },
-      channel,
-      thread: { id: 'sample-thread' },
+      expect(
+        container.firstChild.classList.contains(
+          'str-chat__typing-indicator--typing',
+        ),
+      ).toBe(false);
     });
 
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(false);
-  });
+    it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
+      const { container } = await renderComponent(
+        { example: { parent_id: 'sample-thread-2', user: 'test-user' } },
+        true,
+        {
+          client,
+          channel,
+          thread: { id: 'sample-thread' },
+        },
+      );
 
-  it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: true } });
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch.id);
-    await channel.watch();
-
-    const { container } = await renderComponent({}, true, {
-      client,
-      typing: {
-        example: { parent_id: 'sample-thread-2', user: 'test-user' },
-      },
-      channel,
-      thread: { id: 'sample-thread' },
+      expect(
+        container.firstChild.classList.contains(
+          'str-chat__typing-indicator--typing',
+        ),
+      ).toBe(false);
     });
-
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(false);
   });
 });

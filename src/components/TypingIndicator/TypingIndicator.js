@@ -38,12 +38,12 @@ const TypingIndicator = ({
       }`}
     >
       <div className="str-chat__typing-indicator__avatars">
-        {typingInChannel.map(({ user }) => (
+        {typingInChannel.map(({ user }, i) => (
           <Avatar
             image={user?.image}
             size={avatarSize}
             name={user?.name || user?.id}
-            key={user?.id}
+            key={i}
           />
         ))}
       </div>
