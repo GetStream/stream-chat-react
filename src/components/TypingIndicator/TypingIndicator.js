@@ -9,29 +9,41 @@ import { Avatar as DefaultAvatar } from '../Avatar';
  * @typedef {import('types').TypingIndicatorProps} Props
  * @type {React.FC<Props>}
  */
-const TypingIndicator = ({ Avatar = DefaultAvatar, avatarSize = 32 }) => {
-  const { typing, client, channel } = useContext(ChannelContext);
+const TypingIndicator = ({
+  Avatar = DefaultAvatar,
+  avatarSize = 32,
+  threadList,
+}) => {
+  const { channel, client, thread, typing } = useContext(ChannelContext);
 
-  if (!typing || !client || channel?.getConfig()?.typing_events === false)
+  if (!typing || !client || channel?.getConfig()?.typing_events === false) {
     return null;
+  }
 
-  const users = Object.values(typing).filter(
-    ({ user }) => user?.id !== client.user?.id,
+  const typingInChannel = Object.values(typing).filter(
+    ({ user, parent_id }) => user?.id !== client.user?.id && parent_id == null,
+  );
+
+  const typingInThread = Object.values(typing).some(
+    (event) => event?.parent_id === thread?.id,
   );
 
   return (
     <div
       className={`str-chat__typing-indicator ${
-        users.length ? 'str-chat__typing-indicator--typing' : ''
+        (threadList && typingInThread) ||
+        (!threadList && typingInChannel.length)
+          ? 'str-chat__typing-indicator--typing'
+          : ''
       }`}
     >
       <div className="str-chat__typing-indicator__avatars">
-        {users.map(({ user }) => (
+        {typingInChannel.map(({ user }, i) => (
           <Avatar
             image={user?.image}
             size={avatarSize}
             name={user?.name || user?.id}
-            key={user?.id}
+            key={`${user?.id}-${i}`}
           />
         ))}
       </div>

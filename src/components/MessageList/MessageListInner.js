@@ -176,11 +176,11 @@ const getGroupStyles = (
 
 const MessageListInner = (props) => {
   const {
-    TypingIndicator,
     EmptyStateIndicator,
     MessageSystem,
     DateSeparator,
     HeaderComponent,
+    TypingIndicator,
     headerPosition,
     bottomRef,
     onMessageLoadCaptured,
@@ -306,7 +306,7 @@ const MessageListInner = (props) => {
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>
-      {!threadList && <TypingIndicator />}
+      <TypingIndicator threadList={threadList} />
       <div key="bottom" ref={bottomRef} />
     </InfiniteScroll>
   );
