@@ -18,10 +18,7 @@ import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyState
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
-import {
-  TypingIndicator as DefaultTypingIndicator,
-  TypingIndicator,
-} from '../TypingIndicator';
+import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
 /**
  * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -288,7 +285,6 @@ class MessageList extends PureComponent {
                 .getMuteUserErrorNotification,
             }}
           />
-          <TypingIndicator threadList={this.props.threadList} />
         </div>
 
         <div className="str-chat__list-notifications">

@@ -14,12 +14,13 @@ const TypingIndicator = ({
   avatarSize = 32,
   threadList,
 }) => {
-  const { typing, client, channel, thread } = useContext(ChannelContext);
+  const { channel, client, thread, typing } = useContext(ChannelContext);
 
-  if (!typing || !client || channel?.getConfig()?.typing_events === false)
+  if (!typing || !client || channel?.getConfig()?.typing_events === false) {
     return null;
+  }
 
-  const users = Object.values(typing).filter(
+  const typingInChannel = Object.values(typing).filter(
     ({ user, parent_id }) => user?.id !== client.user?.id && parent_id == null,
   );
 
@@ -30,13 +31,14 @@ const TypingIndicator = ({
   return (
     <div
       className={`str-chat__typing-indicator ${
-        (threadList && typingInThread) || (!threadList && users.length)
+        (threadList && typingInThread) ||
+        (!threadList && typingInChannel.length)
           ? 'str-chat__typing-indicator--typing'
           : ''
       }`}
     >
       <div className="str-chat__typing-indicator__avatars">
-        {users.map(({ user }) => (
+        {typingInChannel.map(({ user }) => (
           <Avatar
             image={user?.image}
             size={avatarSize}

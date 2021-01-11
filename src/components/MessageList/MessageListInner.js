@@ -180,6 +180,7 @@ const MessageListInner = (props) => {
     MessageSystem,
     DateSeparator,
     HeaderComponent,
+    TypingIndicator,
     headerPosition,
     bottomRef,
     onMessageLoadCaptured,
@@ -305,6 +306,7 @@ const MessageListInner = (props) => {
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>
+      <TypingIndicator threadList={threadList} />
       <div key="bottom" ref={bottomRef} />
     </InfiniteScroll>
   );
