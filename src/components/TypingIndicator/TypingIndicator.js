@@ -43,7 +43,7 @@ const TypingIndicator = ({
             image={user?.image}
             size={avatarSize}
             name={user?.name || user?.id}
-            key={i}
+            key={`${user?.id}-${i}`}
           />
         ))}
       </div>

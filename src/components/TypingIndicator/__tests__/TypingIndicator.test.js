@@ -152,6 +152,7 @@ describe('TypingIndicator', () => {
       channel = client.channel('messaging', ch.id);
       await channel.watch();
     });
+
     afterEach(cleanup);
 
     it('should render TypingIndicator if user is typing in thread', async () => {
