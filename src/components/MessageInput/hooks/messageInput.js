@@ -298,10 +298,13 @@ export default function useMessageInput(props) {
         getNewText: () => newText,
       });
       if (publishTypingEvent && newText && channel) {
-        logChatPromiseExecution(channel.keystroke(), 'start typing event');
+        logChatPromiseExecution(
+          channel.keystroke(parent?.id),
+          'start typing event',
+        );
       }
     },
-    [channel, publishTypingEvent],
+    [channel, parent, publishTypingEvent],
   );
 
   // Emoji
