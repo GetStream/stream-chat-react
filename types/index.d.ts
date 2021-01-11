@@ -669,6 +669,12 @@ export interface MessageInputProps {
   /** The component handling how the input is rendered */
   Input?: React.ElementType<MessageInputProps>;
 
+  /** Change the EmojiIcon component */
+  EmojiIcon?: React.ElementType;
+
+  /** Change the FileUploadIcon component */
+  FileUploadIcon?: React.ElementType;
+
   /** Change the SendButton component */
   SendButton?: React.ElementType<SendButtonProps>;
 
