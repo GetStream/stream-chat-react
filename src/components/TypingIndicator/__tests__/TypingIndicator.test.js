@@ -19,24 +19,15 @@ afterEach(cleanup); // eslint-disable-line
 
 const alice = generateUser();
 
-async function renderComponent(typing = {}) {
+async function renderComponent(typing = {}, threadList, value = {}) {
   const client = await getTestClientWithUser(alice);
 
   return render(
-    <ChannelContext.Provider value={{ client, typing }}>
-      <TypingIndicator />
-    </ChannelContext.Provider>,
-  );
-}
-
-const renderWithTypingIndicator = (threadList, value = {}) => {
-  const { container } = render(
-    <ChannelContext.Provider value={value}>
+    <ChannelContext.Provider value={{ client, typing, ...value }}>
       <TypingIndicator threadList={threadList} />
     </ChannelContext.Provider>,
   );
-  return container;
-};
+}
 
 describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
@@ -156,15 +147,19 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
+    const { container } = await renderComponent({}, true, {
+      client,
+      typing: {
+        example: { parent_id: 'sample-thread', user: 'test-user' },
+      },
+      channel,
+      thread: { id: 'sample-thread' },
+    });
+
     expect(
-      renderWithTypingIndicator(true, {
-        client,
-        typing: {
-          example: { parent_id: 'sample-thread', user: 'test-user' },
-        },
-        channel,
-        thread: { id: 'sample-thread' },
-      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
+      container.firstChild.classList.contains(
+        'str-chat__typing-indicator--typing',
+      ),
     ).toBe(true);
   });
 
@@ -175,15 +170,19 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
+    const { container } = await renderComponent({}, false, {
+      client,
+      typing: {
+        example: { parent_id: 'sample-thread', user: 'test-user' },
+      },
+      channel,
+      thread: { id: 'sample-thread' },
+    });
+
     expect(
-      renderWithTypingIndicator(false, {
-        client,
-        typing: {
-          example: { parent_id: 'sample-thread', user: 'test-user' },
-        },
-        channel,
-        thread: { id: 'sample-thread' },
-      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
+      container.firstChild.classList.contains(
+        'str-chat__typing-indicator--typing',
+      ),
     ).toBe(false);
   });
 
@@ -194,15 +193,19 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
+    const { container } = await renderComponent({}, true, {
+      client,
+      typing: {
+        example: { user: 'test-user' },
+      },
+      channel,
+      thread: { id: 'sample-thread' },
+    });
+
     expect(
-      renderWithTypingIndicator(true, {
-        client,
-        typing: {
-          example: { user: 'test-user' },
-        },
-        channel,
-        thread: { id: 'sample-thread' },
-      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
+      container.firstChild.classList.contains(
+        'str-chat__typing-indicator--typing',
+      ),
     ).toBe(false);
   });
 
@@ -213,15 +216,19 @@ describe('TypingIndicator', () => {
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
+    const { container } = await renderComponent({}, true, {
+      client,
+      typing: {
+        example: { parent_id: 'sample-thread-2', user: 'test-user' },
+      },
+      channel,
+      thread: { id: 'sample-thread' },
+    });
+
     expect(
-      renderWithTypingIndicator(true, {
-        client,
-        typing: {
-          example: { parent_id: 'sample-thread-2', user: 'test-user' },
-        },
-        channel,
-        thread: { id: 'sample-thread' },
-      }).firstChild.classList.contains('str-chat__typing-indicator--typing'),
+      container.firstChild.classList.contains(
+        'str-chat__typing-indicator--typing',
+      ),
     ).toBe(false);
   });
 });
