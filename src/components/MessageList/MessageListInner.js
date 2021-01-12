@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable no-continue */
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { useMemo } from 'react';
@@ -18,6 +17,7 @@ const getLastReceived = (messages) => {
 const getReadStates = (messages, read) => {
   // create object with empty array for each message id
   const readData = {};
+
   Object.values(read).forEach((readState) => {
     if (!readState.last_read) return;
 
@@ -38,14 +38,18 @@ const getReadStates = (messages, read) => {
 const insertDates = (messages, lastRead, userID) => {
   let unread = false;
   const newMessages = [];
+
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
+
     if (message.type === 'message.read') {
       newMessages.push(message);
       continue;
     }
+
     const messageDate = message.created_at.toDateString();
     let prevMessageDate = messageDate;
+
     if (i > 0) {
       prevMessageDate = messages[i - 1].created_at.toDateString();
     }
@@ -85,7 +89,7 @@ const insertIntro = (messages, headerPosition) => {
     return newMessages;
   }
 
-  // if no messages, intro get's inserted
+  // if no messages, intro gets inserted
   if (!newMessages.length) {
     newMessages.unshift({ type: 'channel.intro' });
     return newMessages;
@@ -103,7 +107,7 @@ const insertIntro = (messages, headerPosition) => {
         ? messages[i + 1].created_at.getTime()
         : null;
 
-    // headerposition is smaller than message time so comes after;
+    // header position is smaller than message time so comes after;
     if (messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime < headerPosition) {
@@ -176,30 +180,45 @@ const getGroupStyles = (
 
 const MessageListInner = (props) => {
   const {
-    EmptyStateIndicator,
-    MessageSystem,
-    DateSeparator,
-    HeaderComponent,
-    TypingIndicator,
-    headerPosition,
     bottomRef,
-    onMessageLoadCaptured,
-    messages,
-    noGroupByUser,
     client,
-    threadList,
     channel,
-    read,
-    internalMessageProps,
+    DateSeparator,
+    disableDateSeparator = false,
+    EmptyStateIndicator,
+    HeaderComponent,
+    headerPosition,
     internalInfiniteScrollProps,
+    internalMessageProps,
+    messages,
+    MessageSystem,
+    noGroupByUser,
+    onMessageLoadCaptured,
+    read,
+    threadList,
+    TypingIndicator,
   } = props;
+
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
   const enrichedMessages = useMemo(() => {
-    const messageWithDates = insertDates(messages, lastRead, client.userID);
+    const messageWithDates =
+      disableDateSeparator || threadList
+        ? messages
+        : insertDates(messages, lastRead, client.userID);
+
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
+
     return messageWithDates;
-  }, [messages, lastRead, client.userID, HeaderComponent, headerPosition]);
+  }, [
+    client.userID,
+    disableDateSeparator,
+    HeaderComponent,
+    headerPosition,
+    lastRead,
+    messages,
+    threadList,
+  ]);
 
   const messageGroupStyles = useMemo(
     () =>
@@ -233,8 +252,6 @@ const MessageListInner = (props) => {
   const elements = useMemo(() => {
     return enrichedMessages.map((message) => {
       if (message.type === 'message.date') {
-        if (threadList) return null;
-
         return (
           <li key={`${message.date.toISOString()}-i`}>
             <DateSeparator date={message.date} unread={message.unread} />
@@ -270,10 +287,10 @@ const MessageListInner = (props) => {
           >
             <Message
               client={client}
-              message={message}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
-              readBy={readData[message.id] || []}
               lastReceivedId={lastReceivedId}
+              message={message}
+              readBy={readData[message.id] || []}
               threadList={threadList}
               {...internalMessageProps}
             />
@@ -284,12 +301,12 @@ const MessageListInner = (props) => {
       return null;
     });
   }, [
-    MessageSystem,
     client,
     enrichedMessages,
     internalMessageProps,
     lastReceivedId,
     messageGroupStyles,
+    MessageSystem,
     onMessageLoadCaptured,
     readData,
     threadList,
@@ -299,10 +316,10 @@ const MessageListInner = (props) => {
 
   return (
     <InfiniteScroll
-      isReverse
-      useWindow={false}
       className="str-chat__reverse-infinite-scroll"
       data-testid="reverse-infinite-scroll"
+      isReverse
+      useWindow={false}
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>
