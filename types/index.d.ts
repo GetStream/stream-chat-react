@@ -655,6 +655,8 @@ export interface MessageInputProps {
   /** Disable input */
   disabled?: boolean;
   /** enable/disable firing the typing event */
+  disableMentions?: boolean;
+  /** enable/disable firing the typing event */
   publishTypingEvent?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
@@ -1098,6 +1100,7 @@ export interface ChatAutoCompleteProps {
   grow?: boolean;
   maxRows?: number;
   disabled?: boolean;
+  disableMentions?: boolean;
   value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;

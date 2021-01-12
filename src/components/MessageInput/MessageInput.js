@@ -9,6 +9,7 @@ const MessageInput = (props) => {
 MessageInput.defaultProps = {
   focus: false,
   disabled: false,
+  disableMentions: false,
   publishTypingEvent: true,
   grow: true,
   maxRows: 10,

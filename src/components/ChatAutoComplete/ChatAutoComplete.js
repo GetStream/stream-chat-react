@@ -25,7 +25,10 @@ const emojiReplace = (word) => {
 
 /** @type {React.FC<import("types").ChatAutoCompleteProps>} */
 const ChatAutoComplete = (props) => {
+  const { commands, onSelectItem, triggers } = props;
+
   const { channel } = useContext(ChannelContext);
+
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
 
@@ -66,7 +69,6 @@ const ChatAutoComplete = (props) => {
     [channel?.queryMembers],
   );
 
-  const { commands, onSelectItem, triggers } = props;
   /**
    * dataProvider accepts `onReady` function, which will executed once the data is ready.
    * Another approach would have been to simply return the data from dataProvider and let the
@@ -187,9 +189,9 @@ const ChatAutoComplete = (props) => {
         },
       },
     [
-      members,
-      getMembersAndWatchers,
       commands,
+      getMembersAndWatchers,
+      members,
       onSelectItem,
       queryMembersdebounced,
       triggers,
@@ -227,6 +229,7 @@ const ChatAutoComplete = (props) => {
       value={props.value}
       grow={props.grow}
       disabled={props.disabled}
+      disableMentions={props.disableMentions}
       SuggestionList={props.SuggestionList}
       additionalTextareaProps={props.additionalTextareaProps}
     />
@@ -242,6 +245,8 @@ ChatAutoComplete.propTypes = {
   maxRows: PropTypes.number,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** Disable mentions */
+  disableMentions: PropTypes.bool,
   /** The value of the textarea */
   value: PropTypes.string,
   /** Function to run on pasting within the textarea */

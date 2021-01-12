@@ -43,6 +43,7 @@ const MessageInputSimple = (props) => {
             triggers={props.autocompleteTriggers}
             grow={props.grow}
             disabled={props.disabled}
+            disableMentions={props.disableMentions}
             SuggestionList={props.SuggestionList}
             additionalTextareaProps={props.additionalTextareaProps}
           />

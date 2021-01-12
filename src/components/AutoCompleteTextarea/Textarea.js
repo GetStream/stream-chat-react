@@ -431,6 +431,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'closeOnClickOutside',
       'containerClassName',
       'containerStyle',
+      'disableMentions',
       'dropdownClassName',
       'dropdownStyle',
       'grow',
@@ -623,6 +624,7 @@ class ReactTextareaAutocomplete extends React.Component {
       className,
       containerClassName,
       containerStyle,
+      disableMentions,
       dropdownClassName,
       dropdownStyle,
       itemClassName,
@@ -638,17 +640,13 @@ class ReactTextareaAutocomplete extends React.Component {
     const suggestionData = this._getSuggestions();
     const textToReplace = this._getTextToReplace();
 
-    let { maxRows } = this.props;
-    if (!this.props.grow) maxRows = 1;
-
-    return (
-      <div
-        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${
-          containerClassName || ''
-        }`}
-        style={containerStyle}
-      >
-        {(dataLoading || suggestionData) && currentTrigger && (
+    const SuggestionListDropDown = () => {
+      if (
+        (dataLoading || suggestionData) &&
+        currentTrigger &&
+        !(disableMentions && currentTrigger === '@')
+      ) {
+        return (
           <div
             className={`rta__autocomplete ${dropdownClassName || ''}`}
             ref={(ref) => {
@@ -671,7 +669,22 @@ class ReactTextareaAutocomplete extends React.Component {
               />
             )}
           </div>
-        )}
+        );
+      }
+      return null;
+    };
+
+    let { maxRows } = this.props;
+    if (!this.props.grow) maxRows = 1;
+
+    return (
+      <div
+        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${
+          containerClassName || ''
+        }`}
+        style={containerStyle}
+      >
+        <SuggestionListDropDown />
         <Textarea
           {...this._cleanUpProps()}
           className={`rta__textarea ${className || ''}`}
@@ -700,6 +713,7 @@ ReactTextareaAutocomplete.propTypes = {
   closeOnClickOutside: PropTypes.bool,
   containerClassName: PropTypes.string,
   containerStyle: PropTypes.object,
+  disableMentions: PropTypes.bool,
   dropdownClassName: PropTypes.string,
   dropdownStyle: PropTypes.object,
   itemClassName: PropTypes.string,
