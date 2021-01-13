@@ -212,15 +212,16 @@ function messageInputReducer(state, action) {
  */
 export default function useMessageInput(props) {
   const {
+    additionalTextareaProps,
+    clearEditingState,
     doImageUploadRequest,
     doFileUploadRequest,
+    errorHandler,
     focus,
     message,
-    clearEditingState,
+    noFiles,
     overrideSubmitHandler,
     parent,
-    noFiles,
-    errorHandler,
     publishTypingEvent,
   } = props;
 
@@ -673,9 +674,7 @@ export default function useMessageInput(props) {
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;
-        if (!dataTransferItemsHaveFiles(items)) {
-          return;
-        }
+        if (!dataTransferItemsHaveFiles(items)) return;
 
         event.preventDefault();
         // Get a promise for the plain text in case no files are
@@ -686,6 +685,7 @@ export default function useMessageInput(props) {
         const plainTextItem = [...items].find(
           ({ kind, type }) => kind === 'string' && type === 'text/plain',
         );
+
         if (plainTextItem) {
           plainTextPromise = new Promise((resolve) => {
             plainTextItem.getAsString((s) => {
@@ -699,14 +699,24 @@ export default function useMessageInput(props) {
           uploadNewFiles(fileLikes);
           return;
         }
+
         // fallback to regular text paste
         if (plainTextPromise) {
-          const s = await plainTextPromise;
-          insertText(s);
+          const { maxLength } = additionalTextareaProps;
+          const pastedText = await plainTextPromise;
+
+          if (pastedText.length > maxLength) {
+            dispatch({
+              type: 'setText',
+              getNewText: () => pastedText.slice(0, maxLength),
+            });
+          } else {
+            insertText(pastedText);
+          }
         }
       })(e);
     },
-    [uploadNewFiles, insertText],
+    [additionalTextareaProps, insertText, uploadNewFiles],
   );
 
   const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
