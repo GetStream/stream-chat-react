@@ -707,7 +707,7 @@ export interface MessageInputProps {
    *  }}
    * />
    */
-  additionalTextareaProps?: object;
+  additionalTextareaProps?: React.TextareaHTMLAttributes;
   /** Message object. If defined, the message passed will be edited, instead of a new message being created */
   message?: Client.MessageResponse;
   /** Callback to clear editing state in parent component */
