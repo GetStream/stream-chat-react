@@ -262,15 +262,22 @@ export default function useMessageInput(props) {
 
   const insertText = useCallback(
     (textToInsert) => {
+      const { maxLength } = additionalTextareaProps;
+
       if (!textareaRef.current) {
         dispatch({
           type: 'setText',
-          getNewText: (t) => t + textToInsert,
+          getNewText: (t) => {
+            const updatedText = t + textToInsert;
+            if (updatedText.length > maxLength) {
+              return updatedText.slice(0, maxLength);
+            }
+            return updatedText;
+          },
         });
         return;
       }
 
-      const { maxLength } = additionalTextareaProps;
       const { selectionStart, selectionEnd } = textareaRef.current;
       newCursorPosition.current = selectionStart + textToInsert.length;
 
