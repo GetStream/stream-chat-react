@@ -513,6 +513,19 @@ describe('<Message /> component', () => {
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
   });
 
+  it('should allow user to edit and delete message when moderator role is set on client', async () => {
+    const amin = generateUser({
+      name: 'amin',
+      role: 'channel_moderator',
+    });
+    const client = await getTestClientWithUser(amin);
+    const message = generateMessage({ user: bob });
+    await renderComponent(message, {}, { client });
+    const { getMessageActions } = getRenderedProps();
+    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
+    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
+  });
+
   it('should allow user to edit and delete message when user is admin', async () => {
     const message = generateMessage({ user: bob });
     await renderComponent(

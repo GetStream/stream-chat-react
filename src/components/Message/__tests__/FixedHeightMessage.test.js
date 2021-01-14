@@ -11,10 +11,12 @@ import {
 import FixedHeightMessage from '../FixedHeightMessage';
 import { ChatContext, ChannelContext } from '../../../context';
 import { Avatar as AvatarMock } from '../../Avatar';
+import { MML as MMLMock } from '../../MML';
 import { Gallery as GalleryMock } from '../../Gallery';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Gallery', () => ({ Gallery: jest.fn(() => <div />) }));
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn((props) => props.getMessageActions()),
@@ -60,6 +62,16 @@ describe('<FixedHeightMessage />', () => {
     await renderMsg(message);
     expect(AvatarMock).toHaveBeenCalledWith(
       expect.objectContaining(aliceProfile),
+      {},
+    );
+  });
+
+  it('should render MML', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateMessage({ user: alice, mml });
+    await renderMsg(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'left' }),
       {},
     );
   });

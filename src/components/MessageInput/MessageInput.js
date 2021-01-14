@@ -1,6 +1,5 @@
 import React from 'react';
 import MessageInputLarge from './MessageInputLarge';
-import SendButton from './SendButton';
 
 const MessageInput = (props) => {
   const { Input } = props;
@@ -14,7 +13,6 @@ MessageInput.defaultProps = {
   grow: true,
   maxRows: 10,
   Input: MessageInputLarge,
-  SendButton,
   additionalTextareaProps: {},
 };
 

@@ -963,9 +963,9 @@
       }
     }
   }
-  a[href^="mailto:"] {
+  a[href^='mailto:'] {
     -webkit-hyphens: none;
-   -moz-hyphens: none;
+    -moz-hyphens: none;
     hyphens: none;
   }
 }
@@ -984,5 +984,67 @@
 @media only screen and (device-width: 375px) and (-webkit-device-pixel-ratio: 3) {
   .str-chat__message .str-chat__message-attachment--img {
     max-width: 240px;
+  }
+}
+
+.str-chat {
+  // fixes the overall overflow/flex issues together with the rule below
+  .mml-container {
+    display: flex;
+    padding-bottom: 4px;
+  }
+
+  .mml-icon {
+    font-family: 'Material Icons', sans-serif;
+  }
+
+  // fixes the overall overflow/flex issues together with the rule above
+  .mml-wrap {
+    display: block;
+    max-width: none;
+    // the max-width should match that to .str-chat__message-XXXX-text-inner
+    max-width: 345px;
+
+    @media screen and (max-width: 375px) {
+      max-width: 220px;
+    }
+  }
+
+  .mml-datepicker {
+    min-width: 180px;
+  }
+
+  // undo the negative margins that make the mml content to expand to the
+  // viewport edges
+  .mml-align-right .mml-btnlist--floating,
+  .mml-align-right .mml-carousel {
+    margin-left: auto;
+  }
+  .mml-align-left .mml-btnlist--floating,
+  .mml-align-left .mml-carousel {
+    margin-right: auto;
+  }
+
+  @media screen and (max-width: 960px) {
+    .mml-align-left .mml-carousel {
+      margin-left: -10px;
+    }
+    .mml-align-right .mml-carousel {
+      margin-right: -10px;
+    }
+  }
+
+  // expand carousel to the edge of the screen, the horizontal padding is theme
+  // specific in stream-chat-react
+  &.messaging {
+    // as .messaging.str-chat .str-chat__list:
+    @media screen and (max-width: 960px) {
+      .mml-align-left .mml-carousel {
+        margin-left: -10px;
+      }
+      .mml-align-right .mml-carousel {
+        margin-right: -10px;
+      }
+    }
   }
 }

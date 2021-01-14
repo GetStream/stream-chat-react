@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import SendButton from '../SendButton';
+import SendButton from '../icons';
 
 describe('SendButton', () => {
   it('should call whatever callback was passed into the sendMessage prop when the button is pressed', () => {

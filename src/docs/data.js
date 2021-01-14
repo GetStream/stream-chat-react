@@ -22,9 +22,107 @@ channel.getConfig = () => ({
   mutes: true,
 });
 
+export const thread = {
+  attachments: [
+    {
+      image_url:
+        'https://images.unsplash.com/photo-1548345233-4557b8809829?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
+      og_scrape_url: 'https://unsplash.com/photos/f3hDGOHptrM',
+      text: 'Download this photo by Sandra Seitamaa (@seitamaaphotography)',
+      thumb_url:
+        'https://images.unsplash.com/photo-1548345233-4557b8809829?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
+      title:
+        'Plant, tree, nature and river HD photo by Sandra Seitamaa (@seitamaaphotography) on Unsplash',
+      title_link: 'https://unsplash.com/photos/f3hDGOHptrM',
+      type: 'image',
+    },
+  ],
+  command: '',
+  created_at: '2019-01-25T21:25:45.306Z',
+  html:
+    '<p>this place looks amazing: <a href="https://unsplash.com/photos/f3hDGOHptrM" rel="nofollow">https://unsplash.com/photos/f3hDGOHptrM</a></p>\n',
+  own_reactions: [],
+  reaction_counts: null,
+  reactions: [],
+  reply_count: 2,
+  text: 'this place looks amazing: https://unsplash.com/photos/f3hDGOHptrM',
+  id: 'thierry-ec4eac2b-1278-4f49-8b20-2ebcd76dace5',
+  type: 'regular',
+  updated_at: '2019-01-25T21:25:45.306Z',
+  user: {
+    created_at: '2019-01-22T16:35:18.417456Z',
+    id: 'thierry',
+    online: true,
+    role: 'user',
+    updated_at: '2019-01-25T21:27:39.606466Z',
+  },
+  __html:
+    '<p>this place looks amazing: <a href="https://unsplash.com/photos/f3hDGOHptrM" rel="nofollow">https://unsplash.com/photos/f3hDGOHptrM</a></p>\n',
+  status: 'received',
+};
+
+export const threadMessages = [
+  {
+    attachments: [],
+    command: '',
+    created_at: new Date('2019-01-25T21:26:06.346Z'),
+    html: '<p>whow, where is that?</p>\n',
+    own_reactions: [],
+    parent_id: '6312fb0b-0c94-4107-a036-376ac5ab650b',
+    reaction_counts: null,
+    reactions: [],
+    reply_count: 0,
+    text: 'whow, where is that?',
+    id: 'thierry-97a02ade-3a38-4400-9377-001c10fc2663',
+    type: 'reply',
+    updated_at: '2019-01-25T21:26:06.346Z',
+    user: {
+      created_at: '2019-01-22T16:35:18.417456Z',
+      id: 'thierry',
+      invisible: false,
+      last_active: '0001-01-01T00:00:00Z',
+      mutes: [],
+      online: false,
+      role: 'user',
+      updated_at: '2019-01-25T21:27:39.606466Z',
+    },
+    __html: '<p>whow, where is that?</p>\n',
+    status: 'received',
+  },
+  {
+    attachments: [],
+    command: '',
+    created_at: new Date('2019-01-25T21:26:11.863Z'),
+    html: '<p>it’s soo green, amazing</p>\n',
+    own_reactions: [],
+    parent_id: '6312fb0b-0c94-4107-a036-376ac5ab650b',
+    reaction_counts: null,
+    reactions: [],
+    reply_count: 0,
+    text: "it's soo green, amazing",
+    id: 'thierry-264fdc4d-03c5-4f93-b97c-cfe5612968aa',
+    type: 'reply',
+    updated_at: '2019-01-25T21:26:11.863Z',
+    user: {
+      created_at: '2019-01-22T16:35:18.417456Z',
+      id: 'thierry',
+      invisible: false,
+      last_active: '0001-01-01T00:00:00Z',
+      mutes: [],
+      online: false,
+      role: 'user',
+      updated_at: '2019-01-25T21:27:39.606466Z',
+    },
+    __html: '<p>it’s soo green, amazing</p>\n',
+    status: 'received',
+  },
+];
+
 export const channelContext = {
   client,
   channel,
+  thread,
+  threadMessages,
   updateMessage: () => {},
   removeMessage: () => {},
   sendMessage: () => {},
@@ -149,102 +247,6 @@ export const message = {
     '<p><a href="https://unsplash.com/photos/lxuB4abGzXc" rel="nofollow">https://unsplash.com/photos/lxuB4abGzXc</a></p>\n',
   status: 'received',
 };
-
-export const thread = {
-  attachments: [
-    {
-      image_url:
-        'https://images.unsplash.com/photo-1548345233-4557b8809829?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
-      og_scrape_url: 'https://unsplash.com/photos/f3hDGOHptrM',
-      text: 'Download this photo by Sandra Seitamaa (@seitamaaphotography)',
-      thumb_url:
-        'https://images.unsplash.com/photo-1548345233-4557b8809829?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
-      title:
-        'Plant, tree, nature and river HD photo by Sandra Seitamaa (@seitamaaphotography) on Unsplash',
-      title_link: 'https://unsplash.com/photos/f3hDGOHptrM',
-      type: 'image',
-    },
-  ],
-  command: '',
-  created_at: '2019-01-25T21:25:45.306Z',
-  html:
-    '<p>this place looks amazing: <a href="https://unsplash.com/photos/f3hDGOHptrM" rel="nofollow">https://unsplash.com/photos/f3hDGOHptrM</a></p>\n',
-  own_reactions: [],
-  reaction_counts: null,
-  reactions: [],
-  reply_count: 2,
-  text: 'this place looks amazing: https://unsplash.com/photos/f3hDGOHptrM',
-  id: 'thierry-ec4eac2b-1278-4f49-8b20-2ebcd76dace5',
-  type: 'regular',
-  updated_at: '2019-01-25T21:25:45.306Z',
-  user: {
-    created_at: '2019-01-22T16:35:18.417456Z',
-    id: 'thierry',
-    online: true,
-    role: 'user',
-    updated_at: '2019-01-25T21:27:39.606466Z',
-  },
-  __html:
-    '<p>this place looks amazing: <a href="https://unsplash.com/photos/f3hDGOHptrM" rel="nofollow">https://unsplash.com/photos/f3hDGOHptrM</a></p>\n',
-  status: 'received',
-};
-
-export const threadMessages = [
-  {
-    attachments: [],
-    command: '',
-    created_at: new Date('2019-01-25T21:26:06.346Z'),
-    html: '<p>whow, where is that?</p>\n',
-    own_reactions: [],
-    parent_id: '6312fb0b-0c94-4107-a036-376ac5ab650b',
-    reaction_counts: null,
-    reactions: [],
-    reply_count: 0,
-    text: 'whow, where is that?',
-    id: 'thierry-97a02ade-3a38-4400-9377-001c10fc2663',
-    type: 'reply',
-    updated_at: '2019-01-25T21:26:06.346Z',
-    user: {
-      created_at: '2019-01-22T16:35:18.417456Z',
-      id: 'thierry',
-      invisible: false,
-      last_active: '0001-01-01T00:00:00Z',
-      mutes: [],
-      online: false,
-      role: 'user',
-      updated_at: '2019-01-25T21:27:39.606466Z',
-    },
-    __html: '<p>whow, where is that?</p>\n',
-    status: 'received',
-  },
-  {
-    attachments: [],
-    command: '',
-    created_at: new Date('2019-01-25T21:26:11.863Z'),
-    html: '<p>it’s soo green, amazing</p>\n',
-    own_reactions: [],
-    parent_id: '6312fb0b-0c94-4107-a036-376ac5ab650b',
-    reaction_counts: null,
-    reactions: [],
-    reply_count: 0,
-    text: "it's soo green, amazing",
-    id: 'thierry-264fdc4d-03c5-4f93-b97c-cfe5612968aa',
-    type: 'reply',
-    updated_at: '2019-01-25T21:26:11.863Z',
-    user: {
-      created_at: '2019-01-22T16:35:18.417456Z',
-      id: 'thierry',
-      invisible: false,
-      last_active: '0001-01-01T00:00:00Z',
-      mutes: [],
-      online: false,
-      role: 'user',
-      updated_at: '2019-01-25T21:27:39.606466Z',
-    },
-    __html: '<p>it’s soo green, amazing</p>\n',
-    status: 'received',
-  },
-];
 
 export const messages = [
   {

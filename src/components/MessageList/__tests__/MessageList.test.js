@@ -20,7 +20,7 @@ import { Channel } from '../../Channel';
 describe('MessageList', () => {
   afterEach(cleanup);
 
-  let chatClientVishal;
+  let chatClient;
 
   it('should add new message at bottom of the list', async () => {
     const user1 = generateUser();
@@ -36,13 +36,13 @@ describe('MessageList', () => {
       ],
     });
 
-    chatClientVishal = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClientVishal, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClientVishal.channel('messaging', mockedChannel.id);
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
     const { getByTestId, getByText } = render(
-      <Chat client={chatClientVishal}>
+      <Chat client={chatClient}>
         <Channel channel={channel}>
           <MessageList />
         </Channel>
@@ -54,15 +54,43 @@ describe('MessageList', () => {
 
     const newMessage = generateMessage({ user: user2 });
     act(() =>
-      dispatchMessageNewEvent(
-        chatClientVishal,
-        newMessage,
-        mockedChannel.channel,
-      ),
+      dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel),
     );
 
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
+    });
+  });
+
+  it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      messages: [generateMessage({ user: user1 })],
+      members: [
+        generateMember({ user: user1 }),
+        generateMember({ user: user2 }),
+      ],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const { getByTestId } = render(
+      <Chat client={chatClient}>
+        <Channel channel={channel}>
+          <MessageList
+            Avatar={() => <div data-testid="custom-avatar">Avatar</div>}
+          />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
+      expect(getByTestId('custom-avatar')).toBeInTheDocument();
     });
   });
 });

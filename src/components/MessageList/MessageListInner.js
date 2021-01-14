@@ -51,7 +51,7 @@ const insertDates = (messages, lastRead, userID) => {
     }
 
     if (!unread) {
-      unread = lastRead && lastRead.getTime() < message.created_at.getTime();
+      unread = lastRead && new Date(lastRead) < message.created_at;
       // userId check makes sure New is not shown for current user messages
       if (unread && message.user.id !== userID)
         newMessages.push({
@@ -176,11 +176,11 @@ const getGroupStyles = (
 
 const MessageListInner = (props) => {
   const {
-    TypingIndicator,
     EmptyStateIndicator,
     MessageSystem,
     DateSeparator,
     HeaderComponent,
+    TypingIndicator,
     headerPosition,
     bottomRef,
     onMessageLoadCaptured,
@@ -306,7 +306,7 @@ const MessageListInner = (props) => {
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>
-      {!threadList && <TypingIndicator />}
+      <TypingIndicator threadList={threadList} />
       <div key="bottom" ref={bottomRef} />
     </InfiniteScroll>
   );

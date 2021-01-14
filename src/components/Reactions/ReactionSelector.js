@@ -8,13 +8,14 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { NimbleEmoji } from 'emoji-mart';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
 
 /** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
 const ReactionSelectorWithRef = (
   {
+    Avatar = DefaultAvatar,
     latest_reactions,
     reaction_counts,
     reactionOptions = defaultMinimalEmojis,
@@ -173,6 +174,12 @@ const ReactionSelectorWithRef = (
 const ReactionSelector = React.forwardRef(ReactionSelectorWithRef);
 
 ReactionSelector.propTypes = {
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /**
    * Array of latest reactions.
    * Reaction object has following structure:

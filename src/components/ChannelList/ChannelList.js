@@ -7,6 +7,7 @@ import { ChatContext } from '../../context';
 import { smartRender } from '../../utils';
 
 import ChannelListTeam from './ChannelListTeam';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadMorePaginator } from '../LoadMore';
 import { LoadingChannels } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -120,7 +121,11 @@ const ChannelList = (props) => {
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   // All the event listeners
-  useMessageNewListener(setChannels, props.lockChannelOrder);
+  useMessageNewListener(
+    setChannels,
+    props.lockChannelOrder,
+    props.allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationMessageNewListener(setChannels, props.onMessageNew);
   useNotificationAddedToChannelListener(setChannels, props.onAddedToChannel);
   useNotificationRemovedFromChannelListener(
@@ -163,8 +168,14 @@ const ChannelList = (props) => {
   const renderChannel = (item) => {
     if (!item) return null;
 
-    const { Preview = ChannelPreviewLastMessage, watchers = {} } = props;
+    const {
+      Avatar = DefaultAvatar,
+      Preview = ChannelPreviewLastMessage,
+      watchers = {},
+    } = props;
+
     const previewProps = {
+      Avatar,
       channel: item,
       Preview,
       activeChannel: channel,
@@ -174,6 +185,7 @@ const ChannelList = (props) => {
       // To force the update of preview component upon channel update.
       channelUpdateCount,
     };
+
     return smartRender(ChannelPreview, { ...previewProps });
   };
 
@@ -187,6 +199,7 @@ const ChannelList = (props) => {
   // renders the list.
   const renderList = () => {
     const {
+      Avatar = DefaultAvatar,
       List = ChannelListTeam,
       Paginator = LoadMorePaginator,
       showSidebar,
@@ -199,6 +212,7 @@ const ChannelList = (props) => {
         loading={status.loadingChannels}
         error={status.error}
         showSidebar={showSidebar}
+        Avatar={Avatar}
         LoadingIndicator={LoadingIndicator}
         LoadingErrorIndicator={LoadingErrorIndicator}
       >
@@ -229,6 +243,12 @@ const ChannelList = (props) => {
 };
 
 ChannelList.propTypes = {
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
   /** Indicator for Empty State */
   EmptyStateIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').EmptyStateIndicatorProps>>} */ (PropTypes.elementType),
   /**
@@ -365,6 +385,18 @@ ChannelList.propTypes = {
    * If true, channels won't be dynamically sorted by most recent message.
    */
   lockChannelOrder: PropTypes.bool,
+  /**
+   * When client receives an event `message.new`, we push that channel to top of the list.
+   *
+   * But If the channel doesn't exist in the list, then we get the channel from client
+   * (client maintains list of watched channels as `client.activeChannels`) and push
+   * that channel to top of the list by default. You can disallow this behavior by setting following
+   * prop to false. This is quite usefull where you have multiple tab structure and you don't want
+   * ChannelList in Tab1 to react to new message on some channel in Tab2.
+   *
+   * Default value is true.
+   */
+  allowNewMessagesFromUnfilteredChannels: PropTypes.bool,
 };
 
 export default React.memo(ChannelList);

@@ -12,12 +12,11 @@ import {
 import { ChannelContext } from '../../../context';
 import MessageCommerce from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
+import { MML as MMLMock } from '../../MML';
 import MessageTextMock from '../MessageText';
 
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../MessageText', () => jest.fn(() => <div />));
 
 const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
@@ -156,6 +155,16 @@ describe('<MessageCommerce />', () => {
       { reactions: true },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
+  });
+
+  it('should render custom avatar component when one is given', async () => {
+    const message = generateAliceMessage();
+    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const { getByTestId } = await renderMessageCommerce(message, {
+      Avatar: CustomAvatar,
+      groupStyles: ['bottom'],
+    });
+    expect(getByTestId('custom-avatar')).toBeInTheDocument();
   });
 
   it('should position message to the right if it is from current user', async () => {
@@ -324,6 +333,26 @@ describe('<MessageCommerce />', () => {
     expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
   });
 
+  it('should render MML', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateAliceMessage({ mml });
+    await renderMessageCommerce(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'right' }),
+      {},
+    );
+  });
+
+  it('should render MML on left for others', async () => {
+    const mml = '<mml>text</mml>';
+    const message = generateBobMessage({ mml });
+    await renderMessageCommerce(message);
+    expect(MMLMock).toHaveBeenCalledWith(
+      expect.objectContaining({ source: mml, align: 'left' }),
+      {},
+    );
+  });
+
   it.each([
     ['type', 'error'],
     ['type', 'system'],
@@ -359,7 +388,7 @@ describe('<MessageCommerce />', () => {
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
   });
 
-  it('should render message text when messag has text', async () => {
+  it('should render message text when message has text', async () => {
     const message = generateAliceMessage({ text: 'Hello' });
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(

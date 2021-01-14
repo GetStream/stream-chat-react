@@ -1,64 +1,35 @@
-/* eslint-disable */
-import React from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import Listeners, { KEY_CODES } from './listener';
+import { TranslationContext } from '../../context/TranslationContext';
+
 import Item from './Item';
+import { KEY_CODES } from './listener';
 
-export class List extends React.Component {
-  state = {
-    selectedItem: null,
-  };
+const List = (props) => {
+  const {
+    className,
+    component,
+    dropdownScroll,
+    getSelectedItem,
+    getTextToReplace,
+    itemClassName,
+    itemStyle,
+    onSelect,
+    style,
+    value: propValue,
+    values,
+  } = props;
 
-  cachedValues = null;
+  const { t } = useContext(TranslationContext);
 
-  componentDidMount() {
-    this.listeners.push(
-      Listeners.add([KEY_CODES.DOWN, KEY_CODES.UP], this.scroll),
-      Listeners.add([KEY_CODES.ENTER, KEY_CODES.TAB], this.onPressEnter),
-    );
+  const [selectedItem, setSelectedItem] = useState(undefined);
 
-    const { values } = this.props;
-    if (values && values[0]) this.selectItem(values[0]);
-  }
+  const itemsRef = {};
 
-  UNSAFE_componentWillReceiveProps({ values }) {
-    const newValues = values.map((val) => this.getId(val)).join('');
+  const isSelected = (item) => selectedItem === values.indexOf(item);
 
-    if (this.cachedValues !== newValues && values && values[0]) {
-      this.selectItem(values[0]);
-      this.cachedValues = newValues;
-    }
-  }
-
-  componentWillUnmount() {
-    let listener;
-    while (this.listeners.length) {
-      listener = this.listeners.pop();
-      Listeners.remove(listener);
-    }
-  }
-
-  onPressEnter = (e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
-
-    const { values } = this.props;
-
-    this.modifyText(values[this.getPositionInList()]);
-  };
-
-  getPositionInList = () => {
-    const { values } = this.props;
-    const { selectedItem } = this.state;
-
-    if (!selectedItem) return 0;
-
-    return values.findIndex((a) => this.getId(a) === this.getId(selectedItem));
-  };
-
-  getId = (item) => {
-    const textToReplace = this.props.getTextToReplace(item);
+  const getId = (item) => {
+    const textToReplace = getTextToReplace(item);
     if (textToReplace.key) {
       return textToReplace.key;
     }
@@ -70,117 +41,104 @@ export class List extends React.Component {
     return item.key;
   };
 
-  listeners = [];
-
-  itemsRef = {};
-
-  modifyText = (value) => {
+  const modifyText = (value) => {
     if (!value) return;
 
-    const { onSelect, getTextToReplace, getSelectedItem } = this.props;
-
     onSelect(getTextToReplace(value));
-    if (getSelectedItem) {
-      getSelectedItem(value);
-    }
+    if (getSelectedItem) getSelectedItem(value);
   };
 
-  selectItem = (item, keyboard = false) => {
-    this.setState({ selectedItem: item }, () => {
-      if (keyboard) {
-        this.props.dropdownScroll(this.itemsRef[this.getId(item)]);
+  const handleClick = (e) => {
+    if (e) e.preventDefault?.();
+    modifyText(values[selectedItem]);
+  };
+
+  const selectItem = (item, keyboard = false) => {
+    setSelectedItem(values.indexOf(item));
+    if (keyboard) dropdownScroll(itemsRef[getId(item)]);
+  };
+
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.which === KEY_CODES.UP) {
+        setSelectedItem((prevSelected) => {
+          if (prevSelected === undefined) return 0;
+          return prevSelected === 0 ? values.length - 1 : prevSelected - 1;
+        });
       }
-    });
-  };
 
-  scroll = (e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
+      if (event.which === KEY_CODES.DOWN) {
+        setSelectedItem((prevSelected) => {
+          if (prevSelected === undefined) return 0;
+          return prevSelected === values.length - 1 ? 0 : prevSelected + 1;
+        });
+      }
 
-    const { values } = this.props;
+      if (
+        (event.which === KEY_CODES.ENTER || event.which === KEY_CODES.TAB) &&
+        selectedItem !== undefined
+      ) {
+        handleClick(event);
+        return setSelectedItem(undefined);
+      }
 
-    const code = e.keyCode || e.which;
+      return null;
+    },
+    [selectedItem, values], // eslint-disable-line
+  );
 
-    const oldPosition = this.getPositionInList();
-    let newPosition;
-    switch (code) {
-      case KEY_CODES.DOWN:
-        newPosition = oldPosition + 1;
-        break;
-      case KEY_CODES.UP:
-        newPosition = oldPosition - 1;
-        break;
-      default:
-        newPosition = oldPosition;
-        break;
-    }
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
-    newPosition =
-      ((newPosition % values.length) + values.length) % values.length; // eslint-disable-line
-    this.selectItem(
-      values[newPosition],
-      [KEY_CODES.DOWN, KEY_CODES.UP].includes(code),
-    );
-  };
+  useEffect(() => {
+    if (values?.length) selectItem(values[0]);
+  }, [values]); // eslint-disable-line
 
-  isSelected = (item) => {
-    const { selectedItem } = this.state;
-    if (!selectedItem) return false;
-
-    return this.getId(selectedItem) === this.getId(item);
-  };
-
-  renderHeader = (value) => {
+  const renderHeader = (value) => {
     if (value[0] === '/') {
-      return `Commands matching <strong>${value.replace('/', '')}</strong>`;
+      const html = `<strong>${value.replace('/', '')}</strong>`;
+      return `${t('Commands matching')} ${html}`;
     }
 
     if (value[0] === ':') {
-      return `Emoji matching <strong>${value.replace(':', '')}</strong>`;
+      const html = `<strong>${value.replace(':', '')}</strong>`;
+      return `${t('Emoji matching')} ${html}}`;
     }
 
     if (value[0] === '@') {
-      return `Searching for people`;
+      return t('Searching for people');
     }
+
+    return null;
   };
 
-  render() {
-    const {
-      values,
-      component,
-      style,
-      itemClassName,
-      className,
-      itemStyle,
-    } = this.props;
-
-    return (
-      <ul className={`rta__list ${className || ''}`} style={style}>
-        <li
-          className="rta__list-header"
-          dangerouslySetInnerHTML={{
-            __html: this.renderHeader(this.props.value),
+  return (
+    <ul className={`rta__list ${className || ''}`} style={style}>
+      <li
+        className="rta__list-header"
+        dangerouslySetInnerHTML={{
+          __html: renderHeader(propValue),
+        }}
+      />
+      {values.map((item) => (
+        <Item
+          className={itemClassName}
+          component={component}
+          item={item}
+          key={getId(item)}
+          onClickHandler={handleClick}
+          onSelectHandler={selectItem}
+          ref={(ref) => {
+            itemsRef[getId(item)] = ref;
           }}
+          selected={isSelected(item)}
+          style={itemStyle}
         />
-        {values.map((item) => (
-          <Item
-            key={this.getId(item)}
-            innerRef={(ref) => {
-              this.itemsRef[this.getId(item)] = ref;
-            }}
-            selected={this.isSelected(item)}
-            item={item}
-            className={itemClassName}
-            style={itemStyle}
-            onClickHandler={this.onPressEnter}
-            onSelectHandler={this.selectItem}
-            component={component}
-          />
-        ))}
-      </ul>
-    );
-  }
-}
+      ))}
+    </ul>
+  );
+};
 
 export default List;

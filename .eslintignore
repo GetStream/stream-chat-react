@@ -16,3 +16,4 @@ dist
 babel.i18next-extract.js
 /built
 /coverage
+types/index.d.ts

@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateUser,
@@ -132,6 +132,28 @@ describe('Thread', () => {
     );
   });
 
+  it('should render a custom ThreadHeader if it is passed as a prop', async () => {
+    const CustomThreadHeader = jest.fn(() => (
+      <div data-testid="custom-thread-header" />
+    ));
+
+    const { getByTestId } = renderComponent({
+      ThreadHeader: CustomThreadHeader,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('custom-thread-header')).toBeInTheDocument();
+      expect(CustomThreadHeader).toHaveBeenCalledWith(
+        expect.objectContaining({
+          closeThread: channelContextMock.closeThread,
+          t: i18nMock,
+          thread: threadStart,
+        }),
+        {},
+      );
+    });
+  });
+
   it('should call the closeThread callback if the button is pressed', () => {
     const { getByTestId } = renderComponent();
 
@@ -154,8 +176,8 @@ describe('Thread', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should not render anything if the thread prop is falsy', () => {
-    const { container } = renderComponent({ thread: null });
+  it('should not render anything if the thread in context is falsy', () => {
+    const { container } = renderComponent({}, { thread: null });
 
     expect(
       container.querySelector('.str-chat__thread'),

@@ -135,6 +135,60 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
     });
 
+    it('Should render default emoji svg', async () => {
+      const { findByTitle } = renderComponent();
+      const emojiIcon = await findByTitle('Open emoji picker');
+
+      await waitFor(() => {
+        expect(emojiIcon).toBeInTheDocument();
+      });
+    });
+
+    it('Should render custom emoji svg provided as prop', async () => {
+      const EmojiIcon = () => (
+        <svg>
+          <title>NotEmoji</title>
+        </svg>
+      );
+
+      const { findByTitle } = renderComponent({
+        EmojiIcon,
+      });
+
+      const emojiIcon = await findByTitle('NotEmoji');
+
+      await waitFor(() => {
+        expect(emojiIcon).toBeInTheDocument();
+      });
+    });
+
+    it('Should render default file upload icon', async () => {
+      const { findByTitle } = renderComponent();
+      const fileUploadIcon = await findByTitle('Attach files');
+
+      await waitFor(() => {
+        expect(fileUploadIcon).toBeInTheDocument();
+      });
+    });
+
+    it('Should render custom file upload svg provided as prop', async () => {
+      const FileUploadIcon = () => (
+        <svg>
+          <title>NotFileUploadIcon</title>
+        </svg>
+      );
+
+      const { findByTitle } = renderComponent({
+        FileUploadIcon,
+      });
+
+      const fileUploadIcon = await findByTitle('NotFileUploadIcon');
+
+      await waitFor(() => {
+        expect(fileUploadIcon).toBeInTheDocument();
+      });
+    });
+
     it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
       const {
         container,
@@ -694,6 +748,36 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         ),
       );
+    });
+
+    it('should override the default List component when SuggestionList is provided as a prop', async () => {
+      const SuggestionList = () => (
+        <div data-testid="suggestion-list">Suggestion List</div>
+      );
+
+      const {
+        findByPlaceholderText,
+        getByTestId,
+        queryByText,
+      } = renderComponent({
+        SuggestionList,
+      });
+
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+
+      await waitFor(() =>
+        expect(queryByText('Suggestion List')).not.toBeInTheDocument(),
+      );
+
+      fireEvent.change(formElement, {
+        target: { value: '/' },
+      });
+
+      if (componentName !== 'EditMessageForm') {
+        await waitFor(
+          () => expect(getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
+        );
+      }
     });
   });
 });

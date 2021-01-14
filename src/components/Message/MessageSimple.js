@@ -5,9 +5,13 @@ import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { smartRender } from '../../utils';
 import { TranslationContext, ChannelContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { MML } from '../MML';
 import { Modal } from '../Modal';
-import { MessageInput, EditMessageForm } from '../MessageInput';
+import {
+  MessageInput,
+  EditMessageForm as DefaultEditMessageForm,
+} from '../MessageInput';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import {
@@ -46,6 +50,7 @@ const MessageSimple = (props) => {
   const {
     clearEditingState,
     editing,
+    EditMessageInput = DefaultEditMessageForm,
     message,
     threadList,
     formatDate,
@@ -78,6 +83,7 @@ const MessageSimple = (props) => {
   } = useReactionClick(message, reactionSelectorRef);
   const {
     Attachment = DefaultAttachment,
+    Avatar = DefaultAvatar,
     MessageDeleted = DefaultMessageDeleted,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
@@ -102,7 +108,7 @@ const MessageSimple = (props) => {
       {editing && (
         <Modal open={editing} onClose={clearEditingState}>
           <MessageInput
-            Input={EditMessageForm}
+            Input={EditMessageInput}
             message={message}
             clearEditingState={clearEditingState}
             updateMessage={updateMessage}
@@ -205,6 +211,15 @@ const MessageSimple = (props) => {
                 reactionSelectorRef={reactionSelectorRef}
               />
             )}
+
+            {message.mml && (
+              <MML
+                source={message.mml}
+                actionHandler={handleAction}
+                align={isMyMessage ? 'right' : 'left'}
+              />
+            )}
+
             {!threadList && message.reply_count !== 0 && (
               <div className="str-chat__message-simple-reply-button">
                 <MessageRepliesCountButton
@@ -238,6 +253,7 @@ const MessageSimple = (props) => {
 
 /** @type { React.FC<import('types').MessageSimpleProps> } */
 const MessageSimpleStatus = ({
+  Avatar = DefaultAvatar,
   readBy,
   message,
   threadList,
@@ -322,6 +338,18 @@ MessageSimple.propTypes = {
    * */
   Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to override default edit message input
+   *
+   * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
+   * */
+  EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
+  /**
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *
    * The higher order message component, most logic is delegated to this component
@@ -345,7 +373,7 @@ MessageSimple.propTypes = {
   /** If component is in thread list */
   threadList: PropTypes.bool,
   /**
-   * Function to open thread on current messxage
+   * Function to open thread on current message
    * @deprecated The component now relies on the useThreadHandler custom hook
    * You can customize the behaviour for your thread handler on the <Channel> component instead.
    */
@@ -357,7 +385,7 @@ MessageSimple.propTypes = {
   /** Returns true if message belongs to current user */
   isMyMessage: PropTypes.func,
   /**
-   * Returns all allowed actions on message by current user e.g., [edit, delete, flag, mute]
+   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
   getMessageActions: PropTypes.func.isRequired,

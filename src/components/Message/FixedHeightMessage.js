@@ -3,11 +3,12 @@ import React, { useMemo, useContext, useCallback } from 'react';
 
 import MessageTimestamp from './MessageTimestamp';
 import { Avatar } from '../Avatar';
+import { MML } from '../MML';
 import { renderText } from '../../utils';
 import { ChatContext } from '../../context';
 import { Gallery } from '../Gallery';
 import { MessageActions } from '../MessageActions';
-import { useUserRole } from './hooks';
+import { useUserRole, useActionHandler } from './hooks';
 import { getMessageActions } from './utils';
 
 /**
@@ -46,6 +47,7 @@ const getUserColor = (theme, userId) => {
 const FixedHeightMessage = ({ message, groupedByUser }) => {
   const { theme } = useContext(ChatContext);
   const role = useUserRole(message);
+  const handleAction = useActionHandler(message);
 
   const renderedText = useMemo(
     () => renderText(message.text, message.mentioned_users),
@@ -91,6 +93,15 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
 
         <div className="str-chat__virtual-message__text" data-testid="msg-text">
           {renderedText}
+
+          {message.mml && (
+            <MML
+              source={message.mml}
+              actionHandler={handleAction}
+              align="left"
+            />
+          )}
+
           <div className="str-chat__virtual-message__data">
             <MessageActions
               message={message}

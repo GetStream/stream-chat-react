@@ -169,6 +169,12 @@ Message.propTypes = {
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate: PropTypes.func,
   /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /**
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
@@ -195,7 +201,7 @@ Message.propTypes = {
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'mute', 'flag']
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
    * */
   messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),

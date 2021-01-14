@@ -1,5 +1,95 @@
 # Changelog
 
+## [3.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.6) 2021-01-08
+
+## Feature
+
+- Add SuggestionList as MessageInput prop to override default List and Item component to display trigger suggestions [#655](https://github.com/GetStream/stream-chat-react/pull/655)
+- Add allowNewMessagesFromUnfilteredChannels prop to ChannelList [#663](https://github.com/GetStream/stream-chat-react/pull/663)
+
+## Fix
+
+- Fix type for mentions handler [#660](https://github.com/GetStream/stream-chat-react/pull/660)
+
+## Chore
+
+- Convert Thread to functional component [#650](https://github.com/GetStream/stream-chat-react/pull/650)
+- Convert messaging sample app to functional component [#661](https://github.com/GetStream/stream-chat-react/pull/661)
+
+## [3.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.5) 2021-01-07
+
+## Feature
+
+- Message components accept custom EditMessageInput component [#656](https://github.com/GetStream/stream-chat-react/pull/656)
+
+## Fix
+
+- Message actions default options doc [#654](https://github.com/GetStream/stream-chat-react/pull/654)
+- MessageList unread TypeError [#654](https://github.com/GetStream/stream-chat-react/pull/654)
+- ChannelHeader button css padding [#648](https://github.com/GetStream/stream-chat-react/pull/648)
+
+## Chore
+
+- Bump dependencies [#657](https://github.com/GetStream/stream-chat-react/pull/657) [#659](https://github.com/GetStream/stream-chat-react/pull/659)
+
+## [3.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.4) 2020-12-23
+
+## Addition
+
+- Export the UploadsPreview component. [#647](https://github.com/GetStream/stream-chat-react/pull/647)
+
+## [3.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.3) 2020-12-16
+
+## Fix
+
+- Browser bundle undefined variable
+
+## [3.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.2) 2020-12-16
+
+## Adjustment
+
+- Changes default smiley face icon for reaction selector. [#645](https://github.com/GetStream/stream-chat-react/pull/645)
+
+## [3.4.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.1) 2020-12-15
+
+## Feature
+
+- Adds custom UI component prop `ThreadHeader` to `Thread` to override the default header. [#642](https://github.com/GetStream/stream-chat-react/pull/642)
+
+## [3.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.0) 2020-12-14
+
+## Feature
+
+- MML is supported by default in all Message components except `MessageLiveStream`. [#562](https://github.com/GetStream/stream-chat-react/pull/562)
+
+  For more detail about how to use MML please refer to [mml-react](https://getstream.github.io/mml-react/) docs.
+
+## [3.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.3.2) 2020-12-11
+
+## Fix
+
+- Add error handling for `loadMoreThread` API request [#627](https://github.com/GetStream/stream-chat-react/pull/627)
+
+## [3.3.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.3.1) 2020-12-9
+
+## Fix
+
+- Add additional user role check for `isModerator` boolean [#625](https://github.com/GetStream/stream-chat-react/pull/625)
+
+## [3.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.3.0) 2020-12-3
+
+## Feature
+
+- Allow all instances of Avatar to be overridden with a custom component via props [#610](https://github.com/GetStream/stream-chat-react/pull/610)
+
+## [3.2.4](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.4) 2020-11-19
+
+## Fix
+
+- Prevent firing LoadMore requests when browser is offline [#614](https://github.com/GetStream/stream-chat-react/pull/614)
+- Support muted channels in ChannelPreview [#608](https://github.com/GetStream/stream-chat-react/pull/608)
+- `ChannelContext.sendMessage` type accepts missing text [#613](https://github.com/GetStream/stream-chat-react/pull/613)
+
 ## [3.2.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.2.3) 2020-11-13
 
 ## Fix

@@ -1,43 +1,34 @@
-//
-
 import React from 'react';
 
-export class Item extends React.Component {
-  selectItem = () => {
-    const { item, onSelectHandler } = this.props;
-    onSelectHandler(item);
-  };
+// eslint-disable-next-line react/display-name
+const Item = React.forwardRef((props, innerRef) => {
+  const {
+    className,
+    component: Component,
+    item,
+    onClickHandler,
+    onSelectHandler,
+    selected,
+    style,
+  } = props;
 
-  render() {
-    const {
-      component: Component,
-      style,
-      onClickHandler,
-      item,
-      selected,
-      className,
-      innerRef,
-    } = this.props;
+  const selectItem = () => onSelectHandler(item);
 
-    return (
-      <li className={`rta__item ${className || ''}`} style={style}>
-        <div
-          className={`rta__entity ${
-            selected === true ? 'rta__entity--selected' : ''
-          }`}
-          role="button"
-          tabIndex={0}
-          onClick={onClickHandler}
-          onFocus={this.selectItem}
-          onMouseEnter={this.selectItem}
-          /* $FlowFixMe */
-          ref={innerRef}
-        >
-          <Component selected={selected} entity={item} />
-        </div>
-      </li>
-    );
-  }
-}
+  return (
+    <li className={`rta__item ${className || ''}`} style={style}>
+      <div
+        className={`rta__entity ${selected ? 'rta__entity--selected' : ''}`}
+        onClick={onClickHandler}
+        onFocus={selectItem}
+        onMouseEnter={selectItem}
+        ref={innerRef}
+        role="button"
+        tabIndex={0}
+      >
+        <Component selected={selected} entity={item} />
+      </div>
+    </li>
+  );
+});
 
 export default Item;

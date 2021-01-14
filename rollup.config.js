@@ -75,6 +75,7 @@ const externalDependencies = [
   'seamless-immutable',
   'textarea-caret',
   /uuid/,
+  'mml-react',
 ];
 
 const basePlugins = [
@@ -173,7 +174,7 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
     // To work with globals rollup expects them to be namespaced, what is not the case with stream-chat.
     // This injects some code to define stream-chat globals as expected by rollup.
     prepend(
-      'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;',
+      'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;window.ICAL=window.ICAL||{};',
     ),
     min ? terser() : null,
   ],
