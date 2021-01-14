@@ -1,4 +1,3 @@
-// @ts-check
 import {
   useReducer,
   useEffect,
@@ -62,7 +61,7 @@ function initState(message) {
     };
   }
 
-  // if message prop is defined, get imageuploads, fileuploads, text, etc. from it
+  // if message prop is defined, get image uploads, file uploads, text, etc. from it
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
@@ -225,12 +224,16 @@ export default function useMessageInput(props) {
     publishTypingEvent,
   } = props;
 
+  const {
+    channel,
+    editMessage,
+    maxNumberOfFiles,
+    multipleUploads,
+    sendMessage,
+  } = useContext(ChannelContext);
+
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
-  const textareaRef = useRef(
-    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
-  );
-  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
-  const channelContext = useContext(ChannelContext);
+
   const {
     text,
     imageOrder,
@@ -241,10 +244,13 @@ export default function useMessageInput(props) {
     numberOfUploads,
     mentioned_users,
   } = state;
-  const { channel, editMessage, sendMessage } = channelContext;
+
+  const textareaRef = useRef(
+    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
+  );
+  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
 
   // Focus
-
   useEffect(() => {
     if (focus && textareaRef.current) {
       textareaRef.current.focus();
@@ -253,6 +259,7 @@ export default function useMessageInput(props) {
 
   // Text + cursor position
   const newCursorPosition = useRef(/** @type {number | null} */ (null));
+
   const insertText = useCallback(
     (textToInsert) => {
       if (!textareaRef.current) {
@@ -263,18 +270,27 @@ export default function useMessageInput(props) {
         return;
       }
 
-      const textareaElement = textareaRef.current;
-      const { selectionStart, selectionEnd } = textareaElement;
+      const { maxLength } = additionalTextareaProps;
+      const { selectionStart, selectionEnd } = textareaRef.current;
       newCursorPosition.current = selectionStart + textToInsert.length;
+
       dispatch({
         type: 'setText',
-        getNewText: (prevText) =>
-          prevText.slice(0, selectionStart) +
-          textToInsert +
-          prevText.slice(selectionEnd),
+        getNewText: (prevText) => {
+          const updatedText =
+            prevText.slice(0, selectionStart) +
+            textToInsert +
+            prevText.slice(selectionEnd);
+
+          if (updatedText.length > maxLength) {
+            return updatedText.slice(0, maxLength);
+          }
+
+          return updatedText;
+        },
       });
     },
-    [textareaRef, newCursorPosition],
+    [additionalTextareaProps, newCursorPosition, textareaRef],
   );
 
   useEffect(() => {
@@ -525,7 +541,7 @@ export default function useMessageInput(props) {
           dispatch({ type: 'setFileUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the paramaters passed to the error handler actually make sense
+          // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(e, 'upload-file', file);
         }
         return;
@@ -580,7 +596,7 @@ export default function useMessageInput(props) {
           dispatch({ type: 'setImageUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the paramaters passed to the error handler actually make sense
+          // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(e, 'upload-image', {
             id,
             file,
@@ -640,12 +656,12 @@ export default function useMessageInput(props) {
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
   const maxFilesAllowed = useMemo(() => {
-    if (!channelContext.multipleUploads) return 1;
-    if (channelContext.maxNumberOfFiles === undefined) {
+    if (!multipleUploads) return 1;
+    if (maxNumberOfFiles === undefined) {
       return apiMaxNumberOfFiles;
     }
-    return channelContext.maxNumberOfFiles;
-  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
+    return maxNumberOfFiles;
+  }, [maxNumberOfFiles, multipleUploads]);
 
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
@@ -702,21 +718,12 @@ export default function useMessageInput(props) {
 
         // fallback to regular text paste
         if (plainTextPromise) {
-          const { maxLength } = additionalTextareaProps;
           const pastedText = await plainTextPromise;
-
-          if (pastedText.length > maxLength) {
-            dispatch({
-              type: 'setText',
-              getNewText: () => pastedText.slice(0, maxLength),
-            });
-          } else {
-            insertText(pastedText);
-          }
+          insertText(pastedText);
         }
       })(e);
     },
-    [additionalTextareaProps, insertText, uploadNewFiles],
+    [insertText, uploadNewFiles],
   );
 
   const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
