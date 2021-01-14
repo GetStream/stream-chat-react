@@ -634,13 +634,15 @@ class ReactTextareaAutocomplete extends React.Component {
       SuggestionList = DefaultSuggestionList,
     } = this.props;
 
+    let { maxRows } = this.props;
+
     const { component, currentTrigger, dataLoading, value } = this.state;
 
     const selectedItem = this._getItemOnSelect();
     const suggestionData = this._getSuggestions();
     const textToReplace = this._getTextToReplace();
 
-    const SuggestionListDropDown = () => {
+    const SuggestionListContainer = () => {
       if (
         (dataLoading || suggestionData) &&
         currentTrigger &&
@@ -674,7 +676,6 @@ class ReactTextareaAutocomplete extends React.Component {
       return null;
     };
 
-    let { maxRows } = this.props;
     if (!this.props.grow) maxRows = 1;
 
     return (
@@ -684,7 +685,7 @@ class ReactTextareaAutocomplete extends React.Component {
         }`}
         style={containerStyle}
       >
-        <SuggestionListDropDown />
+        <SuggestionListContainer />
         <Textarea
           {...this._cleanUpProps()}
           className={`rta__textarea ${className || ''}`}
