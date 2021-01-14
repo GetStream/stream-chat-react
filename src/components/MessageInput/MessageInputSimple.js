@@ -43,6 +43,7 @@ const MessageInputSimple = (props) => {
             triggers={props.autocompleteTriggers}
             grow={props.grow}
             disabled={props.disabled}
+            disableMentions={props.disableMentions}
             SuggestionList={props.SuggestionList}
             additionalTextareaProps={props.additionalTextareaProps}
           />
@@ -72,6 +73,8 @@ MessageInputSimple.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** Disable mentions in textarea */
+  disableMentions: PropTypes.bool,
   /** enable/disable firing the typing event */
   publishTypingEvent: PropTypes.bool,
   /**

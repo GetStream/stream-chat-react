@@ -104,11 +104,12 @@ const List = (props) => {
 
     if (value[0] === ':') {
       const html = `<strong>${value.replace(':', '')}</strong>`;
-      return `${t('Emoji matching')} ${html}}`;
+      return `${t('Emoji matching')} ${html}`;
     }
 
     if (value[0] === '@') {
-      return t('Searching for people');
+      const html = `<strong>${value.replace('@', '')}</strong>`;
+      return `${t('People matching')} ${html}`;
     }
 
     return null;
