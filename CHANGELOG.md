@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.4.7](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.7) 2021-01-15
+
+## Feature
+
+- Support typing indicator in Thread component [#662](https://github.com/GetStream/stream-chat-react/pull/662)
+- Add parent ID to typing events [#665](https://github.com/GetStream/stream-chat-react/pull/665)
+- Allow MessageInput emoji and file upload icon customization [#666](https://github.com/GetStream/stream-chat-react/pull/666)
+- Add optional `disableMentions` prop to MessageInput and update mentions UI [#669](https://github.com/GetStream/stream-chat-react/pull/669)
+
+## Fix
+
+- Fix maxLength paste text bug [#670](https://github.com/GetStream/stream-chat-react/pull/670)
+
 ## [3.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.6) 2021-01-08
 
 ## Feature
