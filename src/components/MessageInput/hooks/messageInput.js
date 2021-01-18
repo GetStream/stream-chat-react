@@ -681,7 +681,10 @@ export default function useMessageInput(props) {
         .slice(0, maxFilesLeft)
         .forEach((file) => {
           const id = generateRandomId();
-          if (file.type.startsWith('image/')) {
+          if (
+            file.type.startsWith('image/') &&
+            !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
+          ) {
             dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
           } else if (file instanceof File && !noFiles) {
             dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
