@@ -9,6 +9,7 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         messages: channel.state.messages,
+        pinnedMessages: channel.state.pinnedMessages,
         read: channel.state.read,
         watchers: channel.state.watchers,
         members: channel.state.members,
@@ -118,6 +119,7 @@ export const initialState = {
   loadingMore: false,
   hasMore: true,
   messages: Immutable([]),
+  pinnedMessages: Immutable([]),
   typing: Immutable(/** @type {any} infer from ChannelState */ ({})),
   members: Immutable(/** @type {any} infer from ChannelState */ ({})),
   watchers: Immutable(/** @type {any} infer from ChannelState */ ({})),

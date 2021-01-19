@@ -6,6 +6,7 @@ export const generateChannel = (options = { channel: {} }) => {
   const type = (optionsChannel && optionsChannel.type) || 'messaging';
   return {
     messages: [],
+    pinnedMessages: [],
     members: [],
     ...optionsBesidesChannel,
     channel: {

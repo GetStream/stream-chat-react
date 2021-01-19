@@ -9,6 +9,7 @@ export const generateMessage = (options) => {
     html: '<p>regular</p>',
     attachments: [],
     created_at: new Date(),
+    pinned_at: null,
     updated_at: new Date(),
     user: null,
     status: 'received',
