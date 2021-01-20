@@ -355,6 +355,7 @@ export default function useMessageInput(props) {
       value: true,
     });
 
+    // prevents race condition where event listener picks up the click that opens the picker
     setTimeout(() =>
       document.addEventListener('click', closeEmojiPicker, false),
     );
