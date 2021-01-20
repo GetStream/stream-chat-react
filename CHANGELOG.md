@@ -1,10 +1,16 @@
 # Changelog
 
+## [3.5.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.2) 2021-01-20
+
+### Fix
+
+- Handle emoji picker event listener race condition [#675](https://github.com/GetStream/stream-chat-react/pull/675)
+
 ## [3.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.1) 2021-01-19
 
 ### Fix
 
-- Upload PSD attachments as file [#67](https://github.com/GetStream/stream-chat-react/pull/673)
+- Upload PSD attachments as file [#673](https://github.com/GetStream/stream-chat-react/pull/673)
 
 ### Chore
 
