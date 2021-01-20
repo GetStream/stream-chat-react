@@ -75,6 +75,7 @@ describe('Message utils', () => {
       canEdit: true,
       canFlag: true,
       canMute: true,
+      canPin: true,
       canReply: true,
       canReact: true,
     };

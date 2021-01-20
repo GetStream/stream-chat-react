@@ -51,6 +51,7 @@ export const MESSAGE_ACTIONS = {
  *   canDelete?: boolean;
  *   canMute?: boolean;
  *   canFlag?: boolean;
+ *   canPin?: boolean;
  *   canReact?: boolean;
  *   canReply?: boolean;
  * }} Capabilities
@@ -80,16 +81,16 @@ export const getMessageActions = (
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
   }
 
-  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
-  }
-
   if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
   }
 
   if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
+  }
+
+  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
   }
 
   if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {
