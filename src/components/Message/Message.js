@@ -1,27 +1,28 @@
-// @ts-check
 import React, { useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { ChannelContext } from '../../context';
+
 import MessageSimple from './MessageSimple';
-import { checkChannelPropType, checkClientPropType } from '../../utils';
 import {
-  MESSAGE_ACTIONS,
-  getMessageActions,
-  areMessagePropsEqual,
-} from './utils';
-import {
-  useMuteHandler,
-  useEditHandler,
-  useReactionHandler,
-  useDeleteHandler,
   useActionHandler,
-  useRetryHandler,
-  useMentionsHandler,
-  useUserHandler,
-  useOpenThreadHandler,
-  useUserRole,
+  useDeleteHandler,
+  useEditHandler,
   useFlagHandler,
+  useMentionsHandler,
+  useMuteHandler,
+  useOpenThreadHandler,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
+  useUserRole,
 } from './hooks';
+import {
+  areMessagePropsEqual,
+  getMessageActions,
+  MESSAGE_ACTIONS,
+} from './utils';
+
+import { ChannelContext } from '../../context';
+import { checkChannelPropType, checkClientPropType } from '../../utils';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -33,55 +34,66 @@ import {
 const Message = (props) => {
   const {
     addNotification,
+    channel: propChannel,
+    formatDate,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
+    groupStyles = [],
+    Message: MessageUIComponent = MessageSimple,
     message,
-    channel: propChannel,
+    messageActions = Object.keys(MESSAGE_ACTIONS),
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     openThread: propOpenThread,
     retrySendMessage: propRetrySendMessage,
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-    Message: MessageUIComponent = MessageSimple,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
-    formatDate,
-    groupStyles = [],
   } = props;
+
   const { channel: contextChannel } = useContext(ChannelContext);
+
   const channel = propChannel || contextChannel;
   const channelConfig = channel?.getConfig && channel.getConfig();
-  const { editing, setEdit, clearEdit } = useEditHandler();
-  const handleDelete = useDeleteHandler(message);
-  const handleReaction = useReactionHandler(message);
+
   const handleAction = useActionHandler(message);
-  const handleRetry = useRetryHandler(propRetrySendMessage);
+  const handleDelete = useDeleteHandler(message);
+  const { editing, setEdit, clearEdit } = useEditHandler();
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
+  const handleReaction = useReactionHandler(message);
+  const handleRetry = useRetryHandler(propRetrySendMessage);
+
   const handleFlag = useFlagHandler(message, {
     notify: addNotification,
     getSuccessNotification: getFlagMessageSuccessNotification,
     getErrorNotification: getFlagMessageErrorNotification,
   });
+
   const handleMute = useMuteHandler(message, {
     notify: addNotification,
     getSuccessNotification: getMuteUserSuccessNotification,
     getErrorNotification: getMuteUserErrorNotification,
   });
+
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
+
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
-  const canReact = true;
-  const canReply = true;
+
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
+  const canPin = true;
+  const canReact = true;
+  const canReply = true;
+
   const messageActionsHandler = useCallback(() => {
     if (!message || !messageActions) {
       return [];
@@ -90,20 +102,22 @@ const Message = (props) => {
     return getMessageActions(messageActions, {
       canDelete,
       canEdit,
+      canPin,
       canReply,
       canReact,
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
     });
   }, [
-    channelConfig,
-    message,
-    messageActions,
     canDelete,
     canEdit,
+    canPin,
     canReply,
     canReact,
+    channelConfig?.mutes,
     isMyMessage,
+    message,
+    messageActions,
   ]);
 
   const actionsEnabled =
@@ -113,28 +127,28 @@ const Message = (props) => {
     MessageUIComponent && (
       <MessageUIComponent
         {...props}
+        actionsEnabled={actionsEnabled}
+        channelConfig={channelConfig}
+        clearEditingState={clearEdit}
         editing={editing}
         formatDate={formatDate}
-        clearEditingState={clearEdit}
-        setEditingState={setEdit}
-        groupStyles={groupStyles}
-        actionsEnabled={actionsEnabled}
-        Message={MessageUIComponent}
-        handleReaction={handleReaction}
         getMessageActions={messageActionsHandler}
-        handleFlag={handleFlag}
-        handleMute={handleMute}
+        groupStyles={groupStyles}
         handleAction={handleAction}
         handleDelete={handleDelete}
         handleEdit={setEdit}
+        handleFlag={handleFlag}
+        handleMute={handleMute}
+        handleReaction={handleReaction}
         handleRetry={handleRetry}
         handleOpenThread={handleOpenThread}
         isMyMessage={() => isMyMessage}
-        channelConfig={channelConfig}
+        Message={MessageUIComponent}
         onMentionsClickMessage={onMentionsClick}
         onMentionsHoverMessage={onMentionsHover}
         onUserClick={onUserClick}
         onUserHover={onUserHover}
+        setEditingState={setEdit}
       />
     )
   );

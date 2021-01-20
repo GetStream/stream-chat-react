@@ -40,6 +40,7 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   flag: 'flag',
   mute: 'mute',
+  pin: 'pin',
   react: 'react',
   reply: 'reply',
 };
@@ -57,7 +58,7 @@ export const MESSAGE_ACTIONS = {
  */
 export const getMessageActions = (
   actions,
-  { canDelete, canFlag, canEdit, canMute, canReact, canReply },
+  { canDelete, canFlag, canEdit, canMute, canPin, canReact, canReply },
 ) => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
@@ -77,6 +78,10 @@ export const getMessageActions = (
 
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+  }
+
+  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
   }
 
   if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
