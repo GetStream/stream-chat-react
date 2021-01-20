@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.1) 2021-01-19
+
+### Fix
+
+- Upload PSD attachments as file [#67](https://github.com/GetStream/stream-chat-react/pull/673)
+
+### Chore
+
+- Bump MML-React [#674](https://github.com/GetStream/stream-chat-react/pull/674)
+
 ## [3.5.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.0) 2021-01-15
 
 ## Feature
