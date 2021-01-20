@@ -61,7 +61,9 @@ const MessageActionsBox = ({
       <ul className="str-chat__message-actions-list">
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && (
           <button onClick={() => console.log('pinned', message)}>
-            <li className="str-chat__message-actions-list-item">{t('Pin')}</li>
+            <li className="str-chat__message-actions-list-item">
+              {!message?.pinned ? t('Pin') : t('Unpin')}
+            </li>
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
