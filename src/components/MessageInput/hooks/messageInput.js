@@ -355,9 +355,8 @@ export default function useMessageInput(props) {
       value: true,
     });
 
-    setTimeout(
-      () => document.addEventListener('click', closeEmojiPicker, false),
-      100,
+    setTimeout(() =>
+      document.addEventListener('click', closeEmojiPicker, false),
     );
   }, [closeEmojiPicker]);
 
