@@ -7,19 +7,22 @@ import { TranslationContext } from '../../context';
 
 /** @type {React.FC<import("types").MessageActionsBoxProps>} */
 const MessageActionsBox = ({
+  getMessageActions,
+  handleDelete,
+  handleEdit,
   handleFlag,
   handleMute,
-  handleEdit,
-  handleDelete,
-  getMessageActions,
   isUserMuted,
-  open = false,
-  mine,
+  message,
   messageListRect,
+  mine,
+  open = false,
 }) => {
   const { t } = useContext(TranslationContext);
-  const messageActions = getMessageActions();
+
   const [reverse, setReverse] = useState(false);
+
+  const messageActions = getMessageActions();
 
   const checkIfReverse = useCallback(
     (containerElement) => {
@@ -56,6 +59,11 @@ const MessageActionsBox = ({
       ref={checkIfReverse}
     >
       <ul className="str-chat__message-actions-list">
+        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && (
+          <button onClick={() => console.log('pinned', message)}>
+            <li className="str-chat__message-actions-list-item">{t('Pin')}</li>
+          </button>
+        )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button onClick={handleFlag}>
             <li className="str-chat__message-actions-list-item">{t('Flag')}</li>
@@ -88,6 +96,8 @@ const MessageActionsBox = ({
 };
 
 MessageActionsBox.propTypes = {
+  /** The [message object](https://getstream.io/chat/docs/#message_format) */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
   /** If the message actions box should be open or not */
   open: PropTypes.bool,
   /** If message belongs to current user. */

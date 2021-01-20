@@ -1222,8 +1222,11 @@ export interface LoadMoreButtonProps {
   onClick: React.MouseEventHandler;
   refreshing: boolean;
 }
+
 export interface LoadingChannelsProps {}
+
 export interface MessageActionsBoxProps {
+  message?: Client.MessageResponse;
   /** If the message actions box should be open or not */
   open?: boolean;
   /** If message belongs to current user. */

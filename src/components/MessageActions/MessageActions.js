@@ -99,6 +99,7 @@ export const MessageActions = (props) => {
         handleFlag={propHandleFlag || handleFlag}
         handleMute={propHandleMute || handleMute}
         isUserMuted={isMuted}
+        message={message}
         messageListRect={messageListRect}
         mine={isMyMessage}
         open={actionsBoxOpen}
