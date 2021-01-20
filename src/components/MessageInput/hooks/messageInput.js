@@ -354,7 +354,11 @@ export default function useMessageInput(props) {
       type: 'setEmojiPickerIsOpen',
       value: true,
     });
-    document.addEventListener('click', closeEmojiPicker, false);
+
+    setTimeout(
+      () => document.addEventListener('click', closeEmojiPicker, false),
+      100,
+    );
   }, [closeEmojiPicker]);
 
   const onSelectEmoji = useCallback((emoji) => insertText(emoji.native), [
