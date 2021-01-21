@@ -18,8 +18,7 @@ import {
 } from './hooks';
 import {
   areMessagePropsEqual,
-  defaultPinEnabledChannelTypes,
-  defaultPinEnabledUserRoles,
+  defaultPinPermissions,
   getMessageActions,
   MESSAGE_ACTIONS,
 } from './utils';
@@ -52,8 +51,7 @@ const Message = (props) => {
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     openThread: propOpenThread,
-    pinEnabledChannelTypes = defaultPinEnabledChannelTypes,
-    pinEnabledUserRoles = defaultPinEnabledUserRoles,
+    pinPermissions = defaultPinPermissions,
     retrySendMessage: propRetrySendMessage,
   } = props;
 
@@ -66,6 +64,7 @@ const Message = (props) => {
   const handleDelete = useDeleteHandler(message);
   const { editing, setEdit, clearEdit } = useEditHandler();
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
+  const { canPin, handlePin } = usePinHandler(message, pinPermissions);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
 
@@ -79,11 +78,6 @@ const Message = (props) => {
     notify: addNotification,
     getSuccessNotification: getMuteUserSuccessNotification,
     getErrorNotification: getMuteUserErrorNotification,
-  });
-
-  const { canPin, handlePin } = usePinHandler(message, {
-    pinEnabledChannelTypes,
-    pinEnabledUserRoles,
   });
 
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
@@ -310,13 +304,9 @@ Message.propTypes = {
    * */
   additionalMessageInputProps: PropTypes.object,
   /**
-   * The channel types that allow message pinning
+   * The user roles allowed to pin messages in various channel types
    */
-  pinEnabledChannelTypes: /** @type {PropTypes.Validator<import('types').PinEnabledChannelTypes>>} */ (PropTypes.object),
-  /**
-   * The user roles allowed to pin messages
-   */
-  pinEnabledUserRoles: /** @type {PropTypes.Validator<import('types').PinEnabledUserRoles>>} */ (PropTypes.object),
+  pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
 };
 
 Message.defaultProps = {

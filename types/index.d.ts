@@ -919,6 +919,7 @@ export interface MessageComponentProps
   ): void;
   initialMessage?: boolean;
   threadList?: boolean;
+  pinPermissions?: PinPermissions;
 }
 
 // MessageUIComponentProps defines the props for the Message UI components (e.g. MessageSimple)
@@ -1543,15 +1544,6 @@ export function useOpenThreadHandler(
   ) => void,
 ): (event: React.SyntheticEvent) => void;
 
-export type PinEnabledChannelTypes = {
-  commerce?: boolean;
-  gaming?: boolean;
-  livestream?: boolean;
-  messaging?: boolean;
-  team?: boolean;
-  [key: string]: boolean;
-};
-
 export type PinEnabledUserRoles = {
   admin?: boolean;
   anonymous?: boolean;
@@ -1565,14 +1557,21 @@ export type PinEnabledUserRoles = {
 };
 
 export type PinPermissions = {
-  pinEnabledChannelTypes: PinEnabledChannelTypes;
-  pinEnabledUserRoles: PinEnabledUserRoles;
+  commerce?: PinEnabledUserRoles;
+  gaming?: PinEnabledUserRoles;
+  livestream?: PinEnabledUserRoles;
+  messaging?: PinEnabledUserRoles;
+  team?: PinEnabledUserRoles;
+  [key: string]: PinEnabledUserRoles;
 };
 
 export function usePinHandler(
   message: Client.MessageResponse | undefined,
   pinPermissions: PinPermissions,
-): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+): {
+  canPin: boolean;
+  handlePin: (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+};
 
 export function useReactionHandler(
   message: Client.MessageResponse | undefined,

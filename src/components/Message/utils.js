@@ -45,24 +45,62 @@ export const MESSAGE_ACTIONS = {
   reply: 'reply',
 };
 
-export const defaultPinEnabledChannelTypes = {
-  commerce: false,
-  gaming: false,
-  livestream: true,
-  messaging: false,
-  team: true,
-};
-
-export const defaultPinEnabledUserRoles = {
-  admin: true,
-  anonymous: false,
-  channel_member: false,
-  channel_moderator: true,
-  guest: false,
-  member: false,
-  moderator: true,
-  owner: false,
-  user: false,
+export const defaultPinPermissions = {
+  commerce: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: false,
+    user: false,
+  },
+  gaming: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: false,
+    user: false,
+  },
+  livestream: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  messaging: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  team: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
 };
 
 /**
