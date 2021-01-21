@@ -5,6 +5,7 @@
 ### Fix
 
 - Handle emoji picker event listener race condition [#675](https://github.com/GetStream/stream-chat-react/pull/675)
+- Adjust style for only emoji messages [#676](https://github.com/GetStream/stream-chat-react/pull/676)
 
 ## [3.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.1) 2021-01-19
 
