@@ -120,7 +120,7 @@ const VirtualizedMessageList = ({
   return (
     <div className="str-chat__virtual-list">
       <Virtuoso
-        // @ts-ignore
+        // @ts-expect-error
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
@@ -178,7 +178,7 @@ const VirtualizedMessageList = ({
  * @returns {React.ElementType<import("types").VirtualizedMessageListInternalProps>}
  */
 export default function VirtualizedMessageListWithContext(props) {
-  // @ts-ignore
+  // @ts-expect-error
   return (
     <ChannelContext.Consumer>
       {(
@@ -186,13 +186,12 @@ export default function VirtualizedMessageListWithContext(props) {
       ) => (
         <VirtualizedMessageList
           client={context.client}
-          // @ts-ignore
           messages={context.messages}
-          // @ts-ignore
+          // @ts-expect-error
           loadMore={context.loadMore}
-          // @ts-ignore
+          // @ts-expect-error
           hasMore={context.hasMore}
-          // @ts-ignore
+          // @ts-expect-error
           loadingMore={context.loadingMore}
           {...props}
         />

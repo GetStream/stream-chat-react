@@ -2,8 +2,6 @@
 import React, { useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { emojiIndex } from 'emoji-mart';
-// ignore TS error because the type definitions for this package requires generics, which you can't do in jsdoc
-// @ts-ignore
 import debounce from 'lodash.debounce';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
@@ -39,7 +37,7 @@ const ChatAutoComplete = (props) => {
     const watcherUsers = watchers ? Object.values(watchers) : [];
     const users = [...memberUsers, ...watcherUsers];
     // make sure we don't list users twice
-    /** @type {{ [key: string]: import('seamless-immutable').ImmutableObject<import('stream-chat').UserResponse<import('types').StreamChatReactUserType>> }} */
+    /** @type {{ [key: string]: import('stream-chat').UserResponse<import('types').StreamChatReactUserType> }} */
     const uniqueUsers = {};
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {

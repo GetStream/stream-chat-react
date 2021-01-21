@@ -170,7 +170,6 @@ const ThreadInner = (props) => {
           channel={channel}
           client={client}
           initialMessage
-          // @ts-expect-error
           message={thread}
           Message={ThreadMessage}
           threadList

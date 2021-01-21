@@ -108,7 +108,7 @@ export const byDate = (a, b) => a.created_at - b.created_at;
 /** @type {import('react-markdown').NodeType[]} */
 const allowedMarkups = [
   'html',
-  // @ts-ignore
+  // @ts-expect-error
   'root',
   'text',
   'break',
@@ -229,7 +229,7 @@ function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
 
-// @ts-ignore
+// @ts-expect-error
 export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   if (ElementOrComponentOrLiteral === undefined) {
     ElementOrComponentOrLiteral = fallback;
@@ -252,7 +252,7 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   ) {
     return ComponentOrLiteral;
   }
-  // @ts-ignore
+  // @ts-expect-error
   return <ComponentOrLiteral {...props} />;
 };
 

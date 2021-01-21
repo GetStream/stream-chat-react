@@ -11,13 +11,13 @@ import ModalImage from './ModalImage';
 const ModalComponent = ({ images, toggleModal, index, modalIsOpen }) => (
   <ModalGateway>
     {modalIsOpen ? (
-      // @ts-ignore
+      // @ts-expect-error
       <Modal onClose={toggleModal}>
         <Carousel
           views={images}
           currentIndex={index}
           components={{
-            // @ts-ignore
+            // @ts-expect-error
             View: ModalImage,
           }}
         />

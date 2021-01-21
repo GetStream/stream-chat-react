@@ -33,7 +33,7 @@ const ReactionSelectorWithRef = (
   const tooltipRef = useRef(/** @type {HTMLDivElement | null} */ (null));
   const targetRef = useRef(/** @type {HTMLDivElement | null} */ (null));
 
-  // @ts-ignore because it's okay for our ref to be null in the parent component.
+  // @ts-expect-error because it's okay for our ref to be null in the parent component.
   useImperativeHandle(ref, () => containerRef.current);
 
   const showTooltip = useCallback((e, reactionType) => {
@@ -151,7 +151,7 @@ const ReactionSelectorWithRef = (
                 </React.Fragment>
               )}
               <NimbleEmoji
-                // @ts-ignore because emoji-mart types don't support specifying
+                // @ts-expect-error because emoji-mart types don't support specifying
                 // spriteUrl instead of imageUrl, while the implementation does
                 emoji={reactionOption}
                 {...emojiSetDef}

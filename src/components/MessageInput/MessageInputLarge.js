@@ -1,11 +1,10 @@
 // @ts-check
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
 import {
   ImageDropzone,
   FileUploadButton,
-  // @ts-ignore
+  // @ts-expect-error
 } from 'react-file-utils';
 
 import { TranslationContext, ChannelContext } from '../../context';

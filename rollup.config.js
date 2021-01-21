@@ -72,7 +72,6 @@ const externalDependencies = [
   'react-player',
   'react-textarea-autosize',
   'react-virtuoso',
-  'seamless-immutable',
   'textarea-caret',
   /uuid/,
   'mml-react',

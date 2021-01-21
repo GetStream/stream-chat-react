@@ -3,7 +3,6 @@ import {
   MessageResponse,
   ChannelState as ChannelStateFromClient,
 } from 'stream-chat';
-import { ImmutableArray } from 'seamless-immutable';
 import { Reducer } from 'react';
 
 export type ChannelState = {
@@ -17,10 +16,8 @@ export type ChannelState = {
   watchers: ChannelStateFromClient['watchers'];
   watcherCount: number;
   read: ChannelStateFromClient['read'];
-  thread: ReturnType<ChannelStateFromClient['messageToImmutable']> | null;
-  threadMessages: ImmutableArray<
-    ReturnType<ChannelStateFromClient['messageToImmutable']>
-  >;
+  thread: ReturnType<ChannelStateFromClient['formatMessage']> | null;
+  threadMessages: Array<ReturnType<ChannelStateFromClient['formatMessage']>>;
   threadLoadingMore: boolean;
   threadHasMore: boolean;
 };
@@ -35,7 +32,7 @@ export type ChannelStateReducerAction =
   | ChannelAction<'copyStateFromChannelOnEvent'>
   | {
       type: 'setThread';
-      message: ReturnType<ChannelStateFromClient['messageToImmutable']>;
+      message: ReturnType<ChannelStateFromClient['formatMessage']>;
     }
   | {
       type: 'loadMoreFinished';
@@ -59,7 +56,7 @@ export type ChannelStateReducerAction =
   | {
       type: 'openThread';
       channel: Channel;
-      message: ReturnType<ChannelStateFromClient['messageToImmutable']>;
+      message: ReturnType<ChannelStateFromClient['formatMessage']>;
     }
   | {
       type: 'startLoadingThread';
@@ -67,8 +64,8 @@ export type ChannelStateReducerAction =
   | {
       type: 'loadMoreThreadFinished';
       threadHasMore: boolean;
-      threadMessages: ImmutableArray<
-        ReturnType<ChannelStateFromClient['messageToImmutable']>
+      threadMessages: Array<
+        ReturnType<ChannelStateFromClient['formatMessage']>
       >;
     }
   | {

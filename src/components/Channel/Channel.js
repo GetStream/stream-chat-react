@@ -56,7 +56,7 @@ Channel.propTypes = {
    * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
    *
    * */
-  // @ts-ignore elementType
+  // @ts-expect-error elementType
   LoadingErrorIndicator: PropTypes.elementType,
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
@@ -65,7 +65,7 @@ Channel.propTypes = {
    *
    * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
    */
-  // @ts-ignore elementType
+  // @ts-expect-error elementType
   LoadingIndicator: PropTypes.elementType,
   /**
    * Message UI component to display a message in message list.
@@ -78,14 +78,14 @@ Channel.propTypes = {
    * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
    *
    * */
-  // @ts-ignore elementType
+  // @ts-expect-error elementType
   Message: PropTypes.elementType,
   /**
    * Attachment UI component to display attachment in individual message.
    *
    * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
    * */
-  // @ts-ignore elementType
+  // @ts-expect-error elementType
   Attachment: PropTypes.elementType,
   /**
    * Handle for click on @mention in message
@@ -463,7 +463,7 @@ const ChannelInner = ({
     debounce(
       /**
        * @param {boolean} threadHasMore
-       * @param {import('seamless-immutable').ImmutableArray<ReturnType<import('stream-chat').ChannelState['messageToImmutable']>>} threadMessages
+       * @param {Array<ReturnType<import('stream-chat').ChannelState['formatMessage']>>} threadMessages
        */
       (threadHasMore, threadMessages) => {
         dispatch({

@@ -49,7 +49,7 @@ const ReactionsList = ({
               <NimbleEmoji
                 // emoji-mart type defs don't support spriteSheet use case
                 // (but implementation does)
-                // @ts-ignore
+                // @ts-expect-error
                 emoji={emojiDefinition}
                 {...emojiSetDef}
                 size={16}

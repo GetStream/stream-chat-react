@@ -6,12 +6,11 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import Immutable from 'seamless-immutable';
 import { logChatPromiseExecution } from 'stream-chat';
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
-  // @ts-ignore
+  // @ts-expect-error
 } from 'react-file-utils';
 import { ChannelContext } from '../../../context/ChannelContext';
 import { generateRandomId } from '../../../utils';
@@ -51,9 +50,9 @@ function initState(message) {
     return {
       text: '',
       imageOrder: [],
-      imageUploads: Immutable(emptyImageUploads),
+      imageUploads: { ...emptyImageUploads },
       fileOrder: [],
-      fileUploads: Immutable(emptyFileUploads),
+      fileUploads: { ...emptyFileUploads },
       numberOfUploads: 0,
       attachments: [],
       mentioned_users: [],
@@ -67,15 +66,16 @@ function initState(message) {
       ?.filter(({ type }) => type === 'image')
       .reduce((acc, attachment) => {
         const id = generateRandomId();
-        return acc.setIn([id], {
+        acc[id] = {
           id,
           url: attachment.image_url,
           state: 'finished',
           file: {
             name: attachment.fallback,
           },
-        });
-      }, Immutable(emptyImageUploads)) || Immutable(emptyImageUploads);
+        };
+        return acc;
+      }, {}) || {};
   const imageOrder = Object.keys(imageUploads);
 
   const fileUploads =
@@ -83,7 +83,7 @@ function initState(message) {
       ?.filter(({ type }) => type === 'file')
       .reduce((acc, attachment) => {
         const id = generateRandomId();
-        return acc.setIn([id], {
+        acc[id] = {
           id,
           url: attachment.asset_url,
           state: 'finished',
@@ -92,8 +92,9 @@ function initState(message) {
             type: attachment.mime_type,
             size: attachment.file_size,
           },
-        });
-      }, Immutable(emptyFileUploads)) || Immutable(emptyFileUploads);
+        };
+        return acc;
+      }, {}) || {};
   const fileOrder = Object.keys(fileUploads);
 
   const numberOfUploads = fileOrder.length + imageOrder.length;
@@ -106,15 +107,15 @@ function initState(message) {
   const mentioned_users = message.mentioned_users || [];
 
   return {
-    text: message.text || '',
-    imageOrder,
-    imageUploads,
+    attachments,
+    emojiPickerIsOpen: false,
     fileOrder,
     fileUploads,
-    numberOfUploads,
-    attachments,
+    imageOrder,
+    imageUploads,
     mentioned_users,
-    emojiPickerIsOpen: false,
+    numberOfUploads,
+    text: message.text || '',
   };
 }
 /**
@@ -131,14 +132,15 @@ function messageInputReducer(state, action) {
       return { ...state, text: action.getNewText(state.text) };
     case 'clear':
       return {
-        ...state,
-        text: '',
-        mentioned_users: [],
-        imageOrder: [],
-        imageUploads: Immutable(emptyImageUploads),
+        attachments: [],
+        emojiPickerIsOpen: false,
         fileOrder: [],
-        fileUploads: Immutable(emptyFileUploads),
+        fileUploads: { ...emptyFileUploads },
+        imageOrder: [],
+        imageUploads: { ...emptyImageUploads },
+        mentioned_users: [],
         numberOfUploads: 0,
+        text: '',
       };
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
@@ -150,10 +152,10 @@ function messageInputReducer(state, action) {
       return {
         ...state,
         imageOrder,
-        imageUploads: state.imageUploads.setIn([action.id], {
-          ...state.imageUploads[action.id],
-          ...newUploadFields,
-        }),
+        imageUploads: {
+          ...state.imageUploads,
+          [action.id]: { ...state.imageUploads[action.id], ...newUploadFields },
+        },
         numberOfUploads: imageAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
@@ -169,31 +171,37 @@ function messageInputReducer(state, action) {
       return {
         ...state,
         fileOrder,
-        fileUploads: state.fileUploads.setIn([action.id], {
-          ...state.fileUploads[action.id],
-          ...newUploadFields,
-        }),
+        fileUploads: {
+          ...state.fileUploads,
+          [action.id]: { ...state.fileUploads[action.id], ...newUploadFields },
+        },
         numberOfUploads: fileAlreadyExists
           ? state.numberOfUploads
           : state.numberOfUploads + 1,
       };
     }
-    case 'removeImageUpload':
+    case 'removeImageUpload': {
       if (!state.imageUploads[action.id]) return state; // cannot remove anything
+      const newImageUploads = { ...state.imageUploads };
+      delete newImageUploads[action.id];
       return {
         ...state,
         numberOfUploads: state.numberOfUploads - 1,
         imageOrder: state.imageOrder.filter((_id) => _id !== action.id),
-        imageUploads: state.imageUploads.without(action.id),
+        imageUploads: newImageUploads,
       };
-    case 'removeFileUpload':
+    }
+    case 'removeFileUpload': {
       if (!state.fileUploads[action.id]) return state; // cannot remove anything
+      const newFileUploads = { ...state.fileUploads };
+      delete newFileUploads[action.id];
       return {
         ...state,
         numberOfUploads: state.numberOfUploads - 1,
         fileOrder: state.fileOrder.filter((_id) => _id !== action.id),
-        fileUploads: state.fileUploads.without(action.id),
+        fileUploads: newFileUploads,
       };
+    }
     case 'reduceNumberOfUploads': // TODO: figure out if we can just use uploadOrder instead
       return { ...state, numberOfUploads: state.numberOfUploads - 1 };
     case 'addMentionedUser':
@@ -490,6 +498,7 @@ export default function useMessageInput(props) {
       }).then(clearEditingState);
 
       logChatPromiseExecution(updateMessagePromise, 'update message');
+      dispatch({ type: 'clear' });
     } else if (
       overrideSubmitHandler &&
       typeof overrideSubmitHandler === 'function' &&
@@ -670,14 +679,12 @@ export default function useMessageInput(props) {
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
-  const maxFilesAllowed = useMemo(() => {
-    if (!multipleUploads) return 1;
-    if (maxNumberOfFiles === undefined) {
-      return apiMaxNumberOfFiles;
-    }
-    return maxNumberOfFiles;
-  }, [maxNumberOfFiles, multipleUploads]);
+  const maxFilesAllowed = useMemo(
+    () => (!multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles),
+    [maxNumberOfFiles, multipleUploads],
+  );
 
+  // return !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   const uploadNewFiles = useCallback(
@@ -722,8 +729,8 @@ export default function useMessageInput(props) {
 
         if (plainTextItem) {
           plainTextPromise = new Promise((resolve) => {
-            plainTextItem.getAsString((s) => {
-              resolve(s);
+            plainTextItem.getAsString((string) => {
+              resolve(string);
             });
           });
         }

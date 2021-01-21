@@ -151,7 +151,7 @@ const MessageSimple = (props) => {
                 // FIXME: type checking fails here because in the case of a failed message,
                 // `message` is of type Client.Message (i.e. request object)
                 // instead of Client.MessageResponse (i.e. server response object)
-                // @ts-ignore
+                // @ts-expect-error
                 retryHandler(message);
               }
             }}
@@ -207,7 +207,7 @@ const MessageSimple = (props) => {
                 }}
                 // FIXME: There's some unmatched definition between the infered and the declared
                 // ReactionSelector reference
-                // @ts-ignore
+                // @ts-expect-error
                 reactionSelectorRef={reactionSelectorRef}
               />
             )}
@@ -362,7 +362,7 @@ MessageSimple.propTypes = {
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML: PropTypes.bool,
   /** Client object */
-  // @ts-ignore
+  // @ts-expect-error
   client: PropTypes.object,
   /** If its parent message in thread. */
   initialMessage: PropTypes.bool,
