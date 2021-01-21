@@ -118,6 +118,10 @@ const ChannelList = (props) => {
     activeChannelHandler,
   );
 
+  const loadedChannels = props.filterFunction
+    ? props.filterFunction(channels)
+    : channels;
+
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   // All the event listeners
@@ -216,13 +220,13 @@ const ChannelList = (props) => {
         LoadingIndicator={LoadingIndicator}
         LoadingErrorIndicator={LoadingErrorIndicator}
       >
-        {!channels || channels.length === 0
+        {!loadedChannels || loadedChannels.length === 0
           ? renderEmptyStateIndicator()
           : smartRender(Paginator, {
               loadNextPage,
               hasNextPage,
               refreshing: status.refreshing,
-              children: channels.map((item) => renderChannel(item)),
+              children: loadedChannels.map((item) => renderChannel(item)),
             })}
       </List>
     );

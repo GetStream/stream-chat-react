@@ -176,6 +176,35 @@ describe('ChannelList', () => {
     });
   });
 
+  it('should only show filtered channels', async () => {
+    const customFilterFunction = (channels) => {
+      return channels.filter((channel) => channel.role === 'listitem');
+    };
+
+    const props = {
+      filters: {},
+      Preview: ChannelPreviewComponent,
+      List: ChannelListComponent,
+      filterFunction: customFilterFunction,
+    };
+
+    useMockedApis(chatClientUthred, [
+      queryChannelsApi([testChannel1, testChannel2]),
+    ]);
+
+    const { queryAllByTestId, debug } = render(
+      <Chat client={chatClientUthred}>
+        <ChannelList {...props} />
+      </Chat>,
+    );
+
+    // Wait for list of channels to load in DOM.
+    await waitFor(() => {
+      debug();
+      expect(queryAllByTestId('channelUpdateCount')).toHaveLength(0);
+    });
+  });
+
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
     useMockedApis(chatClientUthred, [erroredGetApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);

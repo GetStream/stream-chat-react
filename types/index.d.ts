@@ -322,6 +322,8 @@ export interface ChannelListProps {
     e: Client.Event,
   ): void;
   setActiveChannelOnMount?: boolean;
+  /** Optional channel list filter */
+  filterFunction?: (channels: Array<Client.Channel>) => Array<Client.Channel>;
   /** Object containing query filters */
   filters?: Client.ChannelFilters;
   /** Object containing query options */
