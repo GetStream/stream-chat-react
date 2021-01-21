@@ -10,6 +10,7 @@ import {
   useMentionsHandler,
   useMuteHandler,
   useOpenThreadHandler,
+  usePinHandler,
   useReactionHandler,
   useRetryHandler,
   useUserHandler,
@@ -17,6 +18,8 @@ import {
 } from './hooks';
 import {
   areMessagePropsEqual,
+  defaultPinEnabledChannelTypes,
+  defaultPinEnabledUserRoles,
   getMessageActions,
   MESSAGE_ACTIONS,
 } from './utils';
@@ -49,6 +52,8 @@ const Message = (props) => {
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     openThread: propOpenThread,
+    pinEnabledChannelTypes = defaultPinEnabledChannelTypes,
+    pinEnabledUserRoles = defaultPinEnabledUserRoles,
     retrySendMessage: propRetrySendMessage,
   } = props;
 
@@ -76,6 +81,11 @@ const Message = (props) => {
     getErrorNotification: getMuteUserErrorNotification,
   });
 
+  const { canPin, handlePin } = usePinHandler(message, {
+    pinEnabledChannelTypes,
+    pinEnabledUserRoles,
+  });
+
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
@@ -90,7 +100,6 @@ const Message = (props) => {
 
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
-  const canPin = true;
   const canReact = true;
   const canReply = true;
 
@@ -139,6 +148,7 @@ const Message = (props) => {
         handleEdit={setEdit}
         handleFlag={handleFlag}
         handleMute={handleMute}
+        handlePin={handlePin}
         handleReaction={handleReaction}
         handleRetry={handleRetry}
         handleOpenThread={handleOpenThread}
@@ -299,13 +309,18 @@ Message.propTypes = {
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps: PropTypes.object,
+  /**
+   * The channel types that allow message pinning
+   */
+  pinEnabledChannelTypes: /** @type {PropTypes.Validator<import('types').PinEnabledChannelTypes>>} */ (PropTypes.object),
+  /**
+   * The user roles allowed to pin messages
+   */
+  pinEnabledUserRoles: /** @type {PropTypes.Validator<import('types').PinEnabledUserRoles>>} */ (PropTypes.object),
 };
 
 Message.defaultProps = {
-  Message: MessageSimple,
   readBy: [],
-  groupStyles: [],
-  messageActions: Object.keys(MESSAGE_ACTIONS),
 };
 
 export default React.memo(Message, areMessagePropsEqual);

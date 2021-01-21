@@ -1543,6 +1543,37 @@ export function useOpenThreadHandler(
   ) => void,
 ): (event: React.SyntheticEvent) => void;
 
+export type PinEnabledChannelTypes = {
+  commerce?: boolean;
+  gaming?: boolean;
+  livestream?: boolean;
+  messaging?: boolean;
+  team?: boolean;
+  [key: string]: boolean;
+};
+
+export type PinEnabledUserRoles = {
+  admin?: boolean;
+  anonymous?: boolean;
+  channel_member?: boolean;
+  channel_moderator?: boolean;
+  guest?: boolean;
+  member?: boolean;
+  moderator?: boolean;
+  owner?: boolean;
+  user?: boolean;
+};
+
+export type PinPermissions = {
+  pinEnabledChannelTypes: PinEnabledChannelTypes;
+  pinEnabledUserRoles: PinEnabledUserRoles;
+};
+
+export function usePinHandler(
+  message: Client.MessageResponse | undefined,
+  pinPermissions: PinPermissions,
+): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+
 export function useReactionHandler(
   message: Client.MessageResponse | undefined,
 ): (reactionType: string, event: React.MouseEvent) => Promise<void>;

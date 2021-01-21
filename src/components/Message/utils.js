@@ -45,6 +45,26 @@ export const MESSAGE_ACTIONS = {
   reply: 'reply',
 };
 
+export const defaultPinEnabledChannelTypes = {
+  commerce: false,
+  gaming: false,
+  livestream: true,
+  messaging: false,
+  team: true,
+};
+
+export const defaultPinEnabledUserRoles = {
+  admin: true,
+  anonymous: false,
+  channel_member: false,
+  channel_moderator: true,
+  guest: false,
+  member: false,
+  moderator: true,
+  owner: false,
+  user: false,
+};
+
 /**
  * @typedef {{
  *   canEdit?: boolean;
