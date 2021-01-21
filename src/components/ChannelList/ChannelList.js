@@ -357,6 +357,10 @@ ChannelList.propTypes = {
    * */
   onChannelDeleted: PropTypes.func,
   /**
+   * Optional function for custom filtering channels.
+   * */
+  filterFunction: PropTypes.func,
+  /**
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.
    * */
