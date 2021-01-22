@@ -55,6 +55,15 @@ export type StreamChatReactClient = Client.StreamChat<
   AnyType,
   StreamChatReactUserType
 >;
+export type StreamChatChannel = Client.Channel<
+  AnyType,
+  StreamChatReactChannelType,
+  string & {},
+  AnyType,
+  StreamChatMessageType,
+  AnyType,
+  StreamChatReactUserType
+>;
 export type StreamChatChannelState = Client.ChannelState<
   AnyType,
   StreamChatReactChannelType,
