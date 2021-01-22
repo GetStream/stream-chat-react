@@ -192,7 +192,7 @@ describe('ChannelList', () => {
       queryChannelsApi([testChannel1, testChannel2]),
     ]);
 
-    const { queryAllByTestId, debug } = render(
+    const { queryAllByTestId } = render(
       <Chat client={chatClientUthred}>
         <ChannelList {...props} />
       </Chat>,
@@ -200,7 +200,6 @@ describe('ChannelList', () => {
 
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
-      debug();
       expect(queryAllByTestId('channelUpdateCount')).toHaveLength(0);
     });
   });
