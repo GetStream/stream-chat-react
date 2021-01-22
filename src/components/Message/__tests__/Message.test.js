@@ -494,7 +494,11 @@ describe('<Message /> component', () => {
     'should allow user to edit and delete message when user is %s',
     async (_, role) => {
       const message = generateMessage({ user: bob });
-      await renderComponent(message, {}, { state: { membership: { role } } });
+      await renderComponent(
+        message,
+        {},
+        { state: { membership: { role }, members: {}, watchers: {} } },
+      );
       const { getMessageActions } = getRenderedProps();
       expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
       expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -506,7 +510,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'owner' } } },
+      { state: { membership: { role: 'owner' }, members: {}, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -531,7 +535,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'admin' } } },
+      { state: { membership: { role: 'admin' }, members: {}, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);

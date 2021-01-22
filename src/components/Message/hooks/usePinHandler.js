@@ -8,13 +8,17 @@ export const usePinHandler = (message, permissions) => {
   const { client, channel } = useContext(ChannelContext);
 
   const canPin = () => {
-    if (!client || !channel?.state) return false;
+    if (!client || !channel?.state || !permissions) return false;
 
     const currentChannelPermissions = permissions[channel.type];
     const currentChannelMember = channel.state.members[client.userID];
     const currentChannelWatcher = channel.state.watchers[client.userID];
 
-    if (currentChannelPermissions[client.user.role]) return true;
+    if (
+      currentChannelPermissions &&
+      currentChannelPermissions[client.user?.role]
+    )
+      return true;
 
     if (
       currentChannelMember &&

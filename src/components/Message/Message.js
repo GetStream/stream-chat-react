@@ -174,11 +174,11 @@ Message.propTypes = {
   /** The client connection object for connecting to Stream */
   client: /** @type {PropTypes.Validator<import('types').StreamChatReactClient>} */ (PropTypes.objectOf(
     checkClientPropType,
-  ).isRequired),
+  )),
   /** The current channel this message is displayed in */
   channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
     checkChannelPropType,
-  ).isRequired),
+  )),
   /** A list of users that have read this message */
   readBy: PropTypes.array,
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
