@@ -935,6 +935,7 @@ export interface MessageUIComponentProps
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
   handleAction?(
     name: string,
     value: string,
@@ -1239,6 +1240,7 @@ export interface MessageActionsBoxProps {
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
 export interface MessageNotificationProps {
@@ -1443,6 +1445,7 @@ export interface MessageActionsProps {
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute[];
   getMessageActions(): Array<string>;
   getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
