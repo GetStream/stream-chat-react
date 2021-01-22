@@ -283,6 +283,7 @@ const MessageTeam = (props) => {
                         handleMute={props.handleMute}
                         handleEdit={props.handleEdit}
                         handleDelete={props.handleDelete}
+                        handlePin={props.handlePin}
                         customWrapperClass={''}
                         inline
                       />
@@ -577,6 +578,13 @@ MessageTeam.propTypes = {
    * @param event Dom event that triggered this handler
    */
   handleAction: PropTypes.func,
+  /**
+   * Handler for pinning a current message
+   *
+   * @param event React's MouseEventHandler event
+   * @returns void
+   * */
+  handlePin: PropTypes.func,
   /**
    * The handler for hover event on @mention in message
    *

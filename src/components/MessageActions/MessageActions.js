@@ -6,8 +6,9 @@ import {
   useUserRole,
   useFlagHandler,
   useMuteHandler,
+  usePinHandler,
 } from '../Message/hooks';
-import { isUserMuted } from '../Message/utils';
+import { defaultPinPermissions, isUserMuted } from '../Message/utils';
 
 import { ChatContext } from '../../context';
 
@@ -26,10 +27,12 @@ export const MessageActions = (props) => {
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
+    handlePin: propHandlePin,
     inline,
     message,
     messageListRect,
     messageWrapperRef,
+    pinPermissions = defaultPinPermissions,
     setEditingState,
   } = props;
 
@@ -52,6 +55,8 @@ export const MessageActions = (props) => {
     getErrorNotification: getMuteUserSuccessNotification,
     getSuccessNotification: getMuteUserErrorNotification,
   });
+
+  const { handlePin } = usePinHandler(message, pinPermissions);
 
   const isMuted = useCallback(() => {
     return isUserMuted(message, mutes);
@@ -98,6 +103,7 @@ export const MessageActions = (props) => {
         handleEdit={setEditingState}
         handleFlag={propHandleFlag || handleFlag}
         handleMute={propHandleMute || handleMute}
+        handlePin={propHandlePin || handlePin}
         isUserMuted={isMuted}
         message={message}
         messageListRect={messageListRect}

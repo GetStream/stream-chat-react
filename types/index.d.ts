@@ -1446,6 +1446,7 @@ export interface MessageActionsProps {
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
   handlePin?(event?: React.BaseSyntheticEvent): void;
+  pinPermissions?: PinPermissions;
   mutes?: Client.Mute[];
   getMessageActions(): Array<string>;
   getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
