@@ -169,7 +169,7 @@ const MessageLivestreamComponent = (props) => {
           message.type
         } str-chat__message-livestream--${message.status} ${
           initialMessage ? 'str-chat__message-livestream--initial-message' : ''
-        }`}
+        } ${message?.pinned ? 'pinned-message' : ''}`}
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (

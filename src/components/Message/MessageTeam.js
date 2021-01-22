@@ -159,6 +159,7 @@ const MessageTeam = (props) => {
       </div>
     );
   }
+
   return (
     <React.Fragment>
       <div
@@ -167,7 +168,7 @@ const MessageTeam = (props) => {
           message?.type
         } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
           message?.status
-        }`}
+        } ${message?.pinned ? 'pinned-message' : ''}`}
         ref={messageWrapperRef}
       >
         <div className="str-chat__message-team-meta">
