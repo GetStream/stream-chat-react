@@ -357,9 +357,11 @@ ChannelList.propTypes = {
    * */
   onChannelDeleted: PropTypes.func,
   /**
-   * Optional function for custom filtering channels.
+   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList. We recommend array methods like filter/sort/reduce.
+   * @param {Array} channels
+   * @returns {Array} channels
    * */
-  filterFunction: /** @type {PropTypes.Validator<(channels: Array<import('types').StreamChatChannel>) => Array<import('types').StreamChatChannel> >} */ (PropTypes.func),
+  filterFunction: /** @type {PropTypes.Validator<<T>(channels: T) => T>} */ (PropTypes.func),
   /**
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.
