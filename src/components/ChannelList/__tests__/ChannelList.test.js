@@ -176,9 +176,11 @@ describe('ChannelList', () => {
     });
   });
 
-  it('should only show filtered channels', async () => {
+  it('should only show filtered channels when a filter function prop is provided', async () => {
+    const filteredChannel = generateChannel({ channel: { type: 'filtered' } });
+
     const customFilterFunction = (channels) => {
-      return channels.filter((channel) => channel.role === 'listitem');
+      return channels.filter((channel) => channel.type === 'filtered');
     };
 
     const props = {
@@ -189,10 +191,10 @@ describe('ChannelList', () => {
     };
 
     useMockedApis(chatClientUthred, [
-      queryChannelsApi([testChannel1, testChannel2]),
+      queryChannelsApi([filteredChannel, testChannel1]),
     ]);
 
-    const { queryAllByTestId } = render(
+    const { getByRole, queryAllByRole } = render(
       <Chat client={chatClientUthred}>
         <ChannelList {...props} />
       </Chat>,
@@ -200,7 +202,8 @@ describe('ChannelList', () => {
 
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
-      expect(queryAllByTestId('channelUpdateCount')).toHaveLength(0);
+      expect(getByRole('list')).toBeInTheDocument();
+      expect(queryAllByRole('listitem')).toHaveLength(1);
     });
   });
 
