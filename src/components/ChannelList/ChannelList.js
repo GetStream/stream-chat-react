@@ -118,8 +118,8 @@ const ChannelList = (props) => {
     activeChannelHandler,
   );
 
-  const loadedChannels = props.filterFunction
-    ? props.filterFunction(channels)
+  const loadedChannels = props.channelListFilterFunction
+    ? props.channelListFilterFunction(channels)
     : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
@@ -226,7 +226,7 @@ const ChannelList = (props) => {
               loadNextPage,
               hasNextPage,
               refreshing: status.refreshing,
-              children: loadedChannels.map((item) => renderChannel(item)),
+              children: loadedChannels.map(renderChannel),
             })}
       </List>
     );
@@ -357,11 +357,12 @@ ChannelList.propTypes = {
    * */
   onChannelDeleted: PropTypes.func,
   /**
-   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList. We recommend array methods like filter/sort/reduce.
+   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList.
+   * We recommend using a pure function with array methods like filter/sort/reduce.
    * @param {Array} channels
    * @returns {Array} channels
    * */
-  filterFunction: /** @type {PropTypes.Validator<<T>(channels: T) => T>} */ (PropTypes.func),
+  channelListFilterFunction: /** @type {PropTypes.Validator<(channels: import('stream-chat').Channel[]) => import('stream-chat').Channel[]>} */ (PropTypes.func),
   /**
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.
