@@ -1,7 +1,7 @@
 // @ts-check
 import React, { useMemo, useContext, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
-import { TranslationContext } from '../../context';
+import { ChatContext, TranslationContext } from '../../context';
 import {
   ReactionsList as DefaultReactionList,
   ReactionSelector as DefaultReactionSelector,
@@ -46,11 +46,13 @@ const MessageTextComponent = (props) => {
     isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef);
 
+  const { client } = useContext(ChatContext);
   const { t } = useContext(TranslationContext);
+
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
-  const connectedUserLanguage = props?.client?.user?.language;
+  const connectedUserLanguage = client.user?.language;
 
   const messageTextToRender =
     message?.i18n?.[`${connectedUserLanguage}_text`] || message?.text;
