@@ -135,6 +135,7 @@ describe('<MessageActions /> component', () => {
         messageListRect: defaultProps.messageListRect,
         handleFlag: expect.any(Function),
         handleMute: expect.any(Function),
+        handlePin: expect.any(Function),
         handleEdit: expect.any(Function),
         handleDelete: expect.any(Function),
         isUserMuted: expect.any(Function),

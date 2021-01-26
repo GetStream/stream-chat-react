@@ -2,7 +2,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { useMemo } from 'react';
-import deepequal from 'react-fast-compare';
+import isEqual from 'lodash.isequal';
 
 import { Message } from '../Message';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
@@ -195,11 +195,13 @@ const MessageListInner = (props) => {
   } = props;
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
-  const enrichedMessages = useMemo(() => {
+  const enrichMessages = () => {
     const messageWithDates = insertDates(messages, lastRead, client.userID);
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
     return messageWithDates;
-  }, [messages, lastRead, client.userID, HeaderComponent, headerPosition]);
+  };
+
+  const enrichedMessages = enrichMessages();
 
   const messageGroupStyles = useMemo(
     () =>
@@ -312,4 +314,4 @@ const MessageListInner = (props) => {
   );
 };
 
-export default React.memo(MessageListInner, deepequal);
+export default React.memo(MessageListInner, isEqual);

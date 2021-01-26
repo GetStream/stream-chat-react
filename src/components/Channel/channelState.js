@@ -1,4 +1,3 @@
-// @ts-check
 /** @type {import('./types').ChannelStateReducer} */
 export const channelReducer = (state, action) => {
   switch (action.type) {
@@ -6,10 +5,11 @@ export const channelReducer = (state, action) => {
       const { channel } = action;
       return {
         ...state,
-        messages: channel.state.messages,
-        read: channel.state.read,
-        watchers: channel.state.watchers,
-        members: channel.state.members,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
+        read: { ...channel.state.read },
+        watchers: { ...channel.state.watchers },
+        members: { ...channel.state.members },
         watcherCount: channel.state.watcher_count,
         loading: false,
       };
@@ -18,11 +18,12 @@ export const channelReducer = (state, action) => {
       const { channel } = action;
       return {
         ...state,
-        messages: channel.state.messages,
-        read: channel.state.read,
-        watchers: channel.state.watchers,
-        members: channel.state.members,
-        typing: channel.state.typing,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
+        read: { ...channel.state.read },
+        watchers: { ...channel.state.watchers },
+        members: { ...channel.state.members },
+        typing: { ...channel.state.typing },
         watcherCount: channel.state.watcher_count,
       };
     }
@@ -47,9 +48,10 @@ export const channelReducer = (state, action) => {
       const { channel, parentId } = action;
       return {
         ...state,
-        messages: channel.state.messages,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
         threadMessages: parentId
-          ? channel.state.threads[parentId] || []
+          ? { ...channel.state.threads }[parentId] || []
           : state.threadMessages,
       };
     }
@@ -59,7 +61,7 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         threadMessages: state.thread?.id
-          ? channel.state.threads[state.thread.id] || []
+          ? { ...channel.state.threads }[state.thread.id] || []
           : [],
         thread:
           message?.id === state.thread.id
@@ -73,7 +75,7 @@ export const channelReducer = (state, action) => {
         ...state,
         thread: message,
         threadMessages: message.id
-          ? channel.state.threads[message.id] || []
+          ? { ...channel.state.threads }[message.id] || []
           : [],
       };
     }
@@ -116,6 +118,7 @@ export const initialState = {
   loadingMore: false,
   hasMore: true,
   messages: [],
+  pinnedMessages: [],
   typing: {},
   members: {},
   watchers: {},

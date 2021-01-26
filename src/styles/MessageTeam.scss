@@ -14,6 +14,10 @@
         margin-right: 0;
       }
 
+      &-pin-indicator {
+        padding-left: 40px;
+      }
+
       &-actions {
         $actionsBorderColor: #e0e0e0;
         $actionsHeight: 24px;

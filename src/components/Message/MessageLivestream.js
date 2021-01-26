@@ -36,7 +36,12 @@ import {
 } from './hooks';
 import { areMessagePropsEqual } from './utils';
 import { MessageActions } from '../MessageActions';
-import { ReactionIcon, ThreadIcon, ErrorIcon } from './icons';
+import {
+  ErrorIcon,
+  PinIndicator as DefaultPinIndicator,
+  ReactionIcon,
+  ThreadIcon,
+} from './icons';
 import MessageTimestamp from './MessageTimestamp';
 
 /**
@@ -76,6 +81,7 @@ const MessageLivestreamComponent = (props) => {
     t: propT,
     tDateTimeParser: propTDateTimeParser,
     MessageDeleted,
+    PinIndicator = DefaultPinIndicator,
   } = props;
   const { t: contextT } = useContext(TranslationContext);
   const t = propT || contextT;
@@ -163,13 +169,18 @@ const MessageLivestreamComponent = (props) => {
 
   return (
     <React.Fragment>
+      {message?.pinned && (
+        <div className="str-chat__message-livestream-pin-indicator">
+          <PinIndicator message={message} t={t} />
+        </div>
+      )}
       <div
         data-testid="message-livestream"
         className={`str-chat__message-livestream str-chat__message-livestream--${firstGroupStyle} str-chat__message-livestream--${
           message.type
         } str-chat__message-livestream--${message.status} ${
           initialMessage ? 'str-chat__message-livestream--initial-message' : ''
-        }`}
+        } ${message?.pinned ? 'pinned-message' : ''}`}
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (
@@ -422,6 +433,12 @@ MessageLivestreamComponent.propTypes = {
    * */
   EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
   /**
+   * Custom UI component to override default pinned message indicator
+   *
+   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.js)
+   * */
+  PinIndicator: /** @type {PropTypes.Validator<React.FC<import("types").PinIndicatorProps>>} */ (PropTypes.elementType),
+  /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *
@@ -456,7 +473,7 @@ MessageLivestreamComponent.propTypes = {
    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
-  getMessageActions: PropTypes.func.isRequired,
+  getMessageActions: /** @type {PropTypes.Validator<() => Array<string>>} */ (PropTypes.func),
   /**
    * Function to publish updates on message to channel
    *

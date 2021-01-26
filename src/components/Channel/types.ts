@@ -11,6 +11,7 @@ export type ChannelState = {
   loadingMore: boolean;
   hasMore: boolean;
   messages: ChannelStateFromClient['messages'];
+  pinnedMessages: ChannelStateFromClient['pinnedMessages'];
   typing: ChannelStateFromClient['typing'];
   members: ChannelStateFromClient['members'];
   watchers: ChannelStateFromClient['watchers'];
