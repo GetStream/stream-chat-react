@@ -81,7 +81,13 @@ export const PinIndicator = ({ message, t }) => {
           marginLeft: '8px',
           fontSize: '14px',
         }}
-      >{`${t('Pinned by')} ${message.name || message.id}`}</div>
+      >
+        {message.pinned_by
+          ? `${t('Pinned by')} ${
+              message.pinned_by?.name || message.pinned_by?.id
+            }`
+          : t('Message pinned')}
+      </div>
     </div>
   );
 };
