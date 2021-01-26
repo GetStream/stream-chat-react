@@ -956,7 +956,14 @@ export interface MessageUIComponentProps
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
   EditMessageInput?: React.FC<MessageInputProps>;
+  PinIndicator?: React.FC<PinIndicatorProps>;
 }
+
+export type PinIndicatorProps = {
+  message?: StreamChatReactMessageResponse;
+  t?: i18next.TFunction;
+};
+
 export interface MessageDeletedProps extends TranslationContextValue {
   /** The message object */
   message: Client.MessageResponse;
@@ -1418,7 +1425,8 @@ export class MessageTeam extends React.PureComponent<
   MessageTeamState
 > {}
 
-export interface MessageSimpleProps extends MessageUIComponentProps {}
+export interface MessageSimpleProps
+  extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
   customClass?: string;
   message?: Client.MessageResponse;

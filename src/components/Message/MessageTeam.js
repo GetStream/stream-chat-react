@@ -32,10 +32,11 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
+  DeliveredCheckIcon,
+  ErrorIcon,
+  PinIndicator as DefaultPinIndicator,
   ReactionIcon,
   ThreadIcon,
-  ErrorIcon,
-  DeliveredCheckIcon,
 } from './icons';
 import MessageTimestamp from './MessageTimestamp';
 
@@ -60,6 +61,7 @@ const MessageTeam = (props) => {
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted,
+    PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     editing: propEditing,
@@ -162,6 +164,11 @@ const MessageTeam = (props) => {
 
   return (
     <React.Fragment>
+      {message?.pinned && (
+        <div className="str-chat__message-team-pin-indicator">
+          <PinIndicator message={message} t={t} />
+        </div>
+      )}
       <div
         data-testid="message-team"
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
@@ -509,6 +516,12 @@ MessageTeam.propTypes = {
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
    * */
   EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to override default pinned message indicator
+   *
+   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.js)
+   * */
+  PinIndicator: /** @type {PropTypes.Validator<React.FC<import("types").PinIndicatorProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.

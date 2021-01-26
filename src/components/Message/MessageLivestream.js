@@ -36,7 +36,12 @@ import {
 } from './hooks';
 import { areMessagePropsEqual } from './utils';
 import { MessageActions } from '../MessageActions';
-import { ReactionIcon, ThreadIcon, ErrorIcon } from './icons';
+import {
+  ErrorIcon,
+  PinIndicator as DefaultPinIndicator,
+  ReactionIcon,
+  ThreadIcon,
+} from './icons';
 import MessageTimestamp from './MessageTimestamp';
 
 /**
@@ -76,6 +81,7 @@ const MessageLivestreamComponent = (props) => {
     t: propT,
     tDateTimeParser: propTDateTimeParser,
     MessageDeleted,
+    PinIndicator = DefaultPinIndicator,
   } = props;
   const { t: contextT } = useContext(TranslationContext);
   const t = propT || contextT;
@@ -163,6 +169,11 @@ const MessageLivestreamComponent = (props) => {
 
   return (
     <React.Fragment>
+      {message?.pinned && (
+        <div className="str-chat__message-livestream-pin-indicator">
+          <PinIndicator message={message} t={t} />
+        </div>
+      )}
       <div
         data-testid="message-livestream"
         className={`str-chat__message-livestream str-chat__message-livestream--${firstGroupStyle} str-chat__message-livestream--${
@@ -421,6 +432,12 @@ MessageLivestreamComponent.propTypes = {
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
    * */
   EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom UI component to override default pinned message indicator
+   *
+   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.js)
+   * */
+  PinIndicator: /** @type {PropTypes.Validator<React.FC<import("types").PinIndicatorProps>>} */ (PropTypes.elementType),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
