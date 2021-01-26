@@ -118,8 +118,8 @@ const ChannelList = (props) => {
     activeChannelHandler,
   );
 
-  const loadedChannels = props.channelListFilterFunction
-    ? props.channelListFilterFunction(channels)
+  const loadedChannels = props.channelRenderFilterFn
+    ? props.channelRenderFilterFn(channels)
     : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
@@ -362,7 +362,7 @@ ChannelList.propTypes = {
    * @param {Array} channels
    * @returns {Array} channels
    * */
-  channelListFilterFunction: /** @type {PropTypes.Validator<(channels: import('stream-chat').Channel[]) => import('stream-chat').Channel[]>} */ (PropTypes.func),
+  channelRenderFilterFn: /** @type {PropTypes.Validator<(channels: import('stream-chat').Channel[]) => import('stream-chat').Channel[]>} */ (PropTypes.func),
   /**
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.

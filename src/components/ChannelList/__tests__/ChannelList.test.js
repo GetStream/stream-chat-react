@@ -187,7 +187,7 @@ describe('ChannelList', () => {
       filters: {},
       Preview: ChannelPreviewComponent,
       List: ChannelListComponent,
-      channelListFilterFunction: customFilterFunction,
+      channelRenderFilterFn: customFilterFunction,
     };
 
     useMockedApis(chatClientUthred, [

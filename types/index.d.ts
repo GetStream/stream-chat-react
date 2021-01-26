@@ -326,7 +326,7 @@ export interface ChannelListProps {
    * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList.
    * We recommend using a pure function with array methods like filter/sort/reduce.
    */
-  channelListFilterFunction?: (channels: Client.Channel[]) => Client.Channel[];
+  channelRenderFilterFn?: (channels: Client.Channel[]) => Client.Channel[];
   /** Object containing query filters */
   filters?: Client.ChannelFilters;
   /** Object containing query options */
