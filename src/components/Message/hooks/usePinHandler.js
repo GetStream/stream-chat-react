@@ -17,8 +17,9 @@ export const usePinHandler = (message, permissions) => {
     if (
       currentChannelPermissions &&
       currentChannelPermissions[client.user?.role]
-    )
+    ) {
       return true;
+    }
 
     if (
       currentChannelMember &&

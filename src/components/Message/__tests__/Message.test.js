@@ -669,6 +669,32 @@ describe('<Message /> component', () => {
     );
   });
 
+  it('should allow user to pin messages when permissions allow', async () => {
+    const message = generateMessage({ user: bob });
+    await renderComponent(
+      message,
+      {
+        pinPermissions: { messaging: { user: true } },
+      },
+      { type: 'messaging', state: { members: {}, watchers: {} } },
+    );
+    const { getMessageActions } = getRenderedProps();
+    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
+  });
+
+  it('should not allow user to pin messages when permissions do not allow', async () => {
+    const message = generateMessage({ user: bob });
+    await renderComponent(
+      message,
+      {
+        pinPermissions: { messaging: { user: false } },
+      },
+      { type: 'messaging', state: { members: {}, watchers: {} } },
+    );
+    const { getMessageActions } = getRenderedProps();
+    expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
+  });
+
   it('should allow user to retry sending a message', async () => {
     const message = generateMessage();
     const retrySendMessage = jest.fn(() => Promise.resolve());
