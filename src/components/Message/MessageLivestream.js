@@ -473,7 +473,7 @@ MessageLivestreamComponent.propTypes = {
    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    * */
-  getMessageActions: PropTypes.func.isRequired,
+  getMessageActions: /** @type {PropTypes.Validator<() => Array<string>>} */ (PropTypes.func),
   /**
    * Function to publish updates on message to channel
    *
