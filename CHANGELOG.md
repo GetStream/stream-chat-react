@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.5.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.3) 2021-01-26
+
+### Feature
+
+- `ChannelList` accepts an optional prop to filter/sort channels prior to render [#678](https://github.com/GetStream/stream-chat-react/pull/678)
+
 ## [3.5.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.2) 2021-01-21
 
 ### Fix
