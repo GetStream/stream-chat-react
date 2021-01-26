@@ -118,6 +118,10 @@ const ChannelList = (props) => {
     activeChannelHandler,
   );
 
+  const loadedChannels = props.channelRenderFilterFn
+    ? props.channelRenderFilterFn(channels)
+    : channels;
+
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   // All the event listeners
@@ -216,13 +220,13 @@ const ChannelList = (props) => {
         LoadingIndicator={LoadingIndicator}
         LoadingErrorIndicator={LoadingErrorIndicator}
       >
-        {!channels || channels.length === 0
+        {!loadedChannels || loadedChannels.length === 0
           ? renderEmptyStateIndicator()
           : smartRender(Paginator, {
               loadNextPage,
               hasNextPage,
               refreshing: status.refreshing,
-              children: channels.map((item) => renderChannel(item)),
+              children: loadedChannels.map(renderChannel),
             })}
       </List>
     );
@@ -352,6 +356,13 @@ ChannelList.propTypes = {
    * @param {Event}     event       [Event object](https://getstream.io/chat/docs/event_object/?language=js) corresponding to `channel.deleted` event
    * */
   onChannelDeleted: PropTypes.func,
+  /**
+   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList.
+   * We recommend using a pure function with array methods like filter/sort/reduce.
+   * @param {Array} channels
+   * @returns {Array} channels
+   * */
+  channelRenderFilterFn: /** @type {PropTypes.Validator<(channels: import('stream-chat').Channel[]) => import('stream-chat').Channel[]>} */ (PropTypes.func),
   /**
    * Object containing query filters
    * @see See [Channel query documentation](https://getstream.io/chat/docs/query_channels/?language=js) for a list of available fields for filter.

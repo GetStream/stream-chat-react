@@ -343,19 +343,27 @@ export default function useMessageInput(props) {
           type: 'setEmojiPickerIsOpen',
           value: false,
         });
-        document.removeEventListener('click', closeEmojiPicker, false);
       }
     },
     [emojiPickerRef],
   );
 
-  const openEmojiPicker = useCallback(() => {
+  const openEmojiPicker = useCallback((event) => {
     dispatch({
       type: 'setEmojiPickerIsOpen',
       value: true,
     });
-    document.addEventListener('click', closeEmojiPicker, false);
-  }, [closeEmojiPicker]);
+
+    // Prevent event from bubbling to document, so the close handler is never called for this event
+    event.stopPropagation();
+  }, []);
+
+  useEffect(() => {
+    if (state.emojiPickerIsOpen) {
+      document.addEventListener('click', closeEmojiPicker, false);
+    }
+    return () => document.removeEventListener('click', closeEmojiPicker, false);
+  }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
   const onSelectEmoji = useCallback((emoji) => insertText(emoji.native), [
     insertText,
