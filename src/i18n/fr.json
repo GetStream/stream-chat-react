@@ -14,6 +14,8 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Erreur d'ajout du flag : le flag existe déjà ou vous rencontrez un problème de connexion au réseau ...",
   "Error connecting to chat, refresh the page to try again.": "Erreur de connexion au chat, rafraîchissez la page pour réessayer.",
   "Error muting a user ...": "Erreur de mise en sourdine d'un utilisateur ...",
+  "Error pinning message": "Erreur d'épinglage du message",
+  "Error removing message pin": "Erreur lors de la suppression du code PIN du message",
   "Error unmuting a user ...": "Erreur de désactivation de la fonction sourdine pour un utilisateur ...",
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",

@@ -14,6 +14,8 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Bayraklama hatası: Bayrak zaten var veya bağlantı sorunlu",
   "Error connecting to chat, refresh the page to try again.": "Bağlantı hatası, sayfayı yenileyip tekrar deneyin.",
   "Error muting a user ...": "Kullanıcıyı sessize alırken hata oluştu ...",
+  "Error pinning message": "Mesaj sabitlenirken hata oluştu",
+  "Error removing message pin": "Mesaj PIN'i kaldırılırken hata oluştu",
   "Error unmuting a user ...": "Kullanıcının sesini açarken hata oluştu ...",
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",

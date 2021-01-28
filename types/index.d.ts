@@ -604,6 +604,8 @@ export interface MessageListProps {
   getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
   getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
   getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
+  pinPermissions?: PinPermissions;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
   loadMore?(messageLimit?: number): Promise<number>;
@@ -871,18 +873,11 @@ export interface MessageProps extends TranslationContextValue {
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getFlagMessageErrorNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getMuteUserSuccessNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getMuteUserErrorNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
@@ -1466,6 +1461,7 @@ export interface MessageActionsProps {
   getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
   getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
   getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
@@ -1520,7 +1516,7 @@ interface MessageNotificationArguments {
 }
 export function useFlagHandler(
   message: Client.MessageResponse | undefined,
-  notification: MessageNotificationArguments,
+  notifications: MessageNotificationArguments,
 ): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
 
 type CustomMentionHandler = (
@@ -1550,7 +1546,7 @@ export function useMentionsUIHandler(
 
 export function useMuteHandler(
   message: Client.MessageResponse | undefined,
-  notification: MessageNotificationArguments,
+  notifications: MessageNotificationArguments,
 ): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
 
 export function useOpenThreadHandler(
@@ -1585,6 +1581,7 @@ export type PinPermissions = {
 export function usePinHandler(
   message: Client.MessageResponse | undefined,
   pinPermissions: PinPermissions,
+  notifications: Omit<MessageNotificationArguments, 'getSuccessNotification'>,
 ): {
   canPin: boolean;
   handlePin: (event: React.MouseEvent<HTMLElement>) => Promise<void>;

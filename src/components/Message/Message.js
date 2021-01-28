@@ -42,6 +42,7 @@ const Message = (props) => {
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
+    getPinMessageErrorNotification,
     groupStyles = [],
     Message: MessageUIComponent = MessageSimple,
     message,
@@ -64,7 +65,6 @@ const Message = (props) => {
   const handleDelete = useDeleteHandler(message);
   const { editing, setEdit, clearEdit } = useEditHandler();
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
-  const { canPin, handlePin } = usePinHandler(message, pinPermissions);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
 
@@ -83,6 +83,11 @@ const Message = (props) => {
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
+  });
+
+  const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
+    notify: addNotification,
+    getErrorNotification: getPinMessageErrorNotification,
   });
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
@@ -259,6 +264,15 @@ Message.propTypes = {
    *
    * */
   getMuteUserErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification: PropTypes.func,
   /** Latest message id on current channel */
   lastReceivedId: PropTypes.string,
   /** DOMRect object for parent MessageList component */
@@ -266,7 +280,7 @@ Message.propTypes = {
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<{[user_id: string]: import('stream-chat').ChannelMemberResponse<import('types').StreamChatReactUserType>}> | null | undefined>} */ (PropTypes.object),
   /**
-   * Function to add custom notification on messagelist
+   * Function to add custom notification on message list
    *
    * @param text Notification text to display
    * @param type Type of notification. 'success' | 'error'

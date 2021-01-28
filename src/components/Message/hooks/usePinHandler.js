@@ -1,11 +1,15 @@
 import { useContext } from 'react';
-import { ChannelContext } from '../../../context';
+import { validateAndGetMessage } from '../utils';
+import { ChannelContext, TranslationContext } from '../../../context';
 
 /**
  * @type {import('types').usePinHandler}
  */
-export const usePinHandler = (message, permissions) => {
+export const usePinHandler = (message, permissions, notifications) => {
+  const { notify, getErrorNotification } = notifications;
+
   const { client, channel } = useContext(ChannelContext);
+  const { t } = useContext(TranslationContext);
 
   const canPin = () => {
     if (!client || !channel?.state || !permissions) return false;
@@ -47,13 +51,21 @@ export const usePinHandler = (message, permissions) => {
       try {
         await client.pinMessage(message);
       } catch (e) {
-        console.log('Cannot pin message:', e);
+        const errorMessage =
+          getErrorNotification &&
+          validateAndGetMessage(getErrorNotification, [message.user]);
+
+        notify(errorMessage || t('Error pinning message'), 'error');
       }
     } else {
       try {
         await client.unpinMessage(message);
       } catch (e) {
-        console.log('Cannot unpin message:', e);
+        const errorMessage =
+          getErrorNotification &&
+          validateAndGetMessage(getErrorNotification, [message.user]);
+
+        notify(errorMessage || t('Error removing message pin'), 'error');
       }
     }
   };
