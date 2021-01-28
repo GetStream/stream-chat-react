@@ -40,8 +40,67 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   flag: 'flag',
   mute: 'mute',
+  pin: 'pin',
   react: 'react',
   reply: 'reply',
+};
+
+export const defaultPinPermissions = {
+  commerce: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: false,
+    user: false,
+  },
+  gaming: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: false,
+    user: false,
+  },
+  livestream: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  messaging: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  team: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
 };
 
 /**
@@ -50,6 +109,7 @@ export const MESSAGE_ACTIONS = {
  *   canDelete?: boolean;
  *   canMute?: boolean;
  *   canFlag?: boolean;
+ *   canPin?: boolean;
  *   canReact?: boolean;
  *   canReply?: boolean;
  * }} Capabilities
@@ -57,7 +117,7 @@ export const MESSAGE_ACTIONS = {
  */
 export const getMessageActions = (
   actions,
-  { canDelete, canFlag, canEdit, canMute, canReact, canReply },
+  { canDelete, canFlag, canEdit, canMute, canPin, canReact, canReply },
 ) => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
@@ -85,6 +145,10 @@ export const getMessageActions = (
 
   if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
+  }
+
+  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
   }
 
   if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {

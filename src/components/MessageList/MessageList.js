@@ -7,7 +7,7 @@ import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
 import ConnectionStatus from './ConnectionStatus';
 import MessageListInner from './MessageListInner';
-import { MESSAGE_ACTIONS } from '../Message/utils';
+import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { checkChannelPropType, smartRender } from '../../utils';
 
 import { ChannelContext, withTranslationContext } from '../../context';
@@ -283,6 +283,9 @@ class MessageList extends PureComponent {
                 .getMuteUserSuccessNotification,
               getMuteUserErrorNotification: this.props
                 .getMuteUserErrorNotification,
+              getPinMessageErrorNotification: this.props
+                .getPinMessageErrorNotification,
+              pinPermissions: this.props.pinPermissions,
             }}
           />
         </div>
@@ -370,6 +373,15 @@ MessageList.propTypes = {
    *
    * */
   getMuteUserErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification: PropTypes.func,
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: PropTypes.object,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -436,6 +448,10 @@ MessageList.propTypes = {
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps: PropTypes.object,
+  /**
+   * The user roles allowed to pin messages in various channel types
+   */
+  pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
 };
 
 MessageList.defaultProps = {
@@ -451,6 +467,7 @@ MessageList.defaultProps = {
   unsafeHTML: false,
   noGroupByUser: false,
   messageActions: Object.keys(MESSAGE_ACTIONS),
+  pinPermissions: defaultPinPermissions,
 };
 
 export default withTranslationContext((props) => (
