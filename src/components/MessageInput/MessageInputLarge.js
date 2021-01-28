@@ -91,6 +91,7 @@ const MessageInputLarge = (props) => {
               triggers={props.autocompleteTriggers}
               grow={props.grow}
               disabled={props.disabled}
+              disableMentions={props.disableMentions}
               SuggestionList={props.SuggestionList}
               additionalTextareaProps={props.additionalTextareaProps}
             />
@@ -161,12 +162,14 @@ MessageInputLarge.propTypes = {
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
+  /** Disable mentions in textarea */
+  disableMentions: PropTypes.bool,
   /** enable/disable firing the typing event */
   publishTypingEvent: PropTypes.bool,
   /**
-   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
-  additionalTextareaProps: PropTypes.object,
+  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').AnyType>>} */ (PropTypes.object),
   /**
    * Override the default triggers of the ChatAutoComplete component
    */

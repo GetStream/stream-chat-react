@@ -110,13 +110,13 @@ describe('ChatAutoComplete', () => {
   it('should let you select users when you type @<username>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.name}`;
-    const { typeText, findByText } = await renderComponent({ onSelectItem });
+    const { typeText, getAllByText } = await renderComponent({ onSelectItem });
     typeText(userAutocompleteText);
-    const userText = await findByText(user.name);
+    const userText = await getAllByText(user.name);
 
-    expect(userText).toBeInTheDocument();
+    expect(userText).toHaveLength(2);
 
-    fireEvent.click(userText);
+    fireEvent.click(userText[1]);
 
     expect(onSelectItem).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -163,6 +163,19 @@ describe('ChatAutoComplete', () => {
     fireEvent.click(command);
 
     expect(textarea.value).toContain('/giphy');
+  });
+
+  it('should disable mention popup list', async () => {
+    const onSelectItem = jest.fn();
+    const userAutocompleteText = `@${user.name}`;
+    const { typeText, queryAllByText } = await renderComponent({
+      onSelectItem,
+      disableMentions: true,
+    });
+    typeText(userAutocompleteText);
+    const userText = await queryAllByText(user.name);
+
+    expect(userText).toHaveLength(0);
   });
 
   it('should use the queryMembers API for mentions if a channel has many members', async () => {

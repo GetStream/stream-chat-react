@@ -1,4 +1,3 @@
-// @ts-check
 import {
   useReducer,
   useEffect,
@@ -62,7 +61,7 @@ function initState(message) {
     };
   }
 
-  // if message prop is defined, get imageuploads, fileuploads, text, etc. from it
+  // if message prop is defined, get image uploads, file uploads, text, etc. from it
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
@@ -212,24 +211,29 @@ function messageInputReducer(state, action) {
  */
 export default function useMessageInput(props) {
   const {
+    additionalTextareaProps,
+    clearEditingState,
     doImageUploadRequest,
     doFileUploadRequest,
+    errorHandler,
     focus,
     message,
-    clearEditingState,
+    noFiles,
     overrideSubmitHandler,
     parent,
-    noFiles,
-    errorHandler,
     publishTypingEvent,
   } = props;
 
+  const {
+    channel,
+    editMessage,
+    maxNumberOfFiles,
+    multipleUploads,
+    sendMessage,
+  } = useContext(ChannelContext);
+
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
-  const textareaRef = useRef(
-    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
-  );
-  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
-  const channelContext = useContext(ChannelContext);
+
   const {
     text,
     imageOrder,
@@ -240,10 +244,13 @@ export default function useMessageInput(props) {
     numberOfUploads,
     mentioned_users,
   } = state;
-  const { channel, editMessage, sendMessage } = channelContext;
+
+  const textareaRef = useRef(
+    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
+  );
+  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
 
   // Focus
-
   useEffect(() => {
     if (focus && textareaRef.current) {
       textareaRef.current.focus();
@@ -252,28 +259,45 @@ export default function useMessageInput(props) {
 
   // Text + cursor position
   const newCursorPosition = useRef(/** @type {number | null} */ (null));
+
   const insertText = useCallback(
     (textToInsert) => {
+      const { maxLength } = additionalTextareaProps;
+
       if (!textareaRef.current) {
         dispatch({
           type: 'setText',
-          getNewText: (t) => t + textToInsert,
+          getNewText: (t) => {
+            const updatedText = t + textToInsert;
+            if (updatedText.length > maxLength) {
+              return updatedText.slice(0, maxLength);
+            }
+            return updatedText;
+          },
         });
         return;
       }
 
-      const textareaElement = textareaRef.current;
-      const { selectionStart, selectionEnd } = textareaElement;
+      const { selectionStart, selectionEnd } = textareaRef.current;
       newCursorPosition.current = selectionStart + textToInsert.length;
+
       dispatch({
         type: 'setText',
-        getNewText: (prevText) =>
-          prevText.slice(0, selectionStart) +
-          textToInsert +
-          prevText.slice(selectionEnd),
+        getNewText: (prevText) => {
+          const updatedText =
+            prevText.slice(0, selectionStart) +
+            textToInsert +
+            prevText.slice(selectionEnd);
+
+          if (updatedText.length > maxLength) {
+            return updatedText.slice(0, maxLength);
+          }
+
+          return updatedText;
+        },
       });
     },
-    [textareaRef, newCursorPosition],
+    [additionalTextareaProps, newCursorPosition, textareaRef],
   );
 
   useEffect(() => {
@@ -319,19 +343,27 @@ export default function useMessageInput(props) {
           type: 'setEmojiPickerIsOpen',
           value: false,
         });
-        document.removeEventListener('click', closeEmojiPicker, false);
       }
     },
     [emojiPickerRef],
   );
 
-  const openEmojiPicker = useCallback(() => {
+  const openEmojiPicker = useCallback((event) => {
     dispatch({
       type: 'setEmojiPickerIsOpen',
       value: true,
     });
-    document.addEventListener('click', closeEmojiPicker, false);
-  }, [closeEmojiPicker]);
+
+    // Prevent event from bubbling to document, so the close handler is never called for this event
+    event.stopPropagation();
+  }, []);
+
+  useEffect(() => {
+    if (state.emojiPickerIsOpen) {
+      document.addEventListener('click', closeEmojiPicker, false);
+    }
+    return () => document.removeEventListener('click', closeEmojiPicker, false);
+  }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
   const onSelectEmoji = useCallback((emoji) => insertText(emoji.native), [
     insertText,
@@ -524,7 +556,7 @@ export default function useMessageInput(props) {
           dispatch({ type: 'setFileUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the paramaters passed to the error handler actually make sense
+          // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(e, 'upload-file', file);
         }
         return;
@@ -579,7 +611,7 @@ export default function useMessageInput(props) {
           dispatch({ type: 'setImageUpload', id, state: 'failed' });
         }
         if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the paramaters passed to the error handler actually make sense
+          // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(e, 'upload-image', {
             id,
             file,
@@ -639,12 +671,12 @@ export default function useMessageInput(props) {
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
   const maxFilesAllowed = useMemo(() => {
-    if (!channelContext.multipleUploads) return 1;
-    if (channelContext.maxNumberOfFiles === undefined) {
+    if (!multipleUploads) return 1;
+    if (maxNumberOfFiles === undefined) {
       return apiMaxNumberOfFiles;
     }
-    return channelContext.maxNumberOfFiles;
-  }, [channelContext.maxNumberOfFiles, channelContext.multipleUploads]);
+    return maxNumberOfFiles;
+  }, [maxNumberOfFiles, multipleUploads]);
 
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
@@ -657,7 +689,10 @@ export default function useMessageInput(props) {
         .slice(0, maxFilesLeft)
         .forEach((file) => {
           const id = generateRandomId();
-          if (file.type.startsWith('image/')) {
+          if (
+            file.type.startsWith('image/') &&
+            !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
+          ) {
             dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
           } else if (file instanceof File && !noFiles) {
             dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
@@ -673,9 +708,7 @@ export default function useMessageInput(props) {
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;
-        if (!dataTransferItemsHaveFiles(items)) {
-          return;
-        }
+        if (!dataTransferItemsHaveFiles(items)) return;
 
         event.preventDefault();
         // Get a promise for the plain text in case no files are
@@ -686,6 +719,7 @@ export default function useMessageInput(props) {
         const plainTextItem = [...items].find(
           ({ kind, type }) => kind === 'string' && type === 'text/plain',
         );
+
         if (plainTextItem) {
           plainTextPromise = new Promise((resolve) => {
             plainTextItem.getAsString((s) => {
@@ -699,14 +733,15 @@ export default function useMessageInput(props) {
           uploadNewFiles(fileLikes);
           return;
         }
+
         // fallback to regular text paste
         if (plainTextPromise) {
-          const s = await plainTextPromise;
-          insertText(s);
+          const pastedText = await plainTextPromise;
+          insertText(pastedText);
         }
       })(e);
     },
-    [uploadNewFiles, insertText],
+    [insertText, uploadNewFiles],
   );
 
   const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;

@@ -322,6 +322,11 @@ export interface ChannelListProps {
     e: Client.Event,
   ): void;
   setActiveChannelOnMount?: boolean;
+  /**
+   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList.
+   * We recommend using a pure function with array methods like filter/sort/reduce.
+   */
+  channelRenderFilterFn?: (channels: Client.Channel[]) => Client.Channel[];
   /** Object containing query filters */
   filters?: Client.ChannelFilters;
   /** Object containing query options */
@@ -655,6 +660,8 @@ export interface MessageInputProps {
   /** Disable input */
   disabled?: boolean;
   /** enable/disable firing the typing event */
+  disableMentions?: boolean;
+  /** enable/disable firing the typing event */
   publishTypingEvent?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
@@ -707,7 +714,7 @@ export interface MessageInputProps {
    *  }}
    * />
    */
-  additionalTextareaProps?: object;
+  additionalTextareaProps?: React.TextareaHTMLAttributes;
   /** Message object. If defined, the message passed will be edited, instead of a new message being created */
   message?: Client.MessageResponse;
   /** Callback to clear editing state in parent component */
@@ -1098,6 +1105,7 @@ export interface ChatAutoCompleteProps {
   grow?: boolean;
   maxRows?: number;
   disabled?: boolean;
+  disableMentions?: boolean;
   value?: string;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
