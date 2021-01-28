@@ -14,6 +14,8 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Ошибка добавления флага: флаг уже существует или ошибка подключения к сети...",
   "Error connecting to chat, refresh the page to try again.": "Ошибка подключения к чату, обновите страницу чтобы попробовать снова.",
   "Error muting a user ...": "Ошибка отключения уведомлений от пользователя...",
+  "Error pinning message": "Сообщение об ошибке при закреплении",
+  "Error removing message pin": "Ошибка при удалении булавки сообщения",
   "Error unmuting a user ...": "Ошибка включения уведомлений...",
   "Error · Unsent": "Ошибка · Не отправлено",
   "Error: {{ errorMessage }}": "Ошибка: {{ errorMessage }}",

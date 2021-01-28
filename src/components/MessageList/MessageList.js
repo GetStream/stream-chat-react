@@ -283,6 +283,8 @@ class MessageList extends PureComponent {
                 .getMuteUserSuccessNotification,
               getMuteUserErrorNotification: this.props
                 .getMuteUserErrorNotification,
+              getPinMessageErrorNotification: this.props
+                .getPinMessageErrorNotification,
               pinPermissions: this.props.pinPermissions,
             }}
           />
@@ -371,6 +373,15 @@ MessageList.propTypes = {
    *
    * */
   getMuteUserErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification: PropTypes.func,
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: PropTypes.object,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */

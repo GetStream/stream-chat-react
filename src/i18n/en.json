@@ -14,6 +14,8 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Error adding flag: Either the flag already exist or there is issue with network connection ...",
   "Error connecting to chat, refresh the page to try again.": "Error connecting to chat, refresh the page to try again.",
   "Error muting a user ...": "Error muting a user ...",
+  "Error pinning message": "Error pinning message",
+  "Error removing message pin": "Error removing message pin",
   "Error unmuting a user ...": "Error unmuting a user ...",
   "Error · Unsent": "Error · Unsent",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",

@@ -14,6 +14,8 @@
   "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Fout bij het markeren: of het bericht is al gemarkeerd of er is een probleem met de netwerk verbinding",
   "Error connecting to chat, refresh the page to try again.": "Fout bij het verbinden, ververs de pagina om nogmaals te proberen",
   "Error muting a user ...": "Fout bij het muten van de gebruiker",
+  "Error pinning message": "Fout bij vastzetten van bericht",
+  "Error removing message pin": "Fout bij verwijderen van berichtpin",
   "Error unmuting a user ...": "Fout bij het unmuten van de gebruiker",
   "Error · Unsent": "Error: · niet verzonden",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",

@@ -24,6 +24,7 @@ export const MessageActions = (props) => {
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
+    getPinMessageErrorNotification,
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
@@ -56,7 +57,10 @@ export const MessageActions = (props) => {
     getSuccessNotification: getMuteUserErrorNotification,
   });
 
-  const { handlePin } = usePinHandler(message, pinPermissions);
+  const { handlePin } = usePinHandler(message, pinPermissions, {
+    notify: addNotification,
+    getErrorNotification: getPinMessageErrorNotification,
+  });
 
   const isMuted = useCallback(() => {
     return isUserMuted(message, mutes);
