@@ -60,6 +60,7 @@ const externalDependencies = [
   'isomorphic-ws',
   'linkifyjs',
   'lodash.debounce',
+  'lodash.isequal',
   'lodash.throttle',
   'lodash.uniqby',
   'pretty-bytes',
