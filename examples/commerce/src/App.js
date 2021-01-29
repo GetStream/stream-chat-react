@@ -61,8 +61,8 @@ class App extends Component {
         <Chat client={this.chatClient} theme={`commerce ${theme}`}>
           <Channel
             channel={this.channel}
-            onMentionsHover={(e, user) => console.log(e, user)}
-            onMentionsClick={(e, user) => console.log(e, user)}
+            onMentionsHover={(event, user) => console.log(event, user)}
+            onMentionsClick={(event, user) => console.log(event, user)}
           >
             <Window>
               <ChannelHeader />
