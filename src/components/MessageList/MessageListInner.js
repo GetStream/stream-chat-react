@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable no-continue */
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, { useMemo } from 'react';
@@ -18,6 +17,7 @@ const getLastReceived = (messages) => {
 const getReadStates = (messages, read) => {
   // create object with empty array for each message id
   const readData = {};
+
   Object.values(read).forEach((readState) => {
     if (!readState.last_read) return;
 
@@ -35,36 +35,53 @@ const getReadStates = (messages, read) => {
   return readData;
 };
 
-const insertDates = (messages, lastRead, userID) => {
+const insertDates = (messages, lastRead, userID, hideDeletedMessages) => {
   let unread = false;
+  let lastDateSeparator;
   const newMessages = [];
+
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
+
+    if (hideDeletedMessages && message.type === 'deleted') {
+      continue;
+    }
+
     if (message.type === 'message.read') {
       newMessages.push(message);
       continue;
     }
+
     const messageDate = message.created_at.toDateString();
     let prevMessageDate = messageDate;
+
     if (i > 0) {
       prevMessageDate = messages[i - 1].created_at.toDateString();
     }
 
     if (!unread) {
       unread = lastRead && new Date(lastRead) < message.created_at;
-      // userId check makes sure New is not shown for current user messages
-      if (unread && message.user.id !== userID)
+
+      // do not show date separator for current user's messages
+      if (unread && message.user.id !== userID) {
         newMessages.push({
           type: 'message.date',
           date: message.created_at,
           unread,
         });
+      }
     }
 
     if (
-      (i === 0 || messageDate !== prevMessageDate) &&
-      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // prevent two subsequent DateSeparator
+      (i === 0 ||
+        messageDate !== prevMessageDate ||
+        (hideDeletedMessages &&
+          messages[i - 1]?.type === 'deleted' &&
+          lastDateSeparator !== messageDate)) &&
+      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // do not show two date separators in a row
     ) {
+      lastDateSeparator = messageDate;
+
       newMessages.push(
         { type: 'message.date', date: message.created_at },
         message,
@@ -85,7 +102,7 @@ const insertIntro = (messages, headerPosition) => {
     return newMessages;
   }
 
-  // if no messages, intro get's inserted
+  // if no messages, intro gets inserted
   if (!newMessages.length) {
     newMessages.unshift({ type: 'channel.intro' });
     return newMessages;
@@ -103,7 +120,7 @@ const insertIntro = (messages, headerPosition) => {
         ? messages[i + 1].created_at.getTime()
         : null;
 
-    // headerposition is smaller than message time so comes after;
+    // header position is smaller than message time so comes after;
     if (messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime < headerPosition) {
@@ -176,30 +193,47 @@ const getGroupStyles = (
 
 const MessageListInner = (props) => {
   const {
-    EmptyStateIndicator,
-    MessageSystem,
-    DateSeparator,
-    HeaderComponent,
-    TypingIndicator,
-    headerPosition,
     bottomRef,
-    onMessageLoadCaptured,
-    messages,
-    noGroupByUser,
     client,
-    threadList,
     channel,
-    read,
-    internalMessageProps,
+    DateSeparator,
+    disableDateSeparator = false,
+    EmptyStateIndicator,
+    HeaderComponent,
+    headerPosition,
+    hideDeletedMessages = false,
     internalInfiniteScrollProps,
+    internalMessageProps,
+    messages,
+    MessageSystem,
+    noGroupByUser,
+    onMessageLoadCaptured,
+    read,
+    threadList,
+    TypingIndicator,
   } = props;
+
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
   const enrichedMessages = useMemo(() => {
-    const messageWithDates = insertDates(messages, lastRead, client.userID);
+    const messageWithDates =
+      disableDateSeparator || threadList
+        ? messages
+        : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
+
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
+
     return messageWithDates;
-  }, [messages, lastRead, client.userID, HeaderComponent, headerPosition]);
+  }, [
+    client.userID,
+    disableDateSeparator,
+    HeaderComponent,
+    headerPosition,
+    hideDeletedMessages,
+    lastRead,
+    messages,
+    threadList,
+  ]);
 
   const messageGroupStyles = useMemo(
     () =>
@@ -233,8 +267,6 @@ const MessageListInner = (props) => {
   const elements = useMemo(() => {
     return enrichedMessages.map((message) => {
       if (message.type === 'message.date') {
-        if (threadList) return null;
-
         return (
           <li key={`${message.date.toISOString()}-i`}>
             <DateSeparator date={message.date} unread={message.unread} />
@@ -270,10 +302,10 @@ const MessageListInner = (props) => {
           >
             <Message
               client={client}
-              message={message}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
-              readBy={readData[message.id] || []}
               lastReceivedId={lastReceivedId}
+              message={message}
+              readBy={readData[message.id] || []}
               threadList={threadList}
               {...internalMessageProps}
             />
@@ -284,12 +316,12 @@ const MessageListInner = (props) => {
       return null;
     });
   }, [
-    MessageSystem,
     client,
     enrichedMessages,
     internalMessageProps,
     lastReceivedId,
     messageGroupStyles,
+    MessageSystem,
     onMessageLoadCaptured,
     readData,
     threadList,
@@ -299,10 +331,10 @@ const MessageListInner = (props) => {
 
   return (
     <InfiniteScroll
-      isReverse
-      useWindow={false}
       className="str-chat__reverse-infinite-scroll"
       data-testid="reverse-infinite-scroll"
+      isReverse
+      useWindow={false}
       {...internalInfiniteScrollProps}
     >
       <ul className="str-chat__ul">{elements}</ul>

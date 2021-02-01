@@ -591,6 +591,8 @@ export interface MessageListProps {
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   DateSeparator?: React.ElementType<DateSeparatorProps>;
+  disableDateSeparator?: boolean;
+  hideDeletedMessages?: boolean;
   /** Turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Weather its a thread of no. Default - false  */
