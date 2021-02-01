@@ -1,5 +1,41 @@
 # Changelog
 
+## [3.5.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.3) 2021-01-26
+
+### Feature
+
+- `ChannelList` accepts an optional prop to filter/sort channels prior to render [#678](https://github.com/GetStream/stream-chat-react/pull/678)
+
+## [3.5.2](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.2) 2021-01-21
+
+### Fix
+
+- Handle emoji picker event listener race condition [#675](https://github.com/GetStream/stream-chat-react/pull/675)
+- Adjust style for only emoji messages [#676](https://github.com/GetStream/stream-chat-react/pull/676)
+
+## [3.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.1) 2021-01-19
+
+### Fix
+
+- Upload PSD attachments as file [#673](https://github.com/GetStream/stream-chat-react/pull/673)
+
+### Chore
+
+- Bump MML-React [#674](https://github.com/GetStream/stream-chat-react/pull/674)
+
+## [3.5.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.0) 2021-01-15
+
+## Feature
+
+- Support typing indicator in Thread component [#662](https://github.com/GetStream/stream-chat-react/pull/662)
+- Add parent ID to typing events [#665](https://github.com/GetStream/stream-chat-react/pull/665)
+- Allow MessageInput emoji and file upload icon customization [#666](https://github.com/GetStream/stream-chat-react/pull/666)
+- Add optional `disableMentions` prop to MessageInput and update mentions UI [#669](https://github.com/GetStream/stream-chat-react/pull/669)
+
+## Fix
+
+- Fix maxLength paste text bug [#670](https://github.com/GetStream/stream-chat-react/pull/670)
+
 ## [3.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v3.4.6) 2021-01-08
 
 ## Feature

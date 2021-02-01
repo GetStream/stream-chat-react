@@ -7,6 +7,10 @@
   border: 1px solid rgba(0, 0, 0, 0);
   position: relative;
 
+  &-pin-indicator {
+    padding-left: 10px;
+  }
+
   &-left {
     width: 30px;
     .str-chat__avatar {

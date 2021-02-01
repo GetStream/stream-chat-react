@@ -1,4 +1,3 @@
-// @ts-check
 /* eslint-disable sonarjs/no-duplicate-string */
 import React, {
   useEffect,
@@ -8,143 +7,59 @@ import React, {
   useReducer,
   useLayoutEffect,
 } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import PropTypes from 'prop-types';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
+import PropTypes from 'prop-types';
 import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
+import { v4 as uuidv4 } from 'uuid';
 
-import { ChatContext, ChannelContext, TranslationContext } from '../../context';
-import { Attachment as AttachmentComponent } from '../Attachment';
-import { MessageSimple as MessageSimpleComponent } from '../Message';
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { MessageSimple } from '../Message';
 import {
-  LoadingIndicator as LoadingIndicatorComponent,
-  LoadingErrorIndicator as LoadingErrorIndicatorComponent,
+  LoadingIndicator as DefaultLoadingIndicator,
+  LoadingErrorIndicator as DefaultLoadingErrorIndicator,
 } from '../Loading';
+
+import { channelReducer, initialState } from './channelState';
 import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
 import useIsMounted from './hooks/useIsMounted';
-import { channelReducer, initialState } from './channelState';
+
+import { ChatContext, ChannelContext, TranslationContext } from '../../context';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
 const Channel = ({ EmptyPlaceholder = null, ...props }) => {
   const { channel: contextChannel } = useContext(ChatContext);
+
   const channel = props.channel || contextChannel;
-  if (!channel?.cid) {
-    return EmptyPlaceholder;
-  }
+
+  if (!channel?.cid) return EmptyPlaceholder;
+
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
-};
-
-Channel.defaultProps = {
-  multipleUploads: true,
-};
-
-Channel.propTypes = {
-  /** Which channel to connect to, will initialize the channel if it's not initialized yet */
-  channel: PropTypes.instanceOf(StreamChannel),
-  /**
-   * Empty channel UI component. This will be shown on the screen if there is no active channel.
-   *
-   * Defaults to null which skips rendering the Channel
-   *
-   * */
-  EmptyPlaceholder: PropTypes.element,
-  /**
-   * Error indicator UI component. This will be shown on the screen if channel query fails.
-   *
-   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
-   *
-   * */
-  // @ts-ignore elementType
-  LoadingErrorIndicator: PropTypes.elementType,
-  /**
-   * Loading indicator UI component. This will be shown on the screen until the messages are
-   * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
-   * and replaced with children of the Channel component.
-   *
-   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
-   */
-  // @ts-ignore elementType
-  LoadingIndicator: PropTypes.elementType,
-  /**
-   * Message UI component to display a message in message list.
-   *
-   * Available built-in components (also accepts the same props as):
-   *
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
-   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
-   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
-   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
-   *
-   * */
-  // @ts-ignore elementType
-  Message: PropTypes.elementType,
-  /**
-   * Attachment UI component to display attachment in individual message.
-   *
-   * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
-   * */
-  // @ts-ignore elementType
-  Attachment: PropTypes.elementType,
-  /**
-   * Handle for click on @mention in message
-   *
-   * @param {Event} event DOM Click event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
-   */
-  onMentionsClick: PropTypes.func,
-  /**
-   * Handle for hover on @mention in message
-   *
-   * @param {Event} event DOM hover event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
-   */
-  onMentionsHover: PropTypes.func,
-  /** Whether to allow multiple attachment uploads */
-  multipleUploads: PropTypes.bool,
-  /** List of accepted file types */
-  acceptedFiles: PropTypes.array,
-  /** Maximum number of attachments allowed per message */
-  maxNumberOfFiles: PropTypes.number,
-  /** Override send message request (Advanced usage only)
-   *
-   * @param {String} channelId full channel ID in format of `type:id`
-   * @param {Object} message
-   */
-  doSendMessageRequest: PropTypes.func,
-  /**
-   * Override mark channel read request (Advanced usage only)
-   *
-   * @param {Channel} channel object
-   * */
-  doMarkReadRequest: PropTypes.func,
-  /** Override update(edit) message request (Advanced usage only)
-   *
-   * @param {String} channelId full channel ID in format of `type:id`
-   * @param {Object} updatedMessage
-   */
-  doUpdateMessageRequest: PropTypes.func,
 };
 
 /** @type {React.FC<import('types').ChannelProps & { channel: import('stream-chat').Channel }>} */
 const ChannelInner = ({
-  LoadingIndicator = LoadingIndicatorComponent,
-  LoadingErrorIndicator = LoadingErrorIndicatorComponent,
-  Attachment = AttachmentComponent,
-  Message = MessageSimpleComponent,
+  Attachment = DefaultAttachment,
   doMarkReadRequest,
+  LoadingErrorIndicator = DefaultLoadingErrorIndicator,
+  LoadingIndicator = DefaultLoadingIndicator,
+  Message = MessageSimple,
   ...props
   // eslint-disable-next-line sonarjs/cognitive-complexity
 }) => {
   const { channel } = props;
+
+  const { client, mutes, theme } = useContext(ChatContext);
+  const { t } = useContext(TranslationContext);
+
   const [state, dispatch] = useReducer(channelReducer, initialState);
+
+  const isMounted = useIsMounted();
+
   const originalTitle = useRef('');
   const lastRead = useRef(new Date());
-  const chatContext = useContext(ChatContext);
   const online = useRef(true);
-  const isMounted = useIsMounted();
-  const { t } = useContext(TranslationContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCopyStateFromChannel = useCallback(
@@ -192,10 +107,7 @@ const ChannelInner = ({
           mainChannelUpdated = false;
         }
 
-        if (
-          mainChannelUpdated &&
-          e.message.user.id !== chatContext.client.userID
-        ) {
+        if (mainChannelUpdated && e.message.user.id !== client.userID) {
           if (!document.hidden) {
             markReadThrottled();
           } else if (
@@ -210,12 +122,7 @@ const ChannelInner = ({
 
       throttledCopyStateFromChannel();
     },
-    [
-      channel,
-      throttledCopyStateFromChannel,
-      chatContext.client.userID,
-      markReadThrottled,
-    ],
+    [channel, throttledCopyStateFromChannel, client.userID, markReadThrottled],
   );
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
@@ -245,8 +152,8 @@ const ChannelInner = ({
         // The more complex sync logic is done in chat.js
         // listen to client.connection.recovered and all channel events
         document.addEventListener('visibilitychange', onVisibilityChange);
-        chatContext.client.on('connection.changed', handleEvent);
-        chatContext.client.on('connection.recovered', handleEvent);
+        client.on('connection.changed', handleEvent);
+        client.on('connection.recovered', handleEvent);
         channel.on(handleEvent);
       }
     })();
@@ -254,10 +161,10 @@ const ChannelInner = ({
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.off(handleEvent);
-      chatContext.client.off('connection.changed', handleEvent);
-      chatContext.client.off('connection.recovered', handleEvent);
+      client.off('connection.changed', handleEvent);
+      client.off('connection.recovered', handleEvent);
     };
-  }, [channel, chatContext.client, handleEvent, markRead, props.channel]);
+  }, [channel, client, handleEvent, markRead, props.channel]);
 
   useEffect(() => {
     if (state.thread) {
@@ -380,7 +287,7 @@ const ChannelInner = ({
   const createMessagePreview = useCallback(
     (text, attachments, parent, mentioned_users) => {
       // create a preview of the message
-      const clientSideID = `${chatContext.client.userID}-${uuidv4()}`;
+      const clientSideID = `${client.userID}-${uuidv4()}`;
       return {
         text,
         html: text,
@@ -388,7 +295,7 @@ const ChannelInner = ({
         id: clientSideID,
         type: 'regular',
         status: 'sending',
-        user: chatContext.client.user,
+        user: client.user,
         created_at: new Date(),
         attachments,
         mentioned_users,
@@ -396,7 +303,7 @@ const ChannelInner = ({
         ...(parent?.id ? { parent_id: parent.id } : null),
       };
     },
-    [chatContext.client.user, chatContext.client.userID],
+    [client.user, client.userID],
   );
 
   const sendMessage = useCallback(
@@ -528,27 +435,27 @@ const ChannelInner = ({
     ...state,
     watcher_count: state.watcherCount,
     // props
-    channel,
-    Message,
-    Attachment,
-    multipleUploads: props.multipleUploads,
     acceptedFiles: props.acceptedFiles,
+    Attachment,
+    channel,
     maxNumberOfFiles: props.maxNumberOfFiles,
-    mutes: chatContext.mutes,
+    Message,
+    multipleUploads: props.multipleUploads,
+    mutes,
     // handlers
-    loadMore,
-    editMessage,
-    updateMessage,
-    sendMessage,
-    retrySendMessage,
-    removeMessage,
-    openThread,
-    loadMoreThread,
     closeThread,
+    editMessage,
+    loadMore,
+    loadMoreThread,
     onMentionsClick: onMentionsHoverOrClick,
     onMentionsHover: onMentionsHoverOrClick,
+    openThread,
+    removeMessage,
+    retrySendMessage,
+    sendMessage,
+    updateMessage,
     // from chatContext, for legacy reasons
-    client: chatContext.client,
+    client,
   };
 
   let core;
@@ -566,11 +473,98 @@ const ChannelInner = ({
     );
   }
 
-  return (
-    <div className={`str-chat str-chat-channel ${chatContext.theme}`}>
-      {core}
-    </div>
-  );
+  return <div className={`str-chat str-chat-channel ${theme}`}>{core}</div>;
+};
+
+Channel.defaultProps = {
+  multipleUploads: true,
+};
+
+Channel.propTypes = {
+  /** Which channel to connect to, will initialize the channel if it's not initialized yet */
+  channel: PropTypes.instanceOf(StreamChannel),
+  /**
+   * Empty channel UI component. This will be shown on the screen if there is no active channel.
+   *
+   * Defaults to null which skips rendering the Channel
+   *
+   * */
+  EmptyPlaceholder: PropTypes.element,
+  /**
+   * Error indicator UI component. This will be shown on the screen if channel query fails.
+   *
+   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
+   *
+   * */
+  // @ts-ignore elementType
+  LoadingErrorIndicator: PropTypes.elementType,
+  /**
+   * Loading indicator UI component. This will be shown on the screen until the messages are
+   * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
+   * and replaced with children of the Channel component.
+   *
+   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+   */
+  // @ts-ignore elementType
+  LoadingIndicator: PropTypes.elementType,
+  /**
+   * Message UI component to display a message in message list.
+   *
+   * Available built-in components (also accepts the same props as):
+   *
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
+   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
+   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
+   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+   *
+   * */
+  // @ts-ignore elementType
+  Message: PropTypes.elementType,
+  /**
+   * Attachment UI component to display attachment in individual message.
+   *
+   * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+   * */
+  // @ts-ignore elementType
+  Attachment: PropTypes.elementType,
+  /**
+   * Handle for click on @mention in message
+   *
+   * @param {Event} event DOM Click event
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
+   */
+  onMentionsClick: PropTypes.func,
+  /**
+   * Handle for hover on @mention in message
+   *
+   * @param {Event} event DOM hover event
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
+   */
+  onMentionsHover: PropTypes.func,
+  /** Whether to allow multiple attachment uploads */
+  multipleUploads: PropTypes.bool,
+  /** List of accepted file types */
+  acceptedFiles: PropTypes.array,
+  /** Maximum number of attachments allowed per message */
+  maxNumberOfFiles: PropTypes.number,
+  /** Override send message request (Advanced usage only)
+   *
+   * @param {String} channelId full channel ID in format of `type:id`
+   * @param {Object} message
+   */
+  doSendMessageRequest: PropTypes.func,
+  /**
+   * Override mark channel read request (Advanced usage only)
+   *
+   * @param {Channel} channel object
+   * */
+  doMarkReadRequest: PropTypes.func,
+  /** Override update(edit) message request (Advanced usage only)
+   *
+   * @param {String} channelId full channel ID in format of `type:id`
+   * @param {Object} updatedMessage
+   */
+  doUpdateMessageRequest: PropTypes.func,
 };
 
 export default React.memo(Channel);

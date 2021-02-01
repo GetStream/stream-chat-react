@@ -1,27 +1,30 @@
-// @ts-check
 import React, { useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { ChannelContext } from '../../context';
+
 import MessageSimple from './MessageSimple';
-import { checkChannelPropType, checkClientPropType } from '../../utils';
 import {
-  MESSAGE_ACTIONS,
-  getMessageActions,
-  areMessagePropsEqual,
-} from './utils';
-import {
-  useMuteHandler,
-  useEditHandler,
-  useReactionHandler,
-  useDeleteHandler,
   useActionHandler,
-  useRetryHandler,
-  useMentionsHandler,
-  useUserHandler,
-  useOpenThreadHandler,
-  useUserRole,
+  useDeleteHandler,
+  useEditHandler,
   useFlagHandler,
+  useMentionsHandler,
+  useMuteHandler,
+  useOpenThreadHandler,
+  usePinHandler,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
+  useUserRole,
 } from './hooks';
+import {
+  areMessagePropsEqual,
+  defaultPinPermissions,
+  getMessageActions,
+  MESSAGE_ACTIONS,
+} from './utils';
+
+import { ChannelContext } from '../../context';
+import { checkChannelPropType, checkClientPropType } from '../../utils';
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -33,55 +36,72 @@ import {
 const Message = (props) => {
   const {
     addNotification,
+    channel: propChannel,
+    formatDate,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
+    getPinMessageErrorNotification,
+    groupStyles = [],
+    Message: MessageUIComponent = MessageSimple,
     message,
-    channel: propChannel,
+    messageActions = Object.keys(MESSAGE_ACTIONS),
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     openThread: propOpenThread,
+    pinPermissions = defaultPinPermissions,
     retrySendMessage: propRetrySendMessage,
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-    Message: MessageUIComponent = MessageSimple,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
-    formatDate,
-    groupStyles = [],
   } = props;
+
   const { channel: contextChannel } = useContext(ChannelContext);
+
   const channel = propChannel || contextChannel;
   const channelConfig = channel?.getConfig && channel.getConfig();
-  const { editing, setEdit, clearEdit } = useEditHandler();
-  const handleDelete = useDeleteHandler(message);
-  const handleReaction = useReactionHandler(message);
+
   const handleAction = useActionHandler(message);
-  const handleRetry = useRetryHandler(propRetrySendMessage);
+  const handleDelete = useDeleteHandler(message);
+  const { editing, setEdit, clearEdit } = useEditHandler();
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
+  const handleReaction = useReactionHandler(message);
+  const handleRetry = useRetryHandler(propRetrySendMessage);
+
   const handleFlag = useFlagHandler(message, {
     notify: addNotification,
     getSuccessNotification: getFlagMessageSuccessNotification,
     getErrorNotification: getFlagMessageErrorNotification,
   });
+
   const handleMute = useMuteHandler(message, {
     notify: addNotification,
     getSuccessNotification: getMuteUserSuccessNotification,
     getErrorNotification: getMuteUserErrorNotification,
   });
+
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
+
+  const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
+    notify: addNotification,
+    getErrorNotification: getPinMessageErrorNotification,
+  });
+
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+
   const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
-  const canReact = true;
-  const canReply = true;
+
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
+  const canReact = true;
+  const canReply = true;
+
   const messageActionsHandler = useCallback(() => {
     if (!message || !messageActions) {
       return [];
@@ -90,20 +110,22 @@ const Message = (props) => {
     return getMessageActions(messageActions, {
       canDelete,
       canEdit,
+      canPin,
       canReply,
       canReact,
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
     });
   }, [
-    channelConfig,
-    message,
-    messageActions,
     canDelete,
     canEdit,
+    canPin,
     canReply,
     canReact,
+    channelConfig?.mutes,
     isMyMessage,
+    message,
+    messageActions,
   ]);
 
   const actionsEnabled =
@@ -113,28 +135,29 @@ const Message = (props) => {
     MessageUIComponent && (
       <MessageUIComponent
         {...props}
+        actionsEnabled={actionsEnabled}
+        channelConfig={channelConfig}
+        clearEditingState={clearEdit}
         editing={editing}
         formatDate={formatDate}
-        clearEditingState={clearEdit}
-        setEditingState={setEdit}
-        groupStyles={groupStyles}
-        actionsEnabled={actionsEnabled}
-        Message={MessageUIComponent}
-        handleReaction={handleReaction}
         getMessageActions={messageActionsHandler}
-        handleFlag={handleFlag}
-        handleMute={handleMute}
+        groupStyles={groupStyles}
         handleAction={handleAction}
         handleDelete={handleDelete}
         handleEdit={setEdit}
+        handleFlag={handleFlag}
+        handleMute={handleMute}
+        handlePin={handlePin}
+        handleReaction={handleReaction}
         handleRetry={handleRetry}
         handleOpenThread={handleOpenThread}
         isMyMessage={() => isMyMessage}
-        channelConfig={channelConfig}
+        Message={MessageUIComponent}
         onMentionsClickMessage={onMentionsClick}
         onMentionsHoverMessage={onMentionsHover}
         onUserClick={onUserClick}
         onUserHover={onUserHover}
+        setEditingState={setEdit}
       />
     )
   );
@@ -156,11 +179,11 @@ Message.propTypes = {
   /** The client connection object for connecting to Stream */
   client: /** @type {PropTypes.Validator<import('types').StreamChatReactClient>} */ (PropTypes.objectOf(
     checkClientPropType,
-  ).isRequired),
+  )),
   /** The current channel this message is displayed in */
   channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
     checkChannelPropType,
-  ).isRequired),
+  )),
   /** A list of users that have read this message */
   readBy: PropTypes.array,
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
@@ -241,6 +264,15 @@ Message.propTypes = {
    *
    * */
   getMuteUserErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification: PropTypes.func,
   /** Latest message id on current channel */
   lastReceivedId: PropTypes.string,
   /** DOMRect object for parent MessageList component */
@@ -248,7 +280,7 @@ Message.propTypes = {
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<{[user_id: string]: import('stream-chat').ChannelMemberResponse<import('types').StreamChatReactUserType>}> | null | undefined>} */ (PropTypes.object),
   /**
-   * Function to add custom notification on messagelist
+   * Function to add custom notification on message list
    *
    * @param text Notification text to display
    * @param type Type of notification. 'success' | 'error'
@@ -285,13 +317,14 @@ Message.propTypes = {
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps: PropTypes.object,
+  /**
+   * The user roles allowed to pin messages in various channel types
+   */
+  pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
 };
 
 Message.defaultProps = {
-  Message: MessageSimple,
   readBy: [],
-  groupStyles: [],
-  messageActions: Object.keys(MESSAGE_ACTIONS),
 };
 
 export default React.memo(Message, areMessagePropsEqual);

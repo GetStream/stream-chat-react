@@ -37,17 +37,20 @@ const CallbackEffectWithChannelContext = ({ callback }) => {
 
   return null;
 };
+
 // In order for ChannelInner to be rendered, we need to set the active channel first.
 const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useContext(ChatContext);
   useEffect(() => {
     setActiveChannel(activeChannel);
-  });
+  }, [activeChannel]); // eslint-disable-line
   return null;
 };
 
 const user = generateUser({ name: 'name', id: 'id' });
 const messages = [generateMessage({ user })];
+const pinnedMessages = [generateMessage({ user, pinned: true })];
+
 const renderComponent = (props = {}, callback = () => {}) =>
   render(
     <Chat client={chatClient}>
@@ -74,6 +77,7 @@ describe('Channel', () => {
     const mockedChannel = generateChannel({
       messages,
       members,
+      pinnedMessages,
     });
     chatClient = await getTestClientWithUser(user);
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
@@ -131,6 +135,24 @@ describe('Channel', () => {
     const { findByText } = renderComponent({ children: <div>children</div> });
 
     expect(await findByText('children')).toBeInTheDocument();
+  });
+
+  it('should store pinned messages as an array in the channel context', async () => {
+    let ctxPins;
+
+    const { getByText } = renderComponent(
+      {
+        children: <div>children</div>,
+      },
+      (ctx) => {
+        ctxPins = ctx.pinnedMessages;
+      },
+    );
+
+    await waitFor(() => {
+      expect(getByText('children')).toBeInTheDocument();
+      expect(Array.isArray(ctxPins)).toBe(true);
+    });
   });
 
   // should these 'on' tests actually test if the handler works?

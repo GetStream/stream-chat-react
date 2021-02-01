@@ -1,4 +1,3 @@
-// @ts-check
 import React, { useContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,19 +6,23 @@ import { TranslationContext } from '../../context';
 
 /** @type {React.FC<import("types").MessageActionsBoxProps>} */
 const MessageActionsBox = ({
+  getMessageActions,
+  handleDelete,
+  handleEdit,
   handleFlag,
   handleMute,
-  handleEdit,
-  handleDelete,
-  getMessageActions,
+  handlePin,
   isUserMuted,
-  open = false,
-  mine,
+  message,
   messageListRect,
+  mine,
+  open = false,
 }) => {
   const { t } = useContext(TranslationContext);
-  const messageActions = getMessageActions();
+
   const [reverse, setReverse] = useState(false);
+
+  const messageActions = getMessageActions();
 
   const checkIfReverse = useCallback(
     (containerElement) => {
@@ -56,6 +59,14 @@ const MessageActionsBox = ({
       ref={checkIfReverse}
     >
       <ul className="str-chat__message-actions-list">
+        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 &&
+          !message?.parent_id && (
+            <button onClick={handlePin}>
+              <li className="str-chat__message-actions-list-item">
+                {!message?.pinned ? t('Pin') : t('Unpin')}
+              </li>
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button onClick={handleFlag}>
             <li className="str-chat__message-actions-list-item">{t('Flag')}</li>
@@ -88,6 +99,8 @@ const MessageActionsBox = ({
 };
 
 MessageActionsBox.propTypes = {
+  /** The [message object](https://getstream.io/chat/docs/#message_format) */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
   /** If the message actions box should be open or not */
   open: PropTypes.bool,
   /** If message belongs to current user. */
@@ -95,7 +108,7 @@ MessageActionsBox.propTypes = {
   /** DOMRect object for parent MessageList component */
   messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /**
-   * Handler for flaging a current message
+   * Handler for flagging a current message
    *
    * @param event React's MouseEventHandler event
    * @returns void
@@ -123,9 +136,17 @@ MessageActionsBox.propTypes = {
    * */
   handleDelete: PropTypes.func,
   /**
-   * Returns array of avalable message actions for current message.
+   * Handler for pinning a current message
+   *
+   * @param event React's MouseEventHandler event
+   * @returns void
+   * */
+  handlePin: PropTypes.func,
+  /**
+   * Returns array of available message actions for current message.
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
    */
   getMessageActions: PropTypes.func.isRequired,
 };
+
 export default React.memo(MessageActionsBox);
