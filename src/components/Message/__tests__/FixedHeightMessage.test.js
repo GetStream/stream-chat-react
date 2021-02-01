@@ -33,8 +33,7 @@ const bob = generateUser({ name: 'bob' });
 async function renderMsg(message) {
   const channel = generateChannel();
   const client = await getTestClientWithUser(alice);
-  const format = jest.fn();
-  const customDateTimeParser = jest.fn(() => ({ format }));
+  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
     <ChatContext.Provider value={{ theme: 'dark' }}>

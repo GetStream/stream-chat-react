@@ -44,8 +44,7 @@ async function renderMessageText(
   const channel = generateChannel({
     getConfig: () => ({ reactions: true, ...channelConfig }),
   });
-  const format = jest.fn();
-  const customDateTimeParser = jest.fn(() => ({ format }));
+  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return renderer(
     <ChannelContext.Provider

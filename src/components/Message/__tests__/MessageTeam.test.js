@@ -42,8 +42,7 @@ async function renderMessageTeam(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
-  const format = jest.fn();
-  const customDateTimeParser = jest.fn(() => ({ format }));
+  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
     <ChannelContext.Provider value={{ client, channel, t: (key) => key }}>
