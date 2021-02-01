@@ -395,6 +395,7 @@ describe('<MessageLivestream />', () => {
     });
     expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
   });
+
   it('should display text in users set language', async () => {
     const message = generateAliceMessage({
       i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },

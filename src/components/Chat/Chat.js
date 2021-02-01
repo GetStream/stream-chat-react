@@ -90,7 +90,7 @@ const Chat = ({
         });
       }
     });
-  }, [i18nInstance, client]);
+  }, [client, i18nInstance]);
 
   const setActiveChannel = useCallback(
     /**

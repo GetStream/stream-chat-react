@@ -174,6 +174,7 @@ describe('<MessageText />', () => {
     const { getByText } = await renderMessageText({ message });
     expect(getByText(text)).toBeInTheDocument();
   });
+
   it('should display text in users set language', async () => {
     const text = 'bonjour';
     const message = generateAliceMessage({
