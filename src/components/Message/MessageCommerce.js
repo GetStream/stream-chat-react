@@ -108,7 +108,8 @@ const MessageCommerce = (props) => {
                 ? 'str-chat__message-commerce--with-reactions'
                 : ''
             }
-						${`str-chat__message-commerce--${firstGroupStyle}`}
+            ${`str-chat__message-commerce--${firstGroupStyle}`}
+            ${message?.pinned ? 'pinned-message' : ''}
 					`.trim()}
       >
         {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (

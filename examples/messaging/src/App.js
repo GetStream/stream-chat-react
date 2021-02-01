@@ -15,15 +15,17 @@ import {
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
-
 import './App.css';
 
 const urlParams = new URLSearchParams(window.location.search);
-const apiKey = urlParams.get('apiKey') || 'qk4nn7rpcn75';
-const userId = urlParams.get('user') || 'example-user';
+const apiKey =
+  urlParams.get('apiKey') || process.env.REACT_APP_STREAM_KEY || 'qk4nn7rpcn75';
+const userId =
+  urlParams.get('user') || process.env.REACT_APP_USER_ID || 'example-user';
 const theme = urlParams.get('theme') || 'light';
 const userToken =
   urlParams.get('user_token') ||
+  process.env.REACT_APP_USER_TOKEN ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZXhhbXBsZS11c2VyIn0.HlC0dMKL43y3K_XbfvQS_Yc3V314HU4Z7LrBLil777g';
 
 const filters = { type: 'messaging', example: 1 };
@@ -38,13 +40,13 @@ const Paginator = (props) => (
   <InfiniteScrollPaginator threshold={300} {...props} />
 );
 
-const chatClient = new StreamChat(apiKey);
+const chatClient = StreamChat.getInstance(apiKey);
 
 if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
   chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
 }
 
-chatClient.setUser({ id: userId }, userToken);
+chatClient.connectUser({ id: userId }, userToken);
 
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>

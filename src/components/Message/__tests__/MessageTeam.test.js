@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
@@ -158,6 +158,36 @@ describe('<MessageTeam />', () => {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
+  });
+
+  it('should render pin indicator when pinned is true', async () => {
+    const message = generateAliceMessage({ pinned: true });
+    const CustomPinIndicator = () => (
+      <div data-testid="pin-indicator">Pin Indicator</div>
+    );
+
+    const { getByTestId } = await renderMessageTeam(message, {
+      PinIndicator: CustomPinIndicator,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('pin-indicator')).toBeInTheDocument();
+    });
+  });
+
+  it('should not render pin indicator when pinned is false', async () => {
+    const message = generateAliceMessage({ pinned: false });
+    const CustomPinIndicator = () => (
+      <div data-testid="pin-indicator">Pin Indicator</div>
+    );
+
+    const { queryAllByTestId } = await renderMessageTeam(message, {
+      PinIndicator: CustomPinIndicator,
+    });
+
+    await waitFor(() => {
+      expect(queryAllByTestId('pin-indicator')).toHaveLength(0);
+    });
   });
 
   it('should render custom edit message input component when one is given', async () => {

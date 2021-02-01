@@ -32,10 +32,11 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
+  DeliveredCheckIcon,
+  ErrorIcon,
+  PinIndicator as DefaultPinIndicator,
   ReactionIcon,
   ThreadIcon,
-  ErrorIcon,
-  DeliveredCheckIcon,
 } from './icons';
 import MessageTimestamp from './MessageTimestamp';
 
@@ -60,6 +61,7 @@ const MessageTeam = (props) => {
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted,
+    PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     editing: propEditing,
@@ -160,15 +162,21 @@ const MessageTeam = (props) => {
       </div>
     );
   }
+
   return (
     <React.Fragment>
+      {message?.pinned && (
+        <div className="str-chat__message-team-pin-indicator">
+          <PinIndicator message={message} t={t} />
+        </div>
+      )}
       <div
         data-testid="message-team"
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
           message?.type
         } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
           message?.status
-        }`}
+        } ${message?.pinned ? 'pinned-message' : ''}`}
         ref={messageWrapperRef}
       >
         <div className="str-chat__message-team-meta">
@@ -284,6 +292,7 @@ const MessageTeam = (props) => {
                         handleMute={props.handleMute}
                         handleEdit={props.handleEdit}
                         handleDelete={props.handleDelete}
+                        handlePin={props.handlePin}
                         customWrapperClass={''}
                         inline
                       />
@@ -509,6 +518,12 @@ MessageTeam.propTypes = {
    * */
   EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
   /**
+   * Custom UI component to override default pinned message indicator
+   *
+   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.js)
+   * */
+  PinIndicator: /** @type {PropTypes.Validator<React.FC<import("types").PinIndicatorProps>>} */ (PropTypes.elementType),
+  /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
    *
@@ -578,6 +593,13 @@ MessageTeam.propTypes = {
    * @param event Dom event that triggered this handler
    */
   handleAction: PropTypes.func,
+  /**
+   * Handler for pinning a current message
+   *
+   * @param event React's MouseEventHandler event
+   * @returns void
+   * */
+  handlePin: PropTypes.func,
   /**
    * The handler for hover event on @mention in message
    *

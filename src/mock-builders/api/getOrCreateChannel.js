@@ -12,12 +12,14 @@ export const getOrCreateChannelApi = (
     channel: {},
     messages: [],
     members: [],
+    pinnedMessages: [],
   },
 ) => {
   const result = {
     channel: channel.channel,
     messages: channel.messages,
     members: channel.members,
+    pinnedMessages: channel.pinnedMessages,
     duration: 0.01,
   };
 
