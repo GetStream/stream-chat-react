@@ -238,6 +238,7 @@ class MessageList extends PureComponent {
             EmptyStateIndicator={this.props.EmptyStateIndicator}
             HeaderComponent={this.props.HeaderComponent}
             headerPosition={this.props.headerPosition}
+            hideDeletedMessages={this.props.hideDeletedMessages}
             messages={this.props.messages}
             MessageSystem={this.props.MessageSystem}
             noGroupByUser={this.props.noGroupByUser}
@@ -322,6 +323,8 @@ MessageList.propTypes = {
   dateSeparator: PropTypes.elementType,
   /** Disables the injection of date separator components, defaults to false */
   disableDateSeparator: PropTypes.bool,
+  /** Hides the MessageDeleted components from the list, defaults to false */
+  hideDeletedMessages: PropTypes.bool,
   /** Turn off grouping of messages by user */
   noGroupByUser: PropTypes.bool,
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */

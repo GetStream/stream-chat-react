@@ -35,12 +35,17 @@ const getReadStates = (messages, read) => {
   return readData;
 };
 
-const insertDates = (messages, lastRead, userID) => {
+const insertDates = (messages, lastRead, userID, hideDeletedMessages) => {
   let unread = false;
+  let lastDateSeparator;
   const newMessages = [];
 
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
+
+    if (hideDeletedMessages && message.type === 'deleted') {
+      continue;
+    }
 
     if (message.type === 'message.read') {
       newMessages.push(message);
@@ -56,19 +61,27 @@ const insertDates = (messages, lastRead, userID) => {
 
     if (!unread) {
       unread = lastRead && new Date(lastRead) < message.created_at;
-      // userId check makes sure New is not shown for current user messages
-      if (unread && message.user.id !== userID)
+
+      // do not show date separator for current user's messages
+      if (unread && message.user.id !== userID) {
         newMessages.push({
           type: 'message.date',
           date: message.created_at,
           unread,
         });
+      }
     }
 
     if (
-      (i === 0 || messageDate !== prevMessageDate) &&
-      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // prevent two subsequent DateSeparator
+      (i === 0 ||
+        messageDate !== prevMessageDate ||
+        (hideDeletedMessages &&
+          messages[i - 1]?.type === 'deleted' &&
+          lastDateSeparator !== messageDate)) &&
+      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // do not show two date separators in a row
     ) {
+      lastDateSeparator = messageDate;
+
       newMessages.push(
         { type: 'message.date', date: message.created_at },
         message,
@@ -188,6 +201,7 @@ const MessageListInner = (props) => {
     EmptyStateIndicator,
     HeaderComponent,
     headerPosition,
+    hideDeletedMessages = false,
     internalInfiniteScrollProps,
     internalMessageProps,
     messages,
@@ -205,7 +219,7 @@ const MessageListInner = (props) => {
     const messageWithDates =
       disableDateSeparator || threadList
         ? messages
-        : insertDates(messages, lastRead, client.userID);
+        : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
 
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
 
@@ -215,6 +229,7 @@ const MessageListInner = (props) => {
     disableDateSeparator,
     HeaderComponent,
     headerPosition,
+    hideDeletedMessages,
     lastRead,
     messages,
     threadList,
