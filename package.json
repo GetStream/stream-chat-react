@@ -132,7 +132,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "stream-chat": "link:../stream-chat-js",
+    "stream-chat": "3.0.0-beta.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-recommended-scss": "^4.2.0",
