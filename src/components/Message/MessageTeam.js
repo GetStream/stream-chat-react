@@ -119,9 +119,10 @@ const MessageTeam = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const messageMentionedUsersItem = message?.mentioned_users;
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text`] || message?.text;
+  const messageMentionedUsersItem = message?.mentioned_users;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const messageText = useMemo(
     () => renderText(messageTextToRender, messageMentionedUsersItem),
     [messageTextToRender, messageMentionedUsersItem],
