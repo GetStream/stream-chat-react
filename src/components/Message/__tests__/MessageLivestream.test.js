@@ -9,7 +9,6 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import dayjs from 'dayjs';
 import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
@@ -38,12 +37,15 @@ async function renderMessageLivestream(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
+  const format = jest.fn();
+  const customDateTimeParser = jest.fn(() => ({ format }));
+
   return render(
     <ChannelContext.Provider value={{ client, channel }}>
       <TranslationContext.Provider
         value={{
-          t: (tString) => tString,
-          tDateTimeParser: (tString) => dayjs(tString),
+          t: (key) => key,
+          tDateTimeParser: customDateTimeParser,
           userLanguage: 'en',
         }}
       >

@@ -41,7 +41,6 @@ const Chat = ({
     }),
   );
 
-  // const [userLanguage, setUserLanguage] = useState('');
   const [mutes, setMutes] = useState(
     /** @type {import('stream-chat').Mute[]} */ ([]),
   );
@@ -84,8 +83,12 @@ const Chat = ({
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
     streami18n.getTranslators().then((translator) => {
-      if (translator)
-        setTranslators({ ...translator, userLanguage: client?.user?.language });
+      if (translator) {
+        setTranslators({
+          ...translator,
+          userLanguage: client?.user?.language || '',
+        });
+      }
     });
   }, [i18nInstance, client]);
 

@@ -8,7 +8,6 @@ import {
   generateMessage,
 } from 'mock-builders';
 
-import dayjs from 'dayjs';
 import FixedHeightMessage from '../FixedHeightMessage';
 import {
   ChatContext,
@@ -34,14 +33,16 @@ const bob = generateUser({ name: 'bob' });
 async function renderMsg(message) {
   const channel = generateChannel();
   const client = await getTestClientWithUser(alice);
+  const format = jest.fn();
+  const customDateTimeParser = jest.fn(() => ({ format }));
 
   return render(
     <ChatContext.Provider value={{ theme: 'dark' }}>
       <ChannelContext.Provider value={{ client, channel }}>
         <TranslationContext.Provider
           value={{
-            t: (tString) => tString,
-            tDateTimeParser: (tString) => dayjs(tString),
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
             userLanguage: 'en',
           }}
         >
@@ -104,6 +105,7 @@ describe('<FixedHeightMessage />', () => {
     await renderMsg(message);
     expect(MessageActionsMock).toHaveReturnedWith([]);
   });
+
   it('should display text in users set language', async () => {
     const message = generateMessage({
       user: alice,

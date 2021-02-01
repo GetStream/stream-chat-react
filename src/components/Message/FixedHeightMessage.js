@@ -57,7 +57,7 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
 
   const renderedText = useMemo(
     () => renderText(messageTextToRender, message.mentioned_users),
-    [messageTextToRender, message.mentioned_users],
+    [message.mentioned_users, messageTextToRender],
   );
   const userId = message.user?.id;
   // @ts-ignore

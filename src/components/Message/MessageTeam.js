@@ -125,7 +125,7 @@ const MessageTeam = (props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const messageText = useMemo(
     () => renderText(messageTextToRender, messageMentionedUsersItem),
-    [messageTextToRender, messageMentionedUsersItem],
+    [messageMentionedUsersItem, messageTextToRender],
   );
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 

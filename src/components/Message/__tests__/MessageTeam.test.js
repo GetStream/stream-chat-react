@@ -10,7 +10,6 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import dayjs from 'dayjs';
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageTeam from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
@@ -43,12 +42,15 @@ async function renderMessageTeam(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
+  const format = jest.fn();
+  const customDateTimeParser = jest.fn(() => ({ format }));
+
   return render(
     <ChannelContext.Provider value={{ client, channel, t: (key) => key }}>
       <TranslationContext.Provider
         value={{
-          t: (tString) => tString,
-          tDateTimeParser: (tString) => dayjs(tString),
+          t: (key) => key,
+          tDateTimeParser: customDateTimeParser,
           userLanguage: 'en',
         }}
       >

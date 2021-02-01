@@ -10,7 +10,6 @@ import {
   getTestClientWithUser,
   generateMessage,
 } from 'mock-builders';
-import dayjs from 'dayjs';
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageText from '../MessageText';
 import MessageOptionsMock from '../MessageOptions';
@@ -45,6 +44,9 @@ async function renderMessageText(
   const channel = generateChannel({
     getConfig: () => ({ reactions: true, ...channelConfig }),
   });
+  const format = jest.fn();
+  const customDateTimeParser = jest.fn(() => ({ format }));
+
   return renderer(
     <ChannelContext.Provider
       value={{
@@ -56,8 +58,8 @@ async function renderMessageText(
     >
       <TranslationContext.Provider
         value={{
-          t: (tString) => tString,
-          tDateTimeParser: (tString) => dayjs(tString),
+          t: (key) => key,
+          tDateTimeParser: customDateTimeParser,
           userLanguage: 'en',
         }}
       >

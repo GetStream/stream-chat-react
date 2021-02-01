@@ -59,7 +59,7 @@ const MessageTextComponent = (props) => {
 
   const messageText = useMemo(
     () => renderText(messageTextToRender, messageMentionedUsersItem),
-    [messageTextToRender, messageMentionedUsersItem],
+    [messageMentionedUsersItem, messageTextToRender],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
