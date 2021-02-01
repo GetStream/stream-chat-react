@@ -10,7 +10,8 @@ import {
   getTestClientWithUser,
   generateMessage,
 } from 'mock-builders';
-import { ChannelContext } from '../../../context';
+import dayjs from 'dayjs';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageText from '../MessageText';
 import MessageOptionsMock from '../MessageOptions';
 
@@ -53,7 +54,15 @@ async function renderMessageText(
         onMentionsClick: onMentionsClickMock,
       }}
     >
-      <MessageText {...defaultProps} {...customProps} />
+      <TranslationContext.Provider
+        value={{
+          t: (tString) => tString,
+          tDateTimeParser: (tString) => dayjs(tString),
+          userLanguage: 'en',
+        }}
+      >
+        <MessageText {...defaultProps} {...customProps} />{' '}
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -163,6 +172,17 @@ describe('<MessageText />', () => {
     const { getByText } = await renderMessageText({ message });
     expect(getByText(text)).toBeInTheDocument();
   });
+  it('should display text in users set language', async () => {
+    const text = 'bonjour';
+    const message = generateAliceMessage({
+      text,
+      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+    });
+
+    const { getByText } = await renderMessageText({ message });
+
+    expect(getByText('hello')).toBeInTheDocument();
+  });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
     const bobReaction = generateReaction({ user: bob });
@@ -226,21 +246,24 @@ describe('<MessageText />', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="custom-wrapper"
-      >
+      Array [
         <div
-          className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          className="custom-wrapper"
         >
-          <p>
-            hello world
-          </p>
-        </div>
-        <div />
-      </div>
+          <div
+            className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+            data-testid="message-text-inner-wrapper"
+            onClick={[Function]}
+            onMouseOver={[Function]}
+          >
+            <p>
+              hello world
+            </p>
+          </div>
+          <div />
+        </div>,
+        " ",
+      ]
     `);
   });
 
@@ -253,21 +276,24 @@ describe('<MessageText />', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message-text"
-      >
+      Array [
         <div
-          className="custom-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          className="str-chat__message-text"
         >
-          <p>
-            hi mate
-          </p>
-        </div>
-        <div />
-      </div>
+          <div
+            className="custom-inner"
+            data-testid="message-text-inner-wrapper"
+            onClick={[Function]}
+            onMouseOver={[Function]}
+          >
+            <p>
+              hi mate
+            </p>
+          </div>
+          <div />
+        </div>,
+        " ",
+      ]
     `);
   });
 
@@ -279,21 +305,24 @@ describe('<MessageText />', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message-text"
-      >
+      Array [
         <div
-          className="str-chat__message-text-inner str-chat__message-custom-text-inner"
-          data-testid="message-text-inner-wrapper"
-          onClick={[Function]}
-          onMouseOver={[Function]}
+          className="str-chat__message-text"
         >
-          <p>
-            whatup?!
-          </p>
-        </div>
-        <div />
-      </div>
+          <div
+            className="str-chat__message-text-inner str-chat__message-custom-text-inner"
+            data-testid="message-text-inner-wrapper"
+            onClick={[Function]}
+            onMouseOver={[Function]}
+          >
+            <p>
+              whatup?!
+            </p>
+          </div>
+          <div />
+        </div>,
+        " ",
+      ]
     `);
   });
 });

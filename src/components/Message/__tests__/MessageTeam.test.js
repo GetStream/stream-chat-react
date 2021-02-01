@@ -10,7 +10,8 @@ import {
   generateReaction,
 } from 'mock-builders';
 
-import { ChannelContext } from '../../../context';
+import dayjs from 'dayjs';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageTeam from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
@@ -44,7 +45,15 @@ async function renderMessageTeam(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider value={{ client, channel, t: (key) => key }}>
-      <MessageTeam message={message} typing={false} {...props} />
+      <TranslationContext.Provider
+        value={{
+          t: (tString) => tString,
+          tDateTimeParser: (tString) => dayjs(tString),
+          userLanguage: 'en',
+        }}
+      >
+        <MessageTeam message={message} typing={false} {...props} />
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -292,6 +301,16 @@ describe('<MessageTeam />', () => {
       },
       {},
     );
+  });
+  it('should display text in users set language', async () => {
+    const message = generateAliceMessage({
+      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      text: 'bonjour',
+    });
+
+    const { getByText } = await renderMessageTeam(message);
+
+    expect(getByText('hello')).toBeInTheDocument();
   });
 
   it('should place a spacer when message is not the first message on a thread and group style is not top or single', async () => {

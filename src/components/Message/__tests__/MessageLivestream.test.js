@@ -9,11 +9,12 @@ import {
   generateReaction,
 } from 'mock-builders';
 
+import dayjs from 'dayjs';
 import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext } from '../../../context';
+import { ChannelContext, TranslationContext } from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -39,7 +40,15 @@ async function renderMessageLivestream(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider value={{ client, channel }}>
-      <MessageLivestream message={message} typing={false} {...props} />
+      <TranslationContext.Provider
+        value={{
+          t: (tString) => tString,
+          tDateTimeParser: (tString) => dayjs(tString),
+          userLanguage: 'en',
+        }}
+      >
+        <MessageLivestream message={message} typing={false} {...props} />
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -383,6 +392,17 @@ describe('<MessageLivestream />', () => {
       channelConfig: { replies: true },
     });
     expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
+  });
+  it('should display text in users set language', async () => {
+    const message = generateAliceMessage({
+      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      text: 'bonjour',
+    });
+
+    const { getByText, debug } = await renderMessageLivestream(message);
+    debug();
+
+    expect(getByText('hello')).toBeInTheDocument();
   });
 
   it('should open thread when thread action button is clicked', async () => {
