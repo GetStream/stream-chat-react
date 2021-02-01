@@ -5,7 +5,7 @@ import MessageTimestamp from './MessageTimestamp';
 import { Avatar } from '../Avatar';
 import { MML } from '../MML';
 import { renderText } from '../../utils';
-import { ChatContext } from '../../context';
+import { ChatContext, TranslationContext } from '../../context';
 import { Gallery } from '../Gallery';
 import { MessageActions } from '../MessageActions';
 import { useUserRole, useActionHandler } from './hooks';
@@ -46,12 +46,18 @@ const getUserColor = (theme, userId) => {
  */
 const FixedHeightMessage = ({ message, groupedByUser }) => {
   const { theme } = useContext(ChatContext);
+  const { userLanguage } = useContext(TranslationContext);
+
   const role = useUserRole(message);
   const handleAction = useActionHandler(message);
 
+  const messageTextToRender =
+    // @ts-expect-error
+    message?.i18n?.[`${userLanguage}_text`] || message?.text;
+
   const renderedText = useMemo(
-    () => renderText(message.text, message.mentioned_users),
-    [message.text, message.mentioned_users],
+    () => renderText(messageTextToRender, message.mentioned_users),
+    [message.mentioned_users, messageTextToRender],
   );
   const userId = message.user?.id;
   // @ts-ignore

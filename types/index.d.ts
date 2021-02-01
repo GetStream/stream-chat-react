@@ -1742,6 +1742,7 @@ export interface TranslationContext
 export interface TranslationContextValue {
   t?: i18next.TFunction;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  userLanguage?: string;
 }
 
 export interface Streami18nOptions {
