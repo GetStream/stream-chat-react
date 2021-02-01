@@ -85,7 +85,7 @@ const MessageTeam = (props) => {
     ChannelContext,
   );
   const channelConfig = propChannelConfig || channel?.getConfig();
-  const { t: contextT } = useContext(TranslationContext);
+  const { t: contextT, userLanguage } = useContext(TranslationContext);
   const t = propT || contextT;
   const groupStyles = props.groupStyles || ['single'];
   const reactionSelectorRef = useRef(null);
@@ -117,11 +117,12 @@ const MessageTeam = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const messageTextItem = message?.text;
   const messageMentionedUsersItem = message?.mentioned_users;
+  const messageTextToRender =
+    message?.i18n?.[`${userLanguage}_text`] || message?.text;
   const messageText = useMemo(
-    () => renderText(messageTextItem, messageMentionedUsersItem),
-    [messageTextItem, messageMentionedUsersItem],
+    () => renderText(messageTextToRender, messageMentionedUsersItem),
+    [messageTextToRender, messageMentionedUsersItem],
   );
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
