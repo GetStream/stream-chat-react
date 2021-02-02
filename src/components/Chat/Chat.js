@@ -37,8 +37,10 @@ const Chat = ({
     /** @type { Required<import('types').TranslationContextValue>} */ ({
       t: /** @param {string} key */ (key) => key,
       tDateTimeParser: (input) => Dayjs(input),
+      userLanguage: '',
     }),
   );
+
   const [mutes, setMutes] = useState(
     /** @type {import('stream-chat').Mute[]} */ ([]),
   );
@@ -81,9 +83,14 @@ const Chat = ({
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
     streami18n.getTranslators().then((translator) => {
-      if (translator) setTranslators(translator);
+      if (translator) {
+        setTranslators({
+          ...translator,
+          userLanguage: client?.user?.language || '',
+        });
+      }
     });
-  }, [i18nInstance]);
+  }, [client, i18nInstance]);
 
   const setActiveChannel = useCallback(
     /**

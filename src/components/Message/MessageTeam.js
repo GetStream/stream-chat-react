@@ -87,7 +87,7 @@ const MessageTeam = (props) => {
     ChannelContext,
   );
   const channelConfig = propChannelConfig || channel?.getConfig();
-  const { t: contextT } = useContext(TranslationContext);
+  const { t: contextT, userLanguage } = useContext(TranslationContext);
   const t = propT || contextT;
   const groupStyles = props.groupStyles || ['single'];
   const reactionSelectorRef = useRef(null);
@@ -119,11 +119,13 @@ const MessageTeam = (props) => {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-  const messageTextItem = message?.text;
+  const messageTextToRender =
+    message?.i18n?.[`${userLanguage}_text`] || message?.text;
   const messageMentionedUsersItem = message?.mentioned_users;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const messageText = useMemo(
-    () => renderText(messageTextItem, messageMentionedUsersItem),
-    [messageTextItem, messageMentionedUsersItem],
+    () => renderText(messageTextToRender, messageMentionedUsersItem),
+    [messageMentionedUsersItem, messageTextToRender],
   );
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 

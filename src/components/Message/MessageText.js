@@ -30,27 +30,36 @@ const MessageTextComponent = (props) => {
     unsafeHTML,
     customOptionProps,
   } = props;
+
   const reactionSelectorRef = useRef(
     /** @type {HTMLDivElement | null} */ (null),
   );
+
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
+
   const {
     onReactionListClick,
     showDetailedReactions,
     isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef);
-  const { t } = useContext(TranslationContext);
+
+  const { t, userLanguage } = useContext(TranslationContext);
+
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
-  const messageTextItem = message?.text;
+
+  const messageTextToRender =
+    message?.i18n?.[`${userLanguage}_text`] || message?.text;
+
   const messageMentionedUsersItem = message?.mentioned_users;
+
   const messageText = useMemo(
-    () => renderText(messageTextItem, messageMentionedUsersItem),
-    [messageTextItem, messageMentionedUsersItem],
+    () => renderText(messageTextToRender, messageMentionedUsersItem),
+    [messageMentionedUsersItem, messageTextToRender],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';

@@ -9,7 +9,11 @@ import {
 } from 'mock-builders';
 
 import FixedHeightMessage from '../FixedHeightMessage';
-import { ChatContext, ChannelContext } from '../../../context';
+import {
+  ChatContext,
+  ChannelContext,
+  TranslationContext,
+} from '../../../context';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { Gallery as GalleryMock } from '../../Gallery';
@@ -29,11 +33,20 @@ const bob = generateUser({ name: 'bob' });
 async function renderMsg(message) {
   const channel = generateChannel();
   const client = await getTestClientWithUser(alice);
+  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
     <ChatContext.Provider value={{ theme: 'dark' }}>
       <ChannelContext.Provider value={{ client, channel }}>
-        <FixedHeightMessage message={message} />
+        <TranslationContext.Provider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <FixedHeightMessage message={message} />
+        </TranslationContext.Provider>
       </ChannelContext.Provider>
     </ChatContext.Provider>,
   );
@@ -90,5 +103,17 @@ describe('<FixedHeightMessage />', () => {
     const message = generateMessage({ user: bob });
     await renderMsg(message);
     expect(MessageActionsMock).toHaveReturnedWith([]);
+  });
+
+  it('should display text in users set language', async () => {
+    const message = generateMessage({
+      user: alice,
+      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      text: 'bonjour',
+    });
+
+    const { getByText } = await renderMsg(message);
+
+    expect(getByText('hello')).toBeInTheDocument();
   });
 });
