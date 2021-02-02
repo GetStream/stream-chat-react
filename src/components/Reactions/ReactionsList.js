@@ -1,8 +1,8 @@
-// @ts-check
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
-import { EmojiContext, getStrippedEmojiData } from '../../context';
+
+import { getStrippedEmojiData } from '../Chat/emojiData';
+import { EmojiContext } from '../../context';
 
 /** @type {React.FC<import("types").ReactionsListProps>} */
 const ReactionsList = ({

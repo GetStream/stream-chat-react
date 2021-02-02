@@ -5,7 +5,7 @@ import {
   commonEmoji,
   defaultMinimalEmojis,
   emojiSetDef,
-} from '../context/EmojiContext';
+} from '../components/Chat/emojiData';
 import emojiData from '../stream-emoji.json';
 
 export const emojiMockConfig = {

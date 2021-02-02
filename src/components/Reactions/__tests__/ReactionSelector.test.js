@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { generateUser, generateReaction, emojiMockConfig } from 'mock-builders';
 import { EmojiContext } from '../../../context';
-import { defaultMinimalEmojis } from '../../../context/EmojiContext';
+import { defaultMinimalEmojis } from '../../Chat/emojiData';
 import ReactionSelector from '../ReactionSelector';
 import { Avatar as AvatarMock } from '../../Avatar';
 

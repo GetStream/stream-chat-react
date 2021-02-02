@@ -1,4 +1,3 @@
-// @ts-check
 import React, {
   useState,
   useCallback,
@@ -8,8 +7,10 @@ import React, {
   useContext,
 } from 'react';
 import PropTypes from 'prop-types';
+
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { EmojiContext, getStrippedEmojiData } from '../../context';
+import { getStrippedEmojiData } from '../Chat/emojiData';
+import { EmojiContext } from '../../context';
 
 /** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
 const ReactionSelectorWithRef = (

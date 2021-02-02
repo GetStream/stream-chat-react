@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import Dayjs from 'dayjs';
+
 import { Streami18n } from '../../../i18n';
+
 import { version } from '../../../../package.json';
 
 export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
@@ -26,14 +28,12 @@ export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
   useEffect(() => {
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {
-      // should result in something like:
-      // 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
+      /**
+       * results in something like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
+       */
       client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
     }
-    // don't want client in dep array because it is a required
-    // prop for this component and we only want this run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setMutes(clientMutes || []);
@@ -42,18 +42,24 @@ export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
     const handleEvent = (e) => {
       if (e.type === 'notification.mutes_updated') setMutes(e.me?.mutes || []);
     };
+
     if (client) client.on(handleEvent);
     return () => client && client.off(handleEvent);
   }, [client, clientMutes]);
 
   useEffect(() => {
     let streami18n;
-    if (i18nInstance instanceof Streami18n) streami18n = i18nInstance;
-    else streami18n = new Streami18n({ language: 'en' });
+
+    if (i18nInstance instanceof Streami18n) {
+      streami18n = i18nInstance;
+    } else {
+      streami18n = new Streami18n({ language: 'en' });
+    }
 
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
+
     streami18n.getTranslators().then((translator) => {
       if (translator) {
         setTranslators({
@@ -76,11 +82,13 @@ export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
       if (activeChannel && Object.keys(watchers).length) {
         await activeChannel.query({ watch: true, watchers });
       }
+
       setChannel(activeChannel);
       closeMobileNav();
     },
     [],
   );
+
   return {
     channel,
     closeMobileNav,

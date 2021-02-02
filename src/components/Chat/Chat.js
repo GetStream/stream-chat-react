@@ -1,23 +1,17 @@
-// @ts-check
-
 import React from 'react';
+// @ts-expect-error
+import Emoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+// @ts-expect-error
+import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
+// @ts-expect-error
+import EmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
 import PropTypes from 'prop-types';
 
-// @ts-ignore
-import Emoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-// @ts-ignore
-import EmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
-// @ts-ignore
-import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
-import { ChatContext, EmojiContext, TranslationContext } from '../../context';
-import {
-  commonEmoji,
-  defaultMinimalEmojis,
-  emojiSetDef,
-} from '../../context/EmojiContext';
-import emojiData from '../../stream-emoji.json';
-
+import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useChat } from './hooks/useChat';
+
+import { ChatContext, EmojiContext, TranslationContext } from '../../context';
+import emojiData from '../../stream-emoji.json';
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
@@ -36,13 +30,25 @@ import { useChat } from './hooks/useChat';
  * @typedef {import('stream-chat').Channel | undefined} ChannelState
  * @type {React.FC<import('types').ChatProps>}
  */
-const Chat = ({
-  client,
-  theme = 'messaging light',
-  i18nInstance,
-  initialNavOpen = true,
-  children,
-}) => {
+const Chat = (props) => {
+  const {
+    children,
+    client,
+    i18nInstance,
+    initialNavOpen = true,
+    theme = 'messaging light',
+  } = props;
+
+  const {
+    channel,
+    closeMobileNav,
+    mutes,
+    navOpen,
+    openMobileNav,
+    setActiveChannel,
+    translators,
+  } = useChat({ client, initialNavOpen, i18nInstance });
+
   const emojiConfig = {
     emojiData,
     EmojiPicker,
@@ -52,15 +58,6 @@ const Chat = ({
     emojiSetDef,
     EmojiIndex,
   };
-  const {
-    setActiveChannel,
-    navOpen,
-    mutes,
-    channel,
-    openMobileNav,
-    closeMobileNav,
-    translators,
-  } = useChat({ client, initialNavOpen, i18nInstance });
 
   if (!translators.t) return null;
 
@@ -68,13 +65,13 @@ const Chat = ({
     <ChatContext.Provider
       value={{
         client,
-        theme,
         channel,
+        closeMobileNav,
         mutes,
         navOpen,
-        setActiveChannel,
         openMobileNav,
-        closeMobileNav,
+        setActiveChannel,
+        theme,
       }}
     >
       <TranslationContext.Provider value={translators}>

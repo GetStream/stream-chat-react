@@ -1,12 +1,7 @@
-// @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ChatContext, EmojiContext, TranslationContext } from '../../context';
-import {
-  commonEmoji,
-  defaultMinimalEmojis,
-  emojiSetDef,
-} from '../../context/EmojiContext';
+import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useChat } from './hooks/useChat';
 
 /**
