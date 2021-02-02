@@ -490,7 +490,6 @@ describe('ChannelList', () => {
       it('should move channel to top of the list by default', async () => {
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
-          getOrCreateChannelApi(testChannel3),
         ]);
 
         const { getByRole, getByTestId, getAllByRole } = render(
@@ -508,6 +507,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByRole('list')).toBeInTheDocument();
         });
+
+        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
 
         act(() =>
           dispatchNotificationMessageNewEvent(
@@ -530,10 +531,7 @@ describe('ChannelList', () => {
       it('should call `onMessageNew` function prop, if provided', async () => {
         const onMessageNew = jest.fn();
 
-        useMockedApis(chatClientUthred, [
-          queryChannelsApi([testChannel1]),
-          getOrCreateChannelApi(testChannel2),
-        ]);
+        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
 
         const { getByRole } = render(
           <Chat client={chatClientUthred}>
@@ -551,6 +549,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByRole('list')).toBeInTheDocument();
         });
+
+        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel2)]);
 
         act(() =>
           dispatchNotificationMessageNewEvent(
@@ -577,7 +577,6 @@ describe('ChannelList', () => {
         chatClientUthred = await getTestClientWithUser({ id: 'vishal' });
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
-          getOrCreateChannelApi(testChannel3),
         ]);
       });
 
@@ -592,6 +591,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByRole('list')).toBeInTheDocument();
         });
+
+        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
 
         act(() =>
           dispatchNotificationAddedToChannelEvent(
@@ -943,7 +944,6 @@ describe('ChannelList', () => {
         chatClientUthred = await getTestClientWithUser({ id: 'jaap' });
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
-          getOrCreateChannelApi(testChannel3),
         ]);
       });
 
@@ -958,6 +958,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByRole('list')).toBeInTheDocument();
         });
+
+        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
 
         act(() =>
           dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel),

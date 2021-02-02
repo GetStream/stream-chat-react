@@ -18,3 +18,4 @@ babel.i18next-extract.js
 /built
 /coverage
 types/index.d.ts
+src/components/Channel/types.ts

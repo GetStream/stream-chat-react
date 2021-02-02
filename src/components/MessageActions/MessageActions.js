@@ -1,13 +1,15 @@
-// @ts-check
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+
 import MessageActionsBox from './MessageActionsBox';
 import {
   useDeleteHandler,
   useUserRole,
   useFlagHandler,
   useMuteHandler,
+  usePinHandler,
 } from '../Message/hooks';
-import { isUserMuted } from '../Message/utils';
+import { defaultPinPermissions, isUserMuted } from '../Message/utils';
+
 import { ChatContext } from '../../context';
 
 /**
@@ -16,48 +18,65 @@ import { ChatContext } from '../../context';
 export const MessageActions = (props) => {
   const {
     addNotification,
-    message,
+    customWrapperClass,
     getMessageActions,
-    messageListRect,
-    messageWrapperRef,
-    setEditingState,
-    getMuteUserSuccessNotification,
-    getMuteUserErrorNotification,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
+    getMuteUserErrorNotification,
+    getMuteUserSuccessNotification,
+    getPinMessageErrorNotification,
+    handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
-    handleDelete: propHandleDelete,
+    handlePin: propHandlePin,
     inline,
-    customWrapperClass,
+    message,
+    messageListRect,
+    messageWrapperRef,
+    pinPermissions = defaultPinPermissions,
+    setEditingState,
   } = props;
+
   const { mutes } = useContext(ChatContext);
-  const messageActions = getMessageActions();
+
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
+
   const { isMyMessage } = useUserRole(message);
+
   const handleDelete = useDeleteHandler(message);
+
   const handleFlag = useFlagHandler(message, {
     notify: addNotification,
     getSuccessNotification: getFlagMessageErrorNotification,
     getErrorNotification: getFlagMessageSuccessNotification,
   });
+
   const handleMute = useMuteHandler(message, {
     notify: addNotification,
     getErrorNotification: getMuteUserSuccessNotification,
     getSuccessNotification: getMuteUserErrorNotification,
   });
+
+  const { handlePin } = usePinHandler(message, pinPermissions, {
+    notify: addNotification,
+    getErrorNotification: getPinMessageErrorNotification,
+  });
+
   const isMuted = useCallback(() => {
     return isUserMuted(message, mutes);
   }, [message, mutes]);
 
-  /** @type {() => void} Typescript syntax */
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
+
+  const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
+
   useEffect(() => {
     if (messageWrapperRef?.current) {
       messageWrapperRef.current.addEventListener('onMouseLeave', hideOptions);
     }
   }, [messageWrapperRef, hideOptions]);
+
   useEffect(() => {
     if (messageDeletedAt) {
       document.removeEventListener('click', hideOptions);
@@ -70,31 +89,30 @@ export const MessageActions = (props) => {
     } else {
       document.removeEventListener('click', hideOptions);
     }
-    return () => {
-      document.removeEventListener('click', hideOptions);
-    };
+
+    return () => document.removeEventListener('click', hideOptions);
   }, [actionsBoxOpen, hideOptions]);
 
-  if (messageActions.length === 0) {
-    return null;
-  }
+  if (messageActions.length === 0) return null;
 
   return (
     <MessageActionsWrapper
-      inline={inline}
       customWrapperClass={customWrapperClass}
+      inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
       <MessageActionsBox
         getMessageActions={getMessageActions}
-        open={actionsBoxOpen}
-        messageListRect={messageListRect}
-        handleFlag={propHandleFlag || handleFlag}
-        isUserMuted={isMuted}
-        handleMute={propHandleMute || handleMute}
-        handleEdit={setEditingState}
         handleDelete={propHandleDelete || handleDelete}
+        handleEdit={setEditingState}
+        handleFlag={propHandleFlag || handleFlag}
+        handleMute={propHandleMute || handleMute}
+        handlePin={propHandlePin || handlePin}
+        isUserMuted={isMuted}
+        message={message}
+        messageListRect={messageListRect}
         mine={isMyMessage}
+        open={actionsBoxOpen}
       />
       <svg
         width="11"
@@ -118,24 +136,28 @@ export const MessageActions = (props) => {
  */
 const MessageActionsWrapper = (props) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
+
   const defaultWrapperClass =
     'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
+
   const wrapperClass =
     typeof customWrapperClass === 'string'
       ? customWrapperClass
       : defaultWrapperClass;
+
   /** @type {(e: React.MouseEvent) => void} Typescript syntax */
   const onClickOptionsAction = (e) => {
     e.stopPropagation();
     setActionsBoxOpen(true);
   };
+
   const wrapperProps = {
     'data-testid': 'message-actions',
     onClick: onClickOptionsAction,
     className: wrapperClass,
   };
-  if (inline) {
-    return <span {...wrapperProps}>{children}</span>;
-  }
+
+  if (inline) return <span {...wrapperProps}>{children}</span>;
+
   return <div {...wrapperProps}>{children}</div>;
 };

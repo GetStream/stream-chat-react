@@ -621,6 +621,8 @@ export interface MessageListProps {
   /** Date separator component to render  */
   dateSeparator?: React.ElementType<DateSeparatorProps>;
   DateSeparator?: React.ElementType<DateSeparatorProps>;
+  disableDateSeparator?: boolean;
+  hideDeletedMessages?: boolean;
   /** Turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Weather its a thread of no. Default - false  */
@@ -634,6 +636,8 @@ export interface MessageListProps {
   getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
   getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
   getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
+  pinPermissions?: PinPermissions;
   additionalMessageInputProps?: object;
   client?: Client.StreamChat;
   loadMore?(messageLimit?: number): Promise<number>;
@@ -901,18 +905,11 @@ export interface MessageProps extends TranslationContextValue {
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getFlagMessageErrorNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getMuteUserSuccessNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
-  getMuteUserErrorNotification?(
-    message: StreamChatReactMessageResponse,
-  ): string;
+  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
+  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
+  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
+  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
@@ -954,6 +951,7 @@ export interface MessageComponentProps
   ): void;
   initialMessage?: boolean;
   threadList?: boolean;
+  pinPermissions?: PinPermissions;
 }
 
 // MessageUIComponentProps defines the props for the Message UI components (e.g. MessageSimple)
@@ -969,6 +967,7 @@ export interface MessageUIComponentProps
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
   handleAction?(
     name: string,
     value: string,
@@ -989,7 +988,14 @@ export interface MessageUIComponentProps
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
   EditMessageInput?: React.FC<MessageInputProps>;
+  PinIndicator?: React.FC<PinIndicatorProps>;
 }
+
+export type PinIndicatorProps = {
+  message?: StreamChatReactMessageResponse;
+  t?: i18next.TFunction;
+};
+
 export interface MessageDeletedProps extends TranslationContextValue {
   /** The message object */
   message: Client.MessageResponse;
@@ -1257,8 +1263,11 @@ export interface LoadMoreButtonProps {
   onClick: React.MouseEventHandler;
   refreshing: boolean;
 }
+
 export interface LoadingChannelsProps {}
+
 export interface MessageActionsBoxProps {
+  message?: Client.MessageResponse;
   /** If the message actions box should be open or not */
   open?: boolean;
   /** If message belongs to current user. */
@@ -1270,6 +1279,7 @@ export interface MessageActionsBoxProps {
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
 export interface MessageNotificationProps {
@@ -1362,6 +1372,7 @@ export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
 export class Message extends React.PureComponent<MessageComponentProps, any> {}
 export class MessageList extends React.PureComponent<MessageListProps, any> {}
+export const VirtualizedMessageList: React.FC<VirtualizedMessageListProps>;
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
@@ -1447,7 +1458,8 @@ export class MessageTeam extends React.PureComponent<
   MessageTeamState
 > {}
 
-export interface MessageSimpleProps extends MessageUIComponentProps {}
+export interface MessageSimpleProps
+  extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
   customClass?: string;
   message?: Client.MessageResponse;
@@ -1474,12 +1486,15 @@ export interface MessageActionsProps {
   handleDelete?(event?: React.BaseSyntheticEvent): void;
   handleFlag?(event?: React.BaseSyntheticEvent): void;
   handleMute?(event?: React.BaseSyntheticEvent): void;
+  handlePin?(event?: React.BaseSyntheticEvent): void;
+  pinPermissions?: PinPermissions;
   mutes?: Client.Mute[];
   getMessageActions(): Array<string>;
   getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
   getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
   getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
   getMuteUserErrorNotification?(message: Client.MessageResponse): string;
+  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
   messageListRect?: DOMRect;
   message?: Client.MessageResponse;
@@ -1534,7 +1549,7 @@ interface MessageNotificationArguments {
 }
 export function useFlagHandler(
   message: Client.MessageResponse | undefined,
-  notification: MessageNotificationArguments,
+  notifications: MessageNotificationArguments,
 ): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
 
 type CustomMentionHandler = (
@@ -1564,7 +1579,7 @@ export function useMentionsUIHandler(
 
 export function useMuteHandler(
   message: Client.MessageResponse | undefined,
-  notification: MessageNotificationArguments,
+  notifications: MessageNotificationArguments,
 ): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
 
 export function useOpenThreadHandler(
@@ -1574,6 +1589,36 @@ export function useOpenThreadHandler(
     event: React.SyntheticEvent,
   ) => void,
 ): (event: React.SyntheticEvent) => void;
+
+export type PinEnabledUserRoles = {
+  admin?: boolean;
+  anonymous?: boolean;
+  channel_member?: boolean;
+  channel_moderator?: boolean;
+  guest?: boolean;
+  member?: boolean;
+  moderator?: boolean;
+  owner?: boolean;
+  user?: boolean;
+};
+
+export type PinPermissions = {
+  commerce?: PinEnabledUserRoles;
+  gaming?: PinEnabledUserRoles;
+  livestream?: PinEnabledUserRoles;
+  messaging?: PinEnabledUserRoles;
+  team?: PinEnabledUserRoles;
+  [key: string]: PinEnabledUserRoles;
+};
+
+export function usePinHandler(
+  message: Client.MessageResponse | undefined,
+  pinPermissions: PinPermissions,
+  notifications: Omit<MessageNotificationArguments, 'getSuccessNotification'>,
+): {
+  canPin: boolean;
+  handlePin: (event: React.MouseEvent<HTMLElement>) => Promise<void>;
+};
 
 export function useReactionHandler(
   message: Client.MessageResponse | undefined,
@@ -1730,6 +1775,7 @@ export interface TranslationContext
 export interface TranslationContextValue {
   t?: i18next.TFunction;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  userLanguage?: string;
 }
 
 export interface Streami18nOptions {

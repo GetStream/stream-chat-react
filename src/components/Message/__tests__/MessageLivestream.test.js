@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
@@ -14,7 +14,11 @@ import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext, EmojiContext } from '../../../context';
+import {
+  ChannelContext,
+  EmojiContext,
+  TranslationContext,
+} from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -38,10 +42,20 @@ async function renderMessageLivestream(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
+  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+
   return render(
     <ChannelContext.Provider value={{ client, channel }}>
       <EmojiContext.Provider value={emojiMockConfig}>
-        <MessageLivestream message={message} typing={false} {...props} />
+        <TranslationContext.Provider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <MessageLivestream message={message} typing={false} {...props} />
+        </TranslationContext.Provider>
       </EmojiContext.Provider>
     </ChannelContext.Provider>,
   );
@@ -164,6 +178,36 @@ describe('<MessageLivestream />', () => {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
+  });
+
+  it('should render pin indicator when pinned is true', async () => {
+    const message = generateAliceMessage({ pinned: true });
+    const CustomPinIndicator = () => (
+      <div data-testid="pin-indicator">Pin Indicator</div>
+    );
+
+    const { getByTestId } = await renderMessageLivestream(message, {
+      PinIndicator: CustomPinIndicator,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('pin-indicator')).toBeInTheDocument();
+    });
+  });
+
+  it('should not render pin indicator when pinned is false', async () => {
+    const message = generateAliceMessage({ pinned: false });
+    const CustomPinIndicator = () => (
+      <div data-testid="pin-indicator">Pin Indicator</div>
+    );
+
+    const { queryAllByTestId } = await renderMessageLivestream(message, {
+      PinIndicator: CustomPinIndicator,
+    });
+
+    await waitFor(() => {
+      expect(queryAllByTestId('pin-indicator')).toHaveLength(0);
+    });
   });
 
   it('should render custom edit message input component when one is given', async () => {
@@ -356,6 +400,18 @@ describe('<MessageLivestream />', () => {
       channelConfig: { replies: true },
     });
     expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
+  });
+
+  it('should display text in users set language', async () => {
+    const message = generateAliceMessage({
+      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      text: 'bonjour',
+    });
+
+    const { getByText, debug } = await renderMessageLivestream(message);
+    debug();
+
+    expect(getByText('hello')).toBeInTheDocument();
   });
 
   it('should open thread when thread action button is clicked', async () => {

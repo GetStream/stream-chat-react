@@ -7,7 +7,7 @@ import MessageNotification from './MessageNotification';
 import CustomNotification from './CustomNotification';
 import ConnectionStatus from './ConnectionStatus';
 import MessageListInner from './MessageListInner';
-import { MESSAGE_ACTIONS } from '../Message/utils';
+import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { checkChannelPropType, smartRender } from '../../utils';
 
 import { ChannelContext, withTranslationContext } from '../../context';
@@ -230,20 +230,22 @@ class MessageList extends PureComponent {
           ref={this.messageList}
         >
           <MessageListInner
+            bottomRef={this.bottomRef}
+            channel={this.props.channel}
+            client={this.props.client}
+            DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
+            disableDateSeparator={this.props.disableDateSeparator}
             EmptyStateIndicator={this.props.EmptyStateIndicator}
-            TypingIndicator={this.props.TypingIndicator}
-            MessageSystem={this.props.MessageSystem}
             HeaderComponent={this.props.HeaderComponent}
             headerPosition={this.props.headerPosition}
-            DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
+            hideDeletedMessages={this.props.hideDeletedMessages}
             messages={this.props.messages}
+            MessageSystem={this.props.MessageSystem}
             noGroupByUser={this.props.noGroupByUser}
-            threadList={this.props.threadList}
-            client={this.props.client}
-            channel={this.props.channel}
-            read={this.props.read}
-            bottomRef={this.bottomRef}
             onMessageLoadCaptured={this.onMessageLoadCaptured}
+            read={this.props.read}
+            threadList={this.props.threadList}
+            TypingIndicator={this.props.TypingIndicator}
             internalInfiniteScrollProps={{
               hasMore: this.props.hasMore,
               isLoading: this.props.loadingMore,
@@ -256,25 +258,12 @@ class MessageList extends PureComponent {
               ),
             }}
             internalMessageProps={{
-              messageListRect: this.state.messageListRect,
-              openThread: this.props.openThread,
-              members: this.props.members,
-              watchers: this.props.watchers,
-              channel: this.props.channel,
-              retrySendMessage: this.props.retrySendMessage,
-              addNotification: this.addNotification,
-              updateMessage: this.props.updateMessage,
-              removeMessage: this.props.removeMessage,
-              Message: this.props.Message,
-              mutes: this.props.mutes,
-              unsafeHTML: this.props.unsafeHTML,
-              Attachment: this.props.Attachment,
-              Avatar: this.props.Avatar,
-              onMentionsClick: this.props.onMentionsClick,
-              onMentionsHover: this.props.onMentionsHover,
-              messageActions: this.props.messageActions,
               additionalMessageInputProps: this.props
                 .additionalMessageInputProps,
+              addNotification: this.addNotification,
+              Attachment: this.props.Attachment,
+              Avatar: this.props.Avatar,
+              channel: this.props.channel,
               getFlagMessageSuccessNotification: this.props
                 .getFlagMessageSuccessNotification,
               getFlagMessageErrorNotification: this.props
@@ -283,10 +272,25 @@ class MessageList extends PureComponent {
                 .getMuteUserSuccessNotification,
               getMuteUserErrorNotification: this.props
                 .getMuteUserErrorNotification,
+              getPinMessageErrorNotification: this.props
+                .getPinMessageErrorNotification,
+              members: this.props.members,
+              Message: this.props.Message,
+              messageActions: this.props.messageActions,
+              messageListRect: this.state.messageListRect,
+              mutes: this.props.mutes,
+              onMentionsClick: this.props.onMentionsClick,
+              onMentionsHover: this.props.onMentionsHover,
+              openThread: this.props.openThread,
+              removeMessage: this.props.removeMessage,
+              retrySendMessage: this.props.retrySendMessage,
+              unsafeHTML: this.props.unsafeHTML,
+              updateMessage: this.props.updateMessage,
+              watchers: this.props.watchers,
+              pinPermissions: this.props.pinPermissions,
             }}
           />
         </div>
-
         <div className="str-chat__list-notifications">
           {this.state.notifications.map((notification) => (
             <CustomNotification
@@ -297,12 +301,10 @@ class MessageList extends PureComponent {
               {notification.text}
             </CustomNotification>
           ))}
-
           <ConnectionStatus />
-
           <MessageNotification
-            showNotification={this.state.newMessagesNotification}
             onClick={this.goToNewMessages}
+            showNotification={this.state.newMessagesNotification}
           >
             {t('New Messages!')}
           </MessageNotification>
@@ -319,6 +321,10 @@ MessageList.propTypes = {
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
    * */
   dateSeparator: PropTypes.elementType,
+  /** Disables the injection of date separator components, defaults to false */
+  disableDateSeparator: PropTypes.bool,
+  /** Hides the MessageDeleted components from the list, defaults to false */
+  hideDeletedMessages: PropTypes.bool,
   /** Turn off grouping of messages by user */
   noGroupByUser: PropTypes.bool,
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -370,6 +376,15 @@ MessageList.propTypes = {
    *
    * */
   getMuteUserErrorNotification: PropTypes.func,
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification: PropTypes.func,
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: PropTypes.object,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -395,7 +410,7 @@ MessageList.propTypes = {
    * */
   TypingIndicator: PropTypes.elementType,
   /**
-   * The UI Indicator to use when MessagerList or ChannelList is empty
+   * The UI Indicator to use when MessageList or ChannelList is empty
    * */
   EmptyStateIndicator: PropTypes.elementType,
   /**
@@ -436,6 +451,10 @@ MessageList.propTypes = {
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps: PropTypes.object,
+  /**
+   * The user roles allowed to pin messages in various channel types
+   */
+  pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
 };
 
 MessageList.defaultProps = {
@@ -451,6 +470,7 @@ MessageList.defaultProps = {
   unsafeHTML: false,
   noGroupByUser: false,
   messageActions: Object.keys(MESSAGE_ACTIONS),
+  pinPermissions: defaultPinPermissions,
 };
 
 export default withTranslationContext((props) => (
