@@ -19,14 +19,6 @@ import PropTypes from 'prop-types';
 import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
-// TODO: change to import type in TS refactor
-import {
-  Data as EmojiMartData, // eslint-disable-line
-  NimbleEmojiIndex, // eslint-disable-line
-  NimbleEmojiProps, // eslint-disable-line
-  NimblePickerProps, // eslint-disable-line
-} from 'emoji-mart';
-
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { MessageSimple } from '../Message';
@@ -600,18 +592,22 @@ Channel.propTypes = {
   /**
    * Optional component to override default NimbleEmoji from emoji-mart
    */
+  // @ts-expect-error import type when converted to TS
   Emoji: /** @type {PropTypes.Validator<React.ElementType<NimbleEmojiProps>>} */ (PropTypes.elementType),
   /**
    * Optional prop to override default facebook.json emoji data set from emoji-mart
    */
+  // @ts-expect-error import type when converted to TS
   emojiData: /** @type {PropTypes.Validator<EmojiMartData>} */ (PropTypes.object),
   /**
    * Optional component to override default NimbleEmojiIndex from emoji-mart
    */
+  // @ts-expect-error import type when converted to TS
   EmojiIndex: /** @type {PropTypes.Validator<NimbleEmojiIndex>} */ (PropTypes.object),
   /**
    * Optional component to override default NimblePicker from emoji-mart
    */
+  // @ts-expect-error import type when converted to TS
   EmojiPicker: /** @type {PropTypes.Validator<React.ElementType<NimblePickerProps>>} */ (PropTypes.elementType),
 };
 
