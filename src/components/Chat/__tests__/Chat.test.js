@@ -22,6 +22,7 @@ const TranslationContextConsumer = ({ fn }) => {
   fn(useContext(TranslationContext));
   return <div data-testid="children" />;
 };
+
 describe('Chat', () => {
   afterEach(cleanup);
   const chatClient = getTestClient();
@@ -182,9 +183,7 @@ describe('Chat', () => {
 
   describe('mutes', () => {
     it('init the mute state with client data', async () => {
-      const chatClientWithUser = await getTestClientWithUser({
-        id: 'user_x',
-      });
+      const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
       // First load, mutes are initialized empty
       chatClientWithUser.user.mutes = [];
       let context;
@@ -215,9 +214,7 @@ describe('Chat', () => {
     });
 
     it('chat client listens and updates the state on mute event', async () => {
-      const chatClientWithUser = await getTestClientWithUser({
-        id: 'user_x',
-      });
+      const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
 
       let context;
       render(

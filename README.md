@@ -164,8 +164,6 @@ Common mistakes that hurt performance are:
 - Mistake: Passing an object {} or an array [] that's not using seamless-immutable
 - Solution: Use an immutable type (i.e., a number or a string) or use a seamless immutable version of an object or an array
 
-## Bundle Size
-
 ## Internationalisation
 
 Instance of class `Streami18n` should be provided to the Chat component to handle translations.

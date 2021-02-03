@@ -91,9 +91,9 @@ export interface EmojiConfig {
   emojiData: EmojiMartData;
   commonEmoji: commonEmojiInterface;
   defaultMinimalEmojis: MinimalEmojiInterface[];
-  EmojiPicker: React.ElementType<NimblePickerProps> | null;
-  EmojiIndex: NimbleEmojiIndex | null;
-  Emoji: React.ElementType<NimbleEmojiProps> | null;
+  EmojiPicker: React.ElementType<NimblePickerProps>;
+  EmojiIndex: NimbleEmojiIndex;
+  Emoji: React.ElementType<NimbleEmojiProps>;
   emojiSetDef: {
     spriteUrl: string;
     size: number;
@@ -189,10 +189,10 @@ export interface ChatProps {
 
 export interface ChannelProps {
   channel?: Client.Channel;
-  Emoji: React.ElementType<NimbleEmojiProps> | null;
-  emojiData: EmojiMartData;
-  EmojiIndex: NimbleEmojiIndex | null;
-  EmojiPicker: React.ElementType<NimblePickerProps> | null;
+  Emoji?: React.ElementType<NimbleEmojiProps>;
+  emojiData?: EmojiMartData;
+  EmojiIndex?: NimbleEmojiIndex;
+  EmojiPicker?: React.ElementType<NimblePickerProps>;
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;
