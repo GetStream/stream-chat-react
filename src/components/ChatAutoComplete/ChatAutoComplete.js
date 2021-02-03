@@ -1,28 +1,30 @@
-// @ts-check
 import React, { useContext, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
-// @ts-ignore
 import debounce from 'lodash.debounce';
+import PropTypes from 'prop-types';
+
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
-import { LoadingIndicator } from '../Loading';
-import { EmoticonItem } from '../EmoticonItem';
-import { UserItem } from '../UserItem';
 import { CommandItem } from '../CommandItem';
-import { ChannelContext, EmojiContext } from '../../context';
+import { EmoticonItem } from '../EmoticonItem';
+import { LoadingIndicator } from '../Loading';
+import { UserItem } from '../UserItem';
+
+import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").ChatAutoCompleteProps>} */
 const ChatAutoComplete = (props) => {
   const { commands, onSelectItem, triggers } = props;
 
-  const { channel } = useContext(ChannelContext);
-  const { emojiData, EmojiIndex } = useContext(EmojiContext);
+  const { channel, emojiConfig } = useContext(ChannelContext);
+
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
-  // @ts-ignore
+  const { emojiData, EmojiIndex } = emojiConfig;
+
   const emojiIndex = useMemo(() => new EmojiIndex(emojiData), [
     emojiData,
     EmojiIndex,
   ]);
+
   /** @param {string} word */
   const emojiReplace = (word) => {
     const found = emojiIndex.search(word) || [];

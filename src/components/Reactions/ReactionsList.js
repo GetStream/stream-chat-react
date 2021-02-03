@@ -1,8 +1,8 @@
 import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { getStrippedEmojiData } from '../Chat/emojiData';
-import { EmojiContext } from '../../context';
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").ReactionsListProps>} */
 const ReactionsList = ({
@@ -12,12 +12,15 @@ const ReactionsList = ({
   reverse = false,
   onClick,
 }) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
   const {
-    emojiData: fullEmojiData,
-    emojiSetDef,
     defaultMinimalEmojis,
     Emoji,
-  } = useContext(EmojiContext);
+    emojiData: fullEmojiData,
+    emojiSetDef,
+  } = emojiConfig;
+
   const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
     fullEmojiData,
   ]);

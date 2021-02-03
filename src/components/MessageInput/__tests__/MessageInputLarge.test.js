@@ -2,9 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MessageInput, MessageInputLarge } from '../index';
-import { ChannelContext } from '../../../context/ChannelContext';
-import { TranslationContext } from '../../../context/TranslationContext';
-import { EmojiContext } from '../../../context';
+import { ChannelContext, TranslationContext } from '../../../context';
 import { emojiMockConfig } from '../../../mock-builders';
 
 const i18nMock = jest.fn((key) => key);
@@ -18,6 +16,7 @@ const getChannelContextMock = ({ ownUser, typingUsers }) => ({
   client: {
     user: ownUser,
   },
+  emojiConfig: emojiMockConfig,
   typing: typingUsers.reduce(
     (acc, user) => ({
       ...acc,
@@ -29,13 +28,11 @@ const getChannelContextMock = ({ ownUser, typingUsers }) => ({
 
 const renderComponent = (channelContextMock) =>
   render(
-    <EmojiContext.Provider value={emojiMockConfig}>
-      <ChannelContext.Provider value={channelContextMock}>
-        <TranslationContext.Provider value={{ t: i18nMock }}>
-          <MessageInput Input={MessageInputLarge} />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </EmojiContext.Provider>,
+    <ChannelContext.Provider value={channelContextMock}>
+      <TranslationContext.Provider value={{ t: i18nMock }}>
+        <MessageInput Input={MessageInputLarge} />
+      </TranslationContext.Provider>
+    </ChannelContext.Provider>,
   );
 
 const user1 = { name: 'User one', id: 'user1' };

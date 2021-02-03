@@ -3,8 +3,8 @@ import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { generateUser, generateReaction, emojiMockConfig } from 'mock-builders';
-import { EmojiContext } from '../../../context';
-import { defaultMinimalEmojis } from '../../Chat/emojiData';
+import { ChannelContext } from '../../../context';
+import { defaultMinimalEmojis } from '../../Channel/emojiData';
 import ReactionSelector from '../ReactionSelector';
 import { Avatar as AvatarMock } from '../../Avatar';
 
@@ -31,9 +31,9 @@ const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
   render(
-    <EmojiContext.Provider value={emojiMockConfig}>
+    <ChannelContext.Provider value={{ emojiConfig: emojiMockConfig }}>
       <ReactionSelector handleReaction={handleReactionMock} {...props} />
-    </EmojiContext.Provider>,
+    </ChannelContext.Provider>,
   );
 
 describe('ReactionSelector', () => {

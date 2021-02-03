@@ -9,11 +9,11 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
-import {
-  NimblePickerProps,
-  NimbleEmojiProps,
+import type {
   Data as EmojiMartData,
   NimbleEmojiIndex,
+  NimbleEmojiProps,
+  NimblePickerProps,
 } from 'emoji-mart';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
@@ -87,7 +87,7 @@ export interface ChatContextValue {
   mutes?: Mute[];
 }
 
-export interface EmojiContextValue {
+export interface EmojiConfig {
   emojiData: EmojiMartData;
   commonEmoji: commonEmojiInterface;
   defaultMinimalEmojis: MinimalEmojiInterface[];
@@ -177,14 +177,11 @@ export interface ChannelContextValue extends ChatContextValue {
 
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
+  emojiConfig?: EmojiConfig;
 }
 
 export interface ChatProps {
   client: Client.StreamChat;
-  Emoji: React.ElementType<NimbleEmojiProps> | null;
-  emojiData: EmojiMartData;
-  EmojiIndex: NimbleEmojiIndex | null;
-  EmojiPicker: React.ElementType<NimblePickerProps> | null;
   initialNavOpen?: boolean;
   i18nInstance?: Streami18n;
   theme?: string;
@@ -192,7 +189,10 @@ export interface ChatProps {
 
 export interface ChannelProps {
   channel?: Client.Channel;
-
+  Emoji: React.ElementType<NimbleEmojiProps> | null;
+  emojiData: EmojiMartData;
+  EmojiIndex: NimbleEmojiIndex | null;
+  EmojiPicker: React.ElementType<NimblePickerProps> | null;
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;

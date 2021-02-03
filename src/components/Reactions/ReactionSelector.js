@@ -9,8 +9,8 @@ import React, {
 import PropTypes from 'prop-types';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { getStrippedEmojiData } from '../Chat/emojiData';
-import { EmojiContext } from '../../context';
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
 const ReactionSelectorWithRef = (
@@ -25,12 +25,15 @@ const ReactionSelectorWithRef = (
   },
   ref,
 ) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
   const {
-    Emoji,
     defaultMinimalEmojis,
+    Emoji,
     emojiData: fullEmojiData,
     emojiSetDef,
-  } = useContext(EmojiContext);
+  } = emojiConfig;
+
   const emojiData = getStrippedEmojiData(fullEmojiData);
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
   const [tooltipReactionType, setTooltipReactionType] = useState(null);

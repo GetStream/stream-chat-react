@@ -3,7 +3,7 @@ import React from 'react';
 import {
   commonEmoji,
   defaultMinimalEmojis,
-} from '../components/Chat/emojiData';
+} from '../components/Channel/emojiData';
 
 /**
  * @typedef {import('types').EmojiContextValue} EmojiContextProps

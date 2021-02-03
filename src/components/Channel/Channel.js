@@ -7,13 +7,28 @@ import React, {
   useReducer,
   useLayoutEffect,
 } from 'react';
+// @ts-expect-error
+import DefaultEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+// @ts-expect-error
+import DefaultEmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
+// @ts-expect-error
+import DefaultEmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import PropTypes from 'prop-types';
 import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: change to import type in TS refactor
+import {
+  Data as EmojiMartData, // eslint-disable-line
+  NimbleEmojiIndex, // eslint-disable-line
+  NimbleEmojiProps, // eslint-disable-line
+  NimblePickerProps, // eslint-disable-line
+} from 'emoji-mart';
+
 import { Attachment as DefaultAttachment } from '../Attachment';
+import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { MessageSimple } from '../Message';
 import {
   LoadingIndicator as DefaultLoadingIndicator,
@@ -26,6 +41,7 @@ import useEditMessageHandler from './hooks/useEditMessageHandler';
 import useIsMounted from './hooks/useIsMounted';
 
 import { ChatContext, ChannelContext, TranslationContext } from '../../context';
+import defaultEmojiData from '../../stream-emoji.json';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
 const Channel = ({ EmptyPlaceholder = null, ...props }) => {
@@ -42,6 +58,10 @@ const Channel = ({ EmptyPlaceholder = null, ...props }) => {
 const ChannelInner = ({
   Attachment = DefaultAttachment,
   doMarkReadRequest,
+  Emoji = DefaultEmoji,
+  emojiData = defaultEmojiData,
+  EmojiIndex = DefaultEmojiIndex,
+  EmojiPicker = DefaultEmojiPicker,
   LoadingErrorIndicator = DefaultLoadingErrorIndicator,
   LoadingIndicator = DefaultLoadingIndicator,
   Message = MessageSimple,
@@ -60,6 +80,16 @@ const ChannelInner = ({
   const originalTitle = useRef('');
   const lastRead = useRef(new Date());
   const online = useRef(true);
+
+  const emojiConfig = {
+    commonEmoji,
+    defaultMinimalEmojis,
+    Emoji,
+    emojiData,
+    EmojiIndex,
+    EmojiPicker,
+    emojiSetDef,
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCopyStateFromChannel = useCallback(
@@ -456,6 +486,8 @@ const ChannelInner = ({
     updateMessage,
     // from chatContext, for legacy reasons
     client,
+    // emoji config and customization object, potentially find a better home
+    emojiConfig,
   };
 
   let core;
@@ -500,7 +532,7 @@ Channel.propTypes = {
   LoadingErrorIndicator: PropTypes.elementType,
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
-   * being queried from channelœ. Once the messages are loaded, loading indicator is removed from the screen
+   * being queried from channel. Once the messages are loaded, loading indicator is removed from the screen
    * and replaced with children of the Channel component.
    *
    * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
@@ -565,6 +597,22 @@ Channel.propTypes = {
    * @param {Object} updatedMessage
    */
   doUpdateMessageRequest: PropTypes.func,
+  /**
+   * Optional component to override default NimbleEmoji from emoji-mart
+   */
+  Emoji: /** @type {PropTypes.Validator<React.ElementType<NimbleEmojiProps>>} */ (PropTypes.elementType),
+  /**
+   * Optional prop to override default facebook.json emoji data set from emoji-mart
+   */
+  emojiData: /** @type {PropTypes.Validator<EmojiMartData>} */ (PropTypes.object),
+  /**
+   * Optional component to override default NimbleEmojiIndex from emoji-mart
+   */
+  EmojiIndex: /** @type {PropTypes.Validator<NimbleEmojiIndex>} */ (PropTypes.object),
+  /**
+   * Optional component to override default NimblePicker from emoji-mart
+   */
+  EmojiPicker: /** @type {PropTypes.Validator<React.ElementType<NimblePickerProps>>} */ (PropTypes.elementType),
 };
 
 export default React.memo(Channel);

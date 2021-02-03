@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { getStrippedEmojiData } from '../Chat/emojiData';
-import { EmojiContext } from '../../context';
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").SimpleReactionsListProps>} */
 const SimpleReactionsList = ({
@@ -11,12 +11,15 @@ const SimpleReactionsList = ({
   reactionOptions: reactionOptionsProp,
   handleReaction,
 }) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
   const {
     defaultMinimalEmojis,
     Emoji,
-    emojiSetDef,
     emojiData: defaultEmojiData,
-  } = useContext(EmojiContext);
+    emojiSetDef,
+  } = emojiConfig;
+
   const emojiData = getStrippedEmojiData(defaultEmojiData);
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
   /** @type{import('types').MinimalEmojiInterface[]} */

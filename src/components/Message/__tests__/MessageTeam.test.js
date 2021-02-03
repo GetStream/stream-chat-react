@@ -3,19 +3,15 @@ import React from 'react';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   getTestClientWithUser,
   generateUser,
   generateMessage,
   generateReaction,
-  emojiMockConfig,
 } from 'mock-builders';
 
-import {
-  ChannelContext,
-  EmojiContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, TranslationContext } from '../../../context';
 import MessageTeam from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
@@ -50,18 +46,18 @@ async function renderMessageTeam(
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
-    <ChannelContext.Provider value={{ client, channel, t: (key) => key }}>
-      <EmojiContext.Provider value={emojiMockConfig}>
-        <TranslationContext.Provider
-          value={{
-            t: (key) => key,
-            tDateTimeParser: customDateTimeParser,
-            userLanguage: 'en',
-          }}
-        >
-          <MessageTeam message={message} typing={false} {...props} />
-        </TranslationContext.Provider>
-      </EmojiContext.Provider>
+    <ChannelContext.Provider
+      value={{ client, channel, emojiConfig: emojiMockConfig, t: (key) => key }}
+    >
+      <TranslationContext.Provider
+        value={{
+          t: (key) => key,
+          tDateTimeParser: customDateTimeParser,
+          userLanguage: 'en',
+        }}
+      >
+        <MessageTeam message={message} typing={false} {...props} />
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }

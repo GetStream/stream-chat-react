@@ -2,23 +2,19 @@ import React from 'react';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   getTestClientWithUser,
   generateUser,
   generateMessage,
   generateReaction,
-  emojiMockConfig,
 } from 'mock-builders';
 
 import MessageLivestream from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import {
-  ChannelContext,
-  EmojiContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, TranslationContext } from '../../../context';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -45,18 +41,18 @@ async function renderMessageLivestream(
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
-    <ChannelContext.Provider value={{ client, channel }}>
-      <EmojiContext.Provider value={emojiMockConfig}>
-        <TranslationContext.Provider
-          value={{
-            t: (key) => key,
-            tDateTimeParser: customDateTimeParser,
-            userLanguage: 'en',
-          }}
-        >
-          <MessageLivestream message={message} typing={false} {...props} />
-        </TranslationContext.Provider>
-      </EmojiContext.Provider>
+    <ChannelContext.Provider
+      value={{ client, channel, emojiConfig: emojiMockConfig }}
+    >
+      <TranslationContext.Provider
+        value={{
+          t: (key) => key,
+          tDateTimeParser: customDateTimeParser,
+          userLanguage: 'en',
+        }}
+      >
+        <MessageLivestream message={message} typing={false} {...props} />
+      </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
 }

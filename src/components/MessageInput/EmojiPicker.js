@@ -1,7 +1,5 @@
-// @ts-check
 import React, { useContext } from 'react';
-// @ts-ignore
-import { EmojiContext, TranslationContext } from '../../context';
+import { ChannelContext, TranslationContext } from '../../context';
 
 /** @type { (emoji: import('emoji-mart').EmojiData) => boolean } */
 const filterEmoji = (emoji) => {
@@ -21,8 +19,11 @@ const EmojiPicker = ({
   onSelectEmoji,
   small,
 }) => {
+  const { emojiConfig } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
-  const { EmojiPicker: Picker, emojiData } = useContext(EmojiContext);
+
+  const { emojiData, EmojiPicker: Picker } = emojiConfig;
+
   if (emojiPickerIsOpen) {
     const className = small
       ? 'str-chat__small-message-input-emojipicker'
