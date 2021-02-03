@@ -216,6 +216,32 @@ describe('Channel', () => {
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   describe('Children that consume ChannelContext', () => {
+    it('should expose the emoji config', async () => {
+      let context;
+      const emojiData = {
+        compressed: true,
+        categories: [],
+        emojis: {},
+        aliases: {},
+      };
+      const CustomEmojiPicker = () => <div />;
+      const CustomEmoji = () => <span />;
+
+      renderComponent(
+        { emojiData, Emoji: CustomEmoji, EmojiPicker: CustomEmojiPicker },
+        (ctx) => {
+          context = ctx;
+        },
+      );
+
+      await waitFor(() => {
+        expect(context).toBeInstanceOf(Object);
+        expect(context.emojiConfig.emojiData).toBe(emojiData);
+        expect(context.emojiConfig.EmojiPicker).toBe(CustomEmojiPicker);
+        expect(context.emojiConfig.Emoji).toBe(CustomEmoji);
+      });
+    });
+
     it('should be able to open threads', async () => {
       const threadMessage = messages[0];
       const hasThread = jest.fn();

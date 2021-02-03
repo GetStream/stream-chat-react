@@ -8,22 +8,13 @@ import {
   dispatchNotificationMutesUpdated,
 } from 'mock-builders';
 import { Chat } from '..';
-import {
-  ChatContext,
-  EmojiContext,
-  TranslationContext,
-} from '../../../context';
+import { ChatContext, TranslationContext } from '../../../context';
 import { Streami18n } from '../../../i18n';
 
 import { version } from '../../../../package.json';
 
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));
-  return <div data-testid="children" />;
-};
-
-const EmojiContextConsumer = ({ fn }) => {
-  fn(useContext(EmojiContext));
   return <div data-testid="children" />;
 };
 
@@ -377,42 +368,6 @@ describe('Chat', () => {
         expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
         expect(context.t).not.toBe(i18nInstance.t);
         expect(context.tDateTimeParser).not.toBe(i18nInstance.tDateTimeParser);
-      });
-    });
-  });
-
-  describe('emoji context', () => {
-    it('should expose the emoji context', async () => {
-      let context;
-      const emojiData = {
-        compressed: true,
-        categories: [],
-        emojis: {},
-        aliases: {},
-      };
-      const CustomEmojiPicker = () => <div />;
-      const CustomEmoji = () => <span />;
-
-      render(
-        <Chat
-          client={chatClient}
-          emojiData={emojiData}
-          Emoji={CustomEmoji}
-          EmojiPicker={CustomEmojiPicker}
-        >
-          <EmojiContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          ></EmojiContextConsumer>
-        </Chat>,
-      );
-
-      await waitFor(() => {
-        expect(context).toBeInstanceOf(Object);
-        expect(context.emojiData).toBe(emojiData);
-        expect(context.EmojiPicker).toBe(CustomEmojiPicker);
-        expect(context.Emoji).toBe(CustomEmoji);
       });
     });
   });
