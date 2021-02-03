@@ -137,23 +137,6 @@ const normalBundle = {
   plugins: [...basePlugins],
 };
 
-const slimBundle = {
-  ...normalBundle,
-  input: 'src/slim.index.js',
-  output: [
-    {
-      file: pkg.slim,
-      format: 'cjs',
-      sourcemap: true,
-    },
-    {
-      file: pkg['slim-module'],
-      format: 'es',
-      sourcemap: true,
-    },
-  ],
-};
-
 const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
   output: [
@@ -203,7 +186,6 @@ export default () =>
     : [
         styleBundle,
         normalBundle,
-        slimBundle,
         fullBrowserBundle({ min: true }),
         fullBrowserBundle(),
       ];
