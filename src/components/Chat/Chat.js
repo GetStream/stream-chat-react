@@ -1,17 +1,17 @@
 import React from 'react';
 // @ts-expect-error
-import Emoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import DefaultEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 // @ts-expect-error
-import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
+import DefaultEmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
 // @ts-expect-error
-import EmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
+import DefaultEmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
 import PropTypes from 'prop-types';
 
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useChat } from './hooks/useChat';
 
 import { ChatContext, EmojiContext, TranslationContext } from '../../context';
-import emojiData from '../../stream-emoji.json';
+import defaultEmojiData from '../../stream-emoji.json';
 
 /**
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
@@ -34,6 +34,10 @@ const Chat = (props) => {
   const {
     children,
     client,
+    Emoji = DefaultEmoji,
+    emojiData = defaultEmojiData,
+    EmojiIndex = DefaultEmojiIndex,
+    EmojiPicker = DefaultEmojiPicker,
     i18nInstance,
     initialNavOpen = true,
     theme = 'messaging light',

@@ -11,7 +11,7 @@ import { useChat } from './hooks/useChat';
  *
  * @example ../../docs/CustomChat.md
  * @typedef {import('stream-chat').Channel | undefined} ChannelState
- * @type {React.FC<import('types').CustomChatProps>}>}
+ * @type {React.FC<import('types').ChatProps>}>}
  */
 const CustomChat = ({
   client,

@@ -24,13 +24,6 @@ export type StreamChatReactUserType = AnyType & {
   mutes?: Array<Mute>;
 };
 
-export interface CustomChatProps extends ChatProps {
-  EmojiPicker: React.ElementType<NimblePickerProps> | null;
-  EmojiIndex: NimbleEmojiIndex | null;
-  Emoji: React.ElementType<NimbleEmojiProps> | null;
-  emojiData: EmojiMartData;
-}
-
 export type StreamChatReactChannelType = AnyType & {
   image?: string;
   subtitle?: string;
@@ -188,20 +181,13 @@ export interface ChannelContextValue extends ChatContextValue {
 
 export interface ChatProps {
   client: Client.StreamChat;
-  // Available built in themes:
-  // 'messaging light'
-  // | 'messaging dark'
-  // | 'team light'
-  // | 'team dark'
-  // | 'commerce light'
-  // | 'commerce dark'
-  // | 'gaming light'
-  // | 'gaming dark'
-  // | 'livestream light'
-  // | 'livestream dark'
-  theme?: string;
-  i18nInstance?: Streami18n;
+  Emoji: React.ElementType<NimbleEmojiProps> | null;
+  emojiData: EmojiMartData;
+  EmojiIndex: NimbleEmojiIndex | null;
+  EmojiPicker: React.ElementType<NimblePickerProps> | null;
   initialNavOpen?: boolean;
+  i18nInstance?: Streami18n;
+  theme?: string;
 }
 
 export interface ChannelProps {
