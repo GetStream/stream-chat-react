@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import React, {
   useEffect,
   useCallback,
@@ -58,7 +57,6 @@ const ChannelInner = ({
   LoadingIndicator = DefaultLoadingIndicator,
   Message = MessageSimple,
   ...props
-  // eslint-disable-next-line sonarjs/cognitive-complexity
 }) => {
   const { channel } = props;
 

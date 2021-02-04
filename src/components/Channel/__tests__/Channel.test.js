@@ -214,7 +214,6 @@ describe('Channel', () => {
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
   });
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   describe('Children that consume ChannelContext', () => {
     it('should expose the emoji config', async () => {
       let context;

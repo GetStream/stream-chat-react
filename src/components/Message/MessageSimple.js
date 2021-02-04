@@ -1,4 +1,3 @@
-// @ts-check
 import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -45,7 +44,6 @@ import MessageTimestamp from './MessageTimestamp';
  * @example ../../docs/MessageSimple.md
  * @type { React.FC<import('types').MessageSimpleProps> }
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageSimple = (props) => {
   const {
     clearEditingState,

@@ -84,7 +84,6 @@ const ChatAutoComplete = (props) => {
    * @type {() => import("../AutoCompleteTextarea/types").TriggerMap | object}
    */
   const getTriggers = useCallback(
-    // eslint-disable-next-line sonarjs/cognitive-complexity
     () =>
       triggers || {
         ':': {

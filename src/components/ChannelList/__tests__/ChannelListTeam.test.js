@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-unused-collection */
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -7,7 +6,7 @@ import { getTestClientWithUser } from 'mock-builders';
 import { ChannelListTeam } from '..';
 import { ChatContext } from '../../../context';
 
-// Wierd hack to avoid big warnings
+// Weird hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
