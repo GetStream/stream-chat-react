@@ -115,7 +115,7 @@ const basePlugins = [
     },
   ),
   // Json to ES modules conversion
-  json(),
+  json({ compact: true }),
   process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
 

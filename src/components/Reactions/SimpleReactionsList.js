@@ -1,18 +1,29 @@
-// @ts-check
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
-import { NimbleEmoji } from 'emoji-mart';
-import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
+
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").SimpleReactionsListProps>} */
 const SimpleReactionsList = ({
   reactions,
   reaction_counts,
-  reactionOptions = defaultMinimalEmojis,
+  reactionOptions: reactionOptionsProp,
   handleReaction,
 }) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
+  const {
+    defaultMinimalEmojis,
+    Emoji,
+    emojiData: defaultEmojiData,
+    emojiSetDef,
+  } = emojiConfig;
+
+  const emojiData = getStrippedEmojiData(defaultEmojiData);
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
+  /** @type{import('types').MinimalEmojiInterface[]} */
+  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
 
   if (!reactions || reactions.length === 0) {
     return null;
@@ -63,15 +74,17 @@ const SimpleReactionsList = ({
             onClick={() => handleReaction && handleReaction(reactionType)}
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
-              <NimbleEmoji
-                // emoji-mart type defs don't support spriteSheet use case
-                // (but implementation does)
-                // @ts-expect-error
-                emoji={emojiDefinition}
-                {...emojiSetDef}
-                size={13}
-                data={emojiData}
-              />
+              {Emoji && (
+                <Emoji
+                  // emoji-mart type defs don't support spriteSheet use case
+                  // (but implementation does)
+                  // @ts-expect-error
+                  emoji={emojiDefinition}
+                  {...emojiSetDef}
+                  size={13}
+                  data={emojiData}
+                />
+              )}
               &nbsp;
             </span>
 

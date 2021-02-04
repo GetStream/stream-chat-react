@@ -1,5 +1,3 @@
-/* eslint-disable sonarjs/no-identical-functions */
-/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';

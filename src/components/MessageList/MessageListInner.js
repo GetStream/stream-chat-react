@@ -1,5 +1,4 @@
 /* eslint-disable no-continue */
-/* eslint-disable sonarjs/no-duplicate-string */
 import React, { useMemo } from 'react';
 import isEqual from 'lodash.isequal';
 

@@ -1,4 +1,3 @@
-// @ts-check
 import React, {
   useCallback,
   useEffect,
@@ -52,7 +51,6 @@ import MessageTimestamp from './MessageTimestamp';
  * @typedef { import('../../../types').MessageLivestreamProps } Props
  * @type { React.FC<Props> }
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageLivestreamComponent = (props) => {
   const {
     message,

@@ -1,4 +1,3 @@
-// @ts-check
 import React, { useMemo, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
@@ -49,7 +48,6 @@ import MessageTimestamp from './MessageTimestamp';
  *
  * @type {React.FC<Props>}
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageTeam = (props) => {
   const {
     message,

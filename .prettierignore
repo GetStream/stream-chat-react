@@ -2,6 +2,7 @@ node_modules
 /.cache/
 /public/static/styles.js
 examples/*/src/serviceWorker.js
+src/stream-emoji.json
 /dist/
 /lib/
 /bin/

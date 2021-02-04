@@ -1,9 +1,9 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   generateUser,
   generateReaction,
@@ -51,6 +51,7 @@ async function renderMessageText(
       value={{
         channel,
         client,
+        emojiConfig: emojiMockConfig,
         onMentionsHover: onMentionsHoverMock,
         onMentionsClick: onMentionsClickMock,
       }}
@@ -70,6 +71,7 @@ async function renderMessageText(
 
 const messageTextTestId = 'message-text-inner-wrapper';
 const reactionSelectorTestId = 'reaction-selector';
+
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {

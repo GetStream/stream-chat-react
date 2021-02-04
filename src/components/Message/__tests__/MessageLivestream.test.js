@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   getTestClientWithUser,
   generateUser,
@@ -40,7 +41,9 @@ async function renderMessageLivestream(
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
-    <ChannelContext.Provider value={{ client, channel }}>
+    <ChannelContext.Provider
+      value={{ client, channel, emojiConfig: emojiMockConfig }}
+    >
       <TranslationContext.Provider
         value={{
           t: (key) => key,

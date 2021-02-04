@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   getTestClientWithUser,
   generateUser,
@@ -32,7 +33,12 @@ async function renderMessageCommerce(
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider
-      value={{ channel, client, openThread: openThreadMock }}
+      value={{
+        channel,
+        client,
+        emojiConfig: emojiMockConfig,
+        openThread: openThreadMock,
+      }}
     >
       <MessageCommerce
         message={message}

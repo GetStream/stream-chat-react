@@ -55,7 +55,6 @@ const InfiniteScroll = ({
   isLoading = false,
   listenToScroll,
   ...elementProps
-  // eslint-disable-next-line sonarjs/cognitive-complexity
 }) => {
   const scrollComponent = useRef(/** @type {HTMLElement | null} */ (null));
 

@@ -1,19 +1,30 @@
-// @ts-check
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
-import { NimbleEmoji } from 'emoji-mart';
 
-import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").ReactionsListProps>} */
 const ReactionsList = ({
   reactions,
   reaction_counts,
-  reactionOptions = defaultMinimalEmojis,
+  reactionOptions: reactionOptionsProp,
   reverse = false,
   onClick,
 }) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
+  const {
+    defaultMinimalEmojis,
+    Emoji,
+    emojiData: fullEmojiData,
+    emojiSetDef,
+  } = emojiConfig;
+
+  const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
+    fullEmojiData,
+  ]);
+  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
   const getTotalReactionCount = () =>
     Object.values(reaction_counts || {}).reduce(
       (total, count) => total + count,
@@ -46,16 +57,18 @@ const ReactionsList = ({
           const emojiDefinition = getOptionForType(reactionType);
           return emojiDefinition ? (
             <li key={emojiDefinition.id}>
-              <NimbleEmoji
-                // emoji-mart type defs don't support spriteSheet use case
-                // (but implementation does)
-                // @ts-expect-error
-                emoji={emojiDefinition}
-                {...emojiSetDef}
-                size={16}
-                data={emojiData}
-              />{' '}
-              &nbsp;
+              {Emoji && (
+                <Emoji
+                  // emoji-mart type defs don't support spriteSheet use case
+                  // (but implementation does)
+                  // @ts-expect-error
+                  emoji={emojiDefinition}
+                  {...emojiSetDef}
+                  size={16}
+                  data={emojiData}
+                />
+              )}
+              ${' '}
             </li>
           ) : null;
         })}

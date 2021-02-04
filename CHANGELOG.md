@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.6.0) 2021-02-02
+
+### Feature
+
+- Added support for pinned messages [#682](https://github.com/GetStream/stream-chat-react/pull/682)
+
+  - Save `pinnedMessages` to ChannelContext
+  - Create `usePinHandler` custom hook for returning `canPin` value and `handlePin` function
+  - Add Pin/Unpin as optional actions in `MessageActions`
+  - Add `PinIndicator` UI component to `MessageLivestream` and `MessageTeam`
+  - Add optional `"pinned-message"` CSS class to message UI components
+  - Add `getPinMessageErrorNotification` and `pinPermissions` as `MessageList` props
+
+- Hide `DateSeparator` component when all messages for a day are deleted [#689](https://github.com/GetStream/stream-chat-react/pull/689)
+
+### Chore
+
+- Refactor example apps to use `getInstance` and `connectUser` [#688](https://github.com/GetStream/stream-chat-react/pull/688)
+
+### Bug
+
+- Display auto-translated message text when it exists [#683](https://github.com/GetStream/stream-chat-react/pull/683)
+- Add missing export for `VirtualizedMessageList` type [#691](https://github.com/GetStream/stream-chat-react/pull/691)
+
 ## [3.5.3](https://github.com/GetStream/stream-chat-react/releases/tag/v3.5.3) 2021-01-26
 
 ### Feature
