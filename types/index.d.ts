@@ -9,6 +9,12 @@ import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
+import type {
+  Data as EmojiMartData,
+  NimbleEmojiIndex,
+  NimbleEmojiProps,
+  NimblePickerProps,
+} from 'emoji-mart';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
@@ -17,6 +23,7 @@ export type StreamChatReactUserType = AnyType & {
   image?: string;
   mutes?: Array<Mute>;
 };
+
 export type StreamChatReactChannelType = AnyType & {
   image?: string;
   subtitle?: string;
@@ -78,6 +85,22 @@ export interface ChatContextValue {
   closeMobileNav?(): void;
   theme?: string;
   mutes?: Mute[];
+}
+
+export interface EmojiConfig {
+  emojiData: EmojiMartData;
+  commonEmoji: commonEmojiInterface;
+  defaultMinimalEmojis: MinimalEmojiInterface[];
+  EmojiPicker: React.ElementType<NimblePickerProps>;
+  EmojiIndex: NimbleEmojiIndex;
+  Emoji: React.ElementType<NimbleEmojiProps>;
+  emojiSetDef: {
+    spriteUrl: string;
+    size: number;
+    sheetColumns: number;
+    sheetRows: number;
+    sheetSize: number;
+  };
 }
 
 export interface ChannelContextValue extends ChatContextValue {
@@ -154,29 +177,22 @@ export interface ChannelContextValue extends ChatContextValue {
 
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
+  emojiConfig?: EmojiConfig;
 }
 
 export interface ChatProps {
   client: Client.StreamChat;
-  // Available built in themes:
-  // 'messaging light'
-  // | 'messaging dark'
-  // | 'team light'
-  // | 'team dark'
-  // | 'commerce light'
-  // | 'commerce dark'
-  // | 'gaming light'
-  // | 'gaming dark'
-  // | 'livestream light'
-  // | 'livestream dark'
-  theme?: string;
-  i18nInstance?: Streami18n;
   initialNavOpen?: boolean;
+  i18nInstance?: Streami18n;
+  theme?: string;
 }
 
 export interface ChannelProps {
   channel?: Client.Channel;
-
+  Emoji?: React.ElementType<NimbleEmojiProps>;
+  emojiData?: EmojiMartData;
+  EmojiIndex?: NimbleEmojiIndex;
+  EmojiPicker?: React.ElementType<NimblePickerProps>;
   /** The loading indicator to use */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   LoadingErrorIndicator?: React.ElementType<LoadingErrorIndicatorProps>;

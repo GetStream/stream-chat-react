@@ -1,16 +1,16 @@
-// @ts-check
 import React, {
   useState,
   useCallback,
   useRef,
   useImperativeHandle,
   useEffect,
+  useContext,
 } from 'react';
 import PropTypes from 'prop-types';
-import { NimbleEmoji } from 'emoji-mart';
-import { Avatar as DefaultAvatar } from '../Avatar';
 
-import { defaultMinimalEmojis, emojiSetDef, emojiData } from '../../utils';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { getStrippedEmojiData } from '../Channel/emojiData';
+import { ChannelContext } from '../../context';
 
 /** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
 const ReactionSelectorWithRef = (
@@ -18,13 +18,24 @@ const ReactionSelectorWithRef = (
     Avatar = DefaultAvatar,
     latest_reactions,
     reaction_counts,
-    reactionOptions = defaultMinimalEmojis,
+    reactionOptions: reactionOptionsProp,
     reverse = false,
     handleReaction,
     detailedView = true,
   },
   ref,
 ) => {
+  const { emojiConfig } = useContext(ChannelContext);
+
+  const {
+    defaultMinimalEmojis,
+    Emoji,
+    emojiData: fullEmojiData,
+    emojiSetDef,
+  } = emojiConfig;
+
+  const emojiData = getStrippedEmojiData(fullEmojiData);
+  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
   const [tooltipReactionType, setTooltipReactionType] = useState(null);
   const [tooltipPositions, setTooltipPositions] = useState(
     /** @type {{ tooltip: number, arrow: number } | null} */ (null),
@@ -150,13 +161,15 @@ const ReactionSelectorWithRef = (
                   </div>
                 </React.Fragment>
               )}
-              <NimbleEmoji
-                // @ts-ignore because emoji-mart types don't support specifying
-                // spriteUrl instead of imageUrl, while the implementation does
-                emoji={reactionOption}
-                {...emojiSetDef}
-                data={emojiData}
-              />
+              {Emoji && (
+                <Emoji
+                  // @ts-ignore because emoji-mart types don't support specifying
+                  // spriteUrl instead of imageUrl, while the implementation does
+                  emoji={reactionOption}
+                  {...emojiSetDef}
+                  data={emojiData}
+                />
+              )}
 
               {Boolean(count) && detailedView && (
                 <span className="str-chat__message-reactions-list-item__count">

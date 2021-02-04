@@ -2,8 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MessageInput, MessageInputLarge } from '../index';
-import { ChannelContext } from '../../../context/ChannelContext';
-import { TranslationContext } from '../../../context/TranslationContext';
+import { ChannelContext, TranslationContext } from '../../../context';
+import { emojiMockConfig } from '../../../mock-builders';
 
 const i18nMock = jest.fn((key) => key);
 
@@ -16,6 +16,7 @@ const getChannelContextMock = ({ ownUser, typingUsers }) => ({
   client: {
     user: ownUser,
   },
+  emojiConfig: emojiMockConfig,
   typing: typingUsers.reduce(
     (acc, user) => ({
       ...acc,

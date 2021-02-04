@@ -2,6 +2,7 @@ import React from 'react';
 import { act, cleanup, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
+  emojiMockConfig,
   generateChannel,
   getTestClientWithUser,
   generateUser,
@@ -56,6 +57,7 @@ async function renderMessageSimple(
       value={{
         client,
         channel,
+        emojiConfig: emojiMockConfig,
         openThread: openThreadMock,
         retrySendMessage: retrySendMessageMock,
       }}

@@ -193,7 +193,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const {
         container,
         findByTitle,
-        queryByText,
         queryAllByText,
         getByDisplayValue,
       } = renderComponent();
@@ -201,7 +200,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const emojiIcon = await findByTitle('Open emoji picker');
       fireEvent.click(emojiIcon);
 
-      expect(queryByText('Pick your emoji')).toBeInTheDocument();
+      expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
 
       const emoji = '💯';
       const emojiButton = queryAllByText(emoji)[0];
@@ -214,7 +213,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       // close picker
       fireEvent.click(container);
-      expect(queryByText('Pick your emoji…')).not.toBeInTheDocument();
+      expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
     });
 
     describe('Attachments', () => {
