@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';

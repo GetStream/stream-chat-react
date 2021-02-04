@@ -1,4 +1,3 @@
-// @ts-check
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { smartRender } from '../../utils';
@@ -33,7 +32,6 @@ import MessageTimestamp from './MessageTimestamp';
  * @example ../../docs/MessageCommerce.md
  * @type { React.FC<import('types').MessageCommerceProps> }
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const MessageCommerce = (props) => {
   const {
     message,
@@ -88,7 +86,6 @@ const MessageCommerce = (props) => {
     return null;
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   return (
     <React.Fragment>
       <div

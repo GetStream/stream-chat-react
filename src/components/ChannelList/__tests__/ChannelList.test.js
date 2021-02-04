@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { getNodeText } from '@testing-library/dom';
@@ -44,8 +43,8 @@ import {
 
 /**
  * We are gonna use following custom UI components for preview and list.
- * If we use ChannelPreviewMessanger or ChannelPreviewLastmessage here, then changes
- * to those components might endup breaking tests for ChannelList, which will be quite painful
+ * If we use ChannelPreviewMessenger or ChannelPreviewLastMessage here, then changes
+ * to those components might end up breaking tests for ChannelList, which will be quite painful
  * to debug then.
  */
 const ChannelPreviewComponent = ({
@@ -628,7 +627,6 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        // eslint-disable-next-line sonarjs/no-identical-functions
         act(() =>
           dispatchNotificationAddedToChannelEvent(
             chatClientUthred,
@@ -649,7 +647,6 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
       };
 
-      // eslint-disable-next-line sonarjs/no-identical-functions
       beforeEach(() => {
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2, testChannel3]),
@@ -694,7 +691,7 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByRole('list')).toBeInTheDocument();
         });
-        // eslint-disable-next-line sonarjs/no-identical-functions
+
         act(() =>
           dispatchNotificationRemovedFromChannel(
             chatClientUthred,
@@ -763,7 +760,7 @@ describe('ChannelList', () => {
         });
 
         const newChannelName = uuidv4();
-        // eslint-disable-next-line sonarjs/no-identical-functions
+
         act(() =>
           dispatchChannelUpdatedEvent(chatClientUthred, {
             ...testChannel2.channel,
@@ -784,7 +781,6 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
       };
 
-      // eslint-disable-next-line sonarjs/no-identical-functions
       beforeEach(() => {
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
@@ -874,7 +870,6 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
       };
 
-      // eslint-disable-next-line sonarjs/no-identical-functions
       beforeEach(() => {
         useMockedApis(chatClientUthred, [
           queryChannelsApi([testChannel1, testChannel2]),
@@ -992,7 +987,6 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        // eslint-disable-next-line sonarjs/no-identical-functions
         act(() =>
           dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel),
         );

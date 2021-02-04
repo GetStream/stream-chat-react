@@ -1,5 +1,3 @@
-/* eslint sonarjs/no-duplicate-string: 0 */
-
 const { StreamChat } = require('stream-chat');
 const Dayjs = require('dayjs');
 
