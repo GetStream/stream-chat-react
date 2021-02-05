@@ -32,27 +32,22 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
             }
           }
         >
-          <div
-            style={
-              Object {
-                "marginTop": "0px",
-              }
-            }
-          >
-            <header />
-            <footer />
-          </div>
+          <div />
+          <div />
         </div>
         <div
           style={
             Object {
-              "height": "0px",
-              "position": "absolute",
+              "marginTop": "0px",
+              "position": "-webkit-sticky",
               "top": 0,
+              "width": "100%",
             }
           }
         >
-           
+          <div
+            style={Object {}}
+          />
         </div>
       </div>
       <div

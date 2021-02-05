@@ -14,6 +14,8 @@ import {
 } from '../../../mock-builders';
 
 import VirtualizedMessageList from '../VirtualizedMessageList';
+import { usePrependedMessagesCount } from '../hooks/usePrependMessagesCount';
+
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
@@ -25,10 +27,9 @@ jest.mock('react-virtuoso', () => {
       <Virtuoso
         ref={ref}
         {...props}
-        initialItemCount={20}
         overscan={0}
         initialTopMostItemIndex={0}
-        itemHeight={30}
+        fixedItemHeight={30}
       />
     )),
   };
@@ -77,6 +78,16 @@ describe('VirtualizedMessageList', () => {
   it('should render the list without any message', async () => {
     const { client, channel } = await createChannel(true);
     let tree;
+
+    function createNodeMock(element) {
+      if (element.type === 'div') {
+        return {
+          addEventListener() {},
+        };
+      }
+      return null;
+    }
+
     await renderer.act(async () => {
       tree = await renderer.create(
         <Chat client={client}>
@@ -84,9 +95,55 @@ describe('VirtualizedMessageList', () => {
             <VirtualizedMessageList />
           </Channel>
         </Chat>,
+        {
+          createNodeMock,
+        },
       );
     });
 
     expect(tree.toJSON()).toMatchSnapshot();
+  });
+});
+
+describe('usePrependedMessagesCount', () => {
+  const TestCase = ({ messages }) => {
+    const prependCount = usePrependedMessagesCount(messages);
+    return <div>{prependCount}</div>;
+  };
+
+  it('calculates the prepended messages using the id prop', async () => {
+    const render = await renderer.create(<TestCase messages={[]} />);
+    const expectPrependCount = (count) => {
+      expect(render.root.findByType('div').props.children).toStrictEqual(count);
+    };
+
+    expectPrependCount(0);
+
+    await renderer.act(async () => {
+      await render.update(<TestCase messages={[{ id: 'a' }]} />);
+      expectPrependCount(0);
+    });
+
+    await renderer.act(async () => {
+      await render.update(
+        <TestCase messages={[{ id: 'c' }, { id: 'b' }, { id: 'a' }]} />,
+      );
+      expectPrependCount(2);
+    });
+
+    await renderer.act(async () => {
+      await render.update(
+        <TestCase
+          messages={[
+            { id: 'e' },
+            { id: 'd' },
+            { id: 'c' },
+            { id: 'b' },
+            { id: 'a' },
+          ]}
+        />,
+      );
+      expectPrependCount(4);
+    });
   });
 });
