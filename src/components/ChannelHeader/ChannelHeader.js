@@ -1,21 +1,24 @@
-// @ts-check
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { ChannelContext, TranslationContext, ChatContext } from '../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel
  * @example ../../docs/ChannelHeader.md
  * @type {React.FC<import('types').ChannelHeaderProps>}
  */
-const ChannelHeader = ({ Avatar = DefaultAvatar, title, live }) => {
-  /** @type {import("types").TranslationContextValue} */
-  const { t } = useContext(TranslationContext);
-  /** @type {import("types").ChannelContextValue} */
+const ChannelHeader = (props) => {
+  const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
+
   const { channel, watcher_count } = useContext(ChannelContext);
   const { openMobileNav } = useContext(ChatContext);
-  const { image, member_count, name, subtitle } = channel?.data || {};
+  const { t } = useContext(TranslationContext);
+
+  const { image: channelImage, member_count, name, subtitle } =
+    channel?.data || {};
+
+  const image = propImage || channelImage;
 
   return (
     <div className="str-chat__header-livestream">
@@ -68,10 +71,12 @@ ChannelHeader.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /** Set title manually */
-  title: PropTypes.string,
+  /** Manually set the image to render, defaults to the channel image */
+  image: PropTypes.string,
   /** Show a little indicator that the channel is live right now */
   live: PropTypes.bool,
+  /** Set title manually */
+  title: PropTypes.string,
 };
 
 export default React.memo(ChannelHeader);
