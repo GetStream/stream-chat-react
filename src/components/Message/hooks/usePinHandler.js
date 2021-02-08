@@ -12,7 +12,14 @@ export const usePinHandler = (message, permissions, notifications) => {
   const { t } = useContext(TranslationContext);
 
   const canPin = () => {
-    if (!client || !channel?.state || !permissions) return false;
+    if (
+      !client ||
+      !channel?.state ||
+      !permissions ||
+      !permissions[channel.type]
+    ) {
+      return false;
+    }
 
     const currentChannelPermissions = permissions[channel.type];
     const currentChannelMember = channel.state.members[client.userID];
