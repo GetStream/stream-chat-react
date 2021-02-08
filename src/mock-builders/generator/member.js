@@ -1,10 +1,8 @@
-export const generateMember = (options = {}) => {
-  return {
-    user_id: options.user.id,
-    user: options.user,
-    is_moderator: false,
-    invited: false,
-    role: 'member',
-    ...options,
-  };
-};
+export const generateMember = (options = {}) => ({
+  invited: false,
+  is_moderator: false,
+  role: 'member',
+  user: options.user,
+  user_id: options.user.id,
+  ...options,
+});

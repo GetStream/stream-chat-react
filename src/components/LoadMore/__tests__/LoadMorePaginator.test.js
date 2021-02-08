@@ -7,7 +7,7 @@ import LoadMorePaginator from '../LoadMorePaginator';
 
 jest.mock('../LoadMoreButton', () => ({
   __esModule: true,
-  default: jest.fn(() => <div data-testid="load-more-button" />),
+  default: jest.fn(() => <div data-testid='load-more-button' />),
 }));
 
 describe('LoadMorePaginator', () => {
@@ -81,8 +81,8 @@ describe('LoadMorePaginator', () => {
       .create(
         <LoadMorePaginator
           hasNextPage
-          reverse
           LoadMoreButton={() => <div>load more button</div>}
+          reverse
         >
           children
         </LoadMorePaginator>,

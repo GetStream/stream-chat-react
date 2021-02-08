@@ -24,11 +24,11 @@ const MessageDeleted = (props) => {
 
   return (
     <div
-      key={message.id}
       className={`${messageClasses} str-chat__message--deleted ${message.type} `}
       data-testid={'message-deleted-component'}
+      key={message.id}
     >
-      <div className="str-chat__message--deleted-inner">
+      <div className='str-chat__message--deleted-inner'>
         {t && t('This message was deleted...')}
       </div>
     </div>

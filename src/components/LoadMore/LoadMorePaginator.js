@@ -5,12 +5,12 @@ import DefaultLoadMoreButton from './LoadMoreButton';
 import { smartRender } from '../../utils';
 
 const LoadMorePaginator = ({
-  reverse,
-  hasNextPage,
-  refreshing,
-  loadNextPage,
-  LoadMoreButton,
   children,
+  hasNextPage,
+  LoadMoreButton,
+  loadNextPage,
+  refreshing,
+  reverse,
 }) => (
   <>
     {!reverse && children}

@@ -1,13 +1,13 @@
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
@@ -41,8 +41,8 @@ async function renderMessageCommerce(
       }}
     >
       <MessageCommerce
-        message={message}
         getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+        message={message}
         {...props}
       />
     </ChannelContext.Provider>,
@@ -99,7 +99,7 @@ describe('<MessageCommerce />', () => {
       deleted_at: new Date('2019-12-10T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageCommerce(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -144,7 +144,7 @@ describe('<MessageCommerce />', () => {
       latest_reactions: [bobReaction],
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;
@@ -165,7 +165,7 @@ describe('<MessageCommerce />', () => {
 
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
-    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
     const { getByTestId } = await renderMessageCommerce(message, {
       Avatar: CustomAvatar,
       groupStyles: ['bottom'],

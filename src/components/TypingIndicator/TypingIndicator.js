@@ -21,7 +21,7 @@ const TypingIndicator = ({
   }
 
   const typingInChannel = Object.values(typing).filter(
-    ({ user, parent_id }) => user?.id !== client.user?.id && parent_id == null,
+    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id == null,
   );
 
   const typingInThread = Object.values(typing).some(
@@ -37,20 +37,20 @@ const TypingIndicator = ({
           : ''
       }`}
     >
-      <div className="str-chat__typing-indicator__avatars">
+      <div className='str-chat__typing-indicator__avatars'>
         {typingInChannel.map(({ user }, i) => (
           <Avatar
             image={user?.image}
-            size={avatarSize}
-            name={user?.name || user?.id}
             key={`${user?.id}-${i}`}
+            name={user?.name || user?.id}
+            size={avatarSize}
           />
         ))}
       </div>
-      <div className="str-chat__typing-indicator__dots">
-        <span className="str-chat__typing-indicator__dot" />
-        <span className="str-chat__typing-indicator__dot" />
-        <span className="str-chat__typing-indicator__dot" />
+      <div className='str-chat__typing-indicator__dots'>
+        <span className='str-chat__typing-indicator__dot' />
+        <span className='str-chat__typing-indicator__dot' />
+        <span className='str-chat__typing-indicator__dot' />
       </div>
     </div>
   );

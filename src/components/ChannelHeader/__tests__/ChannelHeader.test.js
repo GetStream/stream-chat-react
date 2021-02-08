@@ -1,16 +1,16 @@
 import React from 'react';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
-  getTestClientWithUser,
-  generateUser,
   generateChannel,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import ChannelHeader from '../ChannelHeader';
 import {
+  ChannelContext,
   ChatContext,
   TranslationContext,
-  ChannelContext,
 } from '../../../context';
 
 const alice = generateUser();

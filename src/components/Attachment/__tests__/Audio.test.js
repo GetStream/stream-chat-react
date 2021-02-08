@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { generateAudioAttachment } from 'mock-builders';
@@ -28,7 +28,7 @@ describe('Audio', () => {
   afterEach(cleanup);
 
   it('should render title and description as text, and render the image with description as alt tag', () => {
-    const { getByText, getByAltText } = renderComponent();
+    const { getByAltText, getByText } = renderComponent();
 
     expect(getByText(mockAudioAsset.title)).toBeInTheDocument();
     expect(getByText(mockAudioAsset.text)).toBeInTheDocument();

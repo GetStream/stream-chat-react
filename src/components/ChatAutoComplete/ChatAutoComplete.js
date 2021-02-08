@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
 
@@ -213,29 +213,29 @@ const ChatAutoComplete = (props) => {
 
   return (
     <AutoCompleteTextarea
-      loadingComponent={LoadingIndicator}
-      trigger={getTriggers()}
-      replaceWord={emojiReplace}
-      minChar={0}
-      maxRows={props.maxRows}
-      innerRef={updateInnerRef}
-      onFocus={props.onFocus}
-      rows={props.rows}
-      className="str-chat__textarea__textarea"
-      containerClassName="str-chat__textarea"
-      dropdownClassName="str-chat__emojisearch"
-      listClassName="str-chat__emojisearch__list"
-      itemClassName="str-chat__emojisearch__item"
-      placeholder={props.placeholder}
-      onChange={props.onChange}
-      handleSubmit={props.handleSubmit}
-      onPaste={props.onPaste}
-      value={props.value}
-      grow={props.grow}
+      additionalTextareaProps={props.additionalTextareaProps}
+      className='str-chat__textarea__textarea'
+      containerClassName='str-chat__textarea'
       disabled={props.disabled}
       disableMentions={props.disableMentions}
+      dropdownClassName='str-chat__emojisearch'
+      grow={props.grow}
+      handleSubmit={props.handleSubmit}
+      innerRef={updateInnerRef}
+      itemClassName='str-chat__emojisearch__item'
+      listClassName='str-chat__emojisearch__list'
+      loadingComponent={LoadingIndicator}
+      maxRows={props.maxRows}
+      minChar={0}
+      onChange={props.onChange}
+      onFocus={props.onFocus}
+      onPaste={props.onPaste}
+      placeholder={props.placeholder}
+      replaceWord={emojiReplace}
+      rows={props.rows}
       SuggestionList={props.SuggestionList}
-      additionalTextareaProps={props.additionalTextareaProps}
+      trigger={getTriggers()}
+      value={props.value}
     />
   );
 };

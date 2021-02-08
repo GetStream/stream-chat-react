@@ -6,10 +6,10 @@ import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").SimpleReactionsListProps>} */
 const SimpleReactionsList = ({
-  reactions,
+  handleReaction,
   reaction_counts,
   reactionOptions: reactionOptionsProp,
-  handleReaction,
+  reactions,
 }) => {
   const { emojiConfig } = useContext(ChannelContext);
 
@@ -61,15 +61,15 @@ const SimpleReactionsList = ({
 
   return (
     <ul
-      data-testid="simple-reaction-list"
-      className="str-chat__simple-reactions-list"
+      className='str-chat__simple-reactions-list'
+      data-testid='simple-reaction-list'
       onMouseLeave={() => setTooltipReactionType(null)}
     >
       {getReactionTypes().map((reactionType, i) => {
         const emojiDefinition = getOptionForType(reactionType);
         return emojiDefinition ? (
           <li
-            className="str-chat__simple-reactions-list-item"
+            className='str-chat__simple-reactions-list-item'
             key={`${emojiDefinition?.id}-${i}`}
             onClick={() => handleReaction && handleReaction(reactionType)}
           >
@@ -81,16 +81,16 @@ const SimpleReactionsList = ({
                   // @ts-expect-error
                   emoji={emojiDefinition}
                   {...emojiSetDef}
-                  size={13}
                   data={emojiData}
+                  size={13}
                 />
               )}
               &nbsp;
             </span>
 
             {tooltipReactionType === getOptionForType(reactionType)?.id && (
-              <div className="str-chat__simple-reactions-list-tooltip">
-                <div className="arrow" />
+              <div className='str-chat__simple-reactions-list-tooltip'>
+                <div className='arrow' />
                 {getUsersPerReactionType(tooltipReactionType)?.join(', ')}
               </div>
             )}
@@ -98,7 +98,7 @@ const SimpleReactionsList = ({
         ) : null;
       })}
       {reactions?.length !== 0 && (
-        <li className="str-chat__simple-reactions-list-item--last-number">
+        <li className='str-chat__simple-reactions-list-item--last-number'>
           {getTotalReactionCount()}
         </li>
       )}
@@ -107,17 +107,17 @@ const SimpleReactionsList = ({
 };
 
 SimpleReactionsList.propTypes = {
-  reactions: PropTypes.array,
-  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
-  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions: PropTypes.array,
   /**
    * Handler to set/unset reaction on message.
    *
    * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
    * */
   handleReaction: PropTypes.func,
+  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
+  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
+  reactionOptions: PropTypes.array,
+  reactions: PropTypes.array,
 };
 
 export default React.memo(SimpleReactionsList);

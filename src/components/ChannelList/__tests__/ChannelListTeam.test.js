@@ -10,23 +10,21 @@ import { ChatContext } from '../../../context';
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-const Component = ({ Avatar, client, loading = false, error = false }) => {
-  return (
-    <ChatContext.Provider value={{ client }}>
-      <ChannelListTeam
-        client={client}
-        loading={loading}
-        error={error}
-        Avatar={Avatar}
-        LoadingIndicator={() => <div>Loading Indicator</div>}
-        LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
-      >
-        <div>children 1</div>
-        <div>children 2</div>
-      </ChannelListTeam>
-    </ChatContext.Provider>
-  );
-};
+const Component = ({ Avatar, client, error = false, loading = false }) => (
+  <ChatContext.Provider value={{ client }}>
+    <ChannelListTeam
+      Avatar={Avatar}
+      client={client}
+      error={error}
+      loading={loading}
+      LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
+      LoadingIndicator={() => <div>Loading Indicator</div>}
+    >
+      <div>children 1</div>
+      <div>children 2</div>
+    </ChannelListTeam>
+  </ChatContext.Provider>
+);
 
 describe('ChannelListTeam', () => {
   afterEach(cleanup);
@@ -61,8 +59,8 @@ describe('ChannelListTeam', () => {
   it('when `Avatar` prop is provided, custom avatar component should render', async () => {
     const { getByTestId } = render(
       <Component
+        Avatar={() => <div data-testid='custom-avatar'>Avatar</div>}
         client={chatClientVishal}
-        Avatar={() => <div data-testid="custom-avatar">Avatar</div>}
       />,
     );
 

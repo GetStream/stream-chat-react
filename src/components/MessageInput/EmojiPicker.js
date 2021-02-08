@@ -33,17 +33,17 @@ const EmojiPicker = ({
       <div className={className} ref={emojiPickerRef}>
         {Picker && (
           <Picker
-            native
+            color='#006CFF'
             data={emojiData}
-            set={'facebook'}
-            emoji="point_up"
-            title={t('Pick your emoji')}
-            onSelect={onSelectEmoji}
-            color="#006CFF"
-            showPreview={false}
-            useButton={true}
+            emoji='point_up'
             emojisToShowFilter={filterEmoji}
+            native
+            onSelect={onSelectEmoji}
+            set={'facebook'}
+            showPreview={false}
             showSkinTones={false}
+            title={t('Pick your emoji')}
+            useButton={true}
           />
         )}
       </div>

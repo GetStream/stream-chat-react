@@ -3,10 +3,10 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import MessageActionsBox from './MessageActionsBox';
 import {
   useDeleteHandler,
-  useUserRole,
   useFlagHandler,
   useMuteHandler,
   usePinHandler,
+  useUserRole,
 } from '../Message/hooks';
 import { defaultPinPermissions, isUserMuted } from '../Message/utils';
 
@@ -62,9 +62,10 @@ export const MessageActions = (props) => {
     getErrorNotification: getPinMessageErrorNotification,
   });
 
-  const isMuted = useCallback(() => {
-    return isUserMuted(message, mutes);
-  }, [message, mutes]);
+  const isMuted = useCallback(() => isUserMuted(message, mutes), [
+    message,
+    mutes,
+  ]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
 
@@ -115,14 +116,14 @@ export const MessageActions = (props) => {
         open={actionsBoxOpen}
       />
       <svg
-        width="11"
-        height="4"
-        viewBox="0 0 11 4"
-        xmlns="http://www.w3.org/2000/svg"
+        height='4'
+        viewBox='0 0 11 4'
+        width='11'
+        xmlns='http://www.w3.org/2000/svg'
       >
         <path
-          d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-          fillRule="nonzero"
+          d='M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'
+          fillRule='nonzero'
         />
       </svg>
     </MessageActionsWrapper>

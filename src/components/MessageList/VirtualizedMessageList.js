@@ -1,10 +1,10 @@
 // @ts-check
 import React, {
-  useContext,
-  useState,
-  useEffect,
   useCallback,
+  useContext,
+  useEffect,
   useRef,
+  useState,
 } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -15,8 +15,8 @@ import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import {
-  FixedHeightMessage,
   MessageDeleted as DefaultMessageDeleted,
+  FixedHeightMessage,
 } from '../Message';
 
 /**
@@ -105,12 +105,12 @@ const VirtualizedMessageList = ({
 
       return (
         <Message
-          message={message}
           groupedByUser={
             shouldGroupByUser &&
             i > 0 &&
             message.user.id === messageList[i - 1].user.id
           }
+          message={message}
         />
       );
     },
@@ -122,29 +122,33 @@ const VirtualizedMessageList = ({
   }
 
   return (
-    <div className="str-chat__virtual-list">
+    <div className='str-chat__virtual-list'>
       <Virtuoso
         // @ts-expect-error
-        ref={virtuoso}
-        totalCount={messages.length}
-        overscan={overscan}
+        atBottomStateChange={(isAtBottom) => {
+          atBottom.current = isAtBottom;
+          if (isAtBottom && newMessagesNotification)
+            setNewMessagesNotification(false);
+        }}
+        emptyComponent={() => <EmptyStateIndicator listType='message' />}
         followOutput={true}
-        maxHeightCacheSize={2000} // reset the cache once it reaches 2k
-        scrollSeek={scrollSeekPlaceHolder}
-        item={(i) => messageRenderer(messages, i)}
-        emptyComponent={() => <EmptyStateIndicator listType="message" />}
+        footer={() =>
+          TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>
+        }
         header={() =>
           loadingMore ? (
-            <div className="str-chat__virtual-list__loading">
+            <div className='str-chat__virtual-list__loading'>
               <LoadingIndicator size={20} />
             </div>
           ) : (
             <></>
           )
-        }
-        footer={() =>
-          TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>
-        }
+        } // reset the cache once it reaches 2k
+        item={(i) => messageRenderer(messages, i)}
+        maxHeightCacheSize={2000}
+        overscan={overscan}
+        ref={virtuoso}
+        scrollSeek={scrollSeekPlaceHolder}
         startReached={() => {
           // mounted.current prevents immediate loadMore on first render
           if (mounted.current && hasMore) {
@@ -153,21 +157,17 @@ const VirtualizedMessageList = ({
             );
           }
         }}
-        atBottomStateChange={(isAtBottom) => {
-          atBottom.current = isAtBottom;
-          if (isAtBottom && newMessagesNotification)
-            setNewMessagesNotification(false);
-        }}
+        totalCount={messages.length}
       />
 
-      <div className="str-chat__list-notifications">
+      <div className='str-chat__list-notifications'>
         <MessageNotification
-          showNotification={newMessagesNotification}
           onClick={() => {
             if (virtuoso.current)
               virtuoso.current.scrollToIndex(messages.length);
             setNewMessagesNotification(false);
           }}
+          showNotification={newMessagesNotification}
         >
           {t('New Messages!')}
         </MessageNotification>
@@ -190,13 +190,13 @@ export default function VirtualizedMessageListWithContext(props) {
       ) => (
         <VirtualizedMessageList
           client={context.client}
-          messages={context.messages}
-          // @ts-expect-error
-          loadMore={context.loadMore}
-          // @ts-expect-error
           hasMore={context.hasMore}
           // @ts-expect-error
           loadingMore={context.loadingMore}
+          // @ts-expect-error
+          loadMore={context.loadMore}
+          // @ts-expect-error
+          messages={context.messages}
           {...props}
         />
       )}

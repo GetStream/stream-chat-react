@@ -3,10 +3,10 @@ import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
 import { MESSAGE_ACTIONS } from '../utils';
@@ -57,8 +57,8 @@ async function renderComponent(
       <TranslationContext.Provider value={{ t: (key) => key }}>
         <Message
           message={message}
-          typing={false}
           Message={CustomMessageUIComponent}
+          typing={false}
           {...props}
         />
       </TranslationContext.Provider>

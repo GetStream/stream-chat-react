@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, useRef } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
@@ -8,32 +8,32 @@ import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MML } from '../MML';
 import {
-  MessageInput,
   EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
 } from '../MessageInput';
 import { MessageActions } from '../MessageActions';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
 import {
-  SimpleReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
+  SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 import {
-  useUserRole,
   useActionHandler,
-  useUserHandler,
-  useReactionClick,
-  useRetryHandler,
-  useReactionHandler,
-  useOpenThreadHandler,
-  useMentionsUIHandler,
   useEditHandler,
+  useMentionsUIHandler,
+  useOpenThreadHandler,
+  useReactionClick,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
+  useUserRole,
 } from './hooks';
 import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
+  PinIndicator as DefaultPinIndicator,
   DeliveredCheckIcon,
   ErrorIcon,
-  PinIndicator as DefaultPinIndicator,
   ReactionIcon,
   ThreadIcon,
 } from './icons';
@@ -91,9 +91,9 @@ const MessageTeam = (props) => {
   const reactionSelectorRef = useRef(null);
   const messageWrapperRef = useRef(null);
   const {
+    clearEdit: ownClearEditing,
     editing: ownEditing,
     setEdit: ownSetEditing,
-    clearEdit: ownClearEditing,
   } = useEditHandler();
   const editing = propEditing || ownEditing;
   const setEdit = propSetEdit || ownSetEditing;
@@ -109,9 +109,9 @@ const MessageTeam = (props) => {
     onMentionsHover: propOnMentionsHover,
   });
   const {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -138,24 +138,24 @@ const MessageTeam = (props) => {
   if (editing) {
     return (
       <div
-        data-testid="message-team-edit"
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--editing`}
+        data-testid='message-team-edit'
       >
         {(firstGroupStyle === 'top' || firstGroupStyle === 'single') && (
-          <div className="str-chat__message-team-meta">
+          <div className='str-chat__message-team-meta'>
             <Avatar
               image={message?.user?.image}
               name={message?.user?.name || message?.user?.id}
-              size={40}
               onClick={onUserClick}
               onMouseOver={onUserHover}
+              size={40}
             />
           </div>
         )}
         <MessageInput
+          clearEditingState={clearEdit}
           Input={EditMessageInput}
           message={message}
-          clearEditingState={clearEdit}
           updateMessage={propUpdateMessage || channelUpdateMessage}
         />
       </div>
@@ -165,65 +165,65 @@ const MessageTeam = (props) => {
   return (
     <React.Fragment>
       {message?.pinned && (
-        <div className="str-chat__message-team-pin-indicator">
+        <div className='str-chat__message-team-pin-indicator'>
           <PinIndicator message={message} t={t} />
         </div>
       )}
       <div
-        data-testid="message-team"
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
           message?.type
         } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
           message?.status
         } ${message?.pinned ? 'pinned-message' : ''}`}
+        data-testid='message-team'
         ref={messageWrapperRef}
       >
-        <div className="str-chat__message-team-meta">
+        <div className='str-chat__message-team-meta'>
           {firstGroupStyle === 'top' ||
           firstGroupStyle === 'single' ||
           initialMessage ? (
             <Avatar
               image={message?.user?.image}
               name={message?.user?.name || message?.user?.id}
-              size={40}
               onClick={onUserClick}
               onMouseOver={onUserHover}
+              size={40}
             />
           ) : (
             <div
-              data-testid="team-meta-spacer"
+              data-testid='team-meta-spacer'
               style={{ width: 40, marginRight: 0 }}
             />
           )}
           <MessageTimestamp
+            formatDate={formatDate}
             message={message}
             tDateTimeParser={props.tDateTimeParser}
-            formatDate={formatDate}
           />
         </div>
-        <div className="str-chat__message-team-group">
+        <div className='str-chat__message-team-group'>
           {message &&
             (firstGroupStyle === 'top' ||
               firstGroupStyle === 'single' ||
               initialMessage) && (
               <div
-                data-testid="message-team-author"
-                className="str-chat__message-team-author"
+                className='str-chat__message-team-author'
+                data-testid='message-team-author'
                 onClick={onUserClick}
               >
                 <strong>{message.user?.name || message.user?.id}</strong>
                 {message.type === 'error' && (
-                  <div className="str-chat__message-team-error-header">
+                  <div className='str-chat__message-team-error-header'>
                     {t('Only visible to you')}
                   </div>
                 )}
               </div>
             )}
           <div
-            data-testid="message-team-content"
             className={`str-chat__message-team-content str-chat__message-team-content--${firstGroupStyle} str-chat__message-team-content--${
               message?.text === '' ? 'image' : 'text'
             }`}
+            data-testid='message-team-content'
           >
             {!initialMessage &&
               message &&
@@ -233,34 +233,34 @@ const MessageTeam = (props) => {
               message.type !== 'ephemeral' &&
               message.type !== 'error' && (
                 <div
-                  data-testid="message-team-actions"
                   className={`str-chat__message-team-actions`}
+                  data-testid='message-team-actions'
                 >
                   {message && showDetailedReactions && (
                     <ReactionSelector
+                      detailedView={true}
                       handleReaction={propHandleReaction || handleReaction}
                       latest_reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts || undefined}
                       own_reactions={message.own_reactions}
-                      detailedView={true}
+                      reaction_counts={message.reaction_counts || undefined}
                       ref={reactionSelectorRef}
                     />
                   )}
 
                   {isReactionEnabled && (
                     <span
-                      data-testid="message-team-reaction-icon"
-                      title="Reactions"
+                      data-testid='message-team-reaction-icon'
                       onClick={onReactionListClick}
+                      title='Reactions'
                     >
                       <ReactionIcon />
                     </span>
                   )}
                   {!threadList && channelConfig?.replies !== false && (
                     <span
-                      data-testid="message-team-thread-icon"
-                      title="Start a thread"
+                      data-testid='message-team-thread-icon'
                       onClick={propHandleOpenThread || handleOpenThread}
+                      title='Start a thread'
                     >
                       <ThreadIcon />
                     </span>
@@ -270,44 +270,44 @@ const MessageTeam = (props) => {
                     getMessageActions().length > 0 && (
                       <MessageActions
                         addNotification={props.addNotification}
-                        message={message}
-                        getMessageActions={props.getMessageActions}
-                        messageListRect={props.messageListRect}
-                        messageWrapperRef={messageWrapperRef}
-                        setEditingState={setEdit}
-                        getMuteUserSuccessNotification={
-                          props.getMuteUserSuccessNotification
-                        }
-                        getMuteUserErrorNotification={
-                          props.getMuteUserErrorNotification
-                        }
+                        customWrapperClass={''}
                         getFlagMessageErrorNotification={
                           props.getFlagMessageErrorNotification
                         }
                         getFlagMessageSuccessNotification={
                           props.getFlagMessageSuccessNotification
                         }
+                        getMessageActions={props.getMessageActions}
+                        getMuteUserErrorNotification={
+                          props.getMuteUserErrorNotification
+                        }
+                        getMuteUserSuccessNotification={
+                          props.getMuteUserSuccessNotification
+                        }
+                        handleDelete={props.handleDelete}
+                        handleEdit={props.handleEdit}
                         handleFlag={props.handleFlag}
                         handleMute={props.handleMute}
-                        handleEdit={props.handleEdit}
-                        handleDelete={props.handleDelete}
                         handlePin={props.handlePin}
-                        customWrapperClass={''}
                         inline
+                        message={message}
+                        messageListRect={props.messageListRect}
+                        messageWrapperRef={messageWrapperRef}
+                        setEditingState={setEdit}
                       />
                     )}
                 </div>
               )}
             {message && (
               <span
-                data-testid="message-team-message"
                 className={
                   isOnlyEmojis(message.text)
                     ? 'str-chat__message-team-text--is-emoji'
                     : ''
                 }
-                onMouseOver={onMentionsHover}
+                data-testid='message-team-message'
                 onClick={onMentionsClick}
+                onMouseOver={onMentionsHover}
               >
                 {unsafeHTML && message.html ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
@@ -319,17 +319,17 @@ const MessageTeam = (props) => {
 
             {message?.mml && (
               <MML
-                source={message.mml}
                 actionHandler={handleAction}
-                align="left"
+                align='left'
+                source={message.mml}
               />
             )}
 
             {message && message.text === '' && (
               <MessageTeamAttachments
                 Attachment={props.Attachment}
-                message={message}
                 handleAction={propHandleAction || handleAction}
+                message={message}
               />
             )}
 
@@ -338,16 +338,16 @@ const MessageTeam = (props) => {
               message.text !== '' &&
               isReactionEnabled && (
                 <ReactionsList
-                  reaction_counts={message.reaction_counts || undefined}
                   handleReaction={propHandleReaction || handleReaction}
-                  reactions={message.latest_reactions}
                   own_reactions={message.own_reactions}
+                  reaction_counts={message.reaction_counts || undefined}
+                  reactions={message.latest_reactions}
                 />
               )}
             {message?.status === 'failed' && (
               <button
-                data-testid="message-team-failed"
-                className="str-chat__message-team-failed"
+                className='str-chat__message-team-failed'
+                data-testid='message-team-failed'
                 onClick={() => {
                   if (message.status === 'failed' && retry) {
                     // FIXME: type checking fails here because in the case of a failed message,
@@ -365,17 +365,17 @@ const MessageTeam = (props) => {
           </div>
           <MessageTeamStatus
             Avatar={Avatar}
-            readBy={props.readBy}
-            message={message}
-            threadList={threadList}
             lastReceivedId={props.lastReceivedId}
+            message={message}
+            readBy={props.readBy}
             t={propT}
+            threadList={threadList}
           />
           {message && message.text !== '' && message.attachments && (
             <MessageTeamAttachments
               Attachment={props.Attachment}
-              message={message}
               handleAction={propHandleAction || handleAction}
+              message={message}
             />
           )}
           {message?.latest_reactions &&
@@ -383,10 +383,10 @@ const MessageTeam = (props) => {
             message.text === '' &&
             isReactionEnabled && (
               <ReactionsList
-                reaction_counts={message.reaction_counts || undefined}
                 handleReaction={propHandleReaction || handleReaction}
-                reactions={message.latest_reactions}
                 own_reactions={message.own_reactions}
+                reaction_counts={message.reaction_counts || undefined}
+                reactions={message.latest_reactions}
               />
             )}
           {!threadList && message && (
@@ -427,8 +427,8 @@ const MessageTeamStatus = (props) => {
   if (message && message.status === 'sending') {
     return (
       <span
-        className="str-chat__message-team-status"
-        data-testid="message-team-sending"
+        className='str-chat__message-team-status'
+        data-testid='message-team-sending'
       >
         <Tooltip>{t && t('Sending...')}</Tooltip>
         <LoadingIndicator />
@@ -441,17 +441,17 @@ const MessageTeamStatus = (props) => {
       (item) => item && client?.user && item.id !== client.user.id,
     )[0];
     return (
-      <span className="str-chat__message-team-status">
+      <span className='str-chat__message-team-status'>
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          name={lastReadUser?.name}
           image={lastReadUser?.image}
+          name={lastReadUser?.name}
           size={15}
         />
         {readBy.length - 1 > 1 && (
           <span
-            data-testid="message-team-read-by-count"
-            className="str-chat__message-team-status-number"
+            className='str-chat__message-team-status-number'
+            data-testid='message-team-read-by-count'
           >
             {readBy.length - 1}
           </span>
@@ -468,8 +468,8 @@ const MessageTeamStatus = (props) => {
   ) {
     return (
       <span
-        data-testid="message-team-received"
-        className="str-chat__message-team-status"
+        className='str-chat__message-team-status'
+        data-testid='message-team-received'
       >
         <Tooltip>{t && t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
@@ -487,8 +487,8 @@ const MessageTeamAttachments = (props) => {
   if (message?.attachments && Attachment) {
     return (
       <Attachment
-        attachments={message.attachments}
         actionHandler={handleAction}
+        attachments={message.attachments}
       />
     );
   }

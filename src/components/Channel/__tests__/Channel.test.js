@@ -1,19 +1,19 @@
-import React, { useEffect, useContext } from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import React, { useContext, useEffect } from 'react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Channel from '../Channel';
 import { Chat } from '../../Chat';
 import { ChannelContext, ChatContext } from '../../../context';
 import {
-  useMockedApis,
+  generateChannel,
   generateMember,
   generateMessage,
-  generateChannel,
-  getTestClientWithUser,
-  getOrCreateChannelApi,
-  threadRepliesApi,
   generateUser,
+  getOrCreateChannelApi,
+  getTestClientWithUser,
   sendMessageApi,
+  threadRepliesApi,
+  useMockedApis,
 } from '../../../mock-builders';
 import { LoadingErrorIndicator } from '../../Loading';
 
@@ -67,7 +67,7 @@ describe('Channel', () => {
     const { messages: channelMessages } = useContext(ChannelContext);
 
     return channelMessages.map(
-      ({ text, status }, i) => status !== 'failed' && <div key={i}>{text}</div>,
+      ({ status, text }, i) => status !== 'failed' && <div key={i}>{text}</div>,
     );
   };
 
@@ -271,7 +271,7 @@ describe('Channel', () => {
 
       renderComponent(
         {},
-        ({ openThread, thread, loadMoreThread, threadMessages }) => {
+        ({ loadMoreThread, openThread, thread, threadMessages }) => {
           if (!thread) {
             // first, open a thread
             openThread(threadMessage);
@@ -301,7 +301,7 @@ describe('Channel', () => {
       const threadMessage = messages[0];
 
       let threadHasAlreadyBeenOpened = false;
-      renderComponent({}, ({ thread, openThread, closeThread }) => {
+      renderComponent({}, ({ closeThread, openThread, thread }) => {
         if (!thread) {
           // if there is no open thread
           if (!threadHasAlreadyBeenOpened) {
@@ -333,8 +333,8 @@ describe('Channel', () => {
         const { onMentionsHover } = useContext(ChannelContext);
         return (
           <span
-            onMouseOver={(e) => onMentionsHover(e, [mentionedUserMock])}
             onClick={(e) => onMentionsHover(e, [mentionedUserMock])}
+            onMouseOver={(e) => onMentionsHover(e, [mentionedUserMock])}
           >
             <strong>@{username}</strong> this is a message
           </span>
@@ -367,9 +367,9 @@ describe('Channel', () => {
     });
 
     describe('loading more messages', () => {
-      const queryChannelWithNewMessages = (newMessages) => {
+      const queryChannelWithNewMessages = (newMessages) =>
         // generate new channel mock from existing channel with new messages added
-        return getOrCreateChannelApi(
+        getOrCreateChannelApi(
           generateChannel({
             channel: {
               id: channel.id,
@@ -379,7 +379,6 @@ describe('Channel', () => {
             messages: newMessages,
           }),
         );
-      };
       const limit = 10;
       it('should be able to load more messages', async () => {
         const channelQuerySpy = jest.spyOn(channel, 'query');
@@ -419,7 +418,7 @@ describe('Channel', () => {
         const newMessages = [generateMessage()];
         renderComponent(
           {},
-          ({ loadMore, messages: contextMessages, hasMore }) => {
+          ({ hasMore, loadMore, messages: contextMessages }) => {
             if (
               !contextMessages.find(
                 (message) => message.id === newMessages[0].id,
@@ -447,7 +446,7 @@ describe('Channel', () => {
           .map(() => generateMessage());
         renderComponent(
           {},
-          ({ loadMore, messages: contextMessages, hasMore }) => {
+          ({ hasMore, loadMore, messages: contextMessages }) => {
             if (
               !contextMessages.some(
                 (message) => message.id === newMessages[0].id,
@@ -620,7 +619,7 @@ describe('Channel', () => {
           {
             children: <MockMessageList />,
           },
-          ({ sendMessage, retrySendMessage, messages: contextMessages }) => {
+          ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
             if (!hasSent) {
               jest
                 .spyOn(channel, 'sendMessage')
@@ -648,7 +647,7 @@ describe('Channel', () => {
         let allMessagesRemoved = false;
         const removeSpy = jest.spyOn(channel.state, 'removeMessage');
 
-        renderComponent({}, ({ removeMessage, messages: contextMessages }) => {
+        renderComponent({}, ({ messages: contextMessages, removeMessage }) => {
           if (contextMessages.length > 0) {
             // if there are messages passed as the context, remove them
             removeMessage(contextMessages[0]);

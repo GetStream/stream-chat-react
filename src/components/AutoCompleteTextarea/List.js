@@ -118,7 +118,7 @@ const List = (props) => {
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
       <li
-        className="rta__list-header"
+        className='rta__list-header'
         dangerouslySetInnerHTML={{
           __html: renderHeader(propValue),
         }}

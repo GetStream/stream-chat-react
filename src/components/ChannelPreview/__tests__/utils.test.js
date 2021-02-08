@@ -2,20 +2,20 @@ import '@testing-library/jest-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  useMockedApis,
   generateChannel,
-  generateMessage,
   generateImageAttachment,
-  getTestClientWithUser,
-  getOrCreateChannelApi,
   generateMember,
+  generateMessage,
   generateUser,
+  getOrCreateChannelApi,
+  getTestClientWithUser,
+  useMockedApis,
 } from 'mock-builders';
 
 import {
-  getLatestMessagePreview,
-  getDisplayTitle,
   getDisplayImage,
+  getDisplayTitle,
+  getLatestMessagePreview,
 } from '../utils';
 
 describe('ChannelPreview utils', () => {

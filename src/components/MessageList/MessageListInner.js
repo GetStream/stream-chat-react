@@ -64,8 +64,8 @@ const insertDates = (messages, lastRead, userID, hideDeletedMessages) => {
       // do not show date separator for current user's messages
       if (unread && message.user.id !== userID) {
         newMessages.push({
-          type: 'message.date',
           date: message.created_at,
+          type: 'message.date',
           unread,
         });
       }
@@ -82,7 +82,7 @@ const insertDates = (messages, lastRead, userID, hideDeletedMessages) => {
       lastDateSeparator = messageDate;
 
       newMessages.push(
-        { type: 'message.date', date: message.created_at },
+        { date: message.created_at, type: 'message.date' },
         message,
       );
     } else {
@@ -193,8 +193,8 @@ const getGroupStyles = (
 const MessageListInner = (props) => {
   const {
     bottomRef,
-    client,
     channel,
+    client,
     DateSeparator,
     disableDateSeparator = false,
     EmptyStateIndicator,
@@ -255,82 +255,84 @@ const MessageListInner = (props) => {
     enrichedMessages,
   ]);
 
-  const elements = useMemo(() => {
-    return enrichedMessages.map((message) => {
-      if (message.type === 'message.date') {
-        return (
-          <li key={`${message.date.toISOString()}-i`}>
-            <DateSeparator date={message.date} unread={message.unread} />
-          </li>
-        );
-      }
+  const elements = useMemo(
+    () =>
+      enrichedMessages.map((message) => {
+        if (message.type === 'message.date') {
+          return (
+            <li key={`${message.date.toISOString()}-i`}>
+              <DateSeparator date={message.date} unread={message.unread} />
+            </li>
+          );
+        }
 
-      if (message.type === 'channel.intro') {
-        return (
-          <li key="intro">
-            <HeaderComponent />
-          </li>
-        );
-      }
+        if (message.type === 'channel.intro') {
+          return (
+            <li key='intro'>
+              <HeaderComponent />
+            </li>
+          );
+        }
 
-      if (message.type === 'channel.event' || message.type === 'system') {
-        if (!MessageSystem) return null;
-        return (
-          <li key={message.event?.created_at || message.created_at || ''}>
-            <MessageSystem message={message} />
-          </li>
-        );
-      }
+        if (message.type === 'channel.event' || message.type === 'system') {
+          if (!MessageSystem) return null;
+          return (
+            <li key={message.event?.created_at || message.created_at || ''}>
+              <MessageSystem message={message} />
+            </li>
+          );
+        }
 
-      if (message.type !== 'message.read') {
-        const groupStyles = messageGroupStyles[message.id] || '';
+        if (message.type !== 'message.read') {
+          const groupStyles = messageGroupStyles[message.id] || '';
 
-        return (
-          <li
-            className={`str-chat__li str-chat__li--${groupStyles}`}
-            key={message.id || message.created_at}
-            onLoadCapture={onMessageLoadCaptured}
-          >
-            <Message
-              client={client}
-              groupStyles={[groupStyles]} /* TODO: convert to simple string */
-              lastReceivedId={lastReceivedId}
-              message={message}
-              readBy={readData[message.id] || []}
-              threadList={threadList}
-              {...internalMessageProps}
-            />
-          </li>
-        );
-      }
+          return (
+            <li
+              className={`str-chat__li str-chat__li--${groupStyles}`}
+              key={message.id || message.created_at}
+              onLoadCapture={onMessageLoadCaptured}
+            >
+              <Message
+                client={client}
+                groupStyles={[groupStyles]} /* TODO: convert to simple string */
+                lastReceivedId={lastReceivedId}
+                message={message}
+                readBy={readData[message.id] || []}
+                threadList={threadList}
+                {...internalMessageProps}
+              />
+            </li>
+          );
+        }
 
-      return null;
-    });
-  }, [
-    client,
-    enrichedMessages,
-    internalMessageProps,
-    lastReceivedId,
-    messageGroupStyles,
-    MessageSystem,
-    onMessageLoadCaptured,
-    readData,
-    threadList,
-  ]);
+        return null;
+      }),
+    [
+      client,
+      enrichedMessages,
+      internalMessageProps,
+      lastReceivedId,
+      messageGroupStyles,
+      MessageSystem,
+      onMessageLoadCaptured,
+      readData,
+      threadList,
+    ],
+  );
 
-  if (!elements.length) return <EmptyStateIndicator listType="message" />;
+  if (!elements.length) return <EmptyStateIndicator listType='message' />;
 
   return (
     <InfiniteScroll
-      className="str-chat__reverse-infinite-scroll"
-      data-testid="reverse-infinite-scroll"
+      className='str-chat__reverse-infinite-scroll'
+      data-testid='reverse-infinite-scroll'
       isReverse
       useWindow={false}
       {...internalInfiniteScrollProps}
     >
-      <ul className="str-chat__ul">{elements}</ul>
+      <ul className='str-chat__ul'>{elements}</ul>
       <TypingIndicator threadList={threadList} />
-      <div key="bottom" ref={bottomRef} />
+      <div key='bottom' ref={bottomRef} />
     </InfiniteScroll>
   );
 };

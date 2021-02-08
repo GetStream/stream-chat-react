@@ -1,17 +1,17 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
 import {
-  useReactionHandler,
-  useReactionClick,
   reactionHandlerWarning,
+  useReactionClick,
+  useReactionHandler,
 } from '../useReactionHandler';
 
 const getConfig = jest.fn();
@@ -107,10 +107,8 @@ function renderUseReactionClickHook(
   reactionListRef = React.createRef(),
   messageWrapperRef = React.createRef(),
 ) {
-  const wrapper = ({ children }) => {
-    return <div>{children}</div>;
-  };
-  const { result, rerender } = renderHook(
+  const wrapper = ({ children }) => <div>{children}</div>;
+  const { rerender, result } = renderHook(
     () => useReactionClick(message, reactionListRef, messageWrapperRef),
     { wrapper },
   );
@@ -139,7 +137,7 @@ describe('useReactionClick custom hook', () => {
       getConfig: () => ({ reactions: false }),
     });
 
-    const { result, rerender } = renderHook(
+    const { rerender, result } = renderHook(
       () =>
         useReactionClick(
           generateMessage(),
@@ -287,7 +285,7 @@ describe('useReactionClick custom hook', () => {
     const removeEventListenerSpy = jest
       .spyOn(document, 'removeEventListener')
       .mockImplementationOnce(jest.fn());
-    const { result, rerender } = renderUseReactionClickHook(message);
+    const { rerender, result } = renderUseReactionClickHook(message);
     expect(document.removeEventListener).not.toHaveBeenCalled();
     act(() => result.current.onReactionListClick(clickMock));
     message.deleted_at = new Date();

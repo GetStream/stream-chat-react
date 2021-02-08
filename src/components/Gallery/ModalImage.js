@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
  * @type {React.FC<import('types').ModalImageProps>}
  */
 const ModalImage = ({ data }) => (
-  <div className="str-chat__modal-image__wrapper" data-testid="modal-image">
-    <img src={data.src} className="str-chat__modal-image__image" />
+  <div className='str-chat__modal-image__wrapper' data-testid='modal-image'>
+    <img className='str-chat__modal-image__image' src={data.src} />
   </div>
 );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
-import { cleanup, render, waitFor, act } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import { dispatchConnectionChangedEvent, getTestClient } from 'mock-builders';
 import '@testing-library/jest-dom';
 

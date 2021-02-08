@@ -2,14 +2,14 @@ import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
 import { smartRender } from '../../utils';
-import { TranslationContext, ChannelContext } from '../../context';
+import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
 import {
-  MessageInput,
   EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
 } from '../MessageInput';
 import { Tooltip } from '../Tooltip';
 import { LoadingIndicator } from '../Loading';
@@ -31,9 +31,9 @@ import {
 } from './hooks';
 import {
   areMessagePropsEqual,
-  messageHasReactions,
-  messageHasAttachments,
   getReadByTooltipText,
+  messageHasAttachments,
+  messageHasReactions,
 } from './utils';
 import { DeliveredCheckIcon } from './icons';
 import MessageTimestamp from './MessageTimestamp';
@@ -75,9 +75,9 @@ const MessageSimple = (props) => {
   const reactionSelectorRef = React.createRef();
   const messageWrapperRef = useRef(null);
   const {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef);
   const {
     Attachment = DefaultAttachment,
@@ -104,11 +104,11 @@ const MessageSimple = (props) => {
   return (
     <React.Fragment>
       {editing && (
-        <Modal open={editing} onClose={clearEditingState}>
+        <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
+            clearEditingState={clearEditingState}
             Input={EditMessageInput}
             message={message}
-            clearEditingState={clearEditingState}
             updateMessage={updateMessage}
             {...props.additionalMessageInputProps}
           />
@@ -116,7 +116,6 @@ const MessageSimple = (props) => {
       )}
       {message && (
         <div
-          key={message.id || ''}
           className={`
 						${messageClasses}
 						str-chat__message--${message.type}
@@ -130,6 +129,7 @@ const MessageSimple = (props) => {
             }
             ${message?.pinned ? 'pinned-message' : ''}
 					`.trim()}
+          key={message.id || ''}
           ref={messageWrapperRef}
         >
           <MessageSimpleStatus {...props} />
@@ -143,8 +143,8 @@ const MessageSimple = (props) => {
             />
           )}
           <div
-            data-testid="message-inner"
-            className="str-chat__message-inner"
+            className='str-chat__message-inner'
+            data-testid='message-inner'
             onClick={() => {
               if (
                 message.status === 'failed' &&
@@ -164,9 +164,9 @@ const MessageSimple = (props) => {
                 {
                   <MessageOptions
                     {...props}
+                    handleOpenThread={propHandleOpenThread}
                     messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
-                    handleOpenThread={propHandleOpenThread}
                   />
                 }
                 {/* if reactions show them */}
@@ -174,20 +174,20 @@ const MessageSimple = (props) => {
                   !showDetailedReactions &&
                   isReactionEnabled && (
                     <ReactionsList
-                      reactions={message.latest_reactions}
-                      reaction_counts={message.reaction_counts || undefined}
-                      own_reactions={message.own_reactions}
                       onClick={onReactionListClick}
+                      own_reactions={message.own_reactions}
+                      reaction_counts={message.reaction_counts || undefined}
+                      reactions={message.latest_reactions}
                       reverse={true}
                     />
                   )}
                 {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
-                    handleReaction={propHandleReaction || handleReaction}
                     detailedView
-                    reaction_counts={message.reaction_counts || undefined}
+                    handleReaction={propHandleReaction || handleReaction}
                     latest_reactions={message.latest_reactions}
                     own_reactions={message.own_reactions}
+                    reaction_counts={message.reaction_counts || undefined}
                     ref={reactionSelectorRef}
                   />
                 )}
@@ -196,8 +196,8 @@ const MessageSimple = (props) => {
 
             {message?.attachments && Attachment && (
               <Attachment
-                attachments={message.attachments}
                 actionHandler={propHandleAction || handleAction}
+                attachments={message.attachments}
               />
             )}
 
@@ -217,14 +217,14 @@ const MessageSimple = (props) => {
 
             {message.mml && (
               <MML
-                source={message.mml}
                 actionHandler={handleAction}
                 align={isMyMessage ? 'right' : 'left'}
+                source={message.mml}
               />
             )}
 
             {!threadList && message.reply_count !== 0 && (
-              <div className="str-chat__message-simple-reply-button">
+              <div className='str-chat__message-simple-reply-button'>
                 <MessageRepliesCountButton
                   onClick={propHandleOpenThread || handleOpenThread}
                   reply_count={message.reply_count}
@@ -235,16 +235,16 @@ const MessageSimple = (props) => {
               className={`str-chat__message-data str-chat__message-simple-data`}
             >
               {!isMyMessage && message.user ? (
-                <span className="str-chat__message-simple-name">
+                <span className='str-chat__message-simple-name'>
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
               <MessageTimestamp
-                customClass="str-chat__message-simple-timestamp"
-                tDateTimeParser={propTDateTimeParser}
+                calendar
+                customClass='str-chat__message-simple-timestamp'
                 formatDate={formatDate}
                 message={message}
-                calendar
+                tDateTimeParser={propTDateTimeParser}
               />
             </div>
           </div>
@@ -277,8 +277,8 @@ const MessageSimpleStatus = ({
   if (message && message.status === 'sending') {
     return (
       <span
-        className="str-chat__message-simple-status"
-        data-testid="message-status-sending"
+        className='str-chat__message-simple-status'
+        data-testid='message-status-sending'
       >
         <Tooltip>{t && t('Sending...')}</Tooltip>
         <LoadingIndicator />
@@ -292,19 +292,19 @@ const MessageSimpleStatus = ({
     )[0];
     return (
       <span
-        className="str-chat__message-simple-status"
-        data-testid="message-status-read-by"
+        className='str-chat__message-simple-status'
+        data-testid='message-status-read-by'
       >
         <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          name={lastReadUser?.name}
           image={lastReadUser?.image}
+          name={lastReadUser?.name}
           size={15}
         />
         {readBy.length > 2 && (
           <span
-            className="str-chat__message-simple-status-number"
-            data-testid="message-status-read-by-many"
+            className='str-chat__message-simple-status-number'
+            data-testid='message-status-read-by-many'
           >
             {readBy.length - 1}
           </span>
@@ -320,8 +320,8 @@ const MessageSimpleStatus = ({
   ) {
     return (
       <span
-        className="str-chat__message-simple-status"
-        data-testid="message-status-received"
+        className='str-chat__message-simple-status'
+        data-testid='message-status-received'
       >
         <Tooltip>{t && t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />

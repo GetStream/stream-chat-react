@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -29,9 +29,10 @@ const Avatar = ({
 
   return (
     <div
-      data-testid="avatar"
       className={`str-chat__avatar str-chat__avatar--${shape}`}
-      title={name}
+      data-testid='avatar'
+      onClick={onClick}
+      onMouseOver={onMouseOver}
       style={{
         width: `${size}px`,
         height: `${size}px`,
@@ -39,30 +40,29 @@ const Avatar = ({
         lineHeight: `${size}px`,
         fontSize: `${size / 2}px`,
       }}
-      onClick={onClick}
-      onMouseOver={onMouseOver}
+      title={name}
     >
       {image && !error ? (
         <img
-          data-testid="avatar-img"
-          src={image}
           alt={initials}
           className={`str-chat__avatar-image${
             loaded ? ' str-chat__avatar-image--loaded' : ''
           }`}
+          data-testid='avatar-img'
+          onError={() => setError(true)}
+          onLoad={() => setLoaded(true)}
+          src={image}
           style={{
             width: `${size}px`,
             height: `${size}px`,
             flexBasis: `${size}px`,
             objectFit: 'cover',
           }}
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
         />
       ) : (
         <div
-          data-testid="avatar-fallback"
-          className="str-chat__avatar-fallback"
+          className='str-chat__avatar-fallback'
+          data-testid='avatar-fallback'
         >
           {initials}
         </div>

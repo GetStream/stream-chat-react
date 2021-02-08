@@ -19,14 +19,14 @@ export const ChannelListMessenger = ({
   children,
 }) => {
   if (error) {
-    return <LoadingErrorIndicator type="Connection Error" />;
+    return <LoadingErrorIndicator type='Connection Error' />;
   }
   if (loading) {
     return <LoadingIndicator />;
   }
   return (
-    <div className="str-chat__channel-list-messenger">
-      <div className="str-chat__channel-list-messenger__main">{children}</div>
+    <div className='str-chat__channel-list-messenger'>
+      <div className='str-chat__channel-list-messenger__main'>{children}</div>
     </div>
   );
 };

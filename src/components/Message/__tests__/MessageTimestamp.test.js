@@ -60,7 +60,7 @@ describe('<MessageTimestamp />', () => {
   it('should render message with custom datetime format if one is set', () => {
     const format = 'LT';
     const { queryByText } = render(
-      <MessageTimestamp message={messageMock} format={format} />,
+      <MessageTimestamp format={format} message={messageMock} />,
     );
     expect(queryByText('2:42 PM')).toBeInTheDocument();
   });
@@ -73,7 +73,7 @@ describe('<MessageTimestamp />', () => {
           tDateTimeParser: () => calendarDateTimeParser,
         }}
       >
-        <MessageTimestamp message={messageMock} calendar />
+        <MessageTimestamp calendar message={messageMock} />
       </TranslationContext.Provider>,
     );
     expect(calendarDateTimeParser.calendar).toHaveBeenCalledTimes(1);
@@ -86,7 +86,7 @@ describe('<MessageTimestamp />', () => {
           tDateTimeParser: () => ({ calendar: undefined }),
         }}
       >
-        <MessageTimestamp message={messageMock} calendar />
+        <MessageTimestamp calendar message={messageMock} />
       </TranslationContext.Provider>,
     );
     expect(container.children).toHaveLength(0);

@@ -19,12 +19,12 @@ describe('EmptyStateIndicator', () => {
   });
 
   it('should return null if listType is message', () => {
-    const { container } = render(<EmptyStateIndicator listType="message" />);
+    const { container } = render(<EmptyStateIndicator listType='message' />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should display correct text when listType is channel', () => {
-    const { getByText } = render(<EmptyStateIndicator listType="channel" />);
+    const { getByText } = render(<EmptyStateIndicator listType='channel' />);
     expect(getByText('You have no channels currently')).toBeInTheDocument();
   });
 

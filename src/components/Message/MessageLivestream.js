@@ -1,7 +1,7 @@
 import React, {
   useCallback,
-  useEffect,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -16,28 +16,28 @@ import { ChannelContext, TranslationContext } from '../../context';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import {
-  MessageInput,
   EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
 } from '../MessageInput';
 import {
-  SimpleReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
+  SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 import {
-  useReactionHandler,
-  useUserHandler,
-  useRetryHandler,
-  useOpenThreadHandler,
   useActionHandler,
-  useReactionClick,
-  useMentionsUIHandler,
   useEditHandler,
+  useMentionsUIHandler,
+  useOpenThreadHandler,
+  useReactionClick,
+  useReactionHandler,
+  useRetryHandler,
+  useUserHandler,
 } from './hooks';
 import { areMessagePropsEqual } from './utils';
 import { MessageActions } from '../MessageActions';
 import {
-  ErrorIcon,
   PinIndicator as DefaultPinIndicator,
+  ErrorIcon,
   ReactionIcon,
   ThreadIcon,
 } from './icons';
@@ -88,7 +88,7 @@ const MessageLivestreamComponent = (props) => {
   /**
    *@type {import('types').ChannelContextValue}
    */
-  const { updateMessage: channelUpdateMessage, channel } = useContext(
+  const { channel, updateMessage: channelUpdateMessage } = useContext(
     ChannelContext,
   );
   const channelConfig = propChannelConfig || channel?.getConfig();
@@ -100,9 +100,9 @@ const MessageLivestreamComponent = (props) => {
   const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const {
+    clearEdit: ownClearEditing,
     editing: ownEditing,
     setEdit: ownSetEditing,
-    clearEdit: ownClearEditing,
   } = useEditHandler();
   const editing = propEditing || ownEditing;
   const setEdit = propSetEdit || ownSetEditing;
@@ -110,9 +110,9 @@ const MessageLivestreamComponent = (props) => {
   const handleRetry = useRetryHandler();
   const retryHandler = propHandleRetry || handleRetry;
   const {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -142,24 +142,24 @@ const MessageLivestreamComponent = (props) => {
   if (editing) {
     return (
       <div
-        data-testid={'message-livestream-edit'}
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--editing`}
+        data-testid={'message-livestream-edit'}
       >
         {(firstGroupStyle === 'top' || firstGroupStyle === 'single') && (
-          <div className="str-chat__message-team-meta">
+          <div className='str-chat__message-team-meta'>
             <Avatar
               image={message.user?.image}
               name={message.user?.name || message.user?.id}
-              size={40}
               onClick={onUserClick}
               onMouseOver={onUserHover}
+              size={40}
             />
           </div>
         )}
         <MessageInput
+          clearEditingState={clearEdit}
           Input={EditMessageInput}
           message={message}
-          clearEditingState={clearEdit}
           updateMessage={propUpdateMessage || channelUpdateMessage}
         />
       </div>
@@ -169,73 +169,73 @@ const MessageLivestreamComponent = (props) => {
   return (
     <React.Fragment>
       {message?.pinned && (
-        <div className="str-chat__message-livestream-pin-indicator">
+        <div className='str-chat__message-livestream-pin-indicator'>
           <PinIndicator message={message} t={t} />
         </div>
       )}
       <div
-        data-testid="message-livestream"
         className={`str-chat__message-livestream str-chat__message-livestream--${firstGroupStyle} str-chat__message-livestream--${
           message.type
         } str-chat__message-livestream--${message.status} ${
           initialMessage ? 'str-chat__message-livestream--initial-message' : ''
         } ${message?.pinned ? 'pinned-message' : ''}`}
+        data-testid='message-livestream'
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
-            reverse={false}
-            handleReaction={handleReaction}
             detailedView
+            handleReaction={handleReaction}
             latest_reactions={message?.latest_reactions}
-            reaction_counts={message?.reaction_counts || undefined}
             own_reactions={message.own_reactions}
+            reaction_counts={message?.reaction_counts || undefined}
             ref={reactionSelectorRef}
+            reverse={false}
           />
         )}
         <MessageLivestreamActions
+          addNotification={props.addNotification}
+          channelConfig={channelConfig}
+          formatDate={formatDate}
+          getMessageActions={props.getMessageActions}
+          handleOpenThread={propHandleOpenThread || handleOpenThread}
           initialMessage={initialMessage}
           message={message}
-          formatDate={formatDate}
-          onReactionListClick={onReactionListClick}
           messageWrapperRef={messageWrapperRef}
-          getMessageActions={props.getMessageActions}
-          tDateTimeParser={propTDateTimeParser}
-          channelConfig={channelConfig}
-          threadList={props.threadList}
-          addNotification={props.addNotification}
-          handleOpenThread={propHandleOpenThread || handleOpenThread}
+          onReactionListClick={onReactionListClick}
           setEditingState={setEdit}
+          tDateTimeParser={propTDateTimeParser}
+          threadList={props.threadList}
         />
-        <div className="str-chat__message-livestream-left">
+        <div className='str-chat__message-livestream-left'>
           <Avatar
             image={message.user?.image}
             name={message.user?.name || message?.user?.id}
-            size={30}
             onClick={onUserClick}
             onMouseOver={onUserHover}
+            size={30}
           />
         </div>
-        <div className="str-chat__message-livestream-right">
-          <div className="str-chat__message-livestream-content">
-            <div className="str-chat__message-livestream-author">
+        <div className='str-chat__message-livestream-right'>
+          <div className='str-chat__message-livestream-content'>
+            <div className='str-chat__message-livestream-author'>
               <strong>{message.user?.name || message.user?.id}</strong>
               {message?.type === 'error' && (
-                <div className="str-chat__message-team-error-header">
+                <div className='str-chat__message-team-error-header'>
                   {t('Only visible to you')}
                 </div>
               )}
             </div>
 
             <div
-              data-testid="message-livestream-text"
               className={
                 isOnlyEmojis(message.text)
                   ? 'str-chat__message-livestream-text--is-emoji'
                   : ''
               }
-              onMouseOver={onMentionsHover}
+              data-testid='message-livestream-text'
               onClick={onMentionsClick}
+              onMouseOver={onMentionsHover}
             >
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
@@ -250,14 +250,14 @@ const MessageLivestreamComponent = (props) => {
                 )}
 
               {message.type === 'error' && !message.command && (
-                <p data-testid="message-livestream-error">
+                <p data-testid='message-livestream-error'>
                   <ErrorIcon />
                   {message.text}
                 </p>
               )}
 
               {message.type === 'error' && message.command && (
-                <p data-testid="message-livestream-command-error">
+                <p data-testid='message-livestream-command-error'>
                   <ErrorIcon />
                   {/* TODO: Translate following sentence */}
                   <strong>/{message.command}</strong> is not a valid command
@@ -283,17 +283,17 @@ const MessageLivestreamComponent = (props) => {
 
             {message?.attachments && Attachment && (
               <Attachment
-                attachments={message.attachments}
                 actionHandler={propHandleAction || handleAction}
+                attachments={message.attachments}
               />
             )}
 
             {isReactionEnabled && (
               <ReactionsList
+                handleReaction={propHandleReaction || handleReaction}
+                own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
-                own_reactions={message.own_reactions}
-                handleReaction={propHandleReaction || handleReaction}
               />
             )}
 
@@ -315,16 +315,16 @@ const MessageLivestreamComponent = (props) => {
  */
 const MessageLivestreamActions = (props) => {
   const {
-    initialMessage,
-    message,
     channelConfig,
-    threadList,
     formatDate,
-    messageWrapperRef,
-    onReactionListClick,
     getMessageActions,
     handleOpenThread,
+    initialMessage,
+    message,
+    messageWrapperRef,
+    onReactionListClick,
     tDateTimeParser: propTDateTimeParser,
+    threadList,
   } = props;
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   /** @type {() => void} Typescript syntax */
@@ -373,19 +373,19 @@ const MessageLivestreamActions = (props) => {
 
   return (
     <div
-      data-testid={'message-livestream-actions'}
       className={`str-chat__message-livestream-actions`}
+      data-testid={'message-livestream-actions'}
     >
       <MessageTimestamp
-        customClass="str-chat__message-livestream-time"
-        message={message}
+        customClass='str-chat__message-livestream-time'
         formatDate={formatDate}
+        message={message}
         tDateTimeParser={propTDateTimeParser}
       />
       {channelConfig && channelConfig.reactions && (
         <span
+          data-testid='message-livestream-reactions-action'
           onClick={onReactionListClick}
-          data-testid="message-livestream-reactions-action"
         >
           <span>
             <ReactionIcon />
@@ -394,7 +394,7 @@ const MessageLivestreamActions = (props) => {
       )}
       {!threadList && channelConfig && channelConfig.replies && (
         <span
-          data-testid="message-livestream-thread-action"
+          data-testid='message-livestream-thread-action'
           onClick={handleOpenThread}
         >
           <ThreadIcon />
@@ -402,8 +402,8 @@ const MessageLivestreamActions = (props) => {
       )}
       <MessageActions
         {...props}
-        getMessageActions={getMessageActions}
         customWrapperClass={''}
+        getMessageActions={getMessageActions}
         inline
       />
     </div>

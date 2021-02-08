@@ -117,7 +117,7 @@ export const defaultPinPermissions = {
  */
 export const getMessageActions = (
   actions,
-  { canDelete, canFlag, canEdit, canMute, canPin, canReact, canReply },
+  { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply },
 ) => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
@@ -166,43 +166,37 @@ export const getMessageActions = (
  * @typedef {Pick<import('types').MessageComponentProps, 'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'>} MessageEqualProps
  * @type {(props: MessageEqualProps, nextProps: MessageEqualProps) => boolean} Typescript syntax
  */
-export const areMessagePropsEqual = (props, nextProps) => {
-  return (
-    // Message content is equal
-    nextProps.message === props.message &&
-    // Message was read by someone
-    deepequal(nextProps.readBy, props.readBy) &&
-    // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
-    deepequal(nextProps.groupStyles, props.groupStyles) &&
-    // @ts-expect-error
-    deepequal(nextProps.mutes, props.mutes) &&
-    // Last message received in the channel changes
-    deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
-    // User toggles edit state
-    // @ts-expect-error // TODO: fix
-    nextProps.editing === props.editing &&
-    // Message wrapper layout changes
-    nextProps.messageListRect === props.messageListRect
-  );
-};
+export const areMessagePropsEqual = (props, nextProps) =>
+  // Message content is equal
+  nextProps.message === props.message &&
+  // Message was read by someone
+  deepequal(nextProps.readBy, props.readBy) &&
+  // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
+  deepequal(nextProps.groupStyles, props.groupStyles) &&
+  // @ts-expect-error
+  deepequal(nextProps.mutes, props.mutes) &&
+  // Last message received in the channel changes
+  deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
+  // User toggles edit state
+  // @ts-expect-error // TODO: fix
+  nextProps.editing === props.editing &&
+  // Message wrapper layout changes
+  nextProps.messageListRect === props.messageListRect;
 
 /**
  * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
  */
-export const shouldMessageComponentUpdate = (props, nextProps) => {
+export const shouldMessageComponentUpdate = (props, nextProps) =>
   // Component should only update if:
-  return !areMessagePropsEqual(props, nextProps);
-};
+  !areMessagePropsEqual(props, nextProps);
 
 /** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-export const messageHasReactions = (message) => {
-  return !!message?.latest_reactions && !!message.latest_reactions.length;
-};
+export const messageHasReactions = (message) =>
+  !!message?.latest_reactions && !!message.latest_reactions.length;
 
 /** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-export const messageHasAttachments = (message) => {
-  return !!message?.attachments && !!message.attachments.length;
-};
+export const messageHasAttachments = (message) =>
+  !!message?.attachments && !!message.attachments.length;
 
 /**
  * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }

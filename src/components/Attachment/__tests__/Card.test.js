@@ -28,18 +28,18 @@ describe('Card', () => {
   });
 
   it('should render Card with default props and image_url', () => {
-    const tree = renderer.create(<Card image_url="test.jpg" />).toJSON();
+    const tree = renderer.create(<Card image_url='test.jpg' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`null`);
   });
 
   it('should render Card with default props and title', () => {
-    const tree = renderer.create(<Card title="test" />).toJSON();
+    const tree = renderer.create(<Card title='test' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`null`);
   });
 
   it('should render Card with default props and og_scrape_url', () => {
     const tree = renderer
-      .create(<Card og_scrape_url="https://google.com" />)
+      .create(<Card og_scrape_url='https://google.com' />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
@@ -60,7 +60,7 @@ describe('Card', () => {
 
   it('should render Card with default props and title and og_scrape_url', () => {
     const tree = renderer
-      .create(<Card title="test" og_scrape_url="https://google.com" />)
+      .create(<Card og_scrape_url='https://google.com' title='test' />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
@@ -94,9 +94,9 @@ describe('Card', () => {
     const tree = renderer
       .create(
         <Card
-          title="test"
-          og_scrape_url="https://google.com"
-          image_url="test.jpg"
+          image_url='test.jpg'
+          og_scrape_url='https://google.com'
+          title='test'
         />,
       )
       .toJSON();
@@ -140,10 +140,10 @@ describe('Card', () => {
     const tree = renderer
       .create(
         <Card
-          title="test"
-          og_scrape_url="https://google.com"
-          image_url="test.jpg"
-          text="test text"
+          image_url='test.jpg'
+          og_scrape_url='https://google.com'
+          text='test text'
+          title='test'
         />,
       )
       .toJSON();
@@ -190,7 +190,7 @@ describe('Card', () => {
 
   it('should render giphy logo when type is giphy', () => {
     const { getByTestId } = render(
-      <Card title="test" og_scrape_url="https://google.com" type="giphy" />,
+      <Card og_scrape_url='https://google.com' title='test' type='giphy' />,
     );
     expect(getByTestId('card-giphy')).toBeInTheDocument();
   });
@@ -198,15 +198,15 @@ describe('Card', () => {
   it('should render trimmed url', () => {
     const { getByText } = render(
       <Card
-        title="test"
-        og_scrape_url="https://www.theverge.com/2020/6/15/21291288/sony-ps5-software-user-interface-ui-design-dashboard-teaser-video"
+        og_scrape_url='https://www.theverge.com/2020/6/15/21291288/sony-ps5-software-user-interface-ui-design-dashboard-teaser-video'
+        title='test'
       />,
     );
     expect(getByText('theverge.com')).toBeInTheDocument();
   });
 
   it('should return null if no og_scrape_url && no title_link', () => {
-    const { container } = render(<Card title="test card" />);
+    const { container } = render(<Card title='test card' />);
     expect(container).toBeEmptyDOMElement();
   });
 });

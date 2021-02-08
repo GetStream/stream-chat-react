@@ -1,13 +1,13 @@
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
 import MessageLivestream from '../MessageLivestream';
@@ -103,7 +103,7 @@ describe('<MessageLivestream />', () => {
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageLivestream(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -148,7 +148,7 @@ describe('<MessageLivestream />', () => {
       latest_reactions: [bobReaction],
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;
@@ -169,7 +169,7 @@ describe('<MessageLivestream />', () => {
 
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
-    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
     const { getByTestId } = await renderMessageLivestream(message, {
       Avatar: CustomAvatar,
     });
@@ -179,7 +179,7 @@ describe('<MessageLivestream />', () => {
   it('should render pin indicator when pinned is true', async () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { getByTestId } = await renderMessageLivestream(message, {
@@ -194,7 +194,7 @@ describe('<MessageLivestream />', () => {
   it('should not render pin indicator when pinned is false', async () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { queryAllByTestId } = await renderMessageLivestream(message, {
@@ -404,7 +404,7 @@ describe('<MessageLivestream />', () => {
       text: 'bonjour',
     });
 
-    const { getByText, debug } = await renderMessageLivestream(message);
+    const { debug, getByText } = await renderMessageLivestream(message);
     debug();
 
     expect(getByText('hello')).toBeInTheDocument();

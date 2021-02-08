@@ -3,12 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /** @type {React.FC<import('types').MessageNotificationProps>} */
-const MessageNotification = ({ showNotification, onClick, children }) => {
+const MessageNotification = ({ children, onClick, showNotification }) => {
   if (!showNotification) return null;
   return (
     <button
-      data-testid="message-notification"
-      className="str-chat__message-notification"
+      className='str-chat__message-notification'
+      data-testid='message-notification'
       onClick={onClick}
     >
       {children}
@@ -21,10 +21,10 @@ MessageNotification.defaultProps = {
 };
 
 MessageNotification.propTypes = {
-  /** If we should show the notification or not */
-  showNotification: PropTypes.bool.isRequired,
   /** Onclick handler */
   onClick: PropTypes.func.isRequired,
+  /** If we should show the notification or not */
+  showNotification: PropTypes.bool.isRequired,
 };
 
 export default React.memo(MessageNotification);

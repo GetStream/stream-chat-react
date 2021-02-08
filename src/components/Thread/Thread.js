@@ -64,8 +64,8 @@ Thread.propTypes = {
 };
 
 Thread.defaultProps = {
-  fullWidth: false,
   autoFocus: true,
+  fullWidth: false,
   MessageInput,
 };
 
@@ -82,20 +82,20 @@ const DefaultThreadHeader = ({ closeThread, t, thread }) => {
   };
 
   return (
-    <div className="str-chat__thread-header">
-      <div className="str-chat__thread-header-details">
+    <div className='str-chat__thread-header'>
+      <div className='str-chat__thread-header-details'>
         <strong>{t && t('Thread')}</strong>
         <small>{getReplyCount()}</small>
       </div>
       <button
+        className='str-chat__square-button'
+        data-testid='close-button'
         onClick={(e) => closeThread && closeThread(e)}
-        className="str-chat__square-button"
-        data-testid="close-button"
       >
-        <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+        <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
-            d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
-            fillRule="evenodd"
+            d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
+            fillRule='evenodd'
           />
         </svg>
       </button>
@@ -145,7 +145,7 @@ const ThreadInner = (props) => {
 
   useEffect(() => {
     if (messageList.current && threadMessages?.length) {
-      const { clientHeight, scrollTop, scrollHeight } = messageList.current;
+      const { clientHeight, scrollHeight, scrollTop } = messageList.current;
       const scrollDown = clientHeight + scrollTop !== scrollHeight;
 
       if (scrollDown) {
@@ -165,7 +165,7 @@ const ThreadInner = (props) => {
       }`}
     >
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
-      <div className="str-chat__thread-list" ref={messageList}>
+      <div className='str-chat__thread-list' ref={messageList}>
         <Message
           channel={channel}
           client={client}
@@ -175,24 +175,24 @@ const ThreadInner = (props) => {
           threadList
           {...additionalParentMessageProps}
         />
-        <div className="str-chat__thread-start">
+        <div className='str-chat__thread-start'>
           {t && t('Start of a new thread')}
         </div>
         <MessageList
           hasMore={threadHasMore}
-          loadMore={loadMoreThread}
           loadingMore={threadLoadingMore}
-          messages={threadMessages}
+          loadMore={loadMoreThread}
           Message={ThreadMessage}
+          messages={threadMessages}
           read={read}
           threadList
           {...additionalMessageListProps}
         />
       </div>
       {smartRender(ThreadMessageInput, {
+        focus: autoFocus,
         Input: MessageInputSmall,
         parent: thread,
-        focus: autoFocus,
         publishTypingEvent: false,
         ...additionalMessageInputProps,
       })}

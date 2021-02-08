@@ -8,7 +8,7 @@ export const handleActionWarning = `Action handler was called, but it is missing
  * @type {import('types').useActionHandler}
  */
 export const useActionHandler = (message) => {
-  const { channel, updateMessage, removeMessage } = useContext(ChannelContext);
+  const { channel, removeMessage, updateMessage } = useContext(ChannelContext);
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();
     if (!message || !updateMessage || !removeMessage || !channel) {

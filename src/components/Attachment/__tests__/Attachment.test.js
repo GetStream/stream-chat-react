@@ -4,40 +4,38 @@ import '@testing-library/jest-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  generateImageAttachment,
-  generateAudioAttachment,
-  generateFileAttachment,
-  generateImgurAttachment,
-  generateGiphyAttachment,
-  generateVideoAttachment,
   generateAttachmentAction,
+  generateAudioAttachment,
   generateCardAttachment,
+  generateFileAttachment,
+  generateGiphyAttachment,
+  generateImageAttachment,
+  generateImgurAttachment,
+  generateVideoAttachment,
 } from 'mock-builders';
 
 import Attachment, { SUPPORTED_VIDEO_FORMATS } from '../Attachment';
 
-const Audio = () => <div data-testid="audio-attachment"></div>;
-const Card = () => <div data-testid="card-attachment"></div>;
-const Media = () => <div data-testid="media-attachment"></div>;
-const AttachmentActions = () => <div data-testid="attachment-actions"></div>;
-const Image = () => <div data-testid="image-attachment"></div>;
-const File = () => <div data-testid="file-attachment"></div>;
-const Gallery = () => <div data-testid="gallery-attachment"></div>;
+const Audio = () => <div data-testid='audio-attachment'></div>;
+const Card = () => <div data-testid='card-attachment'></div>;
+const Media = () => <div data-testid='media-attachment'></div>;
+const AttachmentActions = () => <div data-testid='attachment-actions'></div>;
+const Image = () => <div data-testid='image-attachment'></div>;
+const File = () => <div data-testid='file-attachment'></div>;
+const Gallery = () => <div data-testid='gallery-attachment'></div>;
 
-const getAttachmentComponent = (props) => {
-  return (
-    <Attachment
-      Audio={Audio}
-      Card={Card}
-      Media={Media}
-      AttachmentActions={AttachmentActions}
-      Image={Image}
-      File={File}
-      Gallery={Gallery}
-      {...props}
-    />
-  );
-};
+const getAttachmentComponent = (props) => (
+  <Attachment
+    AttachmentActions={AttachmentActions}
+    Audio={Audio}
+    Card={Card}
+    File={File}
+    Gallery={Gallery}
+    Image={Image}
+    Media={Media}
+    {...props}
+  />
+);
 
 describe('Attachment', () => {
   it('should render Audio component for "audio" type attachment', async () => {

@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import {
+  act,
   cleanup,
+  fireEvent,
   render,
   waitFor,
-  fireEvent,
-  act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import MessageInput from '../MessageInput';
@@ -17,18 +17,18 @@ import { Channel } from '../../Channel';
 import {
   generateChannel,
   generateMember,
-  generateUser,
   generateMessage,
-  useMockedApis,
+  generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  useMockedApis,
 } from '../../../mock-builders';
 import { ChatContext } from '../../../context';
 
 // mock image loader fn used by ImagePreview
-jest.mock('blueimp-load-image/js/load-image-fetch', () => {
-  return jest.fn().mockImplementation(() => Promise.resolve());
-});
+jest.mock('blueimp-load-image/js/load-image-fetch', () =>
+  jest.fn().mockImplementation(() => Promise.resolve()),
+);
 
 let chatClient;
 let channel;
@@ -193,8 +193,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const {
         container,
         findByTitle,
-        queryAllByText,
         getByDisplayValue,
+        queryAllByText,
       } = renderComponent();
 
       const emojiIcon = await findByTitle('Open emoji picker');
@@ -522,7 +522,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     describe('Submitting', () => {
       it('Should submit the input value when clicking the submit button', async () => {
-        const { submit, findByPlaceholderText } = renderComponent();
+        const { findByPlaceholderText, submit } = renderComponent();
 
         const messageText = 'Some text';
 
@@ -546,7 +546,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const overrideMock = jest
           .fn()
           .mockImplementation(() => Promise.resolve());
-        const { submit, findByPlaceholderText } = renderComponent({
+        const { findByPlaceholderText, submit } = renderComponent({
           overrideSubmitHandler: overrideMock,
         });
         const messageText = 'Some text';
@@ -576,7 +576,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add image as attachment if a message is submitted with an image', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { submit, findByPlaceholderText } = renderComponent({
+        const { findByPlaceholderText, submit } = renderComponent({
           doImageUploadRequest,
         });
 
@@ -603,7 +603,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add file as attachment if a message is submitted with an file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { submit, findByPlaceholderText } = renderComponent({
+        const { findByPlaceholderText, submit } = renderComponent({
           doFileUploadRequest,
         });
 
@@ -630,7 +630,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { submit, findByPlaceholderText } = renderComponent({
+        const { findByPlaceholderText, submit } = renderComponent({
           doFileUploadRequest,
         });
 
@@ -751,7 +751,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     it('should override the default List component when SuggestionList is provided as a prop', async () => {
       const SuggestionList = () => (
-        <div data-testid="suggestion-list">Suggestion List</div>
+        <div data-testid='suggestion-list'>Suggestion List</div>
       );
 
       const {

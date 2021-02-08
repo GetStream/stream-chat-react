@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { getTestClient, generateMessage, generateChannel } from 'mock-builders';
+import { generateChannel, generateMessage, getTestClient } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
 import { useDeleteHandler } from '../useDeleteHandler';
 

@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useRef, useEffect, useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { TranslationContext } from '../../context';
 
@@ -38,16 +38,16 @@ const Modal = ({ children, onClose, open }) => {
 
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>
-      <div className="str-chat__modal__close-button">
+      <div className='str-chat__modal__close-button'>
         {t('Close')}
-        <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+        <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
-            d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
-            fillRule="evenodd"
+            d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
+            fillRule='evenodd'
           />
         </svg>
       </div>
-      <div className="str-chat__modal__inner" ref={innerRef}>
+      <div className='str-chat__modal__inner' ref={innerRef}>
         {children}
       </div>
     </div>

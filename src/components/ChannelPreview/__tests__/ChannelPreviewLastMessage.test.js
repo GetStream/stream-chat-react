@@ -1,14 +1,14 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
 import {
-  useMockedApis,
-  generateUser,
   generateChannel,
-  getTestClientWithUser,
+  generateUser,
   getOrCreateChannelApi,
+  getTestClientWithUser,
+  useMockedApis,
 } from 'mock-builders';
 
 import ChannelPreviewLastMessage from '../ChannelPreviewLastMessage';
@@ -17,20 +17,18 @@ describe('ChannelPreviewLastMessage', () => {
   const clientUser = generateUser();
   let chatClient;
   let channel;
-  const renderComponent = (props) => {
-    return (
-      <ChannelPreviewLastMessage
-        channel={channel}
-        latestMessage="This is latest message !!!"
-        unread={10}
-        latestMessageLength={6}
-        displayTitle="Channel name"
-        displayImage="https://randomimage.com/src.jpg"
-        setActiveChannel={jest.fn()}
-        {...props}
-      />
-    );
-  };
+  const renderComponent = (props) => (
+    <ChannelPreviewLastMessage
+      channel={channel}
+      displayImage='https://randomimage.com/src.jpg'
+      displayTitle='Channel name'
+      latestMessage='This is latest message !!!'
+      latestMessageLength={6}
+      setActiveChannel={jest.fn()}
+      unread={10}
+      {...props}
+    />
+  );
 
   const initializeChannel = async (c) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

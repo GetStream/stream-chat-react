@@ -6,7 +6,7 @@ import { ChannelContext } from '../../../context';
  * @type {import('types').useUserRole}
  */
 export const useUserRole = (message) => {
-  const { client, channel } = useContext(ChannelContext);
+  const { channel, client } = useContext(ChannelContext);
 
   const isMyMessage =
     !!message?.user && !!client?.user && client.user.id === message.user.id;

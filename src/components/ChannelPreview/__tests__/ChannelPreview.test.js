@@ -1,33 +1,31 @@
 import React from 'react';
-import { render, waitFor, act } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  queryChannelsApi,
-  generateChannel,
-  generateMessage,
+  dispatchMessageDeletedEvent,
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
-  dispatchMessageDeletedEvent,
-  getTestClientWithUser,
+  generateChannel,
+  generateMessage,
   getRandomInt,
+  getTestClientWithUser,
+  queryChannelsApi,
+  useMockedApis,
 } from 'mock-builders';
 
 import { ChatContext } from '../../../context';
 import ChannelPreview from '../ChannelPreview';
 
-const PreviewUIComponent = (props) => {
-  return (
-    <>
-      <div data-testid="channel-id">{props.channel.id}</div>
-      <div data-testid="unread-count">{props.unread}</div>
-      <div data-testid="last-event-message">
-        {props.lastMessage && props.lastMessage.text}
-      </div>
-    </>
-  );
-};
+const PreviewUIComponent = (props) => (
+  <>
+    <div data-testid='channel-id'>{props.channel.id}</div>
+    <div data-testid='unread-count'>{props.unread}</div>
+    <div data-testid='last-event-message'>
+      {props.lastMessage && props.lastMessage.text}
+    </div>
+  </>
+);
 
 const expectUnreadCountToBe = async (getByTestId, expectedValue) => {
   await waitFor(() => {
@@ -44,8 +42,8 @@ describe('ChannelPreview', () => {
   let chatClientUthred;
   let c0;
   let c1;
-  const renderComponent = (props, renderer) => {
-    return renderer(
+  const renderComponent = (props, renderer) =>
+    renderer(
       <ChatContext.Provider
         value={{
           client: chatClientUthred,
@@ -56,7 +54,6 @@ describe('ChannelPreview', () => {
         <ChannelPreview Preview={PreviewUIComponent} {...props} />
       </ChatContext.Provider>,
     );
-  };
 
   beforeEach(async () => {
     chatClientUthred = await getTestClientWithUser({ id: 'uthred' });
@@ -170,9 +167,7 @@ describe('ChannelPreview', () => {
     it('should set unreadCount to 0, in case of muted channel', async () => {
       const channelMuteSpy = jest
         .spyOn(c0, 'muteStatus')
-        .mockImplementation(() => {
-          return { muted: true };
-        });
+        .mockImplementation(() => ({ muted: true }));
 
       const { getByTestId } = renderComponent(
         {

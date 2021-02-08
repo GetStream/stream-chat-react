@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import Avatar from '../Avatar';
@@ -37,7 +37,7 @@ describe('Avatar', () => {
   });
 
   it('should render component with default props and image prop', () => {
-    const tree = renderer.create(<Avatar image="random" />).toJSON();
+    const tree = renderer.create(<Avatar image='random' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__avatar str-chat__avatar--circle"
@@ -95,7 +95,7 @@ describe('Avatar', () => {
 
   it('should render with different size and image', () => {
     const size = 24;
-    const { getByTestId } = render(<Avatar size={size} image="randomImage" />);
+    const { getByTestId } = render(<Avatar image='randomImage' size={size} />);
     expect(getByTestId('avatar-img')).toHaveStyle({
       width: `${size}px`,
       height: `${size}px`,
@@ -106,8 +106,8 @@ describe('Avatar', () => {
 
   it('should render initials as alt and title', () => {
     const name = 'Cherry Blossom';
-    const { getByTitle, getByAltText } = render(
-      <Avatar name={name} image="randomImage" />,
+    const { getByAltText, getByTitle } = render(
+      <Avatar image='randomImage' name={name} />,
     );
 
     expect(getByTitle(name)).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe('Avatar', () => {
 
   it('should render initials as fallback when no image is supplied', () => {
     const { getByTestId, queryByTestId } = render(
-      <Avatar name="frank N. Stein" />,
+      <Avatar name='frank N. Stein' />,
     );
     expect(getByTestId('avatar-fallback')).toHaveTextContent('f');
     expect(queryByTestId('avatar-img')).toBeNull();
@@ -143,7 +143,7 @@ describe('Avatar', () => {
   });
 
   it('should update img class on img load', () => {
-    const { getByTestId } = render(<Avatar image="randomImage" />);
+    const { getByTestId } = render(<Avatar image='randomImage' />);
     const img = getByTestId('avatar-img');
 
     expect(img).not.toHaveClass('str-chat__avatar-image--loaded');
@@ -153,7 +153,7 @@ describe('Avatar', () => {
 
   it('should render fallback initials on img error', () => {
     const { getByTestId, queryByTestId } = render(
-      <Avatar name="Olive" image="randomImage" />,
+      <Avatar image='randomImage' name='Olive' />,
     );
     const img = getByTestId('avatar-img');
 
@@ -166,13 +166,13 @@ describe('Avatar', () => {
 
   it('should render new img on props change for errored img', () => {
     const { getByTestId, queryByTestId, rerender } = render(
-      <Avatar image="randomImage" />,
+      <Avatar image='randomImage' />,
     );
 
     fireEvent.error(getByTestId('avatar-img'));
     expect(queryByTestId('avatar-img')).toBeNull();
 
-    rerender(<Avatar image="anotherImage" />);
+    rerender(<Avatar image='anotherImage' />);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'anotherImage');
   });
 });

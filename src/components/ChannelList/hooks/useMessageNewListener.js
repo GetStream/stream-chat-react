@@ -1,6 +1,6 @@
 // @ts-check
 
-import { useEffect, useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import uniqBy from 'lodash.uniqby';
 
 import { ChatContext } from '../../../context';

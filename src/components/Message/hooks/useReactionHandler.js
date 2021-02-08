@@ -1,5 +1,5 @@
 // @ts-check
-import { useContext, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ChannelContext } from '../../../context';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
@@ -8,7 +8,7 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
  * @type {import('types').useReactionHandler}
  */
 export const useReactionHandler = (message) => {
-  const { client, channel, updateMessage } = useContext(ChannelContext);
+  const { channel, client, updateMessage } = useContext(ChannelContext);
 
   return async (reactionType, event) => {
     if (event && event.preventDefault) {

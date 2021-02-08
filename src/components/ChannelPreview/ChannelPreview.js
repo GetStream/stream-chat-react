@@ -1,14 +1,14 @@
 // @ts-check
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 // eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
 import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
-import { TranslationContext, ChatContext } from '../../context';
+import { ChatContext, TranslationContext } from '../../context';
 import {
-  getLatestMessagePreview,
-  getDisplayTitle,
   getDisplayImage,
+  getDisplayTitle,
+  getLatestMessagePreview,
 } from './utils';
 
 /**
@@ -17,7 +17,7 @@ import {
 const ChannelPreview = (props) => {
   const { channel, Preview = ChannelPreviewCountOnly } = props;
 
-  const { client, channel: activeChannel, setActiveChannel } = useContext(
+  const { channel: activeChannel, client, setActiveChannel } = useContext(
     ChatContext,
   );
   const { t } = useContext(TranslationContext);
@@ -66,13 +66,13 @@ const ChannelPreview = (props) => {
   return (
     <Preview
       {...props}
-      setActiveChannel={setActiveChannel}
-      lastMessage={lastMessage}
-      unread={unread}
-      latestMessage={getLatestMessagePreview(channel, t)}
-      displayTitle={getDisplayTitle(channel, client.user)}
-      displayImage={getDisplayImage(channel, client.user)}
       active={isActive}
+      displayImage={getDisplayImage(channel, client.user)}
+      displayTitle={getDisplayTitle(channel, client.user)}
+      lastMessage={lastMessage}
+      latestMessage={getLatestMessagePreview(channel, t)}
+      setActiveChannel={setActiveChannel}
+      unread={unread}
     />
   );
 };

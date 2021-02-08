@@ -1,12 +1,12 @@
 /* eslint-disable import/no-unresolved */
 import React from 'react';
 import {
-  Chat,
   Channel,
-  ChannelList,
   ChannelHeader,
-  MessageList,
+  ChannelList,
+  Chat,
   MessageInput,
+  MessageList,
   Thread,
 } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
@@ -18,9 +18,9 @@ const chatClient = new StreamChat('qk4nn7rpcn75');
 class MyChannelPreview extends React.Component {
   render() {
     return (
-      <div className="channel_preview">
+      <div className='channel_preview'>
         <a
-          href="#"
+          href='#'
           onClick={this.props.setActiveChannel.bind(this, this.props.channel)}
         >
           {this.props.channel.data.name}

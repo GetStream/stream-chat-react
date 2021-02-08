@@ -30,8 +30,8 @@ describe('InfiniteScroll', () => {
 
   const renderComponent = (props) => {
     const renderResult = render(
-      <div data-testid="scroll-parent">
-        <InfiniteScroll useWindow={false} loadMore={loadMore} {...props} />
+      <div data-testid='scroll-parent'>
+        <InfiniteScroll loadMore={loadMore} useWindow={false} {...props} />
       </div>,
     );
     const scrollParent = renderResult.getByTestId('scroll-parent');
@@ -118,9 +118,9 @@ describe('InfiniteScroll', () => {
         .create(
           <InfiniteScroll
             isLoading
-            loadMore={loadMore}
-            loader={<div key="loader">loader</div>}
             isReverse={isReverse}
+            loader={<div key='loader'>loader</div>}
+            loadMore={loadMore}
           >
             Content
           </InfiniteScroll>,

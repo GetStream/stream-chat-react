@@ -4,20 +4,18 @@ import PropTypes from 'prop-types';
 /** @type {React.FC<import('types').ChannelPreviewUIComponentProps>} */
 const ChannelPreviewCountOnly = ({
   channel,
-  setActiveChannel,
-  watchers,
-  unread,
   displayTitle,
-}) => {
-  return (
-    <div className={unread >= 1 ? 'unread' : ''}>
-      <button onClick={() => setActiveChannel(channel, watchers)}>
-        {' '}
-        {displayTitle} <span>{unread}</span>
-      </button>
-    </div>
-  );
-};
+  setActiveChannel,
+  unread,
+  watchers,
+}) => (
+  <div className={unread >= 1 ? 'unread' : ''}>
+    <button onClick={() => setActiveChannel(channel, watchers)}>
+      {' '}
+      {displayTitle} <span>{unread}</span>
+    </button>
+  </div>
+);
 
 ChannelPreviewCountOnly.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */

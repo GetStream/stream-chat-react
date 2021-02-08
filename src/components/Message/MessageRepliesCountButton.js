@@ -6,10 +6,10 @@ import { ReplyIcon } from './icons';
 
 /** @type {React.FC<import("types").MessageRepliesCountButtonProps>} */
 const MessageRepliesCountButton = ({
-  reply_count,
-  labelSingle,
   labelPlural,
+  labelSingle,
   onClick,
+  reply_count,
 }) => {
   const { t } = useContext(TranslationContext);
   let singleReplyText;
@@ -36,8 +36,8 @@ const MessageRepliesCountButton = ({
   if (reply_count && reply_count !== 0) {
     return (
       <button
-        data-testid="replies-count-button"
-        className="str-chat__message-replies-count-button"
+        className='str-chat__message-replies-count-button'
+        data-testid='replies-count-button'
         onClick={onClick}
       >
         <ReplyIcon />

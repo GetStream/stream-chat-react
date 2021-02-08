@@ -4,8 +4,8 @@ import { useCallback } from 'react';
 /**
  * @type {import('types').useMentionsHandlers}
  */
-const useMentionsHandlers = (onMentionsHover, onMentionsClick) => {
-  return useCallback(
+const useMentionsHandlers = (onMentionsHover, onMentionsClick) =>
+  useCallback(
     (e, mentioned_users) => {
       if (!onMentionsHover && !onMentionsClick) return;
       // eslint-disable-next-line prefer-destructuring
@@ -15,7 +15,7 @@ const useMentionsHandlers = (onMentionsHover, onMentionsClick) => {
       if (tagName === 'strong' && textContent[0] === '@') {
         const userName = textContent.replace('@', '');
         const user = mentioned_users.find(
-          ({ name, id }) => name === userName || id === userName,
+          ({ id, name }) => name === userName || id === userName,
         );
         if (
           onMentionsHover &&
@@ -35,6 +35,5 @@ const useMentionsHandlers = (onMentionsHover, onMentionsClick) => {
     },
     [onMentionsClick, onMentionsHover],
   );
-};
 
 export default useMentionsHandlers;

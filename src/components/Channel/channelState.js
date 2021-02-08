@@ -70,7 +70,7 @@ export const channelReducer = (state, action) => {
       };
     }
     case 'openThread': {
-      const { message, channel } = action;
+      const { channel, message } = action;
       return {
         ...state,
         thread: message,

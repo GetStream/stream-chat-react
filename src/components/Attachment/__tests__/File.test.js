@@ -3,9 +3,7 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import FileAttachment from '../FileAttachment';
 
-const getComponent = (attachment) => {
-  return <FileAttachment attachment={attachment} />;
-};
+const getComponent = (attachment) => <FileAttachment attachment={attachment} />;
 
 describe('File', () => {
   it('should render File component', () => {

@@ -2,8 +2,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 // @ts-expect-error
-import { ImageDropzone, FileUploadButton } from 'react-file-utils';
-import { TranslationContext, ChannelContext } from '../../context';
+import { FileUploadButton, ImageDropzone } from 'react-file-utils';
+import { ChannelContext, TranslationContext } from '../../context';
 import { ChatAutoComplete } from '../ChatAutoComplete';
 import { Tooltip } from '../Tooltip';
 import useMessageInput from './hooks/messageInput';
@@ -28,15 +28,15 @@ const MessageInputSmall = (props) => {
   const messageInput = useMessageInput(props);
 
   return (
-    <div className="str-chat__small-message-input__wrapper">
+    <div className='str-chat__small-message-input__wrapper'>
       <ImageDropzone
         accept={channelContext.acceptedFiles}
-        multiple={channelContext.multipleUploads}
         disabled={
           !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
         }
-        maxNumberOfFiles={messageInput.maxFilesLeft}
         handleFiles={messageInput.uploadNewFiles}
+        maxNumberOfFiles={messageInput.maxFilesLeft}
+        multiple={channelContext.multipleUploads}
       >
         <div
           className={`str-chat__small-message-input ${
@@ -46,34 +46,34 @@ const MessageInputSmall = (props) => {
           }`}
         >
           <EmojiPicker {...messageInput} small />
-          <div className="str-chat__small-message-input--textarea-wrapper">
+          <div className='str-chat__small-message-input--textarea-wrapper'>
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
             )}
 
             <ChatAutoComplete
+              additionalTextareaProps={props.additionalTextareaProps}
               commands={messageInput.getCommands()}
-              innerRef={messageInput.textareaRef}
-              handleSubmit={messageInput.handleSubmit}
-              onChange={messageInput.handleChange}
-              value={messageInput.text}
-              rows={1}
-              maxRows={props.maxRows}
-              onSelectItem={messageInput.onSelectItem}
-              placeholder={t('Type your message')}
-              onPaste={messageInput.onPaste}
-              triggers={props.autocompleteTriggers}
-              grow={props.grow}
               disabled={props.disabled}
               disableMentions={props.disableMentions}
+              grow={props.grow}
+              handleSubmit={messageInput.handleSubmit}
+              innerRef={messageInput.textareaRef}
+              maxRows={props.maxRows}
+              onChange={messageInput.handleChange}
+              onPaste={messageInput.onPaste}
+              onSelectItem={messageInput.onSelectItem}
+              placeholder={t('Type your message')}
+              rows={1}
               SuggestionList={props.SuggestionList}
-              additionalTextareaProps={props.additionalTextareaProps}
+              triggers={props.autocompleteTriggers}
+              value={messageInput.text}
             />
 
-            <div className="str-chat__emojiselect-wrapper">
+            <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>{t('Open emoji picker')}</Tooltip>
               <span
-                className="str-chat__small-message-input-emojiselect"
+                className='str-chat__small-message-input-emojiselect'
                 onClick={messageInput.openEmojiPicker}
               >
                 <EmojiIcon />
@@ -81,8 +81,8 @@ const MessageInputSmall = (props) => {
             </div>
             {messageInput.isUploadEnabled && (
               <div
-                className="str-chat__fileupload-wrapper"
-                data-testid="fileinput"
+                className='str-chat__fileupload-wrapper'
+                data-testid='fileinput'
               >
                 <Tooltip>
                   {messageInput.maxFilesLeft
@@ -90,12 +90,12 @@ const MessageInputSmall = (props) => {
                     : t("You've reached the maximum number of files")}
                 </Tooltip>
                 <FileUploadButton
-                  multiple={channelContext.multipleUploads}
-                  disabled={messageInput.maxFilesLeft === 0}
                   accepts={channelContext.acceptedFiles}
+                  disabled={messageInput.maxFilesLeft === 0}
                   handleFiles={messageInput.uploadNewFiles}
+                  multiple={channelContext.multipleUploads}
                 >
-                  <span className="str-chat__small-message-input-fileupload">
+                  <span className='str-chat__small-message-input-fileupload'>
                     <FileUploadIcon />
                   </span>
                 </FileUploadButton>
@@ -125,7 +125,7 @@ MessageInputSmall.propTypes = {
   /**
    * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
-  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').AnyType>>} */ (PropTypes.object),
+  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').UnknownType>>} */ (PropTypes.object),
   /**
    * Override the default triggers of the ChatAutoComplete component
    */
@@ -162,12 +162,12 @@ MessageInputSmall.propTypes = {
 };
 
 MessageInputSmall.defaultProps = {
-  focus: false,
+  additionalTextareaProps: {},
   disabled: false,
-  publishTypingEvent: true,
+  focus: false,
   grow: true,
   maxRows: 10,
-  additionalTextareaProps: {},
+  publishTypingEvent: true,
 };
 
 export default MessageInputSmall;

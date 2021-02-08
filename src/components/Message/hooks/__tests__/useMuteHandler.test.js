@@ -1,15 +1,15 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
 import {
-  useMuteHandler,
   missingUseMuteHandlerParamsWarning,
+  useMuteHandler,
 } from '../useMuteHandler';
 
 const alice = generateUser({ name: 'alice' });

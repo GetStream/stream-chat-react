@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { ChannelContext } from '../../../context';
 import Window from '../Window';
 
-const renderComponent = ({ children, props, channelContextMock }) =>
+const renderComponent = ({ channelContextMock, children, props }) =>
   render(
     <ChannelContext.Provider value={channelContextMock}>
       <Window {...props}>{children}</Window>
@@ -17,11 +17,11 @@ const thread = generateMessage();
 describe('Window', () => {
   it('should render its children if hideOnThread is false and thread is truthy', () => {
     const { getByText } = renderComponent({
-      children: [<div key="bla">bla</div>],
       channelContextMock: {
         hideOnThread: false,
         thread,
       },
+      children: [<div key='bla'>bla</div>],
     });
 
     expect(getByText('bla')).toBeInTheDocument();
@@ -29,11 +29,11 @@ describe('Window', () => {
 
   it('should not render its children if hideOnThread is true and thread is truthy', () => {
     const { queryByText } = renderComponent({
-      children: [<div key="bla">bla</div>],
-      props: { hideOnThread: true },
       channelContextMock: {
         thread,
       },
+      children: [<div key='bla'>bla</div>],
+      props: { hideOnThread: true },
     });
 
     expect(queryByText('bla')).not.toBeInTheDocument();
@@ -41,11 +41,11 @@ describe('Window', () => {
 
   it('should render its children if hideOnThread is true and thread is falsy', () => {
     const { getByText } = renderComponent({
-      children: [<div key="bla">bla</div>],
       channelContextMock: {
         hideOnThread: true,
         thread: undefined,
       },
+      children: [<div key='bla'>bla</div>],
     });
 
     expect(getByText('bla')).toBeInTheDocument();

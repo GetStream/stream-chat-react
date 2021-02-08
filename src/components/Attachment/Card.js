@@ -14,12 +14,12 @@ import { SafeAnchor } from '../SafeAnchor';
  * @type React.FC<Props>
  */
 const Card = ({
+  image_url,
+  og_scrape_url,
+  text,
+  thumb_url,
   title,
   title_link,
-  og_scrape_url,
-  image_url,
-  thumb_url,
-  text,
   type,
 }) => {
   const { t } = useContext(TranslationContext);
@@ -42,8 +42,8 @@ const Card = ({
       <div
         className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
       >
-        <div className="str-chat__message-attachment-card--content">
-          <div className="str-chat__message-attachment-card--text">
+        <div className='str-chat__message-attachment-card--content'>
+          <div className='str-chat__message-attachment-card--text'>
             {t('this content could not be displayed')}
           </div>
         </div>
@@ -60,28 +60,28 @@ const Card = ({
       className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
     >
       {image && (
-        <div className="str-chat__message-attachment-card--header">
-          <img src={image} alt={image} />
+        <div className='str-chat__message-attachment-card--header'>
+          <img alt={image} src={image} />
         </div>
       )}
-      <div className="str-chat__message-attachment-card--content">
-        <div className="str-chat__message-attachment-card--flex">
+      <div className='str-chat__message-attachment-card--content'>
+        <div className='str-chat__message-attachment-card--flex'>
           {title && (
-            <div className="str-chat__message-attachment-card--title">
+            <div className='str-chat__message-attachment-card--title'>
               {title}
             </div>
           )}
           {text && (
-            <div className="str-chat__message-attachment-card--text">
+            <div className='str-chat__message-attachment-card--text'>
               {text}
             </div>
           )}
           {(title_link || og_scrape_url) && (
             <SafeAnchor
+              className='str-chat__message-attachment-card--url'
               href={title_link || og_scrape_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="str-chat__message-attachment-card--url"
+              rel='noopener noreferrer'
+              target='_blank'
             >
               {trimUrl(title_link || og_scrape_url)}
             </SafeAnchor>
@@ -89,10 +89,10 @@ const Card = ({
         </div>
         {type === 'giphy' && (
           <img
-            className="str-chat__message-attachment-card__giphy-logo"
-            data-testid="card-giphy"
+            alt='giphy logo'
+            className='str-chat__message-attachment-card__giphy-logo'
+            data-testid='card-giphy'
             src={giphyLogo}
-            alt="giphy logo"
           />
         )}
       </div>

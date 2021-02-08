@@ -1,14 +1,14 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import {
-  useFlagHandler,
   missingUseFlagHandlerParameterWarning,
+  useFlagHandler,
 } from '../useFlagHandler';
 import { ChannelContext } from '../../../../context';
 

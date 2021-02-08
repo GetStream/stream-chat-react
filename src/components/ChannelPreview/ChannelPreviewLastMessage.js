@@ -30,23 +30,23 @@ const ChannelPreviewLastMessage = (props) => {
   return (
     <div className={`str-chat__channel-preview ${unreadClass} ${activeClass}`}>
       <button
+        data-testid='channel-preview-button'
         onClick={onSelectChannel}
         ref={channelPreviewButton}
-        data-testid="channel-preview-button"
       >
         {props.unread >= 1 && (
-          <div className="str-chat__channel-preview--dot" />
+          <div className='str-chat__channel-preview--dot' />
         )}
         <Avatar image={props.displayImage} name={props.displayTitle} />
-        <div className="str-chat__channel-preview-info">
-          <span className="str-chat__channel-preview-title">
+        <div className='str-chat__channel-preview-info'>
+          <span className='str-chat__channel-preview-title'>
             {props.displayTitle}
           </span>
-          <span className="str-chat__channel-preview-last-message">
+          <span className='str-chat__channel-preview-last-message'>
             {truncate(props.latestMessage, props.latestMessageLength)}
           </span>
           {props.unread >= 1 && (
-            <span className="str-chat__channel-preview-unread-count">
+            <span className='str-chat__channel-preview-unread-count'>
               {props.unread}
             </span>
           )}

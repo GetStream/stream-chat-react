@@ -1,10 +1,10 @@
 import React, {
-  useEffect,
   useCallback,
   useContext,
-  useRef,
-  useReducer,
+  useEffect,
   useLayoutEffect,
+  useReducer,
+  useRef,
 } from 'react';
 // @ts-expect-error
 import DefaultEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
@@ -22,8 +22,8 @@ import { Attachment as DefaultAttachment } from '../Attachment';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { MessageSimple } from '../Message';
 import {
-  LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
+  LoadingIndicator as DefaultLoadingIndicator,
 } from '../Loading';
 
 import { channelReducer, initialState } from './channelState';
@@ -31,7 +31,7 @@ import useMentionsHandlers from './hooks/useMentionsHandlers';
 import useEditMessageHandler from './hooks/useEditMessageHandler';
 import useIsMounted from './hooks/useIsMounted';
 
-import { ChatContext, ChannelContext, TranslationContext } from '../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 import defaultEmojiData from '../../stream-emoji.json';
 
 /** @type {React.FC<import('types').ChannelProps>}>} */
@@ -266,7 +266,7 @@ const ChannelInner = ({
   const { doSendMessageRequest } = props;
   const doSendMessage = useCallback(
     async (message) => {
-      const { text, attachments, id, parent_id, mentioned_users } = message;
+      const { attachments, id, mentioned_users, parent_id, text } = message;
       const messageData = {
         text,
         attachments,
@@ -490,7 +490,7 @@ const ChannelInner = ({
   } else {
     core = (
       <ChannelContext.Provider value={channelContextValue}>
-        <div className="str-chat__container">{props.children}</div>
+        <div className='str-chat__container'>{props.children}</div>
       </ChannelContext.Provider>
     );
   }

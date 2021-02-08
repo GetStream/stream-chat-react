@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useMemo, useContext, useCallback } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 
 import MessageTimestamp from './MessageTimestamp';
 import { Avatar } from '../Avatar';
@@ -8,7 +8,7 @@ import { renderText } from '../../utils';
 import { ChatContext, TranslationContext } from '../../context';
 import { Gallery } from '../Gallery';
 import { MessageActions } from '../MessageActions';
-import { useUserRole, useActionHandler } from './hooks';
+import { useActionHandler, useUserRole } from './hooks';
 import { getMessageActions } from './utils';
 
 /**
@@ -35,16 +35,15 @@ const hashUserId = (userId) => {
  * @param { string } theme
  * @param { string } userId
  */
-const getUserColor = (theme, userId) => {
-  return selectColor(hashUserId(userId), theme.includes('dark'));
-};
+const getUserColor = (theme, userId) =>
+  selectColor(hashUserId(userId), theme.includes('dark'));
 
 /**
  * FixedHeightMessage - This component renders a single message.
  * It uses fixed height elements to make sure it works well in VirtualizedMessageList
  * @type {React.FC<import('types').FixedHeightMessageProps>}
  */
-const FixedHeightMessage = ({ message, groupedByUser }) => {
+const FixedHeightMessage = ({ groupedByUser, message }) => {
   const { theme } = useContext(ChatContext);
   const { userLanguage } = useContext(TranslationContext);
 
@@ -72,23 +71,23 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
 
   return (
     <div
-      key={message.id}
       className={`str-chat__virtual-message__wrapper ${
         role.isMyMessage ? 'str-chat__virtual-message__wrapper--me' : ''
       } ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}`}
+      key={message.id}
     >
       <Avatar
-        shape="rounded"
-        size={38}
-        // @ts-expect-error
         image={message.user?.image}
         name={message.user?.name || message.user?.id}
+        // @ts-expect-error
+        shape='rounded'
+        size={38}
       />
 
-      <div className="str-chat__virtual-message__content">
-        <div className="str-chat__virtual-message__meta">
+      <div className='str-chat__virtual-message__content'>
+        <div className='str-chat__virtual-message__meta'>
           <div
-            className="str-chat__virtual-message__author"
+            className='str-chat__virtual-message__author'
             style={{ color: userColor }}
           >
             <strong>{message.user?.name || 'unknown'}</strong>
@@ -97,26 +96,26 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
 
         {images && <Gallery images={images} />}
 
-        <div className="str-chat__virtual-message__text" data-testid="msg-text">
+        <div className='str-chat__virtual-message__text' data-testid='msg-text'>
           {renderedText}
 
           {message.mml && (
             <MML
-              source={message.mml}
               actionHandler={handleAction}
-              align="left"
+              align='left'
+              source={message.mml}
             />
           )}
 
-          <div className="str-chat__virtual-message__data">
+          <div className='str-chat__virtual-message__data'>
             <MessageActions
-              message={message}
-              customWrapperClass="str-chat__virtual-message__actions"
+              customWrapperClass='str-chat__virtual-message__actions'
               getMessageActions={messageActionsHandler}
+              message={message}
             />
-            <span className="str-chat__virtual-message__date">
+            <span className='str-chat__virtual-message__date'>
               <MessageTimestamp
-                customClass="str-chat__message-simple-timestamp"
+                customClass='str-chat__message-simple-timestamp'
                 message={message}
               />
             </span>

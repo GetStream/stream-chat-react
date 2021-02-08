@@ -8,18 +8,18 @@ import ModalImage from './ModalImage';
  * ImageModal - Small modal component
  * @type { React.FC<import('types').ModalWrapperProps>}
  */
-const ModalComponent = ({ images, toggleModal, index, modalIsOpen }) => (
+const ModalComponent = ({ images, index, modalIsOpen, toggleModal }) => (
   <ModalGateway>
     {modalIsOpen ? (
       // @ts-expect-error
       <Modal onClose={toggleModal}>
         <Carousel
-          views={images}
-          currentIndex={index}
           components={{
             // @ts-expect-error
             View: ModalImage,
           }}
+          currentIndex={index}
+          views={images}
         />
       </Modal>
     ) : null}

@@ -1,12 +1,12 @@
 /* eslint-disable import/no-unresolved */
 import React from 'react';
 import {
-  Chat,
-  Channel,
   Attachment,
+  Channel,
   ChannelHeader,
-  MessageList,
+  Chat,
   MessageInput,
+  MessageList,
   Thread,
 } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
@@ -20,14 +20,14 @@ class MyAttachment extends React.Component {
     const a = this.props.attachment;
     if (a.type === 'product') {
       return (
-        <div className="product">
+        <div className='product'>
           Product:
           <a
             href={this.props.attachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            rel='noopener noreferrer'
+            target='_blank'
           >
-            <img src={this.props.attachment.image} height={'100px'} />
+            <img height={'100px'} src={this.props.attachment.image} />
             <br />
             {this.props.attachment.name}
           </a>
@@ -79,7 +79,7 @@ channel.sendMessage({
 
 const App = () => (
   <Chat client={chatClient} theme={'livestream dark'}>
-    <Channel channel={channel} Attachment={MyAttachment}>
+    <Channel Attachment={MyAttachment} channel={channel}>
       <ChannelHeader />
       <MessageList />
       <MessageInput />

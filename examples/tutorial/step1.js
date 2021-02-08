@@ -1,11 +1,11 @@
 /* eslint-disable import/no-unresolved */
 import React from 'react';
 import {
-  Chat,
   Channel,
   ChannelHeader,
-  MessageList,
+  Chat,
   MessageInput,
+  MessageList,
 } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
 

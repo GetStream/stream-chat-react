@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -46,14 +46,14 @@ const InfiniteScroll = ({
   element = 'div',
   hasMore = false,
   initialLoad = true,
+  isLoading = false,
   isReverse = false,
+  listenToScroll,
   loader,
   loadMore,
   threshold = 250,
   useCapture = false,
   useWindow = true,
-  isLoading = false,
-  listenToScroll,
   ...elementProps
 }) => {
   const scrollComponent = useRef(/** @type {HTMLElement | null} */ (null));

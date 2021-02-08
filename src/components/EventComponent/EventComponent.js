@@ -11,17 +11,17 @@ import { TranslationContext } from '../../context';
  */
 const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
-  const { type, text, event, created_at = '' } = message;
+  const { created_at = '', event, text, type } = message;
 
   if (type === 'system')
     return (
-      <div className="str-chat__message--system">
-        <div className="str-chat__message--system__text">
-          <div className="str-chat__message--system__line" />
+      <div className='str-chat__message--system'>
+        <div className='str-chat__message--system__text'>
+          <div className='str-chat__message--system__line' />
           <p>{text}</p>
-          <div className="str-chat__message--system__line" />
+          <div className='str-chat__message--system__line' />
         </div>
-        <div className="str-chat__message--system__date">
+        <div className='str-chat__message--system__date'>
           <strong>{tDateTimeParser(created_at).format('dddd')} </strong>
           at {tDateTimeParser(created_at).format('hh:mm A')}
         </div>
@@ -41,13 +41,13 @@ const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
     }`;
 
     return (
-      <div className="str-chat__event-component__channel-event">
+      <div className='str-chat__event-component__channel-event'>
         <Avatar image={event?.user?.image} name={name} />
-        <div className="str-chat__event-component__channel-event__content">
-          <em className="str-chat__event-component__channel-event__sentence">
+        <div className='str-chat__event-component__channel-event__content'>
+          <em className='str-chat__event-component__channel-event__sentence'>
             {sentence}
           </em>
-          <div className="str-chat__event-component__channel-event__date">
+          <div className='str-chat__event-component__channel-event__date'>
             {tDateTimeParser(created_at).format('LT')}
           </div>
         </div>

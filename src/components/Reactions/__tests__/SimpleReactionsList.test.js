@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateReaction, emojiMockConfig } from 'mock-builders';
+import { emojiMockConfig, generateReaction } from 'mock-builders';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import SimpleReactionsList from '../SimpleReactionsList';
 import { ChannelContext } from '../../../context';
@@ -26,9 +26,9 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
     ...render(
       <ChannelContext.Provider value={{ emojiConfig: emojiMockConfig }}>
         <SimpleReactionsList
+          handleReaction={handleReactionMock}
           reaction_counts={reaction_counts}
           reactions={reactions}
-          handleReaction={handleReactionMock}
           {...props}
         />
       </ChannelContext.Provider>,
@@ -59,8 +59,8 @@ describe('SimpleReactionsList', () => {
   it('should render the total reaction count', () => {
     const { getByText } = renderComponent({
       reaction_counts: {
-        love: 5,
         angry: 2,
+        love: 5,
       },
     });
     const count = getByText('7');
@@ -72,8 +72,8 @@ describe('SimpleReactionsList', () => {
 
   it('should render an emoji for each type of reaction', () => {
     const reaction_counts = {
-      love: 5,
       angry: 2,
+      love: 5,
     };
     renderComponent({ reaction_counts });
 
@@ -93,8 +93,8 @@ describe('SimpleReactionsList', () => {
     renderComponent({
       reaction_counts,
       reactionOptions: [
-        { id: 'banana', emoji: '🍌' },
-        { id: 'cowboy', emoji: '🤠' },
+        { emoji: '🍌', id: 'banana' },
+        { emoji: '🤠', id: 'cowboy' },
       ],
     });
 
@@ -122,7 +122,7 @@ describe('SimpleReactionsList', () => {
       love: 3,
     };
 
-    const { reactions, getByTestId, queryByText } = renderComponent({
+    const { getByTestId, queryByText, reactions } = renderComponent({
       reaction_counts,
     });
 

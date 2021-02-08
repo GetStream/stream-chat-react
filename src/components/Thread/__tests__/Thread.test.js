@@ -1,14 +1,14 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
-  generateUser,
-  generateMessage,
-  useMockedApis,
-  getTestClientWithUser,
-  getOrCreateChannelApi,
   generateChannel,
+  generateMessage,
+  generateUser,
+  getOrCreateChannelApi,
+  getTestClientWithUser,
+  useMockedApis,
 } from 'mock-builders';
 import { Message as MessageMock } from '../../Message';
 import { MessageList as MessageListMock } from '../../MessageList';
@@ -26,20 +26,20 @@ jest.mock('../../MessageInput', () => ({
   MessageInput: jest.fn(() => <div />),
 }));
 
-const alice = generateUser({ name: 'alice', id: 'alice' });
-const bob = generateUser({ name: 'bob', id: 'bob' });
-const threadStart = generateMessage({ user: alice, reply_count: 2 });
-const reply1 = generateMessage({ user: bob, parent_id: threadStart.id });
-const reply2 = generateMessage({ user: alice, parent_id: threadStart.id });
+const alice = generateUser({ id: 'alice', name: 'alice' });
+const bob = generateUser({ id: 'bob', name: 'bob' });
+const threadStart = generateMessage({ reply_count: 2, user: alice });
+const reply1 = generateMessage({ parent_id: threadStart.id, user: bob });
+const reply2 = generateMessage({ parent_id: threadStart.id, user: alice });
 
 const channelContextMock = {
   channel: {}, // required prop from context in class-based component, so providing empty object here
-  thread: threadStart,
-  threadMessages: [reply1, reply2],
-  loadMoreThread: jest.fn(() => Promise.resolve()),
   closeThread: jest.fn(),
+  loadMoreThread: jest.fn(() => Promise.resolve()),
+  thread: threadStart,
   threadHasMore: true,
   threadLoadingMore: false,
+  threadMessages: [reply1, reply2],
 };
 
 const i18nMock = jest.fn((key) => key);
@@ -83,16 +83,16 @@ describe('Thread', () => {
 
   it('should render the MessageList component with the correct props', () => {
     const additionalMessageListProps = { propName: 'value' };
-    renderComponent({ Message: MessageMock, additionalMessageListProps });
+    renderComponent({ additionalMessageListProps, Message: MessageMock });
 
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        hasMore: channelContextMock.threadHasMore,
+        loadingMore: channelContextMock.threadLoadingMore,
+        loadMore: channelContextMock.loadMoreThread,
         Message: MessageMock,
         messages: channelContextMock.threadMessages,
         threadList: true,
-        loadMore: channelContextMock.loadMoreThread,
-        hasMore: channelContextMock.threadHasMore,
-        loadingMore: channelContextMock.threadLoadingMore,
         ...additionalMessageListProps,
       }),
       {},
@@ -101,12 +101,12 @@ describe('Thread', () => {
 
   it('should render the default MessageInput if nothing was passed into the prop', () => {
     const additionalMessageInputProps = { propName: 'value' };
-    renderComponent({ autoFocus: true, additionalMessageInputProps });
+    renderComponent({ additionalMessageInputProps, autoFocus: true });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        parent: threadStart,
         focus: true,
+        parent: threadStart,
         ...additionalMessageInputProps,
       }),
       {},
@@ -118,14 +118,14 @@ describe('Thread', () => {
     const CustomMessageInputMock = jest.fn(() => <div />);
 
     renderComponent({
-      MessageInput: CustomMessageInputMock,
-      autoFocus: true,
       additionalMessageInputProps,
+      autoFocus: true,
+      MessageInput: CustomMessageInputMock,
     });
     expect(CustomMessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        parent: threadStart,
         focus: true,
+        parent: threadStart,
         ...additionalMessageInputProps,
       }),
       {},
@@ -134,7 +134,7 @@ describe('Thread', () => {
 
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {
     const CustomThreadHeader = jest.fn(() => (
-      <div data-testid="custom-thread-header" />
+      <div data-testid='custom-thread-header' />
     ));
 
     const { getByTestId } = renderComponent({
@@ -200,7 +200,7 @@ describe('Thread', () => {
     const tree = renderer
       .create(
         <ChannelContext.Provider
-          value={{ ...channelContextMock, client, channel }}
+          value={{ ...channelContextMock, channel, client }}
         >
           <Thread />
         </ChannelContext.Provider>,

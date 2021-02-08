@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useMemo, useContext, useRef } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import {
@@ -7,11 +7,11 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 import {
-  useReactionHandler,
-  useReactionClick,
   useMentionsUIHandler,
+  useReactionClick,
+  useReactionHandler,
 } from './hooks';
-import { messageHasReactions, messageHasAttachments } from './utils';
+import { messageHasAttachments, messageHasReactions } from './utils';
 import MessageOptions from './MessageOptions';
 
 /**
@@ -41,9 +41,9 @@ const MessageTextComponent = (props) => {
   });
 
   const {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef);
 
   const { t, userLanguage } = useContext(TranslationContext);
@@ -74,7 +74,6 @@ const MessageTextComponent = (props) => {
   return (
     <div className={wrapperClass}>
       <div
-        data-testid="message-text-inner-wrapper"
         className={`
           ${innerClass}
           ${
@@ -88,8 +87,9 @@ const MessageTextComponent = (props) => {
               : ''
           }
         `.trim()}
-        onMouseOver={onMentionsHover}
+        data-testid='message-text-inner-wrapper'
         onClick={onMentionsClick}
+        onMouseOver={onMentionsHover}
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>
@@ -111,20 +111,20 @@ const MessageTextComponent = (props) => {
         {/* if reactions show them */}
         {hasReactions && !showDetailedReactions && isReactionEnabled && (
           <ReactionsList
-            reactions={message.latest_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            own_reactions={message.own_reactions}
             onClick={onReactionListClick}
+            own_reactions={message.own_reactions}
+            reaction_counts={message.reaction_counts || undefined}
+            reactions={message.latest_reactions}
             reverse={true}
           />
         )}
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
-            handleReaction={handleReaction}
             detailedView
-            reaction_counts={message.reaction_counts || undefined}
+            handleReaction={handleReaction}
             latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}
+            reaction_counts={message.reaction_counts || undefined}
             ref={reactionSelectorRef}
           />
         )}

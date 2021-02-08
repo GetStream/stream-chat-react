@@ -6,11 +6,11 @@ import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").ReactionsListProps>} */
 const ReactionsList = ({
-  reactions,
+  onClick,
   reaction_counts,
   reactionOptions: reactionOptionsProp,
+  reactions,
   reverse = false,
-  onClick,
 }) => {
   const { emojiConfig } = useContext(ChannelContext);
 
@@ -46,10 +46,10 @@ const ReactionsList = ({
 
   return (
     <div
-      data-testid="reaction-list"
       className={`str-chat__reaction-list ${
         reverse ? 'str-chat__reaction-list--reverse' : ''
       }`}
+      data-testid='reaction-list'
       onClick={onClick}
     >
       <ul>
@@ -64,8 +64,8 @@ const ReactionsList = ({
                   // @ts-expect-error
                   emoji={emojiDefinition}
                   {...emojiSetDef}
-                  size={16}
                   data={emojiData}
+                  size={16}
                 />
               )}
               ${' '}
@@ -73,7 +73,7 @@ const ReactionsList = ({
           ) : null;
         })}
         <li>
-          <span className="str-chat__reaction-list--counter">
+          <span className='str-chat__reaction-list--counter'>
             {getTotalReactionCount()}
           </span>
         </li>
@@ -83,13 +83,13 @@ const ReactionsList = ({
 };
 
 ReactionsList.propTypes = {
-  reactions: PropTypes.array,
+  onClick: PropTypes.func,
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions: PropTypes.array,
+  reactions: PropTypes.array,
   reverse: PropTypes.bool,
-  onClick: PropTypes.func,
 };
 
 export default React.memo(ReactionsList);

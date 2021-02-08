@@ -7,7 +7,7 @@ import EventComponent from '../EventComponent';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(({ image = '', name = '' }) => (
-    <img data-testid="avatar" src={image} name={name} />
+    <img data-testid='avatar' name={name} src={image} />
   )),
 }));
 

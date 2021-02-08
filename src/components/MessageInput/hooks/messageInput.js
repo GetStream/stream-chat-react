@@ -1,10 +1,10 @@
 import {
-  useReducer,
-  useEffect,
-  useContext,
-  useRef,
   useCallback,
+  useContext,
+  useEffect,
   useMemo,
+  useReducer,
+  useRef,
 } from 'react';
 import { logChatPromiseExecution } from 'stream-chat';
 import {
@@ -221,8 +221,8 @@ export default function useMessageInput(props) {
   const {
     additionalTextareaProps,
     clearEditingState,
-    doImageUploadRequest,
     doFileUploadRequest,
+    doImageUploadRequest,
     errorHandler,
     focus,
     message,
@@ -243,14 +243,14 @@ export default function useMessageInput(props) {
   const [state, dispatch] = useReducer(messageInputReducer, message, initState);
 
   const {
-    text,
-    imageOrder,
-    imageUploads,
+    attachments,
     fileOrder,
     fileUploads,
-    attachments,
-    numberOfUploads,
+    imageOrder,
+    imageUploads,
     mentioned_users,
+    numberOfUploads,
+    text,
   } = state;
 
   const textareaRef = useRef(
@@ -286,7 +286,7 @@ export default function useMessageInput(props) {
         return;
       }
 
-      const { selectionStart, selectionEnd } = textareaRef.current;
+      const { selectionEnd, selectionStart } = textareaRef.current;
       newCursorPosition.current = selectionStart + textToInsert.length;
 
       dispatch({
@@ -475,7 +475,7 @@ export default function useMessageInput(props) {
       new Set(
         mentioned_users
           .filter(
-            ({ name, id }) =>
+            ({ id, name }) =>
               text.includes(`@${id}`) || text.includes(`@${name}`),
           )
           .map(({ id }) => id),
@@ -545,7 +545,7 @@ export default function useMessageInput(props) {
       );
       if (!upload) return;
 
-      const { id, file } = upload;
+      const { file, id } = upload;
       /** @type FileUploadAPIResponse */
       let response;
       try {
@@ -655,7 +655,7 @@ export default function useMessageInput(props) {
           !imageUpload.previewUri,
       );
       if (upload) {
-        const { id, file } = upload;
+        const { file, id } = upload;
         // TODO: Possibly use URL.createObjectURL instead. However, then we need
         // to release the previews when not used anymore though.
         const reader = new FileReader();

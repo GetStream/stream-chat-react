@@ -10,7 +10,7 @@ import { TranslationContext } from '../../context';
  * @example ../../docs/DateSeparator.md
  * @type {React.FC<import('types').DateSeparatorProps>}
  */
-const DateSeparator = ({ position = 'right', formatDate, date, unread }) => {
+const DateSeparator = ({ date, formatDate, position = 'right', unread }) => {
   const { t, tDateTimeParser } = useContext(TranslationContext);
   if (typeof date === 'string') return null;
 
@@ -19,15 +19,15 @@ const DateSeparator = ({ position = 'right', formatDate, date, unread }) => {
     : tDateTimeParser(date.toISOString()).calendar();
 
   return (
-    <div className="str-chat__date-separator">
+    <div className='str-chat__date-separator'>
       {(position === 'right' || position === 'center') && (
-        <hr className="str-chat__date-separator-line" />
+        <hr className='str-chat__date-separator-line' />
       )}
-      <div className="str-chat__date-separator-date">
+      <div className='str-chat__date-separator-date'>
         {unread ? t('New') : formattedDate}
       </div>
       {(position === 'left' || position === 'center') && (
-        <hr className="str-chat__date-separator-line" />
+        <hr className='str-chat__date-separator-line' />
       )}
     </div>
   );

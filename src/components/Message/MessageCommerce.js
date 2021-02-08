@@ -5,24 +5,24 @@ import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MML } from '../MML';
 import {
-  ReactionsList as DefaultReactionsList,
   ReactionSelector as DefaultReactionSelector,
+  ReactionsList as DefaultReactionsList,
 } from '../Reactions';
 import MessageRepliesCountButton from './MessageRepliesCountButton';
 import {
   areMessagePropsEqual,
-  messageHasReactions,
   messageHasAttachments,
+  messageHasReactions,
 } from './utils';
 import MessageOptions from './MessageOptions';
 import MessageText from './MessageText';
 import {
-  useUserRole,
-  useReactionClick,
-  useReactionHandler,
   useActionHandler,
   useOpenThreadHandler,
+  useReactionClick,
+  useReactionHandler,
   useUserHandler,
+  useUserRole,
 } from './hooks';
 import MessageTimestamp from './MessageTimestamp';
 
@@ -58,9 +58,9 @@ const MessageCommerce = (props) => {
   const handleOpenThread = useOpenThreadHandler(message);
   const reactionSelectorRef = useRef(null);
   const {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   } = useReactionClick(message, reactionSelectorRef);
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -89,8 +89,6 @@ const MessageCommerce = (props) => {
   return (
     <React.Fragment>
       <div
-        data-testid="message-commerce-wrapper"
-        key={message?.id || ''}
         className={`
 						${messageClasses}
 						str-chat__message-commerce--${message?.type}
@@ -108,25 +106,27 @@ const MessageCommerce = (props) => {
             ${`str-chat__message-commerce--${firstGroupStyle}`}
             ${message?.pinned ? 'pinned-message' : ''}
 					`.trim()}
+        data-testid='message-commerce-wrapper'
+        key={message?.id || ''}
       >
         {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
           <Avatar
             image={message?.user?.image}
-            size={32}
             name={message?.user?.name || message?.user?.id}
             onClick={onUserClick}
             onMouseOver={onUserHover}
+            size={32}
           />
         )}
-        <div className="str-chat__message-commerce-inner">
+        <div className='str-chat__message-commerce-inner'>
           {message && !message.text && (
             <React.Fragment>
               {
                 <MessageOptions
                   {...props}
+                  displayActions={false}
                   displayLeft={false}
                   displayReplies={false}
-                  displayActions={false}
                   onReactionListClick={onReactionListClick}
                   theme={'commerce'}
                 />
@@ -134,21 +134,21 @@ const MessageCommerce = (props) => {
               {/* if reactions show them */}
               {hasReactions && !showDetailedReactions && isReactionEnabled && (
                 <ReactionsList
-                  reactions={message.latest_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  own_reactions={message.own_reactions}
                   onClick={onReactionListClick}
+                  own_reactions={message.own_reactions}
+                  reaction_counts={message.reaction_counts || undefined}
+                  reactions={message.latest_reactions}
                 />
               )}
               {showDetailedReactions && isReactionEnabled && (
                 <ReactionSelector
-                  reverse={false}
-                  handleReaction={propHandleReaction || handleReaction}
                   detailedView
-                  reaction_counts={message.reaction_counts || undefined}
+                  handleReaction={propHandleReaction || handleReaction}
                   latest_reactions={message.latest_reactions}
                   own_reactions={message.own_reactions}
+                  reaction_counts={message.reaction_counts || undefined}
                   ref={reactionSelectorRef}
+                  reverse={false}
                 />
               )}
             </React.Fragment>
@@ -156,61 +156,61 @@ const MessageCommerce = (props) => {
 
           {message?.attachments && Attachment && (
             <Attachment
-              attachments={message.attachments}
               actionHandler={propHandleAction || handleAction}
+              attachments={message.attachments}
             />
           )}
 
           {message?.mml && (
             <MML
-              source={message.mml}
               actionHandler={handleAction}
               align={isMyMessage ? 'right' : 'left'}
+              source={message.mml}
             />
           )}
 
           {message?.text && (
             <MessageText
-              ReactionSelector={ReactionSelector}
-              ReactionsList={ReactionsList}
               actionsEnabled={actionsEnabled}
-              customWrapperClass="str-chat__message-commerce-text"
-              customInnerClass="str-chat__message-commerce-text-inner"
+              customInnerClass='str-chat__message-commerce-text-inner'
               customOptionProps={{
                 displayLeft: false,
                 displayReplies: false,
                 displayActions: false,
                 theme: 'commerce',
               }}
+              customWrapperClass='str-chat__message-commerce-text'
               getMessageActions={getMessageActions}
               message={message}
               messageListRect={props.messageListRect}
-              unsafeHTML={props.unsafeHTML}
               onMentionsClickMessage={props.onMentionsClickMessage}
               onMentionsHoverMessage={props.onMentionsHoverMessage}
-              theme="commerce"
+              ReactionSelector={ReactionSelector}
+              ReactionsList={ReactionsList}
+              theme='commerce'
+              unsafeHTML={props.unsafeHTML}
             />
           )}
           {!threadList && (
-            <div className="str-chat__message-commerce-reply-button">
+            <div className='str-chat__message-commerce-reply-button'>
               <MessageRepliesCountButton
                 onClick={propHandleOpenThread || handleOpenThread}
                 reply_count={message?.reply_count}
               />
             </div>
           )}
-          <div className="str-chat__message-commerce-data">
+          <div className='str-chat__message-commerce-data'>
             {!isMyMessage ? (
-              <span className="str-chat__message-commerce-name">
+              <span className='str-chat__message-commerce-name'>
                 {message?.user?.name || message?.user?.id}
               </span>
             ) : null}
             <MessageTimestamp
+              customClass='str-chat__message-commerce-timestamp'
+              format='LT'
               formatDate={formatDate}
-              customClass="str-chat__message-commerce-timestamp"
               message={message}
               tDateTimeParser={propTDateTimeParser}
-              format="LT"
             />
           </div>
         </div>

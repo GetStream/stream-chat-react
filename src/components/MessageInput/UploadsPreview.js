@@ -1,44 +1,44 @@
 // @ts-check
 import React, { useContext } from 'react';
 // @ts-expect-error
-import { ImagePreviewer, FilePreviewer } from 'react-file-utils';
+import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 import { ChannelContext } from '../../context';
 
 /** @type {React.FC<import("types").MessageInputUploadsProps>} */
 const UploadsPreview = ({
-  imageOrder,
-  imageUploads,
-  removeImage,
-  uploadImage,
-  uploadNewFiles,
-  numberOfUploads,
   fileOrder,
   fileUploads,
+  imageOrder,
+  imageUploads,
+  numberOfUploads,
   removeFile,
+  removeImage,
   uploadFile,
+  uploadImage,
+  uploadNewFiles,
 }) => {
   const channelContext = useContext(ChannelContext);
   return (
     <>
       {imageOrder.length > 0 && (
         <ImagePreviewer
-          imageUploads={imageOrder.map((id) => imageUploads[id])}
-          handleRemove={removeImage}
-          handleRetry={uploadImage}
-          handleFiles={uploadNewFiles}
-          multiple={channelContext.multipleUploads}
           disabled={
             channelContext.maxNumberOfFiles !== undefined &&
             numberOfUploads >= channelContext.maxNumberOfFiles
           }
+          handleFiles={uploadNewFiles}
+          handleRemove={removeImage}
+          handleRetry={uploadImage}
+          imageUploads={imageOrder.map((id) => imageUploads[id])}
+          multiple={channelContext.multipleUploads}
         />
       )}
       {fileOrder.length > 0 && (
         <FilePreviewer
-          uploads={fileOrder.map((id) => fileUploads[id])}
+          handleFiles={uploadNewFiles}
           handleRemove={removeFile}
           handleRetry={uploadFile}
-          handleFiles={uploadNewFiles}
+          uploads={fileOrder.map((id) => fileUploads[id])}
         />
       )}
     </>

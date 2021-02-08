@@ -25,33 +25,33 @@ const MessageInputSimple = (props) => {
         SendButton ? 'str-chat__input-flat--send-button-active' : null
       }`}
     >
-      <div className="str-chat__input-flat-wrapper">
+      <div className='str-chat__input-flat-wrapper'>
         <EmojiPicker {...messageInput} />
 
-        <div className="str-chat__input-flat--textarea-wrapper">
+        <div className='str-chat__input-flat--textarea-wrapper'>
           <ChatAutoComplete
+            additionalTextareaProps={props.additionalTextareaProps}
             commands={messageInput.getCommands()}
-            innerRef={messageInput.textareaRef}
-            handleSubmit={messageInput.handleSubmit}
-            onSelectItem={messageInput.onSelectItem}
-            onChange={messageInput.handleChange}
-            value={messageInput.text}
-            rows={1}
-            maxRows={props.maxRows}
-            placeholder={t('Type your message')}
-            onPaste={messageInput.onPaste}
-            triggers={props.autocompleteTriggers}
-            grow={props.grow}
             disabled={props.disabled}
             disableMentions={props.disableMentions}
+            grow={props.grow}
+            handleSubmit={messageInput.handleSubmit}
+            innerRef={messageInput.textareaRef}
+            maxRows={props.maxRows}
+            onChange={messageInput.handleChange}
+            onPaste={messageInput.onPaste}
+            onSelectItem={messageInput.onSelectItem}
+            placeholder={t('Type your message')}
+            rows={1}
             SuggestionList={props.SuggestionList}
-            additionalTextareaProps={props.additionalTextareaProps}
+            triggers={props.autocompleteTriggers}
+            value={messageInput.text}
           />
 
-          <div className="str-chat__emojiselect-wrapper">
+          <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>{t('Open emoji picker')}</Tooltip>
             <span
-              className="str-chat__input-flat-emojiselect"
+              className='str-chat__input-flat-emojiselect'
               onClick={messageInput.openEmojiPicker}
             >
               <EmojiIcon />
@@ -80,7 +80,7 @@ MessageInputSimple.propTypes = {
   /**
    * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
-  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').AnyType>>} */ (PropTypes.object),
+  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').UnknownType>>} */ (PropTypes.object),
   /**
    * Override the default triggers of the ChatAutoComplete component
    */

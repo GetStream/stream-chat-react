@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import MessageNotification from '../MessageNotification';
@@ -9,7 +9,7 @@ afterEach(cleanup); // eslint-disable-line
 describe('MessageNotification', () => {
   it('should render nothing if showNotification is false', () => {
     const { queryByTestId } = render(
-      <MessageNotification showNotification={false} onClick={() => null}>
+      <MessageNotification onClick={() => null} showNotification={false}>
         test
       </MessageNotification>,
     );
@@ -19,7 +19,7 @@ describe('MessageNotification', () => {
   it('should trigger onClick when clicked', () => {
     const onClick = jest.fn();
     const { getByTestId } = render(
-      <MessageNotification showNotification={true} onClick={onClick}>
+      <MessageNotification onClick={onClick} showNotification={true}>
         test
       </MessageNotification>,
     );
@@ -30,7 +30,7 @@ describe('MessageNotification', () => {
   it('should display children', () => {
     const onClick = jest.fn();
     const { getByText } = render(
-      <MessageNotification showNotification={true} onClick={onClick}>
+      <MessageNotification onClick={onClick} showNotification={true}>
         test child
       </MessageNotification>,
     );

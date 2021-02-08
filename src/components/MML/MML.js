@@ -12,17 +12,17 @@ import { ChatContext } from '../../context';
  * @typedef {import('types').MMLProps} Props
  * @type { React.FC<Props>}
  */
-const MML = ({ source, actionHandler, align = 'right' }) => {
+const MML = ({ actionHandler, align = 'right', source }) => {
   const { theme } = useContext(ChatContext);
 
   if (!source) return null;
 
   return (
     <MMLReact
-      source={source}
       className={`mml-align-${align}`}
-      onSubmit={actionHandler}
       Loading={null}
+      onSubmit={actionHandler}
+      source={source}
       Success={null}
       theme={(theme || '').replace(' ', '-')}
     />
@@ -30,12 +30,12 @@ const MML = ({ source, actionHandler, align = 'right' }) => {
 };
 
 MML.propTypes = {
-  /** mml source string */
-  source: PropTypes.string.isRequired,
   /** submit handler for mml actions */
   actionHandler: PropTypes.func,
   /** align mml components to left/right */
   align: PropTypes.oneOf(['left', 'right']),
+  /** mml source string */
+  source: PropTypes.string.isRequired,
 };
 
 export default MML;

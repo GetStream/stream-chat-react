@@ -1,10 +1,10 @@
 import React, {
-  useState,
   useCallback,
-  useRef,
-  useImperativeHandle,
-  useEffect,
   useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -72,8 +72,8 @@ const ReactionSelectorWithRef = (
       const arrowPosition =
         target.x - tooltip.x + target.width / 2 - tooltipPosition;
       setTooltipPositions({
-        tooltip: tooltipPosition,
         arrow: arrowPosition,
+        tooltip: tooltipPosition,
       });
     }
   }, [tooltipReactionType, containerRef]);
@@ -103,41 +103,41 @@ const ReactionSelectorWithRef = (
 
   return (
     <div
-      data-testid="reaction-selector"
       className={`str-chat__reaction-selector ${
         reverse ? 'str-chat__reaction-selector--reverse' : ''
       }`}
+      data-testid='reaction-selector'
       ref={containerRef}
     >
       {!!tooltipReactionType && detailedView && (
         <div
-          className="str-chat__reaction-selector-tooltip"
+          className='str-chat__reaction-selector-tooltip'
           ref={tooltipRef}
           style={{
             left: tooltipPositions?.tooltip,
             visibility: tooltipPositions ? 'visible' : 'hidden',
           }}
         >
-          <div className="arrow" style={{ left: tooltipPositions?.arrow }} />
+          <div className='arrow' style={{ left: tooltipPositions?.arrow }} />
           {getUsersPerReactionType(tooltipReactionType)?.map(
             (user, i, users) => (
-              <span className="latest-user-username" key={`key-${i}-${user}`}>
+              <span className='latest-user-username' key={`key-${i}-${user}`}>
                 {`${user}${i < users.length - 1 ? ', ' : ''}`}
               </span>
             ),
           )}
         </div>
       )}
-      <ul className="str-chat__message-reactions-list">
+      <ul className='str-chat__message-reactions-list'>
         {reactionOptions.map((reactionOption) => {
           const latestUser = getLatestUserForReactionType(reactionOption.id);
 
           const count = reaction_counts && reaction_counts[reactionOption.id];
           return (
             <li
-              key={`item-${reactionOption.id}`}
-              className="str-chat__message-reactions-list-item"
+              className='str-chat__message-reactions-list-item'
               data-text={reactionOption.id}
+              key={`item-${reactionOption.id}`}
               onClick={() =>
                 handleReaction && handleReaction(reactionOption.id)
               }
@@ -145,18 +145,18 @@ const ReactionSelectorWithRef = (
               {!!count && detailedView && (
                 <React.Fragment>
                   <div
-                    className="latest-user"
+                    className='latest-user'
                     onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
                     onMouseLeave={hideTooltip}
                   >
                     {latestUser ? (
                       <Avatar
                         image={latestUser.image}
-                        size={20}
                         name={latestUser.name}
+                        size={20}
                       />
                     ) : (
-                      <div className="latest-user-not-found" />
+                      <div className='latest-user-not-found' />
                     )}
                   </div>
                 </React.Fragment>
@@ -172,7 +172,7 @@ const ReactionSelectorWithRef = (
               )}
 
               {Boolean(count) && detailedView && (
-                <span className="str-chat__message-reactions-list-item__count">
+                <span className='str-chat__message-reactions-list-item__count'>
                   {count || ''}
                 </span>
               )}
@@ -193,6 +193,14 @@ ReactionSelector.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /** Enable the avatar display */
+  detailedView: PropTypes.bool,
+  /**
+   * Handler to set/unset reaction on message.
+   *
+   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+   * */
+  handleReaction: PropTypes.func.isRequired,
   /**
    * Array of latest reactions.
    * Reaction object has following structure:
@@ -214,14 +222,6 @@ ReactionSelector.propTypes = {
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions: PropTypes.array,
   reverse: PropTypes.bool,
-  /**
-   * Handler to set/unset reaction on message.
-   *
-   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-   * */
-  handleReaction: PropTypes.func.isRequired,
-  /** Enable the avatar display */
-  detailedView: PropTypes.bool,
 };
 
 export default React.memo(ReactionSelector);

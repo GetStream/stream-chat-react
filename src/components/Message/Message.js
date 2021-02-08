@@ -63,7 +63,7 @@ const Message = (props) => {
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
-  const { editing, setEdit, clearEdit } = useEditHandler();
+  const { clearEdit, editing, setEdit } = useEditHandler();
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
@@ -95,7 +95,7 @@ const Message = (props) => {
     onUserHoverHandler: propOnUserHover,
   });
 
-  const { isMyMessage, isAdmin, isModerator, isOwner } = useUserRole(message);
+  const { isAdmin, isModerator, isMyMessage, isOwner } = useUserRole(message);
 
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
@@ -147,10 +147,10 @@ const Message = (props) => {
         handleEdit={setEdit}
         handleFlag={handleFlag}
         handleMute={handleMute}
+        handleOpenThread={handleOpenThread}
         handlePin={handlePin}
         handleReaction={handleReaction}
         handleRetry={handleRetry}
-        handleOpenThread={handleOpenThread}
         isMyMessage={() => isMyMessage}
         Message={MessageUIComponent}
         onMentionsClickMessage={onMentionsClick}

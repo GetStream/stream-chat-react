@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 /** @type {React.FC<import("types").EmoticonItemProps>} */
 const EmoticonItem = ({ entity }) => (
-  <div className="str-chat__emoji-item">
-    <span className="str-chat__emoji-item--entity">{entity.native}</span>
-    <span className="str-chat__emoji-item--name">{entity.name}</span>
+  <div className='str-chat__emoji-item'>
+    <span className='str-chat__emoji-item--entity'>{entity.native}</span>
+    <span className='str-chat__emoji-item--name'>{entity.name}</span>
   </div>
 );
 

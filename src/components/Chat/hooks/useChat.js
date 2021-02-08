@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Dayjs from 'dayjs';
 
 import { Streami18n } from '../../../i18n';
 
 import { version } from '../../../../package.json';
 
-export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
+export const useChat = ({ client, i18nInstance, initialNavOpen }) => {
   const [translators, setTranslators] = useState(
     /** @type { Required<import('types').TranslationContextValue>} */ ({
       t: /** @param {string} key */ (key) => key,

@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { ChatContext, TranslationContext } from '../../context';
 import CustomNotification from './CustomNotification';
@@ -24,7 +24,7 @@ const ConnectionStatus = () => {
   }, [client, online]);
 
   return (
-    <CustomNotification active={!online} type="error">
+    <CustomNotification active={!online} type='error'>
       {t('Connection failure, reconnecting now...')}
     </CustomNotification>
   );

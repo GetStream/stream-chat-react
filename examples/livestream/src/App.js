@@ -49,9 +49,9 @@ class App extends Component {
   render() {
     return (
       <>
-        <div className="example-video-container">
-          <div className="example-video">
-            <img src={video} alt="fake video" />
+        <div className='example-video-container'>
+          <div className='example-video'>
+            <img src={video} alt='fake video' />
           </div>
         </div>
         <div>

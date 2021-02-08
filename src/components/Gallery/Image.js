@@ -38,11 +38,11 @@ class ImageComponent extends React.PureComponent {
     return (
       <React.Fragment>
         <img
-          className="str-chat__message-attachment--img"
+          className='str-chat__message-attachment--img'
           onClick={this.toggleModal}
           src={imageSrc}
           alt={fallback}
-          data-testid="image-test"
+          data-testid='image-test'
         />
 
         <ModalWrapper

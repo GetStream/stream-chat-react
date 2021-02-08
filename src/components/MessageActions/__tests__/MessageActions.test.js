@@ -1,6 +1,6 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
-import { act, cleanup, render, fireEvent } from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageActionsBoxMock from '../MessageActionsBox';

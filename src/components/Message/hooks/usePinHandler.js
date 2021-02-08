@@ -6,9 +6,9 @@ import { ChannelContext, TranslationContext } from '../../../context';
  * @type {import('types').usePinHandler}
  */
 export const usePinHandler = (message, permissions, notifications) => {
-  const { notify, getErrorNotification } = notifications;
+  const { getErrorNotification, notify } = notifications;
 
-  const { client, channel } = useContext(ChannelContext);
+  const { channel, client } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
 
   const canPin = () => {

@@ -3,15 +3,15 @@ import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
 import FixedHeightMessage from '../FixedHeightMessage';
 import {
-  ChatContext,
   ChannelContext,
+  ChatContext,
   TranslationContext,
 } from '../../../context';
 import { Avatar as AvatarMock } from '../../Avatar';

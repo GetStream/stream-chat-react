@@ -1,15 +1,15 @@
-import { generateReaction, generateMessage, generateUser } from 'mock-builders';
+import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import {
   areMessagePropsEqual,
+  getImages,
   getMessageActions,
-  MESSAGE_ACTIONS,
+  getNonImageAttachments,
   isUserMuted,
-  validateAndGetMessage,
-  shouldMessageComponentUpdate,
+  MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
-  getImages,
-  getNonImageAttachments,
+  shouldMessageComponentUpdate,
+  validateAndGetMessage,
 } from '../utils';
 
 const alice = generateUser({ name: 'alice' });

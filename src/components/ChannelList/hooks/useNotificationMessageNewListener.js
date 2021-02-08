@@ -1,6 +1,6 @@
 // @ts-check
 
-import { useEffect, useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import uniqBy from 'lodash.uniqby';
 import { ChatContext } from '../../../context';
 import { getChannel } from '../utils';
@@ -26,9 +26,7 @@ export const useNotificationMessageNewListener = (
       } else if (e.channel?.type) {
         const channel = await getChannel(client, e.channel.type, e.channel.id);
         // move channel to starting position
-        setChannels((channels) => {
-          return uniqBy([channel, ...channels], 'cid');
-        });
+        setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }
     };
 

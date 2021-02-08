@@ -29,27 +29,27 @@ const ChannelListTeam = ({
   const { id, image, name, status } = client.user || {};
 
   if (error) {
-    return <LoadingErrorIndicator type="Connection Error" />;
+    return <LoadingErrorIndicator type='Connection Error' />;
   }
   if (loading) {
     return <LoadingIndicator />;
   }
   return (
-    <div className="str-chat__channel-list-team">
+    <div className='str-chat__channel-list-team'>
       {showSidebar && (
-        <div className="str-chat__channel-list-team__sidebar">
-          <div className="str-chat__channel-list-team__sidebar--top">
+        <div className='str-chat__channel-list-team__sidebar'>
+          <div className='str-chat__channel-list-team__sidebar--top'>
             <Avatar image={sidebarImage} size={50} />
           </div>
         </div>
       )}
-      <div className="str-chat__channel-list-team__main">
-        <div className="str-chat__channel-list-team__header">
-          <div className="str-chat__channel-list-team__header--left">
+      <div className='str-chat__channel-list-team__main'>
+        <div className='str-chat__channel-list-team__header'>
+          <div className='str-chat__channel-list-team__header--left'>
             <Avatar image={image} name={name || id} size={40} />
           </div>
-          <div className="str-chat__channel-list-team__header--middle">
-            <div className="str-chat__channel-list-team__header--title">
+          <div className='str-chat__channel-list-team__header--middle'>
+            <div className='str-chat__channel-list-team__header--title'>
               {name || id}
             </div>
             <div
@@ -58,8 +58,8 @@ const ChannelListTeam = ({
               {status}
             </div>
           </div>
-          <div className="str-chat__channel-list-team__header--right">
-            <button className="str-chat__channel-list-team__header--button">
+          <div className='str-chat__channel-list-team__header--right'>
+            <button className='str-chat__channel-list-team__header--button'>
               <img src={chevrondown} />
             </button>
           </div>

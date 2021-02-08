@@ -7,13 +7,13 @@ import { LoadingIndicator } from 'react-file-utils';
 /**
  * @type {React.FC<import('types').LoadMoreButtonProps>}
  */
-const LoadMoreButton = ({ onClick, refreshing, children = 'Load more' }) => (
-  <div className="str-chat__load-more-button">
+const LoadMoreButton = ({ children = 'Load more', onClick, refreshing }) => (
+  <div className='str-chat__load-more-button'>
     <button
-      className="str-chat__load-more-button__button"
-      onClick={onClick}
-      data-testid="load-more-button"
+      className='str-chat__load-more-button__button'
+      data-testid='load-more-button'
       disabled={refreshing}
+      onClick={onClick}
     >
       {refreshing ? <LoadingIndicator /> : children}
     </button>

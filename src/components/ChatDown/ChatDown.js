@@ -13,14 +13,14 @@ import placeholder from '../../assets/str-chat__connection-error.svg';
  * @typedef {import('types').ChatDownProps} Props
  * @type {React.FC<Props>}
  */
-const ChatDown = ({ image, type = 'Error', text }) => {
+const ChatDown = ({ image, text, type = 'Error' }) => {
   const { t } = useContext(TranslationContext);
 
   return (
-    <div className="str-chat__down">
+    <div className='str-chat__down'>
       <LoadingChannels />
-      <div className="str-chat__down-main">
-        <img data-testid="chatdown-img" src={image || placeholder} />
+      <div className='str-chat__down-main'>
+        <img data-testid='chatdown-img' src={image || placeholder} />
         <h1>{type}</h1>
         <h3>
           {text ||

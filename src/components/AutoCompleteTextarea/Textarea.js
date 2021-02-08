@@ -91,7 +91,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
   getSelectedText = () => {
     if (!this.textareaRef) return null;
-    const { selectionStart, selectionEnd } = this.textareaRef;
+    const { selectionEnd, selectionStart } = this.textareaRef;
 
     if (selectionStart === selectionEnd) return null;
 
@@ -340,7 +340,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     if (!currentTrigger || !triggerSettings) return;
 
-    const { dataProvider, component } = triggerSettings;
+    const { component, dataProvider } = triggerSettings;
 
     if (typeof dataProvider !== 'function') {
       throw new Error('Trigger provider has to be a function!');
@@ -397,7 +397,7 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   // TODO: This is an anti pattern in react, should come up with a better way
-  _update({ value, trigger }) {
+  _update({ trigger, value }) {
     const { value: oldValue } = this.state;
     const { trigger: oldTrigger } = this.props;
 
@@ -534,7 +534,7 @@ class ReactTextareaAutocomplete extends React.Component {
       // if we have single char - trigger it means we want to re-position the autocomplete
       lastToken.length === 1
     ) {
-      const { top: newTop, left: newLeft } = getCaretCoordinates(
+      const { left: newLeft, top: newTop } = getCaretCoordinates(
         textarea,
         selectionEnd,
       );

@@ -36,19 +36,9 @@ declare namespace vfileMessage {
     ): VFileMessage;
 
     /**
-     * Category of message.
+     * It’s OK to store custom data directly on the VMessage, some of those are handled by utilities.
      */
-    ruleId: string | null;
-
-    /**
-     * Reason for message.
-     */
-    reason: string;
-
-    /**
-     * Starting line of error.
-     */
-    line: number | null;
+    [key: string]: unknown;
 
     /**
      * Starting column of error.
@@ -56,10 +46,25 @@ declare namespace vfileMessage {
     column: number | null;
 
     /**
+     * Starting line of error.
+     */
+    line: number | null;
+
+    /**
      * Full range information, when available.
      * Has start and end properties, both set to an object with line and column, set to number?.
      */
     location: Unist.Position;
+
+    /**
+     * Reason for message.
+     */
+    reason: string;
+
+    /**
+     * Category of message.
+     */
+    ruleId: string | null;
 
     /**
      * Namespace of warning.
@@ -85,11 +90,6 @@ declare namespace vfileMessage {
      * You may add a url property with a link to documentation for the message.
      */
     url?: string;
-
-    /**
-     * It’s OK to store custom data directly on the VMessage, some of those are handled by utilities.
-     */
-    [key: string]: unknown;
   }
 }
 

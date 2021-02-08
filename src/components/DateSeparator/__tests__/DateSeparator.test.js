@@ -31,7 +31,7 @@ const withContext = (props) => {
 describe('DateSeparator', () => {
   it('should use formatDate if it is provided', () => {
     const { queryByText } = render(
-      <DateSeparator formatDate={() => 'the date'} date={now} />,
+      <DateSeparator date={now} formatDate={() => 'the date'} />,
     );
 
     expect(queryByText('the date')).toBeInTheDocument();
@@ -77,8 +77,8 @@ describe('DateSeparator', () => {
   describe('Position prop', () => {
     const renderWithPosition = (position) => (
       <DateSeparator
-        formatDate={() => 'the date'}
         date={now}
+        formatDate={() => 'the date'}
         position={position}
       />
     );

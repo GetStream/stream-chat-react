@@ -1,6 +1,6 @@
 // @ts-check
 
-import { useEffect, useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { ChatContext } from '../../../context';
 
 /**

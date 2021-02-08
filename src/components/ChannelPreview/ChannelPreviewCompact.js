@@ -32,19 +32,19 @@ const ChannelPreviewCompact = (props) => {
 
   return (
     <button
-      data-testid="channel-preview-button"
+      className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
+      data-testid='channel-preview-button'
       onClick={onSelectChannel}
       ref={channelPreviewButton}
-      className={`str-chat__channel-preview-compact ${unreadClass} ${activeClass}`}
     >
-      <div className="str-chat__channel-preview-compact--left">
+      <div className='str-chat__channel-preview-compact--left'>
         <Avatar
           image={props.displayImage}
           name={props.displayTitle}
           size={20}
         />
       </div>
-      <div className="str-chat__channel-preview-compact--right">
+      <div className='str-chat__channel-preview-compact--right'>
         {props.displayTitle}
       </div>
     </button>

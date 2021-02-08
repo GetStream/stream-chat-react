@@ -1,13 +1,13 @@
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
 import { ChannelContext, TranslationContext } from '../../../context';
@@ -99,7 +99,7 @@ describe('<MessageTeam />', () => {
       deleted_at: new Date('2019-08-27T00:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageTeam(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -144,7 +144,7 @@ describe('<MessageTeam />', () => {
       latest_reactions: [bobReaction],
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;
@@ -165,7 +165,7 @@ describe('<MessageTeam />', () => {
 
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
-    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
     const { getByTestId } = await renderMessageTeam(message, {
       Avatar: CustomAvatar,
     });
@@ -175,7 +175,7 @@ describe('<MessageTeam />', () => {
   it('should render pin indicator when pinned is true', async () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { getByTestId } = await renderMessageTeam(message, {
@@ -190,7 +190,7 @@ describe('<MessageTeam />', () => {
   it('should not render pin indicator when pinned is false', async () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { queryAllByTestId } = await renderMessageTeam(message, {

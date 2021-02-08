@@ -4,13 +4,13 @@ import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  getOrCreateChannelApi,
   generateChannel,
-  generateMessage,
   generateMember,
+  generateMessage,
   generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
+  useMockedApis,
 } from '../../../mock-builders';
 
 import VirtualizedMessageList from '../VirtualizedMessageList';
@@ -26,9 +26,9 @@ jest.mock('react-virtuoso', () => {
         ref={ref}
         {...props}
         initialItemCount={20}
-        overscan={0}
         initialTopMostItemIndex={0}
         itemHeight={30}
+        overscan={0}
       />
     )),
   };
@@ -39,14 +39,12 @@ jest.mock('../../Loading', () => ({
 }));
 
 jest.mock('../../Message', () => ({
-  FixedHeightMessage: jest.fn(({ groupedByUser }) => {
-    return (
-      <div data-testid="msg">
-        FixedHeightMessage groupedByUser:
-        {groupedByUser ? 'true' : 'false'}
-      </div>
-    );
-  }),
+  FixedHeightMessage: jest.fn(({ groupedByUser }) => (
+    <div data-testid='msg'>
+      FixedHeightMessage groupedByUser:
+      {groupedByUser ? 'true' : 'false'}
+    </div>
+  )),
 }));
 
 async function createChannel(empty = false) {
@@ -66,7 +64,7 @@ async function createChannel(empty = false) {
   const channel = client.channel('messaging', mockedChannel.id);
   await channel.watch();
 
-  return { client, channel };
+  return { channel, client };
 }
 
 // simple test since Virtuoso heavily relies on document height and jsdom doesn't support it
@@ -75,7 +73,7 @@ describe('VirtualizedMessageList', () => {
   beforeEach(jest.clearAllMocks);
 
   it('should render the list without any message', async () => {
-    const { client, channel } = await createChannel(true);
+    const { channel, client } = await createChannel(true);
     let tree;
     await renderer.act(async () => {
       tree = await renderer.create(

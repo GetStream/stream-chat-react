@@ -19,20 +19,20 @@ const InfiniteScrollPaginator = ({
   children,
 }) => (
   <InfiniteScroll
-    loadMore={loadNextPage}
     hasMore={hasNextPage}
     isLoading={refreshing}
     isReverse={reverse}
-    threshold={threshold}
-    useWindow={false}
     loader={
       <div
-        className="str-chat__infinite-scroll-paginator"
-        key="loadingindicator"
+        className='str-chat__infinite-scroll-paginator'
+        key='loadingindicator'
       >
         <LoadingIndicator />
       </div>
     }
+    loadMore={loadNextPage}
+    threshold={threshold}
+    useWindow={false}
   >
     {children}
   </InfiniteScroll>

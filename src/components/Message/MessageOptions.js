@@ -1,10 +1,10 @@
 // @ts-check
 import React, { useContext } from 'react';
-import { useUserRole, useOpenThreadHandler } from './hooks';
+import { useOpenThreadHandler, useUserRole } from './hooks';
 import { ChannelContext } from '../../context';
 import { MessageActions } from '../MessageActions';
 import { MESSAGE_ACTIONS } from './utils';
-import { ThreadIcon, ReactionIcon } from './icons';
+import { ReactionIcon, ThreadIcon } from './icons';
 
 /**
  * @type { React.FC<import('types').MessageOptionsProps> }
@@ -56,25 +56,25 @@ const MessageOptionsComponent = (props) => {
   if (isMyMessage && displayLeft) {
     return (
       <div
-        data-testid="message-options-left"
         className={`str-chat__message-${theme}__actions`}
+        data-testid='message-options-left'
       >
         {displayActions && (
           <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
         )}
         {shouldShowReplies && (
           <div
-            data-testid="thread-action"
-            onClick={propHandleOpenThread || handleOpenThread}
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
+            data-testid='thread-action'
+            onClick={propHandleOpenThread || handleOpenThread}
           >
             <ThreadIcon />
           </div>
         )}
         {shouldShowReactions && (
           <div
-            data-testid="message-reaction-action"
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
+            data-testid='message-reaction-action'
             onClick={onReactionListClick}
           >
             <ReactionIcon />
@@ -85,13 +85,13 @@ const MessageOptionsComponent = (props) => {
   }
   return (
     <div
-      data-testid="message-options"
       className={`str-chat__message-${theme}__actions`}
+      data-testid='message-options'
     >
       {shouldShowReactions && (
         <div
-          data-testid="message-reaction-action"
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
+          data-testid='message-reaction-action'
           onClick={onReactionListClick}
         >
           <ReactionIcon />
@@ -99,9 +99,9 @@ const MessageOptionsComponent = (props) => {
       )}
       {shouldShowReplies && (
         <div
-          onClick={propHandleOpenThread || handleOpenThread}
-          data-testid="thread-action"
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
+          data-testid='thread-action'
+          onClick={propHandleOpenThread || handleOpenThread}
         >
           <ThreadIcon />
         </div>

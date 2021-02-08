@@ -1,8 +1,8 @@
 // @ts-check
-import React, { useEffect, useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // @ts-expect-error
-import { ImageDropzone, FileUploadButton } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 import { Tooltip } from '../Tooltip';
 
 import { ChannelContext, TranslationContext } from '../../context';
@@ -41,45 +41,45 @@ const EditMessageForm = (props) => {
   }, [clearEditingState]);
 
   return (
-    <div className="str-chat__edit-message-form">
+    <div className='str-chat__edit-message-form'>
       <ImageDropzone
         accept={channelContext.acceptedFiles}
-        multiple={channelContext.multipleUploads}
         disabled={
           !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
         }
-        maxNumberOfFiles={messageInput.maxFilesLeft}
         handleFiles={messageInput.uploadNewFiles}
+        maxNumberOfFiles={messageInput.maxFilesLeft}
+        multiple={channelContext.multipleUploads}
       >
         <form onSubmit={messageInput.handleSubmit}>
           {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
           <EmojiPicker {...messageInput} small />
           <ChatAutoComplete
+            additionalTextareaProps={props.additionalTextareaProps}
             commands={messageInput.getCommands()}
-            innerRef={messageInput.textareaRef}
+            grow={props.grow}
             handleSubmit={messageInput.handleSubmit}
+            innerRef={messageInput.textareaRef}
+            maxRows={props.maxRows}
             onChange={messageInput.handleChange}
+            onPaste={messageInput.onPaste}
             onSelectItem={messageInput.onSelectItem}
             placeholder={t('Type your message')}
-            value={messageInput.text}
             rows={1}
-            maxRows={props.maxRows}
-            onPaste={messageInput.onPaste}
-            grow={props.grow}
-            additionalTextareaProps={props.additionalTextareaProps}
+            value={messageInput.text}
           />
-          <div className="str-chat__message-team-form-footer">
-            <div className="str-chat__edit-message-form-options">
+          <div className='str-chat__message-team-form-footer'>
+            <div className='str-chat__edit-message-form-options'>
               <span
-                className="str-chat__input-emojiselect"
+                className='str-chat__input-emojiselect'
                 onClick={messageInput.openEmojiPicker}
               >
                 <EmojiIcon />
               </span>
               {messageInput.isUploadEnabled && (
                 <div
-                  className="str-chat__fileupload-wrapper"
-                  data-testid="fileinput"
+                  className='str-chat__fileupload-wrapper'
+                  data-testid='fileinput'
                 >
                   <Tooltip>
                     {messageInput.maxFilesLeft
@@ -87,12 +87,12 @@ const EditMessageForm = (props) => {
                       : t("You've reached the maximum number of files")}
                   </Tooltip>
                   <FileUploadButton
-                    multiple={channelContext.multipleUploads}
-                    disabled={messageInput.maxFilesLeft === 0}
                     accepts={channelContext.acceptedFiles}
+                    disabled={messageInput.maxFilesLeft === 0}
                     handleFiles={messageInput.uploadNewFiles}
+                    multiple={channelContext.multipleUploads}
                   >
-                    <span className="str-chat__input-fileupload">
+                    <span className='str-chat__input-fileupload'>
                       <FileUploadIcon />
                     </span>
                   </FileUploadButton>
@@ -109,7 +109,7 @@ const EditMessageForm = (props) => {
               >
                 {t('Cancel')}
               </button>
-              <button type="submit">{t('Send')}</button>
+              <button type='submit'>{t('Send')}</button>
             </div>
           </div>
         </form>

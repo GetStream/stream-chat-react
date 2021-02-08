@@ -22,10 +22,10 @@ const Item = React.forwardRef((props, innerRef) => {
         onFocus={selectItem}
         onMouseEnter={selectItem}
         ref={innerRef}
-        role="button"
+        role='button'
         tabIndex={0}
       >
-        <Component selected={selected} entity={item} />
+        <Component entity={item} selected={selected} />
       </div>
     </li>
   );

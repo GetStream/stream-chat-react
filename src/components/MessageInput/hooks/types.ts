@@ -5,34 +5,34 @@ type SetEmojiPickerIsOpenAction = {
   value: boolean;
 };
 type SetTextAction = {
-  type: 'setText';
   getNewText: (currentStateText: string) => string;
+  type: 'setText';
 };
 type ClearAction = {
   type: 'clear';
 };
 type SetImageUploadAction = {
-  type: 'setImageUpload';
   id: string;
-  state?: string;
+  type: 'setImageUpload';
   file?: File;
-  url?: string;
   previewUri?: string;
+  state?: string;
+  url?: string;
 };
 type SetFileUploadAction = {
-  type: 'setFileUpload';
   id: string;
-  state?: string;
+  type: 'setFileUpload';
   file?: File;
+  state?: string;
   url?: string;
 };
 type RemoveImageUploadAction = {
-  type: 'removeImageUpload';
   id: string;
+  type: 'removeImageUpload';
 };
 type RemoveFileUploadAction = {
-  type: 'removeFileUpload';
   id: string;
+  type: 'removeFileUpload';
 };
 type ReduceNumberOfUploadsAction = {
   type: 'reduceNumberOfUploads';

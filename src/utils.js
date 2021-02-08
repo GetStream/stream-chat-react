@@ -78,7 +78,7 @@ const markDownRenderers = {
     }
 
     return (
-      <a href={props.href} target="_blank" rel="nofollow noreferrer noopener">
+      <a href={props.href} target='_blank' rel='nofollow noreferrer noopener'>
         {props.children}
       </a>
     );

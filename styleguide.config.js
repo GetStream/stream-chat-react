@@ -9,10 +9,15 @@ module.exports = {
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./styleguidist/webpack.config.styleguidist.js'),
   serverPort: 6068,
+  propsParser: require('react-docgen-typescript').withCustomConfig(
+    './tsconfig.json',
+    {
+      propFilter: { skipPropsWithoutDoc: true },
+    },
+  ).parse,
   styleguideComponents: {
     PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
   },
-
   /* getExampleFilename(componentPath) {
 		componentPath = componentPath
 			.replace('src/components/', 'src/components/docs/')

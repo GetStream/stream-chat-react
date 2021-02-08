@@ -2,12 +2,12 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
-  getTestClientWithUser,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import MessageDeleted from '../MessageDeleted';
-import { TranslationContext, ChannelContext } from '../../../context';
+import { ChannelContext, TranslationContext } from '../../../context';
 
 const alice = generateUser();
 const bob = generateUser();

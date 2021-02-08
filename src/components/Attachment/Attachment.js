@@ -11,8 +11,8 @@ import DefaultCard from './Card';
 import DefaultFile from './FileAttachment';
 
 import {
-  ImageComponent as DefaultImage,
   Gallery as DefaultGallery,
+  ImageComponent as DefaultImage,
 } from '../Gallery';
 
 export const SUPPORTED_VIDEO_FORMATS = [
@@ -31,45 +31,34 @@ export const SUPPORTED_VIDEO_FORMATS = [
 /**
  * @param {ExtendedAttachment} a
  */
-export const isGalleryAttachment = (a) => {
-  return a.type === 'gallery';
-};
+export const isGalleryAttachment = (a) => a.type === 'gallery';
 
 /**
  * @param {ExtendedAttachment} a
  */
-export const isImageAttachment = (a) => {
-  return a.type === 'image' && !a.title_link && !a.og_scrape_url;
-};
+export const isImageAttachment = (a) =>
+  a.type === 'image' && !a.title_link && !a.og_scrape_url;
 
 /**
  * @param {ExtendedAttachment} a
  */
-export const isMediaAttachment = (a) => {
-  return (
-    (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1) ||
-    a.type === 'video'
-  );
-};
+export const isMediaAttachment = (a) =>
+  (a.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) !== -1) ||
+  a.type === 'video';
 
 /**
  * @param {ExtendedAttachment} a
  */
-export const isAudioAttachment = (a) => {
-  return a.type === 'audio';
-};
+export const isAudioAttachment = (a) => a.type === 'audio';
 
 /**
  * @param {ExtendedAttachment} a
  */
-export const isFileAttachment = (a) => {
-  return (
-    a.type === 'file' ||
-    (a.mime_type &&
-      SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1 &&
-      a.type !== 'video')
-  );
-};
+export const isFileAttachment = (a) =>
+  a.type === 'file' ||
+  (a.mime_type &&
+    SUPPORTED_VIDEO_FORMATS.indexOf(a.mime_type) === -1 &&
+    a.type !== 'video');
 
 /**
  * @param {React.ReactNode} children
@@ -107,7 +96,7 @@ export const renderAttachmentWithinContainer = (
  * @param {AttachmentProps} props
  */
 export const renderAttachmentActions = (props) => {
-  const { attachment: a, AttachmentActions, actionHandler } = props;
+  const { actionHandler, attachment: a, AttachmentActions } = props;
   if (!a.actions || !a.actions.length) {
     return null;
   }
@@ -115,11 +104,11 @@ export const renderAttachmentActions = (props) => {
   return (
     <AttachmentActions
       {...a}
-      id={a.id || ''}
-      actions={a.actions || []}
-      text={a.text || ''}
-      key={`key-actions-${a.id}`}
       actionHandler={actionHandler}
+      actions={a.actions || []}
+      id={a.id || ''}
+      key={`key-actions-${a.id}`}
+      text={a.text || ''}
     />
   );
 };
@@ -130,7 +119,7 @@ export const renderAttachmentActions = (props) => {
 export const renderGallery = (props) => {
   const { attachment: a, Gallery } = props;
   return renderAttachmentWithinContainer(
-    <Gallery images={a.images || []} key="gallery" />,
+    <Gallery images={a.images || []} key='gallery' />,
     a,
     'gallery',
   );
@@ -143,7 +132,7 @@ export const renderImage = (props) => {
   const { attachment: a, Image } = props;
   if (a.actions && a.actions.length) {
     return renderAttachmentWithinContainer(
-      <div className="str-chat__attachment" key={`key-image-${a.id}`}>
+      <div className='str-chat__attachment' key={`key-image-${a.id}`}>
         <Image {...a} />
         {renderAttachmentActions(props)}
       </div>,
@@ -166,7 +155,7 @@ export const renderCard = (props) => {
   const { attachment: a, Card } = props;
   if (a.actions && a.actions.length) {
     return renderAttachmentWithinContainer(
-      <div className="str-chat__attachment" key={`key-image-${a.id}`}>
+      <div className='str-chat__attachment' key={`key-image-${a.id}`}>
         <Card {...a} key={`key-card-${a.id}`} />
         {renderAttachmentActions(props)}
       </div>,
@@ -202,7 +191,7 @@ export const renderFile = (props) => {
 export const renderAudio = (props) => {
   const { attachment: a, Audio } = props;
   return renderAttachmentWithinContainer(
-    <div className="str-chat__attachment" key={`key-video-${a.id}`}>
+    <div className='str-chat__attachment' key={`key-video-${a.id}`}>
       <Audio og={a} />
     </div>,
     a,
@@ -218,16 +207,16 @@ export const renderMedia = (props) => {
   if (a.actions && a.actions.length) {
     return renderAttachmentWithinContainer(
       <div
-        className="str-chat__attachment str-chat__attachment-media"
+        className='str-chat__attachment str-chat__attachment-media'
         key={`key-video-${a.id}`}
       >
-        <div className="str-chat__player-wrapper">
+        <div className='str-chat__player-wrapper'>
           <Media
-            className="react-player"
-            url={a.asset_url}
-            width="100%"
-            height="100%"
+            className='react-player'
             controls
+            height='100%'
+            url={a.asset_url}
+            width='100%'
           />
         </div>
         {renderAttachmentActions(props)}
@@ -238,13 +227,13 @@ export const renderMedia = (props) => {
   }
 
   return renderAttachmentWithinContainer(
-    <div className="str-chat__player-wrapper" key={`key-video-${a.id}`}>
+    <div className='str-chat__player-wrapper' key={`key-video-${a.id}`}>
       <Media
-        className="react-player"
-        url={a.asset_url}
-        width="100%"
-        height="100%"
+        className='react-player'
         controls
+        height='100%'
+        url={a.asset_url}
+        width='100%'
       />
     </div>,
     a,

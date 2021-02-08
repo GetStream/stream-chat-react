@@ -1,5 +1,5 @@
 // @ts-check
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { TranslationContext } from '../../context';
 import ModalWrapper from './ModalWrapper';
@@ -38,8 +38,8 @@ const Gallery = ({ images }) => {
 
   const renderImages = images.slice(0, 3).map((image, i) => (
     <div
-      data-testid="gallery-image"
-      className="str-chat__gallery-image"
+      className='str-chat__gallery-image'
+      data-testid='gallery-image'
       key={`gallery-image-${i}`}
       onClick={() => toggleModal(i)}
     >
@@ -56,11 +56,11 @@ const Gallery = ({ images }) => {
       {renderImages}
       {images.length > 3 && (
         <div
-          className="str-chat__gallery-placeholder"
+          className='str-chat__gallery-placeholder'
+          onClick={() => toggleModal(3)}
           style={{
             backgroundImage: `url(${images[3].image_url})`,
           }}
-          onClick={() => toggleModal(3)}
         >
           <p>
             {t('{{ imageCount }} more', {
@@ -73,8 +73,8 @@ const Gallery = ({ images }) => {
         images={formattedArray}
         index={index}
         // @ts-expect-error
-        toggleModal={toggleModal}
         modalIsOpen={modalOpen}
+        toggleModal={toggleModal}
       />
     </div>
   );

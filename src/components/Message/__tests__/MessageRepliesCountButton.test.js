@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, cleanup } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import MessageRepliesCountButton from '../MessageRepliesCountButton';
 import { TranslationContext } from '../../../context';

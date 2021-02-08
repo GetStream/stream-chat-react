@@ -1,14 +1,14 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  generateUser,
-  generateReaction,
-  getTestClientWithUser,
   generateMessage,
+  generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageText from '../MessageText';

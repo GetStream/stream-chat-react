@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { ChannelContext, TranslationContext, ChatContext } from '../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 
 /**
  * ChannelHeader - Render some basic information about this channel
@@ -18,34 +18,34 @@ const ChannelHeader = ({ Avatar = DefaultAvatar, title, live }) => {
   const { image, member_count, name, subtitle } = channel?.data || {};
 
   return (
-    <div className="str-chat__header-livestream">
-      <div className="str-chat__header-hamburger" onClick={openMobileNav}>
-        <span className="str-chat__header-hamburger--line"></span>
-        <span className="str-chat__header-hamburger--line"></span>
-        <span className="str-chat__header-hamburger--line"></span>
+    <div className='str-chat__header-livestream'>
+      <div className='str-chat__header-hamburger' onClick={openMobileNav}>
+        <span className='str-chat__header-hamburger--line'></span>
+        <span className='str-chat__header-hamburger--line'></span>
+        <span className='str-chat__header-hamburger--line'></span>
       </div>
       {image && (
         <Avatar
           image={image}
-          shape="rounded"
+          shape='rounded'
           size={channel?.type === 'commerce' ? 60 : 40}
         />
       )}
-      <div className="str-chat__header-livestream-left">
-        <p className="str-chat__header-livestream-left--title">
+      <div className='str-chat__header-livestream-left'>
+        <p className='str-chat__header-livestream-left--title'>
           {title || name}{' '}
           {live && (
-            <span className="str-chat__header-livestream-left--livelabel">
+            <span className='str-chat__header-livestream-left--livelabel'>
               {t('live')}
             </span>
           )}
         </p>
         {subtitle && (
-          <p className="str-chat__header-livestream-left--subtitle">
+          <p className='str-chat__header-livestream-left--subtitle'>
             {subtitle}
           </p>
         )}
-        <p className="str-chat__header-livestream-left--members">
+        <p className='str-chat__header-livestream-left--members'>
           {!live && !!member_count && member_count > 0 && (
             <>
               {t('{{ memberCount }} members', {

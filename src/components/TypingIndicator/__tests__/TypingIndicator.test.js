@@ -4,11 +4,11 @@ import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  getTestClientWithUser,
+  generateChannel,
   generateUser,
   getOrCreateChannelApi,
-  generateChannel,
+  getTestClientWithUser,
+  useMockedApis,
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
@@ -97,7 +97,7 @@ describe('TypingIndicator', () => {
   });
 
   it('should render TypingIndicator when you and someone else are typing', async () => {
-    const { container, getByTestId, getAllByTestId } = await renderComponent({
+    const { container, getAllByTestId, getByTestId } = await renderComponent({
       alice: { user: alice },
       jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
     });
@@ -130,7 +130,7 @@ describe('TypingIndicator', () => {
 
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{ client, typing: {}, channel }}>
+        <ChannelContext.Provider value={{ channel, client, typing: {} }}>
           <TypingIndicator />
         </ChannelContext.Provider>,
       )
@@ -159,8 +159,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread', user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -177,8 +177,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread', user: 'test-user' } },
         false,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -195,8 +195,8 @@ describe('TypingIndicator', () => {
         { example: { user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -213,8 +213,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread-2', user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );

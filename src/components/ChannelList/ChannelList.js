@@ -1,6 +1,6 @@
 // @ts-check
 
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { ChatContext } from '../../context';
@@ -40,11 +40,11 @@ const DEFAULT_SORT = {};
  */
 const ChannelList = (props) => {
   const {
-    client,
-    setActiveChannel,
-    navOpen = false,
-    closeMobileNav,
     channel,
+    client,
+    closeMobileNav,
+    navOpen = false,
+    setActiveChannel,
     theme,
   } = useContext(ChatContext);
   const channelListRef = useRef(/** @type {HTMLDivElement | null} */ (null));
@@ -106,10 +106,10 @@ const ChannelList = (props) => {
 
   const {
     channels,
-    loadNextPage,
     hasNextPage,
-    status,
+    loadNextPage,
     setChannels,
+    status,
   } = usePaginatedChannels(
     client,
     props.filters || DEFAULT_FILTERS,
@@ -197,7 +197,7 @@ const ChannelList = (props) => {
   const renderEmptyStateIndicator = () => {
     const { EmptyStateIndicator = DefaultEmptyStateIndicator } = props;
 
-    return <EmptyStateIndicator listType="channel" />;
+    return <EmptyStateIndicator listType='channel' />;
   };
 
   // renders the list.
@@ -213,12 +213,12 @@ const ChannelList = (props) => {
 
     return (
       <List
-        loading={status.loadingChannels}
-        error={status.error}
-        showSidebar={showSidebar}
         Avatar={Avatar}
-        LoadingIndicator={LoadingIndicator}
+        error={status.error}
+        loading={status.loadingChannels}
         LoadingErrorIndicator={LoadingErrorIndicator}
+        LoadingIndicator={LoadingIndicator}
+        showSidebar={showSidebar}
       >
         {!loadedChannels || loadedChannels.length === 0
           ? renderEmptyStateIndicator()

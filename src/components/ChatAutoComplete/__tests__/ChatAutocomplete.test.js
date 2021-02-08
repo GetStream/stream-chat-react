@@ -1,17 +1,17 @@
-import React, { useEffect, useContext } from 'react';
-import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import React, { useContext, useEffect } from 'react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import ChatAutoComplete from '../ChatAutoComplete';
 import {
-  useMockedApis,
-  queryMembersApi,
-  generateMember,
-  generateUser,
-  generateMessage,
   generateChannel,
-  getTestClientWithUser,
+  generateMember,
+  generateMessage,
+  generateUser,
   getOrCreateChannelApi,
+  getTestClientWithUser,
+  queryMembersApi,
+  useMockedApis,
 } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -96,7 +96,7 @@ describe('ChatAutoComplete', () => {
 
   it('should let you select emojis when you type :<emoji>', async () => {
     const emojiAutocompleteText = ':smile';
-    const { typeText, findByText, textarea } = await renderComponent();
+    const { findByText, textarea, typeText } = await renderComponent();
     typeText(emojiAutocompleteText);
     const emoji = await findByText('😄');
 
@@ -110,7 +110,7 @@ describe('ChatAutoComplete', () => {
   it('should let you select users when you type @<username>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.name}`;
-    const { typeText, getAllByText } = await renderComponent({ onSelectItem });
+    const { getAllByText, typeText } = await renderComponent({ onSelectItem });
     typeText(userAutocompleteText);
     const userText = await getAllByText(user.name);
 
@@ -128,7 +128,7 @@ describe('ChatAutoComplete', () => {
   it('should let you select users when you type @<userid>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.id}`;
-    const { typeText, findByText } = await renderComponent({ onSelectItem });
+    const { findByText, typeText } = await renderComponent({ onSelectItem });
     typeText(userAutocompleteText);
     const userText = await findByText(user.name);
 
@@ -145,7 +145,7 @@ describe('ChatAutoComplete', () => {
 
   it('should let you select commands when you type /<command>', async () => {
     const commandAutocompleteText = '/giph';
-    const { typeText, findByText, textarea } = await renderComponent({
+    const { findByText, textarea, typeText } = await renderComponent({
       commands: [
         {
           name: 'giphy',
@@ -168,7 +168,7 @@ describe('ChatAutoComplete', () => {
   it('should disable mention popup list', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.name}`;
-    const { typeText, queryAllByText } = await renderComponent({
+    const { queryAllByText, typeText } = await renderComponent({
       onSelectItem,
       disableMentions: true,
     });
@@ -192,7 +192,7 @@ describe('ChatAutoComplete', () => {
     useMockedApis(chatClient, [queryMembersApi([searchMember])]);
 
     const onSelectItem = jest.fn();
-    const { typeText, findByText } = await renderComponent({
+    const { findByText, typeText } = await renderComponent({
       onSelectItem,
       activeChannel,
     });

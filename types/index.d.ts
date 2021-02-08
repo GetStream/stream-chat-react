@@ -1,11 +1,11 @@
 // TypeScript Version: 2.8
 
 /** Components */
-import * as React from 'react';
-import * as Client from 'stream-chat';
+import React from 'react';
+import Client from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
-import * as i18next from 'i18next';
-import * as Dayjs from 'dayjs';
+import i18next from 'i18next';
+import Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
 import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
 import type {
@@ -16,58 +16,58 @@ import type {
 } from 'emoji-mart';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
-export type AnyType = Record<string, any>;
-export type StreamChatReactUserType = AnyType & {
+export type UnknownType = Record<string, unknown>;
+export type StreamChatReactUserType = UnknownType & {
   status?: string;
   image?: string;
   mutes?: Array<Mute>;
 };
 
-export type StreamChatReactChannelType = AnyType & {
+export type StreamChatReactChannelType = UnknownType & {
   image?: string;
   subtitle?: string;
   member_count?: number;
 };
-export type StreamChatMessageType = AnyType & {
+export type StreamChatMessageType = UnknownType & {
   event?: Client.Event<
-    AnyType,
+    UnknownType,
     StreamChatReactChannelType,
     string & {},
-    AnyType,
+    UnknownType,
     StreamChatMessageType,
-    AnyType,
+    UnknownType,
     StreamChatReactUserType
   >;
 };
 export type StreamChatReactMessage = Client.Message<
-  AnyType,
+  UnknownType,
   StreamChatMessageType,
   StreamChatReactUserType
 >;
 export type StreamChatReactMessageResponse = Client.MessageResponse<
-  AnyType,
+  UnknownType,
   StreamChatReactChannelType,
   string & {},
   StreamChatMessageType,
-  AnyType,
+  UnknownType,
   StreamChatReactUserType
 >;
 export type StreamChatReactClient = Client.StreamChat<
-  AnyType,
+  UnknownType,
   StreamChatReactChannelType,
   string & {},
-  AnyType,
+  UnknownType,
   StreamChatMessageType,
-  AnyType,
+  UnknownType,
   StreamChatReactUserType
 >;
 export type StreamChatChannelState = Client.ChannelState<
-  AnyType,
+  UnknownType,
   StreamChatReactChannelType,
   string & {},
-  AnyType,
+  UnknownType,
   StreamChatMessageType,
-  AnyType,
+  UnknownType,
   StreamChatReactUserType
 >;
 

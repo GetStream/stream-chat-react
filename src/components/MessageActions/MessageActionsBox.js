@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
@@ -50,45 +50,45 @@ const MessageActionsBox = ({
 
   return (
     <div
-      data-testid="message-actions-box"
       className={`str-chat__message-actions-box
         ${open ? 'str-chat__message-actions-box--open' : ''}
         ${mine ? 'str-chat__message-actions-box--mine' : ''}
         ${reverse ? 'str-chat__message-actions-box--reverse' : ''}
       `}
+      data-testid='message-actions-box'
       ref={checkIfReverse}
     >
-      <ul className="str-chat__message-actions-list">
+      <ul className='str-chat__message-actions-list'>
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 &&
           !message?.parent_id && (
             <button onClick={handlePin}>
-              <li className="str-chat__message-actions-list-item">
+              <li className='str-chat__message-actions-list-item'>
                 {!message?.pinned ? t('Pin') : t('Unpin')}
               </li>
             </button>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button onClick={handleFlag}>
-            <li className="str-chat__message-actions-list-item">{t('Flag')}</li>
+            <li className='str-chat__message-actions-list-item'>{t('Flag')}</li>
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
           <button onClick={handleMute}>
-            <li className="str-chat__message-actions-list-item">
+            <li className='str-chat__message-actions-list-item'>
               {isUserMuted && isUserMuted() ? t('Unmute') : t('Mute')}
             </li>
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
           <button onClick={handleEdit}>
-            <li className="str-chat__message-actions-list-item">
+            <li className='str-chat__message-actions-list-item'>
               {t('Edit Message')}
             </li>
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
           <button onClick={handleDelete}>
-            <li className="str-chat__message-actions-list-item">
+            <li className='str-chat__message-actions-list-item'>
               {t('Delete')}
             </li>
           </button>

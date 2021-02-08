@@ -1,13 +1,13 @@
 import React from 'react';
-import { act, cleanup, render, fireEvent } from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { MESSAGE_ACTIONS } from '../utils';
 import { ChannelContext, TranslationContext } from '../../../context';
@@ -18,8 +18,8 @@ import { MML as MMLMock } from '../../MML';
 import MessageOptionsMock from '../MessageOptions';
 import MessageTextMock from '../MessageText';
 import {
-  MessageInput as MessageInputMock,
   EditMessageForm,
+  MessageInput as MessageInputMock,
 } from '../../MessageInput';
 
 jest.mock('../MessageOptions', () => jest.fn(() => <div />));
@@ -66,10 +66,10 @@ async function renderMessageSimple(
         value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}
       >
         <MessageSimple
-          message={message}
-          typing={false}
           getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+          message={message}
           threadList={false}
+          typing={false}
           {...props}
         />
       </TranslationContext.Provider>
@@ -122,7 +122,7 @@ describe('<MessageSimple />', () => {
       deleted_at: new Date('2019-12-25T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageSimple(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -160,7 +160,7 @@ describe('<MessageSimple />', () => {
     // Passing the ref prevents a react warning
     // eslint-disable-next-line no-unused-vars
     const CustomReactionSelector = ({ handleReaction }, ref) => (
-      <ul data-testid="custom-reaction-selector">
+      <ul data-testid='custom-reaction-selector'>
         <li>
           <button onClick={(e) => handleReaction('smile-emoticon', e)}>
             :)
@@ -201,7 +201,7 @@ describe('<MessageSimple />', () => {
       latest_reactions: [bobReaction],
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;

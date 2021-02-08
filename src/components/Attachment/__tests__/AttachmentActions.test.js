@@ -1,14 +1,12 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import renderer from 'react-test-renderer';
 import { v4 as uuidv4 } from 'uuid';
 import AttachmentActions from '../AttachmentActions';
 
-const getComponent = (props) => {
-  return <AttachmentActions {...props} />;
-};
+const getComponent = (props) => <AttachmentActions {...props} />;
 const actions = [
   {
     value: 'action 1',

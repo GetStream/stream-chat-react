@@ -31,12 +31,12 @@ const ChannelPreviewMessenger = (props) => {
 
   return (
     <button
+      className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
+      data-testid='channel-preview-button'
       onClick={onSelectChannel}
       ref={channelPreviewButton}
-      className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
-      data-testid="channel-preview-button"
     >
-      <div className="str-chat__channel-preview-messenger--left">
+      <div className='str-chat__channel-preview-messenger--left'>
         {
           <Avatar
             image={props.displayImage}
@@ -45,11 +45,11 @@ const ChannelPreviewMessenger = (props) => {
           />
         }
       </div>
-      <div className="str-chat__channel-preview-messenger--right">
-        <div className="str-chat__channel-preview-messenger--name">
+      <div className='str-chat__channel-preview-messenger--right'>
+        <div className='str-chat__channel-preview-messenger--name'>
           <span>{props.displayTitle}</span>
         </div>
-        <div className="str-chat__channel-preview-messenger--last-message">
+        <div className='str-chat__channel-preview-messenger--last-message'>
           {truncate(props.latestMessage, props.latestMessageLength)}
         </div>
       </div>

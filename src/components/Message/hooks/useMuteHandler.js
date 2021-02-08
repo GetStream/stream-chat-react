@@ -17,9 +17,9 @@ export const useMuteHandler = (message, notifications = {}) => {
   return async (event) => {
     event.preventDefault();
     const {
-      notify,
-      getSuccessNotification,
       getErrorNotification,
+      getSuccessNotification,
+      notify,
     } = notifications;
 
     if (!t || !message?.user || !notify || !client) {
