@@ -8257,6 +8257,11 @@ mml-react@^0.3.3:
     react-markdown "^5.0.3"
     react-virtuoso "^0.20.3"
 
+moment@2.29.1:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
+  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -11254,20 +11259,9 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@3.0.0-beta.0:
-  version "3.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-3.0.0-beta.0.tgz#1ee82715c053a368abd0cdec5a7e49b6149cdde3"
-  integrity sha512-/HTp9x3LNG5/SAM9MmmQVnfUXBaxB0SaP6THy2nVza5aZ2NoLHaCb0i2MNOYz9MjkWLorLmRu4/Q4opcGnOZJw==
-  dependencies:
-    "@babel/runtime" "^7.12.5"
-    "@types/jsonwebtoken" "^8.5.0"
-    "@types/ws" "^7.4.0"
-    axios "^0.21.1"
-    base64-js "^1.5.1"
-    form-data "^3.0.0"
-    isomorphic-ws "^4.0.1"
-    jsonwebtoken "^8.5.1"
-    ws "^7.4.2"
+"stream-chat@link:../stream-chat-js":
+  version "0.0.0"
+  uid ""
 
 stream-each@^1.1.0:
   version "1.2.3"
