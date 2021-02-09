@@ -124,7 +124,6 @@ const VirtualizedMessageList = ({
   return (
     <div className='str-chat__virtual-list'>
       <Virtuoso
-        // @ts-expect-error
         atBottomStateChange={(isAtBottom) => {
           atBottom.current = isAtBottom;
           if (isAtBottom && newMessagesNotification)
@@ -147,6 +146,7 @@ const VirtualizedMessageList = ({
         item={(i) => messageRenderer(messages, i)}
         maxHeightCacheSize={2000}
         overscan={overscan}
+        // @ts-expect-error
         ref={virtuoso}
         scrollSeek={scrollSeekPlaceHolder}
         startReached={() => {
@@ -190,12 +190,12 @@ export default function VirtualizedMessageListWithContext(props) {
       ) => (
         <VirtualizedMessageList
           client={context.client}
+          // @ts-expect-error
           hasMore={context.hasMore}
           // @ts-expect-error
           loadingMore={context.loadingMore}
           // @ts-expect-error
           loadMore={context.loadMore}
-          // @ts-expect-error
           messages={context.messages}
           {...props}
         />

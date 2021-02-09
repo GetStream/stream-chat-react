@@ -112,7 +112,7 @@ MessageInputFlat.propTypes = {
   /**
    * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
-  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('types').UnknownType>>} */ (PropTypes.object),
+  additionalTextareaProps: /** @type {PropTypes.Validator<React.TextareaHTMLAttributes<import('../../../types/types').UnknownType>>} */ (PropTypes.object),
   /**
    * Override the default triggers of the ChatAutoComplete component
    */
