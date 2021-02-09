@@ -31,14 +31,14 @@ jest.mock('../../MessageActions', () => ({
 
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 
-const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
-const carol = generateUser({ name: 'carol', image: 'carol-avatar.jpg' });
+const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
+const carol = generateUser({ image: 'carol-avatar.jpg', name: 'carol' });
 
 async function renderMessageTeam(
   message,
   props = {},
-  channelConfig = { replies: true, reactions: true },
+  channelConfig = { reactions: true, replies: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -46,7 +46,7 @@ async function renderMessageTeam(
 
   return render(
     <ChannelContext.Provider
-      value={{ client, channel, emojiConfig: emojiMockConfig, t: (key) => key }}
+      value={{ channel, client, emojiConfig: emojiMockConfig, t: (key) => key }}
     >
       <TranslationContext.Provider
         value={{
@@ -69,13 +69,13 @@ function generateAliceMessage(messageOptions) {
 }
 
 const pdfAttachment = {
-  type: 'file',
   asset_url: 'file.pdf',
+  type: 'file',
 };
 
 const imageAttachment = {
-  type: 'image',
   image_url: 'image.jpg',
+  type: 'image',
 };
 
 const messageTeamTestId = 'message-team';
@@ -138,10 +138,10 @@ describe('<MessageTeam />', () => {
   });
 
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
     const CustomReactionsList = ({ reactions }) => (
       <ul data-testid='custom-reaction-list'>
@@ -212,15 +212,15 @@ describe('<MessageTeam />', () => {
     await renderMessageTeam(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
       EditMessageInput: CustomEditMessageInput,
+      updateMessage,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         clearEditingState,
-        message,
         Input: CustomEditMessageInput,
+        message,
         updateMessage,
       }),
       {},
@@ -238,9 +238,9 @@ describe('<MessageTeam />', () => {
     });
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        clearEditingState,
         message,
         updateMessage,
-        clearEditingState,
       }),
       {},
     );
@@ -251,7 +251,7 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage({ mml });
     await renderMessageTeam(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'left' }),
+      expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
   });
@@ -275,11 +275,11 @@ describe('<MessageTeam />', () => {
       if (shouldDisplay) {
         expect(AvatarMock).toHaveBeenCalledWith(
           {
+            image: alice.image,
+            name: alice.name,
             onClick: expect.any(Function),
             onMouseOver: expect.any(Function),
             size: 40,
-            image: alice.image,
-            name: alice.name,
           },
           {},
         );
@@ -296,11 +296,11 @@ describe('<MessageTeam />', () => {
     });
     expect(AvatarMock).toHaveBeenCalledWith(
       {
+        image: alice.image,
+        name: alice.name,
         onClick: expect.any(Function),
         onMouseOver: expect.any(Function),
         size: 40,
-        image: alice.image,
-        name: alice.name,
       },
       {},
     );
@@ -308,7 +308,7 @@ describe('<MessageTeam />', () => {
 
   it('should display text in users set language', async () => {
     const message = generateAliceMessage({
-      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      i18n: { en_text: 'hello', fr_text: 'bonjour', language: 'fr' },
       text: 'bonjour',
     });
 
@@ -320,8 +320,8 @@ describe('<MessageTeam />', () => {
   it('should place a spacer when message is not the first message on a thread and group style is not top or single', async () => {
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageTeam(message, {
-      initialMessage: false,
       groupStyles: [],
+      initialMessage: false,
     });
     expect(getByTestId('team-meta-spacer')).toBeInTheDocument();
   });
@@ -461,8 +461,8 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage();
     const handleOpenThread = jest.fn();
     const { getByTestId } = await renderMessageTeam(message, {
-      handleOpenThread,
       channelConfig: { replies: true },
+      handleOpenThread,
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTeamThreadIcon));
@@ -595,8 +595,8 @@ describe('<MessageTeam />', () => {
     expect(getByText(bob.name)).toBeInTheDocument();
     expect(AvatarMock).toHaveBeenCalledWith(
       {
-        name: bob.name,
         image: bob.image,
+        name: bob.name,
         size: 15,
       },
       {},
@@ -612,7 +612,7 @@ describe('<MessageTeam />', () => {
 
   it('should display message delivered status when message is delivered', async () => {
     const messageId = 'd3ad47ce-74bf-4ef3-b6b3-b13340f9beda';
-    const message = generateAliceMessage({ status: 'received', id: messageId });
+    const message = generateAliceMessage({ id: messageId, status: 'received' });
     const { getByTestId } = await renderMessageTeam(message, {
       lastReceivedId: messageId,
     });

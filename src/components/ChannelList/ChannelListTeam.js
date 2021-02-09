@@ -71,28 +71,16 @@ const ChannelListTeam = ({
 };
 
 ChannelListTeam.propTypes = {
-  /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
-  loading: PropTypes.bool,
-  /** When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js) */
-  error: PropTypes.bool,
-  /** When true, sidebar containing logo of the team is visible */
-  showSidebar: PropTypes.bool,
-  /** Url for sidebar logo image. */
-  sidebarImage: PropTypes.string,
   /**
    * Custom UI component to display user avatar
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /**
-   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
-   *
-   * Defaults to and accepts same props as:
-   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
-   *
-   */
-  LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
+  /** When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js) */
+  error: PropTypes.bool,
+  /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
+  loading: PropTypes.bool,
   /**
    * Error indicator UI Component. It will be displayed if `error` prop is true
    *
@@ -101,6 +89,18 @@ ChannelListTeam.propTypes = {
    *
    */
   LoadingErrorIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').ChatDownProps>>} */ (PropTypes.elementType),
+  /**
+   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
+   *
+   * Defaults to and accepts same props as:
+   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
+   *
+   */
+  LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
+  /** When true, sidebar containing logo of the team is visible */
+  showSidebar: PropTypes.bool,
+  /** Url for sidebar logo image. */
+  sidebarImage: PropTypes.string,
 };
 
 export default ChannelListTeam;

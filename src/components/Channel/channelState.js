@@ -5,26 +5,26 @@ export const channelReducer = (state, action) => {
       const { channel } = action;
       return {
         ...state,
+        loading: false,
+        members: { ...channel.state.members },
         messages: [...channel.state.messages],
         pinnedMessages: [...channel.state.pinnedMessages],
         read: { ...channel.state.read },
-        watchers: { ...channel.state.watchers },
-        members: { ...channel.state.members },
         watcherCount: channel.state.watcher_count,
-        loading: false,
+        watchers: { ...channel.state.watchers },
       };
     }
     case 'copyStateFromChannelOnEvent': {
       const { channel } = action;
       return {
         ...state,
+        members: { ...channel.state.members },
         messages: [...channel.state.messages],
         pinnedMessages: [...channel.state.pinnedMessages],
         read: { ...channel.state.read },
-        watchers: { ...channel.state.watchers },
-        members: { ...channel.state.members },
         typing: { ...channel.state.typing },
         watcherCount: channel.state.watcher_count,
+        watchers: { ...channel.state.watchers },
       };
     }
     case 'setThread': {
@@ -35,8 +35,8 @@ export const channelReducer = (state, action) => {
       const { hasMore, messages } = action;
       return {
         ...state,
-        loadingMore: false,
         hasMore,
+        loadingMore: false,
         messages,
       };
     }
@@ -60,13 +60,13 @@ export const channelReducer = (state, action) => {
       if (!state.thread) return state;
       return {
         ...state,
-        threadMessages: state.thread?.id
-          ? { ...channel.state.threads }[state.thread.id] || []
-          : [],
         thread:
           message?.id === state.thread.id
             ? channel.state.formatMessage(message)
             : state.thread,
+        threadMessages: state.thread?.id
+          ? { ...channel.state.threads }[state.thread.id] || []
+          : [],
       };
     }
     case 'openThread': {
@@ -90,16 +90,16 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         threadHasMore,
-        threadMessages,
         threadLoadingMore: false,
+        threadMessages,
       };
     }
     case 'closeThread': {
       return {
         ...state,
         thread: null,
-        threadMessages: [],
         threadLoadingMore: false,
+        threadMessages: [],
       };
     }
     case 'setError': {
@@ -114,18 +114,18 @@ export const channelReducer = (state, action) => {
 /** @type {import('./types').ChannelState} */
 export const initialState = {
   error: null,
+  hasMore: true,
   loading: true,
   loadingMore: false,
-  hasMore: true,
+  members: {},
   messages: [],
   pinnedMessages: [],
-  typing: {},
-  members: {},
-  watchers: {},
-  watcherCount: 0,
   read: {},
   thread: null,
-  threadMessages: [],
-  threadLoadingMore: false,
   threadHasMore: true,
+  threadLoadingMore: false,
+  threadMessages: [],
+  typing: {},
+  watcherCount: 0,
+  watchers: {},
 };

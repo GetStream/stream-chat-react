@@ -18,8 +18,8 @@ import {
 import { LoadingErrorIndicator } from '../../Loading';
 
 jest.mock('../../Loading', () => ({
-  LoadingIndicator: jest.fn(() => <div>loading</div>),
   LoadingErrorIndicator: jest.fn(() => <div />),
+  LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
 
 let chatClient;
@@ -46,9 +46,9 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
-const user = generateUser({ name: 'name', id: 'id' });
+const user = generateUser({ id: 'id', name: 'name' });
 const messages = [generateMessage({ user })];
-const pinnedMessages = [generateMessage({ user, pinned: true })];
+const pinnedMessages = [generateMessage({ pinned: true, user })];
 
 const renderComponent = (props = {}, callback = () => {}) =>
   render(
@@ -74,8 +74,8 @@ describe('Channel', () => {
   beforeEach(async () => {
     const members = [generateMember({ user })];
     const mockedChannel = generateChannel({
-      messages,
       members,
+      messages,
       pinnedMessages,
     });
     chatClient = await getTestClientWithUser(user);
@@ -217,16 +217,16 @@ describe('Channel', () => {
     it('should expose the emoji config', async () => {
       let context;
       const emojiData = {
-        compressed: true,
-        categories: [],
-        emojis: {},
         aliases: {},
+        categories: [],
+        compressed: true,
+        emojis: {},
       };
       const CustomEmojiPicker = () => <div />;
       const CustomEmoji = () => <span />;
 
       renderComponent(
-        { emojiData, Emoji: CustomEmoji, EmojiPicker: CustomEmojiPicker },
+        { Emoji: CustomEmoji, emojiData, EmojiPicker: CustomEmojiPicker },
         (ctx) => {
           context = ctx;
         },
@@ -342,9 +342,9 @@ describe('Channel', () => {
       };
 
       const { findByText } = renderComponent({
-        onMentionsHover: onMentionsHoverMock,
-        onMentionsClick: onMentionsClickMock,
         children: <MentionedUserComponent />,
+        onMentionsClick: onMentionsClickMock,
+        onMentionsHover: onMentionsHoverMock,
       });
 
       const usernameText = await findByText(`@${username}`);
@@ -372,9 +372,9 @@ describe('Channel', () => {
         getOrCreateChannelApi(
           generateChannel({
             channel: {
+              config: channel.getConfig(),
               id: channel.id,
               type: channel.type,
-              config: channel.getConfig(),
             },
             messages: newMessages,
           }),
@@ -404,8 +404,8 @@ describe('Channel', () => {
         await waitFor(() =>
           expect(channelQuerySpy).toHaveBeenCalledWith({
             messages: {
-              limit,
               id_lt: messages[0].id,
+              limit,
             },
           }),
         );

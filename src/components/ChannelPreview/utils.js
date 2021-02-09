@@ -38,7 +38,9 @@ export const getDisplayImage = (channel, currentUser) => {
   const members = Object.values(channel.state.members);
 
   if (!image && members.length === 2) {
-    const otherMember = members.find((m) => m.user.id !== currentUser.id);
+    const otherMember = members.find(
+      (member) => member.user.id !== currentUser.id,
+    );
     image = otherMember.user.image;
   }
 

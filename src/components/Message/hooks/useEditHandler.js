@@ -35,5 +35,5 @@ export const useEditHandler = (
       }
       setEditing(false);
     });
-  return { editing, setEdit, clearEdit };
+  return { clearEdit, editing, setEdit };
 };

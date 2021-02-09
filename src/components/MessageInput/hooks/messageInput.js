@@ -48,15 +48,15 @@ const apiMaxNumberOfFiles = 10;
 function initState(message) {
   if (!message) {
     return {
-      text: '',
-      imageOrder: [],
-      imageUploads: { ...emptyImageUploads },
+      attachments: [],
+      emojiPickerIsOpen: false,
       fileOrder: [],
       fileUploads: { ...emptyFileUploads },
-      numberOfUploads: 0,
-      attachments: [],
+      imageOrder: [],
+      imageUploads: { ...emptyImageUploads },
       mentioned_users: [],
-      emojiPickerIsOpen: false,
+      numberOfUploads: 0,
+      text: '',
     };
   }
 
@@ -67,12 +67,12 @@ function initState(message) {
       .reduce((acc, attachment) => {
         const id = generateRandomId();
         acc[id] = {
-          id,
-          url: attachment.image_url,
-          state: 'finished',
           file: {
             name: attachment.fallback,
           },
+          id,
+          state: 'finished',
+          url: attachment.image_url,
         };
         return acc;
       }, {}) || {};
@@ -84,14 +84,14 @@ function initState(message) {
       .reduce((acc, attachment) => {
         const id = generateRandomId();
         acc[id] = {
-          id,
-          url: attachment.asset_url,
-          state: 'finished',
           file: {
             name: attachment.title,
-            type: attachment.mime_type,
             size: attachment.file_size,
+            type: attachment.mime_type,
           },
+          id,
+          state: 'finished',
+          url: attachment.asset_url,
         };
         return acc;
       }, {}) || {};
@@ -186,9 +186,9 @@ function messageInputReducer(state, action) {
       delete newImageUploads[action.id];
       return {
         ...state,
-        numberOfUploads: state.numberOfUploads - 1,
         imageOrder: state.imageOrder.filter((_id) => _id !== action.id),
         imageUploads: newImageUploads,
+        numberOfUploads: state.numberOfUploads - 1,
       };
     }
     case 'removeFileUpload': {
@@ -197,9 +197,9 @@ function messageInputReducer(state, action) {
       delete newFileUploads[action.id];
       return {
         ...state,
-        numberOfUploads: state.numberOfUploads - 1,
         fileOrder: state.fileOrder.filter((_id) => _id !== action.id),
         fileUploads: newFileUploads,
+        numberOfUploads: state.numberOfUploads - 1,
       };
     }
     case 'reduceNumberOfUploads': // TODO: figure out if we can just use uploadOrder instead
@@ -274,7 +274,6 @@ export default function useMessageInput(props) {
 
       if (!textareaRef.current) {
         dispatch({
-          type: 'setText',
           getNewText: (t) => {
             const updatedText = t + textToInsert;
             if (updatedText.length > maxLength) {
@@ -282,6 +281,7 @@ export default function useMessageInput(props) {
             }
             return updatedText;
           },
+          type: 'setText',
         });
         return;
       }
@@ -290,7 +290,6 @@ export default function useMessageInput(props) {
       newCursorPosition.current = selectionStart + textToInsert.length;
 
       dispatch({
-        type: 'setText',
         getNewText: (prevText) => {
           const updatedText =
             prevText.slice(0, selectionStart) +
@@ -303,6 +302,7 @@ export default function useMessageInput(props) {
 
           return updatedText;
         },
+        type: 'setText',
       });
     },
     [additionalTextareaProps, newCursorPosition, textareaRef],
@@ -326,8 +326,8 @@ export default function useMessageInput(props) {
 
       const newText = event.target.value;
       dispatch({
-        type: 'setText',
         getNewText: () => newText,
+        type: 'setText',
       });
       if (publishTypingEvent && newText && channel) {
         logChatPromiseExecution(
@@ -414,20 +414,20 @@ export default function useMessageInput(props) {
         self, // filter out duplicates based on url
       ) => self.every((upload) => upload.id === id || upload.url !== url))
       .map((upload) => ({
-        type: 'image',
-        image_url: upload.url,
         fallback: upload.file.name,
+        image_url: upload.url,
+        type: 'image',
       }));
 
     const fileAttachments = fileOrder
       .map((id) => fileUploads[id])
       .filter((upload) => upload.state !== 'failed')
       .map((upload) => ({
-        type: getAttachmentTypeFromMime(upload.file.type),
         asset_url: upload.url,
-        title: upload.file.name,
-        mime_type: upload.file.type,
         file_size: upload.file.size,
+        mime_type: upload.file.type,
+        title: upload.file.name,
+        type: getAttachmentTypeFromMime(upload.file.type),
       }));
 
     return [
@@ -483,9 +483,9 @@ export default function useMessageInput(props) {
     );
 
     const updatedMessage = {
-      text,
       attachments: newAttachments,
       mentioned_users: actualMentionedUsers,
+      text,
     };
 
     if (!!message && editMessage) {
@@ -529,12 +529,12 @@ export default function useMessageInput(props) {
   // Files
 
   const uploadFile = useCallback((id) => {
-    dispatch({ type: 'setFileUpload', id, state: 'uploading' });
+    dispatch({ id, state: 'uploading', type: 'setFileUpload' });
   }, []);
 
   const removeFile = useCallback((id) => {
     // TODO: cancel upload if still uploading
-    dispatch({ type: 'removeFileUpload', id });
+    dispatch({ id, type: 'removeFileUpload' });
   }, []);
 
   useEffect(() => {
@@ -562,7 +562,7 @@ export default function useMessageInput(props) {
         if (!fileUploads[id]) {
           alreadyRemoved = true;
         } else {
-          dispatch({ type: 'setFileUpload', id, state: 'failed' });
+          dispatch({ id, state: 'failed', type: 'setFileUpload' });
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
@@ -579,9 +579,9 @@ export default function useMessageInput(props) {
       }
 
       dispatch({
-        type: 'setFileUpload',
         id,
         state: 'finished',
+        type: 'setFileUpload',
         url: response.file,
       });
     })();
@@ -590,7 +590,7 @@ export default function useMessageInput(props) {
   // Images
 
   const removeImage = useCallback((id) => {
-    dispatch({ type: 'removeImageUpload', id });
+    dispatch({ id, type: 'removeImageUpload' });
     // TODO: cancel upload if still uploading
   }, []);
 
@@ -600,7 +600,7 @@ export default function useMessageInput(props) {
       if (!img || !channel) return;
       const { file } = img;
       if (img.state !== 'uploading') {
-        dispatch({ type: 'setImageUpload', id, state: 'uploading' });
+        dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
       /** @type FileUploadAPIResponse */
       let response;
@@ -617,13 +617,13 @@ export default function useMessageInput(props) {
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {
-          dispatch({ type: 'setImageUpload', id, state: 'failed' });
+          dispatch({ id, state: 'failed', type: 'setImageUpload' });
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(e, 'upload-image', {
-            id,
             file,
+            id,
           });
         }
         return;
@@ -637,9 +637,9 @@ export default function useMessageInput(props) {
       }
 
       dispatch({
-        type: 'setImageUpload',
         id,
         state: 'finished',
+        type: 'setImageUpload',
         url: response.file,
       });
     },
@@ -662,9 +662,9 @@ export default function useMessageInput(props) {
         reader.onload = (event) => {
           if (typeof event.target?.result !== 'string') return;
           dispatch({
-            type: 'setImageUpload',
             id,
             previewUri: event.target.result,
+            type: 'setImageUpload',
           });
         };
         reader.readAsDataURL(file);
@@ -700,9 +700,9 @@ export default function useMessageInput(props) {
             file.type.startsWith('image/') &&
             !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
           ) {
-            dispatch({ type: 'setImageUpload', id, file, state: 'uploading' });
+            dispatch({ file, id, state: 'uploading', type: 'setImageUpload' });
           } else if (file instanceof File && !noFiles) {
-            dispatch({ type: 'setFileUpload', id, file, state: 'uploading' });
+            dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
           }
         });
     },
@@ -755,24 +755,22 @@ export default function useMessageInput(props) {
 
   return {
     ...state,
+    emojiPickerRef,
+    getCommands,
+    getUsers,
+    handleChange,
+    handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
-    // refs
-    textareaRef,
-    emojiPickerRef,
-    // handlers
-    uploadNewFiles,
-    removeImage,
-    uploadImage,
-    removeFile,
-    uploadFile,
-    onSelectEmoji,
-    getUsers,
-    getCommands,
-    handleSubmit,
-    handleChange,
     onPaste,
+    onSelectEmoji,
     onSelectItem,
     openEmojiPicker,
+    removeFile,
+    removeImage,
+    textareaRef,
+    uploadFile,
+    uploadImage,
+    uploadNewFiles,
   };
 }

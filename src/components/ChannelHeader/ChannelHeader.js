@@ -68,10 +68,10 @@ ChannelHeader.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /** Set title manually */
-  title: PropTypes.string,
   /** Show a little indicator that the channel is live right now */
   live: PropTypes.bool,
+  /** Set title manually */
+  title: PropTypes.string,
 };
 
 export default React.memo(ChannelHeader);

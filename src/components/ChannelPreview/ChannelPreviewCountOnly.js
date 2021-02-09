@@ -20,17 +20,17 @@ const ChannelPreviewCountOnly = ({
 ChannelPreviewCountOnly.propTypes = {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   channel: PropTypes.object.isRequired,
+  /** Title of channel to display */
+  displayTitle: PropTypes.string,
   /** @see See [chat context](https://getstream.github.io/stream-chat-react/#chat) for doc */
   setActiveChannel: PropTypes.func.isRequired,
+  /** Number of unread messages */
+  unread: PropTypes.number,
   /**
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
    * */
   watchers: /** @type {PropTypes.Validator<{ limit?: number | undefined; offset?: number | undefined} | null | undefined> | undefined} */ (PropTypes.object),
-  /** Number of unread messages */
-  unread: PropTypes.number,
-  /** Title of channel to display */
-  displayTitle: PropTypes.string,
 };
 
 export default React.memo(ChannelPreviewCountOnly);

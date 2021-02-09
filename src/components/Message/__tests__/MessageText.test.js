@@ -21,11 +21,11 @@ const bob = generateUser({ name: 'bob' });
 const onMentionsHoverMock = jest.fn();
 const onMentionsClickMock = jest.fn();
 const defaultProps = {
-  message: generateMessage(),
   initialMessage: false,
-  threadList: false,
+  message: generateMessage(),
   messageWrapperRef: { current: document.createElement('div') },
   onReactionListClick: () => {},
+  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {
@@ -52,8 +52,8 @@ async function renderMessageText(
         channel,
         client,
         emojiConfig: emojiMockConfig,
-        onMentionsHover: onMentionsHoverMock,
         onMentionsClick: onMentionsClickMock,
+        onMentionsHover: onMentionsHoverMock,
       }}
     >
       <TranslationContext.Provider
@@ -86,8 +86,8 @@ describe('<MessageText />', () => {
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
     const attachment = {
-      type: 'image',
       image_url: 'image.jpg',
+      type: 'image',
     };
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
@@ -179,8 +179,8 @@ describe('<MessageText />', () => {
   it('should display text in users set language', async () => {
     const text = 'bonjour';
     const message = generateAliceMessage({
+      i18n: { en_text: 'hello', fr_text: 'bonjour', language: 'fr' },
       text,
-      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
     });
 
     const { getByText } = await renderMessageText({ message });
@@ -245,7 +245,7 @@ describe('<MessageText />', () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
     const tree = await renderMessageText(
-      { message, customWrapperClass },
+      { customWrapperClass, message },
       {},
       testRenderer.create,
     );
@@ -275,7 +275,7 @@ describe('<MessageText />', () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
     const tree = await renderMessageText(
-      { message, customInnerClass },
+      { customInnerClass, message },
       {},
       testRenderer.create,
     );

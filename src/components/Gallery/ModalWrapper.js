@@ -28,9 +28,9 @@ const ModalComponent = ({ images, index, modalIsOpen, toggleModal }) => (
 
 ModalComponent.propTypes = {
   images: PropTypes.array.isRequired,
-  toggleModal: PropTypes.func.isRequired,
   index: PropTypes.number,
   modalIsOpen: PropTypes.bool.isRequired,
+  toggleModal: PropTypes.func.isRequired,
 };
 
 export default ModalComponent;

@@ -1,16 +1,16 @@
-import React from 'react';
+import type React from 'react';
 
 export interface TriggerMap {
   [triggerChar: string]: {
-    component: React.ComponentType<any>;
+    component: React.ComponentType<unknown>;
     dataProvider: (
       q: string,
       text: string,
-      onReady: (data: any[], token: string) => void,
-    ) => Promise<void> | Array<Object | string>;
-    callback?: (item: Object) => void;
+      onReady: (data: unknown[], token: string) => void,
+    ) => Promise<void> | Array<Record<string, unknown> | string>;
+    callback?: (item: Record<string, unknown>) => void;
     output?: (
-      item: { [key: string]: any },
+      item: { [key: string]: unknown },
       trigger?: string,
     ) =>
       | {

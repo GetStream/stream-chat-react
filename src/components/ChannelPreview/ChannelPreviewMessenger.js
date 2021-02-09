@@ -58,8 +58,8 @@ const ChannelPreviewMessenger = (props) => {
 };
 
 ChannelPreviewMessenger.propTypes = {
-  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  channel: PropTypes.object.isRequired,
+  /** If channel of component is active (selected) channel */
+  active: PropTypes.bool,
   /** Current selected channel object */
   activeChannel: PropTypes.object,
   /**
@@ -68,25 +68,25 @@ ChannelPreviewMessenger.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  channel: PropTypes.object.isRequired,
+  /** Image of channel to display */
+  displayImage: PropTypes.string,
+  /** Title of channel to display */
+  displayTitle: PropTypes.string,
+  /** Latest message's text. */
+  latestMessage: PropTypes.string,
+  /** Length of latest message to truncate at */
+  latestMessageLength: PropTypes.number,
   /** Setter for selected channel */
   setActiveChannel: PropTypes.func.isRequired,
+  /** Number of unread messages */
+  unread: PropTypes.number,
   /**
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
    * */
   watchers: PropTypes.object,
-  /** Number of unread messages */
-  unread: PropTypes.number,
-  /** If channel of component is active (selected) channel */
-  active: PropTypes.bool,
-  /** Latest message's text. */
-  latestMessage: PropTypes.string,
-  /** Length of latest message to truncate at */
-  latestMessageLength: PropTypes.number,
-  /** Title of channel to display */
-  displayTitle: PropTypes.string,
-  /** Image of channel to display */
-  displayImage: PropTypes.string,
 };
 
 ChannelPreviewMessenger.defaultProps = {

@@ -34,11 +34,11 @@ const Avatar = ({
       onClick={onClick}
       onMouseOver={onMouseOver}
       style={{
-        width: `${size}px`,
-        height: `${size}px`,
         flexBasis: `${size}px`,
-        lineHeight: `${size}px`,
         fontSize: `${size / 2}px`,
+        height: `${size}px`,
+        lineHeight: `${size}px`,
+        width: `${size}px`,
       }}
       title={name}
     >
@@ -53,10 +53,10 @@ const Avatar = ({
           onLoad={() => setLoaded(true)}
           src={image}
           style={{
-            width: `${size}px`,
-            height: `${size}px`,
             flexBasis: `${size}px`,
+            height: `${size}px`,
             objectFit: 'cover',
+            width: `${size}px`,
           }}
         />
       ) : (
@@ -76,14 +76,14 @@ Avatar.propTypes = {
   image: PropTypes.string,
   /** name of the picture, used for title tag fallback */
   name: PropTypes.string,
-  /** shape of the avatar, circle, rounded or square */
-  shape: PropTypes.oneOf(['circle', 'rounded', 'square']),
-  /** size in pixels */
-  size: PropTypes.number,
   /** click event handler */
   onClick: PropTypes.func,
   /** mouseOver event handler */
   onMouseOver: PropTypes.func,
+  /** shape of the avatar, circle, rounded or square */
+  shape: PropTypes.oneOf(['circle', 'rounded', 'square']),
+  /** size in pixels */
+  size: PropTypes.number,
 };
 
 export default Avatar;

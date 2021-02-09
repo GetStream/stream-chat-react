@@ -23,8 +23,8 @@ describe('LoadingIndicator', () => {
     const circle = getByTestId('loading-indicator-circle');
     waitFor(() => {
       expect(wrapper).toHaveStyle({
-        width: size,
         height: size,
+        width: size,
       });
       expect(wrapper.firstChild).toHaveAttribute('width', size);
       expect(wrapper.firstChild).toHaveAttribute('height', size);

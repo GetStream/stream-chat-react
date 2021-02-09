@@ -99,14 +99,25 @@ const MessageActionsBox = ({
 };
 
 MessageActionsBox.propTypes = {
-  /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
-  /** If the message actions box should be open or not */
-  open: PropTypes.bool,
-  /** If message belongs to current user. */
-  mine: PropTypes.bool,
-  /** DOMRect object for parent MessageList component */
-  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
+  /**
+   * Returns array of available message actions for current message.
+   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
+   */
+  getMessageActions: PropTypes.func.isRequired,
+  /**
+   * Handler for deleting a current message
+   *
+   * @param event React's MouseEventHandler event
+   * @returns void
+   * */
+  handleDelete: PropTypes.func,
+  /**
+   * Handler for editing a current message
+   *
+   * @param event React's MouseEventHandler event
+   * @returns void
+   * */
+  handleEdit: PropTypes.func,
   /**
    * Handler for flagging a current message
    *
@@ -122,31 +133,20 @@ MessageActionsBox.propTypes = {
    * */
   handleMute: PropTypes.func,
   /**
-   * Handler for editing a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleEdit: PropTypes.func,
-  /**
-   * Handler for deleting a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleDelete: PropTypes.func,
-  /**
    * Handler for pinning a current message
    *
    * @param event React's MouseEventHandler event
    * @returns void
    * */
   handlePin: PropTypes.func,
-  /**
-   * Returns array of available message actions for current message.
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
-   */
-  getMessageActions: PropTypes.func.isRequired,
+  /** The [message object](https://getstream.io/chat/docs/#message_format) */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
+  /** DOMRect object for parent MessageList component */
+  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
+  /** If message belongs to current user. */
+  mine: PropTypes.bool,
+  /** If the message actions box should be open or not */
+  open: PropTypes.bool,
 };
 
 export default React.memo(MessageActionsBox);

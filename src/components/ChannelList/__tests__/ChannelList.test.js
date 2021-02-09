@@ -94,10 +94,10 @@ describe('ChannelList', () => {
     beforeEach(() => {
       closeMobileNav = jest.fn();
       props = {
-        filters: {},
-        Preview: ChannelPreviewComponent,
-        List: ChannelListComponent,
         closeMobileNav,
+        filters: {},
+        List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
       useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
@@ -147,8 +147,8 @@ describe('ChannelList', () => {
   it('should re-query channels when filters change', async () => {
     const props = {
       filters: {},
-      Preview: ChannelPreviewComponent,
       List: ChannelListComponent,
+      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
@@ -182,10 +182,10 @@ describe('ChannelList', () => {
       channels.filter((channel) => channel.type === 'filtered');
 
     const props = {
-      filters: {},
-      Preview: ChannelPreviewComponent,
-      List: ChannelListComponent,
       channelRenderFilterFn: customFilterFunction,
+      filters: {},
+      List: ChannelListComponent,
+      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClientUthred, [
@@ -214,7 +214,7 @@ describe('ChannelList', () => {
         <ChannelList
           filters={{}}
           List={ChannelListComponent}
-          options={{ state: true, watch: true, presence: true }}
+          options={{ presence: true, state: true, watch: true }}
           Preview={ChannelPreviewComponent}
         />
       </Chat>,
@@ -285,7 +285,7 @@ describe('ChannelList', () => {
           EmptyStateIndicator={EmptyStateIndicator}
           filters={{}}
           List={ChannelListComponent}
-          options={{ state: true, watch: true, presence: true }}
+          options={{ presence: true, state: true, watch: true }}
         />
       </Chat>,
     );
@@ -324,9 +324,9 @@ describe('ChannelList', () => {
             filters={{}}
             List={ChannelListComponent}
             options={{
+              presence: true,
               state: true,
               watch: true,
-              presence: true,
             }}
             setActiveChannelOnMount
             watchers={watchersConfig}
@@ -351,7 +351,7 @@ describe('ChannelList', () => {
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
             List={ChannelListComponent}
-            options={{ state: true, watch: true, presence: true }}
+            options={{ presence: true, state: true, watch: true }}
             setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
             watchers={watchersConfig}
@@ -376,7 +376,7 @@ describe('ChannelList', () => {
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
             List={ChannelListComponent}
-            options={{ state: true, watch: true, presence: true }}
+            options={{ presence: true, state: true, watch: true }}
             Preview={ChannelPreviewComponent}
             setActiveChannel={setActiveChannel}
             setActiveChannelOnMount
@@ -405,8 +405,8 @@ describe('ChannelList', () => {
     describe('message.new', () => {
       const props = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
       const sendNewMessageOnChannel3 = () => {
         const newMessage = generateMessage({
@@ -494,7 +494,7 @@ describe('ChannelList', () => {
             <ChannelList
               filters={{}}
               List={ChannelListComponent}
-              options={{ state: true, watch: true, presence: true }}
+              options={{ presence: true, state: true, watch: true }}
               Preview={ChannelPreviewComponent}
             />
           </Chat>,
@@ -536,7 +536,7 @@ describe('ChannelList', () => {
               filters={{}}
               List={ChannelListComponent}
               onMessageNew={onMessageNew}
-              options={{ state: true, watch: true, presence: true }}
+              options={{ presence: true, state: true, watch: true }}
               Preview={ChannelPreviewComponent}
             />
           </Chat>,
@@ -565,9 +565,9 @@ describe('ChannelList', () => {
     describe('notification.added_to_channel', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
-        options: { state: true, watch: true, presence: true },
+        options: { presence: true, state: true, watch: true },
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -641,8 +641,8 @@ describe('ChannelList', () => {
     describe('notification.removed_from_channel', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -706,8 +706,8 @@ describe('ChannelList', () => {
     describe('channel.updated', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -775,8 +775,8 @@ describe('ChannelList', () => {
     describe('channel.deleted', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -864,8 +864,8 @@ describe('ChannelList', () => {
     describe('channel.hidden', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -928,9 +928,9 @@ describe('ChannelList', () => {
     describe('channel.visible', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
-        options: { state: true, watch: true, presence: true },
+        options: { presence: true, state: true, watch: true },
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -1001,8 +1001,8 @@ describe('ChannelList', () => {
         const channel2 = generateChannel();
         const channelListProps = {
           filters: {},
-          Preview: ChannelPreviewComponent,
           List: ChannelListComponent,
+          Preview: ChannelPreviewComponent,
         };
 
         useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
@@ -1042,8 +1042,8 @@ describe('ChannelList', () => {
 
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {

@@ -77,9 +77,9 @@ const FixedHeightMessage = ({ groupedByUser, message }) => {
       key={message.id}
     >
       <Avatar
+        // @ts-expect-error
         image={message.user?.image}
         name={message.user?.name || message.user?.id}
-        // @ts-expect-error
         shape='rounded'
         size={38}
       />

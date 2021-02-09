@@ -34,10 +34,10 @@ const ChatDown = ({ image, text, type = 'Error' }) => {
 ChatDown.propTypes = {
   /** The image url for this error */
   image: PropTypes.string,
-  /** The type of error */
-  type: PropTypes.string.isRequired,
   /** The error message to show */
   text: PropTypes.string,
+  /** The type of error */
+  type: PropTypes.string.isRequired,
 };
 
 export default React.memo(ChatDown);

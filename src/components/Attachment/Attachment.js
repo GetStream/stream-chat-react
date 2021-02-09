@@ -259,11 +259,11 @@ const Attachment = ({
   ...rest
 }) => {
   const gallery = {
-    type: 'gallery',
     images: attachments.filter(
       /** @param {import('types').ExtendedAttachment} a */ (a) =>
         a.type === 'image' && !(a.og_scrape_url || a.title_link),
     ),
+    type: 'gallery',
   };
   let newAttachments;
   if (gallery.images?.length >= 2) {
@@ -279,14 +279,14 @@ const Attachment = ({
   }
 
   const propsWithDefault = {
-    Card,
-    Image,
-    Audio,
-    File,
-    Media,
-    Gallery,
     AttachmentActions,
     attachments: newAttachments,
+    Audio,
+    Card,
+    File,
+    Gallery,
+    Image,
+    Media,
     ...rest,
   };
 
@@ -323,6 +323,18 @@ const Attachment = ({
 
 Attachment.propTypes = {
   /**
+   *
+   * @param name {string} Name of action
+   * @param value {string} Value of action
+   * @param event Dom event that triggered this handler
+   */
+  actionHandler: PropTypes.func,
+  /**
+   * Custom UI component for attachment actions
+   * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.js)
+   */
+  AttachmentActions: /** @type {PropTypes.Validator<React.ComponentType<import('types').AttachmentActionsProps>>} */ (PropTypes.elementType),
+  /**
    * The attachment to render
    * @see See [Attachment structure](https://getstream.io/chat/docs/#message_format)
    *
@@ -330,12 +342,10 @@ Attachment.propTypes = {
   attachments: /** @type {PropTypes.Validator<ExtendedAttachment[]>} */ (PropTypes
     .array.isRequired),
   /**
-   *
-   * @param name {string} Name of action
-   * @param value {string} Value of action
-   * @param event Dom event that triggered this handler
+   * Custom UI component for audio type attachment
+   * Defaults to [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.js)
    */
-  actionHandler: PropTypes.func,
+  Audio: /** @type {PropTypes.Validator<React.ComponentType<import('types').AudioProps>>} */ (PropTypes.elementType),
   /**
    * Custom UI component for card type attachment
    * Defaults to [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.js)
@@ -356,21 +366,12 @@ Attachment.propTypes = {
    * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.js)
    */
   Image: /** @type {PropTypes.Validator<React.ComponentType<import('types').ImageProps>>} */ (PropTypes.elementType),
-  /**
-   * Custom UI component for audio type attachment
-   * Defaults to [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.js)
-   */
-  Audio: /** @type {PropTypes.Validator<React.ComponentType<import('types').AudioProps>>} */ (PropTypes.elementType),
+
   /**
    * Custom UI component for media type attachment
    * Defaults to [ReactPlayer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/ReactPlayer.js)
    */
   Media: /** @type {PropTypes.Validator<React.ComponentType<import('react-player').ReactPlayerProps>>} */ (PropTypes.elementType),
-  /**
-   * Custom UI component for attachment actions
-   * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.js)
-   */
-  AttachmentActions: /** @type {PropTypes.Validator<React.ComponentType<import('types').AttachmentActionsProps>>} */ (PropTypes.elementType),
 };
 
 export default Attachment;

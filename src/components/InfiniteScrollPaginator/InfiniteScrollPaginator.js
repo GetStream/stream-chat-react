@@ -39,19 +39,19 @@ const InfiniteScrollPaginator = ({
 );
 
 InfiniteScrollPaginator.propTypes = {
-  /** callback to load the next page */
-  loadNextPage: PropTypes.func.isRequired,
   /** indicates if there is a next page to load */
   hasNextPage: PropTypes.bool,
+  /** The loading indicator to use */
+  // @ts-expect-error
+  LoadingIndicator: PropTypes.elementType,
+  /** callback to load the next page */
+  loadNextPage: PropTypes.func.isRequired,
   /** indicates if there there's currently any refreshing taking place */
   refreshing: PropTypes.bool,
   /** display the items in opposite order */
   reverse: PropTypes.bool,
   /** Offset from when to start the loadNextPage call */
   threshold: PropTypes.number,
-  /** The loading indicator to use */
-  // @ts-expect-error
-  LoadingIndicator: PropTypes.elementType,
 };
 
 export default InfiniteScrollPaginator;

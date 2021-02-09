@@ -36,12 +36,12 @@ const MessageDeleted = (props) => {
 };
 
 MessageDeleted.propTypes = {
+  /** @deprecated This is no longer needed. The component should now rely on the user role custom hook */
+  isMyMessage: PropTypes.func,
   /** The [message object](https://getstream.io/chat/docs/#message_format) */
   // @ts-expect-error
   // Ignoring this for now as Typescript definitions on 'stream-chat' are wrong.
   message: MessagePropTypes,
-  /** @deprecated This is no longer needed. The component should now rely on the user role custom hook */
-  isMyMessage: PropTypes.func,
 };
 
 export default MessageDeleted;

@@ -36,8 +36,8 @@ export const isUserMuted = (message, mutes) => {
 };
 
 export const MESSAGE_ACTIONS = {
-  edit: 'edit',
   delete: 'delete',
+  edit: 'edit',
   flag: 'flag',
   mute: 'mute',
   pin: 'pin',
@@ -278,10 +278,10 @@ export const getReadByTooltipText = (users, t, client) => {
 };
 
 export const MessagePropTypes = PropTypes.shape({
-  id: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
-  html: PropTypes.string.isRequired,
   created_at: PropTypes.instanceOf(Date).isRequired,
+  html: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
   updated_at: PropTypes.instanceOf(Date).isRequired,
 }).isRequired;

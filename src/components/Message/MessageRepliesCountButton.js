@@ -53,18 +53,18 @@ MessageRepliesCountButton.defaultProps = {
 };
 
 MessageRepliesCountButton.propTypes = {
-  /** Label for number of replies, when count is 1 */
-  labelSingle: PropTypes.string,
   /** Label for number of replies, when count is more than 1 */
   labelPlural: PropTypes.string,
-  /** Number of replies */
-  reply_count: PropTypes.number,
+  /** Label for number of replies, when count is 1 */
+  labelSingle: PropTypes.string,
   /**
    * click handler for button
    * @param event React's MouseEventHandler event
    * @returns void
    * */
   onClick: PropTypes.func,
+  /** Number of replies */
+  reply_count: PropTypes.number,
 };
 
 export default React.memo(MessageRepliesCountButton);

@@ -19,12 +19,12 @@ const CommandItem = ({ entity }) => (
 
 CommandItem.propTypes = {
   entity: PropTypes.shape({
-    /** Name of the command */
-    name: PropTypes.string,
     /** Arguments of command */
     args: PropTypes.string,
     /** Description of command */
     description: PropTypes.string,
+    /** Name of the command */
+    name: PropTypes.string,
   }).isRequired,
 };
 

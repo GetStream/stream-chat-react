@@ -101,18 +101,18 @@ const Card = ({
 };
 
 Card.propTypes = {
+  /** The url of the full sized image */
+  image_url: PropTypes.string,
+  /** The scraped url, used as a fallback if the OG-data doesn't include a link */
+  og_scrape_url: PropTypes.string,
+  /** Description returned by the OG scraper */
+  text: PropTypes.string,
+  /** The url for thumbnail sized image */
+  thumb_url: PropTypes.string,
   /** Title returned by the OG scraper */
   title: PropTypes.string,
   /** Link returned by the OG scraper */
   title_link: PropTypes.string,
-  /** The scraped url, used as a fallback if the OG-data doesn't include a link */
-  og_scrape_url: PropTypes.string,
-  /** The url of the full sized image */
-  image_url: PropTypes.string,
-  /** The url for thumbnail sized image */
-  thumb_url: PropTypes.string,
-  /** Description returned by the OG scraper */
-  text: PropTypes.string,
 };
 
 export default React.memo(Card);

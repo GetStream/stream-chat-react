@@ -69,15 +69,15 @@ const Message = (props) => {
   const handleRetry = useRetryHandler(propRetrySendMessage);
 
   const handleFlag = useFlagHandler(message, {
-    notify: addNotification,
-    getSuccessNotification: getFlagMessageSuccessNotification,
     getErrorNotification: getFlagMessageErrorNotification,
+    getSuccessNotification: getFlagMessageSuccessNotification,
+    notify: addNotification,
   });
 
   const handleMute = useMuteHandler(message, {
-    notify: addNotification,
-    getSuccessNotification: getMuteUserSuccessNotification,
     getErrorNotification: getMuteUserErrorNotification,
+    getSuccessNotification: getMuteUserSuccessNotification,
+    notify: addNotification,
   });
 
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
@@ -86,8 +86,8 @@ const Message = (props) => {
   });
 
   const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
-    notify: addNotification,
     getErrorNotification: getPinMessageErrorNotification,
+    notify: addNotification,
   });
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
@@ -110,11 +110,11 @@ const Message = (props) => {
     return getMessageActions(messageActions, {
       canDelete,
       canEdit,
-      canPin,
-      canReply,
-      canReact,
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
+      canPin,
+      canReact,
+      canReply,
     });
   }, [
     canDelete,
@@ -164,79 +164,39 @@ const Message = (props) => {
 };
 
 Message.propTypes = {
-  /** The message object */
-  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.shape(
-    {
-      text: PropTypes.string.isRequired,
-      html: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
-      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired),
-      created_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-      updated_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    },
-  ).isRequired),
-  /** The client connection object for connecting to Stream */
-  client: /** @type {PropTypes.Validator<import('types').StreamChatReactClient>} */ (PropTypes.objectOf(
-    checkClientPropType,
-  )),
-  /** The current channel this message is displayed in */
-  channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
-    checkChannelPropType,
-  )),
-  /** A list of users that have read this message */
-  readBy: PropTypes.array,
-  /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-  groupStyles: PropTypes.array,
-
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate: PropTypes.func,
+  /**
+   * Additional props for underlying MessageInput component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
+  additionalMessageInputProps: PropTypes.object,
+  /**
+   * Function to add custom notification on message list
+   *
+   * @param text Notification text to display
+   * @param type Type of notification. 'success' | 'error'
+   * */
+  addNotification: PropTypes.func,
+  /**
+   * Attachment UI component to display attachment in individual message.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
   /**
    * Custom UI component to display user avatar
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /**
-   * Message UI component to display a message in message list.
-   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-   * */
-  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
-  /**
-   * The component that will be rendered if the message has been deleted.
-   * All props are passed into this component.
-   */
-  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
-
-  /**
-   * A component to display the selector that allows a user to react to a certain message.
-   */
-  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
-  /**
-   * A component to display the a message list of reactions.
-   */
-  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
-  /**
-   * Attachment UI component to display attachment in individual message.
-   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
-   * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML: PropTypes.bool,
-  /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
-   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-   * */
-  messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-   *
-   * This function should accept following params:
-   *
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-   *
-   * */
-  getFlagMessageSuccessNotification: PropTypes.func,
+  /** The current channel this message is displayed in */
+  channel: /** @type {PropTypes.Validator<ReturnType<import('types').StreamChatReactClient['channel']>>} */ (PropTypes.objectOf(
+    checkChannelPropType,
+  )),
+  /** The client connection object for connecting to Stream */
+  client: /** @type {PropTypes.Validator<import('types').StreamChatReactClient>} */ (PropTypes.objectOf(
+    checkClientPropType,
+  )),
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
    *
@@ -247,14 +207,14 @@ Message.propTypes = {
    * */
   getFlagMessageErrorNotification: PropTypes.func,
   /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
    *
    * This function should accept following params:
    *
-   * @param user A user object which is being muted
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
    *
    * */
-  getMuteUserSuccessNotification: PropTypes.func,
+  getFlagMessageSuccessNotification: PropTypes.func,
   /**
    * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
    *
@@ -265,6 +225,15 @@ Message.propTypes = {
    * */
   getMuteUserErrorNotification: PropTypes.func,
   /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserSuccessNotification: PropTypes.func,
+  /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
    *
    * This function should accept following params:
@@ -273,25 +242,41 @@ Message.propTypes = {
    *
    * */
   getPinMessageErrorNotification: PropTypes.func,
+  /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
+  groupStyles: PropTypes.array,
   /** Latest message id on current channel */
   lastReceivedId: PropTypes.string,
-  /** DOMRect object for parent MessageList component */
-  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members: /** @type {PropTypes.Validator<{[user_id: string]: import('stream-chat').ChannelMemberResponse<import('types').StreamChatReactUserType>} | null | undefined>} */ (PropTypes.object),
+  /** The message object */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.shape(
+    {
+      created_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+      html: PropTypes.string.isRequired,
+      reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
+      reaction_scores: PropTypes.objectOf(PropTypes.number.isRequired),
+      text: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      updated_at: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    },
+  ).isRequired),
   /**
-   * Function to add custom notification on message list
-   *
-   * @param text Notification text to display
-   * @param type Type of notification. 'success' | 'error'
+   * Message UI component to display a message in message list.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
-  addNotification: PropTypes.func,
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-  updateMessage: PropTypes.func,
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-  removeMessage: PropTypes.func,
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-  retrySendMessage: PropTypes.func,
+  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.elementType),
+  /**
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
+   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+   * */
+  messageActions: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
+  /**
+   * The component that will be rendered if the message has been deleted.
+   * All props are passed into this component.
+   */
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+  /** DOMRect object for parent MessageList component */
+  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   onMentionsClick: PropTypes.func,
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
@@ -313,14 +298,27 @@ Message.propTypes = {
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   openThread: PropTypes.func,
   /**
-   * Additional props for underlying MessageInput component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-   * */
-  additionalMessageInputProps: PropTypes.object,
-  /**
    * The user roles allowed to pin messages in various channel types
    */
   pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
+   */
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
+  /** A list of users that have read this message */
+  readBy: PropTypes.array,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  removeMessage: PropTypes.func,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  retrySendMessage: PropTypes.func,
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML: PropTypes.bool,
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  updateMessage: PropTypes.func,
 };
 
 Message.defaultProps = {

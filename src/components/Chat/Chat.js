@@ -39,15 +39,15 @@ const Chat = (props) => {
     openMobileNav,
     setActiveChannel,
     translators,
-  } = useChat({ client, initialNavOpen, i18nInstance });
+  } = useChat({ client, i18nInstance, initialNavOpen });
 
   if (!translators.t) return null;
 
   return (
     <ChatContext.Provider
       value={{
-        client,
         channel,
+        client,
         closeMobileNav,
         mutes,
         navOpen,
@@ -67,6 +67,8 @@ Chat.propTypes = {
   /** The StreamChat client object */
   client: /** @type {PropTypes.Validator<import('stream-chat').StreamChat>} */ (PropTypes
     .object.isRequired),
+  /** navOpen initial status */
+  initialNavOpen: PropTypes.bool,
   /**
    *
    * Theme could be used for custom styling of the components.
@@ -105,8 +107,6 @@ Chat.propTypes = {
    *  - `livestream dark`
    */
   theme: PropTypes.string,
-  /** navOpen initial status */
-  initialNavOpen: PropTypes.bool,
 };
 
 export default Chat;

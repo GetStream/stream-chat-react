@@ -15,7 +15,7 @@ const LoadMorePaginator = ({
   <>
     {!reverse && children}
     {hasNextPage &&
-      smartRender(LoadMoreButton, { refreshing, onClick: loadNextPage })}
+      smartRender(LoadMoreButton, { onClick: loadNextPage, refreshing })}
     {reverse && children}
   </>
 );
@@ -25,6 +25,8 @@ LoadMorePaginator.defaultProps = {
 };
 
 LoadMorePaginator.propTypes = {
+  /** indicates if there is a next page to load */
+  hasNextPage: PropTypes.bool,
   LoadMoreButton: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.func,
@@ -32,8 +34,6 @@ LoadMorePaginator.propTypes = {
   ]),
   /** callback to load the next page */
   loadNextPage: PropTypes.func,
-  /** indicates if there is a next page to load */
-  hasNextPage: PropTypes.bool,
   /** display the items in opposite order */
   reverse: PropTypes.bool,
 };

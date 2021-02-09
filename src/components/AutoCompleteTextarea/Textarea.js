@@ -51,8 +51,8 @@ class ReactTextareaAutocomplete extends React.Component {
       listenerIndex: 0,
       selectionEnd: 0,
       selectionStart: 0,
-      value: value || '',
       top: null,
+      value: value || '',
     };
   }
 
@@ -84,8 +84,8 @@ class ReactTextareaAutocomplete extends React.Component {
     if (!this.textareaRef) return null;
 
     return {
-      selectionStart: this.textareaRef.selectionStart,
       selectionEnd: this.textareaRef.selectionEnd,
+      selectionStart: this.textareaRef.selectionStart,
     };
   };
 
@@ -226,8 +226,8 @@ class ReactTextareaAutocomplete extends React.Component {
     // set the new textarea value and after that set the caret back to its position
     this.setState(
       {
-        value: textareaValue.replace(textToModify, modifiedText),
         dataLoading: false,
+        value: textareaValue.replace(textToModify, modifiedText),
       },
       () => {
         // fire onChange event after successful selection
@@ -295,8 +295,8 @@ class ReactTextareaAutocomplete extends React.Component {
 
         if (typeof textToReplace === 'string') {
           return {
-            text: textToReplace,
             caretPosition: DEFAULT_CARET_POSITION,
+            text: textToReplace,
           };
         }
 

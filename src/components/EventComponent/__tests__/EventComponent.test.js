@@ -21,9 +21,9 @@ describe('EventComponent', () => {
 
   it('should render system events', () => {
     const message = {
-      type: 'system',
-      text: 'system event',
       created_at: '2020-03-13T10:18:38.148025Z',
+      text: 'system event',
+      type: 'system',
     };
 
     const tree = renderer.create(<EventComponent message={message} />).toJSON();
@@ -61,12 +61,12 @@ describe('EventComponent', () => {
   describe('Channel events', () => {
     it('should render message for member add event', () => {
       const message = {
-        type: 'channel.event',
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.added',
-          user: { id: 'user_id', username: 'username', image: 'image_url' },
+          user: { id: 'user_id', image: 'image_url', username: 'username' },
         },
+        type: 'channel.event',
       };
 
       const tree = renderer
@@ -101,12 +101,12 @@ describe('EventComponent', () => {
 
     it('should render message for member remove event', () => {
       const message = {
-        type: 'channel.event',
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.removed',
-          user: { id: 'user_id', username: 'username', image: 'image_url' },
+          user: { id: 'user_id', image: 'image_url', username: 'username' },
         },
+        type: 'channel.event',
       };
 
       const tree = renderer

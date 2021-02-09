@@ -1,2 +1,2 @@
-export { default as MessageActionsBox } from './MessageActionsBox';
 export * from './MessageActions';
+export { default as MessageActionsBox } from './MessageActionsBox';

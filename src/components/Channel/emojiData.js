@@ -1,69 +1,69 @@
 export const emojiSetDef = {
-  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
-  size: 20,
   sheetColumns: 2,
   sheetRows: 3,
   sheetSize: 64,
+  size: 20,
+  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
 };
 
 /** @type {import("types").commonEmojiInterface} */
 export const commonEmoji = {
+  custom: true,
   emoticons: [],
   short_names: [],
-  custom: true,
 };
 
 /** @type {import("types").MinimalEmojiInterface[]} */
 export const defaultMinimalEmojis = [
   {
+    colons: ':+1:',
     id: 'like',
     name: 'like',
-    colons: ':+1:',
     sheet_x: 0,
     sheet_y: 0,
     ...commonEmoji,
     ...emojiSetDef,
   },
   {
+    colons: ':heart:',
     id: 'love',
     name: 'love',
-    colons: ':heart:',
     sheet_x: 1,
     sheet_y: 2,
     ...commonEmoji,
     ...emojiSetDef,
   },
   {
+    colons: ':joy:',
     id: 'haha',
     name: 'haha',
-    colons: ':joy:',
     sheet_x: 1,
     sheet_y: 0,
     ...commonEmoji,
     ...emojiSetDef,
   },
   {
+    colons: ':astonished:',
     id: 'wow',
     name: 'wow',
-    colons: ':astonished:',
     sheet_x: 0,
     sheet_y: 2,
     ...commonEmoji,
     ...emojiSetDef,
   },
   {
+    colons: ':pensive:',
     id: 'sad',
     name: 'sad',
-    colons: ':pensive:',
     sheet_x: 0,
     sheet_y: 1,
     ...commonEmoji,
     ...emojiSetDef,
   },
   {
+    colons: ':angry:',
     id: 'angry',
     name: 'angry',
-    colons: ':angry:',
     sheet_x: 1,
     sheet_y: 1,
     ...commonEmoji,

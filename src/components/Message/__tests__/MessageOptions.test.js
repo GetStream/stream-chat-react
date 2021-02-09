@@ -18,12 +18,12 @@ jest.mock('../../MessageActions', () => ({
 
 const alice = generateUser({ name: 'alice' });
 const defaultProps = {
-  message: generateMessage(),
+  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
   initialMessage: false,
-  threadList: false,
+  message: generateMessage(),
   messageWrapperRef: { current: document.createElement('div') },
   onReactionListClick: () => {},
-  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
+  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {
@@ -103,7 +103,7 @@ describe('<MessageOptions />', () => {
     const handleOpenThread = jest.fn(() => {});
     const message = generateMessage();
     const { getByTestId } = await renderMessageOptions(
-      { threadList: false, handleOpenThread, message },
+      { handleOpenThread, message, threadList: false },
       { replies: true },
     );
     expect(handleOpenThread).not.toHaveBeenCalled();
@@ -146,8 +146,8 @@ describe('<MessageOptions />', () => {
   it('should not render message with "left-to-the-bubble" style if displayLeft is false', async () => {
     const message = generateAliceMessage();
     const { queryByTestId } = await renderMessageOptions({
-      message,
       displayLeft: false,
+      message,
     });
     expect(queryByTestId('message-options-left')).toBeNull();
   });

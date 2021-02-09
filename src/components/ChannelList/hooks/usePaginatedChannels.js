@@ -36,9 +36,9 @@ export const usePaginatedChannels = (
     setRefreshing(true);
 
     const newOptions = {
+      limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
       offset: queryType === 'reload' ? 0 : offset,
       ...options,
-      limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
     };
 
     try {
@@ -82,13 +82,13 @@ export const usePaginatedChannels = (
 
   return {
     channels,
-    loadNextPage,
     hasNextPage,
+    loadNextPage,
+    setChannels,
     status: {
+      error,
       loadingChannels,
       refreshing,
-      error,
     },
-    setChannels,
   };
 };

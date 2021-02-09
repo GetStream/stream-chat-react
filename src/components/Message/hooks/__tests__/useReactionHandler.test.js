@@ -28,10 +28,10 @@ async function renderUseReactionHandlerHook(
 ) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
+    deleteReaction,
     getConfig,
     sendAction,
     sendReaction,
-    deleteReaction,
     ...channelContextProps,
   });
   const wrapper = ({ children }) => (
@@ -112,7 +112,7 @@ function renderUseReactionClickHook(
     () => useReactionClick(message, reactionListRef, messageWrapperRef),
     { wrapper },
   );
-  return { result, rerender };
+  return { rerender, result };
 }
 
 describe('useReactionClick custom hook', () => {

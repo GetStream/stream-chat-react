@@ -32,18 +32,10 @@ export const ChannelListMessenger = ({
 };
 
 ChannelListMessenger.propTypes = {
-  /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
-  loading: PropTypes.bool,
   /** When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js) */
   error: PropTypes.bool,
-  /**
-   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
-   *
-   * Defaults to and accepts same props as:
-   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
-   *
-   */
-  LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
+  /** When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js) */
+  loading: PropTypes.bool,
   /**
    * Error indicator UI Component. It will be displayed if `error` prop is true
    *
@@ -52,6 +44,14 @@ ChannelListMessenger.propTypes = {
    *
    */
   LoadingErrorIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').ChatDownProps>>} */ (PropTypes.elementType),
+  /**
+   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
+   *
+   * Defaults to and accepts same props as:
+   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
+   *
+   */
+  LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
 };
 
 export default ChannelListMessenger;

@@ -59,15 +59,15 @@ const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
 };
 
 EventComponent.propTypes = {
-  /** Message object */
-  // @ts-expect-error
-  message: PropTypes.object.isRequired,
   /**
    * Custom UI component to display user avatar
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /** Message object */
+  // @ts-expect-error
+  message: PropTypes.object.isRequired,
 };
 
 export default React.memo(EventComponent);

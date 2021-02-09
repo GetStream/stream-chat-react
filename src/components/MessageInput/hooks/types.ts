@@ -1,4 +1,4 @@
-import { UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 type SetEmojiPickerIsOpenAction = {
   type: 'setEmojiPickerIsOpen';

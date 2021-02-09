@@ -7,13 +7,13 @@ const MessageInput = (props) => {
 };
 
 MessageInput.defaultProps = {
-  focus: false,
-  disabled: false,
-  publishTypingEvent: true,
-  grow: true,
-  maxRows: 10,
-  Input: MessageInputLarge,
   additionalTextareaProps: {},
+  disabled: false,
+  focus: false,
+  grow: true,
+  Input: MessageInputLarge,
+  maxRows: 10,
+  publishTypingEvent: true,
 };
 
 export default React.memo(MessageInput);

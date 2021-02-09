@@ -29,7 +29,7 @@ describe('commandItem', () => {
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = { name: 'name', args: 'args', description: 'description' };
+    const entity = { args: 'args', description: 'description', name: 'name' };
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);

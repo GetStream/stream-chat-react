@@ -86,67 +86,8 @@ const ChatAutoComplete = (props) => {
   const getTriggers = useCallback(
     () =>
       triggers || {
-        ':': {
-          dataProvider: (q, text, onReady) => {
-            if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
-              return [];
-            }
-            const emojis = emojiIndex.search(q) || [];
-            const result = emojis.slice(0, 10);
-
-            if (onReady) onReady(result, q);
-
-            return result;
-          },
-          component: EmoticonItem,
-          output: (entity) => ({
-            key: entity.id,
-            text: `${entity.native}`,
-            caretPosition: 'next',
-          }),
-        },
-        '@': {
-          dataProvider: (query, text, onReady) => {
-            // By default, we return maximum 100 members via queryChannels api call.
-            // Thus it is safe to assume, that if number of members in channel.state is < 100,
-            // then all the members are already available on client side and we don't need to
-            // make any api call to queryMembers endpoint.
-            if (!query || Object.values(members || {}).length < 100) {
-              const users = getMembersAndWatchers();
-
-              const matchingUsers = users.filter((user) => {
-                if (!query) return true;
-                if (
-                  user.name !== undefined &&
-                  user.name.toLowerCase().includes(query.toLowerCase())
-                ) {
-                  return true;
-                }
-                return user.id.toLowerCase().includes(query.toLowerCase());
-              });
-              const data = matchingUsers.slice(0, 10);
-
-              if (onReady) onReady(data, query);
-
-              return data;
-            }
-            return queryMembersDebounced(
-              query,
-              /** @param {any[]} data */
-              (data) => {
-                if (onReady) onReady(data, query);
-              },
-            );
-          },
-          component: UserItem,
-          output: (entity) => ({
-            key: entity.id,
-            text: `@${entity.name || entity.id}`,
-            caretPosition: 'next',
-          }),
-          callback: (item) => onSelectItem && onSelectItem(item),
-        },
         '/': {
+          component: CommandItem,
           dataProvider: (q, text, onReady) => {
             if (text.indexOf('/') !== 0 || !commands) {
               return [];
@@ -183,11 +124,70 @@ const ChatAutoComplete = (props) => {
 
             return result;
           },
-          component: CommandItem,
           output: (entity) => ({
+            caretPosition: 'next',
             key: entity.id,
             text: `/${entity.name}`,
+          }),
+        },
+        ':': {
+          component: EmoticonItem,
+          dataProvider: (q, text, onReady) => {
+            if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
+              return [];
+            }
+            const emojis = emojiIndex.search(q) || [];
+            const result = emojis.slice(0, 10);
+
+            if (onReady) onReady(result, q);
+
+            return result;
+          },
+          output: (entity) => ({
             caretPosition: 'next',
+            key: entity.id,
+            text: `${entity.native}`,
+          }),
+        },
+        '@': {
+          callback: (item) => onSelectItem && onSelectItem(item),
+          component: UserItem,
+          dataProvider: (query, text, onReady) => {
+            // By default, we return maximum 100 members via queryChannels api call.
+            // Thus it is safe to assume, that if number of members in channel.state is < 100,
+            // then all the members are already available on client side and we don't need to
+            // make any api call to queryMembers endpoint.
+            if (!query || Object.values(members || {}).length < 100) {
+              const users = getMembersAndWatchers();
+
+              const matchingUsers = users.filter((user) => {
+                if (!query) return true;
+                if (
+                  user.name !== undefined &&
+                  user.name.toLowerCase().includes(query.toLowerCase())
+                ) {
+                  return true;
+                }
+                return user.id.toLowerCase().includes(query.toLowerCase());
+              });
+              const data = matchingUsers.slice(0, 10);
+
+              if (onReady) onReady(data, query);
+
+              return data;
+            }
+            return queryMembersDebounced(
+              query,
+              /** @param {any[]} data */
+              (data) => {
+                if (onReady) onReady(data, query);
+              },
+            );
+          },
+          output: (entity) => ({
+            caretPosition: 'next',
+            key: entity.id,
+            text: `@${entity.name || entity.id}`,
           }),
         },
       },
@@ -241,46 +241,46 @@ const ChatAutoComplete = (props) => {
 };
 
 ChatAutoComplete.propTypes = {
-  /** The number of rows you want the textarea to have */
-  rows: PropTypes.number,
-  /** Grow the number of rows of the textarea while you're typing */
-  grow: PropTypes.bool,
-  /** Maximum number of rows */
-  maxRows: PropTypes.number,
+  /**
+   * Any additional attributes that you may want to add for underlying HTML textarea element.
+   */
+  additionalTextareaProps: PropTypes.object,
+  /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
+  commands: PropTypes.array,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
   /** Disable mentions */
   disableMentions: PropTypes.bool,
-  /** The value of the textarea */
-  value: PropTypes.string,
-  /** Function to run on pasting within the textarea */
-  onPaste: PropTypes.func,
+  /** Grow the number of rows of the textarea while you're typing */
+  grow: PropTypes.bool,
   /** Function that runs on submit */
   handleSubmit: PropTypes.func,
-  /** Function that runs on change */
-  onChange: PropTypes.func,
-  /** Placeholder for the textarea */
-  placeholder: PropTypes.string,
   /** What loading component to use for the auto complete when loading results. */
   LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
+  /** Maximum number of rows */
+  maxRows: PropTypes.number,
   /** Minimum number of Character */
   minChar: PropTypes.number,
+  /** Function that runs on change */
+  onChange: PropTypes.func,
+  /** Listener for onfocus event on textarea */
+  onFocus: PropTypes.func,
+  /** Function to run on pasting within the textarea */
+  onPaste: PropTypes.func,
   /**
    * Handler for selecting item from suggestions list
    *
    * @param item Selected item object.
    *  */
   onSelectItem: PropTypes.func,
-  /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
-  commands: PropTypes.array,
-  /** Listener for onfocus event on textarea */
-  onFocus: PropTypes.func,
+  /** Placeholder for the textarea */
+  placeholder: PropTypes.string,
+  /** The number of rows you want the textarea to have */
+  rows: PropTypes.number,
   /** Optional UI component prop to override the default List component that displays suggestions */
   SuggestionList: /** @type {PropTypes.Validator<React.ElementType<import('types').SuggestionListProps>>} */ (PropTypes.elementType),
-  /**
-   * Any additional attributes that you may want to add for underlying HTML textarea element.
-   */
-  additionalTextareaProps: PropTypes.object,
+  /** The value of the textarea */
+  value: PropTypes.string,
 };
 
 ChatAutoComplete.defaultProps = {

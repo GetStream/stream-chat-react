@@ -28,8 +28,8 @@ jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 
 jest.mock('../../MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
   EditMessageForm: jest.fn(() => <div />),
+  MessageInput: jest.fn(() => <div />),
 }));
 
 jest.mock('../../Modal', () => ({
@@ -37,7 +37,7 @@ jest.mock('../../Modal', () => ({
 }));
 
 const alice = generateUser();
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
 const openThreadMock = jest.fn();
 const tDateTimeParserMock = jest.fn(() => ({
@@ -48,15 +48,15 @@ const retrySendMessageMock = jest.fn();
 async function renderMessageSimple(
   message,
   props = {},
-  channelConfig = { replies: true, reactions: true },
+  channelConfig = { reactions: true, replies: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
     <ChannelContext.Provider
       value={{
-        client,
         channel,
+        client,
         emojiConfig: emojiMockConfig,
         openThread: openThreadMock,
         retrySendMessage: retrySendMessageMock,
@@ -140,15 +140,15 @@ describe('<MessageSimple />', () => {
     await renderMessageSimple(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
       EditMessageInput: CustomEditMessageInput,
+      updateMessage,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         clearEditingState,
-        message,
         Input: CustomEditMessageInput,
+        message,
         updateMessage,
       }),
       {},
@@ -182,8 +182,8 @@ describe('<MessageSimple />', () => {
   it('should not render reaction list if reaction is disbaled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
 
     const { queryByTestId } = await renderMessageSimple(
@@ -195,10 +195,10 @@ describe('<MessageSimple />', () => {
   });
 
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
     const CustomReactionsList = ({ reactions }) => (
       <ul data-testid='custom-reaction-list'>
@@ -221,22 +221,22 @@ describe('<MessageSimple />', () => {
     const clearEditingState = jest.fn();
     const updateMessage = jest.fn();
     await renderMessageSimple(message, {
-      editing: true,
       clearEditingState,
+      editing: true,
       updateMessage,
     });
     expect(ModalMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        open: true,
         onClose: clearEditingState,
+        open: true,
       }),
       {},
     );
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         clearEditingState,
-        message,
         Input: EditMessageForm,
+        message,
         updateMessage,
       }),
       {},
@@ -288,8 +288,8 @@ describe('<MessageSimple />', () => {
   it('should not render status when rendered in a thread list and was read by other members', async () => {
     const message = generateAliceMessage();
     const { queryByTestId } = await renderMessageSimple(message, {
-      threadList: true,
       readBy: [alice, bob, carol],
+      threadList: true,
     });
     expect(queryByTestId(/message-status/)).toBeNull();
   });
@@ -326,11 +326,11 @@ describe('<MessageSimple />', () => {
     });
     expect(MessageOptionsMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        handleOpenThread: expect.any(Function),
         message,
-        threadList: false,
         messageWrapperRef: expect.any(Object),
         onReactionListClick: expect.any(Function),
-        handleOpenThread: expect.any(Function),
+        threadList: false,
       }),
       {},
     );
@@ -341,7 +341,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({ mml });
     await renderMessageSimple(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'right' }),
+      expect.objectContaining({ align: 'right', source: mml }),
       {},
     );
   });
@@ -351,7 +351,7 @@ describe('<MessageSimple />', () => {
     const message = generateBobMessage({ mml });
     await renderMessageSimple(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'left' }),
+      expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
   });
@@ -360,15 +360,15 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({ text: 'Hello' });
     const actionsEnabled = true;
     const messageListRect = {
+      bottom: 100,
+      height: 100,
+      left: 0,
+      right: 100,
+      toJSON: () => {},
+      top: 0,
+      width: 100,
       x: 0,
       y: 0,
-      width: 100,
-      height: 100,
-      top: 0,
-      right: 100,
-      bottom: 100,
-      left: 0,
-      toJSON: () => {},
     };
     const unsafeHTML = false;
     await renderMessageSimple(message, {
@@ -378,11 +378,11 @@ describe('<MessageSimple />', () => {
     });
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        message,
         actionsEnabled,
+        message,
         messageListRect,
-        unsafeHTML,
         reactionSelectorRef: expect.any(Object),
+        unsafeHTML,
       }),
       {},
     );
@@ -402,8 +402,8 @@ describe('<MessageSimple />', () => {
 
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {
     const attachment = {
-      type: 'file',
       asset_url: 'file.pdf',
+      type: 'file',
     };
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
@@ -414,8 +414,8 @@ describe('<MessageSimple />', () => {
 
   it('should display image attachments in gallery when message has image attachments', async () => {
     const attachment = {
-      type: 'image',
       image_url: 'image.jpg',
+      type: 'image',
     };
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],

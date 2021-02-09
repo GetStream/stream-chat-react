@@ -19,7 +19,7 @@ import { ChatContext } from '../../../context';
 
 let chatClient;
 let channel;
-const user = generateUser({ name: 'name', id: 'id' });
+const user = generateUser({ id: 'id', name: 'name' });
 
 const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useContext(ChatContext);
@@ -45,12 +45,12 @@ const renderComponent = async (props = {}, activeChannel = channel) => {
   const typeText = (text) => {
     fireEvent.change(textarea, {
       target: {
-        value: text,
         selectionEnd: text.length,
+        value: text,
       },
     });
   };
-  return { ...renderResult, typeText, textarea };
+  return { ...renderResult, textarea, typeText };
 };
 
 describe('ChatAutoComplete', () => {
@@ -58,8 +58,8 @@ describe('ChatAutoComplete', () => {
     const messages = [generateMessage({ user })];
     const members = [generateMember({ user })];
     const mockedChannel = generateChannel({
-      messages,
       members,
+      messages,
     });
     chatClient = await getTestClientWithUser(user);
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
@@ -148,9 +148,9 @@ describe('ChatAutoComplete', () => {
     const { findByText, textarea, typeText } = await renderComponent({
       commands: [
         {
-          name: 'giphy',
-          description: 'Post a random gif to the channel',
           args: '[text]',
+          description: 'Post a random gif to the channel',
+          name: 'giphy',
           set: 'fun_set',
         },
       ],
@@ -169,8 +169,8 @@ describe('ChatAutoComplete', () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.name}`;
     const { queryAllByText, typeText } = await renderComponent({
-      onSelectItem,
       disableMentions: true,
+      onSelectItem,
     });
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
@@ -183,8 +183,8 @@ describe('ChatAutoComplete', () => {
     const members = users.map((u) => generateMember({ user: u }));
     const messages = [generateMessage({ user: users[0] })];
     const mockedChannel = generateChannel({
-      messages,
       members,
+      messages,
     });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
     const activeChannel = chatClient.channel('messaging', mockedChannel.id);
@@ -193,8 +193,8 @@ describe('ChatAutoComplete', () => {
 
     const onSelectItem = jest.fn();
     const { findByText, typeText } = await renderComponent({
-      onSelectItem,
       activeChannel,
+      onSelectItem,
     });
     const mentionedUser = searchMember.user;
 

@@ -13,11 +13,11 @@ import { MESSAGE_ACTIONS } from '../utils';
 import Message from '../Message';
 
 const alice = generateUser({
-  name: 'alice',
-  image: 'alice-avatar.jpg',
   id: 'alice',
+  image: 'alice-avatar.jpg',
+  name: 'alice',
 });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 
 const CustomMessageUIComponent = jest.fn(() => <div>Message</div>);
 
@@ -36,21 +36,21 @@ async function renderComponent(
   renderer = render,
 ) {
   const channel = generateChannel({
+    deleteReaction,
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
-    deleteReaction,
     ...channelOpts,
   });
   const client = await getTestClientWithUser(alice);
   return renderer(
     <ChannelContext.Provider
       value={{
-        client,
         channel,
-        updateMessage: jest.fn(),
-        removeMessage: jest.fn(),
+        client,
         openThread: jest.fn(),
+        removeMessage: jest.fn(),
+        updateMessage: jest.fn(),
         ...channelOpts,
       }}
     >
@@ -96,7 +96,7 @@ describe('<Message /> component', () => {
   });
 
   it('should enable actions if message is of type regular and status received', async () => {
-    const message = generateMessage({ type: 'regular', status: 'received' });
+    const message = generateMessage({ status: 'received', type: 'regular' });
     await renderComponent(message);
     expect(CustomMessageUIComponent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -497,7 +497,7 @@ describe('<Message /> component', () => {
       await renderComponent(
         message,
         {},
-        { state: { membership: { role }, members: {}, watchers: {} } },
+        { state: { members: {}, membership: { role }, watchers: {} } },
       );
       const { getMessageActions } = getRenderedProps();
       expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -510,7 +510,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'owner' }, members: {}, watchers: {} } },
+      { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -535,7 +535,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'admin' }, members: {}, watchers: {} } },
+      { state: { members: {}, membership: { role: 'admin' }, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -676,7 +676,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: true } },
       },
-      { type: 'messaging', state: { members: {}, watchers: {} } },
+      { state: { members: {}, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
@@ -689,7 +689,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: false } },
       },
-      { type: 'messaging', state: { members: {}, watchers: {} } },
+      { state: { members: {}, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
@@ -737,19 +737,19 @@ describe('<Message /> component', () => {
 
   it('should pass channel configuration to UI rendered UI component', async () => {
     const message = generateMessage({ user: alice });
-    const channelConfigMock = { replies: false, mutes: false };
+    const channelConfigMock = { mutes: false, replies: false };
     await renderComponent(message, {}, {}, channelConfigMock);
     const { channelConfig } = getRenderedProps();
     expect(channelConfig).toBe(channelConfigMock);
   });
 
   it('should rerender if message changes', async () => {
-    const message = generateMessage({ user: alice, text: 'Helo!' });
+    const message = generateMessage({ text: 'Helo!', user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
       Message: UIMock,
     });
-    const updatedMessage = generateMessage({ user: alice, text: 'Hello*' });
+    const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
@@ -789,16 +789,16 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
-      Message: UIMock,
       groupStyles: ['bottom'],
+      Message: UIMock,
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
       message,
       {
-        Message: UIMock,
         groupStyles: ['bottom', 'left'],
+        Message: UIMock,
       },
       undefined,
       undefined,
@@ -811,16 +811,16 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
-      Message: UIMock,
       lastReceivedId: 'last-received-id-1',
+      Message: UIMock,
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
       message,
       {
-        Message: UIMock,
         lastReceivedId: 'last-received-id-2',
+        Message: UIMock,
       },
       undefined,
       undefined,
@@ -833,16 +833,16 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
-      Message: UIMock,
       editing: false,
+      Message: UIMock,
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
       message,
       {
-        Message: UIMock,
         editing: true,
+        Message: UIMock,
       },
       undefined,
       undefined,

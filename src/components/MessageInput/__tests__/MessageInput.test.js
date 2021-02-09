@@ -83,11 +83,11 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     // First, set up a client and channel, so we can properly set up the context etc.
     beforeAll(async () => {
-      const user1 = generateUser({ name: username, id: userid });
+      const user1 = generateUser({ id: userid, name: username });
       const message1 = generateMessage({ user: user1 });
       const mockedChannel = generateChannel({
-        messages: [message1],
         members: [generateMember({ user: user1 })],
+        messages: [message1],
       });
       chatClient = await getTestClientWithUser({ id: user1.id });
       useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
@@ -235,12 +235,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         clipboardEvent.clipboardData = {
           items: [
             {
-              kind: 'file',
               getAsFile: () => file,
+              kind: 'file',
             },
             {
-              kind: 'file',
               getAsFile: () => image,
+              kind: 'file',
             },
           ],
         };
@@ -491,8 +491,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         // set `clipboardData`. Mock DataTransfer object
         clipboardEvent.clipboardData = {
           items: [
-            { kind: 'file', getAsFile: () => file },
-            { kind: 'file', getAsFile: () => image },
+            { getAsFile: () => file, kind: 'file' },
+            { getAsFile: () => image, kind: 'file' },
           ],
         };
         const formElement = await findByPlaceholderText(inputPlaceholder);
@@ -593,8 +593,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
-                type: 'image',
                 image_url: fileUploadUrl,
+                type: 'image',
               }),
             ]),
           }),
@@ -620,8 +620,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
-                type: 'file',
                 asset_url: fileUploadUrl,
+                type: 'file',
               }),
             ]),
           }),
@@ -649,8 +649,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
-                type: 'audio',
                 asset_url: fileUploadUrl,
+                type: 'audio',
               }),
             ]),
           }),
@@ -660,23 +660,23 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     it('Should edit a message if it is passed through the message prop', async () => {
       const file = {
-        type: 'file',
         asset_url: 'somewhere.txt',
+        file_size: 1000,
         mime_type: 'text/plain',
         title: 'title',
-        file_size: 1000,
+        type: 'file',
       };
       const image = {
-        type: 'image',
-        image_url: 'somewhere.png',
         fallback: 'fallback.png',
+        image_url: 'somewhere.png',
+        type: 'image',
       };
-      const mentioned_users = [{ name: username, id: userid }];
+      const mentioned_users = [{ id: userid, name: username }];
 
       const message = generateMessage({
+        attachments: [file, image],
         mentioned_users,
         text: `@${username} what's up!`,
-        attachments: [file, image],
       });
       const { submit } = renderComponent({
         clearEditingState: () => {},
@@ -687,12 +687,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       expect(editMock).toHaveBeenCalledWith(
         channel.cid,
         expect.objectContaining({
-          text: message.text,
-          mentioned_users: [userid],
           attachments: expect.arrayContaining([
             expect.objectContaining(image),
             expect.objectContaining(file),
           ]),
+          mentioned_users: [userid],
+          text: message.text,
         }),
       );
     });
@@ -703,8 +703,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const formElement = await findByPlaceholderText(inputPlaceholder);
       fireEvent.change(formElement, {
         target: {
-          value: '@',
           selectionEnd: 1,
+          value: '@',
         },
       });
       const usernameListItem = await findByText(username);
@@ -724,16 +724,16 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
       const { findByPlaceholderText, submit } = renderComponent({
         message: {
-          text: `@${username}`,
           mentioned_users: [{ id: userid, name: username }],
+          text: `@${username}`,
         },
       });
       // remove all text from input
       const formElement = await findByPlaceholderText(inputPlaceholder);
       fireEvent.change(formElement, {
         target: {
-          value: 'no mentioned users',
           selectionEnd: 1,
+          value: 'no mentioned users',
         },
       });
 

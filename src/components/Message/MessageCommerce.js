@@ -174,9 +174,9 @@ const MessageCommerce = (props) => {
               actionsEnabled={actionsEnabled}
               customInnerClass='str-chat__message-commerce-text-inner'
               customOptionProps={{
+                displayActions: false,
                 displayLeft: false,
                 displayReplies: false,
-                displayActions: false,
                 theme: 'commerce',
               }}
               customWrapperClass='str-chat__message-commerce-text'
@@ -220,9 +220,8 @@ const MessageCommerce = (props) => {
 };
 
 MessageCommerce.propTypes = {
-  /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
-    .object.isRequired),
+  /** If actions such as edit, delete, flag, mute are enabled on message */
+  actionsEnabled: PropTypes.bool,
   /**
    * The attachment UI component.
    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
@@ -234,6 +233,42 @@ MessageCommerce.propTypes = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
+  /** Channel config object */
+  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate: PropTypes.func,
+  /** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply'] */
+  getMessageActions: PropTypes.func.isRequired,
+  /** Position of message in group. Possible values: top, bottom, middle, single */
+  groupStyles: PropTypes.array,
+  /**
+   * @param name {string} Name of action
+   * @param value {string} Value of action
+   * @param event Dom event that triggered this handler
+   * @deprecated This component now relies on the useActionHandler custom hook, and this prop will be removed on the next major release.
+   */
+  handleAction: PropTypes.func,
+  /**
+   * Function to open thread on current message
+   * @deprecated The component now relies on the useThreadHandler custom hook
+   * You can customize the behaviour for your thread handler on the <Channel> component instead.
+   */
+  handleOpenThread: PropTypes.func,
+  /**
+   * Add or remove reaction on message
+   *
+   * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+   * @param event Dom event which triggered this function
+   * @deprecated This component now relies on the useReactionHandler custom hook.
+   */
+  handleReaction: PropTypes.func,
+  /** If its parent message in thread. */
+  initialMessage: PropTypes.bool,
+  /** Returns true if message belongs to current user */
+  isMyMessage: PropTypes.func,
+  /** The [message object](https://getstream.io/chat/docs/#message_format) */
+  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
+    .object.isRequired),
   /**
    *
    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
@@ -245,60 +280,10 @@ MessageCommerce.propTypes = {
   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
     [PropTypes.node, PropTypes.func, PropTypes.object],
   )),
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML: PropTypes.bool,
-  /** If its parent message in thread. */
-  initialMessage: PropTypes.bool,
-  /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
-
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate: PropTypes.func,
-
-  /** If component is in thread list */
-  threadList: PropTypes.bool,
-  /**
-   * Function to open thread on current message
-   * @deprecated The component now relies on the useThreadHandler custom hook
-   * You can customize the behaviour for your thread handler on the <Channel> component instead.
+  /** The component that will be rendered if the message has been deleted.
+   * All of Message's props are passed into this component.
    */
-  handleOpenThread: PropTypes.func,
-  /** Returns true if message belongs to current user */
-  isMyMessage: PropTypes.func,
-  /** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply'] */
-  getMessageActions: PropTypes.func.isRequired,
-  /**
-   * Add or remove reaction on message
-   *
-   * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-   * @param event Dom event which triggered this function
-   * @deprecated This component now relies on the useReactionHandler custom hook.
-   */
-  handleReaction: PropTypes.func,
-  /**
-   * A component to display the selector that allows a user to react to a certain message.
-   */
-  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
-  /**
-   * A component to display the a message list of reactions.
-   */
-  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
-  /** If actions such as edit, delete, flag, mute are enabled on message */
-  actionsEnabled: PropTypes.bool,
-  /**
-   * @param name {string} Name of action
-   * @param value {string} Value of action
-   * @param event Dom event that triggered this handler
-   * @deprecated This component now relies on the useActionHandler custom hook, and this prop will be removed on the next major release.
-   */
-  handleAction: PropTypes.func,
-  /**
-   * The handler for hover event on @mention in message
-   *
-   * @param event Dom hover event which triggered handler.
-   * @param user Target user object
-   */
-  onMentionsHoverMessage: PropTypes.func,
+  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
   /**
    * The handler for click event on @mention in message
    *
@@ -306,8 +291,13 @@ MessageCommerce.propTypes = {
    * @param user Target user object
    */
   onMentionsClickMessage: PropTypes.func,
-  /** Position of message in group. Possible values: top, bottom, middle, single */
-  groupStyles: PropTypes.array,
+  /**
+   * The handler for hover event on @mention in message
+   *
+   * @param event Dom hover event which triggered handler.
+   * @param user Target user object
+   */
+  onMentionsHoverMessage: PropTypes.func,
   /**
    * The handler for click event on the user that posted the message
    *
@@ -322,10 +312,18 @@ MessageCommerce.propTypes = {
    * @deprecated This component now relies on the useUserHandler custom hook, and this prop will be removed on the next major release.
    */
   onUserHover: PropTypes.func,
-  /** The component that will be rendered if the message has been deleted.
-   * All of Message's props are passed into this component.
+  /**
+   * A component to display the selector that allows a user to react to a certain message.
    */
-  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
+  /**
+   * A component to display the a message list of reactions.
+   */
+  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
+  /** If component is in thread list */
+  threadList: PropTypes.bool,
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML: PropTypes.bool,
 };
 
 export default React.memo(MessageCommerce, areMessagePropsEqual);

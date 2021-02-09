@@ -36,12 +36,12 @@ const DateSeparator = ({ date, formatDate, position = 'right', unread }) => {
 DateSeparator.propTypes = {
   /** The date to format */
   date: PropTypes.instanceOf(Date).isRequired,
-  /** If following messages are not new */
-  unread: PropTypes.bool,
-  /** Set the position of the date in the separator */
-  position: PropTypes.oneOf(['left', 'center', 'right']),
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate: PropTypes.func,
+  /** Set the position of the date in the separator */
+  position: PropTypes.oneOf(['left', 'center', 'right']),
+  /** If following messages are not new */
+  unread: PropTypes.bool,
 };
 
 export default React.memo(DateSeparator);

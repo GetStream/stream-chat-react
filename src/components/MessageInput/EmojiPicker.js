@@ -39,7 +39,7 @@ const EmojiPicker = ({
             emojisToShowFilter={filterEmoji}
             native
             onSelect={onSelectEmoji}
-            set={'facebook'}
+            set='facebook'
             showPreview={false}
             showSkinTones={false}
             title={t('Pick your emoji')}

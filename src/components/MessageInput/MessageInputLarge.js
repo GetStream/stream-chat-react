@@ -153,18 +153,6 @@ const MessageInputLarge = (props) => {
 };
 
 MessageInputLarge.propTypes = {
-  /** Set focus to the text input if this is enabled */
-  focus: PropTypes.bool.isRequired,
-  /** Grow the textarea while you're typing */
-  grow: PropTypes.bool.isRequired,
-  /** Specify the max amount of rows the textarea is able to grow */
-  maxRows: PropTypes.number.isRequired,
-  /** Make the textarea disabled */
-  disabled: PropTypes.bool,
-  /** Disable mentions in textarea */
-  disableMentions: PropTypes.bool,
-  /** enable/disable firing the typing event */
-  publishTypingEvent: PropTypes.bool,
   /**
    * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
@@ -173,15 +161,14 @@ MessageInputLarge.propTypes = {
    * Override the default triggers of the ChatAutoComplete component
    */
   autocompleteTriggers: PropTypes.object,
-  /**
-   * @param message: the Message object to be sent
-   * @param cid: the channel id
-   */
-  overrideSubmitHandler: PropTypes.func,
-  /** Override image upload request */
-  doImageUploadRequest: PropTypes.func,
+  /** Make the textarea disabled */
+  disabled: PropTypes.bool,
+  /** Disable mentions in textarea */
+  disableMentions: PropTypes.bool,
   /** Override file upload request */
   doFileUploadRequest: PropTypes.func,
+  /** Override image upload request */
+  doImageUploadRequest: PropTypes.func,
   /**
    * Custom UI component for emoji button in input.
    *
@@ -194,6 +181,19 @@ MessageInputLarge.propTypes = {
    * Defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.js)
    * */
   FileUploadIcon: /** @type {PropTypes.Validator<React.FC>} */ (PropTypes.elementType),
+  /** Set focus to the text input if this is enabled */
+  focus: PropTypes.bool.isRequired,
+  /** Grow the textarea while you're typing */
+  grow: PropTypes.bool.isRequired,
+  /** Specify the max amount of rows the textarea is able to grow */
+  maxRows: PropTypes.number.isRequired,
+  /**
+   * @param message: the Message object to be sent
+   * @param cid: the channel id
+   */
+  overrideSubmitHandler: PropTypes.func,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Custom UI component for send button.
    *
@@ -205,13 +205,13 @@ MessageInputLarge.propTypes = {
 };
 
 MessageInputLarge.defaultProps = {
-  focus: false,
-  disabled: false,
-  publishTypingEvent: true,
-  grow: true,
-  maxRows: 10,
-  Input: MessageInputLarge,
   additionalTextareaProps: {},
+  disabled: false,
+  focus: false,
+  grow: true,
+  Input: MessageInputLarge,
+  maxRows: 10,
+  publishTypingEvent: true,
 };
 
 export default MessageInputLarge;

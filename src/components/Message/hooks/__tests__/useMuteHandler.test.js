@@ -71,8 +71,8 @@ describe('useHandleMute custom hook', () => {
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
-      notify,
       getSuccessNotification: getMuteUserSuccessNotification,
+      notify,
     });
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -97,8 +97,8 @@ describe('useHandleMute custom hook', () => {
     const userMutedFailNotification = 'User mute failed!';
     const getErrorNotification = jest.fn(() => userMutedFailNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
-      notify,
       getErrorNotification,
+      notify,
     });
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -128,8 +128,8 @@ describe('useHandleMute custom hook', () => {
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
-        notify,
         getSuccessNotification,
+        notify,
       },
       { mutes: [{ target: { id: bob.id } }] },
     );
@@ -165,8 +165,8 @@ describe('useHandleMute custom hook', () => {
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
-        notify,
         getErrorNotification,
+        notify,
       },
       { mutes: [{ target: { id: bob.id } }] },
     );

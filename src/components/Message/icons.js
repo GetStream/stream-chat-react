@@ -72,14 +72,14 @@ export const PinIndicator = ({ message, t }) => {
   if (!message || !t) return null;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div style={{ alignItems: 'center', display: 'flex' }}>
       <PinIcon />
       <div
         style={{
-          marginBottom: '0',
-          marginTop: '0',
-          marginLeft: '8px',
           fontSize: '14px',
+          marginBottom: '0',
+          marginLeft: '8px',
+          marginTop: '0',
         }}
       >
         {message.pinned_by

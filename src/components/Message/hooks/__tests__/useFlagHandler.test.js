@@ -68,8 +68,8 @@ describe('useHandleFlag custom hook', () => {
     const messageFlaggedNotification = 'Message flagged!';
     const getSuccessNotification = jest.fn(() => messageFlaggedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
       getSuccessNotification,
+      notify,
     });
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -96,8 +96,8 @@ describe('useHandleFlag custom hook', () => {
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getErrorNotification = jest.fn(() => messageFlagFailedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
       getErrorNotification,
+      notify,
     });
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);

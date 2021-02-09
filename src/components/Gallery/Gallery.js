@@ -30,8 +30,8 @@ const Gallery = ({ images }) => {
   const formattedArray = useMemo(
     () =>
       images.map((image) => ({
-        src: image.image_url || image.thumb_url || '',
         source: image.image_url || image.thumb_url || '',
+        src: image.image_url || image.thumb_url || '',
       })),
     [images],
   );

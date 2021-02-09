@@ -11,7 +11,7 @@ const LoadingIndicator = ({ color = '#006CFF', size = 15 }) => (
   <div
     className={`str-chat__loading-indicator ${color}`}
     data-testid='loading-indicator-wrapper'
-    style={{ width: size, height: size }}
+    style={{ height: size, width: size }}
   >
     <svg
       height={size}

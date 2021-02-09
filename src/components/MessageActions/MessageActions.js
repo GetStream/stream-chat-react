@@ -46,20 +46,20 @@ export const MessageActions = (props) => {
   const handleDelete = useDeleteHandler(message);
 
   const handleFlag = useFlagHandler(message, {
-    notify: addNotification,
-    getSuccessNotification: getFlagMessageErrorNotification,
     getErrorNotification: getFlagMessageSuccessNotification,
+    getSuccessNotification: getFlagMessageErrorNotification,
+    notify: addNotification,
   });
 
   const handleMute = useMuteHandler(message, {
-    notify: addNotification,
     getErrorNotification: getMuteUserSuccessNotification,
     getSuccessNotification: getMuteUserErrorNotification,
+    notify: addNotification,
   });
 
   const { handlePin } = usePinHandler(message, pinPermissions, {
-    notify: addNotification,
     getErrorNotification: getPinMessageErrorNotification,
+    notify: addNotification,
   });
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [
@@ -153,9 +153,9 @@ const MessageActionsWrapper = (props) => {
   };
 
   const wrapperProps = {
+    className: wrapperClass,
     'data-testid': 'message-actions',
     onClick: onClickOptionsAction,
-    className: wrapperClass,
   };
 
   if (inline) return <span {...wrapperProps}>{children}</span>;

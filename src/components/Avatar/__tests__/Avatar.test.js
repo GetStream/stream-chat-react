@@ -85,11 +85,11 @@ describe('Avatar', () => {
     const size = 24;
     const { getByTestId } = render(<Avatar size={size} />);
     expect(getByTestId('avatar')).toHaveStyle({
-      width: `${size}px`,
-      height: `${size}px`,
       flexBasis: `${size}px`,
-      lineHeight: `${size}px`,
       fontSize: `${size / 2}px`,
+      height: `${size}px`,
+      lineHeight: `${size}px`,
+      width: `${size}px`,
     });
   });
 
@@ -97,10 +97,10 @@ describe('Avatar', () => {
     const size = 24;
     const { getByTestId } = render(<Avatar image='randomImage' size={size} />);
     expect(getByTestId('avatar-img')).toHaveStyle({
-      width: `${size}px`,
-      height: `${size}px`,
       flexBasis: `${size}px`,
+      height: `${size}px`,
       objectFit: 'cover',
+      width: `${size}px`,
     });
   });
 

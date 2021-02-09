@@ -23,11 +23,11 @@ export const useUserRole = (message) => {
   const canDeleteMessage = canEditMessage;
 
   return {
-    isMyMessage,
-    isAdmin,
-    isOwner,
-    isModerator,
-    canEditMessage,
     canDeleteMessage,
+    canEditMessage,
+    isAdmin,
+    isModerator,
+    isMyMessage,
+    isOwner,
   };
 };

@@ -48,8 +48,8 @@ describe('ChannelPreview utils', () => {
     const channelWithAttachmentMessage = generateChannel({
       messages: [
         generateMessage({
-          text: undefined,
           attachments: [generateImageAttachment()],
+          text: undefined,
         }),
       ],
     });

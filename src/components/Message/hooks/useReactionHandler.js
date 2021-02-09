@@ -160,8 +160,8 @@ export const useReactionClick = (
   };
 
   return {
+    isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-    isReactionEnabled,
   };
 };

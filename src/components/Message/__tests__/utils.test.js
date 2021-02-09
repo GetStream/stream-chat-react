@@ -40,9 +40,9 @@ describe('Message utils', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
         {
-          user: alice,
-          target: bob,
           created_at: new Date('2019-03-30T13:24:10'),
+          target: bob,
+          user: alice,
         },
       ];
       const result = isUserMuted(undefined, mutes);
@@ -58,9 +58,9 @@ describe('Message utils', () => {
     it('should return true if user was muted', () => {
       const mutes = [
         {
-          user: alice,
-          target: bob,
           created_at: new Date('2019-03-30T13:24:10'),
+          target: bob,
+          user: alice,
         },
       ];
       const message = generateMessage({ user: bob });
@@ -76,8 +76,8 @@ describe('Message utils', () => {
       canFlag: true,
       canMute: true,
       canPin: true,
-      canReply: true,
       canReact: true,
+      canReply: true,
     };
     const actions = Object.values(MESSAGE_ACTIONS);
 
@@ -165,9 +165,9 @@ describe('Message utils', () => {
     it('should update if rendered with different groupStyles', () => {
       const message = generateMessage();
       const currentGroupStyles = ['top'];
-      const currentProps = { message, groupStyles: currentGroupStyles };
+      const currentProps = { groupStyles: currentGroupStyles, message };
       const nextGroupStyles = ['bottom', 'right'];
-      const nextProps = { message, groupStyles: nextGroupStyles };
+      const nextProps = { groupStyles: nextGroupStyles, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
       const shouldUpdate = shouldMessageComponentUpdate(
         nextProps,
@@ -180,9 +180,9 @@ describe('Message utils', () => {
     it('should update if last received message in the channel changes', () => {
       const message = generateMessage();
       const currentLastReceivedId = 'some-message';
-      const currentProps = { message, lastReceivedId: currentLastReceivedId };
+      const currentProps = { lastReceivedId: currentLastReceivedId, message };
       const nextLastReceivedId = 'some-other-message';
-      const nextProps = { message, lastReceivedId: nextLastReceivedId };
+      const nextProps = { lastReceivedId: nextLastReceivedId, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
       const shouldUpdate = shouldMessageComponentUpdate(
         nextProps,
@@ -195,9 +195,9 @@ describe('Message utils', () => {
     it('should update if editing state changes', () => {
       const message = generateMessage();
       const currentEditing = true;
-      const currentProps = { message, editing: currentEditing };
+      const currentProps = { editing: currentEditing, message };
       const nextEditing = false;
-      const nextProps = { message, editing: nextEditing };
+      const nextProps = { editing: nextEditing, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
       const shouldUpdate = shouldMessageComponentUpdate(
         nextProps,
@@ -209,9 +209,9 @@ describe('Message utils', () => {
 
     it('should update if wrapper layout changes', () => {
       const message = generateMessage();
-      const currentMessageListRect = { x: 0, y: 0, width: 100, height: 100 };
+      const currentMessageListRect = { height: 100, width: 100, x: 0, y: 0 };
       const currentProps = { message, messageListRect: currentMessageListRect };
-      const nextMessageListRect = { x: 20, y: 20, width: 200, height: 200 };
+      const nextMessageListRect = { height: 200, width: 200, x: 20, y: 20 };
       const nextProps = { message, messageListRect: nextMessageListRect };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
       const shouldUpdate = shouldMessageComponentUpdate(
@@ -253,8 +253,8 @@ describe('Message utils', () => {
     });
     it('should return true if message has attachments', () => {
       const attachment = {
-        type: 'file',
         asset_url: 'file.pdf',
+        type: 'file',
       };
       const message = generateMessage({
         attachments: [attachment],
@@ -269,8 +269,8 @@ describe('Message utils', () => {
     });
     it('should return empty if message has no image attachments', () => {
       const pdf = {
-        type: 'file',
         asset_url: 'file.pdf',
+        type: 'file',
       };
       const message = generateMessage({
         attachments: [pdf],
@@ -279,12 +279,12 @@ describe('Message utils', () => {
     });
     it('should return just the image attachments when message has them', () => {
       const pdf = {
-        type: 'file',
         asset_url: 'file.pdf',
+        type: 'file',
       };
       const img = {
-        type: 'image',
         asset_url: 'some-image.jpg',
+        type: 'image',
       };
       const message = generateMessage({
         attachments: [pdf, img],
@@ -300,8 +300,8 @@ describe('Message utils', () => {
 
     it('should return empty if message has only image attachments', () => {
       const img = {
-        type: 'image',
         asset_url: 'image.jpg',
+        type: 'image',
       };
       const message = generateMessage({
         attachments: [img],
@@ -311,12 +311,12 @@ describe('Message utils', () => {
 
     it('should return just the non-image attachments when message has them', () => {
       const pdf = {
-        type: 'file',
         asset_url: 'file.pdf',
+        type: 'file',
       };
       const img = {
-        type: 'image',
         asset_url: 'some-image.jpg',
+        type: 'image',
       };
       const message = generateMessage({
         attachments: [pdf, img],

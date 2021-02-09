@@ -1,9 +1,9 @@
-import {
+import type { Reducer } from 'react';
+import type {
   Channel,
   MessageResponse,
   ChannelState as ChannelStateFromClient,
 } from 'stream-chat';
-import { Reducer } from 'react';
 
 export type ChannelState = {
   error: Error | null;

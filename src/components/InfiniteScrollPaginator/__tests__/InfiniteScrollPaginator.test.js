@@ -55,8 +55,8 @@ describe('<InfiniteScrollPaginator />', () => {
     const rendered = renderer
       .create(
         renderInfiniteScrollPaginator({
-          refreshing: true,
           LoadingIndicator: CustomLoadingIndicator,
+          refreshing: true,
         }),
       )
       .toJSON();
@@ -104,8 +104,8 @@ describe('<InfiniteScrollPaginator />', () => {
     const renderedinfinitescroll = renderer
       .create(
         renderInfiniteScrollPaginator({
-          loadNextPage,
           hasNextPage,
+          loadNextPage,
           refreshing,
           reverse,
           threshold,
@@ -114,10 +114,10 @@ describe('<InfiniteScrollPaginator />', () => {
       .toTree().rendered;
     expect(renderedinfinitescroll.props).toEqual(
       expect.objectContaining({
-        loadMore: loadNextPage,
         hasMore: hasNextPage,
         isLoading: refreshing,
         isReverse: reverse,
+        loadMore: loadNextPage,
         threshold,
         useWindow: false,
       }),

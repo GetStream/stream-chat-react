@@ -119,29 +119,20 @@ const EditMessageForm = (props) => {
 };
 
 EditMessageForm.propTypes = {
-  /** Set focus to the text input if this is enabled */
-  focus: PropTypes.bool.isRequired,
-  /** Grow the textarea while you're typing */
-  grow: PropTypes.bool.isRequired,
-  /** Specify the max amount of rows the textarea is able to grow */
-  maxRows: PropTypes.number.isRequired,
-  /** Make the textarea disabled */
-  disabled: PropTypes.bool,
-  /** enable/disable firing the typing event */
-  publishTypingEvent: PropTypes.bool,
   /**
-   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * Any additional attributes that you may want to add for underlying HTML textarea element.
    */
   additionalTextareaProps: PropTypes.object,
   /**
-   * @param message: the Message object to be sent
-   * @param cid: the channel id
+   * Clears edit state for current message (passed down from message component)
    */
-  overrideSubmitHandler: PropTypes.func,
-  /** Override image upload request */
-  doImageUploadRequest: PropTypes.func,
+  clearEditingState: PropTypes.func,
+  /** Make the textarea disabled */
+  disabled: PropTypes.bool,
   /** Override file upload request */
   doFileUploadRequest: PropTypes.func,
+  /** Override image upload request */
+  doImageUploadRequest: PropTypes.func,
   /**
    * Custom UI component for emoji button in input.
    *
@@ -154,25 +145,34 @@ EditMessageForm.propTypes = {
    * Defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.js)
    * */
   FileUploadIcon: /** @type {PropTypes.Validator<React.FC>} */ (PropTypes.elementType),
+  /** Set focus to the text input if this is enabled */
+  focus: PropTypes.bool.isRequired,
+  /** Grow the textarea while you're typing */
+  grow: PropTypes.bool.isRequired,
+  /** Specify the max amount of rows the textarea is able to grow */
+  maxRows: PropTypes.number.isRequired,
+  /**
+   * @param message: the Message object to be sent
+   * @param cid: the channel id
+   */
+  overrideSubmitHandler: PropTypes.func,
+  /** enable/disable firing the typing event */
+  publishTypingEvent: PropTypes.bool,
   /**
    * Custom UI component for send button.
    *
    * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
    * */
   SendButton: /** @type {PropTypes.Validator<React.FC<import('types').SendButtonProps>>} */ (PropTypes.elementType),
-  /**
-   * Clears edit state for current message (passed down from message component)
-   */
-  clearEditingState: PropTypes.func,
 };
 
 EditMessageForm.defaultProps = {
-  focus: false,
+  additionalTextareaProps: {},
   disabled: false,
-  publishTypingEvent: true,
+  focus: false,
   grow: true,
   maxRows: 10,
-  additionalTextareaProps: {},
+  publishTypingEvent: true,
 };
 
 export default EditMessageForm;

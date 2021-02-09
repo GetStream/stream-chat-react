@@ -46,9 +46,9 @@ describe('ChannelPreview', () => {
     renderer(
       <ChatContext.Provider
         value={{
+          channel: props.activeChannel,
           client: chatClientUthred,
           setActiveChannel: () => jest.fn(),
-          channel: props.activeChannel,
         }}
       >
         <ChannelPreview Preview={PreviewUIComponent} {...props} />
@@ -71,8 +71,8 @@ describe('ChannelPreview', () => {
 
     const { getByTestId, rerender } = renderComponent(
       {
-        channel: c0,
         activeChannel: c1,
+        channel: c0,
       },
       render,
     );
@@ -81,8 +81,8 @@ describe('ChannelPreview', () => {
 
     renderComponent(
       {
-        channel: c0,
         activeChannel: c0,
+        channel: c0,
       },
       rerender,
     );
@@ -103,8 +103,8 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          channel: c0,
           activeChannel: c1,
+          channel: c0,
         },
         render,
       );
@@ -128,8 +128,8 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          channel: c0,
           activeChannel: c1,
+          channel: c0,
         },
         render,
       );
@@ -149,8 +149,8 @@ describe('ChannelPreview', () => {
     it('should set unreadCount to 0, in case of active channel', async () => {
       const { getByTestId } = renderComponent(
         {
-          channel: c0,
           activeChannel: c0,
+          channel: c0,
         },
         render,
       );
@@ -171,8 +171,8 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          channel: c0,
           activeChannel: c1,
+          channel: c0,
         },
         render,
       );

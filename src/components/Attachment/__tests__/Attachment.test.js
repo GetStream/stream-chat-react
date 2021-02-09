@@ -78,8 +78,8 @@ describe('Attachment', () => {
   describe('gallery  type attachment', () => {
     it('should render Gallery component if attachments contains multiple type "image" attachments', async () => {
       const image = generateImageAttachment({
-        title_link: undefined,
         og_scrape_url: undefined,
+        title_link: undefined,
       });
       const attachments = [image, image, image];
       const { getByTestId } = render(getAttachmentComponent({ attachments }));
@@ -89,8 +89,8 @@ describe('Attachment', () => {
     });
     it('should render Image and Card if one image has title_link or og_scrape_url', async () => {
       const image = generateImageAttachment({
-        title_link: undefined,
         og_scrape_url: undefined,
+        title_link: undefined,
       });
       const card = generateImageAttachment();
       const attachments = [card, image];
@@ -103,8 +103,8 @@ describe('Attachment', () => {
 
     it('should render Gallery and Card if threres multiple images without and image with title_link or og_scrape_url', async () => {
       const image = generateImageAttachment({
-        title_link: undefined,
         og_scrape_url: undefined,
+        title_link: undefined,
       });
       const card = generateImageAttachment();
       const attachments = [image, image, card];
@@ -127,8 +127,8 @@ describe('Attachment', () => {
     });
     it('should otherwise render Image component', async () => {
       const attachment = generateImageAttachment({
-        title_link: undefined,
         og_scrape_url: undefined,
+        title_link: undefined,
       });
       const { getByTestId } = render(
         getAttachmentComponent({ attachments: [attachment] }),
@@ -167,6 +167,7 @@ describe('Attachment', () => {
         asset_url: 'https://www.youtube.com/embed/UaeOlIa0LL8',
         author_name: 'YouTube',
         image_url: 'https://i.ytimg.com/vi/UaeOlIa0LL8/maxresdefault.jpg',
+        mime_type: 'nothing',
         og_scrape_url: 'https://www.youtube.com/watch?v=UaeOlIa0LL8',
         text:
           "It's Gmod TTT! Praise Ben in the church of Bon! Hail the great jetstream in Gmod TTT! Confused? Check out the new roles here: https://twitter.com/yogscast/st...",
@@ -174,7 +175,6 @@ describe('Attachment', () => {
         title: 'THE CHURCH OF BON! | Gmod TTT',
         title_link: 'https://www.youtube.com/watch?v=UaeOlIa0LL8',
         type: 'video',
-        mime_type: 'nothing',
       });
 
       const { getByTestId } = render(

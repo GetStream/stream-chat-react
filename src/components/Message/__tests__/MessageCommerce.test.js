@@ -20,8 +20,8 @@ jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../MessageText', () => jest.fn(() => <div />));
 
-const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const openThreadMock = jest.fn();
 
 async function renderMessageCommerce(
@@ -64,13 +64,13 @@ function generateBobMessage(messageOptions) {
 }
 
 const pdfAttachment = {
-  type: 'file',
   asset_url: 'file.pdf',
+  type: 'file',
 };
 
 const imageAttachment = {
-  type: 'image',
   image_url: 'image.jpg',
+  type: 'image',
 };
 
 const messageCommerceWrapperTestId = 'message-commerce-wrapper';
@@ -138,10 +138,10 @@ describe('<MessageCommerce />', () => {
   });
 
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
     const CustomReactionsList = ({ reactions }) => (
       <ul data-testid='custom-reaction-list'>
@@ -270,10 +270,10 @@ describe('<MessageCommerce />', () => {
         expect(AvatarMock).toHaveBeenCalledWith(
           {
             image: alice.image,
-            size: 32,
             name: alice.name,
             onClick: expect.any(Function),
             onMouseOver: expect.any(Function),
+            size: 32,
           },
           {},
         );
@@ -344,7 +344,7 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({ mml });
     await renderMessageCommerce(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'right' }),
+      expect.objectContaining({ align: 'right', source: mml }),
       {},
     );
   });
@@ -354,7 +354,7 @@ describe('<MessageCommerce />', () => {
     const message = generateBobMessage({ mml });
     await renderMessageCommerce(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'left' }),
+      expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
   });
@@ -399,15 +399,15 @@ describe('<MessageCommerce />', () => {
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        message,
         customOptionProps: expect.objectContaining({
+          displayActions: false,
           displayLeft: false,
           displayReplies: false,
-          displayActions: false,
           theme: 'commerce',
         }),
-        theme: 'commerce',
         customWrapperClass: 'str-chat__message-commerce-text',
+        message,
+        theme: 'commerce',
       }),
       {},
     );

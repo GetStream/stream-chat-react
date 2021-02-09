@@ -228,7 +228,7 @@ describe('Chat', () => {
       );
       await waitFor(() => expect(context.mutes).toStrictEqual([]));
 
-      const mutes = [{ user: { id: 'user_y' }, target: { id: 'user_y' } }];
+      const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
       act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes));
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
 
