@@ -1,9 +1,4 @@
 module.exports = {
-  presets: ['@babel/preset-typescript', '@babel/env', '@babel/react'],
-  plugins: [
-    '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-transform-runtime',
-  ],
   env: {
     production: {
       presets: [
@@ -16,13 +11,18 @@ module.exports = {
       ],
     },
     test: {
-      presets: ['@babel/preset-env', '@babel/preset-react'],
       plugins: [
         '@babel/plugin-proposal-class-properties',
         'transform-es2015-modules-commonjs',
         'babel-plugin-dynamic-import-node',
       ],
+      presets: ['@babel/preset-env', '@babel/preset-react'],
     },
   },
   ignore: ['src/@types/*'],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-transform-runtime',
+  ],
+  presets: ['@babel/preset-typescript', '@babel/env', '@babel/react'],
 };
