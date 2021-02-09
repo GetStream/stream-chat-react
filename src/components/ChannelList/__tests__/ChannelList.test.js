@@ -21,7 +21,7 @@ import {
   dispatchNotificationAddedToChannelEvent,
   dispatchNotificationMessageNewEvent,
   dispatchNotificationRemovedFromChannel,
-  erroredGetApi,
+  erroredPostApi,
   generateChannel,
   generateMessage,
   generateUser,
@@ -206,7 +206,7 @@ describe('ChannelList', () => {
   });
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
-    useMockedApis(chatClientUthred, [erroredGetApi()]);
+    useMockedApis(chatClientUthred, [erroredPostApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const { getByTestId } = render(

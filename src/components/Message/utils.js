@@ -131,12 +131,12 @@ export const getMessageActions = (
     return [];
   }
 
-  if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
-  }
-
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+  }
+
+  if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
   }
 
   if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {

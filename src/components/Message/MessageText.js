@@ -53,6 +53,7 @@ const MessageTextComponent = (props) => {
   const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
+    // @ts-expect-error
     message?.i18n?.[`${userLanguage}_text`] || message?.text;
 
   const messageMentionedUsersItem = message?.mentioned_users;

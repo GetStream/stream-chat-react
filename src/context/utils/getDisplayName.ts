@@ -1,4 +1,4 @@
-import type { UnknownType } from 'types';
+import type { UnknownType } from '../../../types/types';
 
 export const getDisplayName = <P extends UnknownType>(
   Component: React.ComponentType<P>,

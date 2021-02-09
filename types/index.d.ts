@@ -15,8 +15,10 @@ import type {
   NimblePickerProps,
 } from 'emoji-mart';
 
+import type { UnknownType } from './types';
+
 export type Mute = Client.Mute<StreamChatReactUserType>;
-export type UnknownType = Record<string, unknown>;
+
 export type StreamChatReactUserType = UnknownType & {
   status?: string;
   image?: string;
@@ -1191,7 +1193,7 @@ export interface ImageProps {
 
 export interface ModalWrapperProps {
   images: { src: string; source: string }[];
-  toggleModal: (selectedIndex?: number) => void;
+  toggleModal: (selectedIndex: number) => void;
   index?: number;
   modalIsOpen: boolean;
 }

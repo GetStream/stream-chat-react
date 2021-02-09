@@ -33,6 +33,8 @@
     "no-self-compare": 2,
     "no-underscore-dangle": [2, { "allowAfterThis": true }],
     "no-unused-vars": [1, { "ignoreRestSiblings": true }],
+    "no-use-before-define": 0, // can throw incorrect errors due to mismatch of @typescript-eslint versions in react-scripts and local package.json
+    "@typescript-eslint/no-use-before-define": 0,
     "no-useless-concat": 2,
     "no-var": 2,
     "object-shorthand": 1,
@@ -106,7 +108,7 @@
         "map": [["mock-builders", "./src/mock-builders"]],
         "extensions": [".js"]
       },
-      "babel-module": {},
+      "eslint-import-resolver-babel-module": {},
       "node": {
         "extensions": [".js", ".jsx", ".ts", ".tsx"],
         "paths": ["src"]

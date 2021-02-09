@@ -72,7 +72,6 @@ const Gallery = ({ images }) => {
       <ModalWrapper
         images={formattedArray}
         index={index}
-        // @ts-expect-error
         modalIsOpen={modalOpen}
         toggleModal={toggleModal}
       />

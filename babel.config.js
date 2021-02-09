@@ -16,7 +16,16 @@ module.exports = {
         'transform-es2015-modules-commonjs',
         'babel-plugin-dynamic-import-node',
       ],
-      presets: ['@babel/preset-env', '@babel/preset-react'],
+      presets: [
+        '@babel/preset-react',
+        '@babel/preset-typescript',
+        [
+          '@babel/preset-env',
+          {
+            modules: 'commonjs',
+          },
+        ],
+      ],
     },
   },
   ignore: ['src/@types/*'],
@@ -24,5 +33,5 @@ module.exports = {
     '@babel/plugin-proposal-class-properties',
     '@babel/plugin-transform-runtime',
   ],
-  presets: ['@babel/preset-typescript', '@babel/env', '@babel/react'],
+  presets: ['@babel/preset-typescript', '@babel/env', '@babel/preset-react'],
 };
