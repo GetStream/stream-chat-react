@@ -26,14 +26,16 @@ export const useChat = ({ client, initialNavOpen, i18nInstance }) => {
   const clientMutes = client?.user?.mutes;
 
   useEffect(() => {
-    const userAgent = client.getUserAgent();
-    if (!userAgent.includes('stream-chat-react')) {
-      /**
-       * results in something like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-       */
-      client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
+    if (client) {
+      const userAgent = client.getUserAgent();
+      if (!userAgent.includes('stream-chat-react')) {
+        /**
+         * results in something like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
+         */
+        client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
+      }
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [client]);
 
   useEffect(() => {
     setMutes(clientMutes || []);
