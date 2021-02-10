@@ -10,8 +10,8 @@ import { getDisplayName } from './utils/getDisplayName';
 Dayjs.extend(LocalizedFormat);
 
 export type TranslationContextValue = {
-  t?: TFunction;
-  tDateTimeParser?: (datetime: string | number) => Dayjs.Dayjs;
+  t: TFunction;
+  tDateTimeParser: (datetime: string | number) => Dayjs.Dayjs;
   userLanguage?: string;
 };
 
