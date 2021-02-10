@@ -2,6 +2,7 @@ import babel from '@rollup/plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import external from 'rollup-plugin-peer-deps-external';
 import scss from 'rollup-plugin-scss';
 import url from 'rollup-plugin-url';
@@ -116,6 +117,7 @@ const basePlugins = [
   ),
   // Json to ES modules conversion
   json({ compact: true }),
+  typescript(),
   process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
 
@@ -184,8 +186,8 @@ export default () =>
   process.env.ROLLUP_WATCH
     ? [styleBundle, normalBundle]
     : [
-      styleBundle,
-      normalBundle,
-      fullBrowserBundle({ min: true }),
-      fullBrowserBundle(),
-    ];
+        styleBundle,
+        normalBundle,
+        fullBrowserBundle({ min: true }),
+        fullBrowserBundle(),
+      ];
