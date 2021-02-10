@@ -1,9 +1,6 @@
 // @ts-check
 import React from 'react';
 
-// @ts-ignore
-import svg from '../../assets/str-chat__loading-indicator.svg';
-
 /**
  * LoadingIndicator - Just a simple loading spinner..
  *

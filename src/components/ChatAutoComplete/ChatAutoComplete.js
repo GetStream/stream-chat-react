@@ -43,7 +43,7 @@ const ChatAutoComplete = (props) => {
     const watcherUsers = watchers ? Object.values(watchers) : [];
     const users = [...memberUsers, ...watcherUsers];
     // make sure we don't list users twice
-    /** @type {{ [key: string]: import('seamless-immutable').ImmutableObject<import('stream-chat').UserResponse<import('types').StreamChatReactUserType>> }} */
+    /** @type {{ [key: string]: import('stream-chat').UserResponse<import('types').StreamChatReactUserType> }} */
     const uniqueUsers = {};
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {
@@ -54,7 +54,7 @@ const ChatAutoComplete = (props) => {
   }, [members, watchers]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const queryMembersdebounced = useCallback(
+  const queryMembersDebounced = useCallback(
     debounce(
       /**
        * @param {string} query
@@ -130,7 +130,7 @@ const ChatAutoComplete = (props) => {
 
               return data;
             }
-            return queryMembersdebounced(
+            return queryMembersDebounced(
               query,
               /** @param {any[]} data */
               (data) => {
@@ -196,7 +196,7 @@ const ChatAutoComplete = (props) => {
       getMembersAndWatchers,
       members,
       onSelectItem,
-      queryMembersdebounced,
+      queryMembersDebounced,
       triggers,
       emojiIndex,
     ],

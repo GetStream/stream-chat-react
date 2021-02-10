@@ -93,7 +93,7 @@ export const useReactionClick = (
     (event) => {
       if (
         event.target &&
-        // @ts-ignore
+        // @ts-expect-error
         reactionSelectorRef?.current?.contains(event.target)
       ) {
         return;

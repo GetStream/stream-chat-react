@@ -174,12 +174,12 @@ export const areMessagePropsEqual = (props, nextProps) => {
     deepequal(nextProps.readBy, props.readBy) &&
     // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
     deepequal(nextProps.groupStyles, props.groupStyles) &&
-    // @ts-ignore
+    // @ts-expect-error
     deepequal(nextProps.mutes, props.mutes) &&
     // Last message received in the channel changes
     deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
     // User toggles edit state
-    // @ts-ignore // TODO: fix
+    // @ts-expect-error // TODO: fix
     nextProps.editing === props.editing &&
     // Message wrapper layout changes
     nextProps.messageListRect === props.messageListRect

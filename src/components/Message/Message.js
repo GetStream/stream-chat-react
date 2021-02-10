@@ -278,7 +278,7 @@ Message.propTypes = {
   /** DOMRect object for parent MessageList component */
   messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-  members: /** @type {PropTypes.Validator<import('seamless-immutable').ImmutableObject<{[user_id: string]: import('stream-chat').ChannelMemberResponse<import('types').StreamChatReactUserType>}> | null | undefined>} */ (PropTypes.object),
+  members: /** @type {PropTypes.Validator<{[user_id: string]: import('stream-chat').ChannelMemberResponse<import('types').StreamChatReactUserType>} | null | undefined>} */ (PropTypes.object),
   /**
    * Function to add custom notification on message list
    *

@@ -15,7 +15,6 @@ const LoadingErrorIndicator = ({ error }) => {
   if (!error) return null;
 
   return (
-    // @ts-ignore
     <div>{t('Error: {{ errorMessage }}', { errorMessage: error.message })}</div>
   );
 };

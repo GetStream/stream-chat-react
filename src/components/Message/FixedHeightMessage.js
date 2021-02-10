@@ -60,7 +60,7 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
     [message.mentioned_users, messageTextToRender],
   );
   const userId = message.user?.id;
-  // @ts-ignore
+  // @ts-expect-error
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);
 
   const messageActionsHandler = useCallback(
@@ -80,7 +80,7 @@ const FixedHeightMessage = ({ message, groupedByUser }) => {
       <Avatar
         shape="rounded"
         size={38}
-        // @ts-ignore
+        // @ts-expect-error
         image={message.user?.image}
         name={message.user?.name || message.user?.id}
       />

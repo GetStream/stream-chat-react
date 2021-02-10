@@ -60,7 +60,7 @@ const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
 
 EventComponent.propTypes = {
   /** Message object */
-  // @ts-ignore
+  // @ts-expect-error
   message: PropTypes.object.isRequired,
   /**
    * Custom UI component to display user avatar

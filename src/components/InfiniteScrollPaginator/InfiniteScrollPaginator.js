@@ -1,7 +1,7 @@
 // @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
+// @ts-expect-error
 import { LoadingIndicator as DefaultLoadingIndicator } from 'react-file-utils';
 
 import InfiniteScroll from './InfiniteScroll';
@@ -50,7 +50,7 @@ InfiniteScrollPaginator.propTypes = {
   /** Offset from when to start the loadNextPage call */
   threshold: PropTypes.number,
   /** The loading indicator to use */
-  // @ts-ignore
+  // @ts-expect-error
   LoadingIndicator: PropTypes.elementType,
 };
 

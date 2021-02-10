@@ -1,7 +1,7 @@
 // @ts-check
 import React, { useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
+// @ts-expect-error
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 import { Tooltip } from '../Tooltip';
 
@@ -100,7 +100,15 @@ const EditMessageForm = (props) => {
               )}
             </div>
             <div>
-              <button onClick={props.clearEditingState}>{t('Cancel')}</button>
+              <button
+                onClick={() => {
+                  if (props.clearEditingState) {
+                    props.clearEditingState();
+                  }
+                }}
+              >
+                {t('Cancel')}
+              </button>
               <button type="submit">{t('Send')}</button>
             </div>
           </div>

@@ -966,6 +966,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.12.13":
+  version "7.12.13"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
+  integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.10.4", "@babel/template@^7.12.7", "@babel/template@^7.3.3":
   version "7.12.7"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.12.7.tgz#c817233696018e39fbb6c491d2fb684e05ed43bc"
@@ -1598,6 +1605,13 @@
   dependencies:
     "@types/lodash" "*"
 
+"@types/lodash.isequal@^4.5.5":
+  version "4.5.5"
+  resolved "https://registry.yarnpkg.com/@types/lodash.isequal/-/lodash.isequal-4.5.5.tgz#4fed1b1b00bef79e305de0352d797e9bb816c8ff"
+  integrity sha512-4IKbinG7MGP131wRfceK6W4E/Qt3qssEFLF30LnJbjYiSfHGGRU/Io8YxXrZX109ir+iDETC8hw8QsDijukUVg==
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.throttle@^4.1.6":
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/@types/lodash.throttle/-/lodash.throttle-4.1.6.tgz#f5ba2c22244ee42ff6c2c49e614401a870c1009c"
@@ -1692,11 +1706,6 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/rgrove__parse-xml/-/rgrove__parse-xml-1.1.1.tgz#adf101efb3f38d531372a5fe5f12cb83c32452a5"
   integrity sha512-S/4A5bn1gTlkHUScQyoPsodoLhyrzoUiU0lIWr/nnRc/mzIaMxW40DQ2E6HIuDxLzi8ozm+Cdy/3Gs/MM7dPaQ==
-
-"@types/seamless-immutable@7.1.13":
-  version "7.1.13"
-  resolved "https://registry.yarnpkg.com/@types/seamless-immutable/-/seamless-immutable-7.1.13.tgz#dc8d645914086300e49410c72f6e5fae902fdbc5"
-  integrity sha512-kvgsr2sI8NBtxgR+YZNgSk0S+isAtS77TKtITUCGcNHlwYERrvgv6DbLER4TbvUK4/Qclm8C9jXzHqegpV2Ikg==
 
 "@types/source-list-map@*":
   version "0.1.2"
@@ -7552,6 +7561,11 @@ lodash.isboolean@^3.0.3:
   resolved "https://registry.yarnpkg.com/lodash.isboolean/-/lodash.isboolean-3.0.3.tgz#6c2e171db2a257cd96802fd43b01b20d5f5870f6"
   integrity sha1-bC4XHbKiV82WgC/UOwGyDV9YcPY=
 
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash.isinteger@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/lodash.isinteger/-/lodash.isinteger-4.0.4.tgz#619c0af3d03f8b04c31f5882840b77b11cd68343"
@@ -10597,11 +10611,6 @@ scss-tokenizer@^0.2.3:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
 
-seamless-immutable@^7.1.4:
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/seamless-immutable/-/seamless-immutable-7.1.4.tgz#6e9536def083ddc4dea0207d722e0e80d0f372f8"
-  integrity sha512-XiUO1QP4ki4E2PHegiGAlu6r82o5A+6tRh7IkGGTVg/h+UoeX4nFBeCGPOhb4CYjvkqsfm/TUtvOMYC1xmV30A==
-
 select-hose@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
@@ -11088,22 +11097,20 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^2.11.5:
-  version "2.11.5"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-2.11.5.tgz#9c9aa312cb324837d62f270e89d9102d866f19dc"
-  integrity sha512-WFFZRCGm5oeTwtWcbhlXExCJCP/VyO6UZP8nMtGvQLAsvDnzInvTzNVc96uQewYhv+/7mxGv3zDZq8GzjebGTw==
+stream-chat@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-3.0.0.tgz#470a648b24d3d905ebc67b61805c1c95377dbc7e"
+  integrity sha512-DyTcGm7iBdAftEbCzxu3cT/iDEuUeLL0AosOTeLZU7MCVwSWdlAhyhKSNB06YC7v6FhAatWOn1kwdJJpkBTUVg==
   dependencies:
-    "@babel/runtime" "^7.12.5"
+    "@babel/runtime" "^7.12.13"
     "@types/jsonwebtoken" "^8.5.0"
-    "@types/seamless-immutable" "7.1.13"
     "@types/ws" "^7.4.0"
     axios "^0.21.1"
     base64-js "^1.5.1"
     form-data "^3.0.0"
     isomorphic-ws "^4.0.1"
     jsonwebtoken "^8.5.1"
-    seamless-immutable "^7.1.4"
-    ws "^7.4.2"
+    ws "^7.4.3"
 
 stream-each@^1.1.0:
   version "1.2.3"
@@ -12655,10 +12662,10 @@ ws@^7.2.3:
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.0.tgz#a5dd76a24197940d4a8bb9e0e152bb4503764da7"
   integrity sha512-kyFwXuV/5ymf+IXhS6f0+eAFvydbaBW3zjpT6hUdAh/hbVjTIB5EHBGi0bPoCLSK2wcuz3BrEkB9LrYv1Nm4NQ==
 
-ws@^7.4.2:
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.2.tgz#782100048e54eb36fe9843363ab1c68672b261dd"
-  integrity sha512-T4tewALS3+qsrpGI/8dqNMLIVdq/g/85U98HPMa6F0m6xTbvhXU6RCQLqPH3+SlomNV/LdY6RXEbBpMH6EOJnA==
+ws@^7.4.3:
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.3.tgz#1f9643de34a543b8edb124bdcbc457ae55a6e5cd"
+  integrity sha512-hr6vCR76GsossIRsr8OLR9acVVm1jyfEWvhbNjtgPOrfvAlKzvyeg/P6r8RuDjRyrcQoPQT7K0DGEPc7Ae6jzA==
 
 x-is-string@^0.1.0:
   version "0.1.0"

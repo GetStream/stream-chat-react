@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 import React, { useMemo } from 'react';
-import deepequal from 'react-fast-compare';
+import isEqual from 'lodash.isequal';
 
 import { Message } from '../Message';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
@@ -214,25 +214,17 @@ const MessageListInner = (props) => {
 
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
-  const enrichedMessages = useMemo(() => {
+  const enrichMessages = () => {
     const messageWithDates =
       disableDateSeparator || threadList
         ? messages
         : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
-
     if (HeaderComponent) return insertIntro(messageWithDates, headerPosition);
 
     return messageWithDates;
-  }, [
-    client.userID,
-    disableDateSeparator,
-    HeaderComponent,
-    headerPosition,
-    hideDeletedMessages,
-    lastRead,
-    messages,
-    threadList,
-  ]);
+  };
+
+  const enrichedMessages = enrichMessages();
 
   const messageGroupStyles = useMemo(
     () =>
@@ -343,4 +335,4 @@ const MessageListInner = (props) => {
   );
 };
 
-export default React.memo(MessageListInner, deepequal);
+export default React.memo(MessageListInner, isEqual);

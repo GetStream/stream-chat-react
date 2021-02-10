@@ -21,7 +21,7 @@ import {
 
 /**
  * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
- * It is pretty fast for rendering thousands of messages but it needs its Message componet to have fixed height
+ * It is pretty fast for rendering thousands of messages but it needs its Message component to have fixed height
  * @example ../../docs/VirtualizedMessageList.md
  * @type {React.FC<import('types').VirtualizedMessageListInternalProps>}
  */
@@ -55,7 +55,7 @@ const VirtualizedMessageList = ({
 
   useEffect(() => {
     /* handle scrolling behavior for new messages */
-    if (!messages.length) return;
+    if (!messages?.length) return;
 
     const lastMessage = messages[messages.length - 1];
     const prevMessageId = lastMessageId.current;
@@ -84,10 +84,10 @@ const VirtualizedMessageList = ({
      */
     if (mounted.current) return;
     mounted.current = true;
-    if (messages.length && virtuoso.current) {
+    if (messages?.length && virtuoso.current) {
       virtuoso.current.scrollToIndex(messages.length - 1);
     }
-  }, [messages.length]);
+  }, [messages?.length]);
 
   const messageRenderer = useCallback(
     (messageList, i) => {
@@ -117,10 +117,14 @@ const VirtualizedMessageList = ({
     [MessageDeleted, customMessageRenderer, shouldGroupByUser],
   );
 
+  if (!messages) {
+    return null;
+  }
+
   return (
     <div className="str-chat__virtual-list">
       <Virtuoso
-        // @ts-ignore
+        // @ts-expect-error
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
@@ -178,7 +182,7 @@ const VirtualizedMessageList = ({
  * @returns {React.ElementType<import("types").VirtualizedMessageListInternalProps>}
  */
 export default function VirtualizedMessageListWithContext(props) {
-  // @ts-ignore
+  // @ts-expect-error
   return (
     <ChannelContext.Consumer>
       {(
@@ -186,13 +190,12 @@ export default function VirtualizedMessageListWithContext(props) {
       ) => (
         <VirtualizedMessageList
           client={context.client}
-          // @ts-ignore
           messages={context.messages}
-          // @ts-ignore
+          // @ts-expect-error
           loadMore={context.loadMore}
-          // @ts-ignore
+          // @ts-expect-error
           hasMore={context.hasMore}
-          // @ts-ignore
+          // @ts-expect-error
           loadingMore={context.loadingMore}
           {...props}
         />

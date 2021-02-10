@@ -1,5 +1,3 @@
-import Immutable from 'seamless-immutable';
-
 /** @type {import('./types').ChannelStateReducer} */
 export const channelReducer = (state, action) => {
   switch (action.type) {
@@ -7,11 +5,11 @@ export const channelReducer = (state, action) => {
       const { channel } = action;
       return {
         ...state,
-        messages: channel.state.messages,
-        pinnedMessages: channel.state.pinnedMessages,
-        read: channel.state.read,
-        watchers: channel.state.watchers,
-        members: channel.state.members,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
+        read: { ...channel.state.read },
+        watchers: { ...channel.state.watchers },
+        members: { ...channel.state.members },
         watcherCount: channel.state.watcher_count,
         loading: false,
       };
@@ -20,12 +18,12 @@ export const channelReducer = (state, action) => {
       const { channel } = action;
       return {
         ...state,
-        messages: channel.state.messages,
-        pinnedMessages: channel.state.pinnedMessages,
-        read: channel.state.read,
-        watchers: channel.state.watchers,
-        members: channel.state.members,
-        typing: channel.state.typing,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
+        read: { ...channel.state.read },
+        watchers: { ...channel.state.watchers },
+        members: { ...channel.state.members },
+        typing: { ...channel.state.typing },
         watcherCount: channel.state.watcher_count,
       };
     }
@@ -50,10 +48,10 @@ export const channelReducer = (state, action) => {
       const { channel, parentId } = action;
       return {
         ...state,
-        messages: channel.state.messages,
-        pinnedMessages: channel.state.pinnedMessages,
+        messages: [...channel.state.messages],
+        pinnedMessages: [...channel.state.pinnedMessages],
         threadMessages: parentId
-          ? channel.state.threads[parentId] || Immutable([])
+          ? { ...channel.state.threads }[parentId] || []
           : state.threadMessages,
       };
     }
@@ -63,11 +61,11 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         threadMessages: state.thread?.id
-          ? channel.state.threads[state.thread.id] || Immutable([])
-          : Immutable([]),
+          ? { ...channel.state.threads }[state.thread.id] || []
+          : [],
         thread:
           message?.id === state.thread.id
-            ? channel.state.messageToImmutable(message)
+            ? channel.state.formatMessage(message)
             : state.thread,
       };
     }
@@ -77,8 +75,8 @@ export const channelReducer = (state, action) => {
         ...state,
         thread: message,
         threadMessages: message.id
-          ? channel.state.threads[message.id] || Immutable([])
-          : Immutable([]),
+          ? { ...channel.state.threads }[message.id] || []
+          : [],
       };
     }
     case 'startLoadingThread': {
@@ -100,7 +98,7 @@ export const channelReducer = (state, action) => {
       return {
         ...state,
         thread: null,
-        threadMessages: Immutable([]),
+        threadMessages: [],
         threadLoadingMore: false,
       };
     }
@@ -119,15 +117,15 @@ export const initialState = {
   loading: true,
   loadingMore: false,
   hasMore: true,
-  messages: Immutable([]),
-  pinnedMessages: Immutable([]),
-  typing: Immutable(/** @type {any} infer from ChannelState */ ({})),
-  members: Immutable(/** @type {any} infer from ChannelState */ ({})),
-  watchers: Immutable(/** @type {any} infer from ChannelState */ ({})),
+  messages: [],
+  pinnedMessages: [],
+  typing: {},
+  members: {},
+  watchers: {},
   watcherCount: 0,
-  read: Immutable(/** @type {any} infer from ChannelState */ ({})),
+  read: {},
   thread: null,
-  threadMessages: Immutable([]),
+  threadMessages: [],
   threadLoadingMore: false,
   threadHasMore: true,
 };

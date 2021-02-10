@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Immutable from 'seamless-immutable';
 import Channel from '../Channel';
 import { Chat } from '../../Chat';
 import { ChannelContext, ChatContext } from '../../../context';
@@ -615,7 +614,7 @@ describe('Channel', () => {
         // flag to prevent infinite loop
         let hasSent = false;
         let hasRetried = false;
-        const messageObject = Immutable({ text: 'bla bla' });
+        const messageObject = { text: 'bla bla' };
 
         const { findByText } = renderComponent(
           {

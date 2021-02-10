@@ -1,6 +1,6 @@
 // @ts-check
 import React, { useContext } from 'react';
-// @ts-ignore
+// @ts-expect-error
 import { ImagePreviewer, FilePreviewer } from 'react-file-utils';
 import { ChannelContext } from '../../context';
 

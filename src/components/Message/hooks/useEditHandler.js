@@ -22,7 +22,7 @@ export const useEditHandler = (
   const setEdit =
     customSetEditing ||
     ((event) => {
-      if (event) {
+      if (event?.preventDefault) {
         event.preventDefault();
       }
       setEditing(true);
@@ -30,7 +30,7 @@ export const useEditHandler = (
   const clearEdit =
     customClearEditingHandler ||
     ((event) => {
-      if (event) {
+      if (event?.preventDefault) {
         event.preventDefault();
       }
       setEditing(false);

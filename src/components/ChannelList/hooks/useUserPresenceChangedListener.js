@@ -10,15 +10,17 @@ import { ChatContext } from '../../../context';
 export const useUserPresenceChangedListener = (setChannels) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event} e */
-    const handleEvent = (e) => {
+    /** @param {import('stream-chat').Event} event */
+    const handleEvent = (event) => {
       setChannels((channels) => {
         const newChannels = channels.map((channel) => {
-          if (!e.user?.id || !channel.state.members[e.user.id]) return channel;
+          if (!event.user?.id || !channel.state.members[event.user.id])
+            return channel;
 
-          channel.state.members.setIn([e.user.id, 'user'], e.user);
+          const newChannel = channel; // dumb workaround for linter
+          newChannel.state.members[event.user.id].user = event.user;
 
-          return channel;
+          return newChannel;
         });
 
         return [...newChannels];

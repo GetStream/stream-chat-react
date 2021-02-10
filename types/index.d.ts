@@ -3,7 +3,6 @@
 /** Components */
 import * as React from 'react';
 import * as Client from 'stream-chat';
-import SeamlessImmutable from 'seamless-immutable';
 import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
@@ -15,6 +14,7 @@ import type {
   NimbleEmojiProps,
   NimblePickerProps,
 } from 'emoji-mart';
+import type { TranslationLanguages } from 'stream-chat';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
@@ -106,12 +106,12 @@ export interface EmojiConfig {
 export interface ChannelContextValue extends ChatContextValue {
   Message?: React.ElementType<MessageUIComponentProps>;
   Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
-  messages?: StreamChatChannelState['messages'];
+  messages?: Array<Client.MessageResponse>;
   typing?: StreamChatChannelState['typing'];
   watchers?: StreamChatChannelState['watchers'];
   members?: StreamChatChannelState['members'];
   read?: Client.ChannelState['read'];
-  thread?: ReturnType<StreamChatChannelState['messageToImmutable']> | null;
+  thread?: Client.MessageResponse | null;
   online?: boolean;
   watcher_count?: number;
   error?: Error | null;
@@ -122,9 +122,7 @@ export interface ChannelContextValue extends ChatContextValue {
   hasMore?: boolean;
   threadLoadingMore?: boolean;
   threadHasMore?: boolean;
-  threadMessages?: SeamlessImmutable.ImmutableArray<
-    ReturnType<StreamChatChannelState['messageToImmutable']>
-  >;
+  threadMessages?: Array<ReturnType<StreamChatChannelState['formatMessage']>>;
 
   multipleUploads?: boolean;
   acceptedFiles?: string[];
@@ -549,7 +547,7 @@ export interface VirtualizedMessageListInternalProps {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: StreamChatReactClient;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  messages: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  messages?: Array<Client.MessageResponse>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   loadMore(messageLimit?: number): Promise<number>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -565,7 +563,7 @@ export interface VirtualizedMessageListInternalProps {
   shouldGroupByUser?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer(
-    messageList: SeamlessImmutable.ImmutableArray<Client.MessageResponse>,
+    messageList: Array<Client.MessageResponse>,
     index: number,
   ): React.ReactElement;
   /** Custom UI component to display messages. */
@@ -628,22 +626,22 @@ export interface MessageListProps {
   client?: Client.StreamChat;
   loadMore?(messageLimit?: number): Promise<number>;
   MessageSystem?: React.ElementType;
-  messages?: SeamlessImmutable.ImmutableArray<Client.MessageResponse>;
+  messages?: Array<Client.MessageResponse>;
   read?: {
-    [user_id: string]: SeamlessImmutable.Immutable<{
+    [user_id: string]: {
       last_read: string;
       user: Client.UserResponse;
-    }>;
+    };
   };
   hasMore?: boolean;
   loadingMore?: boolean;
   openThread?(): void;
-  members?: SeamlessImmutable.Immutable<{
+  members?: {
     [user_id: string]: Client.ChannelMemberResponse;
-  }>;
-  watchers?: SeamlessImmutable.Immutable<{
+  };
+  watchers?: {
     [user_id: string]: Client.ChannelMemberResponse;
-  }>;
+  };
   channel?: Client.Channel;
   retrySendMessage?(message: Client.Message): Promise<void>;
 
@@ -765,11 +763,11 @@ export interface MessageInputState {
   text: string;
   attachments: Client.Attachment[];
   imageOrder: string[];
-  imageUploads: SeamlessImmutable.ImmutableObject<{
+  imageUploads: {
     [id: string]: ImageUpload;
-  }>;
+  };
   fileOrder: string[];
-  fileUploads: SeamlessImmutable.ImmutableObject<{ [id: string]: FileUpload }>;
+  fileUploads: { [id: string]: FileUpload };
   emojiPickerIsOpen: boolean;
   // ids of users mentioned in message
   mentioned_users: Client.UserResponse[];
@@ -804,7 +802,7 @@ interface MessageInputHookProps {
   uploadFile(id: string): void;
   onSelectEmoji(emoji: { native: string }): void;
   getUsers(): (
-    | ImmutableObject<Client.ChannelMemberAPIResponse<StreamChatReactUserType>>
+    | Client.ChannelMemberAPIResponse<StreamChatReactUserType>
     | undefined
   )[];
   getCommands(): Client.CommandResponse[] | undefined;
@@ -926,9 +924,9 @@ export interface MessageComponentProps
   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
   onUserHover?(e: React.MouseEvent, user: Client.User): void;
   messageActions?: Array<string> | boolean;
-  members?: SeamlessImmutable.Immutable<{
+  members?: {
     [user_id: string]: Client.ChannelMemberResponse<StreamChatReactUserType>;
-  }>;
+  };
   retrySendMessage?(message: Client.Message): Promise<void>;
   removeMessage?(updatedMessage: Client.MessageResponse): void;
   mutes?: Client.Mute[];
@@ -1003,7 +1001,7 @@ export interface ThreadProps {
 export interface ThreadHeaderProps {
   closeThread?(event: React.SyntheticEvent): void;
   t?: i18next.TFunction;
-  thread?: ReturnType<StreamChatChannelState['messageToImmutable']> | null;
+  thread?: Client.MessageResponse | null;
 }
 
 export interface TypingIndicatorProps {
@@ -1762,7 +1760,7 @@ export interface TranslationContext
 export interface TranslationContextValue {
   t?: i18next.TFunction;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
-  userLanguage?: string;
+  userLanguage?: TranslationLanguages;
 }
 
 export interface Streami18nOptions {

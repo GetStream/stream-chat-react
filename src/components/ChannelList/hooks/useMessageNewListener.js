@@ -18,17 +18,20 @@ export const useMessageNewListener = (
 ) => {
   const { client } = useContext(ChatContext);
   useEffect(() => {
-    /** @param {import('stream-chat').Event} e */
-    const handleEvent = (e) => {
+    /** @param {import('stream-chat').Event} event */
+    const handleEvent = (event) => {
       setChannels((channels) => {
         const channelInList =
-          channels.filter((c) => c.cid === e.cid).length > 0;
-        if (!channelInList && allowNewMessagesFromUnfilteredChannels) {
-          // @ts-ignore
-          const channel = client.channel(e.channel_type, e.channel_id);
+          channels.filter((channel) => channel.cid === event.cid).length > 0;
+        if (
+          !channelInList &&
+          allowNewMessagesFromUnfilteredChannels &&
+          event.channel_type
+        ) {
+          const channel = client.channel(event.channel_type, event.channel_id);
           return uniqBy([channel, ...channels], 'cid');
         }
-        if (!lockChannelOrder) return moveChannelUp(e.cid, channels);
+        if (!lockChannelOrder) return moveChannelUp(event.cid, channels);
         return channels;
       });
     };

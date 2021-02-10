@@ -1,7 +1,7 @@
 // @ts-check
 import React from 'react';
 import PropTypes from 'prop-types';
-// @ts-ignore
+// @ts-expect-error
 import { LoadingIndicator } from 'react-file-utils';
 
 /**
