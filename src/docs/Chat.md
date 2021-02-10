@@ -13,9 +13,9 @@ import {
 
 const StreamChat = require('stream-chat').StreamChat;
 
-chatClient = new StreamChat('qk4nn7rpcn75');
+const chatClient = StreamChat.getInstance('qk4nn7rpcn75');
 
-chatClient.setUser(
+chatClient.connectUser(
   {
     id: 'John',
   },

@@ -18,16 +18,18 @@ const ChatAutoComplete = (props) => {
 
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
-  const { emojiData, EmojiIndex } = emojiConfig;
+  const { emojiData, EmojiIndex } = emojiConfig || {};
 
-  const emojiIndex = useMemo(() => new EmojiIndex(emojiData), [
-    emojiData,
-    EmojiIndex,
-  ]);
+  const emojiIndex = useMemo(() => {
+    if (EmojiIndex) {
+      return new EmojiIndex(emojiData);
+    }
+    return null;
+  }, [emojiData, EmojiIndex]);
 
   /** @param {string} word */
   const emojiReplace = (word) => {
-    const found = emojiIndex.search(word) || [];
+    const found = emojiIndex?.search(word) || [];
     const emoji = found.slice(0, 10).find(
       /** @type {{ ({ emoticons } : import('emoji-mart').EmojiData): boolean }} */
       ({ emoticons }) => !!emoticons?.includes(word),
@@ -91,7 +93,7 @@ const ChatAutoComplete = (props) => {
             if (q.length === 0 || q.charAt(0).match(/[^a-zA-Z0-9+-]/)) {
               return [];
             }
-            const emojis = emojiIndex.search(q) || [];
+            const emojis = emojiIndex?.search(q) || [];
             const result = emojis.slice(0, 10);
 
             if (onReady) onReady(result, q);
