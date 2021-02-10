@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.1) 2021-02-11
+
+**NOTE: breaking changes in v4.0.0, this follow-up version patches the docs**
+
+### Feature
+
+- Add `usePinHandler` example to docs [#705](https://github.com/GetStream/stream-chat-react/pull/705)
+
+### Bug
+
+- Remove legacy APIs in mock data used for generating the docs [#704](https://github.com/GetStream/stream-chat-react/pull/704)
+
 ## [4.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.0) 2021-02-10
 
 ### ⚠️ BREAKING CHANGES ⚠️
