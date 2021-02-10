@@ -9,6 +9,7 @@ module.exports = {
       '<rootDir>/assetsTransformer.js',
     'mock-builders(.*)$': '<rootDir>/src/mock-builders$1',
   },
+  preset: 'ts-jest',
   setupFiles: ['core-js'],
   testPathIgnorePatterns: ['/node_modules/', '/examples/', '__snapshots__'],
   testRegex: [
@@ -21,6 +22,7 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(js|jsx)?$': 'babel-jest',
+    '\\.(ts|tsx)?$': ['ts-jest'],
   },
   transformIgnorePatterns: [],
   verbose: true,
