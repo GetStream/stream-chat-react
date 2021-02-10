@@ -666,10 +666,11 @@ export interface MessageListProps {
 
 export interface ChannelHeaderProps {
   Avatar?: React.ElementType<AvatarProps>;
-  /** Set title manually */
-  title?: string;
+  image?: string;
   /** Show a little indicator that the channel is live right now */
   live?: boolean;
+  /** Set title manually */
+  title?: string;
 }
 
 export interface MessageInputProps {
