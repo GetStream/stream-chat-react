@@ -14,6 +14,7 @@ import type {
   NimbleEmojiProps,
   NimblePickerProps,
 } from 'emoji-mart';
+import type { TranslationLanguages } from 'stream-chat';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
@@ -1758,7 +1759,7 @@ export interface TranslationContext
 export interface TranslationContextValue {
   t?: i18next.TFunction;
   tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
-  userLanguage?: string;
+  userLanguage?: TranslationLanguages;
 }
 
 export interface Streami18nOptions {
