@@ -22,6 +22,14 @@ export const TranslationContext = React.createContext<TranslationContextValue>({
   userLanguage: 'en',
 });
 
+export const TranslationProvider: React.FC<{
+  value: TranslationContextValue;
+}> = ({ children, value }) => (
+  <TranslationContext.Provider value={value}>
+    {children}
+  </TranslationContext.Provider>
+);
+
 export const useTranslationContext = () => useContext(TranslationContext);
 
 export const withTranslationContext = <P extends UnknownType>(
