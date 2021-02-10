@@ -1,5 +1,30 @@
 # Changelog
 
+## [4.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.0) 2021-02-10
+
+### ⚠️ BREAKING CHANGES ⚠️
+
+- Removed the `seamless-immutable` dependency and its corresponding methods and types [#687](https://github.com/GetStream/stream-chat-react/pull/687)
+
+  - We also removed this dependency at the `stream-chat` JS client level, therefore immutable methods, such as `setIn`, no longer need to be run
+    on the returned data [#602](https://github.com/GetStream/stream-chat-js/pull/602)
+  - Responses from the Stream API will now return standard JS data structures, without the immutable wrapping
+  - **When you upgrade to v4.0.0 of `stream-chat-react`, make sure you also upgrade to v3.0.0 of `stream-chat`**
+
+### Feature
+
+- Performance optimize and allow customization of the `emoji-mart` dependency [#530](https://github.com/GetStream/stream-chat-react/pull/530)
+- Add custom `image` prop to `ChannelHeader` component [#697](https://github.com/GetStream/stream-chat-react/pull/697)
+
+### Chore
+
+- Removed the SonarJS linting rules [#693](https://github.com/GetStream/stream-chat-react/pull/693)
+
+### Bug
+
+- Fix permissions bug with custom channel types [#695](https://github.com/GetStream/stream-chat-react/pull/695)
+- Fix `ChannelHeader` CSS alignment issue [#699](https://github.com/GetStream/stream-chat-react/pull/699)
+
 ## [3.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v3.6.0) 2021-02-02
 
 ### Feature
