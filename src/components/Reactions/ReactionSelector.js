@@ -27,12 +27,8 @@ const ReactionSelectorWithRef = (
 ) => {
   const { emojiConfig } = useContext(ChannelContext);
 
-  const {
-    defaultMinimalEmojis,
-    Emoji,
-    emojiData: fullEmojiData,
-    emojiSetDef,
-  } = emojiConfig;
+  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
+    emojiConfig || {};
 
   const emojiData = getStrippedEmojiData(fullEmojiData);
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;

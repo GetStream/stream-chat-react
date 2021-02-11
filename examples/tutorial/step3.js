@@ -13,7 +13,7 @@ import { StreamChat } from 'stream-chat';
 
 import 'stream-chat-react/dist/css/index.css';
 
-const chatClient = new StreamChat('qk4nn7rpcn75');
+const chatClient = StreamChat.getInstance('qk4nn7rpcn75');
 
 class MyChannelPreview extends React.Component {
   render() {
@@ -35,14 +35,14 @@ class MyChannelPreview extends React.Component {
   }
 }
 
-// the most minimalistic message component
+// the most minimalist message component
 class MyMessage extends React.Component {
   render() {
     return <div>{this.props.message.text}</div>;
   }
 }
 
-chatClient.setUser(
+chatClient.connectUser(
   {
     id: 'thierry',
     name: 'Thierry',

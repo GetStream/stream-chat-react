@@ -3,9 +3,9 @@ const { StreamChat } = require('stream-chat');
 // eslint-disable-next-line no-undef
 const Dayjs = require('dayjs');
 
-export const client = new StreamChat('qk4nn7rpcn75');
+export const client = StreamChat.getInstance('qk4nn7rpcn75');
 
-client.setUser(
+client.connectUser(
   {
     id: 'John',
   },

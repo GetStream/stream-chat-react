@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const apiKey = 'API_KEY';
 const token = 'dummy_token';
 
-const setUser = (client, user) =>
+const connectUser = (client, user) =>
   new Promise((resolve) => {
     client.connectionId = 'dumm_connection_id';
     client.user = user;
@@ -25,7 +25,7 @@ function mockClient(client) {
     getToken: jest.fn(() => token),
     tokenReady: jest.fn(() => true),
   };
-  client.setUser = setUser.bind(null, client);
+  client.connectUser = connectUser.bind(null, client);
   return client;
 }
 
@@ -33,7 +33,7 @@ export const getTestClient = () => mockClient(new StreamChat(apiKey));
 
 export const getTestClientWithUser = async (user = { id: uuidv4() }) => {
   const client = mockClient(new StreamChat(apiKey));
-  await setUser(client, user);
+  await connectUser(client, user);
   return client;
 };
 
