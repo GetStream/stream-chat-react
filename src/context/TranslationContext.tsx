@@ -4,8 +4,9 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { getDisplayName } from './utils/getDisplayName';
 
-// import type { TranslationLanguages } from 'stream-chat';
 import type { TFunction } from 'i18next';
+import type { TranslationLanguages } from 'stream-chat';
+
 import type { UnknownType } from '../../types/types';
 
 Dayjs.extend(LocalizedFormat);
@@ -13,7 +14,7 @@ Dayjs.extend(LocalizedFormat);
 export type TranslationContextValue = {
   t: TFunction;
   tDateTimeParser: (datetime: string | number) => Dayjs.Dayjs;
-  userLanguage: string; // TODO - add TranslationLanguages when JS client deployed
+  userLanguage: TranslationLanguages;
 };
 
 export const TranslationContext = React.createContext<TranslationContextValue>({

@@ -1,6 +1,5 @@
 // @ts-check
 import React, { useRef } from 'react';
-// eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
 import { Channel } from 'stream-chat';
 

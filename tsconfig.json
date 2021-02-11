@@ -41,6 +41,7 @@
     "./src/docs/*",
     "./src/mock-builders",
     "node_modules",
+    "babel.config.js",
     "jest.config.js",
     "**/__tests__/*.test.js"
   ]

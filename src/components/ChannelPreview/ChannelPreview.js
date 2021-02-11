@@ -1,7 +1,6 @@
 // @ts-check
 import React, { useContext, useEffect, useState } from 'react';
 
-// eslint-disable-next-line import/no-unresolved
 import PropTypes from 'prop-types';
 import ChannelPreviewCountOnly from './ChannelPreviewCountOnly';
 import { ChatContext, TranslationContext } from '../../context';

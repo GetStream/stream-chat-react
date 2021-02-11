@@ -12,7 +12,6 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "airbnb-base",
     "plugin:prettier/recommended",
     "plugin:jest/all",
     "plugin:jest-dom/recommended"
@@ -102,12 +101,13 @@
   },
   "settings": {
     "react": {
+      "pragma": "React",
       "version": "detect"
     },
     "import/resolver": {
       "alias": {
         "map": [["mock-builders", "./src/mock-builders"]],
-        "extensions": [".js"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       },
       "eslint-import-resolver-babel-module": {},
       "node": {
