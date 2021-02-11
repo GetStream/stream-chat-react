@@ -4,8 +4,8 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { getDisplayName } from './utils/getDisplayName';
 
-import type { TranslationLanguages } from 'stream-chat';
 import type { TFunction } from 'i18next';
+import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../../types/types';
 
