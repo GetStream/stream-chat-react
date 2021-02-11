@@ -9,6 +9,13 @@ module.exports = {
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./styleguidist/webpack.config.styleguidist.js'),
   serverPort: 6068,
+  compilerConfig: {
+    transforms: {
+      dangerousTaggedTemplateString: true,
+      moduleImport: false,
+    },
+    objectAssign: 'Object.assign',
+  },
   propsParser: require('react-docgen-typescript').withCustomConfig(
     './tsconfig.json',
     {
@@ -19,12 +26,12 @@ module.exports = {
     PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
   },
   /* getExampleFilename(componentPath) {
-		componentPath = componentPath
-			.replace('src/components/', 'src/components/docs/')
-			.replace('.js', '.md');
-		console.log('componentPath', componentPath);
-		return componentPath;
-	}, */
+    componentPath = componentPath
+      .replace('src/components/', 'src/components/docs/')
+      .replace('.js', '.md');
+    console.log('componentPath', componentPath);
+    return componentPath;
+  }, */
   sections: [
     {
       name: 'Top Level Components',

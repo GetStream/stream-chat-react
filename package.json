@@ -101,7 +101,6 @@
     "eslint-config-react-app": "^6.0.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-babel-module": "^5.2.0",
-    "eslint-loader": "^4.0.2",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.22.1",

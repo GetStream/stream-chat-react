@@ -1,7 +1,9 @@
-const webpack = require('webpack');
 const path = require('path');
 const env = require('yargs').argv.env; // use --env with webpack 2
-const pkg = require('../package.json');
+
+const notBabeledDeps = [
+  'react-file-utils',
+];
 
 let libraryName = 'webpack';
 
@@ -16,7 +18,7 @@ if (env === 'build') {
 }
 
 const config = {
-  mode: mode,
+  mode,
   entry: __dirname + '/src/index.js',
   devtool: 'source-map',
   output: {
@@ -28,14 +30,23 @@ const config = {
   module: {
     rules: [
       {
-        test: /(\.jsx|\.js)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         loader: 'babel-loader',
+        include: [
+          path.join(__dirname, 'src'),
+          ...notBabeledDeps.map((dep) =>
+            path.join(__dirname, 'node_modules', dep),
+          ),
+        ],
+        options: {
+          babelrc: false,
+          comments: true,
+          plugins: ['module-resolver'],
+          presets: [
+            '@babel/preset-typescript',
+          ],
+        },
         exclude: /(node_modules|bower_components)/,
-      },
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/,
       },
       {
         test: /\.(pdf|jpg|png|gif|svg|ico)$/,
@@ -53,7 +64,7 @@ const config = {
   },
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js'],
+    extensions: ['.json', '.js', 'ts', 'tsx'],
   },
   externals: {
     react: 'React',
