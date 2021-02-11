@@ -1,14 +1,7 @@
 const path = require('path');
 const env = require('yargs').argv.env; // use --env with webpack 2
-
-const notBabeledDeps = [
-  'react-file-utils',
-];
-
 let libraryName = 'webpack';
-
 let outputFile, mode;
-
 if (env === 'build') {
   mode = 'production';
   outputFile = libraryName + '.min.js';
@@ -16,7 +9,6 @@ if (env === 'build') {
   mode = 'development';
   outputFile = libraryName + '.js';
 }
-
 const config = {
   mode,
   entry: __dirname + '/src/index.js',
@@ -32,19 +24,11 @@ const config = {
       {
         test: /\.(js|jsx|ts|tsx)$/,
         loader: 'babel-loader',
-        include: [
-          path.join(__dirname, 'src'),
-          ...notBabeledDeps.map((dep) =>
-            path.join(__dirname, 'node_modules', dep),
-          ),
-        ],
         options: {
           babelrc: false,
           comments: true,
           plugins: ['module-resolver'],
-          presets: [
-            '@babel/preset-typescript',
-          ],
+          presets: ['@babel/preset-typescript'],
         },
         exclude: /(node_modules|bower_components)/,
       },
@@ -70,5 +54,4 @@ const config = {
     react: 'React',
   },
 };
-
 module.exports = config;
