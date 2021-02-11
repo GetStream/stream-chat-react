@@ -6,38 +6,19 @@ import { getDisplayName } from './utils/getDisplayName';
 
 import type { TranslationLanguages } from 'stream-chat';
 import type { TFunction } from 'i18next';
-import type { Moment } from 'moment';
 
 import type { UnknownType } from '../../types/types';
 
 Dayjs.extend(LocalizedFormat);
 
-export const isDayOrMoment = (
-  output: TDateTimeParserOutput,
-): output is Dayjs.Dayjs | Moment =>
-  (output as Dayjs.Dayjs | Moment).isSame != null;
-
-export type TDateTimeParserInput = string | number | Date;
-
-export type TDateTimeParserOutput =
-  | string
-  | number
-  | Date
-  | Dayjs.Dayjs
-  | Moment;
-
-export type TDateTimeParser = (
-  input?: TDateTimeParserInput,
-) => TDateTimeParserOutput;
-
 export type TranslationContextValue = {
-  t: TFunction | ((key: string) => string);
-  tDateTimeParser: TDateTimeParser;
+  t: TFunction;
+  tDateTimeParser: (datetime: string | number) => Dayjs.Dayjs;
   userLanguage: TranslationLanguages;
 };
 
 export const TranslationContext = React.createContext<TranslationContextValue>({
-  t: (key) => key,
+  t: (key: string) => key,
   tDateTimeParser: (input) => Dayjs(input),
   userLanguage: 'en',
 });
@@ -62,8 +43,10 @@ export const withTranslationContext = <P extends UnknownType>(
 
     return <Component {...(props as P)} {...translationContext} />;
   };
+
   WithTranslationContextComponent.displayName = `WithTranslationContext${getDisplayName(
     Component,
   )}`;
+
   return WithTranslationContextComponent;
 };
