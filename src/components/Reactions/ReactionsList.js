@@ -14,12 +14,8 @@ const ReactionsList = ({
 }) => {
   const { emojiConfig } = useContext(ChannelContext);
 
-  const {
-    defaultMinimalEmojis,
-    Emoji,
-    emojiData: fullEmojiData,
-    emojiSetDef,
-  } = emojiConfig;
+  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
+    emojiConfig || {};
 
   const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
     fullEmojiData,

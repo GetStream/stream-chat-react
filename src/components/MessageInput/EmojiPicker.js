@@ -22,7 +22,7 @@ const EmojiPicker = ({
   const { emojiConfig } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
 
-  const { emojiData, EmojiPicker: Picker } = emojiConfig;
+  const { emojiData, EmojiPicker: Picker } = emojiConfig || {};
 
   if (emojiPickerIsOpen) {
     const className = small

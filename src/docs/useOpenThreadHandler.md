@@ -22,5 +22,4 @@ const MyCustomMessageComponent = (props) => {
     </div>
   );
 };
-`
 ```

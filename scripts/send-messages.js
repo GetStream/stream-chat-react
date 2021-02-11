@@ -12,9 +12,9 @@ function sleep(ms) {
 }
 console.log(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
 async function main() {
-  const chatClient = new StreamChat(process.env.REACT_APP_CHAT_API_KEY);
+  const chatClient = StreamChat.getInstance(process.env.REACT_APP_CHAT_API_KEY);
   chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-  chatClient.setUser(
+  chatClient.connectUser(
     {
       id: user,
     },

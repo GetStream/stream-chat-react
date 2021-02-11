@@ -18,7 +18,7 @@ const SimpleReactionsList = ({
     Emoji,
     emojiData: defaultEmojiData,
     emojiSetDef,
-  } = emojiConfig;
+  } = emojiConfig || {};
 
   const emojiData = getStrippedEmojiData(defaultEmojiData);
   const [tooltipReactionType, setTooltipReactionType] = useState(null);

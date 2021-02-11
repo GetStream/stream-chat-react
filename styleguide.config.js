@@ -87,6 +87,10 @@ module.exports = {
               content: 'src/docs/useOpenThreadHandler.md',
             },
             {
+              name: 'usePinHandler',
+              content: 'src/docs/usePinHandler.md',
+            },
+            {
               name: 'useReactionHandler',
               content: 'src/docs/useReactionHandler.md',
             },
