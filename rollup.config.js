@@ -18,7 +18,7 @@ import pkg from './package.json';
 
 process.env.NODE_ENV = 'production';
 
-const styleBundle = {
+const styleBundle = ({ min } = { min: false }) => ({
   input: 'src/styles/index.scss',
   cache: false,
   watch: {
@@ -33,11 +33,12 @@ const styleBundle = {
   ],
   plugins: [
     scss({
-      output: pkg.style,
+      output: min ? pkg.style.replace('.css', '.min.css') : pkg.style,
       prefix: `@import "./variables.scss";`,
+      outputStyle: min ? 'compressed' : 'nested',
     }),
   ],
-};
+});
 
 const baseConfig = {
   input: 'src/index.js',
@@ -182,9 +183,10 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
 
 export default () =>
   process.env.ROLLUP_WATCH
-    ? [styleBundle, normalBundle]
+    ? [styleBundle(), normalBundle]
     : [
-        styleBundle,
+        styleBundle(),
+        styleBundle({ min: true }),
         normalBundle,
         fullBrowserBundle({ min: true }),
         fullBrowserBundle(),
