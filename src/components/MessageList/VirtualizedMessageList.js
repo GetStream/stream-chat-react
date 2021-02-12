@@ -196,6 +196,7 @@ export default function VirtualizedMessageListWithContext(props) {
           loadingMore={context.loadingMore}
           // @ts-expect-error
           loadMore={context.loadMore}
+          // @ts-expect-error
           messages={context.messages}
           {...props}
         />

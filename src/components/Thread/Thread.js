@@ -164,13 +164,16 @@ const ThreadInner = (props) => {
         fullWidth ? 'str-chat__thread--full' : ''
       }`}
     >
+      {/* @ts-expect-error */}
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           channel={channel}
           client={client}
           initialMessage
+          // @ts-expect-error
           message={thread}
+          // @ts-expect-error
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}

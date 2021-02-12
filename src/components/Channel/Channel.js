@@ -531,7 +531,7 @@ Channel.propTypes = {
    * Optional component to override default NimbleEmoji from emoji-mart
    */
   // @ts-expect-error import type when converted to TS
-  Emoji: /** @type {PropTypes.Validator<React.ElementType<NimbleEmojiProps>>} */ (PropTypes.elementType),
+  Emoji: /** @type {PropTypes.Validator<React.ComponentType<NimbleEmojiProps>>} */ (PropTypes.elementType),
   /**
    * Optional prop to override default facebook.json emoji data set from emoji-mart
    */
@@ -546,7 +546,7 @@ Channel.propTypes = {
    * Optional component to override default NimblePicker from emoji-mart
    */
   // @ts-expect-error import type when converted to TS
-  EmojiPicker: /** @type {PropTypes.Validator<React.ElementType<NimblePickerProps>>} */ (PropTypes.elementType),
+  EmojiPicker: /** @type {PropTypes.Validator<React.ComponentType<NimblePickerProps>>} */ (PropTypes.elementType),
   /**
    * Empty channel UI component. This will be shown on the screen if there is no active channel.
    *
