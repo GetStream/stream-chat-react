@@ -22,12 +22,11 @@ const MessageOptionsComponent = (props) => {
     theme = 'simple',
     threadList,
   } = props;
-  const { isMyMessage } = useUserRole(message);
-  const handleOpenThread = useOpenThreadHandler(message);
-  /**
-   * @type {import('types').ChannelContextValue}
-   */
   const { channel } = useContext(ChannelContext);
+
+  const handleOpenThread = useOpenThreadHandler(message);
+  const { isMyMessage } = useUserRole(message);
+
   const channelConfig = channel?.getConfig();
   const messageActions = props.getMessageActions();
   const shouldShowReactions =

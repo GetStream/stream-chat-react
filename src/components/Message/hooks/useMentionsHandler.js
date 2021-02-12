@@ -16,17 +16,16 @@ function createEventHandler(fn, message) {
  * @type {import('types').useMentionsHandler}
  */
 export const useMentionsHandler = (message, customMentionHandler) => {
-  /**
-   * @type{import('types').ChannelContextValue}
-   */
   const {
     onMentionsClick: channelOnMentionsClick,
     onMentionsHover: channelOnMentionsHover,
   } = useContext(ChannelContext);
+
   const onMentionsClick =
     customMentionHandler?.onMentionsClick ||
     channelOnMentionsClick ||
     (() => {});
+
   const onMentionsHover =
     customMentionHandler?.onMentionsHover ||
     channelOnMentionsHover ||
@@ -44,9 +43,6 @@ export const useMentionsHandler = (message, customMentionHandler) => {
  * @type {import('types').useMentionsUIHandler}
  */
 export const useMentionsUIHandler = (message, eventHandlers) => {
-  /**
-   * @type{import('types').ChannelContextValue}
-   */
   const { onMentionsClick, onMentionsHover } = useContext(ChannelContext);
 
   return {
