@@ -19,7 +19,7 @@ import pkg from './package.json';
 
 process.env.NODE_ENV = 'production';
 
-const styleBundle = {
+const styleBundle = ({ min } = { min: false }) => ({
   cache: false,
   input: 'src/styles/index.scss',
   output: [
@@ -30,7 +30,8 @@ const styleBundle = {
   ],
   plugins: [
     scss({
-      output: pkg.style,
+      output: min ? pkg.style.replace('.css', '.min.css') : pkg.style,
+      outputStyle: min ? 'compressed' : 'nested',
       prefix: `@import "./variables.scss";`,
     }),
   ],
@@ -38,7 +39,7 @@ const styleBundle = {
     chokidar: false,
     include: 'src/styles/',
   },
-};
+});
 
 const baseConfig = {
   cache: false,
@@ -184,9 +185,10 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
 
 export default () =>
   process.env.ROLLUP_WATCH
-    ? [styleBundle, normalBundle]
+    ? [styleBundle(), normalBundle]
     : [
-        styleBundle,
+        styleBundle(),
+        styleBundle({ min: true }),
         normalBundle,
         fullBrowserBundle({ min: true }),
         fullBrowserBundle(),
