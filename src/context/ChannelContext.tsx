@@ -1,6 +1,12 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
 import type {
+  Data as EmojiMartData,
+  NimbleEmojiIndex,
+  NimbleEmojiProps,
+  NimblePickerProps,
+} from 'emoji-mart';
+import type {
   Attachment,
   Channel,
   Message,
@@ -11,12 +17,6 @@ import type {
   UpdateMessageAPIResponse,
   UserResponse,
 } from 'stream-chat';
-import type {
-  Data as EmojiMartData,
-  NimbleEmojiIndex,
-  NimbleEmojiProps,
-  NimblePickerProps,
-} from 'emoji-mart';
 
 import type {
   DefaultAttachmentType,
