@@ -136,7 +136,7 @@ module.exports = {
         'src/components/Card/Card.js',
         'src/components/ChatDown/ChatDown.js',
         'src/components/Loading/LoadingChannels.js',
-        'src/components/Avatar/Avatar.js',
+        'src/components/Avatar/Avatar.tsx',
         'src/components/Loading/LoadingIndicator.js',
         'src/components/Image/Image.js',
         'src/components/DateSeparator/DateSeparator.js',
