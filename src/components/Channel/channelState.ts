@@ -1,5 +1,106 @@
-/** @type {import('./types').ChannelStateReducer} */
-export const channelReducer = (state, action) => {
+import type { Reducer } from 'react';
+import type {
+  Channel,
+  MessageResponse,
+  ChannelState as StreamChannelState,
+} from 'stream-chat';
+
+import type { ChannelState } from '../../context';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+export type ChannelStateReducerAction<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> =
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      type: 'initStateFromChannel';
+    }
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      type: 'copyStateFromChannelOnEvent';
+    }
+  | {
+      message: ReturnType<
+        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+      >;
+      type: 'setThread';
+    }
+  | {
+      hasMore: boolean;
+      messages: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages'];
+      type: 'loadMoreFinished';
+    }
+  | {
+      loadingMore: boolean;
+      type: 'setLoadingMore';
+    }
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      parentId: string;
+      type: 'copyMessagesFromChannel';
+    }
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+      type: 'updateThreadOnEvent';
+    }
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      message: ReturnType<
+        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+      >;
+      type: 'openThread';
+    }
+  | {
+      type: 'startLoadingThread';
+    }
+  | {
+      threadHasMore: boolean;
+      threadMessages: Array<
+        ReturnType<
+          StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+        >
+      >;
+      type: 'loadMoreThreadFinished';
+    }
+  | {
+      type: 'closeThread';
+    }
+  | {
+      error: Error;
+      type: 'setError';
+    };
+
+export type ChannelStateReducer<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = Reducer<
+  ChannelState<At, Ch, Co, Ev, Me, Re, Us>,
+  ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
+>;
+
+export const channelReducer: ChannelStateReducer = (state, action) => {
   switch (action.type) {
     case 'initStateFromChannel': {
       const { channel } = action;
@@ -14,6 +115,7 @@ export const channelReducer = (state, action) => {
         watchers: { ...channel.state.watchers },
       };
     }
+
     case 'copyStateFromChannelOnEvent': {
       const { channel } = action;
       return {
@@ -27,10 +129,12 @@ export const channelReducer = (state, action) => {
         watchers: { ...channel.state.watchers },
       };
     }
+
     case 'setThread': {
       const { message } = action;
       return { ...state, thread: message };
     }
+
     case 'loadMoreFinished': {
       const { hasMore, messages } = action;
       return {
@@ -40,10 +144,12 @@ export const channelReducer = (state, action) => {
         messages,
       };
     }
+
     case 'setLoadingMore': {
       const { loadingMore } = action;
       return { ...state, loadingMore };
     }
+
     case 'copyMessagesFromChannel': {
       const { channel, parentId } = action;
       return {
@@ -55,6 +161,7 @@ export const channelReducer = (state, action) => {
           : state.threadMessages,
       };
     }
+
     case 'updateThreadOnEvent': {
       const { channel, message } = action;
       if (!state.thread) return state;
@@ -69,6 +176,7 @@ export const channelReducer = (state, action) => {
           : [],
       };
     }
+
     case 'openThread': {
       const { channel, message } = action;
       return {
@@ -79,12 +187,14 @@ export const channelReducer = (state, action) => {
           : [],
       };
     }
+
     case 'startLoadingThread': {
       return {
         ...state,
         threadLoadingMore: true,
       };
     }
+
     case 'loadMoreThreadFinished': {
       const { threadHasMore, threadMessages } = action;
       return {
@@ -94,6 +204,7 @@ export const channelReducer = (state, action) => {
         threadMessages,
       };
     }
+
     case 'closeThread': {
       return {
         ...state,
@@ -102,6 +213,7 @@ export const channelReducer = (state, action) => {
         threadMessages: [],
       };
     }
+
     case 'setError': {
       const { error } = action;
       return { ...state, error };
@@ -111,8 +223,7 @@ export const channelReducer = (state, action) => {
   }
 };
 
-/** @type {import('./types').ChannelState} */
-export const initialState = {
+export const initialState: ChannelState = {
   error: null,
   hasMore: true,
   loading: true,
