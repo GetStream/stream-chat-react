@@ -92,6 +92,7 @@ const basePlugins = [
   }),
   // Remove peer-dependencies from final bundle
   external(),
+  typescript(),
   babel({
     babelHelpers: 'runtime',
     exclude: 'node_modules/**',
@@ -118,7 +119,6 @@ const basePlugins = [
   ),
   // Json to ES modules conversion
   json({ compact: true }),
-  typescript(),
   process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
 
