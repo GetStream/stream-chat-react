@@ -11,7 +11,7 @@ export type AvatarProps = {
   image: string;
   /** Name of the image, used for title tag fallback */
   name?: string;
-  /** Click event handler */
+  /** click event handler */
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   /** mouseOver event handler */
   onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -25,8 +25,8 @@ const Avatar: React.FC<AvatarProps> = (props) => {
   const {
     image,
     name,
-    onClick,
-    onMouseOver,
+    onClick = () => undefined,
+    onMouseOver = () => undefined,
     shape = 'circle',
     size = 32,
   } = props;
