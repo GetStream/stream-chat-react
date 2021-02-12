@@ -75,19 +75,7 @@ export type MessageToSend<
   Us extends UnknownType = DefaultUserType
 > = {
   attachments?: Array<
-    | Attachment<At>
-    | {
-        fallback: string;
-        image_url: string | undefined;
-        type: string;
-      }
-    | {
-        asset_url: string;
-        file_size: number;
-        mime_type: string;
-        title: string;
-        type: string;
-      }
+    Attachment<At> & { file_size?: number; mime_type?: string }
   >;
   id?: string;
   mentioned_users?: string[];
