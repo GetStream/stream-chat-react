@@ -36,9 +36,11 @@ export type CommonEmoji = {
 };
 
 export type EmojiSetDef = {
-  custom: boolean;
-  emoticons: [];
-  short_names: [];
+  sheetColumns: number;
+  sheetRows: number;
+  sheetSize: number;
+  size: number;
+  spriteUrl: string;
 };
 
 export type MinimalEmoji = CommonEmoji &
@@ -57,13 +59,7 @@ export type EmojiConfig = {
   emojiData: EmojiMartData;
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
-  emojiSetDef: {
-    sheetColumns: number;
-    sheetRows: number;
-    sheetSize: number;
-    size: number;
-    spriteUrl: string;
-  };
+  emojiSetDef: EmojiSetDef;
 };
 
 export type MessageToSend<
