@@ -71,7 +71,6 @@ const MessageInputLarge = (props) => {
         handleFiles={messageInput.uploadNewFiles}
       >
         <div className="str-chat__input">
-          <EmojiPicker {...messageInput} />
           <div className="str-chat__input--textarea-wrapper">
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
@@ -94,16 +93,7 @@ const MessageInputLarge = (props) => {
               SuggestionList={props.SuggestionList}
               additionalTextareaProps={props.additionalTextareaProps}
             />
-            <div className="str-chat__emojiselect-wrapper">
-              <Tooltip>{t('Open emoji picker')}</Tooltip>
-              <span
-                className="str-chat__input-emojiselect"
-                onClick={messageInput.openEmojiPicker}
-                ref={messageInput.emojiPickerRef}
-              >
-                <EmojiIcon />
-              </span>
-            </div>
+
             {messageInput.isUploadEnabled && (
               <div
                 className="str-chat__fileupload-wrapper"
@@ -126,6 +116,19 @@ const MessageInputLarge = (props) => {
                 </FileUploadButton>
               </div>
             )}
+
+            <div className="str-chat__emojiselect-wrapper">
+              <Tooltip>{t('Open emoji picker')}</Tooltip>
+              <span
+                className="str-chat__input-emojiselect"
+                onClick={messageInput.openEmojiPicker}
+                ref={messageInput.emojiPickerRef}
+                tabIndex={0}
+              >
+                <EmojiIcon />
+              </span>
+            </div>
+            <EmojiPicker {...messageInput} />
           </div>
           {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
         </div>
