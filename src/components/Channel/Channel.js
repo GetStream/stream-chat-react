@@ -444,8 +444,8 @@ const ChannelInner = ({
   }, []);
 
   const onMentionsHoverOrClick = useMentionsHandlers(
-    props.onMentionsHover,
     props.onMentionsClick,
+    props.onMentionsHover,
   );
 
   const editMessage = useEditMessageHandler(props.doUpdateMessageRequest);

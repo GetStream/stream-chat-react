@@ -141,8 +141,14 @@ export type ChannelContextValue<
   Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
   multipleUploads?: boolean;
   mutes?: Mute<DefaultUserType>[];
-  onMentionsClick?: (event: React.MouseEvent, user: UserResponse<Us>[]) => void;
-  onMentionsHover?: (event: React.MouseEvent, user: UserResponse<Us>[]) => void;
+  onMentionsClick?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
+  onMentionsHover?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
   openThread?: (
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
