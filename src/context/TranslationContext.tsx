@@ -11,9 +11,17 @@ import type { UnknownType } from '../../types/types';
 
 Dayjs.extend(LocalizedFormat);
 
+export type TDateTimeParserInput = string | number | Date;
+
+export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs;
+
+export type TDateTimeParser = (
+  input?: TDateTimeParserInput,
+) => TDateTimeParserOutput;
+
 export type TranslationContextValue = {
-  t: TFunction;
-  tDateTimeParser: (datetime: string | number) => Dayjs.Dayjs;
+  t: TFunction | ((key: string) => string);
+  tDateTimeParser: TDateTimeParser;
   userLanguage: TranslationLanguages;
 };
 
