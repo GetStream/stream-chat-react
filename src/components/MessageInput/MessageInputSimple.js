@@ -26,8 +26,6 @@ const MessageInputSimple = (props) => {
       }`}
     >
       <div className='str-chat__input-flat-wrapper'>
-        <EmojiPicker {...messageInput} />
-
         <div className='str-chat__input-flat--textarea-wrapper'>
           <ChatAutoComplete
             additionalTextareaProps={props.additionalTextareaProps}
@@ -53,10 +51,12 @@ const MessageInputSimple = (props) => {
             <span
               className='str-chat__input-flat-emojiselect'
               onClick={messageInput.openEmojiPicker}
+              tabIndex={0}
             >
               <EmojiIcon />
             </span>
           </div>
+          <EmojiPicker {...messageInput} />
         </div>
         {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
       </div>
