@@ -14,7 +14,7 @@ module.exports = {
       plugins: ['transform-es2015-modules-commonjs'],
       presets: [
         [
-          '@babel/env',
+          '@babel/preset-env',
           {
             modules: 'commonjs',
           },
@@ -28,5 +28,5 @@ module.exports = {
     '@babel/plugin-transform-runtime',
     'babel-plugin-dynamic-import-node',
   ],
-  presets: ['@babel/typescript', '@babel/react'],
+  presets: ['@babel/preset-typescript', '@babel/env', '@babel/preset-react'],
 };
