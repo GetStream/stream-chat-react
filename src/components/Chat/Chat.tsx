@@ -78,6 +78,17 @@ export type ChatProps<
  * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
  * This Chat component provides the ChatContext to all other components.
  *
+ * ChatContext provides the following values:
+ *
+ * - channel - the current active channel
+ * - client - the client connection
+ * - closeMobileNav - function to close mobile navigation
+ * - mutes - array of muted users
+ * - navOpen - boolean if navigation is open
+ * - openMobileNav - function to open mobile navigation
+ * - setActiveChannel - a function to set currently active channel
+ * - theme - current theme
+ *
  * It also exposes the withChatContext HOC which you can use to consume the ChatContext
  *
  * @example ../../docs/Chat.md
