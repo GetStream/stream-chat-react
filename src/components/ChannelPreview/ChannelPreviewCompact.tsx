@@ -35,7 +35,7 @@ export type ChannelPreviewCompactProps<
   /**
    * Custom UI component to display user avatar
    *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    */
   Avatar?: React.ComponentType<AvatarProps>;
   /** Image of channel to display */

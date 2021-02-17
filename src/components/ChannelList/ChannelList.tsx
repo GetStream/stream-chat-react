@@ -44,6 +44,8 @@ import type {
   Event,
 } from 'stream-chat';
 
+import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -83,7 +85,7 @@ export type ChannelListProps<
   /**
    * Custom UI component to display user avatar
    *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    */
   Avatar?: React.ComponentType<AvatarProps>;
   /**
@@ -108,8 +110,8 @@ export type ChannelListProps<
    *
    * Available built-in options (also accepts the same props as):
    *
-   * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListTeam.js) (default)
-   * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelListMessenger.js)
+   * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) (default)
+   * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
    *
    * It has access to some additional props:
    *
@@ -123,7 +125,7 @@ export type ChannelListProps<
    * This error could be related to network or failing API.
    *
    * Defaults to and accepts same props as:
-   * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown.js)
+   * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
    *
    */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
@@ -133,7 +135,7 @@ export type ChannelListProps<
    * and replaced with children of the Channel component.
    *
    * Defaults to and accepts same props as:
-   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingChannels.js)
+   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx)
    *
    */
   LoadingIndicator?: React.ComponentType;
@@ -207,10 +209,12 @@ export type ChannelListProps<
    *
    * Available built-in options (also accepts the same props as):
    *
-   * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMorePaginator.js)
-   * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator.js)
+   * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx)
+   * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx)
    */
-  Paginator?: React.ComponentType<LoadMorePaginatorProps>;
+  Paginator?: React.ComponentType<
+    InfiniteScrollPaginatorProps | LoadMorePaginatorProps
+  >;
   /**
    * Available built-in options (also accepts the same props as):
    *
