@@ -14,6 +14,7 @@ import type {
   Mute,
   ChannelState as StreamChannelState,
   StreamChat,
+  UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
 } from 'stream-chat';
@@ -132,7 +133,7 @@ export type ChannelContextValue<
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
   editMessage?: (
-    message: MessageToSend<At, Ch, Co, Me, Re, Us>,
+    message: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO: double check message when Channel is typed
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   emojiConfig?: EmojiConfig;
   loadMore?: (limit: number) => Promise<number>;

@@ -9,8 +9,8 @@ type OnMentionAction<Us extends UnknownType = DefaultUserType> = (
 ) => void;
 
 const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
-  onMentionsClick: OnMentionAction<Us>,
   onMentionsHover: OnMentionAction<Us>,
+  onMentionsClick: OnMentionAction<Us>,
 ) =>
   useCallback(
     (event: MouseEvent<HTMLElement>, mentioned_users: UserResponse<Us>[]) => {
