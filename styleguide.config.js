@@ -36,7 +36,7 @@ module.exports = {
     {
       name: 'Top Level Components',
       components: [
-        'src/components/Chat/Chat.js',
+        'src/components/Chat/Chat.tsx',
         'src/components/Channel/Channel.js',
         'src/components/ChannelList/ChannelList.js',
         'src/components/MessageList/MessageList.js',
