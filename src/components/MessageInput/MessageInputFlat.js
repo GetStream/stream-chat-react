@@ -44,12 +44,23 @@ const MessageInputFlat = (props) => {
         multiple={channelContext.multipleUploads}
       >
         <div className='str-chat__input-flat-wrapper'>
-          <EmojiPicker {...messageInput} />
-
           <div className='str-chat__input-flat--textarea-wrapper'>
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
             )}
+
+            <div className='str-chat__emojiselect-wrapper'>
+              <Tooltip>{t('Open emoji picker')}</Tooltip>
+              <span
+                className='str-chat__input-flat-emojiselect'
+                onClick={messageInput.openEmojiPicker}
+                tabIndex={0}
+              >
+                <EmojiIcon />
+              </span>
+            </div>
+            <EmojiPicker {...messageInput} />
+
             <ChatAutoComplete
               additionalTextareaProps={props.additionalTextareaProps}
               commands={messageInput.getCommands()}
@@ -69,15 +80,6 @@ const MessageInputFlat = (props) => {
               value={messageInput.text}
             />
 
-            <div className='str-chat__emojiselect-wrapper'>
-              <Tooltip>{t('Open emoji picker')}</Tooltip>
-              <span
-                className='str-chat__input-flat-emojiselect'
-                onClick={messageInput.openEmojiPicker}
-              >
-                <EmojiIcon />
-              </span>
-            </div>
             {messageInput.isUploadEnabled && (
               <div
                 className='str-chat__fileupload-wrapper'
