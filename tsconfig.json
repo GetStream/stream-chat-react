@@ -24,7 +24,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext",
+    "target": "ES5",
     "allowSyntheticDefaultImports": true,
     "noEmitOnError": false,
     "noImplicitAny": true,
