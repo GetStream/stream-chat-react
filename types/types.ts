@@ -28,8 +28,14 @@ export type DefaultMessageType = UnknownType & {
 
 export type DefaultReactionType = UnknownType;
 
-export type DefaultUserType = UnknownType & {
+export type DefaultUserTypeInternal = {
   image?: string;
-  mutes?: Array<Mute>;
   status?: string;
 };
+
+export type DefaultUserType<
+  UserType extends DefaultUserTypeInternal = DefaultUserTypeInternal
+> = UnknownType &
+  DefaultUserTypeInternal & {
+    mutes?: Array<Mute<UserType>>;
+  };
