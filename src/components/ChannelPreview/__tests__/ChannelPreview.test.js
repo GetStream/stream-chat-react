@@ -15,7 +15,7 @@ import {
 } from 'mock-builders';
 
 import { ChatContext } from '../../../context';
-import ChannelPreview from '../ChannelPreview';
+import { ChannelPreview } from '../ChannelPreview';
 
 const PreviewUIComponent = (props) => (
   <>
