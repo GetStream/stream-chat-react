@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-export enum AvatarShape {
-  circle = 'circle',
-  rounded = 'rounded',
-  square = 'square',
-}
-
 export type AvatarProps = {
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string;
@@ -16,7 +10,7 @@ export type AvatarProps = {
   /** mouseOver event handler */
   onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   /** Shape of the avatar - circle, rounded or square, and the default is circle */
-  shape?: AvatarShape;
+  shape?: 'circle' | 'rounded' | 'square';
   /** Size in pixels and the default is 32px */
   size?: number;
 };

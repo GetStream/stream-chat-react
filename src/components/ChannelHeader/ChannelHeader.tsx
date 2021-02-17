@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import { AvatarProps, AvatarShape, Avatar as DefaultAvatar } from '../Avatar';
+import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 
 export type ChannelHeaderProps = {
   /**
-   * Custom UI component to display user avatar
+   * Custom UI component to display user avatar.
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
-  Avatar: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** Manually set the image to render, defaults to the channel image */
   image?: string;
   /** Show a little indicator that the channel is live right now */
@@ -39,7 +39,7 @@ const UnMemoizedChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
       {image && (
         <Avatar
           image={image}
-          shape={AvatarShape.rounded}
+          shape='rounded'
           size={channel?.type === 'commerce' ? 60 : 40}
         />
       )}
