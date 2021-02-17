@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
-enum AvatarShape {
-  'circle',
-  'rounded',
-  'square',
+export enum AvatarShape {
+  circle = 'circle',
+  rounded = 'rounded',
+  square = 'square',
 }
 
 export type AvatarProps = {
-  /** Image URL for the avatar */
-  image: string;
+  /** Image URL or default is an image of the first initial of the name if there is one  */
+  image?: string;
   /** Name of the image, used for title tag fallback */
   name?: string;
   /** click event handler */
@@ -21,7 +21,7 @@ export type AvatarProps = {
   size?: number;
 };
 
-const Avatar: React.FC<AvatarProps> = (props) => {
+export const Avatar: React.FC<AvatarProps> = (props) => {
   const {
     image,
     name,
@@ -31,12 +31,12 @@ const Avatar: React.FC<AvatarProps> = (props) => {
     size = 32,
   } = props;
 
-  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setLoaded(false);
     setError(false);
+    setLoaded(false);
   }, [image]);
 
   const initials: string = (name || '').charAt(0);
@@ -84,5 +84,3 @@ const Avatar: React.FC<AvatarProps> = (props) => {
     </div>
   );
 };
-
-export default Avatar;

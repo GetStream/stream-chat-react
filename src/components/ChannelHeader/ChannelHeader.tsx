@@ -1,14 +1,23 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { AvatarProps, AvatarShape, Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 
-/**
- * ChannelHeader - Render some basic information about this channel
- * @example ../../docs/ChannelHeader.md
- * @type {React.FC<import('types').ChannelHeaderProps>}
- */
-const ChannelHeader = (props) => {
+export type ChannelHeaderProps = {
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
+   * */
+  Avatar: React.ComponentType<AvatarProps>;
+  /** Manually set the image to render, defaults to the channel image */
+  image?: string;
+  /** Show a little indicator that the channel is live right now */
+  live?: boolean;
+  /** Set title manually */
+  title?: string;
+};
+
+const UnMemoizedChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
 
   const { channel, watcher_count } = useContext(ChannelContext);
@@ -30,7 +39,7 @@ const ChannelHeader = (props) => {
       {image && (
         <Avatar
           image={image}
-          shape='rounded'
+          shape={AvatarShape.rounded}
           size={channel?.type === 'commerce' ? 60 : 40}
         />
       )}
@@ -64,19 +73,6 @@ const ChannelHeader = (props) => {
   );
 };
 
-ChannelHeader.propTypes = {
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
-  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /** Manually set the image to render, defaults to the channel image */
-  image: PropTypes.string,
-  /** Show a little indicator that the channel is live right now */
-  live: PropTypes.bool,
-  /** Set title manually */
-  title: PropTypes.string,
-};
-
-export default React.memo(ChannelHeader);
+export const ChannelHeader = React.memo(
+  UnMemoizedChannelHeader,
+) as typeof UnMemoizedChannelHeader;
