@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { TranslationContext } from '../../context';
+import { isDayjs, TranslationContext } from '../../context';
 
 /**
  * DateSeparator - A simple date separator
@@ -14,9 +14,13 @@ const DateSeparator = ({ date, formatDate, position = 'right', unread }) => {
   const { t, tDateTimeParser } = useContext(TranslationContext);
   if (typeof date === 'string') return null;
 
+  const parsedDate = tDateTimeParser(date.toISOString());
+
   const formattedDate = formatDate
     ? formatDate(date)
-    : tDateTimeParser(date.toISOString()).calendar();
+    : isDayjs(parsedDate)
+    ? parsedDate.calendar()
+    : parsedDate;
 
   return (
     <div className='str-chat__date-separator'>

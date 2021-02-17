@@ -11,6 +11,9 @@ import type { UnknownType } from '../../types/types';
 
 Dayjs.extend(LocalizedFormat);
 
+export const isDayjs = (output: TDateTimeParserOutput): output is Dayjs.Dayjs =>
+  (output as Dayjs.Dayjs).isSame != null;
+
 export type TDateTimeParserInput = string | number | Date;
 
 export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs;
