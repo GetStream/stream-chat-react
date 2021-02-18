@@ -18,18 +18,19 @@ import PropTypes from 'prop-types';
 import { logChatPromiseExecution, Channel as StreamChannel } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
-import { MessageSimple } from '../Message';
+import { channelReducer, initialState } from './channelState';
+
+import useEditMessageHandler from './hooks/useEditMessageHandler';
+import useMentionsHandlers from './hooks/useMentionsHandlers';
+import useIsMounted from './hooks/useIsMounted';
+
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingIndicator as DefaultLoadingIndicator,
 } from '../Loading';
-
-import { channelReducer, initialState } from './channelState';
-import useMentionsHandlers from './hooks/useMentionsHandlers';
-import useEditMessageHandler from './hooks/useEditMessageHandler';
-import useIsMounted from './hooks/useIsMounted';
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { MessageSimple } from '../Message';
 
 import { ChannelContext, ChatContext, TranslationContext } from '../../context';
 import defaultEmojiData from '../../stream-emoji.json';
@@ -46,19 +47,27 @@ const Channel = ({ EmptyPlaceholder = null, ...props }) => {
 };
 
 /** @type {React.FC<import('types').ChannelProps & { channel: import('stream-chat').Channel }>} */
-const ChannelInner = ({
-  Attachment = DefaultAttachment,
-  doMarkReadRequest,
-  Emoji = DefaultEmoji,
-  emojiData = defaultEmojiData,
-  EmojiIndex = DefaultEmojiIndex,
-  EmojiPicker = DefaultEmojiPicker,
-  LoadingErrorIndicator = DefaultLoadingErrorIndicator,
-  LoadingIndicator = DefaultLoadingIndicator,
-  Message = MessageSimple,
-  ...props
-}) => {
-  const { channel } = props;
+const ChannelInner = (props) => {
+  const {
+    acceptedFiles,
+    Attachment = DefaultAttachment,
+    channel,
+    children,
+    doMarkReadRequest,
+    doSendMessageRequest,
+    doUpdateMessageRequest,
+    Emoji = DefaultEmoji,
+    emojiData = defaultEmojiData,
+    EmojiIndex = DefaultEmojiIndex,
+    EmojiPicker = DefaultEmojiPicker,
+    LoadingErrorIndicator = DefaultLoadingErrorIndicator,
+    LoadingIndicator = DefaultLoadingIndicator,
+    maxNumberOfFiles,
+    Message = MessageSimple,
+    multipleUploads = true,
+    onMentionsClick,
+    onMentionsHover,
+  } = props;
 
   const { client, mutes, theme } = useContext(ChatContext);
   const { t } = useContext(TranslationContext);
@@ -81,12 +90,9 @@ const ChannelInner = ({
     emojiSetDef,
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledCopyStateFromChannel = useCallback(
     throttle(
-      () => {
-        dispatch({ channel, type: 'copyStateFromChannelOnEvent' });
-      },
+      () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
       500,
       { leading: true, trailing: true },
     ),
@@ -94,21 +100,21 @@ const ChannelInner = ({
   );
 
   const markRead = useCallback(() => {
-    if (channel.disconnected || !channel.getConfig()?.read_events) {
-      return;
-    }
+    if (channel.disconnected || !channel.getConfig()?.read_events) return;
+
     lastRead.current = new Date();
+
     if (doMarkReadRequest) {
       doMarkReadRequest(channel);
     } else {
       logChatPromiseExecution(channel.markRead(), 'mark read');
     }
+
     if (originalTitle.current) {
       document.title = originalTitle.current;
     }
   }, [channel, doMarkReadRequest]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const markReadThrottled = useCallback(
     throttle(markRead, 500, { leading: true, trailing: true }),
     [markRead],
@@ -117,12 +123,14 @@ const ChannelInner = ({
   const handleEvent = useCallback(
     (e) => {
       dispatch({ channel, message: e.message, type: 'updateThreadOnEvent' });
+
       if (e.type === 'connection.changed') {
         online.current = e.online;
       }
 
       if (e.type === 'message.new') {
         let mainChannelUpdated = true;
+
         if (e.message.parent_id && !e.message.show_in_channel) {
           mainChannelUpdated = false;
         }
@@ -142,13 +150,14 @@ const ChannelInner = ({
 
       throttledCopyStateFromChannel();
     },
-    [channel, throttledCopyStateFromChannel, client.userID, markReadThrottled],
+    [channel, client.userID, markReadThrottled, throttledCopyStateFromChannel],
   );
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
   useLayoutEffect(() => {
     let errored = false;
     let done = false;
+
     const onVisibilityChange = () => {
       if (!document.hidden) {
         markRead();
@@ -164,19 +173,21 @@ const ChannelInner = ({
           errored = true;
         }
       }
+
       done = true;
       originalTitle.current = document.title;
+
       if (!errored) {
         dispatch({ channel, type: 'initStateFromChannel' });
         if (channel.countUnread() > 0) markRead();
-        // The more complex sync logic is done in chat.js
-        // listen to client.connection.recovered and all channel events
+        // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
         channel.on(handleEvent);
       }
     })();
+
     return () => {
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -184,7 +195,7 @@ const ChannelInner = ({
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
     };
-  }, [channel, client, handleEvent, markRead, props.channel]);
+  }, [channel, client, handleEvent, markRead]);
 
   useEffect(() => {
     if (state.thread) {
@@ -197,8 +208,8 @@ const ChannelInner = ({
     }
   }, [state.messages, state.thread]);
 
-  // Message
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  /** MESSAGE */
+
   const loadMoreFinished = useCallback(
     debounce(
       /**
@@ -221,15 +232,18 @@ const ChannelInner = ({
   const loadMore = useCallback(
     async (limit = 100) => {
       if (!online.current || !window.navigator.onLine) return 0;
+
       // prevent duplicate loading events...
       const oldestMessage = state.messages[0];
+
       if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
+
       dispatch({ loadingMore: true, type: 'setLoadingMore' });
 
       const oldestID = oldestMessage?.id;
-
       const perPage = limit;
       let queryResponse;
+
       try {
         queryResponse = await channel.query({
           messages: { id_lt: oldestID, limit: perPage },
@@ -239,13 +253,13 @@ const ChannelInner = ({
         dispatch({ loadingMore: false, type: 'setLoadingMore' });
         return 0;
       }
-      const hasMoreMessages = queryResponse.messages.length === perPage;
 
+      const hasMoreMessages = queryResponse.messages.length === perPage;
       loadMoreFinished(hasMoreMessages, channel.state.messages);
 
       return queryResponse.messages.length;
     },
-    [channel, loadMoreFinished, state.loadingMore, state.messages, online],
+    [channel, loadMoreFinished, online, state.loadingMore, state.messages],
   );
 
   const updateMessage = useCallback(
@@ -263,10 +277,10 @@ const ChannelInner = ({
     [channel, state.thread],
   );
 
-  const { doSendMessageRequest } = props;
   const doSendMessage = useCallback(
     async (message) => {
       const { attachments, id, mentioned_users, parent_id, text } = message;
+
       const messageData = {
         attachments,
         id,
@@ -277,6 +291,7 @@ const ChannelInner = ({
 
       try {
         let messageResponse;
+
         if (doSendMessageRequest) {
           messageResponse = await doSendMessageRequest(
             channel.cid,
@@ -354,6 +369,7 @@ const ChannelInner = ({
         ...message,
         status: 'sending',
       });
+
       // actually try to send the message...
       await doSendMessage(message);
     },
@@ -372,7 +388,7 @@ const ChannelInner = ({
     [channel, state.thread],
   );
 
-  // Thread
+  /** THREAD */
 
   const openThread = useCallback(
     (message, e) => {
@@ -385,7 +401,6 @@ const ChannelInner = ({
     [channel],
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreThreadFinished = useCallback(
     debounce(
       /**
@@ -408,6 +423,7 @@ const ChannelInner = ({
   const loadMoreThread = useCallback(async () => {
     // prevent duplicate loading events...
     if (state.threadLoadingMore || !state.thread) return;
+
     dispatch({ type: 'startLoadingThread' });
     const parentID = state.thread.id;
 
@@ -440,19 +456,20 @@ const ChannelInner = ({
     if (e && e.preventDefault) {
       e.preventDefault();
     }
+
     dispatch({ type: 'closeThread' });
   }, []);
 
   const onMentionsHoverOrClick = useMentionsHandlers(
-    props.onMentionsClick,
-    props.onMentionsHover,
+    onMentionsHover,
+    onMentionsClick,
   );
 
-  const editMessage = useEditMessageHandler(props.doUpdateMessageRequest);
+  const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
   const channelContextValue = {
     ...state,
-    acceptedFiles: props.acceptedFiles,
+    acceptedFiles,
     Attachment,
     channel,
     client, // from chatContext, for legacy reasons
@@ -461,9 +478,9 @@ const ChannelInner = ({
     emojiConfig, // emoji config and customization object, potentially find a better home
     loadMore,
     loadMoreThread,
-    maxNumberOfFiles: props.maxNumberOfFiles,
+    maxNumberOfFiles,
     Message,
-    multipleUploads: props.multipleUploads,
+    multipleUploads,
     mutes,
     onMentionsClick: onMentionsHoverOrClick,
     onMentionsHover: onMentionsHoverOrClick,
@@ -475,26 +492,37 @@ const ChannelInner = ({
     watcher_count: state.watcherCount,
   };
 
-  let core;
   if (state.error) {
-    core = <LoadingErrorIndicator error={state.error} />;
-  } else if (state.loading) {
-    core = <LoadingIndicator size={25} />;
-  } else if (!props.channel?.watch) {
-    core = <div>{t('Channel Missing')}</div>;
-  } else {
-    core = (
-      <ChannelContext.Provider value={channelContextValue}>
-        <div className='str-chat__container'>{props.children}</div>
-      </ChannelContext.Provider>
+    return (
+      <div className={`str-chat str-chat-channel ${theme}`}>
+        <LoadingErrorIndicator error={state.error} />
+      </div>
     );
   }
 
-  return <div className={`str-chat str-chat-channel ${theme}`}>{core}</div>;
-};
+  if (state.loading) {
+    return (
+      <div className={`str-chat str-chat-channel ${theme}`}>
+        <LoadingIndicator size={25} />
+      </div>
+    );
+  }
 
-Channel.defaultProps = {
-  multipleUploads: true,
+  if (!channel?.watch) {
+    return (
+      <div className={`str-chat str-chat-channel ${theme}`}>
+        <div>{t('Channel Missing')}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`str-chat str-chat-channel ${theme}`}>
+      <ChannelContext.Provider value={channelContextValue}>
+        <div className='str-chat__container'>{children}</div>
+      </ChannelContext.Provider>
+    </div>
+  );
 };
 
 Channel.propTypes = {
