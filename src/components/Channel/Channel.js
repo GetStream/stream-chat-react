@@ -457,6 +457,7 @@ const ChannelInner = ({
     channel,
     client, // from chatContext, for legacy reasons
     closeThread,
+    dispatch,
     editMessage,
     emojiConfig, // emoji config and customization object, potentially find a better home
     loadMore,
