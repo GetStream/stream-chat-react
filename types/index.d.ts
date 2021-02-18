@@ -16,6 +16,8 @@ import type {
 } from 'emoji-mart';
 import type { TranslationLanguages } from 'stream-chat';
 
+import type { ChannelStateReducerAction } from '../src/components/Channel/types';
+
 export type Mute = Client.Mute<StreamChatReactUserType>;
 export type AnyType = Record<string, any>;
 export type StreamChatReactUserType = AnyType & {
@@ -176,6 +178,7 @@ export interface ChannelContextValue extends ChatContextValue {
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
   emojiConfig?: EmojiConfig;
+  dispatch?: React.Dispatch<ChannelStateReducerAction>;
 }
 
 export interface ChatProps {

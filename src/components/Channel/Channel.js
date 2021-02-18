@@ -478,6 +478,7 @@ const ChannelInner = ({
     client,
     // emoji config and customization object, potentially find a better home
     emojiConfig,
+    dispatch,
   };
 
   let core;
