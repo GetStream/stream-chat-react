@@ -19,6 +19,8 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -132,6 +134,9 @@ export type ChannelContextValue<
   Attachment?: React.ComponentType<unknown>; // TODO: add generic when Attachment is typed
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
+  dispatch?: React.Dispatch<
+    ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   editMessage?: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO: double check message when Channel is typed
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;

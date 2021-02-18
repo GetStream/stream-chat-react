@@ -35,7 +35,7 @@ const useEditMessageHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  doUpdateMessageRequest: UpdateHandler<At, Ch, Co, Ev, Me, Re, Us>,
+  doUpdateMessageRequest?: UpdateHandler<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { channel, client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 

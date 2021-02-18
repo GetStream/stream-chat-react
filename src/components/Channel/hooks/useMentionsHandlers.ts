@@ -3,14 +3,14 @@ import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType, UnknownType } from '../../../../types/types';
 
-type OnMentionAction<Us extends UnknownType = DefaultUserType> = (
+export type OnMentionAction<Us extends UnknownType = DefaultUserType> = (
   event: MouseEvent<HTMLElement>,
   user?: UserResponse<Us>,
 ) => void;
 
 const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
-  onMentionsHover: OnMentionAction<Us>,
-  onMentionsClick: OnMentionAction<Us>,
+  onMentionsHover?: OnMentionAction<Us>,
+  onMentionsClick?: OnMentionAction<Us>,
 ) =>
   useCallback(
     (event: MouseEvent<HTMLElement>, mentioned_users: UserResponse<Us>[]) => {

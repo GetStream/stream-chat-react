@@ -100,7 +100,18 @@ export type ChannelStateReducer<
   ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
 >;
 
-export const channelReducer: ChannelStateReducer = (state, action) => {
+export const channelReducer = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  state: ChannelState<At, Ch, Co, Ev, Me, Re, Us>,
+  action: ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
   switch (action.type) {
     case 'initStateFromChannel': {
       const { channel } = action;
@@ -223,7 +234,7 @@ export const channelReducer: ChannelStateReducer = (state, action) => {
   }
 };
 
-export const initialState: ChannelState = {
+export const initialState = {
   error: null,
   hasMore: true,
   loading: true,

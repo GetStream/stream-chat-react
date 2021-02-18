@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Channel from '../Channel';
+import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
 import { ChannelContext, ChatContext } from '../../../context';
 import {
