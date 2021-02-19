@@ -16,6 +16,7 @@ export const useOpenThreadHandler = (message, customOpenThread) => {
       );
       return;
     }
+    // @ts-expect-error
     openThread(message, event);
   };
 };

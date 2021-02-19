@@ -9,7 +9,6 @@ import type {
 import type {
   Attachment,
   Channel,
-  Message,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
@@ -65,6 +64,10 @@ export type EmojiConfig = {
   emojiSetDef: EmojiSetDef;
 };
 
+export type MessageAttachments<
+  At extends UnknownType = DefaultAttachmentType
+> = Array<Attachment<At> & { file_size?: number; mime_type?: string }>;
+
 export type MessageToSend<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -73,9 +76,7 @@ export type MessageToSend<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  attachments?: Array<
-    Attachment<At> & { file_size?: number; mime_type?: string }
-  >;
+  attachments?: MessageAttachments<At>;
   id?: string;
   mentioned_users?: string[];
   parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
@@ -138,7 +139,7 @@ export type ChannelContextValue<
     ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
   >;
   editMessage?: (
-    message: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO: double check message when Channel is typed
+    message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   emojiConfig?: EmojiConfig;
   loadMore?: (limit: number) => Promise<number>;
@@ -156,15 +157,19 @@ export type ChannelContextValue<
     user: UserResponse<Us>[],
   ) => void;
   openThread?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: ReturnType<
+      StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+    >,
     event: React.SyntheticEvent,
   ) => void;
-  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void; // TODO: double check message when Channel is typed
-  retrySendMessage?: (message: Message<At, Me, Us>) => Promise<void>; // TODO: double check message when Channel is typed
+  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
+  retrySendMessage?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ) => Promise<void>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
-  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void; // TODO: double check message when Channel is typed
+  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   watcher_count?: number;
 };
 

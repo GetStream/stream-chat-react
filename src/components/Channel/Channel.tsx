@@ -15,9 +15,13 @@ import DefaultEmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import {
+  ChannelAPIResponse,
+  ChannelState,
+  Event,
   logChatPromiseExecution,
   Message,
   MessageResponse,
+  SendMessageAPIResponse,
   Channel as StreamChannel,
   StreamChat,
   UpdatedMessage,
@@ -47,6 +51,7 @@ import { MessageSimple } from '../Message';
 import {
   ChannelContextValue,
   ChannelProvider,
+  MessageAttachments,
   MessageToSend,
   useChatContext,
   useTranslationContext,
@@ -105,7 +110,7 @@ export type ChannelProps<
    */
   doSendMessageRequest?: (
     channelId: string,
-    message: MessageToSend<At, Ch, Co, Me, Re, Us>, // TODO - double check message type
+    message: Message<At, Me, Us>,
   ) => ReturnType<
     StreamChannel<At, Ch, Co, Ev, Me, Re, Us>['sendMessage']
   > | void;
@@ -116,7 +121,7 @@ export type ChannelProps<
    */
   doUpdateMessageRequest?: (
     cid: string,
-    updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO - double check message type
+    updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
   /**
    * Optional component to override default NimbleEmoji from emoji-mart
@@ -311,23 +316,30 @@ const ChannelInner = <
   );
 
   const handleEvent = useCallback(
-    (e) => {
-      if (!channel) return;
+    (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+      if (!channel || !event.message) return;
 
-      dispatch({ channel, message: e.message, type: 'updateThreadOnEvent' });
+      dispatch({
+        channel,
+        message: event.message,
+        type: 'updateThreadOnEvent',
+      });
 
-      if (e.type === 'connection.changed') {
-        online.current = e.online;
+      if (
+        event.type === 'connection.changed' &&
+        typeof event.online === 'boolean'
+      ) {
+        online.current = event.online;
       }
 
-      if (e.type === 'message.new') {
+      if (event.type === 'message.new') {
         let mainChannelUpdated = true;
 
-        if (e.message.parent_id && !e.message.show_in_channel) {
+        if (event.message.parent_id && !event.message.show_in_channel) {
           mainChannelUpdated = false;
         }
 
-        if (mainChannelUpdated && e.message.user.id !== client.userID) {
+        if (mainChannelUpdated && event.message.user?.id !== client.userID) {
           if (!document.hidden) {
             markReadThrottled();
           } else if (
@@ -404,11 +416,10 @@ const ChannelInner = <
 
   const loadMoreFinished = useCallback(
     debounce(
-      /**
-       * @param {boolean} hasMore
-       * @param {import('stream-chat').ChannelState['messages']} messages
-       */
-      (hasMore, messages) => {
+      (
+        hasMore: boolean,
+        messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages'],
+      ) => {
         if (!isMounted.current) return;
         dispatch({ hasMore, messages, type: 'loadMoreFinished' });
       },
@@ -422,7 +433,8 @@ const ChannelInner = <
   );
 
   const loadMore = useCallback(
-    async (limit = 100) => {
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+    async (limit: number = 100) => {
       if (!online.current || !window.navigator.onLine || !channel) return 0;
 
       // prevent duplicate loading events...
@@ -434,7 +446,7 @@ const ChannelInner = <
 
       const oldestID = oldestMessage?.id;
       const perPage = limit;
-      let queryResponse;
+      let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
 
       try {
         queryResponse = await channel.query({
@@ -455,7 +467,7 @@ const ChannelInner = <
   );
 
   const updateMessage = useCallback(
-    (updatedMessage) => {
+    (updatedMessage: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
       if (!channel) return;
       // adds the message to the local channel state..
       // this adds to both the main channel state as well as any reply threads
@@ -471,7 +483,7 @@ const ChannelInner = <
   );
 
   const doSendMessage = useCallback(
-    async (message) => {
+    async (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
       if (!channel) return;
       const { attachments, id, mentioned_users, parent_id, text } = message;
 
@@ -484,7 +496,14 @@ const ChannelInner = <
       } as Message<At, Me, Us>;
 
       try {
-        let messageResponse;
+        let messageResponse: void | SendMessageAPIResponse<
+          At,
+          Ch,
+          Co,
+          Me,
+          Re,
+          Us
+        >;
 
         if (doSendMessageRequest) {
           messageResponse = await doSendMessageRequest(
@@ -514,10 +533,15 @@ const ChannelInner = <
   );
 
   const createMessagePreview = useCallback(
-    (text, attachments, parent, mentioned_users) => {
+    (
+      text: string,
+      attachments: MessageAttachments<At>,
+      parent: MessageResponse<At, Ch, Co, Me, Re, Us> | undefined,
+      mentioned_users: string[],
+    ) => {
       // create a preview of the message
       const clientSideID = `${client.userID}-${uuidv4()}`;
-      return {
+      return ({
         __html: text,
         attachments,
         created_at: new Date(),
@@ -530,13 +554,18 @@ const ChannelInner = <
         type: 'regular',
         user: client.user,
         ...(parent?.id ? { parent_id: parent.id } : null),
-      };
+      } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
     },
     [client.user, client.userID],
   );
 
   const sendMessage = useCallback(
-    async ({ text, attachments = [], mentioned_users = [], parent }) => {
+    async ({
+      text = '',
+      attachments = [],
+      mentioned_users = [],
+      parent = undefined,
+    }: MessageToSend<At, Ch, Co, Me, Re, Us>) => {
       if (!channel) return;
 
       // remove error messages upon submit
@@ -559,7 +588,7 @@ const ChannelInner = <
   );
 
   const retrySendMessage = useCallback(
-    async (message) => {
+    async (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
       // set the message status to sending
       updateMessage({
         ...message,
@@ -573,7 +602,7 @@ const ChannelInner = <
   );
 
   const removeMessage = useCallback(
-    (message) => {
+    (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
       if (!channel) return;
 
       channel.state.removeMessage(message);
@@ -590,11 +619,16 @@ const ChannelInner = <
   /** THREAD */
 
   const openThread = useCallback(
-    (message, e) => {
+    (
+      message: ReturnType<
+        ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+      >,
+      event: React.SyntheticEvent,
+    ) => {
       if (!channel) return;
 
-      if (e && e.preventDefault) {
-        e.preventDefault();
+      if (event && event.preventDefault) {
+        event.preventDefault();
       }
 
       dispatch({ channel, message, type: 'openThread' });
@@ -604,11 +638,12 @@ const ChannelInner = <
 
   const loadMoreThreadFinished = useCallback(
     debounce(
-      /**
-       * @param {boolean} threadHasMore
-       * @param {Array<ReturnType<import('stream-chat').ChannelState['formatMessage']>>} threadMessages
-       */
-      (threadHasMore, threadMessages) => {
+      (
+        threadHasMore: boolean,
+        threadMessages: Array<
+          ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
+        >,
+      ) => {
         dispatch({
           threadHasMore,
           threadMessages,
@@ -653,9 +688,9 @@ const ChannelInner = <
     }
   }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
-  const closeThread = useCallback((e) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
+  const closeThread = useCallback((event: React.SyntheticEvent) => {
+    if (event && event.preventDefault) {
+      event.preventDefault();
     }
 
     dispatch({ type: 'closeThread' });

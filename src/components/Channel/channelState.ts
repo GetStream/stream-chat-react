@@ -52,8 +52,8 @@ export type ChannelStateReducerAction<
     }
   | {
       channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      parentId: string;
       type: 'copyMessagesFromChannel';
+      parentId?: string | null;
     }
   | {
       channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
