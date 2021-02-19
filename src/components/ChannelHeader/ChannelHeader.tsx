@@ -3,7 +3,6 @@ import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import type { ChannelData, ChannelResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
