@@ -9,14 +9,16 @@ import type {
 import type {
   Attachment,
   Channel,
-  Message,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
   StreamChat,
+  UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
 } from 'stream-chat';
+
+import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 
 import type {
   DefaultAttachmentType,
@@ -36,9 +38,11 @@ export type CommonEmoji = {
 };
 
 export type EmojiSetDef = {
-  custom: boolean;
-  emoticons: [];
-  short_names: [];
+  sheetColumns: number;
+  sheetRows: number;
+  sheetSize: number;
+  size: number;
+  spriteUrl: string;
 };
 
 export type MinimalEmoji = CommonEmoji &
@@ -57,14 +61,12 @@ export type EmojiConfig = {
   emojiData: EmojiMartData;
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
-  emojiSetDef: {
-    sheetColumns: number;
-    sheetRows: number;
-    sheetSize: number;
-    size: number;
-    spriteUrl: string;
-  };
+  emojiSetDef: EmojiSetDef;
 };
+
+export type MessageAttachments<
+  At extends UnknownType = DefaultAttachmentType
+> = Array<Attachment<At> & { file_size?: number; mime_type?: string }>;
 
 export type MessageToSend<
   At extends UnknownType = DefaultAttachmentType,
@@ -74,9 +76,7 @@ export type MessageToSend<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  attachments?: Array<
-    Attachment<At> & { file_size?: number; mime_type?: string }
-  >;
+  attachments?: MessageAttachments<At>;
   id?: string;
   mentioned_users?: string[];
   parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
@@ -135,8 +135,11 @@ export type ChannelContextValue<
   Attachment?: React.ComponentType<unknown>; // TODO: add generic when Attachment is typed
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
+  dispatch?: React.Dispatch<
+    ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   editMessage?: (
-    message: MessageToSend<At, Ch, Co, Me, Re, Us>,
+    message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   emojiConfig?: EmojiConfig;
   loadMore?: (limit: number) => Promise<number>;
@@ -145,18 +148,28 @@ export type ChannelContextValue<
   Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
   multipleUploads?: boolean;
   mutes?: Mute<DefaultUserType>[];
-  onMentionsClick?: (event: React.MouseEvent, user: UserResponse<Us>[]) => void;
-  onMentionsHover?: (event: React.MouseEvent, user: UserResponse<Us>[]) => void;
+  onMentionsClick?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
+  onMentionsHover?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
   openThread?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: ReturnType<
+      StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
+    >,
     event: React.SyntheticEvent,
   ) => void;
-  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void; // TODO: double check message when Channel is typed
-  retrySendMessage?: (message: Message<At, Me, Us>) => Promise<void>; // TODO: double check message when Channel is typed
+  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
+  retrySendMessage?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ) => Promise<void>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
-  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void; // TODO: double check message when Channel is typed
+  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   watcher_count?: number;
 };
 

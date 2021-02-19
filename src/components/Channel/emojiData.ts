@@ -1,4 +1,18 @@
-export const emojiSetDef = {
+import type { Data as EmojiData } from 'emoji-mart';
+
+import type {
+  CommonEmoji,
+  EmojiSetDef,
+  MinimalEmoji,
+} from '../../context/ChannelContext';
+
+export const commonEmoji: CommonEmoji = {
+  custom: true,
+  emoticons: [],
+  short_names: [],
+};
+
+export const emojiSetDef: EmojiSetDef = {
   sheetColumns: 2,
   sheetRows: 3,
   sheetSize: 64,
@@ -6,15 +20,7 @@ export const emojiSetDef = {
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
 };
 
-/** @type {import("types").commonEmojiInterface} */
-export const commonEmoji = {
-  custom: true,
-  emoticons: [],
-  short_names: [],
-};
-
-/** @type {import("types").MinimalEmojiInterface[]} */
-export const defaultMinimalEmojis = [
+export const defaultMinimalEmojis: MinimalEmoji[] = [
   {
     colons: ':+1:',
     id: 'like',
@@ -72,10 +78,7 @@ export const defaultMinimalEmojis = [
 ];
 
 // use this only for small lists like in ReactionSelector
-/** @typedef {import('emoji-mart').Data} EmojiData
- * @type {(data: EmojiData) => EmojiData}
- */
-export const getStrippedEmojiData = (data) => ({
+export const getStrippedEmojiData = (data: EmojiData) => ({
   ...data,
   emojis: {},
 });
