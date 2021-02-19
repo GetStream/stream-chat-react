@@ -10,11 +10,6 @@ const LoadingItems: React.FC = () => (
   </div>
 );
 
-/**
- * LoadingChannels - Fancy loading indicator for the channel list
- *
- * @example ../../docs/LoadingChannels.md
- */
 const UnMemoizedLoadingChannels: React.FC = () => (
   <div className='str-chat__loading-channels'>
     <LoadingItems />
@@ -23,6 +18,11 @@ const UnMemoizedLoadingChannels: React.FC = () => (
   </div>
 );
 
+/**
+ * LoadingChannels - Fancy loading indicator for the channel list
+ *
+ * @example ./LoadingChannels.md
+ */
 export const LoadingChannels = React.memo(
   UnMemoizedLoadingChannels,
 ) as typeof UnMemoizedLoadingChannels;

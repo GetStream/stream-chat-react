@@ -54,15 +54,14 @@ export type ChannelPreviewProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
+  /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   key: string;
   /** Current selected channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   Avatar?: React.ComponentType<AvatarProps>;
   channelUpdateCount?: number;
-  // Following props is just to make sure preview component gets updated after connection is recovered.
-  // It is not actually used anywhere internally
+  // Prop to trigger a re-render of the preview component after connection is recovered.
   connectionRecoveredCount?: number;
   /**
    * Available built-in options (also accepts the same props as):

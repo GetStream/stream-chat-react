@@ -7,11 +7,6 @@ export type LoadingIndicatorProps = {
   size?: number;
 };
 
-/**
- * LoadingIndicator - Just a simple loading spinner..
- *
- * @example ../../docs/LoadingIndicator.md
- */
 const UnMemoizedLoadingIndicator: React.FC<LoadingIndicatorProps> = (props) => {
   const { color = '#006CFF', size = 15 } = props;
 
@@ -49,6 +44,11 @@ const UnMemoizedLoadingIndicator: React.FC<LoadingIndicatorProps> = (props) => {
   );
 };
 
+/**
+ * LoadingIndicator - Just a simple loading spinner..
+ *
+ * @example ./LoadingIndicator.md
+ */
 export const LoadingIndicator = React.memo(
   UnMemoizedLoadingIndicator,
   (prevProps, nextProps) =>

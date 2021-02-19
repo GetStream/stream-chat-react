@@ -14,10 +14,6 @@ export type ChatDownProps = {
   text?: string;
 };
 
-/**
- * ChatDown - Indicator that chat is down or your network isn't working
- * @example ../../docs/ChatDown.md
- */
 const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
   const { image, text, type = 'Error' } = props;
 
@@ -38,6 +34,10 @@ const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
   );
 };
 
+/**
+ * ChatDown - Indicator that chat is down or your network isn't working
+ * @example ./ChatDown.md
+ */
 export const ChatDown = React.memo(
   UnMemoizedChatDown,
 ) as typeof UnMemoizedChatDown;

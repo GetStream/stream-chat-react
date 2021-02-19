@@ -24,7 +24,7 @@ export type ChannelPreviewCountOnlyProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
+  /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Title of channel to display */
   displayTitle?: string;
@@ -76,6 +76,10 @@ const UnMemoizedChannelPreviewCountOnly = <
   );
 };
 
+/**
+ * ChannelPreviewCountOnly
+ * @example ./ChannelPreviewCountOnly.md
+ */
 export const ChannelPreviewCountOnly = React.memo(
   UnMemoizedChannelPreviewCountOnly,
 ) as typeof UnMemoizedChannelPreviewCountOnly;

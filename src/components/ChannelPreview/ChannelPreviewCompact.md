@@ -1,7 +1,10 @@
 ```js
-import { Chat, ChannelList, ChannelPreviewLastMessage } from '../components';
+import { ChannelPreviewCompact } from './ChannelPreviewCompact';
 
-const data = require('./data');
+import { Chat } from '../';
+import { ChannelList } from '../ChannelList/ChannelList';
+
+const data = require('../../docs/data');
 const filters = { type: 'team', example: 1 };
 const sort = {
   last_message_at: -1,
@@ -15,7 +18,7 @@ const options = {
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
     <ChannelList
-      Preview={ChannelPreviewLastMessage}
+      Preview={ChannelPreviewCompact}
       filters={filters}
       options={options}
       sort={sort}

@@ -26,7 +26,7 @@ export type ChannelPreviewCompactProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
+  /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** If channel of component is active (selected) channel */
   active?: boolean;
@@ -63,10 +63,6 @@ export type ChannelPreviewCompactProps<
   watchers?: { limit?: number; offset?: number };
 };
 
-/**
- *
- * @example ../../docs/ChannelPreviewCompact.md
- */
 const UnMemoizedChannelPreviewCompact = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -120,6 +116,10 @@ const UnMemoizedChannelPreviewCompact = <
   );
 };
 
+/**
+ *
+ * @example ./ChannelPreviewCompact.md
+ */
 export const ChannelPreviewCompact = React.memo(
   UnMemoizedChannelPreviewCompact,
 ) as typeof UnMemoizedChannelPreviewCompact;

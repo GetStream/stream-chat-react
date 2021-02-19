@@ -28,7 +28,7 @@ export type ChannelPreviewLastMessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
+  /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Setter for selected channel */
   setActiveChannel: ChatContextValue<
@@ -67,11 +67,6 @@ export type ChannelPreviewLastMessageProps<
   watchers?: { limit?: number; offset?: number };
 };
 
-/**
- * Used as preview component for channel item in [ChannelList](#channellist) component.
- *
- * @example ../../docs/ChannelPreviewLastMessage.md
- */
 const UnMemoizedChannelPreviewLastMessage = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -139,6 +134,11 @@ const UnMemoizedChannelPreviewLastMessage = <
   );
 };
 
+/**
+ * Used as preview component for channel item in [ChannelList](#channellist) component.
+ *
+ * @example ./ChannelPreviewLastMessage.md
+ */
 export const ChannelPreviewLastMessage = React.memo(
   UnMemoizedChannelPreviewLastMessage,
 ) as typeof UnMemoizedChannelPreviewLastMessage;

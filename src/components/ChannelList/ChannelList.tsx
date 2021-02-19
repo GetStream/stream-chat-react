@@ -236,10 +236,6 @@ export type ChannelListProps<
   watchers?: { limit?: number; offset?: number };
 };
 
-/**
- * ChannelList - A preview list of channels, allowing you to select the channel you want to open
- * @example ../../docs/ChannelList.md
- */
 const UnMemoizedChannelList = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -465,6 +461,10 @@ const UnMemoizedChannelList = <
   );
 };
 
+/**
+ * ChannelList - A preview list of channels, allowing you to select the channel you want to open
+ * @example ./ChannelList.md
+ */
 export const ChannelList = React.memo(
   UnMemoizedChannelList,
 ) as typeof UnMemoizedChannelList;

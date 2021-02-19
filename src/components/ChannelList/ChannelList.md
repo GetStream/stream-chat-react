@@ -1,7 +1,9 @@
 ```js
-import { Chat, ChannelList, ChannelPreviewCompact } from '../components';
+import { ChannelList } from './ChannelList';
 
-const data = require('./data');
+import { Chat } from '../';
+
+const data = require('../../docs/data');
 const filters = { type: 'team', example: 1 };
 const sort = {
   last_message_at: -1,
@@ -14,12 +16,7 @@ const options = {
 };
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
-    <ChannelList
-      Preview={ChannelPreviewCompact}
-      filters={filters}
-      options={options}
-      sort={sort}
-    />
+    <ChannelList filters={filters} options={options} sort={sort} />
   </Chat>
 </div>;
 ```
