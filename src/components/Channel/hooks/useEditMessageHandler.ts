@@ -26,7 +26,7 @@ type UpdateHandler<
   updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO - check if right message type
 ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
 
-const useEditMessageHandler = <
+export const useEditMessageHandler = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -48,5 +48,3 @@ const useEditMessageHandler = <
     return client.updateMessage(updatedMessage);
   };
 };
-
-export default useEditMessageHandler;

@@ -1,2 +1,2 @@
-export { default as useChannelEditMessageHandler } from './useEditMessageHandler';
-export { default as useChannelMentionsHandler } from './useMentionsHandlers';
+export { useEditMessageHandler as useChannelEditMessageHandler } from './useEditMessageHandler';
+export { useMentionsHandlers as useChannelMentionsHandler } from './useMentionsHandlers';

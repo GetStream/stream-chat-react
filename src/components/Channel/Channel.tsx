@@ -35,10 +35,11 @@ import {
 } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 
-import useEditMessageHandler from './hooks/useEditMessageHandler';
-import useIsMounted from './hooks/useIsMounted';
-import useMentionsHandlers, {
+import { useEditMessageHandler } from './hooks/useEditMessageHandler';
+import { useIsMounted } from './hooks/useIsMounted';
+import {
   OnMentionAction,
+  useMentionsHandlers,
 } from './hooks/useMentionsHandlers';
 
 import { Attachment as DefaultAttachment } from '../Attachment';

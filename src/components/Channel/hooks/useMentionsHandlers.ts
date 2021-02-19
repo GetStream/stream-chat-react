@@ -8,7 +8,7 @@ export type OnMentionAction<Us extends UnknownType = DefaultUserType> = (
   user?: UserResponse<Us>,
 ) => void;
 
-const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
+export const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
   onMentionsHover?: OnMentionAction<Us>,
   onMentionsClick?: OnMentionAction<Us>,
 ) =>
@@ -50,5 +50,3 @@ const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
     },
     [onMentionsClick, onMentionsHover],
   );
-
-export default useMentionsHandlers;
