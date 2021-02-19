@@ -1,6 +1,10 @@
 import type { Data as EmojiData } from 'emoji-mart';
 
-import type { CommonEmoji, EmojiSetDef, MinimalEmoji } from '../../context';
+import type {
+  CommonEmoji,
+  EmojiSetDef,
+  MinimalEmoji,
+} from '../../context/ChannelContext';
 
 export const commonEmoji: CommonEmoji = {
   custom: true,

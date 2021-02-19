@@ -5,7 +5,7 @@ import type {
   ChannelState as StreamChannelState,
 } from 'stream-chat';
 
-import type { ChannelState } from '../../context';
+import type { ChannelState } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,

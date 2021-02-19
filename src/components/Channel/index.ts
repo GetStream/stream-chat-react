@@ -1,2 +1,3 @@
 export * from './Channel';
-export * from './hooks';
+export { useEditMessageHandler as useChannelEditMessageHandler } from './hooks/useEditMessageHandler';
+export { useMentionsHandlers as useChannelMentionsHandler } from './hooks/useMentionsHandlers';

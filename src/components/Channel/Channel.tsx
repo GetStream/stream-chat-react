@@ -54,9 +54,9 @@ import {
   ChannelProvider,
   MessageAttachments,
   MessageToSend,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+} from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type {
@@ -205,7 +205,7 @@ const UnMemoizedChannel = <
 >(
   props: PropsWithChildren<ChannelProps<At, Ch, Co, Ev, Me, Re, Us>>,
 ) => {
-  const { EmptyPlaceholder = null } = props;
+  const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
   const { channel: contextChannel } = useChatContext<
     At,
@@ -217,7 +217,7 @@ const UnMemoizedChannel = <
     Us
   >();
 
-  const channel = props.channel || contextChannel;
+  const channel = propsChannel || contextChannel;
 
   if (!channel?.cid) return EmptyPlaceholder;
 
@@ -233,9 +233,11 @@ const ChannelInner = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: PropsWithChildren<ChannelProps<At, Ch, Co, Ev, Me, Re, Us>> & {
-    key: string;
-  },
+  props: PropsWithChildren<
+    ChannelProps<At, Ch, Co, Ev, Me, Re, Us> & {
+      key: string;
+    }
+  >,
 ) => {
   const {
     acceptedFiles,
@@ -396,7 +398,7 @@ const ChannelInner = <
     return () => {
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      channel?.off(handleEvent);
+      if (channel) channel.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
     };
@@ -562,10 +564,10 @@ const ChannelInner = <
 
   const sendMessage = useCallback(
     async ({
-      text = '',
       attachments = [],
       mentioned_users = [],
       parent = undefined,
+      text = '',
     }: MessageToSend<At, Ch, Co, Me, Re, Us>) => {
       if (!channel) return;
 

@@ -1,4 +1,4 @@
-import { useChatContext } from '../../../context';
+import { useChatContext } from '../../../context/ChatContext';
 
 import type { StreamChat, UpdatedMessage } from 'stream-chat';
 

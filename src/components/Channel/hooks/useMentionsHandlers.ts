@@ -1,4 +1,5 @@
 import { MouseEvent, useCallback } from 'react';
+
 import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType, UnknownType } from '../../../../types/types';
