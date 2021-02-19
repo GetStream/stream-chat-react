@@ -14,13 +14,16 @@ const useMentionsHandlers = <Us extends UnknownType = DefaultUserType>(
 ) =>
   useCallback(
     (event: MouseEvent<HTMLElement>, mentioned_users: UserResponse<Us>[]) => {
-      if (!onMentionsHover && !onMentionsClick) return;
+      if (
+        (!onMentionsHover && !onMentionsClick) ||
+        !(event.target instanceof HTMLElement)
+      ) {
+        return;
+      }
 
       const target = event.target;
-      // @ts-expect-error
-      const tagName = target?.tagName?.toLowerCase() as string;
-      // @ts-expect-error
-      const textContent = target?.innerHTML?.replace('*', '') as string;
+      const tagName = target.tagName.toLowerCase();
+      const textContent = target.innerHTML.replace('*', '');
 
       if (tagName === 'strong' && textContent[0] === '@') {
         const userName = textContent.replace('@', '');
