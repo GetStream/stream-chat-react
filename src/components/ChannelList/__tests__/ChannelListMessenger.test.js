@@ -2,7 +2,8 @@ import React from 'react';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import { ChannelListMessenger } from '..';
+
+import { ChannelListMessenger } from '../ChannelListMessenger';
 
 // Weird hack to avoid big warnings
 // Maybe better to find a better solution for it.

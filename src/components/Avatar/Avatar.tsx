@@ -15,6 +15,11 @@ export type AvatarProps = {
   size?: number;
 };
 
+/**
+ * Avatar - A round avatar image with fallback to username's first letter
+ *
+ * @example ./Avatar.md
+ */
 export const Avatar: React.FC<AvatarProps> = (props) => {
   const {
     image,

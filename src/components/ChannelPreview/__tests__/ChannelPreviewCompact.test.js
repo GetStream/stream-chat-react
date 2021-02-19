@@ -11,7 +11,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import ChannelPreviewCompact from '../ChannelPreviewCompact';
+import { ChannelPreviewCompact } from '../ChannelPreviewCompact';
 
 describe('ChannelPreviewCompact', () => {
   const clientUser = generateUser();

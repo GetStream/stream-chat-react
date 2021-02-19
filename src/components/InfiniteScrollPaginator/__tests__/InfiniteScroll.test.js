@@ -2,7 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import InfiniteScroll from '../InfiniteScroll';
+
+import { InfiniteScroll } from '../InfiniteScroll';
 
 const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 

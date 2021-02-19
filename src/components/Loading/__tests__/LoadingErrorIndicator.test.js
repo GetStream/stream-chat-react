@@ -3,9 +3,11 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser } from '../../../mock-builders';
+import { LoadingErrorIndicator } from '../LoadingErrorIndicator';
+
 import { Chat } from '../../Chat';
-import LoadingErrorIndicator from '../LoadingErrorIndicator';
+
+import { getTestClientWithUser } from '../../../mock-builders';
 
 afterEach(cleanup); // eslint-disable-line
 

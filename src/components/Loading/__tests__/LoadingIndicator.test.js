@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import LoadingIndicator from '../LoadingIndicator';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 

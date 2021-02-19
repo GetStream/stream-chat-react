@@ -43,7 +43,7 @@ const styleBundle = ({ min } = { min: false }) => ({
 
 const baseConfig = {
   cache: false,
-  input: 'src/index.js',
+  input: 'src/index.ts',
   watch: {
     chokidar: false,
   },
@@ -187,9 +187,9 @@ export default () =>
   process.env.ROLLUP_WATCH
     ? [styleBundle(), normalBundle]
     : [
-        styleBundle(),
-        styleBundle({ min: true }),
-        normalBundle,
-        fullBrowserBundle({ min: true }),
-        fullBrowserBundle(),
-      ];
+      styleBundle(),
+      styleBundle({ min: true }),
+      normalBundle,
+      fullBrowserBundle({ min: true }),
+      fullBrowserBundle(),
+    ];
