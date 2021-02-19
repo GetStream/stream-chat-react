@@ -1,6 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { ChannelContext, ChatContext, TranslationContext } from '../../context';
+import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import type { ChannelData, ChannelResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 
 export type ChannelHeaderProps = {
   /**
@@ -17,12 +31,30 @@ export type ChannelHeaderProps = {
   title?: string;
 };
 
-const UnMemoizedChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
+const UnMemoizedChannelHeader = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  props: ChannelHeaderProps,
+) => {
   const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
 
-  const { channel, watcher_count } = useContext(ChannelContext);
-  const { openMobileNav } = useContext(ChatContext);
-  const { t } = useContext(TranslationContext);
+  const { channel, watcher_count } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
 
   const { image: channelImage, member_count, name, subtitle } =
     channel?.data || {};
