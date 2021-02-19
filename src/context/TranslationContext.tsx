@@ -14,6 +14,14 @@ Dayjs.extend(LocalizedFormat);
 export const isDayjs = (output: TDateTimeParserOutput): output is Dayjs.Dayjs =>
   (output as Dayjs.Dayjs).isSame != null;
 
+export const isDate = (output: TDateTimeParserOutput): output is Date =>
+  (output as Date).getMonth != null;
+
+export const isNumberOrString = (
+  output: TDateTimeParserOutput,
+): output is number | string =>
+  typeof output === 'string' || typeof output === 'number';
+
 export type TDateTimeParserInput = string | number | Date;
 
 export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs;

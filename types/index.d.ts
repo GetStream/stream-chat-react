@@ -17,6 +17,7 @@ import type {
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from './types';
+import type { TDateTimeParser } from '../src/context';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -1452,7 +1453,7 @@ export interface MessageTimestampProps {
   message?: Client.MessageResponse;
   calendar?: boolean;
   format?: string;
-  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
+  tDateTimeParser?: TDateTimeParser;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
