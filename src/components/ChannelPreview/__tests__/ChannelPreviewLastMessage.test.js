@@ -11,7 +11,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import ChannelPreviewLastMessage from '../ChannelPreviewLastMessage';
+import { ChannelPreviewLastMessage } from '../ChannelPreviewLastMessage';
 
 describe('ChannelPreviewLastMessage', () => {
   const clientUser = generateUser();
