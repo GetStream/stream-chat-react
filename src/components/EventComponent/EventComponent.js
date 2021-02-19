@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { TranslationContext } from '../../context';
+import { isDayjs, TranslationContext } from '../../context';
 
 /**
  * EventComponent - Custom render component for system and channel event messages
@@ -12,6 +12,15 @@ import { TranslationContext } from '../../context';
 const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
   const { tDateTimeParser } = useContext(TranslationContext);
   const { created_at = '', event, text, type } = message;
+
+  // @ts-expect-error
+  const dateFormatter = (date, format) => {
+    const parsedDate = tDateTimeParser(date);
+    const formattedDate = isDayjs(parsedDate)
+      ? parsedDate.format(format)
+      : parsedDate;
+    return formattedDate;
+  };
 
   if (type === 'system')
     return (
@@ -22,8 +31,8 @@ const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
           <div className='str-chat__message--system__line' />
         </div>
         <div className='str-chat__message--system__date'>
-          <strong>{tDateTimeParser(created_at).format('dddd')} </strong>
-          at {tDateTimeParser(created_at).format('hh:mm A')}
+          <strong>{dateFormatter(created_at, 'dddd')} </strong>
+          at {dateFormatter(created_at, 'hh:mm A')}
         </div>
       </div>
     );
@@ -48,7 +57,7 @@ const EventComponent = ({ Avatar = DefaultAvatar, message }) => {
             {sentence}
           </em>
           <div className='str-chat__event-component__channel-event__date'>
-            {tDateTimeParser(created_at).format('LT')}
+            {dateFormatter(created_at, 'LT')}
           </div>
         </div>
       </div>
