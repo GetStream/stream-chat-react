@@ -46,6 +46,8 @@ import { Attachment as DefaultAttachment } from '../Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingIndicator as DefaultLoadingIndicator,
+  LoadingErrorIndicatorProps,
+  LoadingIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message';
 
@@ -153,7 +155,7 @@ export type ChannelProps<
    * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
    *
    * */
-  LoadingErrorIndicator?: React.ComponentType<unknown>; // TODO - add generic when ChannelList pr merged
+  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
    * being queried from channel. Once the messages are loaded, loading indicator is removed from the screen
@@ -161,7 +163,7 @@ export type ChannelProps<
    *
    * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
    */
-  LoadingIndicator?: React.ComponentType<unknown>; // TODO - add generic when ChannelList pr merged
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /**
