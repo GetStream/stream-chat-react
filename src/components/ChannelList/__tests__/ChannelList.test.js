@@ -33,7 +33,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
-import ChannelList from '../ChannelList';
+
+import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
   ChannelPreviewLastMessage,

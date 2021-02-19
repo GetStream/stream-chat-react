@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import EmptyStateIndicator from '../EmptyStateIndicator';
+import { EmptyStateIndicator } from '../EmptyStateIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 

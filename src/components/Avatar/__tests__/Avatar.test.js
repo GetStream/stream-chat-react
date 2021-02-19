@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import Avatar from '../Avatar';
+import { Avatar } from '../Avatar';
 
 afterEach(cleanup); // eslint-disable-line
 

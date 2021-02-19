@@ -11,7 +11,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import ChannelPreviewMessenger from '../ChannelPreviewMessenger';
+import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
 
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
