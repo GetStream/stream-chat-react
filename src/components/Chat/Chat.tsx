@@ -30,8 +30,8 @@ export type ChatProps<
   /** The StreamChat client object */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** Instance of Stream i18n */
-  i18nInstance: Streami18n;
-  /** navOpen initial status */
+  i18nInstance?: Streami18n;
+  /** Initial status of mobile navigation */
   initialNavOpen?: boolean;
   /**
    *

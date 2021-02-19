@@ -28,7 +28,7 @@ export type UseChatParams<
   Us extends UnknownType = DefaultUserType
 > = {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  i18nInstance: Streami18n;
+  i18nInstance?: Streami18n;
   initialNavOpen?: boolean;
 };
 
