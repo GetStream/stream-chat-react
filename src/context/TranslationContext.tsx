@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import Dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+import calendar from 'dayjs/plugin/calendar';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { getDisplayName } from './utils/getDisplayName';
 
@@ -9,7 +10,8 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../../types/types';
 
-Dayjs.extend(LocalizedFormat);
+Dayjs.extend(calendar);
+Dayjs.extend(localizedFormat);
 
 export const isDayjs = (output: TDateTimeParserOutput): output is Dayjs.Dayjs =>
   (output as Dayjs.Dayjs).isSame != null;
