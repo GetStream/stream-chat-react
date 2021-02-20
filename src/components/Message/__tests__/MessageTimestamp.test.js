@@ -8,9 +8,13 @@ import MessageTimestamp, {
   notValidDateWarning,
 } from '../MessageTimestamp';
 import { TranslationContext } from '../../../context';
+import Dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
+
+Dayjs.extend(calendar);
 
 const messageMock = generateMessage({
-  created_at: '2019-04-03T14:42:47.087869Z',
+  created_at: Dayjs(new Date('2019-04-03T14:42:47.087869Z')),
 });
 describe('<MessageTimestamp />', () => {
   afterEach(cleanup);
@@ -22,8 +26,8 @@ describe('<MessageTimestamp />', () => {
     expect(tree).toMatchInlineSnapshot(`
       <time
         className=""
-        dateTime="2019-04-03T14:42:47.087869Z"
-        title="2019-04-03T14:42:47.087869Z"
+        dateTime={"2019-04-03T14:42:47.087Z"}
+        title={"2019-04-03T14:42:47.087Z"}
       >
         2:42PM
       </time>
@@ -47,7 +51,11 @@ describe('<MessageTimestamp />', () => {
 
   it('should render message created_at date with custom datetime parser if one is set', () => {
     const format = jest.fn();
-    const customDateTimeParser = jest.fn(() => ({ format }));
+    const customDateTimeParser = jest.fn(() => ({
+      format,
+      isSame: true,
+    }));
+
     render(
       <MessageTimestamp
         message={messageMock}
@@ -66,7 +74,7 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should render in calendar format if calendar is set to true', () => {
-    const calendarDateTimeParser = { calendar: jest.fn() };
+    const calendarDateTimeParser = { calendar: jest.fn(), isSame: true };
     render(
       <TranslationContext.Provider
         value={{
@@ -112,8 +120,8 @@ describe('<MessageTimestamp />', () => {
     expect(tree).toMatchInlineSnapshot(`
       <time
         className="custom-css-class"
-        dateTime="2019-04-03T14:42:47.087869Z"
-        title="2019-04-03T14:42:47.087869Z"
+        dateTime={"2019-04-03T14:42:47.087Z"}
+        title={"2019-04-03T14:42:47.087Z"}
       >
         2:42PM
       </time>

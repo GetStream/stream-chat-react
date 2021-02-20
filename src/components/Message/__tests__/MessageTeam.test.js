@@ -16,6 +16,7 @@ import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import Dayjs from 'dayjs';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -42,7 +43,7 @@ async function renderMessageTeam(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
-  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
     <ChannelContext.Provider
@@ -337,16 +338,13 @@ describe('<MessageTeam />', () => {
     );
   });
 
-  it('should display the time the message was created', async () => {
-    const createdAt = new Date('2019-03-30T13:24:10');
-    const message = generateAliceMessage({ created_at: createdAt });
-    const dateFormatMock = jest.fn(() => 'formatted date');
-    const mockDateTimeParser = jest.fn(() => ({
-      format: dateFormatMock,
-    }));
-    await renderMessageTeam(message, { tDateTimeParser: mockDateTimeParser });
-    expect(mockDateTimeParser).toHaveBeenCalledWith(createdAt);
-    expect(dateFormatMock).toHaveBeenCalledWith('h:mmA');
+  it("should display message's timestamp with time only format", async () => {
+    const messageDate = new Date('2019-12-12T03:33:00');
+    const message = generateAliceMessage({
+      created_at: messageDate,
+    });
+    const { getByText } = await renderMessageTeam(message);
+    expect(getByText('3:33AM')).toBeInTheDocument();
   });
 
   it('should set message type as css class modifier', async () => {
