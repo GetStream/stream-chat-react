@@ -1,6 +1,7 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import InfiniteScrollPaginator from '../InfiniteScrollPaginator';
+
+import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator';
 
 function renderInfiniteScrollPaginator(props) {
   return (

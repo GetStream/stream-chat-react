@@ -18,6 +18,7 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from './types';
 import type { TDateTimeParser } from '../src/context';
+import type { ChannelStateReducerAction } from '../src/components/Channel/types';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -179,6 +180,7 @@ export interface ChannelContextValue extends ChatContextValue {
   /** Via Context: The function is called when the list scrolls */
   listenToScroll?(offset: number): void;
   emojiConfig?: EmojiConfig;
+  dispatch?: React.Dispatch<ChannelStateReducerAction>;
 }
 
 export interface ChatProps {

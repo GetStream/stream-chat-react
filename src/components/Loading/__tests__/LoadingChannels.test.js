@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import LoadingChannels from '../LoadingChannels';
+import { LoadingChannels } from '../LoadingChannels';
 
 afterEach(cleanup); // eslint-disable-line
 

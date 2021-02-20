@@ -2,7 +2,7 @@
 
 exports[`ChannelPreviewCompact should render correctly 1`] = `
 <button
-  className="str-chat__channel-preview-compact  "
+  className="str-chat__channel-preview-compact str-chat__channel-preview-compact--unread "
   data-testid="channel-preview-button"
   onClick={[Function]}
 >

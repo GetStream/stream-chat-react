@@ -3,11 +3,11 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import LoadMorePaginator from '../LoadMorePaginator';
+import { LoadMorePaginator } from '../LoadMorePaginator';
 
 jest.mock('../LoadMoreButton', () => ({
   __esModule: true,
-  default: jest.fn(() => <div data-testid='load-more-button' />),
+  LoadMoreButton: jest.fn(() => <div data-testid='load-more-button' />),
 }));
 
 describe('LoadMorePaginator', () => {

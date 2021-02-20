@@ -14,6 +14,7 @@ export const useRetryHandler = (customRetrySendMessage) => {
 
   return async (message) => {
     if (retrySendMessage && message) {
+      // @ts-expect-error
       await retrySendMessage(message);
     }
   };
