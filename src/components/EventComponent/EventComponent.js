@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { isDayjs, TranslationContext } from '../../context';
+import { isDayjs, TranslationContext } from '../../context/TranslationContext';
 
 /**
  * EventComponent - Custom render component for system and channel event messages
