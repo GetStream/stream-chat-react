@@ -1,24 +1,31 @@
 // @ts-check
-import React, { useContext, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
-import { TranslationContext } from '../../context';
-import ModalWrapper from './ModalWrapper';
+import React, { useMemo, useState } from 'react';
+
+// import { Attachment as DefaultAttachment } from '../Attachment';
+import { ModalComponent as ModalWrapper } from './ModalWrapper';
+
+import { useTranslationContext } from '../../context/TranslationContext';
 
 /**
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ../../docs/Gallery.md
- * @typedef {import('types').GalleryProps} Props
- * @type React.FC<Props>
  */
-const Gallery = ({ images }) => {
+export type GalleryProps = {
+  images: React.ComponentType<unknown>[]; // todo: add Attachment
+};
+
+const UnMemoizedGallery: React.FC<GalleryProps> = (props) => {
+  // const { images = DefaultAttachment } = props;
+  const { images } = props;
+
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const { t } = useContext(TranslationContext);
+  const { t } = useTranslationContext();
 
   /**
    * @param {number} selectedIndex Index of image clicked
    */
-  const toggleModal = (selectedIndex) => {
+  const toggleModal = (selectedIndex: number) => {
     if (modalOpen) {
       setModalOpen(false);
     } else {
@@ -79,10 +86,6 @@ const Gallery = ({ images }) => {
   );
 };
 
-Gallery.propTypes = {
-  images: /** @type { PropTypes.Validator<import('types').GalleryProps['images']> } */ (PropTypes.arrayOf(
-    PropTypes.object.isRequired,
-  ).isRequired),
-};
-
-export default React.memo(Gallery);
+export const Gallery = React.memo(
+  UnMemoizedGallery,
+) as typeof UnMemoizedGallery;

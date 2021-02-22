@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { getTestClientWithUser } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
-import Gallery from '../Gallery';
+import { Gallery } from '../Gallery';
 
 let chatClient;
 
