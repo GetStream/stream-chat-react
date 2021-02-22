@@ -6,7 +6,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import ChannelHeader from '../ChannelHeader';
+import { ChannelHeader } from '../ChannelHeader';
 import {
   ChannelContext,
   ChatContext,
