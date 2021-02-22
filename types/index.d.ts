@@ -1412,7 +1412,7 @@ export interface MessageLivestreamActionProps {
   channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  onReactionListClick?: () => void;
+  onReactionListClick?: (e: MouseEvent) => void;
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
