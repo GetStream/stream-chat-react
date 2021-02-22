@@ -159,7 +159,7 @@ type Options = {
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   language?: string;
-  logger?: (msg?: string) => void;
+  logger?: (message?: string) => void;
   translationsForLanguage?: typeof enTranslations;
 };
 
