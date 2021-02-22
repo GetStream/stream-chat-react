@@ -154,12 +154,16 @@ export const useReactionClick = (
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  /** @type {() => void} Typescript syntax */
-  const onReactionListClick = () => {
+  /** @type {(e: MouseEvent) => void} Typescript syntax */
+  const onReactionListClick = (e) => {
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
     setShowDetailedReactions(true);
   };
 
   return {
+    // @ts-expect-error
     onReactionListClick,
     showDetailedReactions,
     isReactionEnabled,
