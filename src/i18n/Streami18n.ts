@@ -316,7 +316,7 @@ const defaultStreami18nOptions = {
   debug: false,
   disableDateTimeTranslations: false,
   language: 'en',
-  logger: (msg?: string) => console.warn(msg),
+  logger: (message?: string) => console.warn(message),
 };
 
 export class Streami18n {
