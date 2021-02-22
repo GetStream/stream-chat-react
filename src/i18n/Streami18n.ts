@@ -1,4 +1,3 @@
-/* eslint-disable */
 import i18n, { TFunction } from 'i18next';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -7,17 +6,19 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+import type { TranslationLanguages } from 'stream-chat';
+
 import type { TDateTimeParser } from '../context/TranslationContext';
 import type { UnknownType } from '../../types/types';
 
 import {
   enTranslations,
-  nlTranslations,
-  ruTranslations,
-  trTranslations,
   frTranslations,
   hiTranslations,
   itTranslations,
+  nlTranslations,
+  ruTranslations,
+  trTranslations,
 } from './translations';
 
 const defaultNS = 'translation';
@@ -38,36 +39,48 @@ Dayjs.extend(updateLocale);
 
 Dayjs.updateLocale('nl', {
   calendar: {
-    sameDay: '[vandaag om] LT',
-    nextDay: '[morgen om] LT',
-    nextWeek: 'dddd [om] LT',
     lastDay: '[gisteren om] LT',
     lastWeek: '[afgelopen] dddd [om] LT',
+    nextDay: '[morgen om] LT',
+    nextWeek: 'dddd [om] LT',
+    sameDay: '[vandaag om] LT',
     sameElse: 'L',
   },
 });
 Dayjs.updateLocale('it', {
   calendar: {
-    sameDay: '[Oggi alle] LT',
-    nextDay: '[Domani alle] LT',
-    nextWeek: 'dddd [alle] LT',
     lastDay: '[Ieri alle] LT',
     lastWeek: '[lo scorso] dddd [alle] LT',
+    nextDay: '[Domani alle] LT',
+    nextWeek: 'dddd [alle] LT',
+    sameDay: '[Oggi alle] LT',
     sameElse: 'L',
   },
 });
 Dayjs.updateLocale('hi', {
   calendar: {
-    sameDay: '[आज] LT',
-    nextDay: '[कल] LT',
-    nextWeek: 'dddd, LT',
     lastDay: '[कल] LT',
     lastWeek: '[पिछले] dddd, LT',
+    nextDay: '[कल] LT',
+    nextWeek: 'dddd, LT',
+    sameDay: '[आज] LT',
     sameElse: 'L',
   },
   // Hindi notation for meridiems are quite fuzzy in practice. While there exists
   // a rigid notion of a 'Pahar' it is not used as rigidly in modern Hindi.
-  meridiemParse: /रात|सुबह|दोपहर|शाम/,
+  meridiem(hour: number) {
+    if (hour < 4) {
+      return 'रात';
+    } else if (hour < 10) {
+      return 'सुबह';
+    } else if (hour < 17) {
+      return 'दोपहर';
+    } else if (hour < 20) {
+      return 'शाम';
+    } else {
+      return 'रात';
+    }
+  },
   meridiemHour(hour: number, meridiem: string) {
     if (hour === 12) {
       hour = 0;
@@ -83,45 +96,33 @@ Dayjs.updateLocale('hi', {
     }
     return hour;
   },
-  meridiem(hour: number) {
-    if (hour < 4) {
-      return 'रात';
-    } else if (hour < 10) {
-      return 'सुबह';
-    } else if (hour < 17) {
-      return 'दोपहर';
-    } else if (hour < 20) {
-      return 'शाम';
-    } else {
-      return 'रात';
-    }
-  },
+  meridiemParse: /रात|सुबह|दोपहर|शाम/,
 });
 Dayjs.updateLocale('fr', {
   calendar: {
-    sameDay: '[Aujourd’hui à] LT',
-    nextDay: '[Demain à] LT',
-    nextWeek: 'dddd [à] LT',
     lastDay: '[Hier à] LT',
     lastWeek: 'dddd [dernier à] LT',
+    nextDay: '[Demain à] LT',
+    nextWeek: 'dddd [à] LT',
+    sameDay: '[Aujourd’hui à] LT',
     sameElse: 'L',
   },
 });
 Dayjs.updateLocale('tr', {
   calendar: {
-    sameDay: '[bugün saat] LT',
-    nextDay: '[yarın saat] LT',
-    nextWeek: '[gelecek] dddd [saat] LT',
     lastDay: '[dün] LT',
     lastWeek: '[geçen] dddd [saat] LT',
+    nextDay: '[yarın saat] LT',
+    nextWeek: '[gelecek] dddd [saat] LT',
+    sameDay: '[bugün saat] LT',
     sameElse: 'L',
   },
 });
 Dayjs.updateLocale('ru', {
   calendar: {
-    sameDay: '[Сегодня, в] LT',
-    nextDay: '[Завтра, в] LT',
     lastDay: '[Вчера, в] LT',
+    nextDay: '[Завтра, в] LT',
+    sameDay: '[Сегодня, в] LT',
   },
 });
 
@@ -158,7 +159,7 @@ type Options = {
   dayjsLocaleConfigForLanguage?: Partial<ILocale>;
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
-  language?: string;
+  language?: TranslationLanguages;
   logger?: (message?: string) => void;
   translationsForLanguage?: typeof enTranslations;
 };

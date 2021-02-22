@@ -20,6 +20,16 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
+export type Theme =
+  | 'commerce dark'
+  | 'commerce light'
+  | 'livestream dark'
+  | 'livestream light'
+  | 'messaging dark'
+  | 'messaging light'
+  | 'team dark'
+  | 'team light';
+
 export type ChatProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -72,7 +82,7 @@ export type ChatProps<
    *  - `livestream light`
    *  - `livestream dark`
    */
-  theme?: string;
+  theme?: Theme;
 };
 
 /**
@@ -93,7 +103,7 @@ export type ChatProps<
  *
  * It also exposes the withChatContext HOC which you can use to consume the ChatContext
  *
- * @example ../../docs/Chat.md
+ * @example ./Chat.md
  */
 const Chat = <
   At extends UnknownType = DefaultAttachmentType,

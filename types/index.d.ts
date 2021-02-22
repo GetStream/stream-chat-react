@@ -1452,13 +1452,13 @@ export class MessageTeam extends React.PureComponent<
 export interface MessageSimpleProps
   extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
-  customClass?: string;
-  message?: Client.MessageResponse;
   calendar?: boolean;
+  customClass?: string;
   format?: string;
-  tDateTimeParser?: TDateTimeParser;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
+  message?: Client.MessageResponse;
+  tDateTimeParser?: TDateTimeParser;
 }
 
 export interface MessageTextProps extends MessageSimpleProps {
