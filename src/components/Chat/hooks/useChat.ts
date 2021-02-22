@@ -83,7 +83,11 @@ export const useChat = <
     };
 
     if (client) client.on(handleEvent);
-    return () => client && client.off(handleEvent);
+    return () => {
+      if (client) {
+        client.off(handleEvent);
+      }
+    };
   }, [client, clientMutes]);
 
   useEffect(() => {
