@@ -32,7 +32,7 @@ export type ChannelHeaderProps = {
 
 const UnMemoizedChannelHeader = <
   At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
+  Ch extends DefaultChannelType = UnknownType,
   Co extends string = DefaultCommandType,
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
