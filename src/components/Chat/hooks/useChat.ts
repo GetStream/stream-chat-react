@@ -53,9 +53,7 @@ export const useChat = <
     userLanguage: 'en',
   });
 
-  const [channel, setChannel] = useState<
-    Channel<At, Ch, Co, Ev, Me, Re, Us> | undefined
-  >(undefined);
+  const [channel, setChannel] = useState<Channel<At, Ch, Co, Ev, Me, Re, Us>>();
   const [mutes, setMutes] = useState<Mute<Us>[]>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
 
