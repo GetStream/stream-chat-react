@@ -87,13 +87,7 @@ export const useChat = <
   }, [client, clientMutes]);
 
   useEffect(() => {
-    let streami18n;
-
-    if (i18nInstance instanceof Streami18n) {
-      streami18n = i18nInstance;
-    } else {
-      streami18n = new Streami18n({ language: 'en' });
-    }
+    const streami18n = i18nInstance instanceof Streami18n ? i18nInstance : new Streami18n({ language: 'en' });
 
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
