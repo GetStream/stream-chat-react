@@ -6,7 +6,9 @@ import { Streami18n } from '../../../i18n';
 import { version } from '../../../../package.json';
 
 import type { Channel, Event, Mute, StreamChat } from 'stream-chat';
+
 import type { TranslationContextValue } from '../../../context/TranslationContext';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
