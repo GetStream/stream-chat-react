@@ -54,7 +54,7 @@ export const useChat = <
   });
 
   const [channel, setChannel] = useState<Channel<At, Ch, Co, Ev, Me, Re, Us>>();
-  const [mutes, setMutes] = useState<Mute<Us>[]>([]);
+  const [mutes, setMutes] = useState<Array<Mute<Us>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
 
   const clientMutes = client?.user?.mutes;
