@@ -1,5 +1,6 @@
 import React from 'react';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -32,7 +33,7 @@ export type ChannelHeaderProps = {
 
 const UnMemoizedChannelHeader = <
   At extends UnknownType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = UnknownType,
+  Ch extends DefaultChannelType = DefaultChannelType,
   Co extends string = DefaultCommandType,
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,

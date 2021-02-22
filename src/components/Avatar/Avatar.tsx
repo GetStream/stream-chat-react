@@ -38,7 +38,7 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
     setLoaded(false);
   }, [image]);
 
-  const initials: string = (name || '').charAt(0);
+  const initials = (name || '').charAt(0);
 
   return (
     <div
