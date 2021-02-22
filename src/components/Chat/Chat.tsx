@@ -6,7 +6,9 @@ import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
+
 import type { Streami18n } from '../../i18n/Streami18n';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
