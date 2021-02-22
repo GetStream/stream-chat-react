@@ -17,8 +17,9 @@ import type {
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from './types';
-import type { TDateTimeParser } from '../src/context';
+
 import type { ChannelStateReducerAction } from '../src/components/Channel/types';
+import type { TDateTimeParser } from '../src/context/TranslationContext';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
