@@ -11,16 +11,18 @@ export type SafeAnchorProps = {
   className?: string;
   /** Set the href attribute for the anchor tag element */
   href?: string;
+  /** Set the rel attribute for the anchor tag element */
+  rel?: string;
   /** Set the target attribute for the anchor tag element */
   target?: string;
 };
 
 const UnMemoizedSafeAnchor: React.FC<SafeAnchorProps> = (props) => {
-  const { children, className, href, target } = props;
+  const { children, className, href, rel, target } = props;
   if (!href) return null;
   const sanitized = sanitizeUrl(href);
   return (
-    <a className={className} href={sanitized} target={target}>
+    <a className={className} href={sanitized} rel={rel} target={target}>
       {children}
     </a>
   );

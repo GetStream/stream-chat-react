@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Carousel, { CarouselProps, Modal, ModalGateway } from 'react-images';
+import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
 
 import { ModalImage } from './ModalImage';
 
@@ -9,7 +9,7 @@ import { ModalImage } from './ModalImage';
  */
 export type ModalWrapperProps = {
   /** The images for the Carousel component */
-  images: CarouselProps['views'];
+  images: ViewType[];
   /** Boolean for if modal is open*/
   modalIsOpen: boolean;
   /** click event handler for toggling modal */

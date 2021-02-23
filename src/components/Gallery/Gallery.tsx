@@ -1,30 +1,30 @@
-// @ts-check
 import React, { useMemo, useState } from 'react';
+import type { Attachment } from 'stream-chat';
 
-// import { Attachment as DefaultAttachment } from '../Attachment';
 import { ModalComponent as ModalWrapper } from './ModalWrapper';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
 
 /**
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ../../docs/Gallery.md
  */
-export type GalleryProps = {
-  images: React.ComponentType<unknown>[]; // todo: add Attachment
+export type GalleryProps<At extends UnknownType = DefaultAttachmentType> = {
+  images: Attachment<At>[];
 };
 
-const UnMemoizedGallery: React.FC<GalleryProps> = (props) => {
-  // const { images = DefaultAttachment } = props;
+const UnMemoizedGallery = <At extends UnknownType = DefaultAttachmentType>(
+  props: GalleryProps<At>,
+) => {
   const { images } = props;
 
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+
   const { t } = useTranslationContext();
 
-  /**
-   * @param {number} selectedIndex Index of image clicked
-   */
   const toggleModal = (selectedIndex: number) => {
     if (modalOpen) {
       setModalOpen(false);
@@ -80,7 +80,7 @@ const UnMemoizedGallery: React.FC<GalleryProps> = (props) => {
         images={formattedArray}
         index={index}
         modalIsOpen={modalOpen}
-        toggleModal={toggleModal}
+        toggleModal={() => toggleModal}
       />
     </div>
   );
