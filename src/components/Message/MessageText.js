@@ -8,6 +8,7 @@ import {
 } from '../Reactions';
 import {
   useMentionsUIHandler,
+  useMobilePress,
   useReactionClick,
   useReactionHandler,
 } from './hooks';
@@ -34,6 +35,8 @@ const MessageTextComponent = (props) => {
   const reactionSelectorRef = useRef(
     /** @type {HTMLDivElement | null} */ (null),
   );
+
+  const { handleMobilePress } = useMobilePress();
 
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
@@ -106,7 +109,7 @@ const MessageTextComponent = (props) => {
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          messageText
+          <div onClick={handleMobilePress}>{messageText}</div>
         )}
 
         {/* if reactions show them */}

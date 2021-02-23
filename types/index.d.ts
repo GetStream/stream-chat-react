@@ -815,6 +815,7 @@ interface MessageInputHookProps {
   onPaste(event: React.ClipboardEvent): void;
   onSelectItem(item: Client.UserResponse): void;
   openEmojiPicker(): void;
+  handleEmojiKeyDown: (event: React.KeyboardEvent<HTMLSpanElement>) => void;
 }
 export function useMessageInput(
   props: MessageInputProps,
@@ -1413,7 +1414,7 @@ export interface MessageLivestreamActionProps {
   channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
   threadList?: boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  onReactionListClick?: () => void;
+  onReactionListClick?: (e: MouseEvent) => void;
   getMessageActions(): Array<string>;
   messageWrapperRef?: React.RefObject<HTMLElement>;
   setEditingState?(event?: React.BaseSyntheticEvent): void;
