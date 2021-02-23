@@ -260,9 +260,13 @@ describe('<MessageText />', () => {
             onClick={[Function]}
             onMouseOver={[Function]}
           >
-            <p>
-              hello world
-            </p>
+            <div
+              onClick={[Function]}
+            >
+              <p>
+                hello world
+              </p>
+            </div>
           </div>
           <div />
         </div>,
@@ -290,9 +294,13 @@ describe('<MessageText />', () => {
             onClick={[Function]}
             onMouseOver={[Function]}
           >
-            <p>
-              hi mate
-            </p>
+            <div
+              onClick={[Function]}
+            >
+              <p>
+                hi mate
+              </p>
+            </div>
           </div>
           <div />
         </div>,
@@ -319,9 +327,13 @@ describe('<MessageText />', () => {
             onClick={[Function]}
             onMouseOver={[Function]}
           >
-            <p>
-              whatup?!
-            </p>
+            <div
+              onClick={[Function]}
+            >
+              <p>
+                whatup?!
+              </p>
+            </div>
           </div>
           <div />
         </div>,
