@@ -54,6 +54,8 @@ const MessageInputFlat = (props) => {
               <span
                 className='str-chat__input-flat-emojiselect'
                 onClick={messageInput.openEmojiPicker}
+                onKeyDown={messageInput.handleEmojiKeyDown}
+                role='button'
                 tabIndex={0}
               >
                 <EmojiIcon />

@@ -366,11 +366,35 @@ export default function useMessageInput(props) {
     event.stopPropagation();
   }, []);
 
+  const handleEmojiKeyDown = (event) => {
+    if (
+      event.key === ' ' ||
+      event.key === 'Enter' ||
+      event.key === 'Spacebar'
+    ) {
+      event.preventDefault();
+      openEmojiPicker(event);
+    }
+  };
+
+  const handleEmojiEscape = (event) => {
+    if (event.key === 'Escape') {
+      dispatch({
+        type: 'setEmojiPickerIsOpen',
+        value: false,
+      });
+    }
+  };
+
   useEffect(() => {
     if (state.emojiPickerIsOpen) {
       document.addEventListener('click', closeEmojiPicker, false);
+      document.addEventListener('keydown', handleEmojiEscape);
     }
-    return () => document.removeEventListener('click', closeEmojiPicker, false);
+    return () => {
+      document.removeEventListener('click', closeEmojiPicker, false);
+      document.removeEventListener('keydown', handleEmojiEscape);
+    };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
   const onSelectEmoji = useCallback((emoji) => insertText(emoji.native), [
@@ -759,6 +783,7 @@ export default function useMessageInput(props) {
     getCommands,
     getUsers,
     handleChange,
+    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,

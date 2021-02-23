@@ -64,7 +64,7 @@ const ReactionsList = ({
                   size={16}
                 />
               )}
-              ${' '}
+              &nbsp;
             </li>
           ) : null;
         })}
