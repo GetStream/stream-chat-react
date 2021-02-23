@@ -814,6 +814,7 @@ interface MessageInputHookProps {
   onPaste(event: React.ClipboardEvent): void;
   onSelectItem(item: Client.UserResponse): void;
   openEmojiPicker(): void;
+  handleEmojiKeyDown: (event: React.KeyboardEvent<HTMLSpanElement>) => void;
 }
 export function useMessageInput(
   props: MessageInputProps,
