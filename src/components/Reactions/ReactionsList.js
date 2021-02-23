@@ -64,7 +64,7 @@ const ReactionsList = ({
                   data={emojiData}
                 />
               )}
-              ${' '}
+              &nbsp;
             </li>
           ) : null;
         })}
