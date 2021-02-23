@@ -97,6 +97,8 @@ const MessageInputSmall = (props) => {
               <span
                 className="str-chat__small-message-input-emojiselect"
                 onClick={messageInput.openEmojiPicker}
+                onKeyDown={messageInput.handleEmojiKeyDown}
+                role="button"
                 tabIndex={0}
               >
                 <EmojiIcon />
