@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
 export type AvatarProps = {
-  /** image url */
+  /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string;
-  /** name of the picture, used for title tag fallback */
+  /** Name of the image, used for title tag fallback */
   name?: string;
-  /** onClick handler  */
-  onClick?: (event: React.MouseEvent) => void;
-  /** onMouseOver handler */
-  onMouseOver?: (event: React.MouseEvent) => void;
-  /** shape of the avatar, circle, rounded or square */
+  /** click event handler */
+  onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  /** mouseOver event handler */
+  onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  /** Shape of the avatar - circle, rounded or square, and the default is circle */
   shape?: 'circle' | 'rounded' | 'square';
-  /** size in pixels */
+  /** Size in pixels and the default is 32px */
   size?: number;
 };
 
