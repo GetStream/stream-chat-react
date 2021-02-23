@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+
 import { isDayjs, TranslationContext } from '../../context/TranslationContext';
 
 /**
