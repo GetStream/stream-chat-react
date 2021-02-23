@@ -7,6 +7,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 import {
+  useBreakpoint,
   useReactionHandler,
   useReactionClick,
   useMentionsUIHandler,
@@ -34,6 +35,8 @@ const MessageTextComponent = (props) => {
   const reactionSelectorRef = useRef(
     /** @type {HTMLDivElement | null} */ (null),
   );
+
+  const breakpoint = useBreakpoint();
 
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
@@ -67,6 +70,21 @@ const MessageTextComponent = (props) => {
   const innerClass =
     customInnerClass ||
     `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
+
+  /** @type {(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void} */
+  const handleMobilePress = (event) => {
+    if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
+      const closestMessage = event.target.closest('.str-chat__message-simple');
+
+      if (!closestMessage) return;
+
+      if (closestMessage.classList.contains('mobile-press')) {
+        closestMessage.classList.remove('mobile-press');
+      } else {
+        closestMessage.classList.add('mobile-press');
+      }
+    }
+  };
 
   if (!message?.text) {
     return null;
@@ -106,7 +124,7 @@ const MessageTextComponent = (props) => {
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          messageText
+          <div onClick={handleMobilePress}>{messageText}</div>
         )}
 
         {/* if reactions show them */}

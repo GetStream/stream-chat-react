@@ -1,4 +1,5 @@
 export * from './useActionHandler';
+export * from './useBreakpoint';
 export * from './useDeleteHandler';
 export * from './useEditHandler';
 export * from './useFlagHandler';
