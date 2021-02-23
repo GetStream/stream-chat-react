@@ -12,7 +12,11 @@ import {
   useReactionClick,
   useMentionsUIHandler,
 } from './hooks';
-import { messageHasReactions, messageHasAttachments } from './utils';
+import {
+  handleMobilePress,
+  messageHasReactions,
+  messageHasAttachments,
+} from './utils';
 import MessageOptions from './MessageOptions';
 
 /**
@@ -71,21 +75,6 @@ const MessageTextComponent = (props) => {
     customInnerClass ||
     `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  /** @type {(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void} */
-  const handleMobilePress = (event) => {
-    if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
-      const closestMessage = event.target.closest('.str-chat__message-simple');
-
-      if (!closestMessage) return;
-
-      if (closestMessage.classList.contains('mobile-press')) {
-        closestMessage.classList.remove('mobile-press');
-      } else {
-        closestMessage.classList.add('mobile-press');
-      }
-    }
-  };
-
   if (!message?.text) {
     return null;
   }
@@ -124,7 +113,9 @@ const MessageTextComponent = (props) => {
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          <div onClick={handleMobilePress}>{messageText}</div>
+          <div onClick={(event) => handleMobilePress({ breakpoint, event })}>
+            {messageText}
+          </div>
         )}
 
         {/* if reactions show them */}
