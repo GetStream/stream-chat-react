@@ -7,16 +7,12 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 import {
-  useBreakpoint,
+  useMobilePress,
   useReactionHandler,
   useReactionClick,
   useMentionsUIHandler,
 } from './hooks';
-import {
-  handleMobilePress,
-  messageHasReactions,
-  messageHasAttachments,
-} from './utils';
+import { messageHasReactions, messageHasAttachments } from './utils';
 import MessageOptions from './MessageOptions';
 
 /**
@@ -40,7 +36,7 @@ const MessageTextComponent = (props) => {
     /** @type {HTMLDivElement | null} */ (null),
   );
 
-  const breakpoint = useBreakpoint();
+  const { handleMobilePress } = useMobilePress();
 
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
@@ -113,9 +109,7 @@ const MessageTextComponent = (props) => {
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
-          <div onClick={(event) => handleMobilePress({ breakpoint, event })}>
-            {messageText}
-          </div>
+          <div onClick={handleMobilePress}>{messageText}</div>
         )}
 
         {/* if reactions show them */}

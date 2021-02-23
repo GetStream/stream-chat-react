@@ -291,18 +291,3 @@ export const MessagePropTypes = PropTypes.shape({
   created_at: PropTypes.instanceOf(Date).isRequired,
   updated_at: PropTypes.instanceOf(Date).isRequired,
 }).isRequired;
-
-/** @type {({ breakpoint, event }: {breakpoint: {device: 'mobile' | 'tablet' | 'full'; width: number}; event: React.MouseEvent<HTMLDivElement, MouseEvent>}) => void} */
-export const handleMobilePress = ({ breakpoint, event }) => {
-  if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
-    const closestMessage = event.target.closest('.str-chat__message-simple');
-
-    if (!closestMessage) return;
-
-    if (closestMessage.classList.contains('mobile-press')) {
-      closestMessage.classList.remove('mobile-press');
-    } else {
-      closestMessage.classList.add('mobile-press');
-    }
-  }
-};
