@@ -76,9 +76,7 @@ export type ThreadProps<
  * - additionalMessageListProps
  * - additionalMessageInputProps
  *
- * @example ../../docs/Thread.md
- * @typedef {import('types').ThreadProps} ThreadProps
- * @type { React.FC<ThreadProps>}
+ * @example ./Thread.md
  */
 const Thread = <
   At extends UnknownType = DefaultAttachmentType,
