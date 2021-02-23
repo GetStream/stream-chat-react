@@ -33,6 +33,7 @@ class MessageList extends PureComponent {
     this.state = {
       newMessagesNotification: false,
       notifications: [],
+      messageCount: 0,
     };
 
     this.bottomRef = React.createRef();
@@ -54,14 +55,17 @@ class MessageList extends PureComponent {
     this.notificationTimeouts.forEach(clearTimeout);
   }
 
-  getSnapshotBeforeUpdate(prevProps) {
+  getSnapshotBeforeUpdate() {
     if (this.props.threadList) {
       return null;
     }
+    //
+    // TODO: Remove the messageCount state variable and use prevProps.messages.count
+    // when the bug with the same array instance from stream-chat is addressed
+    //
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
-
-    if (prevProps.messages.length < this.props.messages.length) {
+    if (this.state.messageCount < this.props.messages.length) {
       const list = this.messageList.current;
       return {
         offsetTop: list.scrollTop,
@@ -72,6 +76,7 @@ class MessageList extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    this.setState({ messageCount: this.props.messages.length });
     // If we have a snapshot value, we've just added new items.
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)
