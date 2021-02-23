@@ -595,6 +595,12 @@ export interface VirtualizedMessageListInternalProps {
   scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
     placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
   };
+  /**
+   * The scrollTo Behavior when new messages appear. Use `"smooth"`
+   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
+   * if you expect hight throughput.
+   */
+  stickToBottomScrollBehavior?: 'smooth' | 'auto';
 }
 
 export interface VirtualizedMessageListProps

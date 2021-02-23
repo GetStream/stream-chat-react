@@ -40,6 +40,7 @@ const VirtualizedMessageList = ({
   TypingIndicator = null,
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
+  stickToBottomScrollBehavior = 'smooth',
 }) => {
   const { t } = useContext(TranslationContext);
 
@@ -144,10 +145,10 @@ const VirtualizedMessageList = ({
         overscan={overscan}
         followOutput={(isAtBottom) => {
           if (shouldForceScrollToBottom()) {
-            return isAtBottom ? 'smooth' : 'auto';
+            return isAtBottom ? stickToBottomScrollBehavior : 'auto';
           }
           // a message from another user has been received - don't scroll to bottom unless already there
-          return isAtBottom ? 'smooth' : false;
+          return isAtBottom ? stickToBottomScrollBehavior : false;
         }}
         itemContent={(i) => messageRenderer(messages, i)}
         components={virtuosoComponents}
