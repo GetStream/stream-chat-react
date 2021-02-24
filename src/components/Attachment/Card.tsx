@@ -11,7 +11,7 @@ import { SafeAnchor } from '../SafeAnchor';
  * @example ../../docs/Card.md
  */
 
-type CardProps = {
+export type CardProps = {
   /** The url of the full sized image */
   image_url?: string;
   /** The scraped url, used as a fallback if the OG-data doesn't include a link */
@@ -28,7 +28,7 @@ type CardProps = {
   type?: string;
 };
 
-const UnMemoizedCard = (props: CardProps) => {
+const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const {
     image_url,
     og_scrape_url,

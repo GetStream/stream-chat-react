@@ -860,9 +860,9 @@ export interface WrapperAttachmentUIComponentProps
   attachments: ExtendedAttachment[];
 }
 
-export interface InnerAttachmentUIComponentProps
-  extends BaseAttachmentUIComponentProps {
+export interface InnerAttachmentUIComponentProps extends BaseAttachmentUIComponentProps {
   attachment: ExtendedAttachment;
+  componentType?: string;
 }
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)

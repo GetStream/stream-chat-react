@@ -3,7 +3,7 @@ import React from 'react';
 import { ModalComponent as ModalWrapper } from './ModalWrapper';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-type ImageComponentProps = {
+export type ImageProps = {
   /** The text fallback for the image */
   fallback?: string;
   /** The full size image url */
@@ -12,7 +12,7 @@ type ImageComponentProps = {
   thumb_url?: string;
 };
 
-export const ImageComponent: React.FC<ImageComponentProps> = (props) => {
+export const ImageComponent: React.FC<ImageProps> = (props) => {
   const [modalIsOpen, setModalIsOpen] = React.useState(false);
 
   const { fallback, image_url, thumb_url } = props;

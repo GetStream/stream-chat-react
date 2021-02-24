@@ -1,13 +1,21 @@
-// @ts-check
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { Attachment } from 'stream-chat';
+
+import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
 
 const progressUpdateInterval = 500;
 /**
  * Audio attachment with play/pause button and progress bar
- * @param {import("types").AudioProps} props
  */
-const Audio = ({ og }) => {
-  const audioRef = useRef(/** @type {HTMLAudioElement | null} */ null);
+export type AudioProps<At extends UnknownType = DefaultAttachmentType> = {
+  og: Attachment<At>;
+};
+
+const UnMemoizedAudio = <At extends UnknownType = DefaultAttachmentType>(
+  props: AudioProps<At>,
+) => {
+  const { og } = props;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -32,7 +40,7 @@ const Audio = ({ og }) => {
       }
       audioRef.current.pause();
     }
-    return () => {};
+    return () => undefined;
   }, [isPlaying, updateProgress]);
 
   const { asset_url, description, image_url, text, title } = og;
@@ -102,4 +110,4 @@ const Audio = ({ og }) => {
   );
 };
 
-export default React.memo(Audio);
+export const Audio = React.memo(UnMemoizedAudio) as typeof UnMemoizedAudio;

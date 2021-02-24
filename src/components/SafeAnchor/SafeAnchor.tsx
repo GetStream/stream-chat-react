@@ -9,6 +9,8 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 export type SafeAnchorProps = {
   /** Set the className for the anchor tag element */
   className?: string;
+  /** Specifies that the target (href attribute) will be downloaded instead of navigating to a file */
+  download?: boolean;
   /** Set the href attribute for the anchor tag element */
   href?: string;
   /** Set the rel attribute for the anchor tag element */
@@ -18,11 +20,17 @@ export type SafeAnchorProps = {
 };
 
 const UnMemoizedSafeAnchor: React.FC<SafeAnchorProps> = (props) => {
-  const { children, className, href, rel, target } = props;
+  const { children, className, download, href, rel, target } = props;
   if (!href) return null;
   const sanitized = sanitizeUrl(href);
   return (
-    <a className={className} href={sanitized} rel={rel} target={target}>
+    <a
+      className={className}
+      download={download}
+      href={sanitized}
+      rel={rel}
+      target={target}
+    >
       {children}
     </a>
   );
