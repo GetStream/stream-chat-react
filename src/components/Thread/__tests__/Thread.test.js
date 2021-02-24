@@ -13,7 +13,7 @@ import {
 import { Message as MessageMock } from '../../Message';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
-import Thread from '../Thread';
+import { Thread } from '../Thread';
 import { ChannelContext, TranslationContext } from '../../../context';
 
 jest.mock('../../Message', () => ({

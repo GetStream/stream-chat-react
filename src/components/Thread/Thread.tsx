@@ -4,11 +4,9 @@ import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
 import { MessageList } from '../MessageList';
 
-import {
-  useChannelContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { smartRender } from '../../utils';
 
 import type { TFunction } from 'i18next';
@@ -78,7 +76,7 @@ export type ThreadProps<
  *
  * @example ./Thread.md
  */
-const Thread = <
+export const Thread = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -264,5 +262,3 @@ const ThreadInner = <
     </div>
   );
 };
-
-export default Thread;

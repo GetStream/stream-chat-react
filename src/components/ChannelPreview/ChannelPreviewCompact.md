@@ -1,6 +1,5 @@
 ```js
 import { ChannelPreviewCompact } from './ChannelPreviewCompact';
-
 import { Chat } from '../';
 import { ChannelList } from '../ChannelList/ChannelList';
 

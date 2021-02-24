@@ -4,11 +4,11 @@ Team Style Example
 import {
   Chat,
   Channel,
-  MessageTeam,
   ChannelHeader,
+  MessageTeam,
   MessageList,
   MessageInput,
-  Thread,
+  Thread
 } from '../../components';
 
 const StreamChat = require('stream-chat').StreamChat;
