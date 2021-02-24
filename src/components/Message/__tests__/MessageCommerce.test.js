@@ -441,20 +441,11 @@ describe('<MessageCommerce />', () => {
   });
 
   it("should display message's timestamp with time only format", async () => {
-    const messageDate = new Date('2019-12-25T01:00:00');
-    const parsedDateText = '01:00:00';
+    const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    const format = jest.fn(() => parsedDateText);
-    const customTDateTimeParser = jest.fn(() => ({
-      format,
-    }));
-    const { getByText } = await renderMessageCommerce(message, {
-      tDateTimeParser: customTDateTimeParser,
-    });
-    expect(customTDateTimeParser).toHaveBeenCalledWith(messageDate);
-    expect(format).toHaveBeenCalledWith('LT');
-    expect(getByText(parsedDateText)).toBeInTheDocument();
+    const { getByText } = await renderMessageCommerce(message);
+    expect(getByText('3:33 AM')).toBeInTheDocument();
   });
 });

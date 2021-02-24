@@ -1,6 +1,11 @@
 // @ts-check
 import React, { useContext, useMemo } from 'react';
-import { TranslationContext } from '../../context';
+import {
+  isDate,
+  isDayjs,
+  isNumberOrString,
+  TranslationContext,
+} from '../../context';
 
 export const defaultTimestampFormat = 'h:mmA';
 export const notValidDateWarning =
@@ -12,9 +17,9 @@ export const noParsingFunctionWarning =
  *   messageCreatedAt?: string,
  *   formatDate?: import('types').MessageTimestampProps['formatDate'],
  *   calendar?: boolean,
- *   tDateTimeParser?: import('types').MessageTimestampProps['tDateTimeParser'],
+ *   tDateTimeParser?: import('../../context').TDateTimeParser,
  *   format?: string,
- * ) => string | null }
+ * ) => string | number | Date | null}
  */
 function getDateString(
   messageCreatedAt,
@@ -38,11 +43,26 @@ function getDateString(
   }
 
   const parsedTime = tDateTimeParser(messageCreatedAt);
-  if (calendar && typeof parsedTime.calendar !== 'function') {
-    return null;
+
+  if (isDayjs(parsedTime)) {
+    /**
+     * parsedTime.calendar is guaranteed on the type but is only
+     * available when a user calls dayjs.extend(calendar)
+     */
+    return calendar && parsedTime.calendar
+      ? parsedTime.calendar()
+      : parsedTime.format(format);
   }
 
-  return calendar ? parsedTime.calendar() : parsedTime.format(format);
+  if (isDate(parsedTime)) {
+    return parsedTime.toDateString();
+  }
+
+  if (isNumberOrString(parsedTime)) {
+    return parsedTime;
+  }
+
+  return null;
 }
 /**
  * @typedef { import('types').MessageTimestampProps } Props

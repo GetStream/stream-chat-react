@@ -21,6 +21,10 @@ import {
   EditMessageForm,
   MessageInput as MessageInputMock,
 } from '../../MessageInput';
+import Dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
+
+Dayjs.extend(calendar);
 
 jest.mock('../MessageOptions', () => jest.fn(() => <div />));
 jest.mock('../MessageText', () => jest.fn(() => <div />));
@@ -40,9 +44,7 @@ const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
 const openThreadMock = jest.fn();
-const tDateTimeParserMock = jest.fn(() => ({
-  calendar: jest.fn(),
-}));
+const tDateTimeParserMock = jest.fn((date) => Dayjs(date));
 const retrySendMessageMock = jest.fn();
 
 async function renderMessageSimple(
@@ -451,17 +453,12 @@ describe('<MessageSimple />', () => {
     expect(getByText(bob.name)).toBeInTheDocument();
   });
 
-  it("should display message's timestamp", async () => {
-    const messageDate = new Date('2019-12-25T01:00:00');
-    const parsedDateText = 'last christmas';
+  it("should display message's timestamp with calendar formatting", async () => {
+    const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    tDateTimeParserMock.mockImplementation(() => ({
-      calendar: () => parsedDateText,
-    }));
     const { getByText } = await renderMessageSimple(message);
-    expect(tDateTimeParserMock).toHaveBeenCalledWith(messageDate);
-    expect(getByText(parsedDateText)).toBeInTheDocument();
+    expect(getByText('12/12/2019')).toBeInTheDocument();
   });
 });

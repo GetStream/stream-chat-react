@@ -17,7 +17,9 @@ import type {
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from './types';
+
 import type { ChannelStateReducerAction } from '../src/components/Channel/types';
+import type { TDateTimeParser } from '../src/context/TranslationContext';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -1451,13 +1453,13 @@ export class MessageTeam extends React.PureComponent<
 export interface MessageSimpleProps
   extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
-  customClass?: string;
-  message?: Client.MessageResponse;
   calendar?: boolean;
+  customClass?: string;
   format?: string;
-  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
+  message?: Client.MessageResponse;
+  tDateTimeParser?: TDateTimeParser;
 }
 
 export interface MessageTextProps extends MessageSimpleProps {

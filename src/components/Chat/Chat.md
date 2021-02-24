@@ -9,7 +9,7 @@ import {
   MessageList,
   MessageInput,
   Thread,
-} from '../components';
+} from '../../components';
 
 const StreamChat = require('stream-chat').StreamChat;
 
