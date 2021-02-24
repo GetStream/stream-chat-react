@@ -16,6 +16,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
             "WebkitOverflowScrolling": "touch",
             "height": "100%",
             "outline": "none",
+            "overflowX": "hidden",
             "overflowY": "auto",
             "position": "relative",
           }
