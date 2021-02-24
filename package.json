@@ -23,7 +23,7 @@
     "@braintree/sanitize-url": "5.0.0",
     "custom-event": "^1.0.1",
     "dayjs": "^1.10.3",
-    "emoji-mart": "3.0.0",
+    "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "i18next": "^19.8.4",
     "isomorphic-ws": "^4.0.1",
@@ -32,7 +32,7 @@
     "lodash.isequal": "^4.5.0",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
-    "mml-react": "^0.3.3",
+    "mml-react": "^0.4.0",
     "pretty-bytes": "^5.4.1",
     "prop-types": "^15.7.2",
     "react-fast-compare": "^3.2.0",
@@ -42,14 +42,14 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "^0.20.3",
+    "react-virtuoso": "1.5.9",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "3.0.x"
+    "stream-chat": "3.1.x"
   },
   "files": [
     "dist",
@@ -141,7 +141,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "stream-chat": "3.0.0",
+    "stream-chat": "3.1.1",
     "style-loader": "^2.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-recommended-scss": "^4.2.0",
