@@ -15,7 +15,7 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import MessageNotification from './MessageNotification';
 
-const prependOffset = 10000;
+const PREPEND_OFFSET = 10 ** 7;
 
 /**
  * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -64,7 +64,7 @@ const VirtualizedMessageList = ({
   const messageRenderer = useCallback(
     (messageList, virtuosoIndex) => {
       const streamMessageIndex =
-        virtuosoIndex + numItemsPrepended - prependOffset;
+        virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
       // use custom renderer supplied by client if present and skip the rest
       if (customMessageRenderer) {
         return customMessageRenderer(messageList, streamMessageIndex);
@@ -152,7 +152,7 @@ const VirtualizedMessageList = ({
         }}
         itemContent={(i) => messageRenderer(messages, i)}
         components={virtuosoComponents}
-        firstItemIndex={prependOffset - numItemsPrepended}
+        firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
         startReached={() => {
           if (hasMore) {
             loadMore(messageLimit);

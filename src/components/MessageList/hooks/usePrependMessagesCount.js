@@ -5,24 +5,24 @@ import { useRef, useMemo } from 'react';
  * @param {Array<{ id: string }> | undefined} messages,
  */
 export const usePrependedMessagesCount = (messages) => {
-  const firstMessageId = useRef(messages && messages.length && messages[0].id);
-  const earliestMessageId = useRef(
-    messages && messages.length && messages[0].id,
-  );
+  const currentFirstMessageId = messages?.[0]?.id;
+  const firstMessageId = useRef(currentFirstMessageId);
+  const earliestMessageId = useRef(currentFirstMessageId);
   const previousNumItemsPrepended = useRef(0);
+
   const numItemsPrepended = useMemo(() => {
     if (!messages || !messages.length) {
       return 0;
     }
     // if no new messages were prepended, return early (same amount as before)
-    if (messages[0]?.id === earliestMessageId.current) {
+    if (currentFirstMessageId === earliestMessageId.current) {
       return previousNumItemsPrepended.current;
     }
 
     if (!firstMessageId.current) {
-      firstMessageId.current = messages[0].id;
+      firstMessageId.current = currentFirstMessageId;
     }
-    earliestMessageId.current = messages[0].id;
+    earliestMessageId.current = currentFirstMessageId;
     // if new messages were prepended, find out how many
     // start with this number because there cannot be fewer prepended items than before
     for (

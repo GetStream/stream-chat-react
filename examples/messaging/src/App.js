@@ -10,7 +10,7 @@ import {
   InfiniteScrollPaginator,
   MessageInput,
   MessageInputFlat,
-  VirtualizedMessageList as TheMessageList,
+  MessageList as TheMessageList,
   Thread,
   Window,
 } from 'stream-chat-react';
