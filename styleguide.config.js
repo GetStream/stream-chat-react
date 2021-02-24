@@ -42,7 +42,7 @@ module.exports = {
         'src/components/MessageList/MessageList.js',
         'src/components/MessageList/VirtualizedMessageList.js',
         'src/components/ChannelHeader/ChannelHeader.tsx',
-        'src/components/Thread/Thread.js',
+        'src/components/Thread/Thread.tsx',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
