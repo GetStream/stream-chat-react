@@ -10,7 +10,7 @@ import {
   InfiniteScrollPaginator,
   MessageInput,
   MessageInputFlat,
-  MessageList as TheMessageList,
+  MessageList,
   Thread,
   Window,
 } from 'stream-chat-react';
@@ -61,7 +61,7 @@ const App = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <TheMessageList />
+        <MessageList />
         <MessageInput Input={MessageInputFlat} focus />
       </Window>
       <Thread />
