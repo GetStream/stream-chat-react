@@ -23,7 +23,7 @@
     "@braintree/sanitize-url": "5.0.0",
     "custom-event": "^1.0.1",
     "dayjs": "^1.10.3",
-    "emoji-mart": "3.0.0",
+    "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "i18next": "^19.8.4",
     "isomorphic-ws": "^4.0.1",
