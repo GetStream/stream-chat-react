@@ -7,14 +7,11 @@ import ReactMarkdown from 'react-markdown';
 import * as i18next from 'i18next';
 import * as Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
-import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
-import type {
-  Data as EmojiMartData,
-  NimbleEmojiIndex,
-  NimbleEmojiProps,
-  NimblePickerProps,
-} from 'emoji-mart';
-import type { TranslationLanguages } from 'stream-chat';
+
+import {
+  ScrollSeekPlaceholderProps,
+  ScrollSeekConfiguration,
+} from 'react-virtuoso';
 
 import type { ChannelStateReducerAction } from '../src/components/Channel/types';
 
@@ -591,8 +588,19 @@ export interface VirtualizedMessageListInternalProps {
    *    change: () => null,
    *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
    *  }
+   *
+   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
+   *  TODO: break out placeholder when making other breaking changes.
    */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration;
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
+    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
+  };
+  /**
+   * The scrollTo Behavior when new messages appear. Use `"smooth"`
+   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
+   * if you expect hight throughput.
+   */
+  stickToBottomScrollBehavior?: 'smooth' | 'auto';
 }
 
 export interface VirtualizedMessageListProps

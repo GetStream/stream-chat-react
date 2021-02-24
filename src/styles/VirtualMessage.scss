@@ -101,7 +101,7 @@
   width: 100%;
   word-break: break-word;
   p {
-    padding-right: 16px; 
+    padding-right: 16px;
   }
   a {
     color: $secondary-color;
@@ -110,27 +110,27 @@
   }
 }
 
-.str-chat__virtual-message__wrapper--group { 
+.str-chat__virtual-message__wrapper--group {
   padding-top: 0;
   & > .str-chat__avatar {
     display: none;
   }
 
   .str-chat__virtual-message__author {
-      display: none;
-    }
+    display: none;
+  }
 
   .str-chat__virtual-message__content {
     padding-left: 50px;
     .str-chat__gallery {
       width: 100%;
-      margin:0;
+      margin: 0;
       justify-content: unset;
     }
   }
 }
 
-  .dark {
+.dark {
   .str-chat__virtual-message__wrapper {
     &:hover {
       background: rgba(0, 0, 0, 0.15);
