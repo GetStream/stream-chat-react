@@ -9,6 +9,7 @@
 - Generate minified CSS output [#707](https://github.com/GetStream/stream-chat-react/pull/707)
 - Upgrade `stream-chat` dependency [#727](https://github.com/GetStream/stream-chat-react/pull/727)
 - Upgrade `mml-react` dependency [#728](https://github.com/GetStream/stream-chat-react/pull/728)
+- Upgrade `emoji-mart` dependency [#731](https://github.com/GetStream/stream-chat-react/pull/731)
 
 ### Feature
 
