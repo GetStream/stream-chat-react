@@ -113,11 +113,19 @@ const VirtualizedMessageList = ({
       );
 
     /**
-     * setting 'overflow: auto' traps CSS margins of the item elements, preventing incorrect item measurements.
+     * using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements.
      * @type {import('react-virtuoso').Components['Item']}
      */
     const Item = (props) => {
-      return <div {...props} style={{ overflow: 'auto' }} />;
+      return (
+        <div
+          {...props}
+          style={{
+            display: 'inline-block',
+            width: '100%',
+          }}
+        />
+      );
     };
 
     const Footer = () => {
@@ -143,6 +151,7 @@ const VirtualizedMessageList = ({
         ref={virtuoso}
         totalCount={messages.length}
         overscan={overscan}
+        style={{ overflowX: 'hidden' }}
         followOutput={(isAtBottom) => {
           if (shouldForceScrollToBottom()) {
             return isAtBottom ? stickToBottomScrollBehavior : 'auto';
@@ -150,7 +159,9 @@ const VirtualizedMessageList = ({
           // a message from another user has been received - don't scroll to bottom unless already there
           return isAtBottom ? stickToBottomScrollBehavior : false;
         }}
-        itemContent={(i) => messageRenderer(messages, i)}
+        itemContent={(i) => {
+          return messageRenderer(messages, i);
+        }}
         components={virtuosoComponents}
         firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
         startReached={() => {
