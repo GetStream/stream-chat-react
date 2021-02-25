@@ -1,14 +1,27 @@
-// @ts-check
 import deepequal from 'react-fast-compare';
 import PropTypes from 'prop-types';
+import type {
+  Attachment,
+  MessageResponse,
+  Mute,
+  UserResponse,
+} from 'stream-chat';
+import type {
+  ChannelContextValue,
+  MessageComponentProps,
+  StreamChatReactUserType,
+  TranslationContextValue,
+} from 'types';
 
 /**
  * Following function validates a function which returns notification message.
  * It validates if the first parameter is function and also if return value of function is string or no.
  *
- * @type {(func: Function, args: any) => null | string}
  */
-export const validateAndGetMessage = (func, args) => {
+export function validateAndGetMessage<T extends unknown[]>(
+  func: (...args: T) => unknown,
+  args: T,
+): string | null {
   if (!func || typeof func !== 'function') return null;
 
   const returnValue = func(...args);
@@ -16,24 +29,19 @@ export const validateAndGetMessage = (func, args) => {
   if (typeof returnValue !== 'string') return null;
 
   return returnValue;
-};
+}
 
 /**
  * Tell if the owner of the current message is muted
- *
- * @type {(message?: import('stream-chat').MessageResponse, mutes?: import('stream-chat').Mute[]) => boolean}
  */
-export const isUserMuted = (message, mutes) => {
+export function isUserMuted(message: MessageResponse, mutes?: Mute[]): boolean {
   if (!mutes || !message) {
     return false;
   }
 
-  const userMuted = mutes.filter(
-    /** @type {(el: import('stream-chat').Mute) => boolean} Typescript syntax */
-    (el) => el.target.id === message.user?.id,
-  );
+  const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
   return !!userMuted.length;
-};
+}
 
 export const MESSAGE_ACTIONS = {
   delete: 'delete',
@@ -103,25 +111,34 @@ export const defaultPinPermissions = {
   },
 };
 
-/**
- * @typedef {{
- *   canEdit?: boolean;
- *   canDelete?: boolean;
- *   canMute?: boolean;
- *   canFlag?: boolean;
- *   canPin?: boolean;
- *   canReact?: boolean;
- *   canReply?: boolean;
- * }} Capabilities
- * @type {(actions: string[] | boolean, capabilities: Capabilities) => string[]} Typescript syntax
- */
-export const getMessageActions = (
-  actions,
-  { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply },
-) => {
+export interface Capabilities {
+  canDelete?: boolean;
+  canEdit?: boolean;
+  canFlag?: boolean;
+  canMute?: boolean;
+  canPin?: boolean;
+  canReact?: boolean;
+  canReply?: boolean;
+}
+
+export function getMessageActions(
+  actions: string[] | boolean,
+  {
+    canDelete,
+    canEdit,
+    canFlag,
+    canMute,
+    canPin,
+    canReact,
+    canReply,
+  }: Capabilities,
+): string[] {
   const messageActionsAfterPermission = [];
   let messageActions = [];
 
+  // TODO: leftover from typescript conversions
+  // the types suggest that actions will always be passed,
+  // yet the implementation checks for actions
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values
     messageActions = Object.keys(MESSAGE_ACTIONS);
@@ -160,13 +177,17 @@ export const getMessageActions = (
   }
 
   return messageActionsAfterPermission;
-};
+}
 
-/**
- * @typedef {Pick<import('types').MessageComponentProps, 'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'>} MessageEqualProps
- * @type {(props: MessageEqualProps, nextProps: MessageEqualProps) => boolean} Typescript syntax
- */
-export const areMessagePropsEqual = (props, nextProps) =>
+export type MessageEqualProps = Pick<
+  MessageComponentProps,
+  'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'
+>;
+
+export const areMessagePropsEqual = (
+  props: MessageEqualProps,
+  nextProps: MessageEqualProps,
+): boolean =>
   // Message content is equal
   nextProps.message === props.message &&
   // Message was read by someone
@@ -183,56 +204,42 @@ export const areMessagePropsEqual = (props, nextProps) =>
   // Message wrapper layout changes
   nextProps.messageListRect === props.messageListRect;
 
-/**
- * @type {(nextProps: import('types').MessageComponentProps, props: import('types').MessageComponentProps ) => boolean} Typescript syntax
- */
-export const shouldMessageComponentUpdate = (props, nextProps) =>
+export const shouldMessageComponentUpdate = (
+  props: MessageComponentProps,
+  nextProps: MessageComponentProps,
+): boolean =>
   // Component should only update if:
   !areMessagePropsEqual(props, nextProps);
 
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-export const messageHasReactions = (message) =>
+export const messageHasReactions = (message?: MessageResponse) =>
   !!message?.latest_reactions && !!message.latest_reactions.length;
 
-/** @type {(message: import('stream-chat').MessageResponse | undefined) => boolean} */
-export const messageHasAttachments = (message) =>
+export const messageHasAttachments = (message?: MessageResponse) =>
   !!message?.attachments && !!message.attachments.length;
 
-/**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
- */
-export const getImages = (message) => {
+export const getImages = (message?: MessageResponse): Attachment[] => {
   if (!message?.attachments) {
     return [];
   }
-  return message.attachments.filter(
-    /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
-    (item) => item.type === 'image',
-  );
+  return message.attachments.filter((item) => item.type === 'image');
 };
 
-/**
- * @type {(message: import('stream-chat').MessageResponse | undefined) => import('stream-chat').Attachment[] }
- */
-export const getNonImageAttachments = (message) => {
+export const getNonImageAttachments = (
+  message?: MessageResponse,
+): Attachment[] => {
   if (!message?.attachments) {
     return [];
   }
-  return message.attachments.filter(
-    /** @type {(item: import('stream-chat').Attachment) => boolean} Typescript syntax */
-    (item) => item.type !== 'image',
-  );
+  return message.attachments.filter((item) => item.type !== 'image');
 };
 
-/**
- * @typedef {Array<import('stream-chat').UserResponse<import('types').StreamChatReactUserType>>} ReadByUsers
- * @type {(
- *   users: ReadByUsers,
- *   t: import('types').TranslationContextValue['t'],
- *   client: import('types').ChannelContextValue['client']
- * ) => string}
- */
-export const getReadByTooltipText = (users, t, client) => {
+export type ReadByUsers = Array<UserResponse<StreamChatReactUserType>>;
+
+export const getReadByTooltipText = (
+  users: ReadByUsers,
+  t: TranslationContextValue['t'],
+  client: ChannelContextValue['client'],
+) => {
   let outStr = '';
   if (!t) {
     throw new Error(
