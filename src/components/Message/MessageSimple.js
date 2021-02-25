@@ -36,7 +36,7 @@ import {
   messageHasReactions,
 } from './utils';
 import { DeliveredCheckIcon } from './icons';
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 
 /**
  * MessageSimple - Render component, should be used together with the Message component

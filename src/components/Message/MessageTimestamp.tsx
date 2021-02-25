@@ -1,33 +1,27 @@
 // @ts-check
-import React, { useContext, useMemo } from 'react';
+import React, { FC, useContext, useMemo } from 'react';
 import {
   isDate,
   isDayjs,
   isNumberOrString,
+  TDateTimeParser,
   TranslationContext,
 } from '../../context';
+import type { MessageTimestampProps } from 'types';
 
 export const defaultTimestampFormat = 'h:mmA';
 export const notValidDateWarning =
   'MessageTimestamp was called without a message, or message has invalid created_at date.';
 export const noParsingFunctionWarning =
   'MessageTimestamp was called but there is no datetime parsing function available';
-/**
- * @type { (
- *   messageCreatedAt?: string,
- *   formatDate?: import('types').MessageTimestampProps['formatDate'],
- *   calendar?: boolean,
- *   tDateTimeParser?: import('../../context').TDateTimeParser,
- *   format?: string,
- * ) => string | number | Date | null}
- */
+
 function getDateString(
-  messageCreatedAt,
-  formatDate,
-  calendar,
-  tDateTimeParser,
-  format,
-) {
+  messageCreatedAt?: string,
+  formatDate?: MessageTimestampProps['formatDate'],
+  calendar?: boolean,
+  tDateTimeParser?: TDateTimeParser,
+  format?: string,
+): string | number | Date | null {
   if (!messageCreatedAt || !Date.parse(messageCreatedAt)) {
     console.warn(notValidDateWarning);
     return null;
@@ -64,11 +58,8 @@ function getDateString(
 
   return null;
 }
-/**
- * @typedef { import('types').MessageTimestampProps } Props
- * @type { React.FC<Props> }
- */
-const MessageTimestamp = (props) => {
+
+const UnmemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
   const {
     message,
     formatDate,
@@ -99,4 +90,4 @@ const MessageTimestamp = (props) => {
   );
 };
 
-export default React.memo(MessageTimestamp);
+export const MessageTimestamp = React.memo(UnmemoizedMessageTimestamp);

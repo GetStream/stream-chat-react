@@ -1,7 +1,7 @@
 // @ts-check
 import React, { useCallback, useContext, useMemo } from 'react';
 
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 import { Avatar } from '../Avatar';
 import { MML } from '../MML';
 import { renderText } from '../../utils';

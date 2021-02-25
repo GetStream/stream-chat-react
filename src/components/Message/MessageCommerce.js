@@ -24,7 +24,7 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 
 /**
  * MessageCommerce - Render component, should be used together with the Message component
