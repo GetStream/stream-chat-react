@@ -1,6 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-// @ts-expect-error
-import { DefaultMedia, ReactPlayerProps } from 'react-player';
+import ReactPlayer, { ReactPlayerProps } from 'react-player';
 
 import {
   AttachmentActionsProps,
@@ -358,7 +357,7 @@ export const Attachment: React.FC<WrapperAttachmentUIComponentProps> = (
     Gallery = DefaultGallery,
     Audio = DefaultAudio,
     File = DefaultFile,
-    Media = DefaultMedia,
+    Media = ReactPlayer,
     AttachmentActions = DefaultAttachmentActions,
     ...rest
   } = props;
