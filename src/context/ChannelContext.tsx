@@ -108,9 +108,12 @@ export type ChannelState<
     Us
   >['pinnedMessages'];
   read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
-  thread?: ReturnType<
-    StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<
+        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage'] // TODO - potentially remove ReturnType message
+      >
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
   threadMessages?: Array<
@@ -157,9 +160,7 @@ export type ChannelContextValue<
     user: UserResponse<Us>[],
   ) => void;
   openThread?: (
-    message: ReturnType<
-      StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-    >,
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;

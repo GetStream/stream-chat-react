@@ -10,7 +10,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { smartRender } from '../../utils';
 
 import type { TFunction } from 'i18next';
-import type { ChannelState } from 'stream-chat';
+import type { ChannelState, MessageResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -108,9 +108,10 @@ export type ThreadHeaderProps<
   closeThread?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
-  thread?: ReturnType<
-    ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']> // TODO - maybe remove ReturnType message
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
 };
 
 const DefaultThreadHeader = <
