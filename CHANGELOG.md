@@ -5,7 +5,9 @@
 ### Chore
 
 - Upgrade `react-virtuoso` dependency [#694](https://github.com/GetStream/stream-chat-react/pull/694)
-  - _add brief upgrade instructions/new features here_
+  - Improved support for loading unevenly sized messages when scrolling back
+  - Support smooth scrolling to bottom when new messages are posted (controlled through `stickToBottomScrollBehavior` property)
+  - Adding reactions no longer cancels the automatic scrolling when new messages appear
 - Generate minified CSS output [#707](https://github.com/GetStream/stream-chat-react/pull/707)
 - Upgrade `stream-chat` dependency [#727](https://github.com/GetStream/stream-chat-react/pull/727)
 - Upgrade `mml-react` dependency [#728](https://github.com/GetStream/stream-chat-react/pull/728)
