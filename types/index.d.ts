@@ -1282,11 +1282,6 @@ export interface MessageActionsBoxProps {
   handlePin?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
-export interface MessageNotificationProps {
-  showNotification: boolean;
-  onClick: React.MouseEventHandler;
-  children?: any;
-}
 export interface MessageRepliesCountButtonProps
   extends TranslationContextValue {
   labelSingle?: string;
