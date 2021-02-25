@@ -1,9 +1,9 @@
 import React from 'react';
-
 import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
-import { useTranslationContext } from '../../context/TranslationContext';
 
 import { SafeAnchor } from '../SafeAnchor';
+
+import { useTranslationContext } from '../../context/TranslationContext';
 
 /**
  * Card - Simple Card Layout

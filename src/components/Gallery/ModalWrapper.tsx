@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
 
 import { ModalImage } from './ModalImage';

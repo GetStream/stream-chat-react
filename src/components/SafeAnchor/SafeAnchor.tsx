@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 /**

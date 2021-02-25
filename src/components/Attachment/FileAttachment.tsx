@@ -1,9 +1,11 @@
 import React from 'react';
-import type { Attachment } from 'stream-chat';
+import prettybytes from 'pretty-bytes';
 // @ts-expect-error
 import { FileIcon } from 'react-file-utils';
-import prettybytes from 'pretty-bytes';
+
 import { SafeAnchor } from '../SafeAnchor';
+
+import type { Attachment } from 'stream-chat';
 
 import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
 

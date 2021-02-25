@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import type { Attachment } from 'stream-chat';
 
 import { ModalComponent as ModalWrapper } from './ModalWrapper';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { Attachment } from 'stream-chat';
 
 import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
 

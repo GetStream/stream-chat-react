@@ -1,7 +1,7 @@
 import React from 'react';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { ModalComponent as ModalWrapper } from './ModalWrapper';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 
 export type ImageProps = {
   /** The text fallback for the image */
