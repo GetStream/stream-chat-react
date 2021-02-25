@@ -1,22 +1,20 @@
 // @ts-check
-import React, { useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import type { Event } from 'stream-chat';
 
 import { ChatContext, TranslationContext } from '../../context';
 import CustomNotification from './CustomNotification';
 
-/**
- * ConnectionStatus - Indicator that there is a connection failure
- * @type {React.FC<{}>}
- */
-const ConnectionStatus = () => {
+const UnmemoizedConnectionStatus: FC = () => {
   const { client } = useContext(ChatContext);
   const { t } = useContext(TranslationContext);
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    /** @param {import('stream-chat').Event} e */
-    const connectionChanged = (e) => {
-      if (e.online !== online) setOnline(/** @type {boolean} */ (e.online));
+    const connectionChanged = ({ online: onlineStatus = false }: Event) => {
+      if (online !== onlineStatus) {
+        setOnline(onlineStatus);
+      }
     };
 
     client.on('connection.changed', connectionChanged);
@@ -30,4 +28,4 @@ const ConnectionStatus = () => {
   );
 };
 
-export default React.memo(ConnectionStatus);
+export const ConnectionStatus = React.memo(UnmemoizedConnectionStatus);
