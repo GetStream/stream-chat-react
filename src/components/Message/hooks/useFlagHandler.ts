@@ -20,7 +20,7 @@ import type {
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
-export type MessageNotificationArguments<
+export type FlagMessageNotifications<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -47,7 +47,7 @@ export const useFlagHandler = <
   Us extends UnknownType = DefaultUserType
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  notifications: MessageNotificationArguments<At, Ch, Co, Me, Re, Us> = {},
+  notifications: FlagMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
 ): ((event: MouseEvent<HTMLElement>) => Promise<void>) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();

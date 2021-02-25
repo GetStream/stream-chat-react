@@ -21,9 +21,7 @@ import type {
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-export type UserNotificationArguments<
-  Us extends UnknownType = DefaultUserType
-> = {
+export type MuteUserNotifications<Us extends UnknownType = DefaultUserType> = {
   getErrorNotification?: (user: UserResponse<Us>) => string;
   getSuccessNotification?: (user: UserResponse<Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
@@ -39,7 +37,7 @@ export const useMuteHandler = <
   Us extends UnknownType = DefaultUserType
 >(
   message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  notifications: UserNotificationArguments<Us> = {},
+  notifications: MuteUserNotifications<Us> = {},
 ) => {
   const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
