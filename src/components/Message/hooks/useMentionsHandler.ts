@@ -1,47 +1,79 @@
-import { MouseEvent, useContext } from 'react';
-import { ChannelContext } from '../../../context';
-import type { MessageResponse } from 'stream-chat';
-import type { CustomMentionHandler } from 'types';
+import { useChannelContext } from '../../../context/ChannelContext';
 
-export type MentionedUserEventHandler<Me extends MessageResponse> = (
-  e: MouseEvent<HTMLElement>,
-  mentionedUsers: Exclude<Me['mentioned_users'], undefined>,
+import type { MouseEvent } from 'react';
+import type { MessageResponse, UserResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../../types/types';
+
+export type CustomMentionHandler<Us extends UnknownType = DefaultUserType> = (
+  event: MouseEvent<HTMLElement>,
+  user: UserResponse<Us>[],
 ) => void;
-function createEventHandler<Me extends MessageResponse>(
-  fn?: MentionedUserEventHandler<Me>,
-  message?: Me,
+
+export type MentionedUserEventHandler<
+  Us extends UnknownType = DefaultUserType
+> = (
+  event: MouseEvent<HTMLElement>,
+  mentionedUsers: UserResponse<Us>[],
+) => void;
+
+function createEventHandler<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  fn?: MentionedUserEventHandler<Us>,
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
 ): React.EventHandler<MouseEvent<HTMLElement>> {
-  return (e) => {
+  return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
       return;
     }
-    fn(e, message.mentioned_users as Exclude<Me['mentioned_users'], undefined>);
+    fn(event, message.mentioned_users);
   };
 }
 
-export const useMentionsHandler = <Me extends MessageResponse>(
-  message?: Me,
+export const useMentionsHandler = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   customMentionHandler?: {
-    onMentionsClick?: CustomMentionHandler;
-    onMentionsHover?: CustomMentionHandler;
+    onMentionsClick?: CustomMentionHandler<Us>;
+    onMentionsHover?: CustomMentionHandler<Us>;
   },
 ) => {
   const {
     onMentionsClick: channelOnMentionsClick,
     onMentionsHover: channelOnMentionsHover,
-  } = useContext(ChannelContext);
+  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick ||
     channelOnMentionsClick ||
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    (() => {});
+    (() => null);
 
   const onMentionsHover =
     customMentionHandler?.onMentionsHover ||
     channelOnMentionsHover ||
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    (() => {});
+    (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),
@@ -49,14 +81,30 @@ export const useMentionsHandler = <Me extends MessageResponse>(
   };
 };
 
-export const useMentionsUIHandler = <Me extends MessageResponse>(
-  message?: Me,
+export const useMentionsUIHandler = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   eventHandlers?: {
     onMentionsClick?: React.EventHandler<React.SyntheticEvent>;
     onMentionsHover?: React.EventHandler<React.SyntheticEvent>;
   },
 ) => {
-  const { onMentionsClick, onMentionsHover } = useContext(ChannelContext);
+  const { onMentionsClick, onMentionsHover } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   return {
     onMentionsClick:
