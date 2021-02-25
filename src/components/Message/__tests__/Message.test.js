@@ -8,7 +8,11 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
+import {
+  ChannelContext,
+  ChatContext,
+  TranslationContext,
+} from '../../../context';
 import { MESSAGE_ACTIONS } from '../utils';
 import Message from '../Message';
 
@@ -34,6 +38,7 @@ async function renderComponent(
   channelOpts,
   channelConfig = { replies: true },
   renderer = render,
+  clientOpts,
 ) {
   const channel = generateChannel({
     deleteReaction,
@@ -44,25 +49,27 @@ async function renderComponent(
   });
   const client = await getTestClientWithUser(alice);
   return renderer(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        openThread: jest.fn(),
-        removeMessage: jest.fn(),
-        updateMessage: jest.fn(),
-        ...channelOpts,
-      }}
-    >
-      <TranslationContext.Provider value={{ t: (key) => key }}>
-        <Message
-          message={message}
-          Message={CustomMessageUIComponent}
-          typing={false}
-          {...props}
-        />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatContext.Provider value={{ client, ...clientOpts }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          client,
+          openThread: jest.fn(),
+          removeMessage: jest.fn(),
+          updateMessage: jest.fn(),
+          ...channelOpts,
+        }}
+      >
+        <TranslationContext.Provider value={{ t: (key) => key }}>
+          <Message
+            message={message}
+            Message={CustomMessageUIComponent}
+            typing={false}
+            {...props}
+          />
+        </TranslationContext.Provider>
+      </ChannelContext.Provider>
+    </ChatContext.Provider>,
   );
 }
 
@@ -580,9 +587,10 @@ describe('<Message /> component', () => {
         addNotification,
         getFlagMessageSuccessNotification,
       },
-      {
-        client,
-      },
+      {},
+      null,
+      render,
+      { client },
     );
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
@@ -605,6 +613,9 @@ describe('<Message /> component', () => {
       {
         addNotification,
       },
+      {},
+      null,
+      render,
       { client },
     );
     const { handleFlag } = getRenderedProps();
@@ -632,6 +643,9 @@ describe('<Message /> component', () => {
         addNotification,
         getFlagMessageErrorNotification,
       },
+      {},
+      null,
+      render,
       { client },
     );
     const { handleFlag } = getRenderedProps();
@@ -656,9 +670,10 @@ describe('<Message /> component', () => {
       {
         addNotification,
       },
-      {
-        client,
-      },
+      {},
+      null,
+      render,
+      { client },
     );
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);

@@ -21,6 +21,7 @@ export const useEditHandler = (
       }
       setEditing(true);
     });
+
   const clearEdit =
     customClearEditingHandler ||
     ((event) => {
@@ -29,5 +30,6 @@ export const useEditHandler = (
       }
       setEditing(false);
     });
+
   return { clearEdit, editing, setEdit };
 };
