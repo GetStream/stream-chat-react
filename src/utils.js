@@ -60,7 +60,7 @@ const matchMarkdownLinks = (message) => {
 };
 
 /** @type {(message: string) => (string|null)[]} */
-export const messageCodeBlocks = (message) => {
+const messageCodeBlocks = (message) => {
   const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
   const matches = message.match(codeRegex);
   return matches || [];
