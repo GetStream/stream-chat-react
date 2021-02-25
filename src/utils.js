@@ -59,6 +59,13 @@ const matchMarkdownLinks = (message) => {
   return links;
 };
 
+/** @type {(message: string) => (string|null)[]} */
+const messageCodeBlocks = (message) => {
+  const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
+  const matches = message.match(codeRegex);
+  return matches || [];
+};
+
 /** @type {(input: string, length: number) => string} */
 export const truncate = (input, length, end = '...') => {
   if (input.length > length) {
@@ -93,13 +100,15 @@ export const renderText = (text, mentioned_users) => {
 
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
+  let codeBlocks = messageCodeBlocks(newText);
   // extract all valid links/emails within text and replace it with proper markup
   linkify.find(newText).forEach(({ type, href, value }) => {
+    const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
     // check if message is already  markdown
     const noParsingNeeded =
       markdownLinks &&
       markdownLinks.filter((text) => text?.indexOf(href) !== -1);
-    if (noParsingNeeded.length > 0) return;
+    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
     const displayLink =
       type === 'email'

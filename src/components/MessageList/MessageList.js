@@ -166,7 +166,7 @@ class MessageList extends PureComponent {
     this.setState({ newMessagesNotification: false });
   };
 
-  userScrolledUp = () => this.scrollOffset > 200;
+  userScrolledUp = () => this.scrollOffset > this.props.scrolledUpThreshold;
 
   listenToScroll = (offset, reverseOffset, threshold) => {
     this.scrollOffset = offset;
@@ -455,6 +455,8 @@ MessageList.propTypes = {
    * The user roles allowed to pin messages in various channel types
    */
   pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ (PropTypes.object),
+  /** The pixel threshold to determine whether or not the user is scrolled up in the list */
+  scrolledUpThreshold: PropTypes.number,
 };
 
 MessageList.defaultProps = {
@@ -471,6 +473,7 @@ MessageList.defaultProps = {
   noGroupByUser: false,
   messageActions: Object.keys(MESSAGE_ACTIONS),
   pinPermissions: defaultPinPermissions,
+  scrolledUpThreshold: 200,
 };
 
 export default withTranslationContext((props) => (
