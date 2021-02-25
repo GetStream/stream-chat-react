@@ -265,9 +265,11 @@ describe('<Message /> component', () => {
         getMuteUserSuccessNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -291,9 +293,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -321,9 +325,11 @@ describe('<Message /> component', () => {
         getMuteUserErrorNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -347,9 +353,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -377,9 +385,11 @@ describe('<Message /> component', () => {
         getMuteUserSuccessNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -403,9 +413,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -433,9 +445,11 @@ describe('<Message /> component', () => {
         getMuteUserErrorNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -459,9 +473,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);

@@ -1,21 +1,53 @@
-// @ts-check
-import { useContext } from 'react';
 import { isUserMuted, validateAndGetMessage } from '../utils';
-import { ChannelContext, TranslationContext } from '../../../context';
+
+import { useChannelContext } from '../../../context/ChannelContext';
+import { useChatContext } from '../../../context/ChatContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+
+import type { MouseEvent } from 'react';
+import type { MessageResponse, UserResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../../types/types';
 
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-/**
- * @type {import('types').useMuteHandler}
- */
-export const useMuteHandler = (message, notifications = {}) => {
-  const { client, mutes } = useContext(ChannelContext);
-  const { t } = useContext(TranslationContext);
+export type UserNotificationArguments<
+  Us extends UnknownType = DefaultUserType
+> = {
+  getErrorNotification?: (user: UserResponse<Us>) => string;
+  getSuccessNotification?: (user: UserResponse<Us>) => string;
+  notify?: (notificationText: string, type: 'success' | 'error') => void;
+};
 
-  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
-  return async (event) => {
+export const useMuteHandler = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  notifications: UserNotificationArguments<Us> = {},
+) => {
+  const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
+
+  return async (event: MouseEvent<HTMLElement>) => {
     event.preventDefault();
+
     const {
       getErrorNotification,
       getSuccessNotification,
@@ -26,9 +58,11 @@ export const useMuteHandler = (message, notifications = {}) => {
       console.warn(missingUseMuteHandlerParamsWarning);
       return;
     }
+
     if (!isUserMuted(message, mutes)) {
       try {
         await client.muteUser(message.user.id);
+
         const successMessage =
           getSuccessNotification &&
           validateAndGetMessage(getSuccessNotification, [message.user]);
@@ -50,22 +84,23 @@ export const useMuteHandler = (message, notifications = {}) => {
     } else {
       try {
         await client.unmuteUser(message.user.id);
+
         const fallbackMessage = t(`{{ user }} has been unmuted`, {
           user: message.user.name || message.user.id,
         });
+
         const successMessage =
           (getSuccessNotification &&
             validateAndGetMessage(getSuccessNotification, [message.user])) ||
           fallbackMessage;
 
-        if (typeof successMessage === 'string') {
-          notify(successMessage, 'success');
-        }
+        notify(successMessage, 'success');
       } catch (e) {
         const errorMessage =
           (getErrorNotification &&
             validateAndGetMessage(getErrorNotification, [message.user])) ||
           t('Error unmuting a user ...');
+
         if (typeof errorMessage === 'string') {
           notify(errorMessage, 'error');
         }

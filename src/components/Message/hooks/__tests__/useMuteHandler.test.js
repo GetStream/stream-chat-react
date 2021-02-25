@@ -6,7 +6,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+import { ChannelContext, ChatContext } from '../../../../context';
 import {
   missingUseMuteHandlerParamsWarning,
   useMuteHandler,
@@ -30,15 +30,16 @@ async function renderUseHandleMuteHook(
   client.unmuteUser = unmuteUser;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        ...channelContextValue,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          ...channelContextValue,
+        }}
+      >
+        {children}
+      </ChannelContext.Provider>
+    </ChatContext.Provider>
   );
   const { result } = renderHook(
     () => useMuteHandler(message, notificationOpts),

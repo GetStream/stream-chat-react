@@ -1,4 +1,5 @@
 import { MouseEvent, useEffect, useState } from 'react';
+
 import { useBreakpoint } from './useBreakpoint';
 
 export const useMobilePress = () => {
@@ -12,9 +13,8 @@ export const useMobilePress = () => {
     if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
       const closestMessage = event.target.closest('.str-chat__message-simple');
 
-      if (!closestMessage) {
-        return;
-      }
+      if (!closestMessage) return;
+
       setTargetMessage(closestMessage);
 
       if (closestMessage.classList.contains('mobile-press')) {
