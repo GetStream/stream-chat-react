@@ -1593,10 +1593,6 @@ export function useReactionClick(
   isReactionEnabled: boolean;
 };
 
-export function useRetryHandler(
-  customRetrySendMessage?: (message: Client.Message) => Promise<void>,
-): (message: Client.Message | undefined) => Promise<void>;
-
 type UserEventHandler = (e: React.MouseEvent, user: Client.User) => void;
 export function useUserHandler(
   message: Client.MessageResponse | undefined,
