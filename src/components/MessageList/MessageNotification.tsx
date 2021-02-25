@@ -2,6 +2,7 @@
 import React, { FC, MouseEventHandler } from 'react';
 
 export interface MessageNotificationProps {
+  children: React.ReactNode;
   /** button click event handler */
   onClick: MouseEventHandler;
   /** Wether or not to show notification */

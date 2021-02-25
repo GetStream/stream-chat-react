@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import type { VirtualizedMessageListInternalProps } from 'types';
 
-/**
- * @param {import('types').VirtualizedMessageListInternalProps['messages']} messages
- * @param {string | undefined} currentUserId
- */
-export function useNewMessageNotification(messages, currentUserId) {
+export function useNewMessageNotification(
+  messages: VirtualizedMessageListInternalProps['messages'],
+  currentUserId?: string,
+) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
 
   const lastMessageId = useRef('');

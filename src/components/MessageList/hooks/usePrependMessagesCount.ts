@@ -1,10 +1,9 @@
-// @ts-check
 import { useMemo, useRef } from 'react';
+import type { VirtualizedMessageListInternalProps } from 'types';
 
-/**
- * @param {Array<{ id: string }> | undefined} messages,
- */
-export const usePrependedMessagesCount = (messages) => {
+export const usePrependedMessagesCount = (
+  messages: VirtualizedMessageListInternalProps['messages'],
+) => {
   const currentFirstMessageId = messages?.[0]?.id;
   const firstMessageId = useRef(currentFirstMessageId);
   const earliestMessageId = useRef(currentFirstMessageId);

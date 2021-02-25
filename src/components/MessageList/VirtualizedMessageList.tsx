@@ -1,5 +1,9 @@
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import React, { FC, useCallback, useContext, useMemo, useRef } from 'react';
+import { Components, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import type {
+  VirtualizedMessageListInternalProps,
+  VirtualizedMessageListProps,
+} from 'types';
 import { ChannelContext, TranslationContext } from '../../context';
 import { smartRender } from '../../utils';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -12,16 +16,16 @@ import {
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
-import MessageNotification from './MessageNotification';
+import { MessageNotification } from './MessageNotification';
 
 const PREPEND_OFFSET = 10 ** 7;
 
 /**
- * VirtualizedMessageList - This component renders a list of messages in a virtual list. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * VirtualizedMessageList - This component renders a list of messages in a virtual list.
+ * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  * @example ../../docs/VirtualizedMessageList.md
- * @type {React.FC<import('types').VirtualizedMessageListInternalProps>}
  */
-const VirtualizedMessageList = ({
+const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalProps> = ({
   client,
   messages,
   loadMore,
@@ -42,10 +46,7 @@ const VirtualizedMessageList = ({
   stickToBottomScrollBehavior = 'smooth',
 }) => {
   const { t } = useContext(TranslationContext);
-
-  const virtuoso = useRef(
-    /** @type {import('react-virtuoso').VirtuosoHandle | undefined} */ (undefined),
-  );
+  const virtuoso = useRef<VirtuosoHandle>(null);
 
   const {
     atBottom,
@@ -101,8 +102,11 @@ const VirtualizedMessageList = ({
   );
 
   const virtuosoComponents = useMemo(() => {
-    const EmptyPlaceholder = () => <EmptyStateIndicator listType='message' />;
-    const Header = () =>
+    const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
+      <EmptyStateIndicator listType='message' />
+    );
+
+    const Header: Components['Header'] = () =>
       loadingMore ? (
         <div className='str-chat__virtual-list__loading'>
           <LoadingIndicator size={20} />
@@ -111,11 +115,9 @@ const VirtualizedMessageList = ({
         <></>
       );
 
-    /**
-     * using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements.
-     * @type {import('react-virtuoso').Components['Item']}
-     */
-    const Item = (props) => (
+    // using 'display: inline-block' traps CSS margins of the item elements
+    // preventing incorrect item measurements.
+    const Item: Components['Item'] = (props) => (
       <div
         {...props}
         style={{
@@ -125,7 +127,7 @@ const VirtualizedMessageList = ({
       />
     );
 
-    const Footer = () =>
+    const Footer: Components['Footer'] = () =>
       TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
 
     return {
@@ -133,7 +135,7 @@ const VirtualizedMessageList = ({
       Footer,
       Header,
       Item,
-    };
+    } as Partial<Components>;
   }, [EmptyStateIndicator, loadingMore, TypingIndicator]);
 
   if (!messages) {
@@ -163,7 +165,6 @@ const VirtualizedMessageList = ({
         }
         itemContent={(i) => messageRenderer(messages, i)}
         overscan={overscan}
-        // @ts-expect-error
         ref={virtuoso}
         startReached={() => {
           if (hasMore) {
@@ -194,27 +195,19 @@ const VirtualizedMessageList = ({
   );
 };
 
-// TODO: fix the types here when everything converted to proper TS
-/**
- * @param {import("types").VirtualizedMessageListProps} props
- * @returns {React.ElementType<import("types").VirtualizedMessageListInternalProps>}
- */
-export default function VirtualizedMessageListWithContext(props) {
-  // @ts-expect-error
+export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   return (
     <ChannelContext.Consumer>
-      {(
-        /* {Required<Pick<import('types').ChannelContextValue, 'client' | 'messages' | 'loadMore' | 'hasMore'>>} */ context,
-      ) => (
-        <VirtualizedMessageList
+      {(context) => (
+        <VirtualizedMessageListWithoutContext
           client={context.client}
-          // @ts-expect-error
-          hasMore={context.hasMore}
-          // @ts-expect-error
-          loadingMore={context.loadingMore}
-          // @ts-expect-error
+          hasMore={!!context.hasMore}
+          loadingMore={!!context.loadingMore}
+          //@ts-expect-error
           loadMore={context.loadMore}
-          // @ts-expect-error
+          // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
+          // 'formatMessage' converts it to Date, which seems to be the correct type
+          //@ts-expect-error
           messages={context.messages}
           {...props}
         />

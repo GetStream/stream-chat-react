@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-/**
- * @param {import('types').VirtualizedMessageListInternalProps['messages']} messages
- * @param {string | undefined} currentUserId
- */
-export function useShouldForceScrollToBottom(messages, currentUserId) {
+import type { VirtualizedMessageListInternalProps } from 'types';
+
+export function useShouldForceScrollToBottom(
+  messages: VirtualizedMessageListInternalProps['messages'],
+  currentUserId?: string,
+) {
   const lastFocusedOwnMessage = useRef('');
   const initialFocusRegistered = useRef(false);
 
