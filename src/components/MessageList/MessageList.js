@@ -2,10 +2,10 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 
-import Center from './Center';
-import MessageNotification from './MessageNotification';
-import CustomNotification from './CustomNotification';
-import ConnectionStatus from './ConnectionStatus';
+import { Center } from './Center';
+import { MessageNotification } from './MessageNotification';
+import { CustomNotification } from './CustomNotification';
+import { ConnectionStatus } from './ConnectionStatus';
 import MessageListInner from './MessageListInner';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { checkChannelPropType, smartRender } from '../../utils';
