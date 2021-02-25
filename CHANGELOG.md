@@ -17,11 +17,13 @@
 - Add `dispatch` function from `channelReducer` to `ChannelContext` [#717](https://github.com/GetStream/stream-chat-react/pull/717)
 - Improve mobile support for display of the `MessageOptions` component [#723](https://github.com/GetStream/stream-chat-react/pull/723)
 - Add key down a11y support for emoji picker [#726](https://github.com/GetStream/stream-chat-react/pull/726)
+- Add `scrolledUpThreshold` prop to `MessageList` [#734](https://github.com/GetStream/stream-chat-react/pull/734)
 
 ### Bug
 
 - Fix reaction list click propagation issue [#722](https://github.com/GetStream/stream-chat-react/pull/722)
 - Fix reaction list non-breaking space issue [#725](https://github.com/GetStream/stream-chat-react/pull/725)
+- Fix URL markdown in code blocks [#733](https://github.com/GetStream/stream-chat-react/pull/733)
 
 ## [4.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.1) 2021-02-11
 
