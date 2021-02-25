@@ -1,13 +1,19 @@
-// @ts-check
-import { useContext } from 'react';
+import { BaseSyntheticEvent, useContext } from 'react';
 import { ChannelContext } from '../../../context';
+import type { MessageResponse } from 'stream-chat';
+
+export type ActionHandlerReturnType = (
+  dataOrName: string | Record<string, string>,
+  value?: string,
+  event?: BaseSyntheticEvent,
+) => Promise<void>;
 
 export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.
       Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
-/**
- * @type {import('types').useActionHandler}
- */
-export const useActionHandler = (message) => {
+
+export function useActionHandler(
+  message: MessageResponse | undefined,
+): ActionHandlerReturnType {
   const { channel, removeMessage, updateMessage } = useContext(ChannelContext);
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();
@@ -17,11 +23,12 @@ export const useActionHandler = (message) => {
     }
     const messageID = message.id;
 
+    let formData: Record<string, string> = {};
+
     // deprecated: value&name should be removed in favor of data obj
-    /** @type {Record<string, any>} */
-    let formData = {};
-    if (typeof dataOrName === 'string') formData[dataOrName] = value;
-    else formData = { ...dataOrName };
+    if (typeof dataOrName === 'string') {
+      formData[dataOrName] = value as string;
+    } else formData = { ...dataOrName };
 
     if (messageID) {
       const data = await channel.sendAction(messageID, formData);
@@ -33,4 +40,4 @@ export const useActionHandler = (message) => {
       }
     }
   };
-};
+}

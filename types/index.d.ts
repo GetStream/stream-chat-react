@@ -1525,14 +1525,6 @@ export class MessageDeleted extends React.PureComponent<
 > {}
 
 /** Custom Message Hooks **/
-export function useActionHandler(
-  message: Client.MessageResponse | undefined,
-): (
-  dataOrName: string | Record<string, any>,
-  value?: string,
-  event?: BaseSyntheticEvent,
-) => Promise<void>;
-
 export function useDeleteHandler(
   message: Client.MessageResponse | undefined,
 ): (event: React.MouseEvent<HTMLElement>) => Promise<void>;

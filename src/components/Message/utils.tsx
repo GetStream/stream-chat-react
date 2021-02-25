@@ -24,6 +24,13 @@ export function validateAndGetMessage<T extends unknown[]>(
 ): string | null {
   if (!func || typeof func !== 'function') return null;
 
+  // below is due to tests passing a single argument
+  // rather than an array.
+  if (!(args instanceof Array)) {
+    // @ts-expect-error
+    args = [args];
+  }
+
   const returnValue = func(...args);
 
   if (typeof returnValue !== 'string') return null;
