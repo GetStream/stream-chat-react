@@ -1525,44 +1525,16 @@ export class MessageDeleted extends React.PureComponent<
 > {}
 
 /** Custom Message Hooks **/
-export function useDeleteHandler(
-  message: Client.MessageResponse | undefined,
-): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
-
 interface MessageNotificationArguments {
   notify?: MessageComponentProps['addNotification'];
   getSuccessNotification?: MessageComponentProps['getMuteUserSuccessNotification'];
   getErrorNotification?: MessageComponentProps['getMuteUserErrorNotification'];
 }
-export function useFlagHandler(
-  message: Client.MessageResponse | undefined,
-  notifications: MessageNotificationArguments,
-): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
 
 type CustomMentionHandler = (
   event: React.MouseEvent,
   user: Client.UserResponse[],
 ) => void;
-export function useMentionsHandler(
-  message: Client.MessageResponse | undefined,
-  customMentionHandler?: {
-    onMentionsClick?: CustomMentionHandler;
-    onMentionsHover?: CustomMentionHandler;
-  },
-): {
-  onMentionsClick: React.EventHandler<React.SyntheticEvent>;
-  onMentionsHover: React.EventHandler<React.SyntheticEvent>;
-};
-export function useMentionsUIHandler(
-  message: Client.MessageResponse | undefined,
-  eventHandlers?: {
-    onMentionsClick?: React.EventHandler<React.SyntheticEvent>;
-    onMentionsHover?: React.EventHandler<React.SyntheticEvent>;
-  },
-): {
-  onMentionsClick: React.EventHandler<React.SyntheticEvent>;
-  onMentionsHover: React.EventHandler<React.SyntheticEvent>;
-};
 
 export function useMuteHandler(
   message: Client.MessageResponse | undefined,

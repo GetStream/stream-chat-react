@@ -1,22 +1,16 @@
-// @ts-check
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 
-/**
- * @type {(
- *   customInitialState?: boolean,
- *   customSetEditing?: (event?: React.MouseEvent<HTMLElement>) => void,
- *   customClearEditingHandler?: (event?: React.MouseEvent<HTMLElement>) => void
- * ) => {
- *   editing: boolean,
- *   setEdit: (event?: React.MouseEvent<HTMLElement>) => void,
- *   clearEdit: (event?: React.MouseEvent<HTMLElement>) => void
- * }}
- */
+export type UseEditHandlerReturnType = {
+  clearEdit: (event?: React.MouseEvent<HTMLElement>) => void;
+  editing: boolean;
+  setEdit: (event?: React.MouseEvent<HTMLElement>) => void;
+};
+
 export const useEditHandler = (
   customInitialState = false,
-  customSetEditing,
-  customClearEditingHandler,
-) => {
+  customSetEditing?: (event?: MouseEvent<HTMLElement>) => void,
+  customClearEditingHandler?: (event?: React.MouseEvent<HTMLElement>) => void,
+): UseEditHandlerReturnType => {
   const [editing, setEditing] = useState(customInitialState);
 
   const setEdit =

@@ -1,19 +1,19 @@
-// @ts-check
-import { useContext } from 'react';
+import { MouseEvent, useContext } from 'react';
+import type { MessageResponse } from 'stream-chat';
+import type { MessageNotificationArguments } from 'types';
 import { ChannelContext, TranslationContext } from '../../../context';
 import { validateAndGetMessage } from '../utils';
 
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
-/**
- * @type {import('types').useFlagHandler}
- */
-export const useFlagHandler = (message, notifications = {}) => {
+export const useFlagHandler = (
+  message: MessageResponse | undefined,
+  notifications: MessageNotificationArguments = {},
+): ((event: MouseEvent<HTMLElement>) => Promise<void>) => {
   const { client } = useContext(ChannelContext);
   const { t } = useContext(TranslationContext);
 
-  /** @type {(event: React.MouseEvent<HTMLElement>) => Promise<void>} Typescript syntax */
   return async (event) => {
     event.preventDefault();
     const {

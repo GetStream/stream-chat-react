@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-/** @type {(width: number) => {device: 'mobile' | 'tablet' | 'full'; width: number}} */
-const getDeviceWidth = (width) => {
+export type DeviceWidth = {
+  device: 'mobile' | 'tablet' | 'full';
+  width: number;
+};
+
+const getDeviceWidth = (width: number): DeviceWidth => {
   if (width < 768) return { device: 'mobile', width };
   if (width < 1024) return { device: 'tablet', width };
   return { device: 'full', width };

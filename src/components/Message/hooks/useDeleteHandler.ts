@@ -1,11 +1,11 @@
 // @ts-check
-import { useContext } from 'react';
+import { MouseEvent, useContext } from 'react';
 import { ChannelContext } from '../../../context';
+import type { MessageResponse } from 'stream-chat';
 
-/**
- * @type {import('types').useDeleteHandler}
- */
-export const useDeleteHandler = (message) => {
+export const useDeleteHandler = (
+  message: MessageResponse | undefined,
+): ((event: MouseEvent<HTMLElement>) => Promise<void>) => {
   const { client, updateMessage } = useContext(ChannelContext);
   return async (event) => {
     event.preventDefault();

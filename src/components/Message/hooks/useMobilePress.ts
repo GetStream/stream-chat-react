@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import { useBreakpoint } from './useBreakpoint';
 
 export const useMobilePress = () => {
-  const [targetMessage, setTargetMessage] = useState(null);
+  const [targetMessage, setTargetMessage] = useState<Element | null>(null);
 
   const breakpoint = useBreakpoint();
 
-  /** @type {(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void} */
-  const handleMobilePress = (event) => {
+  const handleMobilePress = (event: MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
       const closestMessage = event.target.closest('.str-chat__message-simple');
 
-      if (!closestMessage) return;
+      if (!closestMessage) {
+        return;
+      }
       setTargetMessage(closestMessage);
 
       if (closestMessage.classList.contains('mobile-press')) {
@@ -23,13 +24,15 @@ export const useMobilePress = () => {
   };
 
   useEffect(() => {
-    const handleClick = (event) => {
-      const isClickInside = targetMessage?.contains(event.target);
+    function handleClick(event: globalThis.MouseEvent) {
+      const isClickInside = targetMessage?.contains(
+        event.target as HTMLElement,
+      );
 
       if (!isClickInside && targetMessage) {
         targetMessage.classList.remove('mobile-press');
       }
-    };
+    }
 
     if (breakpoint.device === 'mobile') {
       document.addEventListener('click', handleClick);
