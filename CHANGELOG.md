@@ -1,15 +1,37 @@
 # Changelog
 
-## [4.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.1) 2021-02-11
+## [4.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.0) 2021-02-25
 
-**NOTE: breaking changes in v4.0.0, this follow-up version patches the docs**
+### Chore
+
+- Upgrade `react-virtuoso` dependency [#694](https://github.com/GetStream/stream-chat-react/pull/694)
+  - Improved support for loading unevenly sized messages when scrolling back
+  - Support smooth scrolling to bottom when new messages are posted (controlled through `stickToBottomScrollBehavior` property)
+  - Adding reactions no longer cancels the automatic scrolling when new messages appear
+- Generate minified CSS output [#707](https://github.com/GetStream/stream-chat-react/pull/707)
+- Upgrade `stream-chat` dependency [#727](https://github.com/GetStream/stream-chat-react/pull/727)
+- Upgrade `mml-react` dependency [#728](https://github.com/GetStream/stream-chat-react/pull/728)
+- Upgrade `emoji-mart` dependency [#731](https://github.com/GetStream/stream-chat-react/pull/731)
 
 ### Feature
 
-- Add `usePinHandler` example to docs [#705](https://github.com/GetStream/stream-chat-react/pull/705)
+- Add `tabIndex` to emoji picker [#710](https://github.com/GetStream/stream-chat-react/pull/710)
+- Add `dispatch` function from `channelReducer` to `ChannelContext` [#717](https://github.com/GetStream/stream-chat-react/pull/717)
+- Improve mobile support for display of the `MessageOptions` component [#723](https://github.com/GetStream/stream-chat-react/pull/723)
+- Add key down a11y support for emoji picker [#726](https://github.com/GetStream/stream-chat-react/pull/726)
+- Add `scrolledUpThreshold` prop to `MessageList` [#734](https://github.com/GetStream/stream-chat-react/pull/734)
 
 ### Bug
 
+- Fix reaction list click propagation issue [#722](https://github.com/GetStream/stream-chat-react/pull/722)
+- Fix reaction list non-breaking space issue [#725](https://github.com/GetStream/stream-chat-react/pull/725)
+- Fix URL markdown in code blocks [#733](https://github.com/GetStream/stream-chat-react/pull/733)
+
+## [4.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.1) 2021-02-11
+
+### Chore
+
+- Add `usePinHandler` example to docs [#705](https://github.com/GetStream/stream-chat-react/pull/705)
 - Remove legacy APIs in mock data used for generating the docs [#704](https://github.com/GetStream/stream-chat-react/pull/704)
 
 ## [4.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.0.0) 2021-02-10
