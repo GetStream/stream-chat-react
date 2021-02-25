@@ -76,10 +76,6 @@ const UnMemoizedChannelPreviewCountOnly = <
   );
 };
 
-/**
- * ChannelPreviewCountOnly
- * @example ./ChannelPreviewCountOnly.md
- */
 export const ChannelPreviewCountOnly = React.memo(
   UnMemoizedChannelPreviewCountOnly,
 ) as typeof UnMemoizedChannelPreviewCountOnly;

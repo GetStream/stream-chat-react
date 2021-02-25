@@ -7,17 +7,16 @@ import ReactMarkdown from 'react-markdown';
 import i18next from 'i18next';
 import Dayjs from 'dayjs';
 import { ReactPlayerProps } from 'react-player';
-import { ScrollSeekConfiguration } from 'react-virtuoso/dist/engines/scrollSeekEngine';
-import type {
-  Data as EmojiMartData,
-  NimbleEmojiIndex,
-  NimbleEmojiProps,
-  NimblePickerProps,
-} from 'emoji-mart';
-import type { TranslationLanguages } from 'stream-chat';
+
+import {
+  ScrollSeekPlaceholderProps,
+  ScrollSeekConfiguration,
+} from 'react-virtuoso';
 
 import type { UnknownType } from './types';
+
 import type { ChannelStateReducerAction } from '../src/components/Channel/types';
+import type { TDateTimeParser } from '../src/context/TranslationContext';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -592,8 +591,19 @@ export interface VirtualizedMessageListInternalProps {
    *    change: () => null,
    *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
    *  }
+   *
+   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
+   *  TODO: break out placeholder when making other breaking changes.
    */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration;
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
+    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
+  };
+  /**
+   * The scrollTo Behavior when new messages appear. Use `"smooth"`
+   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
+   * if you expect hight throughput.
+   */
+  stickToBottomScrollBehavior?: 'smooth' | 'auto';
 }
 
 export interface VirtualizedMessageListProps
@@ -1451,13 +1461,13 @@ export class MessageTeam extends React.PureComponent<
 export interface MessageSimpleProps
   extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
-  customClass?: string;
-  message?: Client.MessageResponse;
   calendar?: boolean;
+  customClass?: string;
   format?: string;
-  tDateTimeParser?(datetime: string | number): Dayjs.Dayjs;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
+  message?: Client.MessageResponse;
+  tDateTimeParser?: TDateTimeParser;
 }
 
 export interface MessageTextProps extends MessageSimpleProps {

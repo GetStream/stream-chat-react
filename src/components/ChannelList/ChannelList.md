@@ -1,6 +1,5 @@
 ```js
 import { ChannelList } from './ChannelList';
-
 import { Chat } from '../';
 
 const data = require('../../docs/data');

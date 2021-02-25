@@ -15,6 +15,7 @@ import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import { ChannelContext, TranslationContext } from '../../../context';
+import Dayjs from 'dayjs';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -38,7 +39,7 @@ async function renderMessageLivestream(
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
-  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
     <ChannelContext.Provider
@@ -334,19 +335,13 @@ describe('<MessageLivestream />', () => {
     expect(queryByTestId('message-livestream-actions')).toBeNull();
   });
 
-  it('should display the formatted message creation date', async () => {
-    const createdAt = new Date('2019-12-12T03:33:00');
-    const message = generateAliceMessage({ created_at: createdAt });
-    const format = jest.fn(() => createdAt.toDateString());
-    const mockDateTimeParser = jest.fn(() => ({
-      format,
-    }));
-    const { getByText } = await renderMessageLivestream(message, {
-      tDateTimeParser: mockDateTimeParser,
+  it("should display message's timestamp with time only format", async () => {
+    const messageDate = new Date('2019-12-12T03:33:00');
+    const message = generateAliceMessage({
+      created_at: messageDate,
     });
-    expect(mockDateTimeParser).toHaveBeenCalledWith(createdAt);
-    expect(format).toHaveBeenCalledWith('h:mmA');
-    expect(getByText(createdAt.toDateString())).toBeInTheDocument();
+    const { getByText } = await renderMessageLivestream(message);
+    expect(getByText('3:33AM')).toBeInTheDocument();
   });
 
   it('should display a reactions icon when channel has reactions enabled', async () => {
