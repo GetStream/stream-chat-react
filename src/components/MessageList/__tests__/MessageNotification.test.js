@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import MessageNotification from '../MessageNotification';
+import { MessageNotification } from '../MessageNotification';
 
 afterEach(cleanup); // eslint-disable-line
 

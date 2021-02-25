@@ -1,4 +1,4 @@
-export { default as FixedHeightMessage } from './FixedHeightMessage';
+export * from './FixedHeightMessage';
 export * from './hooks';
 export { default as Message } from './Message';
 export { default as MessageCommerce } from './MessageCommerce';

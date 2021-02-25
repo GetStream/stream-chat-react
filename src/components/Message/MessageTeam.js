@@ -37,7 +37,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 
 /**
  * MessageTeam - Render component, should be used together with the Message component

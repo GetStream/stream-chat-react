@@ -4,7 +4,7 @@ import { act, cleanup, render, waitFor } from '@testing-library/react';
 import { dispatchConnectionChangedEvent, getTestClient } from 'mock-builders';
 import '@testing-library/jest-dom';
 
-import ConnectionStatus from '../ConnectionStatus';
+import { ConnectionStatus } from '../ConnectionStatus';
 import { Chat } from '../../Chat';
 
 const customNotificationId = 'custom-notification';

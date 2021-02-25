@@ -8,7 +8,7 @@ import {
   getTestClientWithUser,
 } from 'mock-builders';
 
-import FixedHeightMessage from '../FixedHeightMessage';
+import { FixedHeightMessage } from '../FixedHeightMessage';
 import {
   ChannelContext,
   ChatContext,
