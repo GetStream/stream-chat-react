@@ -1,5 +1,6 @@
 // @ts-check
-import React from 'react';
+import React, { FC } from 'react';
+import type { PinIndicatorProps } from 'types';
 
 export const ReplyIcon = () => (
   <svg height='15' width='18' xmlns='http://www.w3.org/2000/svg'>
@@ -67,8 +68,7 @@ export const PinIcon = () => (
   </svg>
 );
 
-/** @type {React.FC<import("types").PinIndicatorProps>} */
-export const PinIndicator = ({ message, t }) => {
+export const PinIndicator: FC<PinIndicatorProps> = ({ message, t }) => {
   if (!message || !t) return null;
 
   return (
