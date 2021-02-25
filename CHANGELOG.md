@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.0) 2021-02-25 **UNRELEASED**
+## [4.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.0) 2021-02-25
 
 ### Chore
 
