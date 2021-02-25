@@ -6,7 +6,9 @@ export const useMobilePress = () => {
 
   const breakpoint = useBreakpoint();
 
-  const handleMobilePress = (event: MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMobilePress = (
+    event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
+  ) => {
     if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
       const closestMessage = event.target.closest('.str-chat__message-simple');
 
