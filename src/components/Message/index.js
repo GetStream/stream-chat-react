@@ -1,6 +1,6 @@
 export * from './FixedHeightMessage';
 export * from './hooks';
-export { default as Message } from './Message';
+export * from './Message';
 export { default as MessageCommerce } from './MessageCommerce';
 export * from './MessageDeleted';
 export { default as MessageLivestream } from './MessageLivestream';

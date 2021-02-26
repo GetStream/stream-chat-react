@@ -23,6 +23,7 @@ import Client, {
   UserResponse,
 } from 'stream-chat';
 import type { ChannelStateReducerAction } from '../src/components/Channel/channelState';
+import type { PinPermissions } from '../src/components/Message/hooks/usePinHandler';
 import type { MessageNotificationProps } from '../src/components/MessageList/MessageNotification';
 import type { TDateTimeParser } from '../src/context/TranslationContext';
 import {
@@ -559,8 +560,15 @@ export interface SuggestionListProps {
   value?: string;
 }
 
-export interface FixedHeightMessageProps {
-  message: Client.MessageResponse;
+export interface FixedHeightMessageProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   groupedByUser: boolean;
 }
 
@@ -883,12 +891,8 @@ export interface MessageProps<
   getFlagMessageErrorNotification?(
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
   ): string;
-  getMuteUserSuccessNotification?(
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): string;
-  getMuteUserErrorNotification?(
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): string;
+  getMuteUserSuccessNotification?(user: UserResponse<Us>): string;
+  getMuteUserErrorNotification?(user: UserResponse<Us>): string;
   getPinMessageErrorNotification?(
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
   ): string;
@@ -1648,15 +1652,6 @@ export type PinEnabledUserRoles = {
   moderator?: boolean;
   owner?: boolean;
   user?: boolean;
-};
-
-export type PinPermissions = {
-  commerce?: PinEnabledUserRoles;
-  gaming?: PinEnabledUserRoles;
-  livestream?: PinEnabledUserRoles;
-  messaging?: PinEnabledUserRoles;
-  team?: PinEnabledUserRoles;
-  [key: string]: PinEnabledUserRoles | undefined;
 };
 
 export function usePinHandler(

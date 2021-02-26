@@ -36,7 +36,7 @@ export const useMuteHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
 ) => {
   const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();

@@ -62,8 +62,8 @@ export const usePinHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  permissions: PinPermissions,
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  permissions?: PinPermissions,
   notifications: PinMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;

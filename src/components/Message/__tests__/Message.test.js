@@ -14,7 +14,7 @@ import {
   TranslationContext,
 } from '../../../context';
 import { MESSAGE_ACTIONS } from '../utils';
-import Message from '../Message';
+import { Message } from '../Message';
 
 const alice = generateUser({
   id: 'alice',

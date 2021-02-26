@@ -1,16 +1,25 @@
-import React, { FC, useCallback, useContext, useMemo } from 'react';
-
-import { MessageTimestamp } from './MessageTimestamp';
-import { Avatar } from '../Avatar';
-import { MML } from '../MML';
-import { renderText } from '../../utils';
+import React, { useCallback, useContext, useMemo } from 'react';
+import type { TranslationLanguages } from 'stream-chat';
+import type { FixedHeightMessageProps } from 'types';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 import { ChatContext, TranslationContext } from '../../context';
+import { renderText } from '../../utils';
+import { Avatar } from '../Avatar';
 import { Gallery } from '../Gallery';
 import { MessageActions } from '../MessageActions';
+import { MML } from '../MML';
 import { useActionHandler, useUserRole } from './hooks';
+import { MessageTimestamp } from './MessageTimestamp';
 import { getMessageActions } from './utils';
-import type { FixedHeightMessageProps } from 'types';
-import type { TranslationLanguages } from 'stream-chat';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -32,15 +41,23 @@ const getUserColor = (theme: string, userId: string) =>
  * FixedHeightMessage - This component renders a single message.
  * It uses fixed height elements to make sure it works well in VirtualizedMessageList
  */
-const UnmemoizedFixedHeightMessage: FC<FixedHeightMessageProps> = ({
+const UnmemoizedFixedHeightMessage = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
   groupedByUser,
   message,
-}) => {
+}: FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>) => {
   const { theme } = useContext(ChatContext);
   const { userLanguage } = useContext(TranslationContext);
 
-  const role = useUserRole(message);
-  const handleAction = useActionHandler(message);
+  const role = useUserRole<At, Ch, Co, Ev, Me, Re, Us>(message);
+  const handleAction = useActionHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
 
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
