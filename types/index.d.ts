@@ -920,7 +920,7 @@ export interface MessageProps<
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
   Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
-  Avatar?: React.ElementType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
   lastReceivedId?: string | null;

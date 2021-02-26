@@ -11,7 +11,7 @@ import {
 } from 'mock-builders';
 import { MESSAGE_ACTIONS } from '../utils';
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageSimple from '../MessageSimple';
+import { MessageSimple } from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';

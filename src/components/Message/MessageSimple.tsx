@@ -1,5 +1,4 @@
 import React, { useContext, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
@@ -38,13 +37,34 @@ import {
 import { DeliveredCheckIcon } from './icons';
 import { MessageTimestamp } from './MessageTimestamp';
 
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+import type { MessageSimpleProps } from 'types';
+
 /**
  * MessageSimple - Render component, should be used together with the Message component
  *
  * @example ../../docs/MessageSimple.md
- * @type { React.FC<import('types').MessageSimpleProps> }
  */
-const MessageSimple = (props) => {
+const UnMemoizedMessageSimple = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  props: MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
   const {
     clearEditingState,
     editing,
@@ -67,18 +87,21 @@ const MessageSimple = (props) => {
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
-  const handleRetry = useRetryHandler();
+  const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: onUserClickCustomHandler,
     onUserHoverHandler: onUserHoverCustomHandler,
   });
-  const reactionSelectorRef = React.createRef();
+  const reactionSelectorRef = React.createRef<HTMLDivElement>();
   const messageWrapperRef = useRef(null);
   const {
     isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
+  } = useReactionClick<At, Ch, Co, Ev, Me, Re, Us>(
+    message,
+    reactionSelectorRef,
+  );
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
@@ -151,10 +174,6 @@ const MessageSimple = (props) => {
                 (propHandleRetry || handleRetry)
               ) {
                 const retryHandler = propHandleRetry || handleRetry;
-                // FIXME: type checking fails here because in the case of a failed message,
-                // `message` is of type Client.Message (i.e. request object)
-                // instead of Client.MessageResponse (i.e. server response object)
-                // @ts-expect-error
                 retryHandler(message);
               }
             }}
@@ -244,6 +263,7 @@ const MessageSimple = (props) => {
                 customClass='str-chat__message-simple-timestamp'
                 formatDate={formatDate}
                 message={message}
+                //@ts-expect-error
                 tDateTimeParser={propTDateTimeParser}
               />
             </div>
@@ -254,14 +274,21 @@ const MessageSimple = (props) => {
   );
 };
 
-/** @type { React.FC<import('types').MessageSimpleProps> } */
-const MessageSimpleStatus = ({
+const MessageSimpleStatus = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
   Avatar = DefaultAvatar,
   readBy,
   message,
   threadList,
   lastReceivedId,
-}) => {
+}: MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   const { t } = useContext(TranslationContext);
   const { client } = useContext(ChannelContext);
   const { isMyMessage } = useUserRole(message);
@@ -287,7 +314,6 @@ const MessageSimpleStatus = ({
   }
   if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
     const lastReadUser = readBy.filter(
-      /** @type {(item: import('stream-chat').UserResponse) => boolean} Typescript syntax */
       (item) => !!item && !!client && item.id !== client.user?.id,
     )[0];
     return (
@@ -297,6 +323,7 @@ const MessageSimpleStatus = ({
       >
         <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
+          //@ts-expect-error
           image={lastReadUser?.image}
           name={lastReadUser?.name}
           size={15}
@@ -331,156 +358,7 @@ const MessageSimpleStatus = ({
   return null;
 };
 
-MessageSimple.propTypes = {
-  /** If actions such as edit, delete, flag, mute are enabled on message */
-  actionsEnabled: PropTypes.bool,
-  /**
-   * Additional props for underlying MessageInput component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-   * */
-  additionalMessageInputProps: PropTypes.object,
-  /**
-   * The attachment UI component.
-   * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
-   * */
-  Attachment: /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ (PropTypes.elementType),
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
-  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /** Channel config object */
-  channelConfig: /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ (PropTypes.object),
-  /** Function to exit edit state */
-  clearEditingState: PropTypes.func,
-  /** Client object */
-  // @ts-expect-error
-  client: PropTypes.object,
-  /** If the message is in edit state */
-  editing: PropTypes.bool,
-  /**
-   * Custom UI component to override default edit message input
-   *
-   * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
-   * */
-  EditMessageInput: /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ (PropTypes.elementType),
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate: PropTypes.func,
-  /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
-   * */
-  getMessageActions: PropTypes.func.isRequired,
-  /**
-   * @param name {string} Name of action
-   * @param value {string} Value of action
-   * @param event Dom event that triggered this handler
-   * @deprecated This component now relies on the useActionHandler custom hook, and this prop will be removed on the next major release.
-   */
-  handleAction: PropTypes.func,
-  /**
-   * Function to open thread on current message
-   * @deprecated The component now relies on the useThreadHandler custom hook
-   * You can customize the behaviour for your thread handler on the <Channel> component instead.
-   */
-  handleOpenThread: PropTypes.func,
-  /**
-   * Add or remove reaction on message
-   *
-   * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-   * @param event Dom event which triggered this function
-   * @deprecated This component now relies on the useReactionHandler custom hook.
-   */
-  handleReaction: PropTypes.func,
-  /**
-   * Reattempt sending a message
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format) to resent.
-   * @deprecated This component now relies on the useRetryHandler custom hook.
-   */
-  handleRetry: PropTypes.func,
-  /** If its parent message in thread. */
-  initialMessage: PropTypes.bool,
-  /** Returns true if message belongs to current user */
-  isMyMessage: PropTypes.func,
-  /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes
-    .object.isRequired),
-  /**
-   * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
-   *
-   * The higher order message component, most logic is delegated to this component
-   * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
-   *
-   * */
-  Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ (PropTypes.oneOfType(
-    [PropTypes.node, PropTypes.func, PropTypes.object],
-  )),
-  /**
-   * The component that will be rendered if the message has been deleted.
-   * All of Message's props are passed into this component.
-   */
-  MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
-  /** DOMRect object for parent MessageList component */
-  messageListRect: PropTypes.shape({
-    bottom: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-    left: PropTypes.number.isRequired,
-    right: PropTypes.number.isRequired,
-    toJSON: PropTypes.func.isRequired,
-    top: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-  }),
-  /**
-   * The handler for click event on @mention in message
-   *
-   * @param event Dom click event which triggered handler.
-   * @param user Target user object
-   * @deprecated This component now relies on the useMentionsHandler custom hook, and this prop will be removed on the next major release.
-   * You can customize the behaviour for your mention handler on the <Channel> component instead.
-   */
-  onMentionsClickMessage: PropTypes.func,
-  /**
-   * The handler for hover event on @mention in message
-   *
-   * @param event Dom hover event which triggered handler.
-   * @param user Target user object
-   * @deprecated This component now relies on the useMentionsHandler custom hook, and this prop will be removed on the next major release.
-   * You can customize the behaviour for your mention handler on the <Channel> component instead.
-   */
-  onMentionsHoverMessage: PropTypes.func,
-  /**
-   * The handler for click event on the user that posted the message
-   *
-   * @param event Dom click event which triggered handler.
-   */
-  onUserClick: PropTypes.func,
-  /**
-   * The handler for mouseOver event on the user that posted the message
-   *
-   * @param event Dom mouseOver event which triggered handler.
-   */
-  onUserHover: PropTypes.func,
-  /**
-   * A component to display the selector that allows a user to react to a certain message.
-   */
-  ReactionSelector: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ (PropTypes.elementType),
-  /**
-   * A component to display the a message list of reactions.
-   */
-  ReactionsList: /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ (PropTypes.elementType),
-  /** If component is in thread list */
-  threadList: PropTypes.bool,
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML: PropTypes.bool,
-  /**
-   * Function to publish updates on message to channel
-   *
-   * @param message Updated [message object](https://getstream.io/chat/docs/#message_format)
-   * */
-  updateMessage: PropTypes.func,
-};
-
-export default React.memo(MessageSimple, areMessagePropsEqual);
+export const MessageSimple = React.memo(
+  UnMemoizedMessageSimple,
+  areMessagePropsEqual,
+);

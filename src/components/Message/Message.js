@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import MessageSimple from './MessageSimple';
+import { MessageSimple } from './MessageSimple';
 import {
   useActionHandler,
   useDeleteHandler,

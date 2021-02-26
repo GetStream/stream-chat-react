@@ -1,4 +1,3 @@
-// @ts-check
 import React, { FC, useContext, useMemo } from 'react';
 import {
   isDate,
@@ -59,7 +58,7 @@ function getDateString(
   return null;
 }
 
-const UnmemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
+const UnMemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
   const {
     message,
     formatDate,
@@ -90,4 +89,4 @@ const UnmemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
   );
 };
 
-export const MessageTimestamp = React.memo(UnmemoizedMessageTimestamp);
+export const MessageTimestamp = React.memo(UnMemoizedMessageTimestamp);

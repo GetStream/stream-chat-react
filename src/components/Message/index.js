@@ -6,7 +6,7 @@ export * from './MessageDeleted';
 export { default as MessageLivestream } from './MessageLivestream';
 export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
-export { default as MessageSimple } from './MessageSimple';
+export * from './MessageSimple';
 export { default as MessageTeam } from './MessageTeam';
 export * from './MessageText';
 export * from './utils';

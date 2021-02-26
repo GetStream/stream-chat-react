@@ -23,7 +23,7 @@ export const useRetryHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  customRetrySendMessage: RetrySendMessage<At, Ch, Co, Me, Re, Us>,
+  customRetrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>,
 ): RetrySendMessage<At, Ch, Co, Me, Re, Us> => {
   const { retrySendMessage: contextRetrySendMessage } = useChannelContext<
     At,
