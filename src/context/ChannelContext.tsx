@@ -83,6 +83,15 @@ export type MessageToSend<
   text?: string;
 };
 
+export type RetrySendMessage<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+
 export type ChannelState<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -164,9 +173,7 @@ export type ChannelContextValue<
     event: React.SyntheticEvent,
   ) => void;
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  retrySendMessage?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ) => Promise<void>;
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
