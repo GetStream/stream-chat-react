@@ -4,7 +4,6 @@ import { ChannelContext } from '../../context';
 import { MessageActions } from '../MessageActions';
 import { MESSAGE_ACTIONS } from './utils';
 import { ReactionIcon, ThreadIcon } from './icons';
-import type { MessageResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -15,27 +14,7 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-
-export interface MessageOptionsProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> {
-  getMessageActions(): Array<string>;
-  displayActions?: boolean;
-  displayLeft?: boolean;
-  displayReplies?: boolean;
-  handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  initialMessage?: boolean;
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
-  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
-  theme?: string;
-  threadList?: boolean;
-}
+import type { MessageOptionsProps } from 'types';
 
 const UnMemoizedMessageOptions = <
   At extends UnknownType = DefaultAttachmentType,

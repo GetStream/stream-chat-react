@@ -11,7 +11,7 @@ import {
   getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageText from '../MessageText';
+import { MessageText } from '../MessageText';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 
 jest.mock('../MessageOptions', () => ({

@@ -1,8 +1,4 @@
 import React, { useContext } from 'react';
-import { TranslationContext, TranslationContextValue } from '../../context';
-import { useUserRole } from './hooks/useUserRole';
-import type { MessageResponse } from 'stream-chat';
-
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -12,18 +8,9 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-
-export interface MessageDeletedProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> extends TranslationContextValue {
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;
-}
+import type { MessageDeletedProps } from 'types';
+import { TranslationContext } from '../../context';
+import { useUserRole } from './hooks/useUserRole';
 
 export const MessageDeleted = <
   At extends UnknownType = DefaultAttachmentType,

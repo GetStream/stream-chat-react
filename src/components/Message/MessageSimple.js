@@ -18,7 +18,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 import { MessageOptions } from './MessageOptions';
-import MessageText from './MessageText';
+import { MessageText } from './MessageText';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import {
   useActionHandler,

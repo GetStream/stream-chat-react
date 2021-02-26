@@ -16,7 +16,7 @@ import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
-import MessageTextMock from '../MessageText';
+import { MessageText as MessageTextMock } from '../MessageText';
 import {
   EditMessageForm,
   MessageInput as MessageInputMock,
@@ -30,7 +30,7 @@ jest.mock('../MessageOptions', () => ({
   MessageOptions: jest.fn(() => <div />),
 }));
 
-jest.mock('../MessageText', () => jest.fn(() => <div />));
+jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 

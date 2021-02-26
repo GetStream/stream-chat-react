@@ -15,7 +15,7 @@ import {
   messageHasReactions,
 } from './utils';
 import { MessageOptions } from './MessageOptions';
-import MessageText from './MessageText';
+import { MessageText } from './MessageText';
 import {
   useActionHandler,
   useOpenThreadHandler,

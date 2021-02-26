@@ -8,5 +8,5 @@ export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export { default as MessageSimple } from './MessageSimple';
 export { default as MessageTeam } from './MessageTeam';
-export { default as MessageText } from './MessageText';
+export * from './MessageText';
 export * from './utils';

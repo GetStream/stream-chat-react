@@ -1,4 +1,3 @@
-// @ts-check
 import React, { useContext, useMemo, useRef } from 'react';
 import { isOnlyEmojis, renderText } from '../../utils';
 import { TranslationContext } from '../../context';
@@ -14,11 +13,29 @@ import {
 } from './hooks';
 import { messageHasAttachments, messageHasReactions } from './utils';
 import { MessageOptions } from './MessageOptions';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+import type { MessageTextProps } from 'types';
 
-/**
- * @type { React.FC<import('types').MessageTextProps> }
- */
-const MessageTextComponent = (props) => {
+const UnMemoizedMessageTextComponent = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
   const {
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
@@ -32,13 +49,19 @@ const MessageTextComponent = (props) => {
     customOptionProps,
   } = props;
 
-  const reactionSelectorRef = useRef(
-    /** @type {HTMLDivElement | null} */ (null),
-  );
+  const reactionSelectorRef = useRef<HTMLDivElement>(null);
 
   const { handleMobilePress } = useMobilePress();
 
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
@@ -47,7 +70,10 @@ const MessageTextComponent = (props) => {
     isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
+  } = useReactionClick<At, Ch, Co, Ev, Me, Re, Us>(
+    message,
+    reactionSelectorRef,
+  );
 
   const { t, userLanguage } = useContext(TranslationContext);
 
@@ -56,7 +82,6 @@ const MessageTextComponent = (props) => {
   const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
-    // @ts-expect-error
     message?.i18n?.[`${userLanguage}_text`] || message?.text;
 
   const messageMentionedUsersItem = message?.mentioned_users;
@@ -142,4 +167,4 @@ const MessageTextComponent = (props) => {
   );
 };
 
-export default React.memo(MessageTextComponent);
+export const MessageText = React.memo(UnMemoizedMessageTextComponent);

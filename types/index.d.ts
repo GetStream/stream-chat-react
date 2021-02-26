@@ -2,7 +2,7 @@
 
 /** Components */
 import React from 'react';
-import Client from 'stream-chat';
+import Client, { StreamChat } from 'stream-chat';
 import ReactMarkdown from 'react-markdown';
 import i18next from 'i18next';
 import Dayjs from 'dayjs';
@@ -875,21 +875,46 @@ export interface InnerAttachmentUIComponentProps
   attachment: ExtendedAttachment;
 }
 
+export interface MessageDeletedProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends TranslationContextValue {
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;
+}
+
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
-export interface MessageProps extends TranslationContextValue {
+export interface MessageProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends TranslationContextValue {
   addNotification?(notificationText: string, type: string): any;
   /** The message object */
-  message?: StreamChatReactMessageResponse;
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
   /** The client connection object for connecting to Stream */
-  client?: StreamChatReactClient;
+  client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** A list of users that have read this message **/
-  readBy?: Array<Client.UserResponse<StreamChatReactUserType>>;
+  readBy?: Array<Client.UserResponse<Us>>;
   /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
   groupStyles?: Array<string>;
   /** The message rendering component, the Message component delegates its rendering logic to this component */
-  Message?: React.ElementType<MessageUIComponentProps>;
+  Message?: React.ElementType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
+
   /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
-  MessageDeleted?: React.ElementType<MessageDeletedProps>;
+  MessageDeleted?: React.ElementType<
+    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
+  >;
 
   ReactionSelector?: React.ElementType<ReactionSelectorProps>;
   ReactionsList?: React.ElementType<ReactionsListProps>;
@@ -901,62 +926,39 @@ export interface MessageProps extends TranslationContextValue {
   lastReceivedId?: string | null;
   messageListRect?: DOMRect;
   updateMessage?(
-    updatedMessage: StreamChatReactMessageResponse,
+    updatedMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
     extraState?: object,
   ): void;
   additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
-  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
-  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
-  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
-  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
+  getFlagMessageSuccessNotification?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): string;
+  getFlagMessageErrorNotification?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): string;
+  getMuteUserSuccessNotification?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): string;
+  getMuteUserErrorNotification?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): string;
+  getPinMessageErrorNotification?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?(date: Date): string;
 }
 
-export type MessageComponentState = {
-  editing: boolean;
-};
-
-// MessageComponentProps defines the props for the Message component
-export interface MessageComponentProps
-  extends MessageProps,
-    TranslationContextValue {
-  /** The current channel this message is displayed in */
-  channel?: Client.Channel;
-  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserClick?(e: React.MouseEvent, user: Client.User): void;
-  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserHover?(e: React.MouseEvent, user: Client.User): void;
-  messageActions?: Array<string> | boolean;
-  members?: {
-    [user_id: string]: Client.ChannelMemberResponse<StreamChatReactUserType>;
-  };
-  retrySendMessage?(message: Client.Message): Promise<void>;
-  removeMessage?(updatedMessage: Client.MessageResponse): void;
-  mutes?: Client.Mute[];
-  openThread?(
-    message: Client.MessageResponse,
-    event: React.SyntheticEvent,
-  ): void;
-  initialMessage?: boolean;
-  threadList?: boolean;
-  pinPermissions?: PinPermissions;
-}
-
 // MessageUIComponentProps defines the props for the Message UI components (e.g. MessageSimple)
-export interface MessageUIComponentProps
-  extends MessageProps,
+export interface MessageUIComponentProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
     TranslationContextValue {
   actionsEnabled?: boolean;
   editing?: boolean;
@@ -973,23 +975,201 @@ export interface MessageUIComponentProps
     value: string,
     event: React.BaseSyntheticEvent,
   ): void;
-  handleRetry?(message: Client.Message): void;
-  isMyMessage?(message: Client.MessageResponse): boolean;
+  handleRetry?(message: Message<At, Me, Us>): void;
+  isMyMessage?(message: MessageResponse<At, Ch, Co, Ev, Me, Re, Us>): boolean;
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  mutes?: Client.Mute[];
+  mutes?: Client.Mute<Us>[];
   onMentionsClickMessage?(event: React.MouseEvent): void;
   onMentionsHoverMessage?(event: React.MouseEvent): void;
   onUserClick?(e: React.MouseEvent): void;
   onUserHover?(e: React.MouseEvent): void;
   getMessageActions(): Array<string>;
-  channelConfig?: Client.ChannelConfig | Client.ChannelConfigWithInfo;
+  channelConfig?: Client.ChannelConfig<Co> | Client.ChannelConfigWithInfo<Co>;
   threadList?: boolean;
   additionalMessageInputProps?: object;
   initialMessage?: boolean;
-  EditMessageInput?: React.FC<MessageInputProps>;
+  EditMessageInput?: React.FC<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   PinIndicator?: React.FC<PinIndicatorProps>;
 }
+
+export interface MessageInputProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  /** Set focus to the text input if this is enabled */
+  focus?: boolean;
+  /** Disable input */
+  disabled?: boolean;
+  /** enable/disable firing the typing event */
+  disableMentions?: boolean;
+  /** enable/disable firing the typing event */
+  publishTypingEvent?: boolean;
+  /** Grow the textarea while you're typing */
+  grow?: boolean;
+  /** Max number of rows the textarea is allowed to grow */
+  maxRows?: number;
+
+  autocompleteTriggers?: object;
+
+  /** The parent message object when replying on a thread */
+  parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+
+  /** The component handling how the input is rendered */
+  Input?: React.ElementType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+
+  /** Change the EmojiIcon component */
+  EmojiIcon?: React.ElementType;
+
+  /** Change the FileUploadIcon component */
+  FileUploadIcon?: React.ElementType;
+
+  /** Change the SendButton component */
+  SendButton?: React.ElementType<SendButtonProps>;
+
+  /** Override default suggestion list component */
+  SuggestionList?: React.ElementType<SuggestionListProps>;
+
+  /** Override image upload request */
+  doImageUploadRequest?(
+    file: object,
+    channel: Client.Channel<At, Ch, Co, Ev, Me, Re, Us>,
+  ): Promise<Client.SendFileAPIResponse>;
+
+  /** Override file upload request */
+  doFileUploadRequest?(
+    file: File,
+    channel: Client.Channel<At, Ch, Co, Ev, Me, Re, Us>,
+  ): Promise<Client.SendFileAPIResponse>;
+
+  /** Completely override the submit handler (advanced usage only) */
+  overrideSubmitHandler?(
+    message: object,
+    channelCid: string,
+  ): Promise<any> | void;
+  /**
+   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
+   * e.g.
+   * <MessageInput
+   *  additionalTextareaProps={{
+   *    maxLength: 10,
+   *  }}
+   * />
+   */
+  additionalTextareaProps?: React.TextareaHTMLAttributes;
+  /** Message object. If defined, the message passed will be edited, instead of a new message being created */
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  /** Callback to clear editing state in parent component */
+  clearEditingState?: () => void;
+  /** If true, file uploads are disabled. Default: false */
+  noFiles?: boolean;
+  /** Custom error handler, called when file/image uploads fail. */
+  errorHandler?: (e: Error, type: string, file: object) => Promise<any> | void;
+}
+
+export interface MessageSimpleProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  > {}
+
+export interface MessageTextProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us> {
+  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  customInnerClass?: string;
+  customWrapperClass?: string;
+  onReactionListClick?: () => void;
+  theme?: string;
+  showDetailedReactions?: boolean;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+}
+
+export interface MessageOptionsProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  getMessageActions(): Array<string>;
+  displayActions?: boolean;
+  displayLeft?: boolean;
+  displayReplies?: boolean;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  initialMessage?: boolean;
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  theme?: string;
+  threadList?: boolean;
+}
+// MessageComponentProps defines the props for the Message component
+export interface MessageComponentProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+    TranslationContextValue {
+  /** The current channel this message is displayed in */
+  channel?: Channel<Ch>;
+  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+  onMentionsClick?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+  onMentionsHover?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
+  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
+  messageActions?: Array<string> | boolean;
+  members?: {
+    [user_id: string]: Client.ChannelMemberResponse<Us>;
+  };
+  retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
+  removeMessage?(
+    updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): void;
+  mutes?: Client.Mute<Us>[];
+  openThread?(
+    message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+    event: React.SyntheticEvent,
+  ): void;
+  initialMessage?: boolean;
+  threadList?: boolean;
+  pinPermissions?: PinPermissions;
+}
+export type MessageComponentState = {
+  editing: boolean;
+};
 
 export type PinIndicatorProps = {
   message?: StreamChatReactMessageResponse;
@@ -1440,8 +1620,6 @@ export class MessageTeam extends React.PureComponent<
   MessageTeamState
 > {}
 
-export interface MessageSimpleProps
-  extends Omit<MessageUIComponentProps, 'PinIndicator'> {}
 export interface MessageTimestampProps {
   calendar?: boolean;
   customClass?: string;
@@ -1450,16 +1628,6 @@ export interface MessageTimestampProps {
   formatDate?(date: Date): string;
   message?: Client.MessageResponse;
   tDateTimeParser?: TDateTimeParser;
-}
-
-export interface MessageTextProps extends MessageSimpleProps {
-  customOptionProps?: Partial<MessageOptionsProps>;
-  customInnerClass?: string;
-  customWrapperClass?: string;
-  onReactionListClick?: () => void;
-  theme?: string;
-  showDetailedReactions?: boolean;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
 }
 
 export interface MessageActionsProps {
@@ -1484,6 +1652,7 @@ export interface MessageActionsProps {
   inline?: boolean;
   customWrapperClass?: string;
 }
+
 export interface MessageActionsWrapperProps {
   customWrapperClass?: string;
   inline?: boolean;
