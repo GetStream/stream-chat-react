@@ -54,7 +54,7 @@ module.exports = {
         {
           name: 'Components',
           components: [
-            'src/components/Message/Message.js',
+            'src/components/Message/Message.tsx',
             'src/components/Message/MessageSimple.js',
             'src/components/Message/MessageTeam.js',
             'src/components/Message/MessageLivestream.js',

@@ -21,9 +21,9 @@ The Message component provides the following functions to the rendered component
 - **openThread** Handler to open the thread on current message.
 
 ```js
-import { Message, MessageSimple } from '../components';
+import { Message, MessageSimple } from './';
 
-const data = require('./data');
+const data = require('../../docs/data.js');
 <div className="str-chat" style={{ height: 'unset' }}>
   <Message
     message={data.message}
@@ -41,9 +41,9 @@ const data = require('./data');
 Use the team messaging render component and set readBy
 
 ```js
-import { Message, MessageTeam } from '../components';
+import { Message, MessageTeam } from './';
 
-const data = require('./data');
+const data = require('../../docs/data.js');
 
 const readBy = [
   {
