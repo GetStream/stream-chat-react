@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
-import Modal from '../Modal';
+import { Modal } from '../Modal';
 
 describe('Modal', () => {
   afterEach(cleanup); // eslint-disable-line
@@ -38,7 +38,7 @@ describe('Modal', () => {
     fireEvent(
       document,
       new KeyboardEvent('keyPress', {
-        keyCode: 27,
+        key: 'Escape',
       }),
     );
 
@@ -53,7 +53,7 @@ describe('Modal', () => {
     fireEvent(
       document,
       new KeyboardEvent('keyPress', {
-        keyCode: 27,
+        key: 'Escape',
       }),
     );
 
