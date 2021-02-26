@@ -1100,7 +1100,7 @@ export interface ReactionsListProps {
   own_reactions?: StreamChatReactMessageResponse['own_reactions'];
   /** Provide a list of reaction options [{name: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmojiInterface[];
-  onClick?(): void;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   reverse?: boolean;
   emojiSetDef?: EnojiSetDef;
 }
@@ -1509,7 +1509,7 @@ export interface MessageOptionsProps {
   initialMessage?: boolean;
   message?: Client.MessageResponse;
   messageWrapperRef?: React.RefObject<HTMLElement>;
-  onReactionListClick?: () => void;
+  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
   threadList?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;

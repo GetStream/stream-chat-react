@@ -1,16 +1,59 @@
-// @ts-check
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ChannelContext } from '../../../context';
+import {
+  MouseEvent,
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import { useChannelContext } from '../../../context/ChannelContext';
+import { useChatContext } from '../../../context/ChatContext';
+
+import type {
+  MessageResponse,
+  Reaction,
+  ReactionAPIResponse,
+  ReactionResponse,
+} from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../../types/types';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
       Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
-/**
- * @type {import('types').useReactionHandler}
- */
-export const useReactionHandler = (message) => {
-  const { channel, client, updateMessage } = useContext(ChannelContext);
 
-  return async (reactionType, event) => {
+export const useReactionHandler = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+) => {
+  const { channel, updateMessage } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  return async (reactionType: string, event: MouseEvent<HTMLElement>) => {
     if (event && event.preventDefault) {
       event.preventDefault();
     }
@@ -20,13 +63,16 @@ export const useReactionHandler = (message) => {
       return;
     }
 
-    let userExistingReaction = /** @type { import('stream-chat').ReactionResponse<Record<String, unknown>, import('types').StreamChatReactUserType> | null } */ (null);
+    let userExistingReaction = (null as unknown) as ReactionResponse<Re, Us>;
 
     const currentUser = client.userID;
+
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
-        // own user should only ever contain the current user id
-        // just in case we check to prevent bugs with message updates from breaking reactions
+        /**
+         * own user should only ever contain the current user id
+         * just in case we check to prevent bugs with message updates from breaking reactions
+         */
         if (
           reaction.user &&
           currentUser === reaction.user.id &&
@@ -42,11 +88,13 @@ export const useReactionHandler = (message) => {
     }
 
     const originalMessage = message;
-    let reactionChangePromise;
+    let reactionChangePromise: Promise<
+      ReactionAPIResponse<At, Ch, Co, Me, Re, Us>
+    >;
 
-    /*
-    - Make the API call in the background
-    - If it fails, revert to the old message...
+    /**
+     * Make the API call in the background
+     * If it fails, revert to the old message...
      */
     if (message.id) {
       if (userExistingReaction) {
@@ -58,7 +106,7 @@ export const useReactionHandler = (message) => {
         // add the reaction
         const messageID = message.id;
 
-        const reaction = { type: reactionType };
+        const reaction = { type: reactionType } as Reaction<Re, Us>;
 
         // this.props.channel.state.addReaction(tmpReaction, this.props.message);
         reactionChangePromise = channel.sendReaction(messageID, reaction);
@@ -75,29 +123,37 @@ export const useReactionHandler = (message) => {
   };
 };
 
-/**
- * @type {import('types').useReactionClick}
- */
-export const useReactionClick = (
-  message,
-  reactionSelectorRef,
-  messageWrapperRef,
+export const useReactionClick = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  reactionSelectorRef?: RefObject<HTMLDivElement | null>,
+  messageWrapperRef?: RefObject<HTMLDivElement | null>,
 ) => {
-  const { channel } = useContext(ChannelContext);
+  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
+
+  const hasListener = useRef(false);
+
   const isReactionEnabled = channel?.getConfig?.()?.reactions !== false;
   const messageDeleted = !!message?.deleted_at;
-  const hasListener = useRef(false);
-  /** @type {EventListener} */
-  const closeDetailedReactions = useCallback(
+
+  const closeDetailedReactions: EventListener = useCallback(
     (event) => {
       if (
-        event.target &&
-        // @ts-expect-error
+        event.target instanceof HTMLElement &&
         reactionSelectorRef?.current?.contains(event.target)
       ) {
         return;
       }
+
       setShowDetailedReactions(false);
     },
     [setShowDetailedReactions, reactionSelectorRef],
@@ -105,35 +161,43 @@ export const useReactionClick = (
 
   useEffect(() => {
     const messageWrapper = messageWrapperRef?.current;
+
     if (showDetailedReactions && !hasListener.current) {
       hasListener.current = true;
       document.addEventListener('click', closeDetailedReactions);
       document.addEventListener('touchend', closeDetailedReactions);
+
       if (messageWrapper) {
         messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
       }
     }
+
     if (!showDetailedReactions && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
       document.removeEventListener('touchend', closeDetailedReactions);
+
       if (messageWrapper) {
         messageWrapper.removeEventListener(
           'mouseleave',
           closeDetailedReactions,
         );
       }
+
       hasListener.current = false;
     }
+
     return () => {
       if (hasListener.current) {
         document.removeEventListener('click', closeDetailedReactions);
         document.removeEventListener('touchend', closeDetailedReactions);
+
         if (messageWrapper) {
           messageWrapper.removeEventListener(
             'mouseleave',
             closeDetailedReactions,
           );
         }
+
         hasListener.current = false;
       }
     };
@@ -141,30 +205,31 @@ export const useReactionClick = (
 
   useEffect(() => {
     const messageWrapper = messageWrapperRef?.current;
+
     if (messageDeleted && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
       document.removeEventListener('touchend', closeDetailedReactions);
+
       if (messageWrapper) {
         messageWrapper.removeEventListener(
           'mouseleave',
           closeDetailedReactions,
         );
       }
+
       hasListener.current = false;
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  /** @type {(e: MouseEvent) => void} Typescript syntax */
-  const onReactionListClick = (e) => {
-    if (e && e.stopPropagation) {
-      e.stopPropagation();
+  const onReactionListClick = (event: MouseEvent<HTMLElement>) => {
+    if (event && event.stopPropagation) {
+      event.stopPropagation();
     }
     setShowDetailedReactions(true);
   };
 
   return {
     isReactionEnabled,
-    // @ts-expect-error
     onReactionListClick,
     showDetailedReactions,
   };
