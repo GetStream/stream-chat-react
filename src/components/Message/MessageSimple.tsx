@@ -88,10 +88,13 @@ const UnMemoizedMessageSimple = <
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
   const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: onUserClickCustomHandler,
-    onUserHoverHandler: onUserHoverCustomHandler,
-  });
+  const { onUserClick, onUserHover } = useUserHandler<At, Ch, Co, Me, Re, Us>(
+    message,
+    {
+      onUserClickHandler: onUserClickCustomHandler,
+      onUserHoverHandler: onUserHoverCustomHandler,
+    },
+  );
   const reactionSelectorRef = React.createRef<HTMLDivElement>();
   const messageWrapperRef = useRef(null);
   const {
@@ -159,6 +162,7 @@ const UnMemoizedMessageSimple = <
 
           {message.user && (
             <Avatar
+              //@ts-expect-error
               image={message.user.image}
               name={message.user.name || message.user.id}
               onClick={onUserClick}
@@ -174,6 +178,7 @@ const UnMemoizedMessageSimple = <
                 (propHandleRetry || handleRetry)
               ) {
                 const retryHandler = propHandleRetry || handleRetry;
+                //@ts-expect-error
                 retryHandler(message);
               }
             }}

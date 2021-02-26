@@ -22,7 +22,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "5.0.0",
     "custom-event": "^1.0.1",
-    "dayjs": "^1.10.3",
+    "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "i18next": "^19.8.4",

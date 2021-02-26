@@ -24,8 +24,8 @@ export const useUserHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  eventHandlers: {
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  eventHandlers?: {
     onUserClickHandler?: UserEventHandler<Us>;
     onUserHoverHandler?: UserEventHandler<Us>;
   },

@@ -24,6 +24,7 @@ import type {
   UnknownType,
 } from '../../../types/types';
 import type { MessageTextProps } from 'types';
+import type { TranslationLanguages } from 'stream-chat';
 
 const UnMemoizedMessageTextComponent = <
   At extends UnknownType = DefaultAttachmentType,
@@ -82,7 +83,8 @@ const UnMemoizedMessageTextComponent = <
   const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text`] || message?.text;
+    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message?.text;
 
   const messageMentionedUsersItem = message?.mentioned_users;
 

@@ -1,22 +1,40 @@
 // TypeScript Version: 2.8
 
 /** Components */
-import React from 'react';
-import Client, { StreamChat } from 'stream-chat';
-import ReactMarkdown from 'react-markdown';
-import i18next from 'i18next';
 import Dayjs from 'dayjs';
-import { ReactPlayerProps } from 'react-player';
-
 import {
-  ScrollSeekPlaceholderProps,
+  Data as EmojiMartData,
+  NimbleEmojiIndex,
+  NimbleEmojiProps,
+  NimblePickerProps,
+} from 'emoji-mart';
+import * as i18next from 'i18next';
+import React, { ReactElement } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { ReactPlayerProps } from 'react-player';
+import {
   ScrollSeekConfiguration,
+  ScrollSeekPlaceholderProps,
 } from 'react-virtuoso';
-
-import type { UnknownType } from './types';
-
-import type { ChannelStateReducerAction } from '../src/components/Channel/types';
+import Client, {
+  MessageResponse,
+  StreamChat,
+  TranslationLanguages,
+  UserResponse,
+} from 'stream-chat';
+import type { ChannelStateReducerAction } from '../src/components/Channel/channelState';
+import type { MessageNotificationProps } from '../src/components/MessageList/MessageNotification';
 import type { TDateTimeParser } from '../src/context/TranslationContext';
+import {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from './types';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -687,77 +705,6 @@ export interface ChannelHeaderProps {
   title?: string;
 }
 
-export interface MessageInputProps {
-  /** Set focus to the text input if this is enabled */
-  focus?: boolean;
-  /** Disable input */
-  disabled?: boolean;
-  /** enable/disable firing the typing event */
-  disableMentions?: boolean;
-  /** enable/disable firing the typing event */
-  publishTypingEvent?: boolean;
-  /** Grow the textarea while you're typing */
-  grow?: boolean;
-  /** Max number of rows the textarea is allowed to grow */
-  maxRows?: number;
-
-  autocompleteTriggers?: object;
-
-  /** The parent message object when replying on a thread */
-  parent?: StreamChatReactMessageResponse;
-
-  /** The component handling how the input is rendered */
-  Input?: React.ElementType<MessageInputProps>;
-
-  /** Change the EmojiIcon component */
-  EmojiIcon?: React.ElementType;
-
-  /** Change the FileUploadIcon component */
-  FileUploadIcon?: React.ElementType;
-
-  /** Change the SendButton component */
-  SendButton?: React.ElementType<SendButtonProps>;
-
-  /** Override default suggestion list component */
-  SuggestionList?: React.ElementType<SuggestionListProps>;
-
-  /** Override image upload request */
-  doImageUploadRequest?(
-    file: object,
-    channel: Client.Channel,
-  ): Promise<Client.SendFileAPIResponse>;
-
-  /** Override file upload request */
-  doFileUploadRequest?(
-    file: File,
-    channel: Client.Channel,
-  ): Promise<Client.SendFileAPIResponse>;
-
-  /** Completely override the submit handler (advanced usage only) */
-  overrideSubmitHandler?(
-    message: object,
-    channelCid: string,
-  ): Promise<any> | void;
-  /**
-   * Any additional attrubutes that you may want to add for underlying HTML textarea element.
-   * e.g.
-   * <MessageInput
-   *  additionalTextareaProps={{
-   *    maxLength: 10,
-   *  }}
-   * />
-   */
-  additionalTextareaProps?: React.TextareaHTMLAttributes;
-  /** Message object. If defined, the message passed will be edited, instead of a new message being created */
-  message?: Client.MessageResponse;
-  /** Callback to clear editing state in parent component */
-  clearEditingState?: () => void;
-  /** If true, file uploads are disabled. Default: false */
-  noFiles?: boolean;
-  /** Custom error handler, called when file/image uploads fail. */
-  errorHandler?: (e: Error, type: string, file: object) => Promise<any> | void;
-}
-
 export type ImageUpload = {
   id: string;
   file: File;
@@ -975,8 +922,8 @@ export interface MessageUIComponentProps<
     value: string,
     event: React.BaseSyntheticEvent,
   ): void;
-  handleRetry?(message: Message<At, Me, Us>): void;
-  isMyMessage?(message: MessageResponse<At, Ch, Co, Ev, Me, Re, Us>): boolean;
+  handleRetry?(message: Client.Message<At, Me, Us>): void;
+  isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;
   isUserMuted?(): boolean;
   handleOpenThread?(event: React.BaseSyntheticEvent): void;
   mutes?: Client.Mute<Us>[];
@@ -1061,7 +1008,7 @@ export interface MessageInputProps<
    *  }}
    * />
    */
-  additionalTextareaProps?: React.TextareaHTMLAttributes;
+  additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Message object. If defined, the message passed will be edited, instead of a new message being created */
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
   /** Callback to clear editing state in parent component */
@@ -1094,7 +1041,7 @@ export interface MessageTextProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > extends MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us> {
-  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
   customInnerClass?: string;
   customWrapperClass?: string;
   onReactionListClick?: () => void;
@@ -1135,7 +1082,7 @@ export interface MessageComponentProps<
 > extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
     TranslationContextValue {
   /** The current channel this message is displayed in */
-  channel?: Channel<Ch>;
+  channel?: Client.Channel<Ch>;
   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
   onMentionsClick?(
     e: React.MouseEvent,
@@ -1709,7 +1656,7 @@ export type PinPermissions = {
   livestream?: PinEnabledUserRoles;
   messaging?: PinEnabledUserRoles;
   team?: PinEnabledUserRoles;
-  [key: string]: PinEnabledUserRoles;
+  [key: string]: PinEnabledUserRoles | undefined;
 };
 
 export function usePinHandler(
@@ -1803,7 +1750,7 @@ export interface MinimalEmojiInterface
 export function renderText(
   messageText?: string,
   mentioned_users?: Client.UserResponse[],
-): ReactMarkdown;
+): (prpos: ReactMarkdown.ReactMarkdownProps) => ReactElement;
 export function smartRender(
   ElementOrComponentOrLiteral: ElementOrComponentOrLiteral,
   props?: {},
