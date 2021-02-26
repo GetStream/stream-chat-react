@@ -1,6 +1,17 @@
-// @ts-check
-import React, { FC } from 'react';
-import type { PinIndicatorProps } from 'types';
+import React from 'react';
+
+import type { TFunction } from 'i18next';
+import type { MessageResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 
 export const ReplyIcon = () => (
   <svg height='15' width='18' xmlns='http://www.w3.org/2000/svg'>
@@ -68,7 +79,29 @@ export const PinIcon = () => (
   </svg>
 );
 
-export const PinIndicator: FC<PinIndicatorProps> = ({ message, t }) => {
+export type PinIndicatorProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = {
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  t?: TFunction;
+};
+
+export const PinIndicator = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
+  message,
+  t,
+}: PinIndicatorProps<At, Ch, Co, Me, Re, Us>) => {
   if (!message || !t) return null;
 
   return (
