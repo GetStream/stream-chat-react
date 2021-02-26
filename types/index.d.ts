@@ -301,7 +301,7 @@ export interface ChannelOptions {
 
 export interface ChannelListProps {
   Avatar?: React.ElementType<AvatarProps>;
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  wmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
@@ -539,7 +539,7 @@ export interface DateSeparatorProps extends TranslationContextValue {
 
 export interface EmptyStateIndicatorProps extends TranslationContextValue {
   /** List Type */
-  listType: string;
+  listType: 'channel' | 'message';
 }
 
 export interface SendButtonProps {
@@ -572,13 +572,22 @@ export interface FixedHeightMessageProps<
   groupedByUser: boolean;
 }
 
-export interface VirtualizedMessageListInternalProps {
+export interface VirtualizedMessageListInternalProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  client: StreamChatReactClient;
+  /** The client connection object for connecting to Stream */
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  messages?: Array<Client.MessageResponse>;
+  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  loadMore(messageLimit?: number): Promise<number>;
+  loadMore?(messageLimit?: number | undefined): Promise<number>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   hasMore: boolean;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
@@ -592,7 +601,7 @@ export interface VirtualizedMessageListInternalProps {
   shouldGroupByUser?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer(
-    messageList: Array<Client.MessageResponse>,
+    messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
     index: number,
   ): React.ReactElement;
   /** Custom UI component to display messages. */
@@ -602,11 +611,11 @@ export interface VirtualizedMessageListInternalProps {
   /** Custom UI component to display system messages */
   MessageSystem?: React.ElementType<EventComponentProps>;
   /** The UI Indicator to use when MessageList or ChannelList is empty */
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
   /** The UI Indicator to use when someone is typing, default to null */
-  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
+  TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
   /** Component to render at the top of the MessageList while loading new messages */
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
   overscan?: number;
   /** Performance improvement by showing placeholders if user scrolls fast through list

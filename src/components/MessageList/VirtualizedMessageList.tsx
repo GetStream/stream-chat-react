@@ -1,10 +1,17 @@
-import React, { FC, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Components, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import type { VirtualizedMessageListInternalProps } from 'types';
 import type {
-  VirtualizedMessageListInternalProps,
-  VirtualizedMessageListProps,
-} from 'types';
-import { ChannelContext, TranslationContext } from '../../context';
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+import { TranslationContext, useChannelContext } from '../../context';
 import { smartRender } from '../../utils';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
@@ -25,7 +32,15 @@ const PREPEND_OFFSET = 10 ** 7;
  * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  * @example ../../docs/VirtualizedMessageList.md
  */
-const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalProps> = ({
+const VirtualizedMessageListWithoutContext = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
   client,
   messages,
   loadMore,
@@ -44,7 +59,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
   stickToBottomScrollBehavior = 'smooth',
-}) => {
+}: VirtualizedMessageListInternalProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   const { t } = useContext(TranslationContext);
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -103,7 +118,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
 
   const virtuosoComponents = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
-      <EmptyStateIndicator listType='message' />
+      <>{EmptyStateIndicator && <EmptyStateIndicator listType='message' />}</>
     );
 
     const Header: Components['Header'] = () =>
@@ -167,7 +182,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
         overscan={overscan}
         ref={virtuoso}
         startReached={() => {
-          if (hasMore) {
+          if (hasMore && loadMore) {
             loadMore(messageLimit);
           }
         }}
@@ -195,23 +210,31 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
   );
 };
 
-export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
+export function VirtualizedMessageList<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  props: Partial<
+    VirtualizedMessageListInternalProps<At, Ch, Co, Ev, Me, Re, Us>
+  >,
+) {
+  const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   return (
-    <ChannelContext.Consumer>
-      {(context) => (
-        <VirtualizedMessageListWithoutContext
-          client={context.client}
-          hasMore={!!context.hasMore}
-          loadingMore={!!context.loadingMore}
-          //@ts-expect-error
-          loadMore={context.loadMore}
-          // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
-          // 'formatMessage' converts it to Date, which seems to be the correct type
-          //@ts-expect-error
-          messages={context.messages}
-          {...props}
-        />
-      )}
-    </ChannelContext.Consumer>
+    <VirtualizedMessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
+      client={context.client}
+      hasMore={!!context.hasMore}
+      loadingMore={!!context.loadingMore}
+      loadMore={context.loadMore}
+      // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
+      // 'formatMessage' converts it to Date, which seems to be the correct type
+      //@ts-expect-error
+      messages={context.messages}
+      {...props}
+    />
   );
 }
