@@ -1,6 +1,20 @@
-import React, { useCallback, useContext, useMemo } from 'react';
-import type { TranslationLanguages } from 'stream-chat';
-import type { FixedHeightMessageProps } from 'types';
+import React, { useCallback, useMemo } from 'react';
+
+import { useActionHandler, useUserRole } from './hooks';
+import { MessageTimestamp } from './MessageTimestamp';
+import { getMessageActions } from './utils';
+
+import { Avatar } from '../Avatar';
+import { Gallery } from '../Gallery';
+import { MessageActions } from '../MessageActions';
+import { MML } from '../MML';
+
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { renderText } from '../../utils';
+
+import type { MessageResponse, TranslationLanguages } from 'stream-chat';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -11,15 +25,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import { ChatContext, TranslationContext } from '../../context';
-import { renderText } from '../../utils';
-import { Avatar } from '../Avatar';
-import { Gallery } from '../Gallery';
-import { MessageActions } from '../MessageActions';
-import { MML } from '../MML';
-import { useActionHandler, useUserRole } from './hooks';
-import { MessageTimestamp } from './MessageTimestamp';
-import { getMessageActions } from './utils';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -37,24 +42,36 @@ const hashUserId = (userId: string) => {
 const getUserColor = (theme: string, userId: string) =>
   selectColor(hashUserId(userId), theme.includes('dark'));
 
+export type FixedHeightMessageProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = {
+  groupedByUser: boolean;
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+};
+
 /**
  * FixedHeightMessage - This component renders a single message.
  * It uses fixed height elements to make sure it works well in VirtualizedMessageList
  */
-const UnmemoizedFixedHeightMessage = <
+const UnMemoizedFixedHeightMessage = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType
 >({
   groupedByUser,
   message,
 }: FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>) => {
-  const { theme } = useContext(ChatContext);
-  const { userLanguage } = useContext(TranslationContext);
+  const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { userLanguage } = useTranslationContext();
 
   const role = useUserRole<At, Ch, Co, Ev, Me, Re, Us>(message);
   const handleAction = useActionHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
@@ -68,8 +85,7 @@ const UnmemoizedFixedHeightMessage = <
     [message.mentioned_users, messageTextToRender],
   );
 
-  const userId = message.user?.id;
-  // @ts-expect-error
+  const userId = message.user?.id || '';
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);
 
   const messageActionsHandler = useCallback(
@@ -87,7 +103,6 @@ const UnmemoizedFixedHeightMessage = <
       key={message.id}
     >
       <Avatar
-        // @ts-expect-error
         image={message.user?.image}
         name={message.user?.name || message.user?.id}
         shape='rounded'
@@ -136,4 +151,4 @@ const UnmemoizedFixedHeightMessage = <
   );
 };
 
-export const FixedHeightMessage = React.memo(UnmemoizedFixedHeightMessage);
+export const FixedHeightMessage = React.memo(UnMemoizedFixedHeightMessage);

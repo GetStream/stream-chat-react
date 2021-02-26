@@ -4,6 +4,8 @@ import { getDisplayName } from './utils/getDisplayName';
 
 import type { Channel, Mute, StreamChat } from 'stream-chat';
 
+import type { Theme } from '../components/Chat';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -25,6 +27,7 @@ export type ChatContextValue<
   Us extends UnknownType = DefaultUserType
 > = {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  theme: Theme;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeMobileNav?: () => void;
   mutes?: Mute<Us>[];
@@ -35,7 +38,6 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ) => void;
-  theme?: string;
 };
 
 export const ChatContext = React.createContext({} as ChatContextValue);
