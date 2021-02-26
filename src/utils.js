@@ -104,11 +104,9 @@ export const renderText = (text, mentioned_users) => {
   // extract all valid links/emails within text and replace it with proper markup
   linkify.find(newText).forEach(({ type, href, value }) => {
     const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
-    // check if message is already  markdown
-    const noParsingNeeded =
-      markdownLinks &&
-      markdownLinks.filter((text) => text?.indexOf(href) !== -1);
-    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
+
+    //check if link is in markdown or a code block
+    if (markdownLinks || linkIsInBlock) return;
 
     const displayLink =
       type === 'email'
