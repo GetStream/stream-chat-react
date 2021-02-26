@@ -1339,7 +1339,7 @@ export interface ModalWrapperProps {
 }
 
 export interface InfiniteScrollProps {
-  loadMore(): any;
+  loadMore?(): any;
   hasMore?: boolean;
   initialLoad?: boolean;
   isReverse?: boolean;

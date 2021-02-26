@@ -34,7 +34,7 @@ const calculateOffset = (element: HTMLElement, scrollTop: number) => {
 };
 
 export type InfiniteScrollProps = {
-  loadMore: () => void;
+  className?: string;
   element?: React.ElementType;
   hasMore?: boolean;
   initialLoad?: boolean;
@@ -47,6 +47,7 @@ export type InfiniteScrollProps = {
   ) => void;
   loader?: React.ReactNode;
   loading?: React.ReactNode;
+  loadMore?: () => void;
   pageStart?: number;
   threshold?: number;
   useCapture?: boolean;

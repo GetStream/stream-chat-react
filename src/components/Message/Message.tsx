@@ -182,14 +182,14 @@ const UnMemoizedMessage = <
         onMentionsHoverMessage={onMentionsHover}
         onUserClick={onUserClick}
         onUserHover={onUserHover}
+        readBy={props.readBy || []}
         setEditingState={setEdit}
       />
     )
   );
 };
 
-UnMemoizedMessage.defaultProps = {
-  readBy: [],
-};
-
-export const Message = React.memo(UnMemoizedMessage, areMessagePropsEqual);
+export const Message = React.memo(
+  UnMemoizedMessage,
+  areMessagePropsEqual,
+) as typeof UnMemoizedMessage;
