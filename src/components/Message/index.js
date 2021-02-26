@@ -2,7 +2,7 @@ export * from './FixedHeightMessage';
 export * from './hooks';
 export { default as Message } from './Message';
 export { default as MessageCommerce } from './MessageCommerce';
-export { default as MessageDeleted } from './MessageDeleted';
+export * from './MessageDeleted';
 export { default as MessageLivestream } from './MessageLivestream';
 export { default as MessageOptions } from './MessageOptions';
 export { default as MessageRepliesCountButton } from './MessageRepliesCountButton';

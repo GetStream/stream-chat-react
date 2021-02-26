@@ -19,7 +19,7 @@ import {
 } from '../Reactions';
 import MessageOptions from './MessageOptions';
 import MessageText from './MessageText';
-import DefaultMessageDeleted from './MessageDeleted';
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import {
   useActionHandler,
   useOpenThreadHandler,
