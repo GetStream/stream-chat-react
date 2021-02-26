@@ -140,7 +140,7 @@ module.exports = {
         'src/components/Loading/LoadingIndicator.tsx',
         'src/components/Image/Image.js',
         'src/components/DateSeparator/DateSeparator.js',
-        'src/components/Window/Window.js',
+        'src/components/Window/Window.tsx',
         'src/components/ChannelList/ChannelListMessenger.tsx',
         'src/components/ChannelList/ChannelListTeam.tsx',
         'src/components/ChannelPreview/ChannelPreviewMessenger.tsx',
