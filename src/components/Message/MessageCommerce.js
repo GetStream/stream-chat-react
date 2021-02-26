@@ -14,7 +14,7 @@ import {
   messageHasAttachments,
   messageHasReactions,
 } from './utils';
-import MessageOptions from './MessageOptions';
+import { MessageOptions } from './MessageOptions';
 import MessageText from './MessageText';
 import {
   useActionHandler,

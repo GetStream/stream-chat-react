@@ -15,7 +15,7 @@ import MessageSimple from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
-import MessageOptionsMock from '../MessageOptions';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import MessageTextMock from '../MessageText';
 import {
   EditMessageForm,

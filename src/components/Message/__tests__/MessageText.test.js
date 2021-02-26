@@ -12,7 +12,7 @@ import {
 } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
 import MessageText from '../MessageText';
-import MessageOptionsMock from '../MessageOptions';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 
 jest.mock('../MessageOptions', () => jest.fn(() => <div />));
 

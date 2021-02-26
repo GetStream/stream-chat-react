@@ -13,7 +13,7 @@ import {
   useReactionHandler,
 } from './hooks';
 import { messageHasAttachments, messageHasReactions } from './utils';
-import MessageOptions from './MessageOptions';
+import { MessageOptions } from './MessageOptions';
 
 /**
  * @type { React.FC<import('types').MessageTextProps> }

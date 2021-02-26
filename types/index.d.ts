@@ -1497,20 +1497,6 @@ export interface MessageActionsWrapperProps {
   setActionsBoxOpen: (actionsBoxOpen: boolean) => void;
 }
 
-export interface MessageOptionsProps {
-  getMessageActions(): Array<string>;
-  handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  initialMessage?: boolean;
-  message?: Client.MessageResponse;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
-  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
-  threadList?: boolean;
-  displayLeft?: boolean;
-  displayReplies?: boolean;
-  displayActions?: boolean;
-  theme?: string;
-}
-
 export const MessageSimple: React.FC<MessageSimpleProps>;
 
 export class MessageDeleted extends React.PureComponent<

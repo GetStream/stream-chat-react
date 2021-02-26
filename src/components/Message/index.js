@@ -4,7 +4,7 @@ export { default as Message } from './Message';
 export { default as MessageCommerce } from './MessageCommerce';
 export * from './MessageDeleted';
 export { default as MessageLivestream } from './MessageLivestream';
-export { default as MessageOptions } from './MessageOptions';
+export * from './MessageOptions';
 export { default as MessageRepliesCountButton } from './MessageRepliesCountButton';
 export { default as MessageSimple } from './MessageSimple';
 export { default as MessageTeam } from './MessageTeam';
