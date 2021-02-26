@@ -59,6 +59,13 @@ const matchMarkdownLinks = (message) => {
   return links;
 };
 
+/** @type {(message: string) => (string|null)[]} */
+const messageCodeBlocks = (message) => {
+  const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
+  const matches = message.match(codeRegex);
+  return matches || [];
+};
+
 /** @type {(input: string, length: number) => string} */
 export const truncate = (input, length, end = '...') => {
   if (input.length > length) {
@@ -93,18 +100,32 @@ export const renderText = (text, mentioned_users) => {
 
   let newText = text;
   let markdownLinks = matchMarkdownLinks(newText);
+  let codeBlocks = messageCodeBlocks(newText);
+  const detectHttp = /(http(s?):\/\/)?(www\.)?/;
+
   // extract all valid links/emails within text and replace it with proper markup
   linkify.find(newText).forEach(({ type, href, value }) => {
+    const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
+
     // check if message is already  markdown
     const noParsingNeeded =
       markdownLinks &&
-      markdownLinks.filter((text) => text?.indexOf(href) !== -1);
-    if (noParsingNeeded.length > 0) return;
+      markdownLinks.filter((text) => {
+        const strippedHref = href?.replace(detectHttp, '');
+        const strippedText = text?.replace(detectHttp, '');
+
+        if (!strippedHref || !strippedText) return false;
+
+        return (
+          strippedHref.includes(strippedText) ||
+          strippedText.includes(strippedHref)
+        );
+      });
+
+    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
     const displayLink =
-      type === 'email'
-        ? value
-        : truncate(value.replace(/(http(s?):\/\/)?(www\.)?/, ''), 20);
+      type === 'email' ? value : truncate(value.replace(detectHttp, ''), 20);
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 

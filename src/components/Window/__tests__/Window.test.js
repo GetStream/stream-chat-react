@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import '@testing-library/jest-dom';
 import { ChannelContext } from '../../../context';
-import Window from '../Window';
+import { Window } from '../Window';
 
 const renderComponent = ({ channelContextMock, children, props }) =>
   render(
