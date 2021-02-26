@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.1) 2021-02-26
+
+### Chore
+
+- Upgrade `stream-chat` dependency to fix reaction caching issue [#742](https://github.com/GetStream/stream-chat-react/pull/742)
+
+### Bug
+
+- Fix markdown link rendering issues [#742](https://github.com/GetStream/stream-chat-react/pull/742)
+
 ## [4.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.0) 2021-02-25
 
 ### Chore
