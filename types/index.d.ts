@@ -702,6 +702,7 @@ export interface MessageListProps {
     e: React.MouseEvent,
     mentioned_users: Client.UserResponse[],
   ): void;
+  scrolledUpThreshold?: number;
 }
 
 export interface ChannelHeaderProps {

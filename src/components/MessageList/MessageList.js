@@ -166,7 +166,7 @@ class MessageList extends PureComponent {
     this.setState({ newMessagesNotification: false });
   };
 
-  userScrolledUp = () => this.scrollOffset > 200;
+  userScrolledUp = () => this.scrollOffset > this.props.scrolledUpThreshold;
 
   listenToScroll = (offset, reverseOffset, threshold) => {
     this.scrollOffset = offset;
@@ -439,6 +439,8 @@ MessageList.propTypes = {
   removeMessage: PropTypes.func,
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   retrySendMessage: PropTypes.func,
+  /** The pixel threshold to determine whether or not the user is scrolled up in the list */
+  scrolledUpThreshold: PropTypes.number,
   /**
    * Boolean weather current message list is a thread.
    */
@@ -468,6 +470,7 @@ MessageList.defaultProps = {
   MessageSystem: EventComponent,
   noGroupByUser: false,
   pinPermissions: defaultPinPermissions,
+  scrolledUpThreshold: 200,
   threadList: false,
   TypingIndicator: DefaultTypingIndicator,
   unsafeHTML: false,
