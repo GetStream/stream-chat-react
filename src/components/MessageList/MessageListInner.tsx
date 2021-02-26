@@ -29,6 +29,40 @@ import type {
   TypingIndicatorProps,
 } from 'types';
 
+export interface MessageListInnerProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  bottomRef: RefObject<HTMLDivElement>;
+  /** The current channel this message is displayed in */
+  channel: Channel<Ch>;
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
+  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
+  noGroupByUser: boolean;
+  onMessageLoadCaptured: (
+    event: React.SyntheticEvent<HTMLLIElement, Event>,
+  ) => void;
+  threadList: boolean;
+  TypingIndicator: React.ComponentType<TypingIndicatorProps>;
+  disableDateSeparator?: boolean;
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
+  HeaderComponent?: React.ComponentType;
+  headerPosition?: number;
+  hideDeletedMessages?: boolean;
+  internalInfiniteScrollProps?: InfiniteScrollProps;
+  internalMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
+  MessageSystem?: React.ComponentType<{
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  }>;
+  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
+}
+
 // fast since it usually iterates just the last few messages
 const getLastReceived = <
   At extends UnknownType = DefaultAttachmentType,
@@ -286,41 +320,7 @@ const getGroupStyles = <
   return '';
 };
 
-export interface MessageListInnerProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> {
-  bottomRef: RefObject<HTMLDivElement>;
-  /** The current channel this message is displayed in */
-  channel: Channel<Ch>;
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
-  noGroupByUser: boolean;
-  onMessageLoadCaptured: (
-    event: React.SyntheticEvent<HTMLLIElement, Event>,
-  ) => void;
-  threadList: boolean;
-  TypingIndicator: React.ComponentType<TypingIndicatorProps>;
-  disableDateSeparator?: boolean;
-  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-  HeaderComponent?: React.ComponentType;
-  headerPosition?: number;
-  hideDeletedMessages?: boolean;
-  internalInfiniteScrollProps?: InfiniteScrollProps;
-  internalMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
-  MessageSystem?: React.ComponentType<{
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  }>;
-  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
-}
-
-const MessageListInner = <
+const UnMemoizedMessageListInner = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -492,4 +492,7 @@ const MessageListInner = <
   );
 };
 
-export default React.memo(MessageListInner, isEqual);
+export const MessageListInner = React.memo(
+  UnMemoizedMessageListInner,
+  isEqual,
+) as typeof UnMemoizedMessageListInner;
