@@ -11,6 +11,8 @@ import {
   MessageInput,
   MessageInputFlat,
   MessageList,
+  VirtualizedMessageList,
+  Message,
   Thread,
   Window,
 } from 'stream-chat-react';
@@ -61,7 +63,7 @@ const App = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <MessageList />
+        <VirtualizedMessageList Message={Message} />
         <MessageInput Input={MessageInputFlat} focus />
       </Window>
       <Thread />

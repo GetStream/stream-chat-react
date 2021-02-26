@@ -26,7 +26,10 @@ import calendar from 'dayjs/plugin/calendar';
 
 Dayjs.extend(calendar);
 
-jest.mock('../MessageOptions', () => jest.fn(() => <div />));
+jest.mock('../MessageOptions', () => ({
+  MessageOptions: jest.fn(() => <div />),
+}));
+
 jest.mock('../MessageText', () => jest.fn(() => <div />));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));

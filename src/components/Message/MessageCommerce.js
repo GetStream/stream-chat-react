@@ -8,7 +8,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
   ReactionsList as DefaultReactionsList,
 } from '../Reactions';
-import MessageRepliesCountButton from './MessageRepliesCountButton';
+import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import {
   areMessagePropsEqual,
   messageHasAttachments,

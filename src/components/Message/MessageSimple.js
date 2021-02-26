@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
-import MessageRepliesCountButton from './MessageRepliesCountButton';
+import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';

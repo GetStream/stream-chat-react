@@ -1276,13 +1276,7 @@ export interface MessageActionsBoxProps {
   handlePin?(event?: React.BaseSyntheticEvent): void;
   getMessageActions(): Array<string>;
 }
-export interface MessageRepliesCountButtonProps
-  extends TranslationContextValue {
-  labelSingle?: string;
-  labelPlural?: string;
-  reply_count?: number;
-  onClick?: React.MouseEventHandler;
-}
+
 export interface ModalProps {
   onClose?(): void;
   open: boolean;
@@ -1341,7 +1335,6 @@ export class MessageActionsBox extends React.PureComponent<
   any
 > {}
 export const MessageNotification: React.FC<MessageNotificationProps>;
-export const MessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps>;
 export class Modal extends React.PureComponent<ModalProps, any> {}
 export const ModalImage: React.FC<ModalImageProps>;
 
