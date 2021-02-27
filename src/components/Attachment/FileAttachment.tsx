@@ -7,20 +7,21 @@ import { SafeAnchor } from '../SafeAnchor';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../../types/types';
 
 export type FileAttachmentProps<
-  At extends UnknownType = DefaultAttachmentType
+  At extends DefaultAttachmentType = DefaultAttachmentType
 > = {
-  attachment: Attachment<At> & { file_size?: number };
+  attachment: Attachment<At>;
 };
 
 const UnMemoizedFileAttachment = <
-  At extends UnknownType = DefaultAttachmentType
+  At extends DefaultAttachmentType = DefaultAttachmentType
 >(
   props: FileAttachmentProps<At>,
 ) => {
   const { attachment } = props;
+
   return (
     <div
       className='str-chat__message-attachment-file--item'

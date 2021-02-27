@@ -16,9 +16,11 @@ const UnMemoizedAudio = <At extends UnknownType = DefaultAttachmentType>(
   props: AudioProps<At>,
 ) => {
   const { og } = props;
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const updateProgress = useCallback(() => {
     if (audioRef.current !== null) {
@@ -41,7 +43,7 @@ const UnMemoizedAudio = <At extends UnknownType = DefaultAttachmentType>(
       }
       audioRef.current.pause();
     }
-    return () => undefined;
+    return;
   }, [isPlaying, updateProgress]);
 
   const { asset_url, description, image_url, text, title } = og;

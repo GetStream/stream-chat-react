@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { ModalComponent as ModalWrapper } from './ModalWrapper';
@@ -12,8 +12,12 @@ export type ImageProps = {
   thumb_url?: string;
 };
 
+/**
+ * Image - displays an image.
+ * @example ./Image.md
+ */
 export const ImageComponent: React.FC<ImageProps> = (props) => {
-  const [modalIsOpen, setModalIsOpen] = React.useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const { fallback, image_url, thumb_url } = props;
   const imageSrc = sanitizeUrl(image_url || thumb_url);
@@ -22,7 +26,7 @@ export const ImageComponent: React.FC<ImageProps> = (props) => {
   const toggleModal = () => setModalIsOpen(!modalIsOpen);
 
   return (
-    <React.Fragment>
+    <>
       <img
         alt={fallback}
         className='str-chat__message-attachment--img'
@@ -37,6 +41,6 @@ export const ImageComponent: React.FC<ImageProps> = (props) => {
         modalIsOpen={modalIsOpen}
         toggleModal={toggleModal}
       />
-    </React.Fragment>
+    </>
   );
 };

@@ -1,16 +1,16 @@
 import React from 'react';
-import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 
 import { SafeAnchor } from '../SafeAnchor';
+
+import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
 /**
  * Card - Simple Card Layout
  *
- * @example ../../docs/Card.md
+ * @example ./Card.md
  */
-
 export type CardProps = {
   /** The url of the full sized image */
   image_url?: string;
@@ -40,9 +40,10 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   } = props;
 
   const { t } = useTranslationContext();
+
   const image = thumb_url || image_url;
 
-  const trimUrl = (url: string | undefined | null) => {
+  const trimUrl = (url?: string | null) => {
     if (url !== undefined && url !== null) {
       const [trimmedUrl] = url
         .replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')

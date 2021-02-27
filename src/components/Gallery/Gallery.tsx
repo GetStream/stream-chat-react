@@ -8,14 +8,14 @@ import type { Attachment } from 'stream-chat';
 
 import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
 
-/**
- * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
- * @example ../../docs/Gallery.md
- */
 export type GalleryProps<At extends UnknownType = DefaultAttachmentType> = {
   images: Attachment<At>[];
 };
 
+/**
+ * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
+ * @example ./Gallery.md
+ */
 const UnMemoizedGallery = <At extends UnknownType = DefaultAttachmentType>(
   props: GalleryProps<At>,
 ) => {
