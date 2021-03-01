@@ -7,11 +7,7 @@ import {
   VirtuosoHandle,
 } from 'react-virtuoso';
 import type { MessageResponse, StreamChat } from 'stream-chat';
-import type {
-  EventComponentProps,
-  MessageDeletedProps,
-  TypingIndicatorProps,
-} from 'types';
+import type { EventComponentProps, TypingIndicatorProps } from 'types';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -37,6 +33,7 @@ import {
   FixedHeightMessage as DefaultMessage,
   MessageDeleted as DefaultMessageDeleted,
   FixedHeightMessageProps,
+  MessageDeletedProps,
 } from '../Message';
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';

@@ -47,8 +47,20 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageSimpleProps } from 'types';
+import type { MessageUIComponentProps } from 'types';
 
+export interface MessageSimpleProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  > {}
 /**
  * MessageSimple - Render component, should be used together with the Message component
  *

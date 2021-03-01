@@ -8,10 +8,10 @@ import type {
 } from 'stream-chat';
 import type {
   ChannelContextValue,
-  MessageComponentProps,
   StreamChatReactUserType,
   TranslationContextValue,
 } from 'types';
+import type { MessageComponentProps } from './Message';
 
 /**
  * Following function validates a function which returns notification message.

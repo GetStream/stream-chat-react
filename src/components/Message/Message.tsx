@@ -2,6 +2,7 @@ import React, { useCallback, useContext } from 'react';
 
 import { MessageSimple } from './MessageSimple';
 import {
+  PinPermissions,
   useActionHandler,
   useDeleteHandler,
   useEditHandler,
@@ -34,7 +35,77 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageComponentProps } from 'types';
+import type { MessageProps, TranslationContextValue } from 'types';
+import type {
+  Channel,
+  ChannelMemberResponse,
+  Message as ClientMessage,
+  MessageResponse,
+  Mute,
+  User,
+  UserResponse,
+} from 'stream-chat';
+
+export interface MessageComponentProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+    TranslationContextValue {
+  /** The current channel this message is displayed in */
+  channel?: Channel<Ch>;
+
+  initialMessage?: boolean;
+
+  members?: {
+    [user_id: string]: ChannelMemberResponse<Us>;
+  };
+
+  messageActions?: Array<string> | boolean;
+
+  mutes?: Mute<Us>[];
+
+  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+  onMentionsClick?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+
+  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+  onMentionsHover?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+
+  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserClick?(e: React.MouseEvent, user: User<Us>): void;
+
+  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserHover?(e: React.MouseEvent, user: User<Us>): void;
+
+  openThread?(
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    event: React.SyntheticEvent,
+  ): void;
+
+  pinPermissions?: PinPermissions;
+
+  removeMessage?(updatedMessage: MessageResponse<At, Ch, Co, Me, Re, Us>): void;
+
+  retrySendMessage?(message: ClientMessage<At, Me, Us>): Promise<void>;
+
+  threadList?: boolean;
+
+  // XXX: this is a fix for the watchers being passed in MessageList
+  // apparently, they are not used anywhere
+  watchers?: {
+    [user_id: string]: ChannelMemberResponse<Us>;
+  };
+}
 
 /**
  * Message - A high level component which implements all the logic required for a message.

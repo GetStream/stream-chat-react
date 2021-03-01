@@ -1,9 +1,5 @@
 import React, { PureComponent, RefObject } from 'react';
-import type {
-  LoadingIndicator,
-  MessageComponentProps,
-  TranslationContextValue,
-} from 'types';
+import type { LoadingIndicator, TranslationContextValue } from 'types';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   DefaultAttachmentType,
@@ -23,7 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { MessageSimple } from '../Message';
+import { MessageComponentProps, MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { Center } from './Center';

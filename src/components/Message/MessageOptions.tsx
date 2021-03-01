@@ -1,10 +1,5 @@
 import React, { useContext } from 'react';
-import { useOpenThreadHandler, useUserRole } from './hooks';
-import { ChannelContext } from '../../context';
-import { MessageActions } from '../MessageActions';
-import { MESSAGE_ACTIONS } from './utils';
-import { ReactionIcon, ThreadIcon } from './icons';
-
+import type { MessageResponse } from 'stream-chat';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -14,7 +9,32 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageOptionsProps } from 'types';
+import { ChannelContext } from '../../context';
+import { MessageActions } from '../MessageActions';
+import { useOpenThreadHandler, useUserRole } from './hooks';
+import { ReactionIcon, ThreadIcon } from './icons';
+import { MESSAGE_ACTIONS } from './utils';
+
+export interface MessageOptionsProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  getMessageActions(): Array<string>;
+  displayActions?: boolean;
+  displayLeft?: boolean;
+  displayReplies?: boolean;
+  handleOpenThread?(event: React.BaseSyntheticEvent): void;
+  initialMessage?: boolean;
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  theme?: string;
+  threadList?: boolean;
+}
 
 const UnMemoizedMessageOptions = <
   At extends UnknownType = DefaultAttachmentType,

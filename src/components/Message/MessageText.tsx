@@ -1,18 +1,5 @@
 import React, { useContext, useMemo, useRef } from 'react';
-import { isOnlyEmojis, renderText } from '../../utils';
-import { TranslationContext } from '../../context';
-import {
-  ReactionsList as DefaultReactionList,
-  ReactionSelector as DefaultReactionSelector,
-} from '../Reactions';
-import {
-  useMentionsUIHandler,
-  useMobilePress,
-  useReactionClick,
-  useReactionHandler,
-} from './hooks';
-import { messageHasAttachments, messageHasReactions } from './utils';
-import { MessageOptions } from './MessageOptions';
+import type { TranslationLanguages } from 'stream-chat';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -23,8 +10,39 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageTextProps } from 'types';
-import type { TranslationLanguages } from 'stream-chat';
+import { TranslationContext } from '../../context';
+import { isOnlyEmojis, renderText } from '../../utils';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
+import {
+  useMentionsUIHandler,
+  useMobilePress,
+  useReactionClick,
+  useReactionHandler,
+} from './hooks';
+import { MessageOptions, MessageOptionsProps } from './MessageOptions';
+import type { MessageSimpleProps } from './MessageSimple';
+import { messageHasAttachments, messageHasReactions } from './utils';
+
+export interface MessageTextProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us> {
+  customInnerClass?: string;
+  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
+  customWrapperClass?: string;
+  messageWrapperRef?: React.RefObject<HTMLElement>;
+  onReactionListClick?: () => void;
+  showDetailedReactions?: boolean;
+  theme?: string;
+}
 
 const UnMemoizedMessageTextComponent = <
   At extends UnknownType = DefaultAttachmentType,
