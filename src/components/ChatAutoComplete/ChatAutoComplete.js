@@ -215,29 +215,30 @@ const ChatAutoComplete = (props) => {
 
   return (
     <AutoCompleteTextarea
+      additionalTextareaProps={props.additionalTextareaProps}
+      className="str-chat__textarea__textarea"
+      containerClassName="str-chat__textarea"
+      disabled={props.disabled}
+      disableMentions={props.disableMentions}
+      dropdownClassName="str-chat__emojisearch"
+      grow={props.grow}
+      handleSubmit={props.handleSubmit}
+      innerRef={updateInnerRef}
+      itemClassName="str-chat__emojisearch__item"
+      keycodeSubmitKeys={props.keycodeSubmitKeys}
+      listClassName="str-chat__emojisearch__list"
       loadingComponent={LoadingIndicator}
       trigger={getTriggers()}
       replaceWord={emojiReplace}
       minChar={0}
       maxRows={props.maxRows}
-      innerRef={updateInnerRef}
       onFocus={props.onFocus}
       rows={props.rows}
-      className="str-chat__textarea__textarea"
-      containerClassName="str-chat__textarea"
-      dropdownClassName="str-chat__emojisearch"
-      listClassName="str-chat__emojisearch__list"
-      itemClassName="str-chat__emojisearch__item"
       placeholder={props.placeholder}
       onChange={props.onChange}
-      handleSubmit={props.handleSubmit}
       onPaste={props.onPaste}
       value={props.value}
-      grow={props.grow}
-      disabled={props.disabled}
-      disableMentions={props.disableMentions}
       SuggestionList={props.SuggestionList}
-      additionalTextareaProps={props.additionalTextareaProps}
     />
   );
 };
@@ -263,6 +264,11 @@ ChatAutoComplete.propTypes = {
   onChange: PropTypes.func,
   /** Placeholder for the textarea */
   placeholder: PropTypes.string,
+  /** Optional Array of numbers (keycode values like 13, 60).
+   * Any keycodes in this array will override Enter (13), which is the default submit key.
+   * Other options are 'shift+enter' and 'cmd/ctrl+enter'
+   * */
+  keycodeSubmitKeys: PropTypes.array,
   /** What loading component to use for the auto complete when loading results. */
   LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
   /** Minimum number of Character */

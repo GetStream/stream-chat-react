@@ -8,6 +8,8 @@ export const KEY_CODES = {
   SPACE: 32,
 };
 
+const keycodeMap = {};
+
 // This is self-made key shortcuts manager, used for caching key strokes
 class Listener {
   constructor() {
@@ -17,16 +19,27 @@ class Listener {
 
     this.f = (e) => {
       const code = e.keyCode || e.which;
+      keycodeMap[code] = e.type === 'keydown';
+      if (e.type !== 'keydown') return;
+
       Object.values(this.listeners).forEach(({ keyCode, fn }) => {
-        if (keyCode.includes(code)) fn(e);
+        if (keyCode.length > 1) {
+          if (keyCode.every((keycode) => keycodeMap[keycode])) {
+            fn(e);
+          }
+        } else if (keyCode.includes(code) && keycodeMap[code]) {
+          fn(e);
+        }
       });
     };
   }
 
   startListen = () => {
+    console.log('this.listeners in the startListen::', this.listeners);
     if (!this.refCount) {
       // prevent multiple listeners in case of multiple TextareaAutocomplete components on page
       document.addEventListener('keydown', this.f);
+      document.addEventListener('keyup', this.f);
     }
     this.refCount++;
   };
@@ -36,6 +49,7 @@ class Listener {
     if (!this.refCount) {
       // prevent disable listening in case of multiple TextareaAutocomplete components on page
       document.removeEventListener('keydown', this.f);
+      document.removeEventListener('keyup', this.f);
     }
   };
 

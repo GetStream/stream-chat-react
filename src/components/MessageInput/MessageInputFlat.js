@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 // @ts-expect-error
@@ -65,15 +65,16 @@ const MessageInputFlat = (props) => {
 
             <ChatAutoComplete
               commands={messageInput.getCommands()}
-              innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
-              onSelectItem={messageInput.onSelectItem}
+              innerRef={messageInput.textareaRef}
+              keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
+              maxRows={props.maxRows}
               onChange={messageInput.handleChange}
+              onPaste={messageInput.onPaste}
+              onSelectItem={messageInput.onSelectItem}
               value={messageInput.text}
               rows={1}
-              maxRows={props.maxRows}
               placeholder={t('Type your message')}
-              onPaste={messageInput.onPaste}
               triggers={props.autocompleteTriggers}
               grow={props.grow}
               disabled={props.disabled}
@@ -117,6 +118,11 @@ MessageInputFlat.propTypes = {
   focus: PropTypes.bool.isRequired,
   /** Grow the textarea while you're typing */
   grow: PropTypes.bool.isRequired,
+  /** Optional Array of numbers and strings (keycode values like 13, 60, 'ctrlKey).
+   * Any keycodes in this array will override Enter (13), which is the default submit key.
+   * Other options are 'shift+enter' and 'cmd/ctrl+enter'
+   * */
+  keycodeSubmitKeys: PropTypes.array,
   /** Specify the max amount of rows the textarea is able to grow */
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
@@ -169,6 +175,7 @@ MessageInputFlat.defaultProps = {
   disabled: false,
   publishTypingEvent: true,
   grow: true,
+  keycodeSubmitKeys: null,
   maxRows: 10,
   additionalTextareaProps: {},
 };

@@ -11,8 +11,9 @@ MessageInput.defaultProps = {
   disabled: false,
   publishTypingEvent: true,
   grow: true,
-  maxRows: 10,
   Input: MessageInputLarge,
+  keycodeSubmitKeys: null,
+  maxRows: 10,
   additionalTextareaProps: {},
 };
 

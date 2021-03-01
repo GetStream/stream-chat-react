@@ -60,9 +60,13 @@ class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
-    const listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) =>
-      this._onEnter(e),
-    );
+    let listenerIndex = 0;
+    if (this.props.keycodeSubmitKeys) {
+      const newSubmitKeys = this.props.keycodeSubmitKeys;
+      listenerIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
+    } else {
+      listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+    }
 
     this.setState({
       listenerIndex,
