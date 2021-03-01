@@ -826,9 +826,9 @@ export interface WrapperAttachmentUIComponentProps
   attachments: ExtendedAttachment[];
 }
 
-export interface InnerAttachmentUIComponentProps
-  extends BaseAttachmentUIComponentProps {
+export interface InnerAttachmentUIComponentProps extends BaseAttachmentUIComponentProps {
   attachment: ExtendedAttachment;
+  componentType?: string;
 }
 
 export interface MessageDeletedProps<

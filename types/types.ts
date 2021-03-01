@@ -2,7 +2,9 @@ import type { Event, LiteralStringForUnion, Mute } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 
-export type DefaultAttachmentType = UnknownType;
+export type DefaultAttachmentType = UnknownType & {
+  file_size?: number;
+};
 
 export type DefaultChannelType = UnknownType & {
   image?: string;

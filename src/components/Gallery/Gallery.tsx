@@ -1,24 +1,32 @@
-// @ts-check
-import React, { useContext, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
-import { TranslationContext } from '../../context';
-import ModalWrapper from './ModalWrapper';
+import React, { useMemo, useState } from 'react';
+
+import { ModalComponent as ModalWrapper } from './ModalWrapper';
+
+import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { Attachment } from 'stream-chat';
+
+import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
+
+export type GalleryProps<At extends UnknownType = DefaultAttachmentType> = {
+  images: Attachment<At>[];
+};
 
 /**
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
- * @example ../../docs/Gallery.md
- * @typedef {import('types').GalleryProps} Props
- * @type React.FC<Props>
+ * @example ./Gallery.md
  */
-const Gallery = ({ images }) => {
+const UnMemoizedGallery = <At extends UnknownType = DefaultAttachmentType>(
+  props: GalleryProps<At>,
+) => {
+  const { images } = props;
+
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const { t } = useContext(TranslationContext);
 
-  /**
-   * @param {number} selectedIndex Index of image clicked
-   */
-  const toggleModal = (selectedIndex) => {
+  const { t } = useTranslationContext();
+
+  const toggleModal = (selectedIndex: number) => {
     if (modalOpen) {
       setModalOpen(false);
     } else {
@@ -73,16 +81,12 @@ const Gallery = ({ images }) => {
         images={formattedArray}
         index={index}
         modalIsOpen={modalOpen}
-        toggleModal={toggleModal}
+        toggleModal={() => toggleModal}
       />
     </div>
   );
 };
 
-Gallery.propTypes = {
-  images: /** @type { PropTypes.Validator<import('types').GalleryProps['images']> } */ (PropTypes.arrayOf(
-    PropTypes.object.isRequired,
-  ).isRequired),
-};
-
-export default React.memo(Gallery);
+export const Gallery = React.memo(
+  UnMemoizedGallery,
+) as typeof UnMemoizedGallery;
