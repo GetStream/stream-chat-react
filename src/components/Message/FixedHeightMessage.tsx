@@ -66,15 +66,16 @@ const UnMemoizedFixedHeightMessage = <
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  groupedByUser,
-  message,
-}: FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>) => {
+>(
+  props: FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>,
+) => {
+  const { groupedByUser, message } = props;
+
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { userLanguage } = useTranslationContext();
 
-  const role = useUserRole<At, Ch, Co, Ev, Me, Re, Us>(message);
   const handleAction = useActionHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
+  const role = useUserRole<At, Ch, Co, Ev, Me, Re, Us>(message);
 
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -108,7 +109,6 @@ const UnMemoizedFixedHeightMessage = <
         shape='rounded'
         size={38}
       />
-
       <div className='str-chat__virtual-message__content'>
         <div className='str-chat__virtual-message__meta'>
           <div
@@ -118,12 +118,9 @@ const UnMemoizedFixedHeightMessage = <
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-
         {images && <Gallery images={images} />}
-
         <div className='str-chat__virtual-message__text' data-testid='msg-text'>
           {renderedText}
-
           {message.mml && (
             <MML
               actionHandler={handleAction}
@@ -131,7 +128,6 @@ const UnMemoizedFixedHeightMessage = <
               source={message.mml}
             />
           )}
-
           <div className='str-chat__virtual-message__data'>
             <MessageActions
               customWrapperClass='str-chat__virtual-message__actions'
@@ -151,4 +147,6 @@ const UnMemoizedFixedHeightMessage = <
   );
 };
 
-export const FixedHeightMessage = React.memo(UnMemoizedFixedHeightMessage);
+export const FixedHeightMessage = React.memo(
+  UnMemoizedFixedHeightMessage,
+) as typeof UnMemoizedFixedHeightMessage;
