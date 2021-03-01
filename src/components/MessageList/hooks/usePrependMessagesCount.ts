@@ -1,9 +1,23 @@
 import { useMemo, useRef } from 'react';
-import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
+import type { MessageResponse } from 'stream-chat';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../../types/types';
 
-export const usePrependedMessagesCount = (
-  messages: VirtualizedMessageListProps['messages'],
-) => {
+export function usePrependedMessagesCount<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>) {
   const currentFirstMessageId = messages?.[0]?.id;
   const firstMessageId = useRef(currentFirstMessageId);
   const earliestMessageId = useRef(currentFirstMessageId);
@@ -40,4 +54,4 @@ export const usePrependedMessagesCount = (
   }, [messages, messages?.length]);
 
   return numItemsPrepended;
-};
+}

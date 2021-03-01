@@ -167,14 +167,23 @@ const VirtualizedMessageListWithoutContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(messages, client.userID);
-
-  const numItemsPrepended = usePrependedMessagesCount(messages);
-
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(
+  } = useNewMessageNotification<At, Ch, Co, Me, Re, Us>(
     messages,
     client.userID,
   );
+
+  const numItemsPrepended = usePrependedMessagesCount<At, Ch, Co, Me, Re, Us>(
+    messages,
+  );
+
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom<
+    At,
+    Ch,
+    Co,
+    Me,
+    Re,
+    Us
+  >(messages, client.userID);
 
   const messageRenderer = useCallback(
     (messageList, virtuosoIndex) => {

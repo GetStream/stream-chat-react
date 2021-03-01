@@ -1,8 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
+import type { MessageResponse } from 'stream-chat';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../../types/types';
 
-export function useNewMessageNotification(
-  messages: VirtualizedMessageListProps['messages'],
+export function useNewMessageNotification<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
   currentUserId?: string,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
