@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import ReactPlayer, { ReactPlayerProps } from 'react-player';
 
 import {
@@ -167,7 +167,7 @@ export const isFileAttachment = (attachment: ExtendedAttachment) =>
     attachment.type !== 'video');
 
 export const renderAttachmentWithinContainer: React.FC<
-  PropsWithChildren<Partial<DefaultAttachmentProps>>
+  Partial<DefaultAttachmentProps>
 > = (props) => {
   const { attachment, children, componentType } = props;
 
@@ -190,9 +190,9 @@ export const renderAttachmentWithinContainer: React.FC<
   );
 };
 
-export const renderAttachmentActions: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { actionHandler, attachment, AttachmentActions } = props;
   if (!AttachmentActions || !attachment.actions || !attachment.actions.length) {
     return null;
@@ -210,9 +210,9 @@ export const renderAttachmentActions: React.FC<
   );
 };
 
-export const renderGallery: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment, Gallery } = props;
   if (!Gallery) return null;
   return renderAttachmentWithinContainer({
@@ -222,9 +222,9 @@ export const renderGallery: React.FC<
   });
 };
 
-export const renderImage: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment, Image } = props;
   if (!Image) return null;
 
@@ -251,9 +251,9 @@ export const renderImage: React.FC<
   });
 };
 
-export const renderCard: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment: attachment, Card } = props;
   if (!Card) return null;
 
@@ -280,9 +280,9 @@ export const renderCard: React.FC<
   });
 };
 
-export const renderFile: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment: attachment, File } = props;
   if (!File || !attachment.asset_url) return null;
 
@@ -295,9 +295,9 @@ export const renderFile: React.FC<
   });
 };
 
-export const renderAudio: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderAudio: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment: attachment, Audio } = props;
   if (!Audio) return null;
 
@@ -312,9 +312,9 @@ export const renderAudio: React.FC<
   });
 };
 
-export const renderMedia: React.FC<
-  PropsWithChildren<InnerAttachmentUIComponentProps>
-> = (props) => {
+export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
   const { attachment, Media } = props;
   if (!Media) return null;
 
