@@ -945,6 +945,50 @@ export interface MessageUIComponentProps<
   PinIndicator?: React.FC<PinIndicatorProps>;
 }
 
+export interface MessageComponentProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+    TranslationContextValue {
+  /** The current channel this message is displayed in */
+  channel?: Client.Channel<Ch>;
+  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+  onMentionsClick?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+  onMentionsHover?(
+    e: React.MouseEvent,
+    mentioned_users: UserResponse<Us>[],
+  ): void;
+  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
+  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
+  onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
+  messageActions?: Array<string> | boolean;
+  members?: {
+    [user_id: string]: Client.ChannelMemberResponse<Us>;
+  };
+  retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
+  removeMessage?(
+    updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ): void;
+  mutes?: Client.Mute<Us>[];
+  openThread?(
+    message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+    event: React.SyntheticEvent,
+  ): void;
+  initialMessage?: boolean;
+  threadList?: boolean;
+  pinPermissions?: PinPermissions;
+}
+
 export interface MessageInputProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -1076,49 +1120,7 @@ export interface MessageOptionsProps<
   threadList?: boolean;
 }
 // MessageComponentProps defines the props for the Message component
-export interface MessageComponentProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-    TranslationContextValue {
-  /** The current channel this message is displayed in */
-  channel?: Client.Channel<Ch>;
-  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(
-    e: React.MouseEvent,
-    mentioned_users: UserResponse<Us>[],
-  ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(
-    e: React.MouseEvent,
-    mentioned_users: UserResponse<Us>[],
-  ): void;
-  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
-  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
-  messageActions?: Array<string> | boolean;
-  members?: {
-    [user_id: string]: Client.ChannelMemberResponse<Us>;
-  };
-  retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
-  removeMessage?(
-    updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): void;
-  mutes?: Client.Mute<Us>[];
-  openThread?(
-    message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-    event: React.SyntheticEvent,
-  ): void;
-  initialMessage?: boolean;
-  threadList?: boolean;
-  pinPermissions?: PinPermissions;
-}
+
 export type MessageComponentState = {
   editing: boolean;
 };

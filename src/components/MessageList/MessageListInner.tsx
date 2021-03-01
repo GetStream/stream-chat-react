@@ -453,6 +453,36 @@ const MessageListInner = <
                 readBy={readData[message.id] || []}
                 threadList={threadList}
                 {...internalMessageProps}
+                //   additionalMessageInputProps: this.props
+                //   .additionalMessageInputProps,
+                // addNotification: this.addNotification,
+                // Attachment: this.props.Attachment,
+                // Avatar: this.props.Avatar,
+                // channel: this.props.channel,
+                // getFlagMessageErrorNotification: this.props
+                //   .getFlagMessageErrorNotification,
+                // getFlagMessageSuccessNotification: this.props
+                //   .getFlagMessageSuccessNotification,
+                // getMuteUserErrorNotification: this.props
+                //   .getMuteUserErrorNotification,
+                // getMuteUserSuccessNotification: this.props
+                //   .getMuteUserSuccessNotification,
+                // getPinMessageErrorNotification: this.props
+                //   .getPinMessageErrorNotification,
+                // members: this.props.members,
+                // Message: this.props.Message,
+                // messageActions: this.props.messageActions,
+                // messageListRect: this.state.messageListRect,
+                // mutes: this.props.mutes,
+                // onMentionsClick: this.props.onMentionsClick,
+                // onMentionsHover: this.props.onMentionsHover,
+                // openThread: this.props.openThread,
+                // pinPermissions: this.props.pinPermissions,
+                // removeMessage: this.props.removeMessage,
+                // retrySendMessage: this.props.retrySendMessage,
+                // unsafeHTML: this.props.unsafeHTML,
+                // updateMessage: this.props.updateMessage,
+                // watchers: this.props.watchers,
               />
             </li>
           );
