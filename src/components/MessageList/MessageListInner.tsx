@@ -222,7 +222,7 @@ const insertIntro = <
   return newMessages;
 };
 
-type Style = '' | 'middle' | 'top' | 'bottom' | 'single';
+export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
 const getGroupStyles = <
   At extends UnknownType = DefaultAttachmentType,
@@ -236,7 +236,7 @@ const getGroupStyles = <
   previousMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
   nextMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
   noGroupByUser: boolean,
-): Style => {
+): GroupStyle => {
   if (message.type === 'message.date') return '';
   if (message.type === 'channel.event') return '';
   if (message.type === 'channel.intro') return '';
@@ -381,7 +381,7 @@ const MessageListInner = <
         );
         if (style) acc[message.id] = style;
         return acc;
-      }, {} as Record<string, Style>),
+      }, {} as Record<string, GroupStyle>),
     [enrichedMessages, noGroupByUser],
   );
 
@@ -476,6 +476,8 @@ const MessageListInner = <
                 // mutes: this.props.mutes,
                 // onMentionsClick: this.props.onMentionsClick,
                 // onMentionsHover: this.props.onMentionsHover,
+                // onUserHover: this.props.onUserHover,
+                // onUserClick: this.props.onUserClick,
                 // openThread: this.props.openThread,
                 // pinPermissions: this.props.pinPermissions,
                 // removeMessage: this.props.removeMessage,

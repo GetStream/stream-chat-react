@@ -24,6 +24,10 @@ import {
 
 import { useChannelContext } from '../../context/ChannelContext';
 
+import type { MessageResponse, StreamChat, UserResponse } from 'stream-chat';
+
+import type { GroupStyle } from '../MessageList/MessageListInner';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -34,7 +38,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageResponse, StreamChat, UserResponse } from 'stream-chat';
 
 export type MessageProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -45,52 +48,14 @@ export type MessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  addNotification?(notificationText: string, type: string): any;
-  /** The message object */
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  /** The client connection object for connecting to Stream */
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
+  addNotification?: (text: string, type: 'success' | 'error') => void;
   client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** A list of users that have read this message **/
-  readBy?: Array<UserResponse<Us>>;
-  /** groupStyles, a list of styles to apply to this message. ie. top, bottom, single etc */
-  groupStyles?: Array<string>;
-  /** The message rendering component, the Message component delegates its rendering logic to this component */
-  Message?: React.ElementType<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
-
-  /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
-  MessageDeleted?: React.ElementType<
-    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
-  >;
-
-  ReactionSelector?: React.ElementType<ReactionSelectorProps>;
-  ReactionsList?: React.ElementType<ReactionsListProps>;
-  /** Allows you to overwrite the attachment component */
-  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
-  Avatar?: React.ComponentType<AvatarProps>;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML?: boolean;
+  groupStyles?: GroupStyle[];
   lastReceivedId?: string | null;
-  messageListRect?: DOMRect;
-  updateMessage?(
-    updatedMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
-    extraState?: object,
-  ): void;
-  additionalMessageInputProps?: object;
-  getFlagMessageSuccessNotification?(
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): string;
-  getFlagMessageErrorNotification?(
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): string;
-  getMuteUserSuccessNotification?(user: UserResponse<Us>): string;
-  getMuteUserErrorNotification?(user: UserResponse<Us>): string;
-  getPinMessageErrorNotification?(
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): string;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?(date: Date): string;
+  readBy?: UserResponse<Us>[];
+  threadList?: boolean;
 };
 
 // export interface MessageUIComponentProps<
@@ -136,49 +101,49 @@ export type MessageProps<
 //   PinIndicator?: React.FC<PinIndicatorProps>;
 // }
 
-export interface MessageComponentProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-    TranslationContextValue {
-  /** The current channel this message is displayed in */
-  channel?: Client.Channel<Ch>;
-  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-  onMentionsClick?(
-    e: React.MouseEvent,
-    mentioned_users: UserResponse<Us>[],
-  ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(
-    e: React.MouseEvent,
-    mentioned_users: UserResponse<Us>[],
-  ): void;
-  /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
-  /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-  onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
-  messageActions?: Array<string> | boolean;
-  members?: {
-    [user_id: string]: Client.ChannelMemberResponse<Us>;
-  };
-  retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
-  removeMessage?(
-    updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ): void;
-  mutes?: Client.Mute<Us>[];
-  openThread?(
-    message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-    event: React.SyntheticEvent,
-  ): void;
-  initialMessage?: boolean;
-  threadList?: boolean;
-  pinPermissions?: PinPermissions;
-}
+// export interface MessageComponentProps<
+//   At extends UnknownType = DefaultAttachmentType,
+//   Ch extends UnknownType = DefaultChannelType,
+//   Co extends string = DefaultCommandType,
+//   Ev extends UnknownType = DefaultEventType,
+//   Me extends UnknownType = DefaultMessageType,
+//   Re extends UnknownType = DefaultReactionType,
+//   Us extends UnknownType = DefaultUserType
+// > extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+//     TranslationContextValue {
+//   /** The current channel this message is displayed in */
+//   channel?: Client.Channel<Ch>;
+//   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+//   onMentionsClick?(
+//     e: React.MouseEvent,
+//     mentioned_users: UserResponse<Us>[],
+//   ): void;
+//   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+//   onMentionsHover?(
+//     e: React.MouseEvent,
+//     mentioned_users: UserResponse<Us>[],
+//   ): void;
+//   /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
+//   onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
+//   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
+//   onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
+//   messageActions?: Array<string> | boolean;
+//   members?: {
+//     [user_id: string]: Client.ChannelMemberResponse<Us>;
+//   };
+//   retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
+//   removeMessage?(
+//     updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+//   ): void;
+//   mutes?: Client.Mute<Us>[];
+//   openThread?(
+//     message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
+//     event: React.SyntheticEvent,
+//   ): void;
+//   initialMessage?: boolean;
+//   threadList?: boolean;
+//   pinPermissions?: PinPermissions;
+// }
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -195,7 +160,7 @@ const UnMemoizedMessage = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: MessageComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     addNotification,
