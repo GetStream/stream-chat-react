@@ -1,16 +1,13 @@
-import React, { FC } from 'react';
+import React, { PropsWithChildren } from 'react';
 
-export interface CustomNotificationProps {
-  children: React.ReactNode;
+export type CustomNotificationProps = {
   type: string;
   active?: boolean;
-}
+};
 
-const UnMemoizedCustomNotification: FC<CustomNotificationProps> = ({
-  active,
-  children,
-  type,
-}) => {
+const UnMemoizedCustomNotification: React.FC<
+  PropsWithChildren<CustomNotificationProps>
+> = ({ active, children, type }) => {
   if (!active) return null;
 
   return (

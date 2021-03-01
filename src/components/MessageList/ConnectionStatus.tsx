@@ -1,17 +1,40 @@
-// @ts-check
-import React, { FC, useContext, useEffect, useState } from 'react';
-import type { Event } from 'stream-chat';
+import React, { useEffect, useState } from 'react';
 
-import { ChatContext, TranslationContext } from '../../context';
 import { CustomNotification } from './CustomNotification';
 
-const UnMemoizedConnectionStatus: FC = () => {
-  const { client } = useContext(ChatContext);
-  const { t } = useContext(TranslationContext);
+import { useChatContext, useTranslationContext } from '../../context';
+
+import type { Event } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+const UnMemoizedConnectionStatus: React.FC = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>() => {
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
+
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    const connectionChanged = ({ online: onlineStatus = false }: Event) => {
+    const connectionChanged = ({
+      online: onlineStatus = false,
+    }: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (online !== onlineStatus) {
         setOnline(onlineStatus);
       }
