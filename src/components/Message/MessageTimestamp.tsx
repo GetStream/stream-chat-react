@@ -1,4 +1,5 @@
 import React, { FC, useContext, useMemo } from 'react';
+import type { MessageResponse } from 'stream-chat';
 import {
   isDate,
   isDayjs,
@@ -6,7 +7,16 @@ import {
   TDateTimeParser,
   TranslationContext,
 } from '../../context';
-import type { MessageTimestampProps } from 'types';
+
+export interface MessageTimestampProps {
+  calendar?: boolean;
+  customClass?: string;
+  format?: string;
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate?(date: Date): string;
+  message?: MessageResponse;
+  tDateTimeParser?: TDateTimeParser;
+}
 
 export const defaultTimestampFormat = 'h:mmA';
 export const notValidDateWarning =

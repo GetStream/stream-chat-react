@@ -19,7 +19,6 @@ import { MessageText as MessageTextMock } from '../MessageText';
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
-jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });

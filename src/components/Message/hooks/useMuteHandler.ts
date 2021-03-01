@@ -92,7 +92,9 @@ export const useMuteHandler = <
             validateAndGetMessage(getSuccessNotification, [message.user])) ||
           fallbackMessage;
 
-        notify(successMessage, 'success');
+        if (typeof successMessage === 'string') {
+          notify(successMessage, 'success');
+        }
       } catch (e) {
         const errorMessage =
           (getErrorNotification &&

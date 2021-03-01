@@ -12,10 +12,7 @@ import * as i18next from 'i18next';
 import React, { ReactElement } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ReactPlayerProps } from 'react-player';
-import {
-  ScrollSeekConfiguration,
-  ScrollSeekPlaceholderProps,
-} from 'react-virtuoso';
+import type { MessageDeletedProps } from '../src/components/Message/MessageDeleted';
 import Client, {
   MessageResponse,
   StreamChat,
@@ -25,7 +22,6 @@ import Client, {
 import type { ChannelStateReducerAction } from '../src/components/Channel/channelState';
 import type { PinPermissions } from '../src/components/Message/hooks/usePinHandler';
 import type { MessageNotificationProps } from '../src/components/MessageList/MessageNotification';
-import type { TDateTimeParser } from '../src/context/TranslationContext';
 import {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -301,7 +297,7 @@ export interface ChannelOptions {
 
 export interface ChannelListProps {
   Avatar?: React.ElementType<AvatarProps>;
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
+  wmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
   /** The Preview to use, defaults to ChannelPreviewLastMessage */
   Preview?: React.ElementType<ChannelPreviewUIComponentProps>;
 
@@ -539,7 +535,7 @@ export interface DateSeparatorProps extends TranslationContextValue {
 
 export interface EmptyStateIndicatorProps extends TranslationContextValue {
   /** List Type */
-  listType: string;
+  listType: 'channel' | 'message';
 }
 
 export interface SendButtonProps {
@@ -570,139 +566,6 @@ export interface FixedHeightMessageProps<
 > {
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   groupedByUser: boolean;
-}
-
-export interface VirtualizedMessageListInternalProps {
-  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  client: StreamChatReactClient;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  messages?: Array<Client.MessageResponse>;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  loadMore(messageLimit?: number): Promise<number>;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  hasMore: boolean;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  loadingMore: boolean;
-  /** Set the limit to use when paginating messages */
-  messageLimit?: number;
-  /**
-   * Group messages belong to the same user if true, otherwise show each message individually, default to false
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
-   */
-  shouldGroupByUser?: boolean;
-  /** Custom render function, if passed, certain UI props are ignored */
-  customMessageRenderer(
-    messageList: Array<Client.MessageResponse>,
-    index: number,
-  ): React.ReactElement;
-  /** Custom UI component to display messages. */
-  Message?: React.ElementType<FixedHeightMessageProps>;
-  /** Custom UI component to display deleted messages. */
-  MessageDeleted?: React.ElementType<MessageDeletedProps>;
-  /** Custom UI component to display system messages */
-  MessageSystem?: React.ElementType<EventComponentProps>;
-  /** The UI Indicator to use when MessageList or ChannelList is empty */
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
-  /** The UI Indicator to use when someone is typing, default to null */
-  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
-  /** Component to render at the top of the MessageList while loading new messages */
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
-  overscan?: number;
-  /** Performance improvement by showing placeholders if user scrolls fast through list
-   * it can be used like this:
-   *  {
-   *    enter: (velocity) => Math.abs(velocity) > 120,
-   *    exit: (velocity) => Math.abs(velocity) < 40,
-   *    change: () => null,
-   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
-   *  }
-   *
-   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
-   *  TODO: break out placeholder when making other breaking changes.
-   */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
-    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
-  };
-  /**
-   * The scrollTo Behavior when new messages appear. Use `"smooth"`
-   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
-   * if you expect hight throughput.
-   */
-  stickToBottomScrollBehavior?: 'smooth' | 'auto';
-}
-
-export interface VirtualizedMessageListProps
-  extends Partial<VirtualizedMessageListInternalProps> {}
-
-export interface MessageListProps {
-  /** Component to render at the top of the MessageList */
-  HeaderComponent?: React.ElementType;
-  /** Component to render at the top of the MessageList */
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
-  /** Date separator component to render  */
-  dateSeparator?: React.ElementType<DateSeparatorProps>;
-  DateSeparator?: React.ElementType<DateSeparatorProps>;
-  disableDateSeparator?: boolean;
-  hideDeletedMessages?: boolean;
-  /** Turn off grouping of messages by user */
-  noGroupByUser?: boolean;
-  /** Weather its a thread of no. Default - false  */
-  threadList?: boolean;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML?: boolean;
-  messageLimit?: number;
-  messageActions?: Array<string>;
-  mutes?: Client.Mute[];
-  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
-  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
-  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
-  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
-  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
-  pinPermissions?: PinPermissions;
-  additionalMessageInputProps?: object;
-  client?: Client.StreamChat;
-  loadMore?(messageLimit?: number): Promise<number>;
-  MessageSystem?: React.ElementType;
-  messages?: Array<Client.MessageResponse>;
-  read?: {
-    [user_id: string]: {
-      last_read: string;
-      user: Client.UserResponse;
-    };
-  };
-  hasMore?: boolean;
-  loadingMore?: boolean;
-  openThread?(): void;
-  members?: {
-    [user_id: string]: Client.ChannelMemberResponse;
-  };
-  watchers?: {
-    [user_id: string]: Client.ChannelMemberResponse;
-  };
-  channel?: Client.Channel;
-  retrySendMessage?(message: Client.Message): Promise<void>;
-
-  updateMessage?(
-    updatedMessage: Client.MessageResponse,
-    extraState?: object,
-  ): void;
-  removeMessage?(updatedMessage: Client.MessageResponse): void;
-  Message?: React.ElementType;
-  Attachment?: React.ElementType;
-  Avatar?: React.ElementType<AvatarProps>;
-  onMentionsClick?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  scrolledUpThreshold?: number;
 }
 
 export interface ChannelHeaderProps {
@@ -826,21 +689,10 @@ export interface WrapperAttachmentUIComponentProps
   attachments: ExtendedAttachment[];
 }
 
-export interface InnerAttachmentUIComponentProps extends BaseAttachmentUIComponentProps {
+export interface InnerAttachmentUIComponentProps
+  extends BaseAttachmentUIComponentProps {
   attachment: ExtendedAttachment;
   componentType?: string;
-}
-
-export interface MessageDeletedProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> extends TranslationContextValue {
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;
 }
 
 // MessageProps are all props shared between the Message component and the Message UI components (e.g. MessageSimple)
@@ -1486,9 +1338,6 @@ export const Tooltip: React.FC<TooltipProps>;
 export const Chat: React.FC<ChatProps>;
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
-export class Message extends React.PureComponent<MessageComponentProps, any> {}
-export class MessageList extends React.PureComponent<MessageListProps, any> {}
-export const VirtualizedMessageList: React.FC<VirtualizedMessageListProps>;
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
@@ -1574,16 +1423,6 @@ export class MessageTeam extends React.PureComponent<
   MessageTeamState
 > {}
 
-export interface MessageTimestampProps {
-  calendar?: boolean;
-  customClass?: string;
-  format?: string;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?(date: Date): string;
-  message?: Client.MessageResponse;
-  tDateTimeParser?: TDateTimeParser;
-}
-
 export interface MessageActionsProps {
   addNotification?(notificationText: string, type: string): any;
   handleEdit?(event?: React.BaseSyntheticEvent): void;
@@ -1613,38 +1452,6 @@ export interface MessageActionsWrapperProps {
   setActionsBoxOpen: (actionsBoxOpen: boolean) => void;
 }
 
-export const MessageSimple: React.FC<MessageSimpleProps>;
-
-export class MessageDeleted extends React.PureComponent<
-  MessageDeletedProps,
-  any
-> {}
-
-/** Custom Message Hooks **/
-interface MessageNotificationArguments {
-  notify?: MessageComponentProps['addNotification'];
-  getSuccessNotification?: MessageComponentProps['getMuteUserSuccessNotification'];
-  getErrorNotification?: MessageComponentProps['getMuteUserErrorNotification'];
-}
-
-type CustomMentionHandler = (
-  event: React.MouseEvent,
-  user: Client.UserResponse[],
-) => void;
-
-export function useMuteHandler(
-  message: Client.MessageResponse | undefined,
-  notifications: MessageNotificationArguments,
-): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
-
-export function useOpenThreadHandler(
-  message: Client.MessageResponse | undefined,
-  customOpenThread?: (
-    message: Client.MessageResponse,
-    event: React.SyntheticEvent,
-  ) => void,
-): (event: React.SyntheticEvent) => void;
-
 export type PinEnabledUserRoles = {
   admin?: boolean;
   anonymous?: boolean;
@@ -1656,55 +1463,6 @@ export type PinEnabledUserRoles = {
   owner?: boolean;
   user?: boolean;
 };
-
-export function usePinHandler(
-  message: Client.MessageResponse | undefined,
-  pinPermissions: PinPermissions,
-  notifications: Omit<MessageNotificationArguments, 'getSuccessNotification'>,
-): {
-  canPin: boolean;
-  handlePin: (event: React.MouseEvent<HTMLElement>) => Promise<void>;
-};
-
-export function useReactionHandler(
-  message: Client.MessageResponse | undefined,
-): (reactionType: string, event: React.MouseEvent) => Promise<void>;
-
-export function useReactionClick(
-  message: Client.MessageResponse | undefined,
-  reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
-  messageWrapperRef?: React.RefObject<HTMLElement | null>,
-): {
-  onReactionListClick: () => void;
-  showDetailedReactions: boolean;
-  isReactionEnabled: boolean;
-};
-
-type UserEventHandler = (e: React.MouseEvent, user: Client.User) => void;
-export function useUserHandler(
-  message: Client.MessageResponse | undefined,
-  eventHandlers: {
-    onUserClickHandler?: UserEventHandler;
-    onUserHoverHandler?: UserEventHandler;
-  },
-): {
-  onUserClick: React.EventHandler<React.SyntheticEvent>;
-  onUserHover: React.EventHandler<React.SyntheticEvent>;
-};
-
-interface UserRoles {
-  isMyMessage: boolean;
-  isAdmin: boolean;
-  isModerator: boolean;
-  isOwner: boolean;
-}
-interface UserCapabilities {
-  canEditMessage: boolean;
-  canDeleteMessage: boolean;
-}
-export function useUserRole(
-  message: Client.MessageResponse | undefined,
-): UserRoles & UserCapabilities;
 
 export const Thread: React.FC<ThreadProps>;
 

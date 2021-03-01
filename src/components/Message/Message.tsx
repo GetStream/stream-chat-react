@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 
 import { MessageSimple } from './MessageSimple';
 import {
+  PinPermissions,
   useActionHandler,
   useDeleteHandler,
   useEditHandler,

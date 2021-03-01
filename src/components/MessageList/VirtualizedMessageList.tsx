@@ -1,31 +1,143 @@
-import React, { FC, useCallback, useContext, useMemo, useRef } from 'react';
-import { Components, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import {
+  Components,
+  ScrollSeekConfiguration,
+  ScrollSeekPlaceholderProps,
+  Virtuoso,
+  VirtuosoHandle,
+} from 'react-virtuoso';
+import type { MessageResponse, StreamChat } from 'stream-chat';
+import type { EventComponentProps, TypingIndicatorProps } from 'types';
 import type {
-  VirtualizedMessageListInternalProps,
-  VirtualizedMessageListProps,
-} from 'types';
-import { ChannelContext, TranslationContext } from '../../context';
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+import { TranslationContext, useChannelContext } from '../../context';
 import { smartRender } from '../../utils';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import {
+  EmptyStateIndicator as DefaultEmptyStateIndicator,
+  EmptyStateIndicatorProps,
+} from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import {
+  LoadingIndicator as DefaultLoadingIndicator,
+  LoadingIndicatorProps,
+} from '../Loading';
 import {
   FixedHeightMessage as DefaultMessage,
   MessageDeleted as DefaultMessageDeleted,
+  FixedHeightMessageProps,
+  MessageDeletedProps,
 } from '../Message';
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification } from './MessageNotification';
 
+export interface VirtualizedMessageListProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> {
+  /**
+   *The client connection object for connecting to Stream
+   * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)
+   */
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+
+  /** Custom render function, if passed, certain UI props are ignored */
+  customMessageRenderer(
+    messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
+    index: number,
+  ): React.ReactElement;
+
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  hasMore: boolean;
+
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  loadingMore: boolean;
+
+  /** The UI Indicator to use when MessageList or ChannelList is empty */
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
+
+  /** Component to render at the top of the MessageList while loading new messages */
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  loadMore?(messageLimit?: number | undefined): Promise<number>;
+
+  /** Custom UI component to display messages. */
+  Message?: React.ElementType<FixedHeightMessageProps>;
+
+  /** Custom UI component to display deleted messages. */
+  MessageDeleted?: React.ElementType<MessageDeletedProps>;
+
+  /** Set the limit to use when paginating messages */
+  messageLimit?: number;
+
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
+
+  /** Custom UI component to display system messages */
+  MessageSystem?: React.ElementType<EventComponentProps>;
+
+  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
+  overscan?: number;
+
+  /** Performance improvement by showing placeholders if user scrolls fast through list
+   * it can be used like this:
+   *  {
+   *    enter: (velocity) => Math.abs(velocity) > 120,
+   *    exit: (velocity) => Math.abs(velocity) < 40,
+   *    change: () => null,
+   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
+   *  }
+   *
+   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
+   *  TODO: break out placeholder when making other breaking changes.
+   */
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
+    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
+  };
+
+  /**
+   * Group messages belong to the same user if true, otherwise show each message individually, default to false
+   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
+   */
+  shouldGroupByUser?: boolean;
+
+  /**
+   * The scrollTo Behavior when new messages appear. Use `"smooth"`
+   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
+   * if you expect hight throughput.
+   */
+  stickToBottomScrollBehavior?: 'smooth' | 'auto';
+
+  /** The UI Indicator to use when someone is typing, default to `null` */
+  TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
+}
+
 const PREPEND_OFFSET = 10 ** 7;
 
-/**
- * VirtualizedMessageList - This component renders a list of messages in a virtual list.
- * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
- * @example ../../docs/VirtualizedMessageList.md
- */
-const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalProps> = ({
+const VirtualizedMessageListWithoutContext = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
   client,
   messages,
   loadMore,
@@ -44,7 +156,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
   stickToBottomScrollBehavior = 'smooth',
-}) => {
+}: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   const { t } = useContext(TranslationContext);
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -52,14 +164,23 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(messages, client.userID);
-
-  const numItemsPrepended = usePrependedMessagesCount(messages);
-
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(
+  } = useNewMessageNotification<At, Ch, Co, Me, Re, Us>(
     messages,
     client.userID,
   );
+
+  const numItemsPrepended = usePrependedMessagesCount<At, Ch, Co, Me, Re, Us>(
+    messages,
+  );
+
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom<
+    At,
+    Ch,
+    Co,
+    Me,
+    Re,
+    Us
+  >(messages, client.userID);
 
   const messageRenderer = useCallback(
     (messageList, virtuosoIndex) => {
@@ -103,7 +224,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
 
   const virtuosoComponents = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
-      <EmptyStateIndicator listType='message' />
+      <>{EmptyStateIndicator && <EmptyStateIndicator listType='message' />}</>
     );
 
     const Header: Components['Header'] = () =>
@@ -167,7 +288,7 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
         overscan={overscan}
         ref={virtuoso}
         startReached={() => {
-          if (hasMore) {
+          if (hasMore && loadMore) {
             loadMore(messageLimit);
           }
         }}
@@ -195,23 +316,32 @@ const VirtualizedMessageListWithoutContext: FC<VirtualizedMessageListInternalPro
   );
 };
 
-export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
+/**
+ * The VirtualizedMessageList component renders a list of messages in a virtual list.
+ * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * @example ../../docs/VirtualizedMessageList.md
+ */
+export function VirtualizedMessageList<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(props: Partial<VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>>) {
+  const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   return (
-    <ChannelContext.Consumer>
-      {(context) => (
-        <VirtualizedMessageListWithoutContext
-          client={context.client}
-          hasMore={!!context.hasMore}
-          loadingMore={!!context.loadingMore}
-          //@ts-expect-error
-          loadMore={context.loadMore}
-          // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
-          // 'formatMessage' converts it to Date, which seems to be the correct type
-          //@ts-expect-error
-          messages={context.messages}
-          {...props}
-        />
-      )}
-    </ChannelContext.Consumer>
+    <VirtualizedMessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
+      client={context.client}
+      hasMore={!!context.hasMore}
+      loadingMore={!!context.loadingMore}
+      loadMore={context.loadMore}
+      // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
+      // 'formatMessage' converts it to Date, which seems to be the correct type
+      //@ts-expect-error
+      messages={context.messages}
+      {...props}
+    />
   );
 }

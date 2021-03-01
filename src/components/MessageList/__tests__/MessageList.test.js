@@ -14,7 +14,7 @@ import {
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
-import MessageList from '../MessageList';
+import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 
 describe('MessageList', () => {
