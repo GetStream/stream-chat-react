@@ -5,7 +5,7 @@ import { useChat } from './hooks/useChat';
 import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 
-import type { LiteralStringForUnion, StreamChat } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 
 import type { Streami18n } from '../../i18n/Streami18n';
 
@@ -28,8 +28,7 @@ export type Theme =
   | 'messaging dark'
   | 'messaging light'
   | 'team dark'
-  | 'team light'
-  | LiteralStringForUnion;
+  | 'team light';
 
 export type ChatProps<
   At extends UnknownType = DefaultAttachmentType,
