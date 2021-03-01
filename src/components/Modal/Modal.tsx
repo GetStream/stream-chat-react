@@ -3,10 +3,10 @@ import React, { PropsWithChildren, useEffect, useRef } from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ModalProps = {
-  /** Callback handler for closing of modal. */
-  onClose: () => void;
   /** If true, modal is opened or visible. */
   open: boolean;
+  /** Callback handler for closing of modal. */
+  onClose?: () => void;
 };
 
 export const Modal: React.FC<PropsWithChildren<ModalProps>> = (props) => {

@@ -1,13 +1,7 @@
 import React, { PureComponent, RefObject } from 'react';
 import type {
-  Channel,
-  ChannelMemberResponse,
-  MessageResponse,
-  Mute,
-} from 'stream-chat';
-import type {
   LoadingIndicator,
-  MessageProps,
+  MessageComponentProps,
   TranslationContextValue,
 } from 'types';
 import { v4 as uuidv4 } from 'uuid';
@@ -38,6 +32,45 @@ import { CustomNotification } from './CustomNotification';
 import { MessageListInner, MessageListInnerProps } from './MessageListInner';
 import { MessageNotification } from './MessageNotification';
 
+type PropsDrilledToMessage =
+  | 'Attachment'
+  | 'Avatar'
+  | 'getFlagMessageErrorNotification'
+  | 'getFlagMessageErrorNotification'
+  | 'getFlagMessageSuccessNotification'
+  | 'getMuteUserErrorNotification'
+  | 'getMuteUserSuccessNotification'
+  | 'getPinMessageErrorNotification'
+  | 'members'
+  | 'Message'
+  | 'messageActions'
+  | 'mutes'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'openThread'
+  | 'pinPermissions'
+  | 'removeMessage'
+  | 'retrySendMessage'
+  | 'unsafeHTML'
+  | 'updateMessage'
+  | 'watchers';
+
+type PropsDrilledToMessageListInner =
+  | 'channel'
+  | 'disableDateSeparator'
+  | 'MessageSystem'
+  | 'messages'
+  | 'client'
+  | 'DateSeparator'
+  | 'EmptyStateIndicator'
+  | 'HeaderComponent'
+  | 'headerPosition'
+  | 'hideDeletedMessages'
+  | 'read'
+  | 'noGroupByUser'
+  | 'threadList'
+  | 'TypingIndicator';
+
 interface MessageListProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -46,29 +79,25 @@ interface MessageListProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> extends MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
+> extends Pick<
+      MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
+      PropsDrilledToMessageListInner
+    >,
+    Pick<
+      MessageComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+      PropsDrilledToMessage
+    >,
     TranslationContextValue {
   /**
-   * Additional props for underlying MessageInput component. We have instance of MessageInput
-   * component in MessageSimple component, for handling edit state.
+   * Additional props for the underlying MessageInput component.
+   * We have instance of MessageInput component in MessageSimple component, for handling edit state.
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-   * */
+   */
   additionalMessageInputProps: Record<string, unknown>;
 
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  Attachment: MessageProps<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
-  Avatar: MessageProps<At, Ch, Co, Ev, Me, Re, Us>['Avatar'];
-
-  channel: Channel<Ch>;
-  /**
-   * Date separator UI component to render
-   *
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
+   * Date separator UI component to render.
+   * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
    */
   dateSeparator: MessageListInnerProps<
     At,
@@ -80,153 +109,22 @@ interface MessageListProps<
     Us
   >['DateSeparator'];
 
-  /** Disables the injection of date separator components, defaults to false */
-  disableDateSeparator: boolean;
-
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
-   *
-   * This function should accept following params:
-   *
-   */
-  getFlagMessageErrorNotification: MessageProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['getFlagMessageErrorNotification'];
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-   *
-   * This function should accept following params:
-   *
-   */
-  getFlagMessageSuccessNotification: MessageProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['getFlagMessageSuccessNotification'];
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-   *
-   * This function should accept following params:
-   *
-   * @param user A user object which is being muted
-   *
-   * */
-  getMuteUserErrorNotification: MessageProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['getMuteUserErrorNotification'];
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-   *
-   * This function should accept following params:
-   *
-   * @param user A user object which is being muted
-   *
-   * */
-  getMuteUserSuccessNotification: MessageProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['getMuteUserSuccessNotification'];
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
-   *
-   * This function should accept following params:
-   *
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
-   *
-   * */
-  getPinMessageErrorNotification: MessageProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['getPinMessageErrorNotification'];
-
-  /**
-   * Component to render at the top of the MessageList while loading new messages
-   * */
+  /** Component to render at the top of the MessageList while loading new messages. */
   LoadingIndicator: typeof LoadingIndicator;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  members: {
-    [user_id: string]: ChannelMemberResponse<Us>;
-  };
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  Message: MessageProps<At, Ch, Co, Ev, Me, Re, Us>['Message'];
-  /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
-   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-   * */
-  messageActions: unknown;
-  /** Set the limit to use when paginating messages */
+
+  /** The limit to use when paginating messages. */
   messageLimit: number;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
 
-  mutes: Mute<Us>[];
-
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  onMentionsClick: unknown;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  onMentionsHover: unknown;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  openThread: unknown;
-  /**
-   * The user roles allowed to pin messages in various channel types
-   */
-  pinPermissions: /** @type {PropTypes.Validator<import('types').PinPermissions>>} */ unknown;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  read: never;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  removeMessage: unknown;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  retrySendMessage: unknown;
-  /**
-   * Boolean weather current message list is a thread.
-   */
-  threadList: boolean;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML: boolean;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  updateMessage: MessageProps<At, Ch, Co, Ev, Me, Re, Us>['updateMessage'];
-
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  watchers: unknown;
   hasMore?: boolean;
   loadingMore?: boolean;
   loadMore?(messageLimit?: number | undefined): Promise<number>;
+
+  /** The pixel threshold to determine whether or not the user is scrolled up in the list. */
   scrolledUpThreshold?: number;
 }
 
 type Snapshot = { offsetBottom: number; offsetTop: number } | null;
 
-/**
- * MessageList - The message list components renders a list of messages. Its a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
- *
- * @example ../../docs/MessageList.md
- */
 class MessageListWithoutContext<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -590,6 +488,12 @@ class MessageListWithoutContext<
   }
 }
 
+/**
+ * The MessageList component renders a list of messages.
+ * It is a consumer of the [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ *
+ * @example ../../docs/MessageList.md
+ */
 export const MessageList = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,

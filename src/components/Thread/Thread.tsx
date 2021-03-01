@@ -250,7 +250,6 @@ const ThreadInner = <
           Message={ThreadMessage}
           // @ts-expect-error
           messages={threadMessages}
-          // @ts-expect-error
           read={read}
           threadList
           {...additionalMessageListProps}

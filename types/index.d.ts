@@ -21,6 +21,7 @@ import Client, {
   StreamChat,
   TranslationLanguages,
   UserResponse,
+  ChannelMemberResponse,
 } from 'stream-chat';
 import type { ChannelStateReducerAction } from '../src/components/Channel/channelState';
 import type { PinPermissions } from '../src/components/Message/hooks/usePinHandler';
@@ -1127,6 +1128,12 @@ export interface MessageComponentProps<
   initialMessage?: boolean;
   threadList?: boolean;
   pinPermissions?: PinPermissions;
+
+  // XXX: this is a fix for the watchers being passed in MessageList
+  // apparently, they are not used anywhere
+  watchers?: {
+    [user_id: string]: Client.ChannelMemberResponse<Us>;
+  };
 }
 export type MessageComponentState = {
   editing: boolean;
