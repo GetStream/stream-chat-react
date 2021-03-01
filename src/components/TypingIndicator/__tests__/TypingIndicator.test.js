@@ -12,7 +12,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
-import TypingIndicator from '../TypingIndicator';
+import { TypingIndicator } from '../TypingIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 
