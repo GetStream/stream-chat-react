@@ -69,10 +69,8 @@ export const useReactionHandler = <
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
-        /**
-         * own user should only ever contain the current user id
-         * just in case we check to prevent bugs with message updates from breaking reactions
-         */
+        // own user should only ever contain the current user id
+        // just in case we check to prevent bugs with message updates from breaking reactions
         if (
           reaction.user &&
           currentUser === reaction.user.id &&
@@ -92,10 +90,8 @@ export const useReactionHandler = <
       ReactionAPIResponse<At, Ch, Co, Me, Re, Us>
     >;
 
-    /**
-     * Make the API call in the background
-     * If it fails, revert to the old message...
-     */
+    // Make the API call in the background
+    // If it fails, revert to the old message...
     if (message.id) {
       if (userExistingReaction) {
         reactionChangePromise = channel.deleteReaction(

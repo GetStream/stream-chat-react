@@ -1,4 +1,3 @@
-// @ts-check
 import React, { FC, MouseEventHandler } from 'react';
 
 export interface MessageNotificationProps {
@@ -9,7 +8,7 @@ export interface MessageNotificationProps {
   showNotification: boolean;
 }
 
-const UnmemoizedMessageNotification: FC<MessageNotificationProps> = ({
+const UnMemoizedMessageNotification: FC<MessageNotificationProps> = ({
   children,
   onClick,
   showNotification,
@@ -29,8 +28,8 @@ const UnmemoizedMessageNotification: FC<MessageNotificationProps> = ({
   );
 };
 
-UnmemoizedMessageNotification.defaultProps = {
+UnMemoizedMessageNotification.defaultProps = {
   showNotification: true,
 };
 
-export const MessageNotification = React.memo(UnmemoizedMessageNotification);
+export const MessageNotification = React.memo(UnMemoizedMessageNotification);

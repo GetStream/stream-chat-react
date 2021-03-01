@@ -5,7 +5,7 @@ import type { Event } from 'stream-chat';
 import { ChatContext, TranslationContext } from '../../context';
 import { CustomNotification } from './CustomNotification';
 
-const UnmemoizedConnectionStatus: FC = () => {
+const UnMemoizedConnectionStatus: FC = () => {
   const { client } = useContext(ChatContext);
   const { t } = useContext(TranslationContext);
   const [online, setOnline] = useState(true);
@@ -28,4 +28,4 @@ const UnmemoizedConnectionStatus: FC = () => {
   );
 };
 
-export const ConnectionStatus = React.memo(UnmemoizedConnectionStatus);
+export const ConnectionStatus = React.memo(UnMemoizedConnectionStatus);

@@ -6,7 +6,7 @@ export interface CustomNotificationProps {
   active?: boolean;
 }
 
-const UnmemoizedCustomNotification: FC<CustomNotificationProps> = ({
+const UnMemoizedCustomNotification: FC<CustomNotificationProps> = ({
   active,
   children,
   type,
@@ -23,4 +23,4 @@ const UnmemoizedCustomNotification: FC<CustomNotificationProps> = ({
   );
 };
 
-export const CustomNotification = React.memo(UnmemoizedCustomNotification);
+export const CustomNotification = React.memo(UnMemoizedCustomNotification);
