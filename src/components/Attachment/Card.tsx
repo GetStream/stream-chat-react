@@ -1,32 +1,49 @@
-// @ts-check
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+
+import { SafeAnchor } from '../SafeAnchor';
 
 import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
-import { TranslationContext } from '../../context';
-import { SafeAnchor } from '../SafeAnchor';
+
+import { useTranslationContext } from '../../context/TranslationContext';
 
 /**
  * Card - Simple Card Layout
  *
- * @example ../../docs/Card.md
- * @typedef {import('types').CardProps} Props
- * @type React.FC<Props>
+ * @example ./Card.md
  */
-const Card = ({
-  image_url,
-  og_scrape_url,
-  text,
-  thumb_url,
-  title,
-  title_link,
-  type,
-}) => {
-  const { t } = useContext(TranslationContext);
+export type CardProps = {
+  /** The url of the full sized image */
+  image_url?: string;
+  /** The scraped url, used as a fallback if the OG-data doesn't include a link */
+  og_scrape_url?: string;
+  /** Description returned by the OG scraper */
+  text?: string;
+  /** The url for thumbnail sized image */
+  thumb_url?: string;
+  /** Title returned by the OG scraper */
+  title?: string;
+  /** Link returned by the OG scraper */
+  title_link?: string;
+  /** The card type used in the className attribute */
+  type?: string;
+};
+
+const UnMemoizedCard: React.FC<CardProps> = (props) => {
+  const {
+    image_url,
+    og_scrape_url,
+    text,
+    thumb_url,
+    title,
+    title_link,
+    type,
+  } = props;
+
+  const { t } = useTranslationContext();
+
   const image = thumb_url || image_url;
 
-  /** @type {(url?: string) => string | null} Typescript syntax */
-  const trimUrl = (url) => {
+  const trimUrl = (url?: string | null) => {
     if (url !== undefined && url !== null) {
       const [trimmedUrl] = url
         .replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
@@ -100,19 +117,4 @@ const Card = ({
   );
 };
 
-Card.propTypes = {
-  /** The url of the full sized image */
-  image_url: PropTypes.string,
-  /** The scraped url, used as a fallback if the OG-data doesn't include a link */
-  og_scrape_url: PropTypes.string,
-  /** Description returned by the OG scraper */
-  text: PropTypes.string,
-  /** The url for thumbnail sized image */
-  thumb_url: PropTypes.string,
-  /** Title returned by the OG scraper */
-  title: PropTypes.string,
-  /** Link returned by the OG scraper */
-  title_link: PropTypes.string,
-};
-
-export default React.memo(Card);
+export const Card = React.memo(UnMemoizedCard) as typeof UnMemoizedCard;

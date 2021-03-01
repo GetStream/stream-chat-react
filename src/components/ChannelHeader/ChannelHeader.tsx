@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelContext } from '../../context/ChannelContext';

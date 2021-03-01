@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { generateAudioAttachment } from 'mock-builders';
-import Audio from '../Audio';
+import { Audio } from '../Audio';
 
 const mockAudioAsset = generateAudioAttachment();
 

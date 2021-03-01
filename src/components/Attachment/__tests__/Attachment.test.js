@@ -14,7 +14,7 @@ import {
   generateVideoAttachment,
 } from 'mock-builders';
 
-import Attachment, { SUPPORTED_VIDEO_FORMATS } from '../Attachment';
+import { Attachment, SUPPORTED_VIDEO_FORMATS } from '../Attachment';
 
 const Audio = () => <div data-testid='audio-attachment'></div>;
 const Card = () => <div data-testid='card-attachment'></div>;
