@@ -645,76 +645,6 @@ export interface VirtualizedMessageListInternalProps<
 export interface VirtualizedMessageListProps
   extends Partial<VirtualizedMessageListInternalProps> {}
 
-export interface MessageListProps {
-  /** Component to render at the top of the MessageList */
-  HeaderComponent?: React.ElementType;
-  /** Component to render at the top of the MessageList */
-  EmptyStateIndicator?: React.ElementType<EmptyStateIndicatorProps>;
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  TypingIndicator?: React.ElementType<TypingIndicatorProps>;
-  /** Date separator component to render  */
-  dateSeparator?: React.ElementType<DateSeparatorProps>;
-  DateSeparator?: React.ElementType<DateSeparatorProps>;
-  disableDateSeparator?: boolean;
-  hideDeletedMessages?: boolean;
-  /** Turn off grouping of messages by user */
-  noGroupByUser?: boolean;
-  /** Weather its a thread of no. Default - false  */
-  threadList?: boolean;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-  unsafeHTML?: boolean;
-  messageLimit?: number;
-  messageActions?: Array<string>;
-  mutes?: Client.Mute[];
-  getFlagMessageSuccessNotification?(message: Client.MessageResponse): string;
-  getFlagMessageErrorNotification?(message: Client.MessageResponse): string;
-  getMuteUserSuccessNotification?(message: Client.MessageResponse): string;
-  getMuteUserErrorNotification?(message: Client.MessageResponse): string;
-  getPinMessageErrorNotification?(message: Client.MessageResponse): string;
-  pinPermissions?: PinPermissions;
-  additionalMessageInputProps?: object;
-  client?: Client.StreamChat;
-  loadMore?(messageLimit?: number): Promise<number>;
-  MessageSystem?: React.ElementType;
-  messages?: Array<Client.MessageResponse>;
-  read?: {
-    [user_id: string]: {
-      last_read: string;
-      user: Client.UserResponse;
-    };
-  };
-  hasMore?: boolean;
-  loadingMore?: boolean;
-  openThread?(): void;
-  members?: {
-    [user_id: string]: Client.ChannelMemberResponse;
-  };
-  watchers?: {
-    [user_id: string]: Client.ChannelMemberResponse;
-  };
-  channel?: Client.Channel;
-  retrySendMessage?(message: Client.Message): Promise<void>;
-
-  updateMessage?(
-    updatedMessage: Client.MessageResponse,
-    extraState?: object,
-  ): void;
-  removeMessage?(updatedMessage: Client.MessageResponse): void;
-  Message?: React.ElementType;
-  Attachment?: React.ElementType;
-  Avatar?: React.ElementType<AvatarProps>;
-  onMentionsClick?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-  onMentionsHover?(
-    e: React.MouseEvent,
-    mentioned_users: Client.UserResponse[],
-  ): void;
-  scrolledUpThreshold?: number;
-}
-
 export interface ChannelHeaderProps {
   Avatar?: React.ElementType<AvatarProps>;
   image?: string;
@@ -1085,6 +1015,7 @@ export interface MessageOptionsProps<
   theme?: string;
   threadList?: boolean;
 }
+
 // MessageComponentProps defines the props for the Message component
 export interface MessageComponentProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -1501,7 +1432,6 @@ export const Chat: React.FC<ChatProps>;
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
 export class Message extends React.PureComponent<MessageComponentProps, any> {}
-export class MessageList extends React.PureComponent<MessageListProps, any> {}
 export const VirtualizedMessageList: React.FC<VirtualizedMessageListProps>;
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
@@ -1646,19 +1576,6 @@ type CustomMentionHandler = (
   user: Client.UserResponse[],
 ) => void;
 
-export function useMuteHandler(
-  message: Client.MessageResponse | undefined,
-  notifications: MessageNotificationArguments,
-): (event: React.MouseEvent<HTMLElement>) => Promise<void>;
-
-export function useOpenThreadHandler(
-  message: Client.MessageResponse | undefined,
-  customOpenThread?: (
-    message: Client.MessageResponse,
-    event: React.SyntheticEvent,
-  ) => void,
-): (event: React.SyntheticEvent) => void;
-
 export type PinEnabledUserRoles = {
   admin?: boolean;
   anonymous?: boolean;
@@ -1671,41 +1588,6 @@ export type PinEnabledUserRoles = {
   user?: boolean;
 };
 
-export function usePinHandler(
-  message: Client.MessageResponse | undefined,
-  pinPermissions: PinPermissions,
-  notifications: Omit<MessageNotificationArguments, 'getSuccessNotification'>,
-): {
-  canPin: boolean;
-  handlePin: (event: React.MouseEvent<HTMLElement>) => Promise<void>;
-};
-
-export function useReactionHandler(
-  message: Client.MessageResponse | undefined,
-): (reactionType: string, event: React.MouseEvent) => Promise<void>;
-
-export function useReactionClick(
-  message: Client.MessageResponse | undefined,
-  reactionSelectorRef: React.RefObject<HTMLDivElement | null>,
-  messageWrapperRef?: React.RefObject<HTMLElement | null>,
-): {
-  onReactionListClick: () => void;
-  showDetailedReactions: boolean;
-  isReactionEnabled: boolean;
-};
-
-type UserEventHandler = (e: React.MouseEvent, user: Client.User) => void;
-export function useUserHandler(
-  message: Client.MessageResponse | undefined,
-  eventHandlers: {
-    onUserClickHandler?: UserEventHandler;
-    onUserHoverHandler?: UserEventHandler;
-  },
-): {
-  onUserClick: React.EventHandler<React.SyntheticEvent>;
-  onUserHover: React.EventHandler<React.SyntheticEvent>;
-};
-
 interface UserRoles {
   isMyMessage: boolean;
   isAdmin: boolean;
@@ -1716,9 +1598,6 @@ interface UserCapabilities {
   canEditMessage: boolean;
   canDeleteMessage: boolean;
 }
-export function useUserRole(
-  message: Client.MessageResponse | undefined,
-): UserRoles & UserCapabilities;
 
 export const Thread: React.FC<ThreadProps>;
 
