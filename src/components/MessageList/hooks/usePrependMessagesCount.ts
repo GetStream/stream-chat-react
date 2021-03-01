@@ -1,8 +1,8 @@
 import { useMemo, useRef } from 'react';
-import type { VirtualizedMessageListInternalProps } from 'types';
+import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
 
 export const usePrependedMessagesCount = (
-  messages: VirtualizedMessageListInternalProps['messages'],
+  messages: VirtualizedMessageListProps['messages'],
 ) => {
   const currentFirstMessageId = messages?.[0]?.id;
   const firstMessageId = useRef(currentFirstMessageId);

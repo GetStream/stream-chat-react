@@ -12,16 +12,11 @@ import * as i18next from 'i18next';
 import React, { ReactElement } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ReactPlayerProps } from 'react-player';
-import {
-  ScrollSeekConfiguration,
-  ScrollSeekPlaceholderProps,
-} from 'react-virtuoso';
 import Client, {
   MessageResponse,
   StreamChat,
   TranslationLanguages,
   UserResponse,
-  ChannelMemberResponse,
 } from 'stream-chat';
 import type { ChannelStateReducerAction } from '../src/components/Channel/channelState';
 import type { PinPermissions } from '../src/components/Message/hooks/usePinHandler';
@@ -572,78 +567,6 @@ export interface FixedHeightMessageProps<
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   groupedByUser: boolean;
 }
-
-export interface VirtualizedMessageListInternalProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> {
-  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
-  /** The client connection object for connecting to Stream */
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  loadMore?(messageLimit?: number | undefined): Promise<number>;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  hasMore: boolean;
-  /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
-  loadingMore: boolean;
-  /** Set the limit to use when paginating messages */
-  messageLimit?: number;
-  /**
-   * Group messages belong to the same user if true, otherwise show each message individually, default to false
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
-   */
-  shouldGroupByUser?: boolean;
-  /** Custom render function, if passed, certain UI props are ignored */
-  customMessageRenderer(
-    messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
-    index: number,
-  ): React.ReactElement;
-  /** Custom UI component to display messages. */
-  Message?: React.ElementType<FixedHeightMessageProps>;
-  /** Custom UI component to display deleted messages. */
-  MessageDeleted?: React.ElementType<MessageDeletedProps>;
-  /** Custom UI component to display system messages */
-  MessageSystem?: React.ElementType<EventComponentProps>;
-  /** The UI Indicator to use when MessageList or ChannelList is empty */
-  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
-  /** The UI Indicator to use when someone is typing, default to null */
-  TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
-  /** Component to render at the top of the MessageList while loading new messages */
-  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
-  overscan?: number;
-  /** Performance improvement by showing placeholders if user scrolls fast through list
-   * it can be used like this:
-   *  {
-   *    enter: (velocity) => Math.abs(velocity) > 120,
-   *    exit: (velocity) => Math.abs(velocity) < 40,
-   *    change: () => null,
-   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
-   *  }
-   *
-   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
-   *  TODO: break out placeholder when making other breaking changes.
-   */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
-    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
-  };
-  /**
-   * The scrollTo Behavior when new messages appear. Use `"smooth"`
-   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
-   * if you expect hight throughput.
-   */
-  stickToBottomScrollBehavior?: 'smooth' | 'auto';
-}
-
-export interface VirtualizedMessageListProps
-  extends Partial<VirtualizedMessageListInternalProps> {}
 
 export interface ChannelHeaderProps {
   Avatar?: React.ElementType<AvatarProps>;
@@ -1432,7 +1355,6 @@ export const Chat: React.FC<ChatProps>;
 export class Channel extends React.PureComponent<ChannelProps, any> {}
 export class Avatar extends React.PureComponent<AvatarProps, any> {}
 export class Message extends React.PureComponent<MessageComponentProps, any> {}
-export const VirtualizedMessageList: React.FC<VirtualizedMessageListProps>;
 export const ChannelHeader: React.FC<ChannelHeaderProps>;
 export class MessageInput extends React.PureComponent<MessageInputProps, any> {}
 export class MessageInputLarge extends React.PureComponent<
