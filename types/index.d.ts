@@ -696,6 +696,11 @@ export interface MessageInputProps {
   publishTypingEvent?: boolean;
   /** Grow the textarea while you're typing */
   grow?: boolean;
+  /** Optional Array of keycode values (keycode values like 13, 60).
+   * Any keycodes in this array will override Enter (13), which is the default submit key.
+   * Shift+Enter is the default for new line, but can be overridden here as the combination keys for submit.
+   * */
+  keycodeSubmitKeys?: number[] | null;
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
 
@@ -1141,6 +1146,7 @@ export interface ChatAutoCompleteProps {
   disabled?: boolean;
   disableMentions?: boolean;
   value?: string;
+  keycodeSubmitKeys?: number[] | null;
   handleSubmit?(event: React.FormEvent): void;
   onChange?(event: React.ChangeEventHandler): void;
   placeholder?: string;

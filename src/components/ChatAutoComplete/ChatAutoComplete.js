@@ -264,9 +264,9 @@ ChatAutoComplete.propTypes = {
   onChange: PropTypes.func,
   /** Placeholder for the textarea */
   placeholder: PropTypes.string,
-  /** Optional Array of numbers (keycode values like 13, 60).
+  /** Optional Array of keycode values (keycode values like 13, 60).
    * Any keycodes in this array will override Enter (13), which is the default submit key.
-   * Other options are 'shift+enter' and 'cmd/ctrl+enter'
+   * Shift+Enter is the default for new line, but can be overridden here as the combination keys for submit.
    * */
   keycodeSubmitKeys: PropTypes.array,
   /** What loading component to use for the auto complete when loading results. */
@@ -293,6 +293,7 @@ ChatAutoComplete.propTypes = {
 
 ChatAutoComplete.defaultProps = {
   rows: 3,
+  keycodeSubmitKeys: null,
 };
 
 export default React.memo(ChatAutoComplete);

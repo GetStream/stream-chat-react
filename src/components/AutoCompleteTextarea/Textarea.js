@@ -125,7 +125,14 @@ class ReactTextareaAutocomplete extends React.Component {
     const hasFocus = this.textareaRef.matches(':focus');
 
     // don't submit if the element has focus or the shift key is pressed
-    if (!hasFocus || event.shiftKey === true) return;
+    if (!hasFocus) return;
+
+    if (
+      this.props.keycodeSubmitkeys &&
+      !this.props.keycodeSubmitKeys.includes(event.shiftKey && 13)
+    ) {
+      return;
+    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit

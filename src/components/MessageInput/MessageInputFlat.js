@@ -67,7 +67,7 @@ const MessageInputFlat = (props) => {
               commands={messageInput.getCommands()}
               handleSubmit={messageInput.handleSubmit}
               innerRef={messageInput.textareaRef}
-              keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
+              keycodeSubmitKeys={props.keycodeSubmitKeys}
               maxRows={props.maxRows}
               onChange={messageInput.handleChange}
               onPaste={messageInput.onPaste}
@@ -118,9 +118,9 @@ MessageInputFlat.propTypes = {
   focus: PropTypes.bool.isRequired,
   /** Grow the textarea while you're typing */
   grow: PropTypes.bool.isRequired,
-  /** Optional Array of numbers and strings (keycode values like 13, 60, 'ctrlKey).
+  /** Optional Array of keycode values (keycode values like 13, 60).
    * Any keycodes in this array will override Enter (13), which is the default submit key.
-   * Other options are 'shift+enter' and 'cmd/ctrl+enter'
+   * Shift+Enter is the default for new line, but can be overridden here as the combination keys for submit.
    * */
   keycodeSubmitKeys: PropTypes.array,
   /** Specify the max amount of rows the textarea is able to grow */
