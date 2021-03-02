@@ -138,6 +138,8 @@ export type MessageProps<
   ) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
+  /** Whether the threaded message is the first in the thread list */
+  initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */

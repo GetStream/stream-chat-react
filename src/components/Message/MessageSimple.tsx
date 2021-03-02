@@ -116,8 +116,6 @@ export type MessageUIComponentProps<
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
    * */
   EditMessageInput?: React.ComponentType<unknown>; // TODO - add React.ComponentType<MessageInputProps<generics>> when typed
-  /** Whether the threaded message is the first in the thread list */
-  initialMessage?: boolean;
   /** Function that returns whether or not the message belongs to the current user */
   isMyMessage?: () => boolean;
   /**
