@@ -656,6 +656,74 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
+      it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
+        const { submit } = renderComponent({
+          keycodeSubmitKeys: [17, 13],
+        });
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 19,
+          }),
+        );
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 13,
+          }),
+        );
+
+        await submit();
+
+        expect(submitMock).not.toHaveBeenCalled();
+      });
+      it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
+        const { submit } = renderComponent({
+          keycodeSubmitKeys: [17, 13],
+        });
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 17,
+          }),
+        );
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 13,
+          }),
+        );
+
+        await submit();
+        expect(submitMock).toHaveBeenCalledWith(channel.cid);
+      });
+      it('should not submit if invalid keycodeSubmitKeys are provided, but keydown events do match', async () => {
+        const { submit } = renderComponent({
+          keycodeSubmitKeys: [76, 77],
+        });
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 76,
+          }),
+        );
+
+        fireEvent(
+          document,
+          new KeyboardEvent('keydown', {
+            keyCode: 77,
+          }),
+        );
+
+        await submit();
+
+        expect(submitMock).not.toHaveBeenCalled();
+      });
     });
 
     it('Should edit a message if it is passed through the message prop', async () => {
