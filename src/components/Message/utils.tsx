@@ -4,14 +4,22 @@ import type {
   Attachment,
   MessageResponse,
   Mute,
+  StreamChat,
   UserResponse,
 } from 'stream-chat';
-import type {
-  ChannelContextValue,
-  StreamChatReactUserType,
-  TranslationContextValue,
-} from 'types';
+import type { StreamChatReactUserType, TranslationContextValue } from 'types';
 import type { MessageProps } from './Message';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -242,10 +250,18 @@ export const getNonImageAttachments = (
 
 export type ReadByUsers = Array<UserResponse<StreamChatReactUserType>>;
 
-export const getReadByTooltipText = (
+export const getReadByTooltipText = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
   users: ReadByUsers,
   t: TranslationContextValue['t'],
-  client: ChannelContextValue['client'],
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   let outStr = '';
   if (!t) {

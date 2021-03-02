@@ -21,6 +21,8 @@ import {
 
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
+import type { ActionHandlerReturnType } from '../Message';
+
 import type { DefaultAttachmentType } from '../../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = [
@@ -42,11 +44,7 @@ export type AttachmentProps<
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
 		*/
-  actionHandler?: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    name?: string,
-    value?: string,
-  ) => void;
+  actionHandler?: ActionHandlerReturnType;
   /**
    * Custom UI component for attachment actions
    * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx)
@@ -85,16 +83,11 @@ export type AttachmentProps<
 };
 
 export type BaseAttachmentUIComponentProps = {
-  /** The attachment to render */
   /**
-		The handler function to call when an action is selected on an attachment.
-		Examples include canceling a \/giphy command or shuffling the results.
-		*/
-  actionHandler?: (
-    name?: string,
-    value?: string,
-    event?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => void;
+   * The handler function to call when an action is selected on an attachment.
+   * Examples include canceling a \/giphy command or shuffling the results.
+   */
+  actionHandler?: ActionHandlerReturnType;
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
   Audio?: React.ComponentType<AudioProps>;
   Card?: React.ComponentType<CardProps>;
@@ -107,13 +100,13 @@ export type BaseAttachmentUIComponentProps = {
 export type DefaultAttachmentProps = Required<
   Pick<
     InnerAttachmentUIComponentProps,
+    | 'AttachmentActions'
+    | 'Audio'
     | 'Card'
     | 'File'
     | 'Gallery'
     | 'Image'
-    | 'Audio'
     | 'Media'
-    | 'AttachmentActions'
   >
 > & {
   attachment: ExtendedAttachment;
@@ -194,6 +187,7 @@ export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> 
   props,
 ) => {
   const { actionHandler, attachment, AttachmentActions } = props;
+
   if (!AttachmentActions || !attachment.actions || !attachment.actions.length) {
     return null;
   }
@@ -214,7 +208,9 @@ export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
   props,
 ) => {
   const { attachment, Gallery } = props;
+
   if (!Gallery) return null;
+
   return renderAttachmentWithinContainer({
     attachment,
     children: <Gallery images={attachment.images || []} key='gallery' />,
@@ -226,6 +222,7 @@ export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
   props,
 ) => {
   const { attachment, Image } = props;
+
   if (!Image) return null;
 
   if (attachment.actions && attachment.actions.length) {
@@ -255,6 +252,7 @@ export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
   props,
 ) => {
   const { attachment: attachment, Card } = props;
+
   if (!Card) return null;
 
   if (attachment.actions && attachment.actions.length) {
@@ -284,6 +282,7 @@ export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
   props,
 ) => {
   const { attachment: attachment, File } = props;
+
   if (!File || !attachment.asset_url) return null;
 
   return renderAttachmentWithinContainer({
@@ -316,6 +315,7 @@ export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
   props,
 ) => {
   const { attachment, Media } = props;
+
   if (!Media) return null;
 
   if (attachment.actions && attachment.actions.length) {

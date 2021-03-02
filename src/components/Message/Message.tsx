@@ -41,6 +41,7 @@ import type {
 import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/MessageListInner';
+import type { MessageUIComponentProps } from './MessageSimple';
 
 import type {
   DefaultAttachmentType,
@@ -52,7 +53,10 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageUIComponentProps } from 'types';
+
+export type EventHandlerReturnType = (
+  event: React.MouseEvent<HTMLElement, MouseEvent>,
+) => Promise<void> | void;
 
 export type MessageProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -72,7 +76,6 @@ export type MessageProps<
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
    * Function to add custom notification on message list.
-   *
    * @param text Notification text to display
    * @param type Type of notification
    * */
@@ -87,7 +90,6 @@ export type MessageProps<
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   /**
    * Custom UI component to display user avatar
-   *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
@@ -99,51 +101,36 @@ export type MessageProps<
   formatDate?: (date: Date) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
-   *
    * This function should accept following params:
-   *
    * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-   *
    * */
   getFlagMessageErrorNotification?: (
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
   ) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
-   *
    * This function should accept following params:
-   *
    * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
-   *
    * */
   getFlagMessageSuccessNotification?: (
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
   ) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-   *
    * This function should accept following params:
-   *
    * @param user A user object which is being muted
-   *
    * */
   getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-   *
    * This function should accept following params:
-   *
    * @param user A user object which is being muted
-   *
    * */
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
-   *
    * This function should accept following params:
-   *
    * @param message A [message object](https://getstream.io/chat/docs/#message_format)
-   *
    * */
   getPinMessageErrorNotification?: (
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
@@ -160,7 +147,7 @@ export type MessageProps<
    * */
   Message?: React.ComponentType<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >; // TODO - add MessageUIComponentProps
+  >;
   /**
    * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
@@ -259,74 +246,42 @@ const UnMemoizedMessage = <
   const channel = propChannel || contextChannel;
   const channelConfig = channel?.getConfig && channel.getConfig();
 
-  const handleAction = useActionHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
-  const handleDelete = useDeleteHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
+  const handleAction = useActionHandler(message);
+  const handleDelete = useDeleteHandler(message);
   const { clearEdit, editing, setEdit } = useEditHandler();
 
-  const handleOpenThread = useOpenThreadHandler<At, Ch, Co, Ev, Me, Re, Us>(
-    message,
-    propOpenThread,
-  );
+  const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
+  const handleReaction = useReactionHandler(message);
+  const handleRetry = useRetryHandler(propRetrySendMessage);
 
-  const handleReaction = useReactionHandler<At, Ch, Co, Ev, Me, Re, Us>(
-    message,
-  );
-
-  const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>(
-    propRetrySendMessage,
-  );
-
-  const handleFlag = useFlagHandler<At, Ch, Co, Ev, Me, Re, Us>(message, {
+  const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,
     getSuccessNotification: getFlagMessageSuccessNotification,
     notify: addNotification,
   });
 
-  const handleMute = useMuteHandler<At, Ch, Co, Ev, Me, Re, Us>(message, {
+  const handleMute = useMuteHandler(message, {
     getErrorNotification: getMuteUserErrorNotification,
     getSuccessNotification: getMuteUserSuccessNotification,
     notify: addNotification,
   });
 
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >(message, {
+  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
 
-  const { canPin, handlePin } = usePinHandler<At, Ch, Co, Ev, Me, Re, Us>(
-    message,
-    pinPermissions,
-    {
-      getErrorNotification: getPinMessageErrorNotification,
-      notify: addNotification,
-    },
-  );
+  const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
+    getErrorNotification: getPinMessageErrorNotification,
+    notify: addNotification,
+  });
 
-  const { onUserClick, onUserHover } = useUserHandler<At, Ch, Co, Me, Re, Us>(
-    message,
-    {
-      onUserClickHandler: propOnUserClick,
-      onUserHoverHandler: propOnUserHover,
-    },
-  );
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
 
-  const { isAdmin, isModerator, isMyMessage, isOwner } = useUserRole<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >(message);
+  const { isAdmin, isModerator, isMyMessage, isOwner } = useUserRole(message);
 
   const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
   const canDelete = canEdit;
@@ -381,7 +336,6 @@ const UnMemoizedMessage = <
         handleOpenThread={handleOpenThread}
         handlePin={handlePin}
         handleReaction={handleReaction}
-        //@ts-expect-error
         handleRetry={handleRetry}
         isMyMessage={() => isMyMessage}
         Message={MessageUIComponent}

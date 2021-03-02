@@ -44,8 +44,9 @@ export type MessageTextProps<
   customInnerClass?: string;
   customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
   customWrapperClass?: string;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
+  messageWrapperRef?: React.RefObject<HTMLDivElement>;
   onReactionListClick?: () => void;
+  reactionSelectorRef?: React.RefObject<HTMLDivElement>;
   showDetailedReactions?: boolean;
   theme?: string;
 };
