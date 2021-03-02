@@ -30,6 +30,7 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../types/types';
+import type { MessageUIComponentProps } from 'types';
 
 export type CommonEmoji = {
   custom: boolean;
@@ -83,6 +84,15 @@ export type MessageToSend<
   text?: string;
 };
 
+export type RetrySendMessage<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+
 export type ChannelState<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -108,9 +118,12 @@ export type ChannelState<
     Us
   >['pinnedMessages'];
   read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
-  thread?: ReturnType<
-    StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<
+        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage'] // TODO - potentially remove ReturnType message
+      >
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
   threadMessages?: Array<
@@ -145,9 +158,11 @@ export type ChannelContextValue<
   loadMore?: (limit: number) => Promise<number>;
   loadMoreThread?: () => Promise<void>;
   maxNumberOfFiles?: number;
-  Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >; // TODO: add generic when Message is typed
   multipleUploads?: boolean;
-  mutes?: Mute<DefaultUserType>[];
+  mutes?: Mute<Us>[];
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
@@ -157,15 +172,11 @@ export type ChannelContextValue<
     user: UserResponse<Us>[],
   ) => void;
   openThread?: (
-    message: ReturnType<
-      StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-    >,
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  retrySendMessage?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ) => Promise<void>;
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;

@@ -10,7 +10,7 @@ import {
   missingUseFlagHandlerParameterWarning,
   useFlagHandler,
 } from '../useFlagHandler';
-import { ChannelContext } from '../../../../context';
+import { ChannelContext, ChatContext } from '../../../../context';
 
 const alice = generateUser({ name: 'alice' });
 const flagMessage = jest.fn();
@@ -27,15 +27,16 @@ async function renderUseHandleFlagHook(
   client.flagMessage = flagMessage;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        ...channelContextValue,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          ...channelContextValue,
+        }}
+      >
+        {children}
+      </ChannelContext.Provider>
+    </ChatContext.Provider>
   );
   const { result } = renderHook(
     () => useFlagHandler(message, notificationOpts),

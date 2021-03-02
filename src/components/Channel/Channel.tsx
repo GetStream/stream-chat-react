@@ -625,9 +625,7 @@ const ChannelInner = <
 
   const openThread = useCallback(
     (
-      message: ReturnType<
-        ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-      >,
+      message: MessageResponse<At, Ch, Co, Me, Re, Us>,
       event: React.SyntheticEvent,
     ) => {
       if (!channel) return;

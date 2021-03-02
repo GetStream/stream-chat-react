@@ -8,14 +8,14 @@ import {
   ReactionSelector as DefaultReactionSelector,
   ReactionsList as DefaultReactionsList,
 } from '../Reactions';
-import MessageRepliesCountButton from './MessageRepliesCountButton';
+import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import {
   areMessagePropsEqual,
   messageHasAttachments,
   messageHasReactions,
 } from './utils';
-import MessageOptions from './MessageOptions';
-import MessageText from './MessageText';
+import { MessageOptions } from './MessageOptions';
+import { MessageText } from './MessageText';
 import {
   useActionHandler,
   useOpenThreadHandler,
@@ -24,7 +24,7 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 
 /**
  * MessageCommerce - Render component, should be used together with the Message component

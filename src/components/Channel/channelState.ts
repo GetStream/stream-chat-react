@@ -62,9 +62,7 @@ export type ChannelStateReducerAction<
     }
   | {
       channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      message: ReturnType<
-        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-      >;
+      message: MessageResponse<At, Ch, Co, Me, Re, Us>;
       type: 'openThread';
     }
   | {

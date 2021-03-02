@@ -10,7 +10,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { smartRender } from '../../utils';
 
 import type { TFunction } from 'i18next';
-import type { ChannelState } from 'stream-chat';
+import type { ChannelState, MessageResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -22,6 +22,7 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
+import type { MessageUIComponentProps } from 'types';
 
 export type ThreadProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -52,7 +53,9 @@ export type ThreadProps<
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** UI component to override the default Message stored in channel context */
-  Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   /** Customized MessageInput component to used within Thread instead of default MessageInput
      Useable as follows:
      ```
@@ -108,9 +111,10 @@ export type ThreadHeaderProps<
   closeThread?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
-  thread?: ReturnType<
-    ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']> // TODO - maybe remove ReturnType message
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
 };
 
 const DefaultThreadHeader = <
@@ -225,15 +229,12 @@ const ThreadInner = <
     >
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
-        <Message
-          // @ts-expect-error
+        <Message<At, Ch, Co, Ev, Me, Re, Us>
           channel={channel}
-          // @ts-expect-error
           client={client}
           initialMessage
           // @ts-expect-error
           message={thread}
-          // @ts-expect-error
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}
@@ -241,11 +242,13 @@ const ThreadInner = <
         <div className='str-chat__thread-start'>
           {t('Start of a new thread')}
         </div>
-        <MessageList
+        <MessageList<At, Ch, Co, Ev, Me, Re, Us>
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}
+          // @ts-expect-error
           loadMore={loadMoreThread}
           Message={ThreadMessage}
+          // @ts-expect-error
           messages={threadMessages}
           read={read}
           threadList

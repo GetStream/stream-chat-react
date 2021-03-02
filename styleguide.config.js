@@ -39,8 +39,8 @@ module.exports = {
         'src/components/Chat/Chat.tsx',
         'src/components/Channel/Channel.tsx',
         'src/components/ChannelList/ChannelList.tsx',
-        'src/components/MessageList/MessageList.js',
-        'src/components/MessageList/VirtualizedMessageList.js',
+        'src/components/MessageList/MessageList.tsx',
+        'src/components/MessageList/VirtualizedMessageList.tsx',
         'src/components/ChannelHeader/ChannelHeader.tsx',
         'src/components/Thread/Thread.tsx',
       ],
@@ -54,7 +54,7 @@ module.exports = {
         {
           name: 'Components',
           components: [
-            'src/components/Message/Message.js',
+            'src/components/Message/Message.tsx',
             'src/components/Message/MessageSimple.js',
             'src/components/Message/MessageTeam.js',
             'src/components/Message/MessageLivestream.js',

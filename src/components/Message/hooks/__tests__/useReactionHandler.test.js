@@ -7,7 +7,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+import { ChannelContext, ChatContext } from '../../../../context';
 import {
   reactionHandlerWarning,
   useReactionClick,
@@ -35,15 +35,16 @@ async function renderUseReactionHandlerHook(
     ...channelContextProps,
   });
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        updateMessage,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          updateMessage,
+        }}
+      >
+        {children}
+      </ChannelContext.Provider>
+    </ChatContext.Provider>
   );
   const { result } = renderHook(() => useReactionHandler(message), { wrapper });
   return result.current;

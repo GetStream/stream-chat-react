@@ -3,8 +3,9 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
-import MessageTimestamp, {
+import {
   defaultTimestampFormat,
+  MessageTimestamp,
   notValidDateWarning,
 } from '../MessageTimestamp';
 import { TranslationContext } from '../../../context';

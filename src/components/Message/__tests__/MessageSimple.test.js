@@ -11,12 +11,12 @@ import {
 } from 'mock-builders';
 import { MESSAGE_ACTIONS } from '../utils';
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageSimple from '../MessageSimple';
+import { MessageSimple } from '../MessageSimple';
 import { Modal as ModalMock } from '../../Modal';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
-import MessageOptionsMock from '../MessageOptions';
-import MessageTextMock from '../MessageText';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageText as MessageTextMock } from '../MessageText';
 import {
   EditMessageForm,
   MessageInput as MessageInputMock,
@@ -26,8 +26,11 @@ import calendar from 'dayjs/plugin/calendar';
 
 Dayjs.extend(calendar);
 
-jest.mock('../MessageOptions', () => jest.fn(() => <div />));
-jest.mock('../MessageText', () => jest.fn(() => <div />));
+jest.mock('../MessageOptions', () => ({
+  MessageOptions: jest.fn(() => <div />),
+}));
+
+jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 

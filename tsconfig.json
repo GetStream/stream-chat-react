@@ -22,7 +22,7 @@
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "strict": true,
     "target": "ES5",
     "allowSyntheticDefaultImports": true,

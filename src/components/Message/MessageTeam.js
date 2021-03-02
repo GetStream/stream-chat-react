@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import MessageRepliesCountButton from './MessageRepliesCountButton';
+import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { isOnlyEmojis, renderText, smartRender } from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 import { Attachment as DefaultAttachment } from '../Attachment';
@@ -37,7 +37,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import MessageTimestamp from './MessageTimestamp';
+import { MessageTimestamp } from './MessageTimestamp';
 
 /**
  * MessageTeam - Render component, should be used together with the Message component
