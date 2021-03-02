@@ -1,5 +1,6 @@
 import deepequal from 'react-fast-compare';
-import PropTypes from 'prop-types';
+
+import type { TFunction } from 'i18next';
 import type {
   Attachment,
   MessageResponse,
@@ -7,7 +8,8 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import type { StreamChatReactUserType, TranslationContextValue } from 'types';
+
+import type { PinPermissions } from './hooks';
 import type { MessageProps } from './Message';
 
 import type {
@@ -24,7 +26,6 @@ import type {
 /**
  * Following function validates a function which returns notification message.
  * It validates if the first parameter is function and also if return value of function is string or no.
- *
  */
 export function validateAndGetMessage<T extends unknown[]>(
   func: (...args: T) => unknown,
@@ -49,10 +50,18 @@ export function validateAndGetMessage<T extends unknown[]>(
 /**
  * Tell if the owner of the current message is muted
  */
-export function isUserMuted(message: MessageResponse, mutes?: Mute[]): boolean {
-  if (!mutes || !message) {
-    return false;
-  }
+export function isUserMuted<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  mutes?: Mute<Us>[],
+): boolean {
+  if (!mutes || !message) return false;
 
   const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
   return !!userMuted.length;
@@ -68,7 +77,11 @@ export const MESSAGE_ACTIONS = {
   reply: 'reply',
 };
 
-export const defaultPinPermissions = {
+export type MessageActionsArray<T extends string = string> = Array<
+  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'react' | 'reply' | T
+>;
+
+export const defaultPinPermissions: PinPermissions = {
   commerce: {
     admin: true,
     anonymous: false,
@@ -126,7 +139,7 @@ export const defaultPinPermissions = {
   },
 };
 
-export interface Capabilities {
+export type Capabilities = {
   canDelete?: boolean;
   canEdit?: boolean;
   canFlag?: boolean;
@@ -134,7 +147,7 @@ export interface Capabilities {
   canPin?: boolean;
   canReact?: boolean;
   canReply?: boolean;
-}
+};
 
 export function getMessageActions(
   actions: string[] | boolean,
@@ -147,13 +160,10 @@ export function getMessageActions(
     canReact,
     canReply,
   }: Capabilities,
-): string[] {
+): MessageActionsArray {
   const messageActionsAfterPermission = [];
   let messageActions = [];
 
-  // TODO: leftover from typescript conversions
-  // the types suggest that actions will always be passed,
-  // yet the implementation checks for actions
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values
     messageActions = Object.keys(MESSAGE_ACTIONS);
@@ -194,14 +204,30 @@ export function getMessageActions(
   return messageActionsAfterPermission;
 }
 
-export type MessageEqualProps = Pick<
-  MessageProps,
+export type MessageEqualProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Pick<
+  MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
   'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'
 >;
 
-export const areMessagePropsEqual = (
-  props: MessageEqualProps,
-  nextProps: MessageEqualProps,
+export const areMessagePropsEqual = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
+  nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
 ): boolean =>
   // Message content is equal
   nextProps.message === props.message &&
@@ -219,36 +245,74 @@ export const areMessagePropsEqual = (
   // Message wrapper layout changes
   nextProps.messageListRect === props.messageListRect;
 
-export const shouldMessageComponentUpdate = (
-  props: MessageProps,
-  nextProps: MessageProps,
+export const shouldMessageComponentUpdate = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
+  nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
 ): boolean =>
   // Component should only update if:
   !areMessagePropsEqual(props, nextProps);
 
-export const messageHasReactions = (message?: MessageResponse) =>
-  !!message?.latest_reactions && !!message.latest_reactions.length;
+export const messageHasReactions = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+) => !!message?.latest_reactions && !!message.latest_reactions.length;
 
-export const messageHasAttachments = (message?: MessageResponse) =>
-  !!message?.attachments && !!message.attachments.length;
+export const messageHasAttachments = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+) => !!message?.attachments && !!message.attachments.length;
 
-export const getImages = (message?: MessageResponse): Attachment[] => {
+export const getImages = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+): Attachment<At>[] => {
   if (!message?.attachments) {
     return [];
   }
   return message.attachments.filter((item) => item.type === 'image');
 };
 
-export const getNonImageAttachments = (
-  message?: MessageResponse,
-): Attachment[] => {
+export const getNonImageAttachments = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+): Attachment<At>[] => {
   if (!message?.attachments) {
     return [];
   }
   return message.attachments.filter((item) => item.type !== 'image');
 };
-
-export type ReadByUsers = Array<UserResponse<StreamChatReactUserType>>;
 
 export const getReadByTooltipText = <
   At extends UnknownType = DefaultAttachmentType,
@@ -259,16 +323,18 @@ export const getReadByTooltipText = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  users: ReadByUsers,
-  t: TranslationContextValue['t'],
+  users: UserResponse<Us>[],
+  t: TFunction,
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   let outStr = '';
+
   if (!t) {
     throw new Error(
       '`getReadByTooltipText was called, but translation function is not available`',
     );
   }
+
   // first filter out client user, so restLength won't count it
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)
@@ -306,12 +372,3 @@ export const getReadByTooltipText = <
 
   return outStr;
 };
-
-export const MessagePropTypes = PropTypes.shape({
-  created_at: PropTypes.instanceOf(Date).isRequired,
-  html: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  updated_at: PropTypes.instanceOf(Date).isRequired,
-}).isRequired;

@@ -22,6 +22,7 @@ import {
   defaultPinPermissions,
   getMessageActions,
   MESSAGE_ACTIONS,
+  MessageActionsArray,
 } from './utils';
 
 import {
@@ -152,7 +153,7 @@ export type MessageProps<
    * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
    * */
-  messageActions?: string[]; // TODO - potentially add string union on action types
+  messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Array of muted users coming from channel context */
