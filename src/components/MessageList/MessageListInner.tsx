@@ -2,7 +2,7 @@
 import React, { RefObject, useMemo } from 'react';
 import isEqual from 'lodash.isequal';
 
-import { Message } from '../Message';
+import { Message, MessageProps } from '../Message';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
 
 import type {
@@ -25,7 +25,6 @@ import type {
   DateSeparatorProps,
   EmptyStateIndicatorProps,
   InfiniteScrollProps,
-  MessageProps,
   TypingIndicatorProps,
 } from 'types';
 
@@ -437,7 +436,7 @@ const UnMemoizedMessageListInner = <
         }
 
         if (message.type !== 'message.read') {
-          const groupStyles = messageGroupStyles[message.id] || '';
+          const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
 
           return (
             <li

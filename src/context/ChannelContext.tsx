@@ -30,6 +30,7 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../types/types';
+import type { MessageUIComponentProps } from 'types';
 
 export type CommonEmoji = {
   custom: boolean;
@@ -157,7 +158,9 @@ export type ChannelContextValue<
   loadMore?: (limit: number) => Promise<number>;
   loadMoreThread?: () => Promise<void>;
   maxNumberOfFiles?: number;
-  Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >; // TODO: add generic when Message is typed
   multipleUploads?: boolean;
   mutes?: Mute<Us>[];
   onMentionsClick?: (

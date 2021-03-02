@@ -49,7 +49,9 @@ type PropsDrilledToMessage =
   | 'retrySendMessage'
   | 'unsafeHTML'
   | 'updateMessage'
-  | 'watchers';
+  | 'watchers'
+  | 'onUserClick'
+  | 'onUserHover';
 
 type PropsDrilledToMessageListInner =
   | 'channel'
@@ -422,6 +424,7 @@ class MessageListWithoutContext<
               addNotification: this.addNotification,
               Attachment: this.props.Attachment,
               Avatar: this.props.Avatar,
+              //@ts-expect-error - it looks like the message ui component does not accept channels - but this is passed.
               channel: this.props.channel,
               getFlagMessageErrorNotification: this.props
                 .getFlagMessageErrorNotification,

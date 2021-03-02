@@ -32,6 +32,7 @@ import {
   DefaultUserType,
   UnknownType,
 } from './types';
+import type { AttachmentProps } from '../src/components/Attachment/Attachment';
 
 export type Mute = Client.Mute<StreamChatReactUserType>;
 
@@ -727,7 +728,7 @@ export interface MessageProps<
   ReactionSelector?: React.ElementType<ReactionSelectorProps>;
   ReactionsList?: React.ElementType<ReactionsListProps>;
   /** Allows you to overwrite the attachment component */
-  Attachment?: React.ElementType<WrapperAttachmentUIComponentProps>;
+  Attachment?: React.ElementType<AttachmentProps<At>>;
   Avatar?: React.ComponentType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
@@ -775,9 +776,9 @@ export interface MessageUIComponentProps<
   handleMute?(event?: React.BaseSyntheticEvent): void;
   handlePin?(event?: React.BaseSyntheticEvent): void;
   handleAction?(
-    name: string,
-    value: string,
-    event: React.BaseSyntheticEvent,
+    name?: string,
+    value?: string,
+    event?: React.BaseSyntheticEvent,
   ): void;
   handleRetry?(message: Client.Message<At, Me, Us>): void;
   isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;

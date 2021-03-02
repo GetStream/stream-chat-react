@@ -52,6 +52,7 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
+import type { MessageUIComponentProps } from 'types';
 
 export type MessageProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -157,7 +158,9 @@ export type MessageProps<
    * Message UI component to display a message in message list.
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
-  Message?: React.ComponentType<unknown>; // TODO - add MessageUIComponentProps
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >; // TODO - add MessageUIComponentProps
   /**
    * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
@@ -378,9 +381,9 @@ const UnMemoizedMessage = <
         handleOpenThread={handleOpenThread}
         handlePin={handlePin}
         handleReaction={handleReaction}
+        //@ts-expect-error
         handleRetry={handleRetry}
         isMyMessage={() => isMyMessage}
-        //@ts-expect-error
         Message={MessageUIComponent}
         onMentionsClickMessage={onMentionsClick}
         onMentionsHoverMessage={onMentionsHover}

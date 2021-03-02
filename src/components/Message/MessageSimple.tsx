@@ -232,6 +232,7 @@ const UnMemoizedMessageSimple = <
 
             {message?.attachments && Attachment && (
               <Attachment
+                // @ts-expect-error
                 actionHandler={propHandleAction || handleAction}
                 attachments={message.attachments}
               />
@@ -377,5 +378,6 @@ const MessageSimpleStatus = <
 
 export const MessageSimple = React.memo(
   UnMemoizedMessageSimple,
+  //@ts-expect-error
   areMessagePropsEqual,
-);
+) as typeof UnMemoizedMessageSimple;

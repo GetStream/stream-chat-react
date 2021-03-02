@@ -17,7 +17,7 @@ import type {
 export type FormData = Record<string, string>;
 
 export type ActionHandlerReturnType = (
-  dataOrName: string | FormData,
+  dataOrName?: string | FormData,
   value?: string,
   event?: BaseSyntheticEvent,
 ) => Promise<void>;
