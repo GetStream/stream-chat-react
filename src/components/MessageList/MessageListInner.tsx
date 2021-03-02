@@ -2,8 +2,11 @@
 import React, { RefObject, useMemo } from 'react';
 import isEqual from 'lodash.isequal';
 
+import {
+  InfiniteScroll,
+  InfiniteScrollProps,
+} from '../InfiniteScrollPaginator';
 import { Message, MessageProps } from '../Message';
-import { InfiniteScroll } from '../InfiniteScrollPaginator';
 
 import type {
   Channel,
@@ -11,12 +14,9 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import type {
-  DateSeparatorProps,
-  EmptyStateIndicatorProps,
-  InfiniteScrollProps,
-  TypingIndicatorProps,
-} from 'types';
+
+import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -38,60 +38,46 @@ export type MessageListInnerProps<
   Us extends UnknownType = DefaultUserType
 > = {
   bottomRef: RefObject<HTMLDivElement>;
-
-  /** The current channel this message is displayed in. */
-  channel: Channel<Ch>;
-
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat). */
+  /** The current channel this message is displayed in */
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-
   /**
-   * Date separator UI component to render.
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js).
+   * Date separator UI component to render
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx).
    */
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
-
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
+  DateSeparator: React.ComponentType<unknown>; // TODO - add generics when typed
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
   messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
-
-  /** Set to `true` to turn off grouping of messages by user. */
+  /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser: boolean;
-
   onMessageLoadCaptured: (
     event: React.SyntheticEvent<HTMLLIElement, Event>,
   ) => void;
-
-  /** Set to `true` to indicate that the list is a thread.  */
+  /** Set to `true` to indicate that the list is a thread  */
   threadList: boolean;
-
   /**
-   * Typing indicator UI component to render.
-   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.js).
+   * Typing indicator UI component to render
+   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx).
    */
-  TypingIndicator: React.ComponentType<TypingIndicatorProps>;
-
-  /** Disables the injection of date separator components, defaults to `false`.  */
+  TypingIndicator: React.ComponentType<unknown>; // TODO - add generics when typed
+  /** Disables the injection of date separator components, defaults to `false`  */
   disableDateSeparator?: boolean;
-
-  /** The UI Indicator to use when `MessageList` or `ChannelList` is empty.  */
+  /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-
   /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ComponentType;
-
   headerPosition?: number;
-
-  /** Hides the MessageDeleted components from the list, defaults to `false`. */
+  /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
-
   internalInfiniteScrollProps?: InfiniteScrollProps;
-
-  internalMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
-
+  internalMessageProps?: Omit<
+    MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'message'
+  >;
   /**
-   * Custom UI component to display system messages.
-   *
-   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
+   * Custom UI component to display system messages
+   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
    */
   MessageSystem?: React.ComponentType<{
     message: MessageResponse<At, Ch, Co, Me, Re, Us>;
@@ -111,8 +97,11 @@ const getLastReceived = <
   messages: MessageResponse<At, Ch, Co, Me, Re, Us>[],
 ) => {
   for (let i = messages.length - 1; i > 0; i -= 1) {
-    if (messages[i].status === 'received') return messages[i].id;
+    if (messages[i].status === 'received') {
+      return messages[i].id;
+    }
   }
+
   return null;
 };
 
@@ -245,6 +234,7 @@ const insertIntro = <
     Re,
     Us
   >;
+
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
     newMessages.unshift(intro);
@@ -311,8 +301,7 @@ const getGroupStyles = <
   if (message.type === 'channel.event') return '';
   if (message.type === 'channel.intro') return '';
 
-  //@ts-expect-error
-  if (noGroupByUser || message.attachments.length !== 0) return 'single';
+  if (noGroupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
@@ -320,10 +309,8 @@ const getGroupStyles = <
     previousMessage.type === 'message.date' ||
     previousMessage.type === 'system' ||
     previousMessage.type === 'channel.event' ||
-    //@ts-expect-error
-    previousMessage.attachments.length !== 0 ||
-    //@ts-expect-error
-    message.user.id !== previousMessage.user.id ||
+    previousMessage.attachments?.length !== 0 ||
+    message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
     previousMessage.deleted_at;
 
@@ -333,10 +320,8 @@ const getGroupStyles = <
     nextMessage.type === 'system' ||
     nextMessage.type === 'channel.event' ||
     nextMessage.type === 'channel.intro' ||
-    //@ts-expect-error
-    nextMessage.attachments.length !== 0 ||
-    //@ts-expect-error
-    message.user.id !== nextMessage.user.id ||
+    nextMessage.attachments?.length !== 0 ||
+    message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
     nextMessage.deleted_at;
 
@@ -442,6 +427,7 @@ const UnMemoizedMessageListInner = <
           return (
             <li key={`${(message.date as Date).toISOString()}-i`}>
               <DateSeparator
+                // @ts-expect-error
                 date={message.date as Date}
                 unread={!!message.unread}
               />
@@ -489,38 +475,6 @@ const UnMemoizedMessageListInner = <
                 readBy={readData[message.id] || []}
                 threadList={threadList}
                 {...internalMessageProps}
-                //   additionalMessageInputProps: this.props
-                //   .additionalMessageInputProps,
-                // addNotification: this.addNotification,
-                // Attachment: this.props.Attachment,
-                // Avatar: this.props.Avatar,
-                // channel: this.props.channel,
-                // getFlagMessageErrorNotification: this.props
-                //   .getFlagMessageErrorNotification,
-                // getFlagMessageSuccessNotification: this.props
-                //   .getFlagMessageSuccessNotification,
-                // getMuteUserErrorNotification: this.props
-                //   .getMuteUserErrorNotification,
-                // getMuteUserSuccessNotification: this.props
-                //   .getMuteUserSuccessNotification,
-                // getPinMessageErrorNotification: this.props
-                //   .getPinMessageErrorNotification,
-                // members: this.props.members,
-                // Message: this.props.Message,
-                // messageActions: this.props.messageActions,
-                // messageListRect: this.state.messageListRect,
-                // mutes: this.props.mutes,
-                // onMentionsClick: this.props.onMentionsClick,
-                // onMentionsHover: this.props.onMentionsHover,
-                // onUserHover: this.props.onUserHover,
-                // onUserClick: this.props.onUserClick,
-                // openThread: this.props.openThread,
-                // pinPermissions: this.props.pinPermissions,
-                // removeMessage: this.props.removeMessage,
-                // retrySendMessage: this.props.retrySendMessage,
-                // unsafeHTML: this.props.unsafeHTML,
-                // updateMessage: this.props.updateMessage,
-                // watchers: this.props.watchers,
               />
             </li>
           );
@@ -554,6 +508,7 @@ const UnMemoizedMessageListInner = <
       {...internalInfiniteScrollProps}
     >
       <ul className='str-chat__ul'>{elements}</ul>
+      {/** @ts-expect-error */}
       <TypingIndicator threadList={threadList} />
       <div key='bottom' ref={bottomRef} />
     </InfiniteScroll>
