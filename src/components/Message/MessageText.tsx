@@ -42,7 +42,7 @@ export type MessageTextProps<
   Us extends UnknownType = DefaultUserType
 > = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
   customInnerClass?: string;
-  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
+  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   customWrapperClass?: string;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
   onReactionListClick?: () => void;
@@ -169,7 +169,7 @@ const UnMemoizedMessageTextComponent = <
           />
         )}
       </div>
-      <MessageOptions
+      <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
         {...props}
         {...customOptionProps}
         onReactionListClick={onReactionListClick}

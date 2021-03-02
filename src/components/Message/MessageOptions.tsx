@@ -1,55 +1,60 @@
-import React, { useContext } from 'react';
-import type { MessageResponse } from 'stream-chat';
+import React from 'react';
+
+import { useOpenThreadHandler, useUserRole } from './hooks';
+import { ReactionIcon, ThreadIcon } from './icons';
+import { MESSAGE_ACTIONS } from './utils';
+
+import { MessageActions } from '../MessageActions';
+
+import { useChannelContext } from '../../context/ChannelContext';
+
+import type { EventHandlerReturnType } from './Message';
+import type { MessageUIComponentProps } from './MessageSimple';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import { ChannelContext } from '../../context';
-import { MessageActions } from '../MessageActions';
-import { useOpenThreadHandler, useUserRole } from './hooks';
-import { ReactionIcon, ThreadIcon } from './icons';
-import { MESSAGE_ACTIONS } from './utils';
 
-export interface MessageOptionsProps<
+export type MessageOptionsProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> {
-  getMessageActions(): Array<string>;
+> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
   displayActions?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;
-  handleOpenThread?(event: React.BaseSyntheticEvent): void;
-  initialMessage?: boolean;
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  messageWrapperRef?: React.RefObject<HTMLElement>;
-  onReactionListClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  onReactionListClick?: EventHandlerReturnType;
   theme?: string;
-  threadList?: boolean;
-}
+};
 
 const UnMemoizedMessageOptions = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: MessageOptionsProps<At, Ch, Co, Me, Re, Us>,
+  props: MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     displayActions = true,
     displayLeft = true,
     displayReplies = true,
+    getMessageActions,
     handleOpenThread: propHandleOpenThread,
     initialMessage,
     message,
@@ -58,13 +63,15 @@ const UnMemoizedMessageOptions = <
     theme = 'simple',
     threadList,
   } = props;
-  const { channel } = useContext(ChannelContext);
+
+  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const handleOpenThread = useOpenThreadHandler(message);
   const { isMyMessage } = useUserRole(message);
 
   const channelConfig = channel?.getConfig();
-  const messageActions = props.getMessageActions();
+  const messageActions = getMessageActions();
+
   const shouldShowReactions =
     messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 &&
     channelConfig &&
@@ -88,6 +95,7 @@ const UnMemoizedMessageOptions = <
   ) {
     return null;
   }
+
   if (isMyMessage && displayLeft) {
     return (
       <div
@@ -118,6 +126,7 @@ const UnMemoizedMessageOptions = <
       </div>
     );
   }
+
   return (
     <div
       className={`str-chat__message-${theme}__actions`}
@@ -148,4 +157,6 @@ const UnMemoizedMessageOptions = <
   );
 };
 
-export const MessageOptions = React.memo(UnMemoizedMessageOptions);
+export const MessageOptions = React.memo(
+  UnMemoizedMessageOptions,
+) as typeof UnMemoizedMessageOptions;

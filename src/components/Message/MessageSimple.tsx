@@ -269,7 +269,7 @@ const UnMemoizedMessageSimple = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus {...props} />
+          <MessageSimpleStatus<At, Ch, Co, Ev, Me, Re, Us> {...props} />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -294,7 +294,7 @@ const UnMemoizedMessageSimple = <
             {!message.text && (
               <>
                 {
-                  <MessageOptions
+                  <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
                     {...props}
                     handleOpenThread={propHandleOpenThread}
                     messageWrapperRef={messageWrapperRef}
@@ -325,13 +325,13 @@ const UnMemoizedMessageSimple = <
               </>
             )}
             {message?.attachments && Attachment && (
-              <Attachment
+              <Attachment<At>
                 actionHandler={propHandleAction || handleAction}
                 attachments={message.attachments}
               />
             )}
             {message.text && (
-              <MessageText
+              <MessageText<At, Ch, Co, Ev, Me, Re, Us>
                 {...props}
                 customOptionProps={{
                   handleOpenThread: propHandleOpenThread,
@@ -363,7 +363,7 @@ const UnMemoizedMessageSimple = <
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <MessageTimestamp
+              <MessageTimestamp<At, Ch, Co, Me, Re, Us>
                 calendar
                 customClass='str-chat__message-simple-timestamp'
                 formatDate={formatDate}
@@ -413,7 +413,7 @@ const MessageSimpleStatus = <
         className='str-chat__message-simple-status'
         data-testid='message-status-sending'
       >
-        <Tooltip>{t && t('Sending...')}</Tooltip>
+        <Tooltip>{t('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
     );
@@ -457,7 +457,7 @@ const MessageSimpleStatus = <
         className='str-chat__message-simple-status'
         data-testid='message-status-received'
       >
-        <Tooltip>{t && t('Delivered')}</Tooltip>
+        <Tooltip>{t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
     );
