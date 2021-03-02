@@ -1,16 +1,18 @@
 import { MouseEvent, useState } from 'react';
 
-export type UseEditHandlerReturnType = {
+import type { EventHandlerReturnType } from '../Message';
+
+export type EditHandlerReturnType = {
   clearEdit: (event?: React.MouseEvent<HTMLElement>) => void;
   editing: boolean;
-  setEdit: (event?: React.MouseEvent<HTMLElement>) => void;
+  setEdit: EventHandlerReturnType;
 };
 
 export const useEditHandler = (
   customInitialState = false,
   customSetEditing?: (event?: MouseEvent<HTMLElement>) => void,
   customClearEditingHandler?: (event?: React.MouseEvent<HTMLElement>) => void,
-): UseEditHandlerReturnType => {
+): EditHandlerReturnType => {
   const [editing, setEditing] = useState(customInitialState);
 
   const setEdit =

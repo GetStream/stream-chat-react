@@ -3,8 +3,9 @@ import { validateAndGetMessage } from '../utils';
 import { useChannelContext } from '../../../context/ChannelContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { MouseEvent } from 'react';
 import type { MessageResponse, UpdatedMessage } from 'stream-chat';
+
+import type { EventHandlerReturnType } from '../Message';
 
 import type {
   DefaultAttachmentType,
@@ -117,7 +118,7 @@ export const usePinHandler = <
     return false;
   };
 
-  const handlePin = async (event: MouseEvent<HTMLElement>) => {
+  const handlePin: EventHandlerReturnType = async (event) => {
     event.preventDefault();
 
     if (!message) return;

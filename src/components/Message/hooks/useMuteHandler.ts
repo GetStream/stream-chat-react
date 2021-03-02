@@ -3,8 +3,9 @@ import { useChannelContext } from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { MouseEvent } from 'react';
 import type { MessageResponse, UserResponse } from 'stream-chat';
+
+import type { EventHandlerReturnType } from '../Message';
 
 import type {
   DefaultAttachmentType,
@@ -37,12 +38,12 @@ export const useMuteHandler = <
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
-) => {
+): EventHandlerReturnType => {
   const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  return async (event: MouseEvent<HTMLElement>) => {
+  return async (event) => {
     event.preventDefault();
 
     const {

@@ -2,6 +2,8 @@ import { useChannelContext } from '../../../context/ChannelContext';
 
 import type { MessageResponse } from 'stream-chat';
 
+import type { EventHandlerReturnType } from '../Message';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -27,7 +29,7 @@ export const useOpenThreadHandler = <
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void,
-) => {
+): EventHandlerReturnType => {
   const { openThread: channelOpenThread } = useChannelContext<
     At,
     Ch,
@@ -40,7 +42,7 @@ export const useOpenThreadHandler = <
 
   const openThread = customOpenThread || channelOpenThread;
 
-  return (event: React.SyntheticEvent) => {
+  return (event) => {
     if (!openThread || !message) {
       console.warn(
         'Open thread handler was called but it is missing one of its parameters',
