@@ -38,24 +38,61 @@ export type MessageListInnerProps<
   Us extends UnknownType = DefaultUserType
 > = {
   bottomRef: RefObject<HTMLDivElement>;
-  /** The current channel this message is displayed in */
+
+  /** The current channel this message is displayed in. */
   channel: Channel<Ch>;
+
+  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat). */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+
+  /**
+   * Date separator UI component to render.
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js).
+   */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
+
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
+
+  /** Set to `true` to turn off grouping of messages by user. */
   noGroupByUser: boolean;
+
   onMessageLoadCaptured: (
     event: React.SyntheticEvent<HTMLLIElement, Event>,
   ) => void;
+
+  /** Set to `true` to indicate that the list is a thread.  */
   threadList: boolean;
+
+  /**
+   * Typing indicator UI component to render.
+   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.js).
+   */
   TypingIndicator: React.ComponentType<TypingIndicatorProps>;
+
+  /** Disables the injection of date separator components, defaults to `false`.  */
   disableDateSeparator?: boolean;
+
+  /** The UI Indicator to use when `MessageList` or `ChannelList` is empty.  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
+
+  /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ComponentType;
+
   headerPosition?: number;
+
+  /** Hides the MessageDeleted components from the list, defaults to `false`. */
   hideDeletedMessages?: boolean;
+
   internalInfiniteScrollProps?: InfiniteScrollProps;
+
   internalMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
+
+  /**
+   * Custom UI component to display system messages.
+   *
+   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.js)
+   */
   MessageSystem?: React.ComponentType<{
     message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   }>;

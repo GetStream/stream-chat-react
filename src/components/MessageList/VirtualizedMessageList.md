@@ -12,9 +12,9 @@ import {
   VirtualizedMessageList,
   MessageInput,
   MessageInputSimple,
-} from '../components';
+} from '../../components';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 <Chat client={data.client}>
   <Channel channel={data.channel}>

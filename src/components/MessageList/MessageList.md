@@ -9,9 +9,9 @@ It keeps the following state:
 Here's an example of how to render a list of messages:
 
 ```js
-import { Chat, Channel, MessageList } from '../components';
+import { Chat, Channel, MessageList } from '../../components';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 <Chat client={data.client}>
   <Channel channel={data.channel}>

@@ -41,6 +41,7 @@ import type {
 type PropsDrilledToMessage =
   | 'Attachment'
   | 'Avatar'
+  | 'Message'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
@@ -48,36 +49,35 @@ type PropsDrilledToMessage =
   | 'getMuteUserSuccessNotification'
   | 'getPinMessageErrorNotification'
   | 'members'
-  | 'Message'
   | 'messageActions'
   | 'mutes'
   | 'onMentionsClick'
   | 'onMentionsHover'
+  | 'onUserClick'
+  | 'onUserHover'
   | 'openThread'
   | 'pinPermissions'
   | 'removeMessage'
   | 'retrySendMessage'
   | 'unsafeHTML'
   | 'updateMessage'
-  | 'watchers'
-  | 'onUserClick'
-  | 'onUserHover';
+  | 'watchers';
 
 type PropsDrilledToMessageListInner =
-  | 'channel'
-  | 'disableDateSeparator'
-  | 'MessageSystem'
-  | 'messages'
-  | 'client'
   | 'DateSeparator'
   | 'EmptyStateIndicator'
   | 'HeaderComponent'
+  | 'MessageSystem'
+  | 'TypingIndicator'
+  | 'channel'
+  | 'client'
+  | 'disableDateSeparator'
   | 'headerPosition'
   | 'hideDeletedMessages'
-  | 'read'
+  | 'messages'
   | 'noGroupByUser'
-  | 'threadList'
-  | 'TypingIndicator';
+  | 'read'
+  | 'threadList';
 
 export type MessageListProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -98,13 +98,19 @@ export type MessageListProps<
      * We have instance of MessageInput component in MessageSimple component, for handling edit state.
      * Available props - https://getstream.github.io/stream-chat-react/#messageinput
      */
-    additionalMessageInputProps: Record<string, unknown>; // TODO - add MessageInputProps when typed
+    additionalMessageInputProps: Record<string, unknown>;
+
+    /** Component to render at the top of the MessageList while loading new messages. */
+    LoadingIndicator: typeof LoadingIndicator;
+
+    /** The limit to use when paginating messages. */
+    messageLimit: number;
 
     /**
      * Date separator UI component to render.
      * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
      */
-    dateSeparator: MessageListInnerProps<
+    dateSeparator?: MessageListInnerProps<
       At,
       Ch,
       Co,
@@ -114,17 +120,11 @@ export type MessageListProps<
       Us
     >['DateSeparator'];
 
-    /** Component to render at the top of the MessageList while loading new messages. */
-    LoadingIndicator: typeof LoadingIndicator;
-
-    /** The limit to use when paginating messages. */
-    messageLimit: number;
-
     hasMore?: boolean;
     loadingMore?: boolean;
     loadMore?(messageLimit?: number | undefined): Promise<number>;
 
-    /** The pixel threshold to determine whether or not the user is scrolled up in the list. */
+    /** The pixel threshold to determine whether or not the user is scrolled up in the list. Default is 200 */
     scrolledUpThreshold?: number;
   };
 
@@ -499,7 +499,7 @@ class MessageListWithoutContext<
  * The MessageList component renders a list of messages.
  * It is a consumer of the [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
  *
- * @example ../../docs/MessageList.md
+ * @example ./MessageList.md
  */
 export const MessageList = <
   At extends UnknownType = DefaultAttachmentType,

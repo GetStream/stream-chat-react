@@ -55,30 +55,30 @@ export type VirtualizedMessageListProps<
   Us extends UnknownType = DefaultUserType
 > = {
   /**
-   *The client connection object for connecting to Stream
-   * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)
+   *The client connection object for connecting to Stream.
+   * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat).
    */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
 
-  /** Custom render function, if passed, certain UI props are ignored */
+  /** Custom render function, if passed, certain UI props are ignored. */
   customMessageRenderer(
     messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
     index: number,
   ): React.ReactElement;
 
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   hasMore: boolean;
 
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   loadingMore: boolean;
 
-  /** The UI Indicator to use when MessageList or ChannelList is empty */
+  /** The UI Indicator to use when MessageList or ChannelList is empty. */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
 
-  /** Component to render at the top of the MessageList while loading new messages */
+  /** Component to render at the top of the MessageList while loading new messages. */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
 
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   loadMore?(messageLimit?: number | undefined): Promise<number>;
 
   /** Custom UI component to display messages. */
@@ -87,48 +87,48 @@ export type VirtualizedMessageListProps<
   /** Custom UI component to display deleted messages. */
   MessageDeleted?: React.ElementType<MessageDeletedProps>;
 
-  /** Set the limit to use when paginating messages */
+  /** Set the limit to use when paginating messages. */
   messageLimit?: number;
 
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
 
-  /** Custom UI component to display system messages */
+  /** Custom UI component to display system messages. */
   MessageSystem?: React.ElementType<EventComponentProps>;
 
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
   overscan?: number;
 
-  /** Performance improvement by showing placeholders if user scrolls fast through list
+  /**
+   * Performance improvement by showing placeholders if user scrolls fast through list.
    * it can be used like this:
+   * ```
    *  {
    *    enter: (velocity) => Math.abs(velocity) > 120,
    *    exit: (velocity) => Math.abs(velocity) < 40,
    *    change: () => null,
    *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
    *  }
-   *
-   *  Note: virtuoso has broken out the placeholder value and instead includes it in its components prop.
-   *  TODO: break out placeholder when making other breaking changes.
+   *  ```
    */
   scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
     placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
   };
 
   /**
-   * Group messages belong to the same user if true, otherwise show each message individually, default to false
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component
+   * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
+   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
    */
   shouldGroupByUser?: boolean;
 
   /**
-   * The scrollTo Behavior when new messages appear. Use `"smooth"`
+   * The scrollTo Behavior when new messages appear. Use ``"smooth"``
    * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
    * if you expect hight throughput.
    */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
 
-  /** The UI Indicator to use when someone is typing, default to `null` */
+  /** The UI Indicator to use when someone is typing, defaults to `null`. */
   TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
 };
 

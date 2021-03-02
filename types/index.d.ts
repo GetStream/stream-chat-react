@@ -808,14 +808,14 @@ export interface MessageComponentProps<
   Us extends UnknownType = DefaultUserType
 > extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
     TranslationContextValue {
-  /** The current channel this message is displayed in */
+  /** The current channel this message is displayed in. */
   channel?: Client.Channel<Ch>;
-  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
+  /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object. */
   onMentionsClick?(
     e: React.MouseEvent,
     mentioned_users: UserResponse<Us>[],
   ): void;
-  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
+  /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object.  */
   onMentionsHover?(
     e: React.MouseEvent,
     mentioned_users: UserResponse<Us>[],

@@ -63,7 +63,7 @@ export type MessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** The message object */
+  /** The message object. */
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   /**
    * Additional props for underlying MessageInput component.
@@ -71,10 +71,10 @@ export type MessageProps<
    * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
-   * Function to add custom notification on message list
+   * Function to add custom notification on message list.
    *
    * @param text Notification text to display
-   * @param type Type of notification. 'success' | 'error'
+   * @param type Type of notification
    * */
   addNotification?: (
     notificationText: string,
@@ -127,7 +127,7 @@ export type MessageProps<
    * @param user A user object which is being muted
    *
    * */
-  getMuteUserErrorNotification?: (message: UserResponse<Us>) => string;
+  getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
    *
@@ -136,7 +136,7 @@ export type MessageProps<
    * @param user A user object which is being muted
    *
    * */
-  getMuteUserSuccessNotification?: (message: UserResponse<Us>) => string;
+  getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
    *
