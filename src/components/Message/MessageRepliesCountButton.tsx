@@ -1,23 +1,25 @@
-import React, { useContext } from 'react';
-import { TranslationContext } from '../../context';
-import { ReplyIcon } from './icons';
-import type { TranslationContextValue } from 'types';
+import React from 'react';
 
-export interface MessageRepliesCountButtonProps
-  extends TranslationContextValue {
+import { ReplyIcon } from './icons';
+
+import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { EventHandlerReturnType } from './Message';
+
+export type MessageRepliesCountButtonProps = {
   labelPlural?: string;
   labelSingle?: string;
-  onClick?: React.MouseEventHandler;
+  onClick?: EventHandlerReturnType;
   reply_count?: number;
-}
+};
 
-const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps> = ({
-  labelPlural,
-  labelSingle,
-  onClick,
-  reply_count,
-}) => {
-  const { t } = useContext(TranslationContext);
+const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps> = (
+  props,
+) => {
+  const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
+
+  const { t } = useTranslationContext();
+
   let singleReplyText;
   let pluralReplyText;
 
@@ -51,13 +53,10 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
       </button>
     );
   }
-  return null;
-};
 
-UnMemoizedMessageRepliesCountButton.defaultProps = {
-  reply_count: 0,
+  return null;
 };
 
 export const MessageRepliesCountButton = React.memo(
   UnMemoizedMessageRepliesCountButton,
-);
+) as typeof UnMemoizedMessageRepliesCountButton;
