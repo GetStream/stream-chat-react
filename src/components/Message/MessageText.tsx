@@ -1,5 +1,26 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
+
+import {
+  useMentionsUIHandler,
+  useMobilePress,
+  useReactionClick,
+  useReactionHandler,
+} from './hooks';
+import { MessageOptions, MessageOptionsProps } from './MessageOptions';
+import { messageHasAttachments, messageHasReactions } from './utils';
+
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
+
+import { useTranslationContext } from '../../context/TranslationContext';
+import { isOnlyEmojis, renderText } from '../../utils';
+
 import type { TranslationLanguages } from 'stream-chat';
+
+import type { MessageUIComponentProps } from './MessageSimple';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -10,23 +31,8 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import { TranslationContext } from '../../context';
-import { isOnlyEmojis, renderText } from '../../utils';
-import {
-  ReactionsList as DefaultReactionList,
-  ReactionSelector as DefaultReactionSelector,
-} from '../Reactions';
-import {
-  useMentionsUIHandler,
-  useMobilePress,
-  useReactionClick,
-  useReactionHandler,
-} from './hooks';
-import { MessageOptions, MessageOptionsProps } from './MessageOptions';
-import type { MessageSimpleProps } from './MessageSimple';
-import { messageHasAttachments, messageHasReactions } from './utils';
 
-export interface MessageTextProps<
+export type MessageTextProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -34,7 +40,7 @@ export interface MessageTextProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> extends MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us> {
+> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
   customInnerClass?: string;
   customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
   customWrapperClass?: string;
@@ -42,7 +48,7 @@ export interface MessageTextProps<
   onReactionListClick?: () => void;
   showDetailedReactions?: boolean;
   theme?: string;
-}
+};
 
 const UnMemoizedMessageTextComponent = <
   At extends UnknownType = DefaultAttachmentType,
@@ -68,19 +74,13 @@ const UnMemoizedMessageTextComponent = <
     customOptionProps,
   } = props;
 
+  const { t, userLanguage } = useTranslationContext();
+
   const reactionSelectorRef = useRef<HTMLDivElement>(null);
 
   const { handleMobilePress } = useMobilePress();
 
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >(message, {
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
@@ -89,12 +89,7 @@ const UnMemoizedMessageTextComponent = <
     isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-  } = useReactionClick<At, Ch, Co, Ev, Me, Re, Us>(
-    message,
-    reactionSelectorRef,
-  );
-
-  const { t, userLanguage } = useContext(TranslationContext);
+  } = useReactionClick(message, reactionSelectorRef);
 
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
@@ -116,9 +111,7 @@ const UnMemoizedMessageTextComponent = <
     customInnerClass ||
     `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!message?.text) {
-    return null;
-  }
+  if (!message?.text) return null;
 
   return (
     <div className={wrapperClass}>
@@ -150,14 +143,11 @@ const UnMemoizedMessageTextComponent = <
             {t && t('Message Failed · Click to try again')}
           </div>
         )}
-
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (
           <div onClick={handleMobilePress}>{messageText}</div>
         )}
-
-        {/* if reactions show them */}
         {hasReactions && !showDetailedReactions && isReactionEnabled && (
           <ReactionsList
             onClick={onReactionListClick}
@@ -187,4 +177,6 @@ const UnMemoizedMessageTextComponent = <
   );
 };
 
-export const MessageText = React.memo(UnMemoizedMessageTextComponent);
+export const MessageText = React.memo(
+  UnMemoizedMessageTextComponent,
+) as typeof UnMemoizedMessageTextComponent;
