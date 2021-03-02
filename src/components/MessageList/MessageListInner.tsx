@@ -6,16 +6,6 @@ import { Message, MessageProps } from '../Message';
 import { InfiniteScroll } from '../InfiniteScrollPaginator';
 
 import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../../../types/types';
-import type {
   Channel,
   MessageResponse,
   StreamChat,
@@ -27,6 +17,16 @@ import type {
   InfiniteScrollProps,
   TypingIndicatorProps,
 } from 'types';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 
 export type MessageListInnerProps<
   At extends UnknownType = DefaultAttachmentType,

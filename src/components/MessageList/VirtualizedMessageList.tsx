@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
+
 import {
   Components,
   ScrollSeekConfiguration,
@@ -7,17 +8,12 @@ import {
   VirtuosoHandle,
 } from 'react-virtuoso';
 import type { MessageResponse, StreamChat } from 'stream-chat';
-import type { EventComponentProps, TypingIndicatorProps } from 'types';
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../../../types/types';
+
+import { useNewMessageNotification } from './hooks/useNewMessageNotification';
+import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
+import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
+import { MessageNotification } from './MessageNotification';
+
 import { TranslationContext, useChannelContext } from '../../context';
 import { smartRender } from '../../utils';
 import {
@@ -35,10 +31,19 @@ import {
   FixedHeightMessageProps,
   MessageDeletedProps,
 } from '../Message';
-import { useNewMessageNotification } from './hooks/useNewMessageNotification';
-import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
-import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
-import { MessageNotification } from './MessageNotification';
+
+// TODO: move those typings to components
+import type { EventComponentProps, TypingIndicatorProps } from 'types';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
 
 export type VirtualizedMessageListProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -137,26 +142,29 @@ const VirtualizedMessageListWithoutContext = <
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
->({
-  client,
-  messages,
-  loadMore,
-  hasMore,
-  loadingMore,
-  messageLimit = 100,
-  overscan = 0,
-  shouldGroupByUser = false,
-  customMessageRenderer,
-  // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
-  scrollSeekPlaceHolder,
-  Message = DefaultMessage,
-  MessageSystem = EventComponent,
-  MessageDeleted = DefaultMessageDeleted,
-  TypingIndicator = null,
-  LoadingIndicator = DefaultLoadingIndicator,
-  EmptyStateIndicator = DefaultEmptyStateIndicator,
-  stickToBottomScrollBehavior = 'smooth',
-}: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+>(
+  props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    client,
+    messages,
+    loadMore,
+    hasMore,
+    loadingMore,
+    messageLimit = 100,
+    overscan = 0,
+    shouldGroupByUser = false,
+    customMessageRenderer,
+    // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
+    scrollSeekPlaceHolder,
+    Message = DefaultMessage,
+    MessageSystem = EventComponent,
+    MessageDeleted = DefaultMessageDeleted,
+    TypingIndicator = null,
+    LoadingIndicator = DefaultLoadingIndicator,
+    EmptyStateIndicator = DefaultEmptyStateIndicator,
+    stickToBottomScrollBehavior = 'smooth',
+  } = props;
   const { t } = useContext(TranslationContext);
   const virtuoso = useRef<VirtuosoHandle>(null);
 

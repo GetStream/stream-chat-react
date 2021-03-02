@@ -1,6 +1,32 @@
 import React, { PureComponent, RefObject } from 'react';
-import type { LoadingIndicator, TranslationContextValue } from 'types';
 import { v4 as uuidv4 } from 'uuid';
+
+import { Center } from './Center';
+import { ConnectionStatus } from './ConnectionStatus';
+import { CustomNotification } from './CustomNotification';
+import { MessageListInner, MessageListInnerProps } from './MessageListInner';
+import { MessageNotification } from './MessageNotification';
+
+import { Attachment } from '../Attachment';
+import { Avatar } from '../Avatar';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import { EventComponent } from '../EventComponent';
+import {
+  LoadingIndicator as DefaultLoadingIndicator,
+  LoadingIndicator,
+} from '../Loading';
+import { MessageProps, MessageSimple } from '../Message';
+import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
+import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
+
+import {
+  TranslationContextValue,
+  useChannelContext,
+  useTranslationContext,
+} from '../../context';
+import { smartRender } from '../../utils';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -11,22 +37,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import { useChannelContext, useTranslationContext } from '../../context';
-import { smartRender } from '../../utils';
-import { Attachment } from '../Attachment';
-import { Avatar } from '../Avatar';
-import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { EventComponent } from '../EventComponent';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { MessageProps, MessageSimple } from '../Message';
-import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
-import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
-import { Center } from './Center';
-import { ConnectionStatus } from './ConnectionStatus';
-import { CustomNotification } from './CustomNotification';
-import { MessageListInner, MessageListInnerProps } from './MessageListInner';
-import { MessageNotification } from './MessageNotification';
 
 type PropsDrilledToMessage =
   | 'Attachment'
