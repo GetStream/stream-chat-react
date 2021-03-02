@@ -12,6 +12,8 @@ import { smartRender } from '../../utils';
 import type { TFunction } from 'i18next';
 import type { ChannelState, MessageResponse } from 'stream-chat';
 
+import type { MessageUIComponentProps } from '../Message/MessageSimple'; // TODO - add types from MessageSimple
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -22,7 +24,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageUIComponentProps } from 'types';
 
 export type ThreadProps<
   At extends UnknownType = DefaultAttachmentType,

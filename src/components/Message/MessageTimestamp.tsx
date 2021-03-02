@@ -1,22 +1,41 @@
-import React, { FC, useContext, useMemo } from 'react';
-import type { MessageResponse } from 'stream-chat';
+import React, { useMemo } from 'react';
+
 import {
   isDate,
   isDayjs,
   isNumberOrString,
   TDateTimeParser,
-  TranslationContext,
-} from '../../context';
+  TDateTimeParserInput,
+  useTranslationContext,
+} from '../../context/TranslationContext';
 
-export interface MessageTimestampProps {
+import type { MessageResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+export type MessageTimestampProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = {
   calendar?: boolean;
   customClass?: string;
   format?: string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?(date: Date): string;
-  message?: MessageResponse;
-  tDateTimeParser?: TDateTimeParser;
-}
+  formatDate?: (date: Date) => string;
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+};
 
 export const defaultTimestampFormat = 'h:mmA';
 export const notValidDateWarning =
@@ -30,7 +49,7 @@ function getDateString(
   calendar?: boolean,
   tDateTimeParser?: TDateTimeParser,
   format?: string,
-): string | number | Date | null {
+): TDateTimeParserInput | null {
   if (!messageCreatedAt || !Date.parse(messageCreatedAt)) {
     console.warn(notValidDateWarning);
     return null;
@@ -68,29 +87,35 @@ function getDateString(
   return null;
 }
 
-const UnMemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
+const UnMemoizedMessageTimestamp = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>(
+  props: MessageTimestampProps<At, Ch, Co, Me, Re, Us>,
+) => {
   const {
     message,
     formatDate,
-    tDateTimeParser: propTDatetimeParser,
     customClass = '',
     format = defaultTimestampFormat,
     calendar = false,
   } = props;
-  const { tDateTimeParser: contextTDateTimeParser } = useContext(
-    TranslationContext,
-  );
-  const tDateTimeParser = propTDatetimeParser || contextTDateTimeParser;
+
+  const { tDateTimeParser } = useTranslationContext();
+
   const createdAt = message?.created_at;
+
   const when = useMemo(
     () =>
       getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),
     [formatDate, calendar, tDateTimeParser, format, createdAt],
   );
 
-  if (!when) {
-    return null;
-  }
+  if (!when) return null;
 
   return (
     <time className={customClass} dateTime={createdAt} title={createdAt}>
@@ -99,4 +124,6 @@ const UnMemoizedMessageTimestamp: FC<MessageTimestampProps> = (props) => {
   );
 };
 
-export const MessageTimestamp = React.memo(UnMemoizedMessageTimestamp);
+export const MessageTimestamp = React.memo(
+  UnMemoizedMessageTimestamp,
+) as typeof UnMemoizedMessageTimestamp;

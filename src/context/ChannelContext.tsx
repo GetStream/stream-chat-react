@@ -19,6 +19,7 @@ import type {
 } from 'stream-chat';
 
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+import type { MessageUIComponentProps } from '../components/Message/MessageSimple';
 
 import type {
   DefaultAttachmentType,
@@ -30,7 +31,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../types/types';
-import type { MessageUIComponentProps } from 'types';
 
 export type CommonEmoji = {
   custom: boolean;

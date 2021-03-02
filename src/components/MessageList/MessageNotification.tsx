@@ -11,9 +11,8 @@ const UnMemoizedMessageNotification: React.FC<MessageNotificationProps> = (
   props,
 ) => {
   const { children, onClick, showNotification = true } = props;
-  if (!showNotification) {
-    return null;
-  }
+
+  if (!showNotification) return null;
 
   return (
     <button
