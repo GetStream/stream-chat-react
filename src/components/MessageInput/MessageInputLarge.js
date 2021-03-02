@@ -79,11 +79,11 @@ const MessageInputLarge = (props) => {
               commands={messageInput.getCommands()}
               innerRef={messageInput.textareaRef}
               handleSubmit={messageInput.handleSubmit}
-              keycodeSubmitKeys={props.keycodeSubmitKeys}
               onChange={messageInput.handleChange}
               onSelectItem={messageInput.onSelectItem}
               value={messageInput.text}
               rows={1}
+              keycodeSubmitKeys={props.keycodeSubmitKeys}
               maxRows={props.maxRows}
               placeholder={t('Type your message')}
               onPaste={messageInput.onPaste}
@@ -163,12 +163,13 @@ MessageInputLarge.propTypes = {
   focus: PropTypes.bool.isRequired,
   /** Grow the textarea while you're typing */
   grow: PropTypes.bool.isRequired,
-  /** Specify the max amount of rows the textarea is able to grow */
-  /** Optional Array of keycode values (keycode values like 13, 60).
-   * Any keycodes in this array will override Enter (13), which is the default submit key.
-   * Shift+Enter is the default for new line, but can be overridden here as the combination keys for submit.
+  /** Optional Array of keycode values
+   * Keycodes in this array will override Enter ([13]), which is the default submit key. Shift+Enter is the default for new line.
+   * Options are Shift+Enter ([16, 13]), ctrl+Enter ([17, 13]), cmd+Enter ([91, 13] or [92, 13]).
+   * If Shift+Enter is submitted, the default for new line is overridden.
    * */
   keycodeSubmitKeys: PropTypes.array,
+  /** Specify the max amount of rows the textarea is able to grow */
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
   disabled: PropTypes.bool,
@@ -223,7 +224,6 @@ MessageInputLarge.defaultProps = {
   maxRows: 10,
   Input: MessageInputLarge,
   additionalTextareaProps: {},
-  keycodeSubmitKeys: null,
 };
 
 export default MessageInputLarge;

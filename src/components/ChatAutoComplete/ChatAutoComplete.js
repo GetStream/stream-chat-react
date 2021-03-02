@@ -225,7 +225,6 @@ const ChatAutoComplete = (props) => {
       handleSubmit={props.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName="str-chat__emojisearch__item"
-      keycodeSubmitKeys={props.keycodeSubmitKeys}
       listClassName="str-chat__emojisearch__list"
       loadingComponent={LoadingIndicator}
       trigger={getTriggers()}
@@ -239,6 +238,7 @@ const ChatAutoComplete = (props) => {
       onPaste={props.onPaste}
       value={props.value}
       SuggestionList={props.SuggestionList}
+      keycodeSubmitKeys={props.keycodeSubmitKeys}
     />
   );
 };
@@ -248,6 +248,12 @@ ChatAutoComplete.propTypes = {
   rows: PropTypes.number,
   /** Grow the number of rows of the textarea while you're typing */
   grow: PropTypes.bool,
+  /** Optional Array of keycode values
+   * Keycodes in this array will override Enter ([13]), which is the default submit key. Shift+Enter is the default for new line.
+   * Options are Shift+Enter ([16, 13]), ctrl+Enter ([17, 13]), cmd+Enter ([91, 13] or [92, 13]).
+   * If Shift+Enter is submitted, the default for new line is overridden.
+   * */
+  keycodeSubmitKeys: PropTypes.array,
   /** Maximum number of rows */
   maxRows: PropTypes.number,
   /** Make the textarea disabled */
@@ -264,11 +270,6 @@ ChatAutoComplete.propTypes = {
   onChange: PropTypes.func,
   /** Placeholder for the textarea */
   placeholder: PropTypes.string,
-  /** Optional Array of keycode values (keycode values like 13, 60).
-   * Any keycodes in this array will override Enter (13), which is the default submit key.
-   * Shift+Enter is the default for new line, but can be overridden here as the combination keys for submit.
-   * */
-  keycodeSubmitKeys: PropTypes.array,
   /** What loading component to use for the auto complete when loading results. */
   LoadingIndicator: /** @type {PropTypes.Validator<React.ElementType<import('types').LoadingIndicatorProps>>} */ (PropTypes.elementType),
   /** Minimum number of Character */
@@ -293,7 +294,6 @@ ChatAutoComplete.propTypes = {
 
 ChatAutoComplete.defaultProps = {
   rows: 3,
-  keycodeSubmitKeys: null,
 };
 
 export default React.memo(ChatAutoComplete);
