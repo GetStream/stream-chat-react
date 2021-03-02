@@ -2,7 +2,6 @@ import type { MouseEvent } from 'react';
 import type { MessageResponse } from 'stream-chat';
 
 import { validateAndGetMessage } from '../utils';
-
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 

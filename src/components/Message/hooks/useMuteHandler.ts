@@ -1,5 +1,4 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
-
 import { useChannelContext } from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
