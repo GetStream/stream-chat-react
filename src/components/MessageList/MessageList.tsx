@@ -19,7 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { MessageComponentProps, MessageSimple } from '../Message';
+import { MessageProps, MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { Center } from './Center';
@@ -79,17 +79,14 @@ interface MessageListProps<
       MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
       PropsDrilledToMessageListInner
     >,
-    Pick<
-      MessageComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-      PropsDrilledToMessage
-    >,
+    Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>,
     TranslationContextValue {
   /**
    * Additional props for the underlying MessageInput component.
    * We have instance of MessageInput component in MessageSimple component, for handling edit state.
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    */
-  additionalMessageInputProps: Record<string, unknown>;
+  additionalMessageInputProps: Record<string, unknown>; // TODO - add MessageInputProps when typed
 
   /**
    * Date separator UI component to render.
@@ -425,7 +422,6 @@ class MessageListWithoutContext<
               addNotification: this.addNotification,
               Attachment: this.props.Attachment,
               Avatar: this.props.Avatar,
-              //@ts-expect-error
               channel: this.props.channel,
               getFlagMessageErrorNotification: this.props
                 .getFlagMessageErrorNotification,
@@ -444,6 +440,8 @@ class MessageListWithoutContext<
               mutes: this.props.mutes,
               onMentionsClick: this.props.onMentionsClick,
               onMentionsHover: this.props.onMentionsHover,
+              onUserClick: this.props.onUserClick,
+              onUserHover: this.props.onUserHover,
               openThread: this.props.openThread,
               pinPermissions: this.props.pinPermissions,
               removeMessage: this.props.removeMessage,

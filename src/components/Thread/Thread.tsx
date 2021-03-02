@@ -227,13 +227,11 @@ const ThreadInner = <
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message<At, Ch, Co, Ev, Me, Re, Us>
-          // @ts-expect-error
           channel={channel}
           client={client}
           initialMessage
           // @ts-expect-error
           message={thread}
-          // @ts-expect-error
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}
@@ -246,7 +244,6 @@ const ThreadInner = <
           loadingMore={threadLoadingMore}
           // @ts-expect-error
           loadMore={loadMoreThread}
-          // @ts-expect-error
           Message={ThreadMessage}
           // @ts-expect-error
           messages={threadMessages}

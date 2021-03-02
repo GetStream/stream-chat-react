@@ -159,7 +159,7 @@ export type ChannelContextValue<
   maxNumberOfFiles?: number;
   Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
   multipleUploads?: boolean;
-  mutes?: Mute<DefaultUserType>[];
+  mutes?: Mute<Us>[];
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],

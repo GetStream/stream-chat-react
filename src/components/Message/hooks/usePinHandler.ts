@@ -17,26 +17,29 @@ import type {
   UnknownType,
 } from '../../../../types/types';
 
-export type PinEnabledUserRoles = {
-  [key: string]: boolean;
-  // admin?: boolean;
-  // anonymous?: boolean;
-  // channel_member?: boolean;
-  // channel_moderator?: boolean;
-  // guest?: boolean;
-  // member?: boolean;
-  // moderator?: boolean;
-  // owner?: boolean;
-  // user?: boolean;
+export type PinEnabledUserRoles<T extends string = string> = Partial<
+  Record<T, boolean>
+> & {
+  admin?: boolean;
+  anonymous?: boolean;
+  channel_member?: boolean;
+  channel_moderator?: boolean;
+  guest?: boolean;
+  member?: boolean;
+  moderator?: boolean;
+  owner?: boolean;
+  user?: boolean;
 };
 
-export type PinPermissions = {
-  [key: string]: PinEnabledUserRoles;
-  // commerce?: PinEnabledUserRoles;
-  // gaming?: PinEnabledUserRoles;
-  // livestream?: PinEnabledUserRoles;
-  // messaging?: PinEnabledUserRoles;
-  // team?: PinEnabledUserRoles;
+export type PinPermissions<
+  T extends string = string,
+  U extends string = string
+> = Partial<Record<T, PinEnabledUserRoles<U>>> & {
+  commerce?: PinEnabledUserRoles<U>;
+  gaming?: PinEnabledUserRoles<U>;
+  livestream?: PinEnabledUserRoles<U>;
+  messaging?: PinEnabledUserRoles<U>;
+  team?: PinEnabledUserRoles<U>;
 };
 
 export type PinMessageNotifications<
@@ -96,6 +99,7 @@ export const usePinHandler = <
     if (
       currentChannelMember &&
       typeof currentChannelMember.role === 'string' &&
+      currentChannelPermissions &&
       currentChannelPermissions[currentChannelMember.role]
     ) {
       return true;
@@ -104,6 +108,7 @@ export const usePinHandler = <
     if (
       currentChannelWatcher &&
       typeof currentChannelWatcher.role === 'string' &&
+      currentChannelPermissions &&
       currentChannelPermissions[currentChannelWatcher.role]
     ) {
       return true;

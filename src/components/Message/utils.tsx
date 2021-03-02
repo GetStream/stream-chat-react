@@ -11,7 +11,7 @@ import type {
   StreamChatReactUserType,
   TranslationContextValue,
 } from 'types';
-import type { MessageComponentProps } from './Message';
+import type { MessageProps } from './Message';
 
 /**
  * Following function validates a function which returns notification message.
@@ -187,7 +187,7 @@ export function getMessageActions(
 }
 
 export type MessageEqualProps = Pick<
-  MessageComponentProps,
+  MessageProps,
   'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'
 >;
 
@@ -212,8 +212,8 @@ export const areMessagePropsEqual = (
   nextProps.messageListRect === props.messageListRect;
 
 export const shouldMessageComponentUpdate = (
-  props: MessageComponentProps,
-  nextProps: MessageComponentProps,
+  props: MessageProps,
+  nextProps: MessageProps,
 ): boolean =>
   // Component should only update if:
   !areMessagePropsEqual(props, nextProps);

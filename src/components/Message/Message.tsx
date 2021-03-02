@@ -13,6 +13,7 @@ import {
   usePinHandler,
   useReactionHandler,
   useRetryHandler,
+  UserEventHandler,
   useUserHandler,
   useUserRole,
 } from './hooks';
@@ -23,10 +24,22 @@ import {
   MESSAGE_ACTIONS,
 } from './utils';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import {
+  RetrySendMessage,
+  useChannelContext,
+} from '../../context/ChannelContext';
 
-import type { MessageResponse, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  Channel,
+  ChannelState,
+  MessageResponse,
+  Mute,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 
+import type { AttachmentProps } from '../Attachment';
+import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/MessageListInner';
 
 import type {
@@ -49,102 +62,147 @@ export type MessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
+  /** The message object */
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  /**
+   * Additional props for underlying MessageInput component.
+   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
-  addNotification?: (text: string, type: 'success' | 'error') => void;
+  /**
+   * Function to add custom notification on message list
+   *
+   * @param text Notification text to display
+   * @param type Type of notification. 'success' | 'error'
+   * */
+  addNotification?: (
+    notificationText: string,
+    type: 'success' | 'error',
+  ) => void;
+  /**
+   * Attachment UI component to display attachment in individual message.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Attachment?: React.ComponentType<AttachmentProps<At>>;
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * */
+  Avatar?: React.ComponentType<AvatarProps>;
+  /** The current channel this message is displayed in */
+  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  /** The client connection object for connecting to Stream */
   client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
+  formatDate?: (date: Date) => string;
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageErrorNotification?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ) => string;
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   *
+   * */
+  getFlagMessageSuccessNotification?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ) => string;
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserErrorNotification?: (message: UserResponse<Us>) => string;
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
+   *
+   * This function should accept following params:
+   *
+   * @param user A user object which is being muted
+   *
+   * */
+  getMuteUserSuccessNotification?: (message: UserResponse<Us>) => string;
+  /**
+   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
+   *
+   * This function should accept following params:
+   *
+   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   *
+   * */
+  getPinMessageErrorNotification?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  ) => string;
+  /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
+  /** Latest message id on current channel */
   lastReceivedId?: string | null;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
+  /**
+   * Message UI component to display a message in message list.
+   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * */
+  Message?: React.ComponentType<unknown>; // TODO - add MessageUIComponentProps
+  /**
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
+   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
+   * */
+  messageActions?: string[]; // TODO - potentially add string union on action types
+  /** DOMRect object for parent MessageList component */
+  messageListRect?: DOMRect;
+  /** Array of muted users coming from channel context */
+  mutes?: Mute<Us>[];
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsClick?: (
+    event: React.MouseEvent<HTMLElement>,
+    mentioned_users: UserResponse<Us>[],
+  ) => void;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onMentionsHover?: (
+    event: React.MouseEvent<HTMLElement>,
+    mentioned_users: UserResponse<Us>[],
+  ) => void;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onUserClick?: UserEventHandler<Us>;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  onUserHover?: UserEventHandler<Us>;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  openThread?: (
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    event: React.SyntheticEvent,
+  ) => void;
+  /** The user roles allowed to pin messages in various channel types */
+  pinPermissions?: PinPermissions;
+  /** A list of users that have read this message */
   readBy?: UserResponse<Us>[];
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
+  /** Whether or not the message is in a thread */
   threadList?: boolean;
+  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  unsafeHTML?: boolean;
+  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
+  /** Watchers on the currently active channel */
+  watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
 };
-
-// export interface MessageUIComponentProps<
-//   At extends UnknownType = DefaultAttachmentType,
-//   Ch extends UnknownType = DefaultChannelType,
-//   Co extends string = DefaultCommandType,
-//   Ev extends UnknownType = DefaultEventType,
-//   Me extends UnknownType = DefaultMessageType,
-//   Re extends UnknownType = DefaultReactionType,
-//   Us extends UnknownType = DefaultUserType
-// > extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-//     TranslationContextValue {
-//   actionsEnabled?: boolean;
-//   editing?: boolean;
-//   clearEditingState?(event?: React.BaseSyntheticEvent): void;
-//   setEditingState?(event?: React.BaseSyntheticEvent): void;
-//   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
-//   handleEdit?(event?: React.BaseSyntheticEvent): void;
-//   handleDelete?(event?: React.BaseSyntheticEvent): void;
-//   handleFlag?(event?: React.BaseSyntheticEvent): void;
-//   handleMute?(event?: React.BaseSyntheticEvent): void;
-//   handlePin?(event?: React.BaseSyntheticEvent): void;
-//   handleAction?(
-//     name: string,
-//     value: string,
-//     event: React.BaseSyntheticEvent,
-//   ): void;
-//   handleRetry?(message: Client.Message<At, Me, Us>): void;
-//   isMyMessage?(message: MessageResponse<At, Ch, Co, Me, Re, Us>): boolean;
-//   isUserMuted?(): boolean;
-//   handleOpenThread?(event: React.BaseSyntheticEvent): void;
-//   mutes?: Client.Mute<Us>[];
-//   onMentionsClickMessage?(event: React.MouseEvent): void;
-//   onMentionsHoverMessage?(event: React.MouseEvent): void;
-//   onUserClick?(e: React.MouseEvent): void;
-//   onUserHover?(e: React.MouseEvent): void;
-//   getMessageActions(): Array<string>;
-//   channelConfig?: Client.ChannelConfig<Co> | Client.ChannelConfigWithInfo<Co>;
-//   threadList?: boolean;
-//   additionalMessageInputProps?: object;
-//   initialMessage?: boolean;
-//   EditMessageInput?: React.FC<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
-//   PinIndicator?: React.FC<PinIndicatorProps>;
-// }
-
-// export interface MessageComponentProps<
-//   At extends UnknownType = DefaultAttachmentType,
-//   Ch extends UnknownType = DefaultChannelType,
-//   Co extends string = DefaultCommandType,
-//   Ev extends UnknownType = DefaultEventType,
-//   Me extends UnknownType = DefaultMessageType,
-//   Re extends UnknownType = DefaultReactionType,
-//   Us extends UnknownType = DefaultUserType
-// > extends MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-//     TranslationContextValue {
-//   /** The current channel this message is displayed in */
-//   channel?: Client.Channel<Ch>;
-//   /** Function to be called when a @mention is clicked. Function has access to the DOM event and the target user object */
-//   onMentionsClick?(
-//     e: React.MouseEvent,
-//     mentioned_users: UserResponse<Us>[],
-//   ): void;
-//   /** Function to be called when hovering over a @mention. Function has access to the DOM event and the target user object */
-//   onMentionsHover?(
-//     e: React.MouseEvent,
-//     mentioned_users: UserResponse<Us>[],
-//   ): void;
-//   /** Function to be called when clicking the user that posted the message. Function has access to the DOM event and the target user object */
-//   onUserClick?(e: React.MouseEvent, user: Client.User<Us>): void;
-//   /** Function to be called when hovering the user that posted the message. Function has access to the DOM event and the target user object */
-//   onUserHover?(e: React.MouseEvent, user: Client.User<Us>): void;
-//   messageActions?: Array<string> | boolean;
-//   members?: {
-//     [user_id: string]: Client.ChannelMemberResponse<Us>;
-//   };
-//   retrySendMessage?(message: Client.Message<At, Me, Us>): Promise<void>;
-//   removeMessage?(
-//     updatedMessage: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-//   ): void;
-//   mutes?: Client.Mute<Us>[];
-//   openThread?(
-//     message: Client.MessageResponse<At, Ch, Co, Me, Re, Us>,
-//     event: React.SyntheticEvent,
-//   ): void;
-//   initialMessage?: boolean;
-//   threadList?: boolean;
-//   pinPermissions?: PinPermissions;
-// }
 
 /**
  * Message - A high level component which implements all the logic required for a message.
@@ -306,7 +364,6 @@ const UnMemoizedMessage = <
       <MessageUIComponent
         {...props}
         actionsEnabled={actionsEnabled}
-        //@ts-expect-error
         channelConfig={channelConfig}
         clearEditingState={clearEdit}
         editing={editing}
