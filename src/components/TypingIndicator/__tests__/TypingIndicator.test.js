@@ -12,6 +12,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
+import { ChatContext } from '../../../context';
 import { TypingIndicator } from '../TypingIndicator';
 
 afterEach(cleanup); // eslint-disable-line
@@ -22,8 +23,10 @@ async function renderComponent(typing = {}, threadList, value = {}) {
   const client = await getTestClientWithUser(alice);
 
   return render(
-    <ChannelContext.Provider value={{ client, typing, ...value }}>
-      <TypingIndicator threadList={threadList} />
+    <ChannelContext.Provider value={{ typing, ...value }}>
+      <ChatContext.Provider value={{ client }}>
+        <TypingIndicator threadList={threadList} />
+      </ChatContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -33,7 +36,9 @@ describe('TypingIndicator', () => {
     const tree = renderer
       .create(
         <ChannelContext.Provider value={{}}>
-          <TypingIndicator />
+          <ChatContext.Provider value={{}}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();
@@ -45,7 +50,9 @@ describe('TypingIndicator', () => {
     const tree = renderer
       .create(
         <ChannelContext.Provider value={{ client, typing: {} }}>
-          <TypingIndicator />
+          <ChatContext.Provider value={{ client }}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();
@@ -130,8 +137,10 @@ describe('TypingIndicator', () => {
 
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{ channel, client, typing: {} }}>
-          <TypingIndicator />
+        <ChannelContext.Provider value={{ channel, typing: {} }}>
+          <ChatContext.Provider value={{ client }}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();

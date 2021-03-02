@@ -19,7 +19,7 @@ export type DateSeparatorProps = {
 /**
  * DateSeparator - A simple date separator
  *
- * @example ./docs/DateSeparator.md
+ * @example ./DateSeparator.md
  */
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const { date, formatDate, position = 'right', unread } = props;

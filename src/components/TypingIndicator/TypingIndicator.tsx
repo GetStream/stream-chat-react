@@ -3,6 +3,7 @@ import React from 'react';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
 
 import type {
   DefaultAttachmentType,
@@ -18,7 +19,6 @@ import type {
 export type TypingIndicatorProps = {
   /**
    * Custom UI component to display user avatar.
-   *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
@@ -44,7 +44,7 @@ const UnMemoizedTypingIndicator = <
 ) => {
   const { Avatar = DefaultAvatar, avatarSize = 32, threadList } = props;
 
-  const { channel, client, thread, typing } = useChannelContext<
+  const { channel, thread, typing } = useChannelContext<
     At,
     Ch,
     Co,
@@ -53,6 +53,7 @@ const UnMemoizedTypingIndicator = <
     Re,
     Us
   >();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   if (!typing || !client || channel?.getConfig()?.typing_events === false) {
     return null;
