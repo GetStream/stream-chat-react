@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { MessageResponse } from 'stream-chat';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,

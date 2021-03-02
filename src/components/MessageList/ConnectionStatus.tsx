@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-import { CustomNotification } from './CustomNotification';
-
-import { useChatContext, useTranslationContext } from '../../context';
-
 import type { Event } from 'stream-chat';
 
+import { CustomNotification } from './CustomNotification';
+import { useChatContext, useTranslationContext } from '../../context';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -51,4 +49,6 @@ const UnMemoizedConnectionStatus: React.FC = <
   );
 };
 
-export const ConnectionStatus = React.memo(UnMemoizedConnectionStatus);
+export const ConnectionStatus = React.memo(
+  UnMemoizedConnectionStatus,
+) as typeof UnMemoizedConnectionStatus;

@@ -69,7 +69,7 @@ type PropsDrilledToMessageListInner =
   | 'threadList'
   | 'TypingIndicator';
 
-interface MessageListProps<
+export type MessageListProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -77,46 +77,46 @@ interface MessageListProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> extends Pick<
-      MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
-      PropsDrilledToMessageListInner
-    >,
-    Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>,
-    TranslationContextValue {
-  /**
-   * Additional props for the underlying MessageInput component.
-   * We have instance of MessageInput component in MessageSimple component, for handling edit state.
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-   */
-  additionalMessageInputProps: Record<string, unknown>; // TODO - add MessageInputProps when typed
+> = Pick<
+  MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
+  PropsDrilledToMessageListInner
+> &
+  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage> &
+  TranslationContextValue & {
+    /**
+     * Additional props for the underlying MessageInput component.
+     * We have instance of MessageInput component in MessageSimple component, for handling edit state.
+     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+     */
+    additionalMessageInputProps: Record<string, unknown>; // TODO - add MessageInputProps when typed
 
-  /**
-   * Date separator UI component to render.
-   * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
-   */
-  dateSeparator: MessageListInnerProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['DateSeparator'];
+    /**
+     * Date separator UI component to render.
+     * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
+     */
+    dateSeparator: MessageListInnerProps<
+      At,
+      Ch,
+      Co,
+      Ev,
+      Me,
+      Re,
+      Us
+    >['DateSeparator'];
 
-  /** Component to render at the top of the MessageList while loading new messages. */
-  LoadingIndicator: typeof LoadingIndicator;
+    /** Component to render at the top of the MessageList while loading new messages. */
+    LoadingIndicator: typeof LoadingIndicator;
 
-  /** The limit to use when paginating messages. */
-  messageLimit: number;
+    /** The limit to use when paginating messages. */
+    messageLimit: number;
 
-  hasMore?: boolean;
-  loadingMore?: boolean;
-  loadMore?(messageLimit?: number | undefined): Promise<number>;
+    hasMore?: boolean;
+    loadingMore?: boolean;
+    loadMore?(messageLimit?: number | undefined): Promise<number>;
 
-  /** The pixel threshold to determine whether or not the user is scrolled up in the list. */
-  scrolledUpThreshold?: number;
-}
+    /** The pixel threshold to determine whether or not the user is scrolled up in the list. */
+    scrolledUpThreshold?: number;
+  };
 
 type Snapshot = { offsetBottom: number; offsetTop: number } | null;
 

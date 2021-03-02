@@ -1,18 +1,16 @@
-import React, { FC, MouseEventHandler } from 'react';
+import React from 'react';
 
-export interface MessageNotificationProps {
-  children: React.ReactNode;
+export type MessageNotificationProps = {
   /** button click event handler */
-  onClick: MouseEventHandler;
-  /** Wether or not to show notification */
+  onClick: React.MouseEventHandler;
+  /** Whether or not to show notification */
   showNotification: boolean;
-}
+};
 
-const UnMemoizedMessageNotification: FC<MessageNotificationProps> = ({
-  children,
-  onClick,
-  showNotification,
-}) => {
+const UnMemoizedMessageNotification: React.FC<MessageNotificationProps> = (
+  props,
+) => {
+  const { children, onClick, showNotification = true } = props;
   if (!showNotification) {
     return null;
   }
@@ -28,8 +26,6 @@ const UnMemoizedMessageNotification: FC<MessageNotificationProps> = ({
   );
 };
 
-UnMemoizedMessageNotification.defaultProps = {
-  showNotification: true,
-};
-
-export const MessageNotification = React.memo(UnMemoizedMessageNotification);
+export const MessageNotification = React.memo(
+  UnMemoizedMessageNotification,
+) as typeof UnMemoizedMessageNotification;

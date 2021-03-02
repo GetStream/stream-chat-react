@@ -28,7 +28,7 @@ import type {
   TypingIndicatorProps,
 } from 'types';
 
-export interface MessageListInnerProps<
+export type MessageListInnerProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -36,7 +36,7 @@ export interface MessageListInnerProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> {
+> = {
   bottomRef: RefObject<HTMLDivElement>;
   /** The current channel this message is displayed in */
   channel: Channel<Ch>;
@@ -60,7 +60,7 @@ export interface MessageListInnerProps<
     message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   }>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
-}
+};
 
 // fast since it usually iterates just the last few messages
 const getLastReceived = <

@@ -40,7 +40,7 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification } from './MessageNotification';
 
-export interface VirtualizedMessageListProps<
+export type VirtualizedMessageListProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -48,7 +48,7 @@ export interface VirtualizedMessageListProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> {
+> = {
   /**
    *The client connection object for connecting to Stream
    * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)
@@ -125,7 +125,7 @@ export interface VirtualizedMessageListProps<
 
   /** The UI Indicator to use when someone is typing, default to `null` */
   TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
-}
+};
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -319,7 +319,7 @@ const VirtualizedMessageListWithoutContext = <
 /**
  * The VirtualizedMessageList component renders a list of messages in a virtual list.
  * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
- * @example ../../docs/VirtualizedMessageList.md
+ * @example ./VirtualizedMessageList.md
  */
 export function VirtualizedMessageList<
   At extends UnknownType = DefaultAttachmentType,

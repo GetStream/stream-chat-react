@@ -1,13 +1,14 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 
 export type CustomNotificationProps = {
   type: string;
   active?: boolean;
 };
 
-const UnMemoizedCustomNotification: React.FC<
-  PropsWithChildren<CustomNotificationProps>
-> = ({ active, children, type }) => {
+const UnMemoizedCustomNotification: React.FC<CustomNotificationProps> = (
+  props,
+) => {
+  const { active, children, type } = props;
   if (!active) return null;
 
   return (
@@ -20,4 +21,6 @@ const UnMemoizedCustomNotification: React.FC<
   );
 };
 
-export const CustomNotification = React.memo(UnMemoizedCustomNotification);
+export const CustomNotification = React.memo(
+  UnMemoizedCustomNotification,
+) as typeof UnMemoizedCustomNotification;

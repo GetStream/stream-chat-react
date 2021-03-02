@@ -1,11 +1,9 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import { getDisplayName } from './utils/getDisplayName';
-
 import type { Channel, Mute, StreamChat } from 'stream-chat';
 
-import type { Theme } from '../components/Chat';
-
+import { getDisplayName } from './utils/getDisplayName';
+import type { Theme } from '../components/Chat/Chat';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
