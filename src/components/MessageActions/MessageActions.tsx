@@ -17,9 +17,9 @@ import {
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type { MessageUIComponentProps } from '../Message/types';
-
 import type { MessageResponse } from 'stream-chat';
+
+import type { MessageUIComponentProps } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
