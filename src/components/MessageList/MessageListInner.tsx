@@ -15,8 +15,10 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
+import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { MessageProps } from '../Message/types';
-import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
+import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
 import type {
   DefaultAttachmentType,
@@ -47,7 +49,7 @@ export type MessageListInnerProps<
    * Date separator UI component to render
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx).
    */
-  DateSeparator: React.ComponentType<unknown>; // TODO - add generics when typed
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
   messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
   /** Set to `true` to turn off grouping of messages by user */
@@ -61,7 +63,7 @@ export type MessageListInnerProps<
    * Typing indicator UI component to render
    * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx).
    */
-  TypingIndicator: React.ComponentType<unknown>; // TODO - add generics when typed
+  TypingIndicator: React.ComponentType<TypingIndicatorProps>;
   /** Disables the injection of date separator components, defaults to `false`  */
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
@@ -428,7 +430,6 @@ const UnMemoizedMessageListInner = <
           return (
             <li key={`${(message.date as Date).toISOString()}-i`}>
               <DateSeparator
-                // @ts-expect-error
                 date={message.date as Date}
                 unread={!!message.unread}
               />
@@ -509,7 +510,6 @@ const UnMemoizedMessageListInner = <
       {...internalInfiniteScrollProps}
     >
       <ul className='str-chat__ul'>{elements}</ul>
-      {/** @ts-expect-error */}
       <TypingIndicator threadList={threadList} />
       <div key='bottom' ref={bottomRef} />
     </InfiniteScroll>
