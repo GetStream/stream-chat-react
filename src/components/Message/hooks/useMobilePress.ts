@@ -1,15 +1,15 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useBreakpoint } from './useBreakpoint';
+
+import type { MouseEventHandler } from '../types';
 
 export const useMobilePress = () => {
   const [targetMessage, setTargetMessage] = useState<Element | null>(null);
 
   const breakpoint = useBreakpoint();
 
-  const handleMobilePress = (
-    event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>,
-  ) => {
+  const handleMobilePress: MouseEventHandler = (event) => {
     if (event.target instanceof HTMLElement && breakpoint.device === 'mobile') {
       const closestMessage = event.target.closest('.str-chat__message-simple');
 

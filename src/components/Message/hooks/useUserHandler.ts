@@ -1,6 +1,8 @@
 import type { MouseEvent } from 'react';
 import type { MessageResponse, User } from 'stream-chat';
 
+import type { MouseEventHandler } from '../types';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -29,8 +31,11 @@ export const useUserHandler = <
     onUserClickHandler?: UserEventHandler<Us>;
     onUserHoverHandler?: UserEventHandler<Us>;
   },
-) => ({
-  onUserClick: (event: MouseEvent<HTMLElement>) => {
+): {
+  onUserClick: MouseEventHandler;
+  onUserHover: MouseEventHandler;
+} => ({
+  onUserClick: (event) => {
     if (
       typeof eventHandlers?.onUserClickHandler !== 'function' ||
       !message?.user
@@ -39,7 +44,7 @@ export const useUserHandler = <
     }
     eventHandlers.onUserClickHandler(event, message.user);
   },
-  onUserHover: (event: MouseEvent<HTMLElement>) => {
+  onUserHover: (event) => {
     if (
       typeof eventHandlers?.onUserHoverHandler !== 'function' ||
       !message?.user

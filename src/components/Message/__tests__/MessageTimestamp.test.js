@@ -3,11 +3,7 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
-import {
-  defaultTimestampFormat,
-  MessageTimestamp,
-  notValidDateWarning,
-} from '../MessageTimestamp';
+import { MessageTimestamp, notValidDateWarning } from '../MessageTimestamp';
 import { TranslationContext } from '../../../context';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -48,22 +44,6 @@ describe('<MessageTimestamp />', () => {
     const { container } = render(<MessageTimestamp message={message} />);
     expect(container.children).toHaveLength(0);
     expect(console.warn).toHaveBeenCalledWith(notValidDateWarning);
-  });
-
-  it('should render message created_at date with custom datetime parser if one is set', () => {
-    const format = jest.fn();
-    const customDateTimeParser = jest.fn(() => ({
-      format,
-      isSame: true,
-    }));
-
-    render(
-      <MessageTimestamp
-        message={messageMock}
-        tDateTimeParser={customDateTimeParser}
-      />,
-    );
-    expect(format).toHaveBeenCalledWith(defaultTimestampFormat);
   });
 
   it('should render message with custom datetime format if one is set', () => {

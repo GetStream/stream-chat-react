@@ -1,7 +1,6 @@
 import React from 'react';
 
-import type { TFunction } from 'i18next';
-import type { MessageResponse } from 'stream-chat';
+import type { PinIndicatorProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -78,18 +77,6 @@ export const PinIcon = () => (
     />
   </svg>
 );
-
-export type PinIndicatorProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> = {
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-  t?: TFunction;
-};
 
 export const PinIndicator = <
   At extends UnknownType = DefaultAttachmentType,

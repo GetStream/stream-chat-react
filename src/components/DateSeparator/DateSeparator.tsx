@@ -25,6 +25,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const { date, formatDate, position = 'right', unread } = props;
 
   const { t, tDateTimeParser } = useTranslationContext();
+
   if (typeof date === 'string') return null;
 
   const parsedDate = tDateTimeParser(date.toISOString());

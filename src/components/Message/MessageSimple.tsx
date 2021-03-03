@@ -1,24 +1,10 @@
-import React, { useContext, useRef } from 'react';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { smartRender } from '../../utils';
-import { ChannelContext, TranslationContext } from '../../context';
-import { Attachment as DefaultAttachment } from '../Attachment';
-import { Avatar as DefaultAvatar } from '../Avatar';
-import { MML } from '../MML';
-import { Modal } from '../Modal';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
-import { Tooltip } from '../Tooltip';
-import { LoadingIndicator } from '../Loading';
-import {
-  ReactionsList as DefaultReactionList,
-  ReactionSelector as DefaultReactionSelector,
-} from '../Reactions';
-import { MessageOptions } from './MessageOptions';
-import { MessageText } from './MessageText';
+import React, { useRef } from 'react';
+
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
+import { MessageOptions } from './MessageOptions';
+import { MessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageText } from './MessageText';
+import { MessageTimestamp } from './MessageTimestamp';
 import {
   useActionHandler,
   useOpenThreadHandler,
@@ -28,14 +14,35 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
+import { DeliveredCheckIcon } from './icons';
 import {
   areMessagePropsEqual,
   getReadByTooltipText,
   messageHasAttachments,
   messageHasReactions,
 } from './utils';
-import { DeliveredCheckIcon } from './icons';
-import { MessageTimestamp } from './MessageTimestamp';
+
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { LoadingIndicator } from '../Loading';
+import {
+  EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
+} from '../MessageInput';
+import { MML } from '../MML';
+import { Modal } from '../Modal';
+import {
+  ReactionsList as DefaultReactionList,
+  ReactionSelector as DefaultReactionSelector,
+} from '../Reactions';
+import { Tooltip } from '../Tooltip';
+
+import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { smartRender } from '../../utils';
+
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -47,24 +54,11 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-import type { MessageUIComponentProps } from 'types';
 
-export interface MessageSimpleProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> extends Omit<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'PinIndicator'
-  > {}
 /**
- * MessageSimple - Render component, should be used together with the Message component
+ * MessageSimple - UI component that renders a message and receives functionality from the Message/MessageList components
  *
- * @example ../../docs/MessageSimple.md
+ * @example ./MessageSimple.md
  */
 const UnMemoizedMessageSimple = <
   At extends UnknownType = DefaultAttachmentType,
@@ -73,60 +67,68 @@ const UnMemoizedMessageSimple = <
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  >,
 ) => {
   const {
+    Attachment = DefaultAttachment,
+    Avatar = DefaultAvatar,
     clearEditingState,
     editing,
     EditMessageInput = DefaultEditMessageForm,
-    message,
-    threadList,
     formatDate,
-    updateMessage: propUpdateMessage,
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
     handleReaction: propHandleReaction,
     handleRetry: propHandleRetry,
+    message,
+    MessageDeleted = DefaultMessageDeleted,
     onUserClick: onUserClickCustomHandler,
     onUserHover: onUserHoverCustomHandler,
-    tDateTimeParser: propTDateTimeParser,
+    ReactionSelector = DefaultReactionSelector,
+    ReactionsList = DefaultReactionList,
+    threadList,
+    updateMessage: propUpdateMessage,
   } = props;
-  const { updateMessage: channelUpdateMessage } = useContext(ChannelContext);
+
+  const { updateMessage: channelUpdateMessage } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
   const updateMessage = propUpdateMessage || channelUpdateMessage;
+
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
   const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
-  const { onUserClick, onUserHover } = useUserHandler<At, Ch, Co, Me, Re, Us>(
-    message,
-    {
-      onUserClickHandler: onUserClickCustomHandler,
-      onUserHoverHandler: onUserHoverCustomHandler,
-    },
-  );
-  const reactionSelectorRef = React.createRef<HTMLDivElement>();
-  const messageWrapperRef = useRef(null);
+
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: onUserClickCustomHandler,
+    onUserHoverHandler: onUserHoverCustomHandler,
+  });
+
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+
   const {
     isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
-  } = useReactionClick<At, Ch, Co, Ev, Me, Re, Us>(
-    message,
-    reactionSelectorRef,
-  );
-  const {
-    Attachment = DefaultAttachment,
-    Avatar = DefaultAvatar,
-    MessageDeleted = DefaultMessageDeleted,
-    ReactionSelector = DefaultReactionSelector,
-    ReactionsList = DefaultReactionList,
-  } = props;
+  } = useReactionClick(message, reactionSelectorRef);
 
-  const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
+  const hasReactions = messageHasReactions(message);
 
   const messageClasses = isMyMessage
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
@@ -139,8 +141,9 @@ const UnMemoizedMessageSimple = <
   if (message?.deleted_at) {
     return smartRender(MessageDeleted, { message }, null);
   }
+
   return (
-    <React.Fragment>
+    <>
       {editing && (
         <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
@@ -170,11 +173,9 @@ const UnMemoizedMessageSimple = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus {...props} />
-
+          <MessageSimpleStatus<At, Ch, Co, Ev, Me, Re, Us> {...props} />
           {message.user && (
             <Avatar
-              //@ts-expect-error
               image={message.user.image}
               name={message.user.name || message.user.id}
               onClick={onUserClick}
@@ -190,22 +191,20 @@ const UnMemoizedMessageSimple = <
                 (propHandleRetry || handleRetry)
               ) {
                 const retryHandler = propHandleRetry || handleRetry;
-                //@ts-expect-error
                 retryHandler(message);
               }
             }}
           >
             {!message.text && (
-              <React.Fragment>
+              <>
                 {
-                  <MessageOptions
+                  <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
                     {...props}
                     handleOpenThread={propHandleOpenThread}
                     messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
                   />
                 }
-                {/* if reactions show them */}
                 {hasReactions &&
                   !showDetailedReactions &&
                   isReactionEnabled && (
@@ -227,31 +226,24 @@ const UnMemoizedMessageSimple = <
                     ref={reactionSelectorRef}
                   />
                 )}
-              </React.Fragment>
+              </>
             )}
-
             {message?.attachments && Attachment && (
-              <Attachment
-                // @ts-expect-error
+              <Attachment<At>
                 actionHandler={propHandleAction || handleAction}
                 attachments={message.attachments}
               />
             )}
-
             {message.text && (
-              <MessageText
+              <MessageText<At, Ch, Co, Ev, Me, Re, Us>
                 {...props}
                 customOptionProps={{
                   handleOpenThread: propHandleOpenThread,
                   messageWrapperRef,
                 }}
-                // FIXME: There's some unmatched definition between the infered and the declared
-                // ReactionSelector reference
-                // @ts-expect-error
                 reactionSelectorRef={reactionSelectorRef}
               />
             )}
-
             {message.mml && (
               <MML
                 actionHandler={handleAction}
@@ -259,7 +251,6 @@ const UnMemoizedMessageSimple = <
                 source={message.mml}
               />
             )}
-
             {!threadList && message.reply_count !== 0 && (
               <div className='str-chat__message-simple-reply-button'>
                 <MessageRepliesCountButton
@@ -276,19 +267,17 @@ const UnMemoizedMessageSimple = <
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <MessageTimestamp
+              <MessageTimestamp<At, Ch, Co, Me, Re, Us>
                 calendar
                 customClass='str-chat__message-simple-timestamp'
                 formatDate={formatDate}
                 message={message}
-                //@ts-expect-error
-                tDateTimeParser={propTDateTimeParser}
               />
             </div>
           </div>
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 };
 
@@ -299,20 +288,23 @@ const MessageSimpleStatus = <
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType
 >({
   Avatar = DefaultAvatar,
   readBy,
   message,
   threadList,
   lastReceivedId,
-}: MessageSimpleProps<At, Ch, Co, Ev, Me, Re, Us>) => {
-  const { t } = useContext(TranslationContext);
-  const { client } = useContext(ChannelContext);
+}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
+
   const { isMyMessage } = useUserRole(message);
+
   if (!isMyMessage || message?.type === 'error') {
     return null;
   }
+
   const justReadByMe =
     readBy &&
     readBy.length === 1 &&
@@ -325,11 +317,12 @@ const MessageSimpleStatus = <
         className='str-chat__message-simple-status'
         data-testid='message-status-sending'
       >
-        <Tooltip>{t && t('Sending...')}</Tooltip>
+        <Tooltip>{t('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
     );
   }
+
   if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
     const lastReadUser = readBy.filter(
       (item) => !!item && !!client && item.id !== client.user?.id,
@@ -341,7 +334,6 @@ const MessageSimpleStatus = <
       >
         <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
-          //@ts-expect-error
           image={lastReadUser?.image}
           name={lastReadUser?.name}
           size={15}
@@ -357,6 +349,7 @@ const MessageSimpleStatus = <
       </span>
     );
   }
+
   if (
     message &&
     message.status === 'received' &&
@@ -368,16 +361,16 @@ const MessageSimpleStatus = <
         className='str-chat__message-simple-status'
         data-testid='message-status-received'
       >
-        <Tooltip>{t && t('Delivered')}</Tooltip>
+        <Tooltip>{t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
     );
   }
+
   return null;
 };
 
 export const MessageSimple = React.memo(
   UnMemoizedMessageSimple,
-  //@ts-expect-error
   areMessagePropsEqual,
 ) as typeof UnMemoizedMessageSimple;

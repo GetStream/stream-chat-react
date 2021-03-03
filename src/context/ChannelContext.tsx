@@ -18,7 +18,9 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { AttachmentProps } from '../components/Attachment/Attachment';
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+import type { MessageUIComponentProps } from '../components/Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -30,7 +32,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../types/types';
-import type { MessageUIComponentProps } from 'types';
 
 export type CommonEmoji = {
   custom: boolean;
@@ -145,7 +146,7 @@ export type ChannelContextValue<
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   acceptedFiles?: string[];
-  Attachment?: React.ComponentType<unknown>; // TODO: add generic when Attachment is typed
+  Attachment?: React.ComponentType<AttachmentProps<At>>;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
   dispatch?: React.Dispatch<
@@ -160,7 +161,7 @@ export type ChannelContextValue<
   maxNumberOfFiles?: number;
   Message?: React.ComponentType<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >; // TODO: add generic when Message is typed
+  >;
   multipleUploads?: boolean;
   mutes?: Mute<Us>[];
   onMentionsClick?: (

@@ -21,6 +21,8 @@ import {
 
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
+import type { ActionHandlerReturnType } from '../Message';
+
 import type { DefaultAttachmentType } from '../../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = [
@@ -42,11 +44,7 @@ export type AttachmentProps<
 		The handler function to call when an action is selected on an attachment.
 		Examples include canceling a \/giphy command or shuffling the results.
 		*/
-  actionHandler?: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    name?: string,
-    value?: string,
-  ) => void;
+  actionHandler?: ActionHandlerReturnType;
   /**
    * Custom UI component for attachment actions
    * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx)
@@ -85,16 +83,11 @@ export type AttachmentProps<
 };
 
 export type BaseAttachmentUIComponentProps = {
-  /** The attachment to render */
   /**
-		The handler function to call when an action is selected on an attachment.
-		Examples include canceling a \/giphy command or shuffling the results.
-		*/
-  actionHandler?: (
-    name?: string,
-    value?: string,
-    event?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => void;
+   * The handler function to call when an action is selected on an attachment.
+   * Examples include canceling a \/giphy command or shuffling the results.
+   */
+  actionHandler?: ActionHandlerReturnType;
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
   Audio?: React.ComponentType<AudioProps>;
   Card?: React.ComponentType<CardProps>;
@@ -107,13 +100,13 @@ export type BaseAttachmentUIComponentProps = {
 export type DefaultAttachmentProps = Required<
   Pick<
     InnerAttachmentUIComponentProps,
+    | 'AttachmentActions'
+    | 'Audio'
     | 'Card'
     | 'File'
     | 'Gallery'
     | 'Image'
-    | 'Audio'
     | 'Media'
-    | 'AttachmentActions'
   >
 > & {
   attachment: ExtendedAttachment;
@@ -144,225 +137,6 @@ export type WrapperAttachmentUIComponentProps<
   attachments: ExtendedAttachment<At>[];
 };
 
-export const isGalleryAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'gallery';
-
-export const isImageAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'image' &&
-  !attachment.title_link &&
-  !attachment.og_scrape_url;
-
-export const isMediaAttachment = (attachment: ExtendedAttachment) =>
-  (attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
-  attachment.type === 'video';
-
-export const isAudioAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'audio';
-
-export const isFileAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'file' ||
-  (attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
-    attachment.type !== 'video');
-
-export const renderAttachmentWithinContainer: React.FC<
-  Partial<DefaultAttachmentProps>
-> = (props) => {
-  const { attachment, children, componentType } = props;
-
-  const extra =
-    componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
-      ? 'no-image'
-      : attachment && attachment.actions && attachment.actions.length
-      ? 'actions'
-      : '';
-
-  return (
-    <div
-      className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
-        attachment?.type || ''
-      } str-chat__message-attachment--${componentType}--${extra}`}
-      key={`${attachment?.id}-${attachment?.type || 'none'} `}
-    >
-      {children}
-    </div>
-  );
-};
-
-export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { actionHandler, attachment, AttachmentActions } = props;
-  if (!AttachmentActions || !attachment.actions || !attachment.actions.length) {
-    return null;
-  }
-
-  return (
-    <AttachmentActions
-      {...attachment}
-      actionHandler={() => actionHandler}
-      actions={attachment.actions || []}
-      id={attachment.id || ''}
-      key={`key-actions-${attachment.id}`}
-      text={attachment.text || ''}
-    />
-  );
-};
-
-export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment, Gallery } = props;
-  if (!Gallery) return null;
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: <Gallery images={attachment.images || []} key='gallery' />,
-    componentType: 'gallery',
-  });
-};
-
-export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment, Image } = props;
-  if (!Image) return null;
-
-  if (attachment.actions && attachment.actions.length) {
-    return renderAttachmentWithinContainer({
-      attachment,
-      children: (
-        <div
-          className='str-chat__attachment'
-          key={`key-image-${attachment.id}`}
-        >
-          {<Image {...attachment} />}
-          {renderAttachmentActions(props)}
-        </div>
-      ),
-      componentType: 'image',
-    });
-  }
-
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: <Image {...attachment} key={`key-image-${attachment.id}`} />,
-    componentType: 'image',
-  });
-};
-
-export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment: attachment, Card } = props;
-  if (!Card) return null;
-
-  if (attachment.actions && attachment.actions.length) {
-    return renderAttachmentWithinContainer({
-      attachment,
-      children: (
-        <div
-          className='str-chat__attachment'
-          key={`key-image-${attachment.id}`}
-        >
-          <Card {...attachment} key={`key-card-${attachment.id}`} />
-          {renderAttachmentActions(props)}
-        </div>
-      ),
-      componentType: 'card',
-    });
-  }
-
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: <Card {...attachment} key={`key-card-${attachment.id}`} />,
-    componentType: 'card',
-  });
-};
-
-export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment: attachment, File } = props;
-  if (!File || !attachment.asset_url) return null;
-
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: (
-      <File attachment={attachment} key={`key-file-${attachment.id}`} />
-    ),
-    componentType: 'file',
-  });
-};
-
-export const renderAudio: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment: attachment, Audio } = props;
-  if (!Audio) return null;
-
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: (
-      <div className='str-chat__attachment' key={`key-video-${attachment.id}`}>
-        <Audio og={attachment} />
-      </div>
-    ),
-    componentType: 'audio',
-  });
-};
-
-export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
-  const { attachment, Media } = props;
-  if (!Media) return null;
-
-  if (attachment.actions && attachment.actions.length) {
-    return renderAttachmentWithinContainer({
-      attachment,
-      children: (
-        <div
-          className='str-chat__attachment str-chat__attachment-media'
-          key={`key-video-${attachment.id}`}
-        >
-          <div className='str-chat__player-wrapper'>
-            <Media
-              className='react-player'
-              controls
-              height='100%'
-              url={attachment.asset_url}
-              width='100%'
-            />
-          </div>
-          {renderAttachmentActions(props)}
-        </div>
-      ),
-      componentType: 'media',
-    });
-  }
-
-  return renderAttachmentWithinContainer({
-    attachment,
-    children: (
-      <div
-        className='str-chat__player-wrapper'
-        key={`key-video-${attachment.id}`}
-      >
-        {' '}
-        <Media
-          className='react-player'
-          controls
-          height='100%'
-          url={attachment.asset_url}
-          width='100%'
-        />
-      </div>
-    ),
-    componentType: 'media',
-  });
-};
-
 /**
  * Attachment - The message attachment
  *
@@ -386,7 +160,7 @@ export const Attachment = <
   } = props;
 
   const gallery = {
-    images: attachments.filter(
+    images: attachments?.filter(
       (attachment) =>
         attachment.type === 'image' &&
         !(attachment.og_scrape_url || attachment.title_link),
@@ -467,4 +241,230 @@ export const Attachment = <
       })}
     </>
   );
+};
+
+export const isGalleryAttachment = (attachment: ExtendedAttachment) =>
+  attachment.type === 'gallery';
+
+export const isImageAttachment = (attachment: ExtendedAttachment) =>
+  attachment.type === 'image' &&
+  !attachment.title_link &&
+  !attachment.og_scrape_url;
+
+export const isMediaAttachment = (attachment: ExtendedAttachment) =>
+  (attachment.mime_type &&
+    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
+  attachment.type === 'video';
+
+export const isAudioAttachment = (attachment: ExtendedAttachment) =>
+  attachment.type === 'audio';
+
+export const isFileAttachment = (attachment: ExtendedAttachment) =>
+  attachment.type === 'file' ||
+  (attachment.mime_type &&
+    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
+    attachment.type !== 'video');
+
+export const renderAttachmentWithinContainer: React.FC<
+  Partial<DefaultAttachmentProps>
+> = (props) => {
+  const { attachment, children, componentType } = props;
+
+  const extra =
+    componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
+      ? 'no-image'
+      : attachment && attachment.actions && attachment.actions.length
+      ? 'actions'
+      : '';
+
+  return (
+    <div
+      className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
+        attachment?.type || ''
+      } str-chat__message-attachment--${componentType}--${extra}`}
+      key={`${attachment?.id}-${attachment?.type || 'none'} `}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { actionHandler, attachment, AttachmentActions } = props;
+
+  if (!AttachmentActions || !attachment.actions || !attachment.actions.length) {
+    return null;
+  }
+
+  return (
+    <AttachmentActions
+      {...attachment}
+      actionHandler={() => actionHandler}
+      actions={attachment.actions || []}
+      id={attachment.id || ''}
+      key={`key-actions-${attachment.id}`}
+      text={attachment.text || ''}
+    />
+  );
+};
+
+export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment, Gallery } = props;
+
+  if (!Gallery) return null;
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: <Gallery images={attachment.images || []} key='gallery' />,
+    componentType: 'gallery',
+  });
+};
+
+export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment, Image } = props;
+
+  if (!Image) return null;
+
+  if (attachment.actions && attachment.actions.length) {
+    return renderAttachmentWithinContainer({
+      attachment,
+      children: (
+        <div
+          className='str-chat__attachment'
+          key={`key-image-${attachment.id}`}
+        >
+          {<Image {...attachment} />}
+          {renderAttachmentActions(props)}
+        </div>
+      ),
+      componentType: 'image',
+    });
+  }
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: <Image {...attachment} key={`key-image-${attachment.id}`} />,
+    componentType: 'image',
+  });
+};
+
+export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment: attachment, Card } = props;
+
+  if (!Card) return null;
+
+  if (attachment.actions && attachment.actions.length) {
+    return renderAttachmentWithinContainer({
+      attachment,
+      children: (
+        <div
+          className='str-chat__attachment'
+          key={`key-image-${attachment.id}`}
+        >
+          <Card {...attachment} key={`key-card-${attachment.id}`} />
+          {renderAttachmentActions(props)}
+        </div>
+      ),
+      componentType: 'card',
+    });
+  }
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: <Card {...attachment} key={`key-card-${attachment.id}`} />,
+    componentType: 'card',
+  });
+};
+
+export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment: attachment, File } = props;
+
+  if (!File || !attachment.asset_url) return null;
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: (
+      <File attachment={attachment} key={`key-file-${attachment.id}`} />
+    ),
+    componentType: 'file',
+  });
+};
+
+export const renderAudio: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment: attachment, Audio } = props;
+  if (!Audio) return null;
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: (
+      <div className='str-chat__attachment' key={`key-video-${attachment.id}`}>
+        <Audio og={attachment} />
+      </div>
+    ),
+    componentType: 'audio',
+  });
+};
+
+export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
+  props,
+) => {
+  const { attachment, Media } = props;
+
+  if (!Media) return null;
+
+  if (attachment.actions && attachment.actions.length) {
+    return renderAttachmentWithinContainer({
+      attachment,
+      children: (
+        <div
+          className='str-chat__attachment str-chat__attachment-media'
+          key={`key-video-${attachment.id}`}
+        >
+          <div className='str-chat__player-wrapper'>
+            <Media
+              className='react-player'
+              controls
+              height='100%'
+              url={attachment.asset_url}
+              width='100%'
+            />
+          </div>
+          {renderAttachmentActions(props)}
+        </div>
+      ),
+      componentType: 'media',
+    });
+  }
+
+  return renderAttachmentWithinContainer({
+    attachment,
+    children: (
+      <div
+        className='str-chat__player-wrapper'
+        key={`key-video-${attachment.id}`}
+      >
+        {' '}
+        <Media
+          className='react-player'
+          controls
+          height='100%'
+          url={attachment.asset_url}
+          width='100%'
+        />
+      </div>
+    ),
+    componentType: 'media',
+  });
 };

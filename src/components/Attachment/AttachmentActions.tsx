@@ -2,11 +2,6 @@ import React from 'react';
 
 import type { Action } from 'stream-chat';
 
-/**
- * AttachmentActions - The actions you can take on an attachment
- *
- * @example ./AttachmentActions.md
- */
 export type AttachmentActionsProps = {
   /** A list of actions */
   actions: Action[];
@@ -22,6 +17,11 @@ export type AttachmentActionsProps = {
   ) => void;
 };
 
+/**
+ * AttachmentActions - The actions you can take on an attachment
+ *
+ * @example ./AttachmentActions.md
+ */
 const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
   props,
 ) => {

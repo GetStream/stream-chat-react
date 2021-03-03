@@ -1,9 +1,10 @@
-import type { MouseEvent } from 'react';
 import type { MessageResponse } from 'stream-chat';
 
 import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
+
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -47,7 +48,7 @@ export const useFlagHandler = <
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   notifications: FlagMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
-): ((event: MouseEvent<HTMLElement>) => Promise<void>) => {
+): MouseEventHandler => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
