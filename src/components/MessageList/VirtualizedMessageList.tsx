@@ -1,5 +1,4 @@
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
-
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   Components,
   ScrollSeekConfiguration,
@@ -7,15 +6,12 @@ import {
   Virtuoso,
   VirtuosoHandle,
 } from 'react-virtuoso';
-import type { MessageResponse, StreamChat } from 'stream-chat';
 
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification } from './MessageNotification';
 
-import { TranslationContext, useChannelContext } from '../../context';
-import { smartRender } from '../../utils';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
@@ -32,8 +28,14 @@ import {
   MessageDeletedProps,
 } from '../Message';
 
-// TODO: move those typings to components
-import type { EventComponentProps, TypingIndicatorProps } from 'types';
+import { useChannelContext } from '../../context/ChannelContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { smartRender } from '../../utils';
+
+import type { MessageResponse, StreamChat } from 'stream-chat';
+
+import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -59,46 +61,37 @@ export type VirtualizedMessageListProps<
    * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat).
    */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-
   /** Custom render function, if passed, certain UI props are ignored. */
   customMessageRenderer(
     messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
     index: number,
   ): React.ReactElement;
-
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   hasMore: boolean;
-
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   loadingMore: boolean;
-
   /** The UI Indicator to use when MessageList or ChannelList is empty. */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
-
   /** Component to render at the top of the MessageList while loading new messages. */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   loadMore?(messageLimit?: number | undefined): Promise<number>;
-
   /** Custom UI component to display messages. */
-  Message?: React.ElementType<FixedHeightMessageProps>;
-
+  Message?: React.ComponentType<
+    FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>
+  >;
   /** Custom UI component to display deleted messages. */
-  MessageDeleted?: React.ElementType<MessageDeletedProps>;
-
+  MessageDeleted?: React.ComponentType<
+    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
+  >;
   /** Set the limit to use when paginating messages. */
   messageLimit?: number;
-
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
   messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
-
   /** Custom UI component to display system messages. */
-  MessageSystem?: React.ElementType<EventComponentProps>;
-
+  MessageSystem?: React.ComponentType<unknown>; // TODO - add generic when EventComponent is typed
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
   overscan?: number;
-
   /**
    * Performance improvement by showing placeholders if user scrolls fast through list.
    * it can be used like this:
@@ -114,20 +107,17 @@ export type VirtualizedMessageListProps<
   scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
     placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
   };
-
   /**
    * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
    * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
    */
   shouldGroupByUser?: boolean;
-
   /**
    * The scrollTo Behavior when new messages appear. Use ``"smooth"``
    * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
    * if you expect hight throughput.
    */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
-
   /** The UI Indicator to use when someone is typing, defaults to `null`. */
   TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
 };
@@ -147,48 +137,41 @@ const VirtualizedMessageListWithoutContext = <
 ) => {
   const {
     client,
-    messages,
-    loadMore,
-    hasMore,
-    loadingMore,
-    messageLimit = 100,
-    overscan = 0,
-    shouldGroupByUser = false,
     customMessageRenderer,
+    EmptyStateIndicator = DefaultEmptyStateIndicator,
+    hasMore,
+    LoadingIndicator = DefaultLoadingIndicator,
+    loadMore,
+    loadingMore,
+    Message = DefaultMessage,
+    MessageDeleted = DefaultMessageDeleted,
+    messageLimit = 100,
+    messages,
+    MessageSystem = EventComponent,
+    overscan = 0,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     scrollSeekPlaceHolder,
-    Message = DefaultMessage,
-    MessageSystem = EventComponent,
-    MessageDeleted = DefaultMessageDeleted,
-    TypingIndicator = null,
-    LoadingIndicator = DefaultLoadingIndicator,
-    EmptyStateIndicator = DefaultEmptyStateIndicator,
+    shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
+    TypingIndicator = null,
   } = props;
-  const { t } = useContext(TranslationContext);
+
+  const { t } = useTranslationContext();
+
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const {
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification<At, Ch, Co, Me, Re, Us>(
+  } = useNewMessageNotification(messages, client.userID);
+
+  const numItemsPrepended = usePrependedMessagesCount(messages);
+
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(
     messages,
     client.userID,
   );
-
-  const numItemsPrepended = usePrependedMessagesCount<At, Ch, Co, Me, Re, Us>(
-    messages,
-  );
-
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom<
-    At,
-    Ch,
-    Co,
-    Me,
-    Re,
-    Us
-  >(messages, client.userID);
 
   const messageRenderer = useCallback(
     (messageList, virtuosoIndex) => {
@@ -212,7 +195,7 @@ const VirtualizedMessageListWithoutContext = <
       }
 
       return (
-        <Message
+        <Message<At, Ch, Co, Ev, Me, Re, Us>
           groupedByUser={
             shouldGroupByUser &&
             streamMessageIndex > 0 &&
@@ -339,6 +322,7 @@ export function VirtualizedMessageList<
   Us extends UnknownType = DefaultUserType
 >(props: Partial<VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>>) {
   const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   return (
     <VirtualizedMessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
       client={context.client}

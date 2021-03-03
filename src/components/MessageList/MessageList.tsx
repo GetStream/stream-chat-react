@@ -66,20 +66,20 @@ type PropsDrilledToMessage =
   | 'watchers';
 
 type PropsDrilledToMessageListInner =
-  | 'DateSeparator'
-  | 'EmptyStateIndicator'
-  | 'HeaderComponent'
-  | 'MessageSystem'
-  | 'TypingIndicator'
   | 'channel'
   | 'client'
+  | 'DateSeparator'
   | 'disableDateSeparator'
+  | 'EmptyStateIndicator'
+  | 'HeaderComponent'
   | 'headerPosition'
   | 'hideDeletedMessages'
   | 'messages'
+  | 'MessageSystem'
   | 'noGroupByUser'
   | 'read'
-  | 'threadList';
+  | 'threadList'
+  | 'TypingIndicator';
 
 export type MessageListProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -107,7 +107,7 @@ export type MessageListProps<
     messageLimit: number;
     /**
      * Date separator UI component to render.
-     * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.js)
+     * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
      */
     dateSeparator?: MessageListInnerProps<
       At,
@@ -309,20 +309,21 @@ class MessageListWithoutContext<
     target: HTMLElement | number | 'top' | 'bottom',
     containerEl: HTMLElement,
   ) => {
-    //@ts-expect-error
-    const isElement = target && target.nodeType === 1;
-    const isNumber =
-      Object.prototype.toString.call(target) === '[object Number]';
+    let scrollTop: number | undefined;
 
-    let scrollTop;
-    //@ts-expect-error
-    if (isElement) scrollTop = target.offsetTop;
-    else if (isNumber) scrollTop = target;
-    else if (target === 'top') scrollTop = 0;
-    else if (target === 'bottom')
+    if (target instanceof HTMLElement) {
+      scrollTop = target.offsetTop;
+    } else if (typeof target === 'number') {
+      scrollTop = target;
+    } else if (target === 'top') {
+      scrollTop = 0;
+    } else if (target === 'bottom') {
       scrollTop = containerEl.scrollHeight - containerEl.offsetHeight;
+    }
 
-    if (scrollTop !== undefined) containerEl.scrollTop = scrollTop; // eslint-disable-line no-param-reassign
+    if (scrollTop !== undefined) {
+      containerEl.scrollTop = scrollTop;
+    }
   };
 
   goToNewMessages = () => {
@@ -397,7 +398,7 @@ class MessageListWithoutContext<
     const { t } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <div
           className={`str-chat__list ${
             this.props.threadList ? 'str-chat__list--thread' : ''
@@ -486,7 +487,7 @@ class MessageListWithoutContext<
             {t && t('New Messages!')}
           </MessageNotification>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
