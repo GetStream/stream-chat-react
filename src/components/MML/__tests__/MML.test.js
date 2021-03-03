@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import MML from '../MML';
+import { MML } from '../MML';
 import { ChatContext } from '../../../context';
 
 afterEach(cleanup); // eslint-disable-line

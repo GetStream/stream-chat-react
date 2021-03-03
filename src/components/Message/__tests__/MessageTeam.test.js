@@ -11,7 +11,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageTeam from '../MessageTeam';
+import { MessageTeam } from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
