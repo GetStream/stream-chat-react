@@ -21,7 +21,7 @@ const data = require('../../docs/data');
 An open message box
 
 ```js
-import { MessageActionsBox } from './';
+import { MessageActionsBox } from './MessageActionsBox';
 
 const data = require('../../docs/data');
 
