@@ -150,7 +150,10 @@ const UnMemoizedMessageOptions = <
         </div>
       )}
       {displayActions && (
-        <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
+        <MessageActions<At, Ch, Co, Ev, Me, Re, Us>
+          {...props}
+          messageWrapperRef={messageWrapperRef}
+        />
       )}
     </div>
   );

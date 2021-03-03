@@ -3,10 +3,12 @@ import testRenderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageActionsBoxMock from '../MessageActionsBox';
+import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
 import { MessageActions } from '../MessageActions';
 
-jest.mock('../MessageActionsBox', () => jest.fn(() => <div />));
+jest.mock('../MessageActionsBox', () => ({
+  MessageActionsBox: jest.fn(() => <div />),
+}));
 
 const wrapperMock = document.createElement('div');
 jest.spyOn(wrapperMock, 'addEventListener');

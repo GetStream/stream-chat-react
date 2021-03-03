@@ -197,7 +197,7 @@ export type MessageUIComponentProps<
    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
    * */
-  getMessageActions(): MessageActionsArray;
+  getMessageActions: () => MessageActionsArray;
   /** Function to send an action in a channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a channel */

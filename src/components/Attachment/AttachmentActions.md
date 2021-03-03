@@ -1,7 +1,7 @@
 AttachmentActions renders the attachment action
 
 ```js
-import { AttachmentActions } from './';
+import { AttachmentActions } from './AttachmentActions';
 
 function actionHandler(action) {
   console.log(action);
