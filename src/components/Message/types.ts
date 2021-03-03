@@ -47,15 +47,15 @@ export type MessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** The message object. */
+  /** The message object */
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   /**
-   * Additional props for underlying MessageInput component.
+   * Additional props for underlying MessageInput component
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
-   * Function to add custom notification on message list.
+   * Function to add custom notification on message list
    * @param text Notification text to display
    * @param type Type of notification
    * */
@@ -64,7 +64,7 @@ export type MessageProps<
     type: 'success' | 'error',
   ) => void;
   /**
-   * Attachment UI component to display attachment in individual message.
+   * Attachment UI component to display attachment in individual message
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Attachment?: React.ComponentType<AttachmentProps<At>>;
@@ -124,7 +124,7 @@ export type MessageProps<
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   /**
-   * Message UI component to display a message in message list.
+   * Message UI component to display a message in message list
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Message?: React.ComponentType<
@@ -231,7 +231,7 @@ export type MessageUIComponentProps<
   /** Function that returns whether or not the message belongs to the current user */
   isMyMessage?: () => boolean;
   /**
-   * The component that will be rendered if the message has been deleted.
+   * The component to be rendered if the message has been deleted
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
    */
   MessageDeleted?: React.ComponentType<
