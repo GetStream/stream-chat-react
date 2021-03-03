@@ -34,7 +34,7 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-export type EventHandlerReturnType = (
+export type MouseEventHandler = (
   event: React.MouseEvent<HTMLElement, MouseEvent>,
 ) => Promise<void> | void;
 
@@ -201,17 +201,17 @@ export type MessageUIComponentProps<
   /** Function to send an action in a channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a channel */
-  handleDelete: EventHandlerReturnType;
+  handleDelete: MouseEventHandler;
   /** Function to edit a message in a channel */
-  handleEdit: EventHandlerReturnType;
+  handleEdit: MouseEventHandler;
   /** Function to flag a message in a channel */
-  handleFlag: EventHandlerReturnType;
+  handleFlag: MouseEventHandler;
   /** Function to mute a user in a channel */
-  handleMute: EventHandlerReturnType;
+  handleMute: MouseEventHandler;
   /** Function to open a thread on a message */
-  handleOpenThread: EventHandlerReturnType;
+  handleOpenThread: MouseEventHandler;
   /** Function to pin a message in a channel */
-  handlePin: EventHandlerReturnType;
+  handlePin: MouseEventHandler;
   /** Function to post a reaction on a message */
   handleReaction: (
     reactionType: string,
@@ -220,7 +220,7 @@ export type MessageUIComponentProps<
   /** Function to retry sending a message */
   handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   /** Function to toggle the edit state on a message */
-  setEditingState: EventHandlerReturnType;
+  setEditingState: MouseEventHandler;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
   /**
@@ -238,13 +238,13 @@ export type MessageUIComponentProps<
     MessageDeletedProps<At, Ch, Co, Me, Re, Us>
   >;
   /** Handler function for a click event on an @mention in message */
-  onMentionsClickMessage?: EventHandlerReturnType;
+  onMentionsClickMessage?: MouseEventHandler;
   /** Handler function for a hover event on an @mention in message */
-  onMentionsHoverMessage?: EventHandlerReturnType;
+  onMentionsHoverMessage?: MouseEventHandler;
   /** Handler function for a click event on the user that posted the message */
-  onUserClick?: EventHandlerReturnType;
+  onUserClick?: MouseEventHandler;
   /** Handler function for a hover event on the user that posted the message */
-  onUserHover?: EventHandlerReturnType;
+  onUserHover?: MouseEventHandler;
   /**
    * Custom UI component to override default pinned message indicator
    * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.tsx)

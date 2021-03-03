@@ -53,7 +53,10 @@ const UnMemoizedMessageCommerce = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  >,
 ) => {
   const {
     actionsEnabled,

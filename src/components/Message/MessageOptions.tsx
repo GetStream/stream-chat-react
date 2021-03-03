@@ -8,7 +8,7 @@ import { MessageActions } from '../MessageActions';
 
 import { useChannelContext } from '../../context/ChannelContext';
 
-import type { EventHandlerReturnType, MessageUIComponentProps } from './types';
+import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -34,7 +34,7 @@ export type MessageOptionsProps<
   displayLeft?: boolean;
   displayReplies?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  onReactionListClick?: EventHandlerReturnType;
+  onReactionListClick?: MouseEventHandler;
   theme?: string;
 };
 

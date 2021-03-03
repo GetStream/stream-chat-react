@@ -2,7 +2,7 @@ import { useChannelContext } from '../../../context/ChannelContext';
 
 import type { MessageResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../types';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -29,7 +29,7 @@ export const useOpenThreadHandler = <
     message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void,
-): EventHandlerReturnType => {
+): MouseEventHandler => {
   const { openThread: channelOpenThread } = useChannelContext<
     At,
     Ch,

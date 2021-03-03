@@ -10,7 +10,7 @@ import {
 import { useChannelContext } from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { EventHandlerReturnType } from '../types';
+import type { MouseEventHandler } from '../types';
 
 import type {
   MessageResponse,
@@ -219,7 +219,7 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  const onReactionListClick: EventHandlerReturnType = (event) => {
+  const onReactionListClick: MouseEventHandler = (event) => {
     if (event && event.stopPropagation) {
       event.stopPropagation();
     }

@@ -3,7 +3,7 @@ import { useChannelContext } from '../../../context/ChannelContext';
 import type { MouseEvent } from 'react';
 import type { MessageResponse, UserResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../types';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -38,7 +38,7 @@ function createEventHandler<
 >(
   fn?: MentionedUserEventHandler<Us>,
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-): EventHandlerReturnType {
+): MouseEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
       return;
@@ -94,8 +94,8 @@ export const useMentionsUIHandler = <
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   eventHandlers?: {
-    onMentionsClick?: EventHandlerReturnType;
-    onMentionsHover?: EventHandlerReturnType;
+    onMentionsClick?: MouseEventHandler;
+    onMentionsHover?: MouseEventHandler;
   },
 ) => {
   const { onMentionsClick, onMentionsHover } = useChannelContext<
