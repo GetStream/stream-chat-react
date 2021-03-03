@@ -135,7 +135,7 @@ const UnMemoizedFixedHeightMessage = <
               message={message}
             />
             <span className='str-chat__virtual-message__date'>
-              <MessageTimestamp<At, Ch, Co, Me, Re, Us>
+              <MessageTimestamp
                 customClass='str-chat__message-simple-timestamp'
                 message={message}
               />

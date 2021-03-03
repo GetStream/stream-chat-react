@@ -9,7 +9,7 @@ There are many types of attachments. By default the components support
 Here's an example of an image:
 
 ```js
-import { Attachment } from './';
+import { Attachment } from './Attachment';
 
 const a = {
   thumb_url: 'https://media3.giphy.com/media/gw3IWyGkC0rsazTi/giphy.gif',
@@ -26,7 +26,7 @@ function actionHandler(action) {
 Or a video element:
 
 ```js
-import { Attachment } from './';
+import { Attachment } from './Attachment';
 
 
 const a = {
@@ -48,7 +48,7 @@ function actionHandler(action) {
 Image with more meta information:
 
 ```js
-import { Attachment } from './';
+import { Attachment } from './Attachment';
 
 const a = {
   image_url:
@@ -72,7 +72,7 @@ function actionHandler(action) {
 Attachment with actions:
 
 ```js
-import { Attachment } from './';
+import { Attachment } from './Attachment';
 
 const a = {
   actions: [

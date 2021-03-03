@@ -229,7 +229,7 @@ const UnMemoizedMessageCommerce = <
                 {message?.user?.name || message?.user?.id}
               </span>
             ) : null}
-            <MessageTimestamp<At, Ch, Co, Me, Re, Us>
+            <MessageTimestamp
               customClass='str-chat__message-commerce-timestamp'
               format='LT'
               formatDate={formatDate}
