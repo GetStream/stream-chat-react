@@ -153,7 +153,7 @@ export type MessageUIComponentProps<
 };
 
 /**
- * MessageSimple - Render component, should be used together with the Message component
+ * MessageSimple - UI component that renders a message and receives functionality from the Message/MessageList components
  *
  * @example ./MessageSimple.md
  */

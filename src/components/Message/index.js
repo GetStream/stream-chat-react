@@ -1,7 +1,7 @@
 export * from './FixedHeightMessage';
 export * from './hooks';
 export * from './Message';
-export { default as MessageCommerce } from './MessageCommerce';
+export * from './MessageCommerce';
 export * from './MessageDeleted';
 export { default as MessageLivestream } from './MessageLivestream';
 export * from './MessageOptions';
