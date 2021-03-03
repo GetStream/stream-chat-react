@@ -1062,7 +1062,7 @@ export interface ReactionSelectorProps {
   handleReaction?(reactionType: string, event?: React.BaseSyntheticEvent): void;
 }
 
-export interface EnojiSetDef {
+export interface EmojiSetDef {
   spriteUrl: string;
   size: number;
   sheetColumns: number;
@@ -1102,7 +1102,7 @@ export interface ReactionsListProps {
   reactionOptions?: MinimalEmojiInterface[];
   onClick?(): void;
   reverse?: boolean;
-  emojiSetDef?: EnojiSetDef;
+  emojiSetDef?: EmojiSetDef;
 }
 
 export interface WindowProps {
