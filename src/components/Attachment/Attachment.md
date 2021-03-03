@@ -9,7 +9,7 @@ There are many types of attachments. By default the components support
 Here's an example of an image
 
 ```js
-import { Attachment } from '../components';
+import { Attachment } from './';
 
 const Immutable = require('seamless-immutable');
 
@@ -28,7 +28,7 @@ function actionHandler(action) {
 Or a video element:
 
 ```js
-import { Attachment } from '../components';
+import { Attachment } from './';
 
 const Immutable = require('seamless-immutable');
 
@@ -51,7 +51,7 @@ function actionHandler(action) {
 Image with more meta information:
 
 ```js
-import { Attachment } from '../components';
+import { Attachment } from './';
 
 const Immutable = require('seamless-immutable');
 
@@ -77,7 +77,7 @@ function actionHandler(action) {
 Attachment with actions:
 
 ```js
-import { Attachment } from '../components';
+import { Attachment } from './';
 
 const Immutable = require('seamless-immutable');
 
