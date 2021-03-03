@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 export type AvatarProps = {
   /** Image URL or default is an image of the first initial of the name if there is one  */
-  image?: string;
+  image?: string | null;
   /** Name of the image, used for title tag fallback */
   name?: string;
   /** click event handler */

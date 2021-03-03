@@ -36,6 +36,7 @@ export const useChannelTruncatedListener = <
   forceUpdate?: () => void,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       setChannels((channels) => [...channels]);

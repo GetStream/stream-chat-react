@@ -6,7 +6,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import MessageDeleted from '../MessageDeleted';
+import { MessageDeleted } from '../MessageDeleted';
 import { ChannelContext, TranslationContext } from '../../../context';
 
 const alice = generateUser();

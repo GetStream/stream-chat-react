@@ -34,7 +34,6 @@ import {
   initialState,
 } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
-
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import {
@@ -42,14 +41,17 @@ import {
   useMentionsHandlers,
 } from './hooks/useMentionsHandlers';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
+import {
+  AttachmentProps,
+  Attachment as DefaultAttachment,
+} from '../Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicatorProps,
   LoadingIndicatorProps,
 } from '../Loading';
-import { MessageSimple } from '../Message';
+import { MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelContextValue,
@@ -92,22 +94,20 @@ export type ChannelProps<
   acceptedFiles?: string[];
   /**
    * Attachment UI component to display attachment in individual message.
-   *
-   * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
+   * Defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.tsx)
    * */
-  Attachment?: React.ComponentType<unknown>; // TODO - add generic when Attachment pr merged
+  Attachment?: React.ComponentType<AttachmentProps<At>>;
   /** The connected and active channel */
   channel?: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Override mark channel read request (Advanced usage only)
-   *
    * @param {Channel} channel object
    * */
   doMarkReadRequest?: (
     channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<MessageResponse<At, Ch, Co, Me, Re, Us>> | void;
-  /** Override send message request (Advanced usage only)
-   *
+  /**
+   * Override send message request (Advanced usage only)
    * @param {String} channelId full channel ID in format of `type:id`
    * @param {Object} message
    */
@@ -117,8 +117,8 @@ export type ChannelProps<
   ) => ReturnType<
     StreamChannel<At, Ch, Co, Ev, Me, Re, Us>['sendMessage']
   > | void;
-  /** Override update(edit) message request (Advanced usage only)
-   *
+  /**
+   * Override update(edit) message request (Advanced usage only)
    * @param {String} channelId full channel ID in format of `type:id`
    * @param {Object} updatedMessage
    */
@@ -126,41 +126,28 @@ export type ChannelProps<
     cid: string,
     updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
-  /**
-   * Optional component to override default NimbleEmoji from emoji-mart
-   */
+  /** Optional component to override default NimbleEmoji from emoji-mart */
   Emoji?: React.ComponentType<NimbleEmojiProps>;
-  /**
-   * Optional prop to override default facebook.json emoji data set from emoji-mart
-   */
+  /** Optional prop to override default facebook.json emoji data set from emoji-mart */
   emojiData?: EmojiMartData;
-  /**
-   * Optional component to override default NimbleEmojiIndex from emoji-mart
-   */
+  /** Optional component to override default NimbleEmojiIndex from emoji-mart */
   EmojiIndex?: NimbleEmojiIndex;
-  /**
-   * Optional component to override default NimblePicker from emoji-mart
-   */
+  /** Optional component to override default NimblePicker from emoji-mart */
   EmojiPicker?: React.ComponentType<NimblePickerProps>;
   /**
    * Empty channel UI component. This will be shown on the screen if there is no active channel.
-   *
    * Defaults to null which skips rendering the Channel
-   *
    * */
   EmptyPlaceholder?: React.ReactElement;
   /**
    * Error indicator UI component. This will be shown on the screen if channel query fails.
-   *
    * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
-   *
    * */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
    * being queried from channel. Once the messages are loaded, loading indicator is removed from the screen
    * and replaced with children of the Channel component.
-   *
    * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
    */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
@@ -177,19 +164,19 @@ export type ChannelProps<
    * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
    *
    * */
-  Message?: React.ComponentType<unknown>; // TODO - add generic when Message pr merged
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /**
    * Handle for click on @mention in message
-   *
    * @param {Event} event DOM Click event
    * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
    */
   onMentionsClick?: OnMentionAction<Us>;
   /**
    * Handle for hover on @mention in message
-   *
    * @param {Event} event DOM hover event
    * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
    */
@@ -625,9 +612,7 @@ const ChannelInner = <
 
   const openThread = useCallback(
     (
-      message: ReturnType<
-        ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-      >,
+      message: MessageResponse<At, Ch, Co, Me, Re, Us>,
       event: React.SyntheticEvent,
     ) => {
       if (!channel) return;
@@ -711,8 +696,7 @@ const ChannelInner = <
   const channelContextValue: ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     ...state,
     acceptedFiles,
-    // @ts-expect-error
-    Attachment, // TODO - type Attachment and ensure this matches ChannelContextValue['Attachment']
+    Attachment,
     channel,
     client, // from chatContext, for legacy reasons
     closeThread,
@@ -722,8 +706,7 @@ const ChannelInner = <
     loadMore,
     loadMoreThread,
     maxNumberOfFiles,
-    // @ts-expect-error
-    Message, // TODO - type Message and ensure this matches ChannelContextValue['Message']
+    Message,
     multipleUploads,
     mutes,
     onMentionsClick: onMentionsHoverOrClick,

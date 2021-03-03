@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import FileAttachment from '../FileAttachment';
+import { FileAttachment } from '../FileAttachment';
 
 const getComponent = (attachment) => <FileAttachment attachment={attachment} />;
 

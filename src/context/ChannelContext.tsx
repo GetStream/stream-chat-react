@@ -18,7 +18,9 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { AttachmentProps } from '../components/Attachment/Attachment';
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+import type { MessageUIComponentProps } from '../components/Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -83,6 +85,15 @@ export type MessageToSend<
   text?: string;
 };
 
+export type RetrySendMessage<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+
 export type ChannelState<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -108,9 +119,12 @@ export type ChannelState<
     Us
   >['pinnedMessages'];
   read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
-  thread?: ReturnType<
-    StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<
+        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage'] // TODO - potentially remove ReturnType message
+      >
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
   threadMessages?: Array<
@@ -132,7 +146,7 @@ export type ChannelContextValue<
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   acceptedFiles?: string[];
-  Attachment?: React.ComponentType<unknown>; // TODO: add generic when Attachment is typed
+  Attachment?: React.ComponentType<AttachmentProps<At>>;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
   dispatch?: React.Dispatch<
@@ -145,9 +159,11 @@ export type ChannelContextValue<
   loadMore?: (limit: number) => Promise<number>;
   loadMoreThread?: () => Promise<void>;
   maxNumberOfFiles?: number;
-  Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   multipleUploads?: boolean;
-  mutes?: Mute<DefaultUserType>[];
+  mutes?: Mute<Us>[];
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
@@ -157,15 +173,11 @@ export type ChannelContextValue<
     user: UserResponse<Us>[],
   ) => void;
   openThread?: (
-    message: ReturnType<
-      StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-    >,
+    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  retrySendMessage?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  ) => Promise<void>;
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;

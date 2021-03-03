@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "4.0.1",
+  "version": "4.1.1",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -22,7 +22,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "5.0.0",
     "custom-event": "^1.0.1",
-    "dayjs": "^1.10.3",
+    "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "i18next": "^19.8.4",
@@ -141,7 +141,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "stream-chat": "3.1.1",
+    "stream-chat": "3.1.2",
     "style-loader": "^2.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-recommended-scss": "^4.2.0",

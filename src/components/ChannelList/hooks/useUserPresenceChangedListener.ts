@@ -29,12 +29,14 @@ export const useUserPresenceChangedListener = <
   >,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       setChannels((channels) => {
         const newChannels = channels.map((channel) => {
-          if (!event.user?.id || !channel.state.members[event.user.id])
+          if (!event.user?.id || !channel.state.members[event.user.id]) {
             return channel;
+          }
 
           const newChannel = channel; // dumb workaround for linter
           newChannel.state.members[event.user.id].user = event.user;

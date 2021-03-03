@@ -34,11 +34,13 @@ export const useMessageNewListener = <
   allowNewMessagesFromUnfilteredChannels = true,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       setChannels((channels) => {
         const channelInList =
           channels.filter((channel) => channel.cid === event.cid).length > 0;
+
         if (
           !channelInList &&
           allowNewMessagesFromUnfilteredChannels &&
@@ -47,11 +49,15 @@ export const useMessageNewListener = <
           const channel = client.channel(event.channel_type, event.channel_id);
           return uniqBy([channel, ...channels], 'cid');
         }
+
         if (!lockChannelOrder) return moveChannelUp(event.cid || '', channels);
+
         return channels;
       });
     };
+
     client.on('message.new', handleEvent);
+
     return () => {
       client.off('message.new', handleEvent);
     };

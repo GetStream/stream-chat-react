@@ -1,15 +1,15 @@
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ModalProps = {
-  /** Callback handler for closing of modal. */
-  onClose: () => void;
   /** If true, modal is opened or visible. */
   open: boolean;
+  /** Callback handler for closing of modal. */
+  onClose?: () => void | ((event?: React.SyntheticEvent) => void);
 };
 
-export const Modal: React.FC<PropsWithChildren<ModalProps>> = (props) => {
+export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
   const { t } = useTranslationContext();

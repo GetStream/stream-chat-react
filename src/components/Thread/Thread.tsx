@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
-import { MessageList } from '../MessageList';
+import { MessageList, MessageListProps } from '../MessageList';
 
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -10,7 +10,9 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { smartRender } from '../../utils';
 
 import type { TFunction } from 'i18next';
-import type { ChannelState } from 'stream-chat';
+import type { ChannelState, MessageResponse } from 'stream-chat';
+
+import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -41,18 +43,20 @@ export type ThreadProps<
    * Additional props for underlying MessageList component.
    * Available props - https://getstream.github.io/stream-chat-react/#messagelist
    * */
-  additionalMessageListProps?: UnknownType; // TODO: add MessageListProps<add generics> when MessageList is typed
+  additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Additional props for underlying Message component of parent message at the top.
    * Available props - https://getstream.github.io/stream-chat-react/#message
    * */
-  additionalParentMessageProps?: UnknownType; // TODO: add MessageProps<add generics> when Message is typed
+  additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Make input focus on mounting thread */
   autoFocus?: boolean;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** UI component to override the default Message stored in channel context */
-  Message?: React.ComponentType<unknown>; // TODO: add generic when Message is typed
+  Message?: React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   /** Customized MessageInput component to used within Thread instead of default MessageInput
      Useable as follows:
      ```
@@ -108,9 +112,10 @@ export type ThreadHeaderProps<
   closeThread?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
-  thread?: ReturnType<
-    ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-  > | null;
+  thread?:
+    | ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']> // TODO - maybe remove ReturnType message
+    | MessageResponse<At, Ch, Co, Me, Re, Us>
+    | null;
 };
 
 const DefaultThreadHeader = <
@@ -225,15 +230,12 @@ const ThreadInner = <
     >
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
-        <Message
-          // @ts-expect-error
+        <Message<At, Ch, Co, Ev, Me, Re, Us>
           channel={channel}
-          // @ts-expect-error
           client={client}
           initialMessage
           // @ts-expect-error
           message={thread}
-          // @ts-expect-error
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}
@@ -241,11 +243,13 @@ const ThreadInner = <
         <div className='str-chat__thread-start'>
           {t('Start of a new thread')}
         </div>
-        <MessageList
+        <MessageList<At, Ch, Co, Ev, Me, Re, Us>
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}
+          // @ts-expect-error
           loadMore={loadMoreThread}
           Message={ThreadMessage}
+          // @ts-expect-error
           messages={threadMessages}
           read={read}
           threadList

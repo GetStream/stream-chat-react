@@ -11,14 +11,14 @@ import {
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
-import MessageCommerce from '../MessageCommerce';
+import { MessageCommerce } from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
-import MessageTextMock from '../MessageText';
+import { MessageText as MessageTextMock } from '../MessageText';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
-jest.mock('../MessageText', () => jest.fn(() => <div />));
+jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });

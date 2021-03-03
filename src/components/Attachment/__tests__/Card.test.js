@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import Card from '../Card';
+import { Card } from '../Card';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -80,6 +80,7 @@ describe('Card', () => {
             <a
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
+              rel="noopener noreferrer"
               target="_blank"
             >
               google.com
@@ -90,7 +91,7 @@ describe('Card', () => {
     `);
   });
 
-  it('should render Card with default props and title, title, og_scrape_url, image_url', () => {
+  it('should render Card with default props and title, og_scrape_url, image_url', () => {
     const tree = renderer
       .create(
         <Card
@@ -126,6 +127,7 @@ describe('Card', () => {
             <a
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
+              rel="noopener noreferrer"
               target="_blank"
             >
               google.com
@@ -136,7 +138,7 @@ describe('Card', () => {
     `);
   });
 
-  it('should render Card with default props and title, title, og_scrape_url, image_url, text', () => {
+  it('should render Card with default props and title, og_scrape_url, image_url, text', () => {
     const tree = renderer
       .create(
         <Card
@@ -178,6 +180,7 @@ describe('Card', () => {
             <a
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
+              rel="noopener noreferrer"
               target="_blank"
             >
               google.com
