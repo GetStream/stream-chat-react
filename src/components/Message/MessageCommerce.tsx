@@ -179,7 +179,7 @@ const UnMemoizedMessageCommerce = <
             </>
           )}
           {message?.attachments && Attachment && (
-            <Attachment<At>
+            <Attachment
               actionHandler={propHandleAction || handleAction}
               attachments={message.attachments}
             />
