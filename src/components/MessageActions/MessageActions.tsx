@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import MessageActionsBox from './MessageActionsBox';
+import { MessageActionsBox } from './MessageActionsBox';
 
 import {
   useDeleteHandler,
@@ -145,7 +145,7 @@ export const MessageActions = <
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
-      <MessageActionsBox
+      <MessageActionsBox<At, Ch, Co, Ev, Me, Re, Us>
         getMessageActions={getMessageActions}
         handleDelete={propHandleDelete || handleDelete}
         handleEdit={setEditingState}
