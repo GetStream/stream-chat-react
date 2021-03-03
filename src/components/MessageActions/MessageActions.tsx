@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import MessageActionsBox from './MessageActionsBox';
+
 import {
   useDeleteHandler,
   useFlagHandler,
@@ -8,14 +9,56 @@ import {
   usePinHandler,
   useUserRole,
 } from '../Message/hooks';
-import { defaultPinPermissions, isUserMuted } from '../Message/utils';
+import {
+  defaultPinPermissions,
+  isUserMuted,
+  MessageActionsArray,
+} from '../Message/utils';
 
-import { ChatContext } from '../../context';
+import { useChatContext } from '../../context/ChatContext';
 
-/**
- * @type { React.FC<import('types').MessageActionsProps> }
- */
-export const MessageActions = (props) => {
+import type { MessageUIComponentProps } from '../Message/types';
+
+import type { MessageResponse } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+export type MessageActionsProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Partial<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>> & {
+  getMessageActions: () => MessageActionsArray;
+  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  customWrapperClass?: string;
+  inline?: boolean;
+  messageWrapperRef?: React.RefObject<HTMLDivElement>;
+};
+
+export const MessageActions = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
   const {
     addNotification,
     customWrapperClass,
@@ -37,7 +80,7 @@ export const MessageActions = (props) => {
     setEditingState,
   } = props;
 
-  const { mutes } = useContext(ChatContext);
+  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -76,13 +119,13 @@ export const MessageActions = (props) => {
     if (messageWrapperRef?.current) {
       messageWrapperRef.current.addEventListener('onMouseLeave', hideOptions);
     }
-  }, [messageWrapperRef, hideOptions]);
+  }, [hideOptions, messageWrapperRef]);
 
   useEffect(() => {
     if (messageDeletedAt) {
       document.removeEventListener('click', hideOptions);
     }
-  }, [messageDeletedAt, hideOptions]);
+  }, [hideOptions, messageDeletedAt]);
 
   useEffect(() => {
     if (actionsBoxOpen) {
@@ -130,12 +173,13 @@ export const MessageActions = (props) => {
   );
 };
 
-/**
- * This is a workaround to encompass the different styles message actions can have at the moment
- * while allowing for sharing the component's stateful logic.
- * @type { React.FC<import('types').MessageActionsWrapperProps> }
- */
-const MessageActionsWrapper = (props) => {
+export type MessageActionsWrapperProps = {
+  setActionsBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  customWrapperClass?: string;
+  inline?: boolean;
+};
+
+const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
   const defaultWrapperClass =
@@ -146,9 +190,8 @@ const MessageActionsWrapper = (props) => {
       ? customWrapperClass
       : defaultWrapperClass;
 
-  /** @type {(e: React.MouseEvent) => void} Typescript syntax */
-  const onClickOptionsAction = (e) => {
-    e.stopPropagation();
+  const onClickOptionsAction = (event: React.MouseEvent) => {
+    event.stopPropagation();
     setActionsBoxOpen(true);
   };
 

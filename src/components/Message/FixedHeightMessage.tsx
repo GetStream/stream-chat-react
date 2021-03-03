@@ -74,8 +74,8 @@ const UnMemoizedFixedHeightMessage = <
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { userLanguage } = useTranslationContext();
 
-  const handleAction = useActionHandler<At, Ch, Co, Ev, Me, Re, Us>(message);
-  const role = useUserRole<At, Ch, Co, Ev, Me, Re, Us>(message);
+  const handleAction = useActionHandler(message);
+  const role = useUserRole(message);
 
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -118,7 +118,7 @@ const UnMemoizedFixedHeightMessage = <
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-        {images && <Gallery images={images} />}
+        {images && <Gallery<At> images={images} />}
         <div className='str-chat__virtual-message__text' data-testid='msg-text'>
           {renderedText}
           {message.mml && (
@@ -129,13 +129,13 @@ const UnMemoizedFixedHeightMessage = <
             />
           )}
           <div className='str-chat__virtual-message__data'>
-            <MessageActions
+            <MessageActions<At, Ch, Co, Ev, Me, Re, Us>
               customWrapperClass='str-chat__virtual-message__actions'
               getMessageActions={messageActionsHandler}
               message={message}
             />
             <span className='str-chat__virtual-message__date'>
-              <MessageTimestamp
+              <MessageTimestamp<At, Ch, Co, Me, Re, Us>
                 customClass='str-chat__message-simple-timestamp'
                 message={message}
               />
