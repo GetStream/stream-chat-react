@@ -1,20 +1,89 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { isMutableRef } from './utils/utils';
+
+import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData } from '../Channel/emojiData';
-import { ChannelContext } from '../../context';
 
-/** @type {React.ForwardRefRenderFunction<HTMLDivElement | null, import("types").ReactionSelectorProps>} */
-const ReactionSelectorWithRef = (
-  {
+import { useChannelContext } from '../../context/ChannelContext';
+
+import type { MessageResponse, ReactionResponse } from 'stream-chat';
+
+import type { MinimalEmojiInterface } from 'types';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+export type ReactionSelectorProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  /**
+   * Custom UI component to display user avatar
+   *
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
+   * */
+  Avatar?: React.ElementType<AvatarProps>;
+  /** Enable the avatar display */
+  detailedView?: boolean;
+  /**
+   * Handler to set/unset reaction on message.
+   *
+   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+   * */
+  handleReaction?: (
+    reactionType: string,
+    event?: React.BaseSyntheticEvent,
+  ) => void;
+  /**
+   * Array of latest reactions.
+   * Reaction object has following structure:
+   *
+   * ```json
+   * {
+   *  "type": "love",
+   *  "user_id": "demo_user_id",
+   *  "user": {
+   *    ...userObject
+   *  },
+   *  "created_at": "datetime";
+   * }
+   * ```
+   * */
+  latest_reactions?: ReactionResponse<Re, Us>[];
+  own_reactions?: MessageResponse<At, Ch, Co, Me, Re, Us>['own_reactions'];
+  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  reaction_counts?: { [key: string]: number };
+  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
+  reactionOptions?: MinimalEmojiInterface[];
+  reverse?: boolean;
+};
+
+const UnForwardedReactionSelectorWithRef = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: ReactionSelectorProps<Re, Us>,
+  ref: React.ForwardedRef<HTMLDivElement | null>,
+) => {
+  const {
     Avatar = DefaultAvatar,
     latest_reactions,
     reaction_counts,
@@ -22,28 +91,26 @@ const ReactionSelectorWithRef = (
     reverse = false,
     handleReaction,
     detailedView = true,
-  },
-  ref,
-) => {
-  const { emojiConfig } = useContext(ChannelContext);
+  } = props;
+
+  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
     emojiConfig || {};
 
   const emojiData = getStrippedEmojiData(fullEmojiData);
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
-  const [tooltipReactionType, setTooltipReactionType] = useState(null);
-  const [tooltipPositions, setTooltipPositions] = useState(
-    /** @type {{ tooltip: number, arrow: number } | null} */ (null),
+  const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(
+    null,
   );
-  const containerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
-  const tooltipRef = useRef(/** @type {HTMLDivElement | null} */ (null));
-  const targetRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+  const [tooltipPositions, setTooltipPositions] = useState<{
+    arrow: number;
+    tooltip: number;
+  } | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const targetRef = useRef<HTMLDivElement | null>(null);
 
-  // @ts-expect-error because it's okay for our ref to be null in the parent component.
-  useImperativeHandle(ref, () => containerRef.current);
-
-  const showTooltip = useCallback((e, reactionType) => {
+  const showTooltip = useCallback((e, reactionType: string) => {
     targetRef.current = e.target;
     setTooltipReactionType(reactionType);
   }, []);
@@ -57,7 +124,9 @@ const ReactionSelectorWithRef = (
     if (tooltipReactionType) {
       const tooltip = tooltipRef.current?.getBoundingClientRect();
       const target = targetRef.current?.getBoundingClientRect();
-      const container = containerRef.current?.getBoundingClientRect();
+      const container = isMutableRef(ref)
+        ? ref.current?.getBoundingClientRect()
+        : null;
 
       if (!tooltip || !target || !container) return;
 
@@ -72,27 +141,19 @@ const ReactionSelectorWithRef = (
         tooltip: tooltipPosition,
       });
     }
-  }, [tooltipReactionType, containerRef]);
+  }, [tooltipReactionType, ref]);
 
-  /**
-   * @param {string | null} type
-   * @returns {string[] | undefined}
-   * */
-  const getUsersPerReactionType = (type) =>
-    /** @type {string[] | undefined} */ (latest_reactions
+  const getUsersPerReactionType = (type: string | null) =>
+    latest_reactions
       ?.map((reaction) => {
         if (reaction.type === type) {
           return reaction.user?.name || reaction.user?.id;
         }
         return null;
       })
-      .filter(Boolean));
+      .filter(Boolean);
 
-  /**
-   * @param {string | null} type
-   * @returns {import("types").StreamChatReactClient['user'] | undefined}
-   * */
-  const getLatestUserForReactionType = (type) =>
+  const getLatestUserForReactionType = (type: string | null) =>
     latest_reactions?.find(
       (reaction) => reaction.type === type && !!reaction.user,
     )?.user || undefined;
@@ -103,7 +164,7 @@ const ReactionSelectorWithRef = (
         reverse ? 'str-chat__reaction-selector--reverse' : ''
       }`}
       data-testid='reaction-selector'
-      ref={containerRef}
+      ref={ref}
     >
       {!!tooltipReactionType && detailedView && (
         <div
@@ -125,7 +186,7 @@ const ReactionSelectorWithRef = (
         </div>
       )}
       <ul className='str-chat__message-reactions-list'>
-        {reactionOptions.map((reactionOption) => {
+        {reactionOptions?.map((reactionOption) => {
           const latestUser = getLatestUserForReactionType(reactionOption.id);
 
           const count = reaction_counts && reaction_counts[reactionOption.id];
@@ -163,6 +224,7 @@ const ReactionSelectorWithRef = (
                   // spriteUrl instead of imageUrl, while the implementation does
                   emoji={reactionOption}
                   {...emojiSetDef}
+                  // @ts-expect-error
                   data={emojiData}
                 />
               )}
@@ -180,44 +242,6 @@ const ReactionSelectorWithRef = (
   );
 };
 
-const ReactionSelector = React.forwardRef(ReactionSelectorWithRef);
-
-ReactionSelector.propTypes = {
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-   * */
-  Avatar: /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ (PropTypes.elementType),
-  /** Enable the avatar display */
-  detailedView: PropTypes.bool,
-  /**
-   * Handler to set/unset reaction on message.
-   *
-   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-   * */
-  handleReaction: PropTypes.func.isRequired,
-  /**
-   * Array of latest reactions.
-   * Reaction object has following structure:
-   *
-   * ```json
-   * {
-   *  "type": "love",
-   *  "user_id": "demo_user_id",
-   *  "user": {
-   *    ...userObject
-   *  },
-   *  "created_at": "datetime";
-   * }
-   * ```
-   * */
-  latest_reactions: PropTypes.array,
-  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
-  reaction_counts: PropTypes.objectOf(PropTypes.number.isRequired),
-  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions: PropTypes.array,
-  reverse: PropTypes.bool,
-};
-
-export default React.memo(ReactionSelector);
+export const ReactionSelector = React.memo(
+  React.forwardRef(UnForwardedReactionSelectorWithRef),
+) as typeof UnForwardedReactionSelectorWithRef;
