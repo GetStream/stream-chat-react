@@ -6,11 +6,6 @@ import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-/**
- * Card - Simple Card Layout
- *
- * @example ./Card.md
- */
 export type CardProps = {
   /** The url of the full sized image */
   image_url?: string;
@@ -28,6 +23,11 @@ export type CardProps = {
   type?: string;
 };
 
+/**
+ * Card - Simple Card Layout
+ *
+ * @example ./Card.md
+ */
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const {
     image_url,

@@ -137,6 +137,112 @@ export type WrapperAttachmentUIComponentProps<
   attachments: ExtendedAttachment<At>[];
 };
 
+/**
+ * Attachment - The message attachment
+ *
+ * @example ./Attachment.md
+ */
+export const Attachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: WrapperAttachmentUIComponentProps<At>,
+) => {
+  const {
+    AttachmentActions = DefaultAttachmentActions,
+    attachments,
+    Audio = DefaultAudio,
+    Card = DefaultCard,
+    File = DefaultFile,
+    Gallery = DefaultGallery,
+    Image = DefaultImage,
+    Media = ReactPlayer,
+    ...rest
+  } = props;
+
+  const gallery = {
+    images: attachments?.filter(
+      (attachment) =>
+        attachment.type === 'image' &&
+        !(attachment.og_scrape_url || attachment.title_link),
+    ),
+    type: 'gallery',
+  };
+
+  let newAttachments;
+
+  if (gallery.images?.length >= 2) {
+    newAttachments = [
+      ...attachments.filter(
+        (attachment) =>
+          !(
+            attachment.type === 'image' &&
+            !(attachment.og_scrape_url || attachment.title_link)
+          ),
+      ),
+      gallery,
+    ];
+  } else {
+    newAttachments = attachments;
+  }
+
+  const propsWithDefault = {
+    AttachmentActions,
+    Audio,
+    Card,
+    File,
+    Gallery,
+    Image,
+    Media,
+    ...rest,
+  };
+
+  return (
+    <>
+      {newAttachments?.map((attachment) => {
+        if (isGalleryAttachment(attachment)) {
+          return renderGallery({
+            ...propsWithDefault,
+            attachment,
+          });
+        }
+
+        if (isImageAttachment(attachment)) {
+          return renderImage({
+            ...propsWithDefault,
+            attachment,
+          });
+        }
+
+        if (isFileAttachment(attachment)) {
+          return renderFile({
+            ...propsWithDefault,
+            attachment,
+          });
+        }
+
+        if (isAudioAttachment(attachment)) {
+          return renderAudio({
+            ...propsWithDefault,
+            attachment,
+          });
+        }
+
+        if (isMediaAttachment(attachment)) {
+          return renderMedia({
+            ...propsWithDefault,
+            attachment,
+          });
+        }
+
+        return renderCard({
+          ...propsWithDefault,
+          attachment,
+        });
+      })}
+    </>
+  );
+};
+
 export const isGalleryAttachment = (attachment: ExtendedAttachment) =>
   attachment.type === 'gallery';
 
@@ -361,110 +467,4 @@ export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
     ),
     componentType: 'media',
   });
-};
-
-/**
- * Attachment - The message attachment
- *
- * @example ./Attachment.md
- */
-export const Attachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
-  props: WrapperAttachmentUIComponentProps<At>,
-) => {
-  const {
-    AttachmentActions = DefaultAttachmentActions,
-    attachments,
-    Audio = DefaultAudio,
-    Card = DefaultCard,
-    File = DefaultFile,
-    Gallery = DefaultGallery,
-    Image = DefaultImage,
-    Media = ReactPlayer,
-    ...rest
-  } = props;
-
-  const gallery = {
-    images: attachments.filter(
-      (attachment) =>
-        attachment.type === 'image' &&
-        !(attachment.og_scrape_url || attachment.title_link),
-    ),
-    type: 'gallery',
-  };
-
-  let newAttachments;
-
-  if (gallery.images?.length >= 2) {
-    newAttachments = [
-      ...attachments.filter(
-        (attachment) =>
-          !(
-            attachment.type === 'image' &&
-            !(attachment.og_scrape_url || attachment.title_link)
-          ),
-      ),
-      gallery,
-    ];
-  } else {
-    newAttachments = attachments;
-  }
-
-  const propsWithDefault = {
-    AttachmentActions,
-    Audio,
-    Card,
-    File,
-    Gallery,
-    Image,
-    Media,
-    ...rest,
-  };
-
-  return (
-    <>
-      {newAttachments?.map((attachment) => {
-        if (isGalleryAttachment(attachment)) {
-          return renderGallery({
-            ...propsWithDefault,
-            attachment,
-          });
-        }
-
-        if (isImageAttachment(attachment)) {
-          return renderImage({
-            ...propsWithDefault,
-            attachment,
-          });
-        }
-
-        if (isFileAttachment(attachment)) {
-          return renderFile({
-            ...propsWithDefault,
-            attachment,
-          });
-        }
-
-        if (isAudioAttachment(attachment)) {
-          return renderAudio({
-            ...propsWithDefault,
-            attachment,
-          });
-        }
-
-        if (isMediaAttachment(attachment)) {
-          return renderMedia({
-            ...propsWithDefault,
-            attachment,
-          });
-        }
-
-        return renderCard({
-          ...propsWithDefault,
-          attachment,
-        });
-      })}
-    </>
-  );
 };

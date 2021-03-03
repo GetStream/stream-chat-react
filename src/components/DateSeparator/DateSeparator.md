@@ -2,8 +2,8 @@ The date separator between messages.
 Here's what it looks like for today.
 
 ```js
-import { DateSeparator } from '../components';
-const data = require('./data');
+import { DateSeparator } from './';
+const data = require('../../docs/data.js');
 
 const date = new Date();
 <React.Fragment>
@@ -16,8 +16,8 @@ const date = new Date();
 and for a date in the past:
 
 ```js
-import { DateSeparator } from '../components';
-const data = require('./data');
+import { DateSeparator } from './';
+const data = require('../../docs/data.js');
 
 const date = new Date('December 17, 1995 03:24:00');
 <React.Fragment>
@@ -30,8 +30,8 @@ const date = new Date('December 17, 1995 03:24:00');
 and adding custom date formatting:
 
 ```js
-import { DateSeparator } from '../components';
-const data = require('./data');
+import { DateSeparator } from './';
+const data = require('../../docs/data.js');
 
 const date = new Date('December 17, 1995 03:24:00');
 
