@@ -1,15 +1,11 @@
 import React, { useRef } from 'react';
 
-import {
-  MessageDeleted as DefaultMessageDeleted,
-  MessageDeletedProps,
-} from './MessageDeleted';
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
 import {
-  ActionHandlerReturnType,
   useActionHandler,
   useOpenThreadHandler,
   useReactionClick,
@@ -18,7 +14,7 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import { DeliveredCheckIcon, PinIndicatorProps } from './icons';
+import { DeliveredCheckIcon } from './icons';
 import {
   areMessagePropsEqual,
   getReadByTooltipText,
@@ -41,17 +37,12 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
-import {
-  RetrySendMessage,
-  useChannelContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { smartRender } from '../../utils';
 
-import type { ChannelConfigWithInfo } from 'stream-chat';
-
-import type { EventHandlerReturnType, MessageProps } from '.';
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -63,94 +54,6 @@ import type {
   DefaultUserType,
   UnknownType,
 } from '../../../types/types';
-
-export type MessageUIComponentProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
-  /** If actions such as edit, delete, flag, mute are enabled on message */
-  actionsEnabled: boolean;
-  /** Function to exit edit state */
-  clearEditingState: (
-    event?: React.MouseEvent<HTMLElement, globalThis.MouseEvent> | undefined,
-  ) => void;
-  /** If the message is in edit state */
-  editing: boolean;
-  /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
-   * */
-  getMessageActions(): Array<string>;
-  /** Function to send an action in a channel */
-  handleAction: ActionHandlerReturnType;
-  /** Function to delete a message in a channel */
-  handleDelete: EventHandlerReturnType;
-  /** Function to edit a message in a channel */
-  handleEdit: EventHandlerReturnType;
-  /** Function to flag a message in a channel */
-  handleFlag: EventHandlerReturnType;
-  /** Function to mute a user in a channel */
-  handleMute: EventHandlerReturnType;
-  /** Function to open a thread on a message */
-  handleOpenThread: EventHandlerReturnType;
-  /** Function to pin a message in a channel */
-  handlePin: EventHandlerReturnType;
-  /** Function to post a reaction on a message */
-  handleReaction: (
-    reactionType: string,
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => void;
-  /** Function to retry sending a message */
-  handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
-  /** Function to toggle the edit state on a message */
-  setEditingState: EventHandlerReturnType;
-  /** Channel config object */
-  channelConfig?: ChannelConfigWithInfo<Co>;
-  /**
-   * Custom UI component to override default edit message input
-   * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
-   * */
-  EditMessageInput?: React.ComponentType<unknown>; // TODO - add React.ComponentType<MessageInputProps<generics>> when typed
-  /** Function that returns whether or not the message belongs to the current user */
-  isMyMessage?: () => boolean;
-  /**
-   * The component that will be rendered if the message has been deleted.
-   * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
-   */
-  MessageDeleted?: React.ComponentType<
-    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
-  >;
-  /** Handler function for a click event on an @mention in message */
-  onMentionsClickMessage?: EventHandlerReturnType;
-  /** Handler function for a hover event on an @mention in message */
-  onMentionsHoverMessage?: EventHandlerReturnType;
-  /** Handler function for a click event on the user that posted the message */
-  onUserClick?: EventHandlerReturnType;
-  /** Handler function for a hover event on the user that posted the message */
-  onUserHover?: EventHandlerReturnType;
-  /**
-   * Custom UI component to override default pinned message indicator
-   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.tsx)
-   * */
-  PinIndicator?: React.ComponentType<PinIndicatorProps>;
-  /**
-   * A component to display the selector that allows a user to react to a certain message
-   * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
-   */
-  ReactionSelector?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
-  /**
-   * A component to display the a message list of reactions
-   * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
-   */
-  ReactionsList?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
-  /** Whether or not the current message is in a thread */
-  threadList?: boolean;
-};
 
 /**
  * MessageSimple - UI component that renders a message and receives functionality from the Message/MessageList components
@@ -221,8 +124,8 @@ const UnMemoizedMessageSimple = <
     showDetailedReactions,
   } = useReactionClick(message, reactionSelectorRef);
 
-  const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
+  const hasReactions = messageHasReactions(message);
 
   const messageClasses = isMyMessage
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'

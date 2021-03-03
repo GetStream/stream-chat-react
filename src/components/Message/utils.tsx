@@ -10,7 +10,7 @@ import type {
 } from 'stream-chat';
 
 import type { PinPermissions } from './hooks';
-import type { MessageProps } from './Message';
+import type { MessageProps } from './types';
 
 import type {
   DefaultAttachmentType,

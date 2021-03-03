@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 import type { MessageResponse, User } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   DefaultAttachmentType,

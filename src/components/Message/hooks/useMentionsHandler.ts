@@ -3,7 +3,7 @@ import { useChannelContext } from '../../../context/ChannelContext';
 import type { MouseEvent } from 'react';
 import type { MessageResponse, UserResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   DefaultAttachmentType,

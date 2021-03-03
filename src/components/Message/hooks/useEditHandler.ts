@@ -1,6 +1,6 @@
 import { MouseEvent, useState } from 'react';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 export type EditHandlerReturnType = {
   clearEdit: (event?: React.MouseEvent<HTMLElement>) => void;

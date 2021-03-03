@@ -4,7 +4,7 @@ import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   DefaultAttachmentType,

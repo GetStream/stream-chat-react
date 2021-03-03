@@ -28,7 +28,7 @@ import {
 
 import { smartRender } from '../../utils';
 
-import type { MessageUIComponentProps } from './MessageSimple';
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,

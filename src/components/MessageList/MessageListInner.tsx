@@ -6,7 +6,7 @@ import {
   InfiniteScroll,
   InfiniteScrollProps,
 } from '../InfiniteScrollPaginator';
-import { Message, MessageProps } from '../Message';
+import { Message } from '../Message';
 
 import type {
   Channel,
@@ -15,6 +15,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { MessageProps } from '../Message/types';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator';
 
 import type {

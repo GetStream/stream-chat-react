@@ -16,7 +16,7 @@ import {
   LoadingIndicator as DefaultLoadingIndicator,
   LoadingIndicator,
 } from '../Loading';
-import { MessageProps, MessageSimple } from '../Message';
+import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
@@ -26,6 +26,8 @@ import {
   useTranslationContext,
 } from '../../context';
 import { smartRender } from '../../utils';
+
+import type { MessageProps } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -519,7 +521,6 @@ export const MessageList = <
   const translation = useTranslationContext();
 
   return (
-    //@ts-expect-error
     <MessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
       {...channelContext}
       {...props}

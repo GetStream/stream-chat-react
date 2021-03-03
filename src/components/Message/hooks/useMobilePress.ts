@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useBreakpoint } from './useBreakpoint';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 export const useMobilePress = () => {
   const [targetMessage, setTargetMessage] = useState<Element | null>(null);

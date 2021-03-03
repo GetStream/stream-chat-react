@@ -2,7 +2,7 @@ import { useChannelContext } from '../../../context/ChannelContext';
 
 import type { MessageResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   DefaultAttachmentType,

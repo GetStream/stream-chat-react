@@ -21,25 +21,11 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-export type MessageTimestampProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
-> = {
-  calendar?: boolean;
-  customClass?: string;
-  format?: string;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?: (date: Date) => string;
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-};
-
 export const defaultTimestampFormat = 'h:mmA';
+
 export const notValidDateWarning =
   'MessageTimestamp was called without a message, or message has invalid created_at date.';
+
 export const noParsingFunctionWarning =
   'MessageTimestamp was called but there is no datetime parsing function available';
 
@@ -87,6 +73,22 @@ function getDateString(
   return null;
 }
 
+export type MessageTimestampProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = {
+  calendar?: boolean;
+  customClass?: string;
+  format?: string;
+  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
+  formatDate?: (date: Date) => string;
+  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+};
+
 const UnMemoizedMessageTimestamp = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -98,11 +100,11 @@ const UnMemoizedMessageTimestamp = <
   props: MessageTimestampProps<At, Ch, Co, Me, Re, Us>,
 ) => {
   const {
-    message,
-    formatDate,
+    calendar = false,
     customClass = '',
     format = defaultTimestampFormat,
-    calendar = false,
+    formatDate,
+    message,
   } = props;
 
   const { tDateTimeParser } = useTranslationContext();

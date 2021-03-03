@@ -4,7 +4,7 @@ import { ReplyIcon } from './icons';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { EventHandlerReturnType } from './Message';
+import type { EventHandlerReturnType } from './types';
 
 export type MessageRepliesCountButtonProps = {
   labelPlural?: string;

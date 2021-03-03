@@ -19,7 +19,7 @@ import { isOnlyEmojis, renderText } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { MessageUIComponentProps } from './MessageSimple';
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -63,16 +63,16 @@ const UnMemoizedMessageTextComponent = <
   props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    ReactionsList = DefaultReactionList,
-    ReactionSelector = DefaultReactionSelector,
+    customInnerClass,
+    customOptionProps,
+    customWrapperClass,
+    message,
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-    customWrapperClass,
-    customInnerClass,
+    ReactionsList = DefaultReactionList,
+    ReactionSelector = DefaultReactionSelector,
     theme = 'simple',
-    message,
     unsafeHTML,
-    customOptionProps,
   } = props;
 
   const { t, userLanguage } = useTranslationContext();
@@ -136,12 +136,12 @@ const UnMemoizedMessageTextComponent = <
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>
-            {t && t('Error · Unsent')}
+            {t('Error · Unsent')}
           </div>
         )}
         {message.status === 'failed' && (
           <div className={`str-chat__${theme}-message--error-message`}>
-            {t && t('Message Failed · Click to try again')}
+            {t('Message Failed · Click to try again')}
           </div>
         )}
         {unsafeHTML && message.html ? (

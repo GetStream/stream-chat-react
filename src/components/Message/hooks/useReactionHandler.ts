@@ -10,7 +10,7 @@ import {
 import { useChannelContext } from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   MessageResponse,

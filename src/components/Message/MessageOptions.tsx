@@ -8,8 +8,7 @@ import { MessageActions } from '../MessageActions';
 
 import { useChannelContext } from '../../context/ChannelContext';
 
-import type { EventHandlerReturnType } from './Message';
-import type { MessageUIComponentProps } from './MessageSimple';
+import type { EventHandlerReturnType, MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,

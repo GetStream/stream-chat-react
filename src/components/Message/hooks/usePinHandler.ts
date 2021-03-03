@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageResponse, UpdatedMessage } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { EventHandlerReturnType } from '../types';
 
 import type {
   DefaultAttachmentType,

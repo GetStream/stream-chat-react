@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Message, MessageProps } from '../Message';
+import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
 import { MessageList, MessageListProps } from '../MessageList';
 
@@ -12,7 +12,7 @@ import { smartRender } from '../../utils';
 import type { TFunction } from 'i18next';
 import type { ChannelState, MessageResponse } from 'stream-chat';
 
-import type { MessageUIComponentProps } from '../Message/MessageSimple'; // TODO - add types from MessageSimple
+import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
