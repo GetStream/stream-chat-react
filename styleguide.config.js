@@ -61,7 +61,7 @@ module.exports = {
             'src/components/Attachment/Attachment.tsx',
             'src/components/Attachment/AttachmentActions.tsx',
             'src/components/Reactions/ReactionSelector.js',
-            'src/components/MessageActions/MessageActionsBox.js',
+            'src/components/MessageActions/MessageActionsBox.tsx',
           ],
           exampleMode: 'collapse',
         },

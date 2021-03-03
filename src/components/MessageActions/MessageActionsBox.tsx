@@ -1,35 +1,87 @@
-import React, { useCallback, useContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
-import { TranslationContext } from '../../context';
 
-/** @type {React.FC<import("types").MessageActionsBoxProps>} */
-const MessageActionsBox = ({
-  getMessageActions,
-  handleDelete,
-  handleEdit,
-  handleFlag,
-  handleMute,
-  handlePin,
-  isUserMuted,
-  message,
-  messageListRect,
-  mine,
-  open = false,
-}) => {
-  const { t } = useContext(TranslationContext);
+import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { MessageActionsProps } from './MessageActions';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+  UnknownType,
+} from '../../../types/types';
+
+type PropsDrilledToMessageActionsBox =
+  | 'getMessageActions'
+  | 'handleDelete'
+  | 'handleEdit'
+  | 'handleFlag'
+  | 'handleMute'
+  | 'handlePin'
+  | 'message'
+  | 'messageListRect';
+
+export type MessageActionsBoxProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Pick<
+  MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  PropsDrilledToMessageActionsBox
+> & {
+  isUserMuted: () => boolean;
+  mine: boolean;
+  open: boolean;
+};
+
+const UnMemoizedMessageActionsBox = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageActionsBoxProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    getMessageActions,
+    handleDelete,
+    handleEdit,
+    handleFlag,
+    handleMute,
+    handlePin,
+    isUserMuted,
+    message,
+    messageListRect,
+    mine,
+    open = false,
+  } = props;
+
+  const { t } = useTranslationContext();
 
   const [reverse, setReverse] = useState(false);
 
   const messageActions = getMessageActions();
 
   const checkIfReverse = useCallback(
-    (containerElement) => {
+    (containerElement: HTMLDivElement) => {
       if (!containerElement) {
         setReverse(false);
         return;
       }
+
       if (open) {
         const containerRect = containerElement.getBoundingClientRect();
 
@@ -98,55 +150,6 @@ const MessageActionsBox = ({
   );
 };
 
-MessageActionsBox.propTypes = {
-  /**
-   * Returns array of available message actions for current message.
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
-   */
-  getMessageActions: PropTypes.func.isRequired,
-  /**
-   * Handler for deleting a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleDelete: PropTypes.func,
-  /**
-   * Handler for editing a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleEdit: PropTypes.func,
-  /**
-   * Handler for flagging a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleFlag: PropTypes.func,
-  /**
-   * Handler for muting a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handleMute: PropTypes.func,
-  /**
-   * Handler for pinning a current message
-   *
-   * @param event React's MouseEventHandler event
-   * @returns void
-   * */
-  handlePin: PropTypes.func,
-  /** The [message object](https://getstream.io/chat/docs/#message_format) */
-  message: /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ (PropTypes.object),
-  /** DOMRect object for parent MessageList component */
-  messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ (PropTypes.object),
-  /** If message belongs to current user. */
-  mine: PropTypes.bool,
-  /** If the message actions box should be open or not */
-  open: PropTypes.bool,
-};
-
-export default React.memo(MessageActionsBox);
+export const MessageActionsBox = React.memo(
+  UnMemoizedMessageActionsBox,
+) as typeof UnMemoizedMessageActionsBox;

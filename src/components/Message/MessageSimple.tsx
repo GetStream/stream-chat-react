@@ -267,7 +267,7 @@ const UnMemoizedMessageSimple = <
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <MessageTimestamp<At, Ch, Co, Me, Re, Us>
+              <MessageTimestamp
                 calendar
                 customClass='str-chat__message-simple-timestamp'
                 formatDate={formatDate}
