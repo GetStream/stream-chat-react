@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageResponse, UserResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -38,7 +38,7 @@ export const useMuteHandler = <
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
-): EventHandlerReturnType => {
+): MouseEventHandler => {
   const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();

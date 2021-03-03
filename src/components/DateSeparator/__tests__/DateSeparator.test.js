@@ -5,7 +5,7 @@ import calendar from 'dayjs/plugin/calendar';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import DateSeparator from '../DateSeparator';
+import { DateSeparator } from '../DateSeparator';
 import { TranslationContext } from '../../../context';
 
 Dayjs.extend(calendar);

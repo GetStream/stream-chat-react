@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MessageResponse, UpdatedMessage } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -118,7 +118,7 @@ export const usePinHandler = <
     return false;
   };
 
-  const handlePin: EventHandlerReturnType = async (event) => {
+  const handlePin: MouseEventHandler = async (event) => {
     event.preventDefault();
 
     if (!message) return;

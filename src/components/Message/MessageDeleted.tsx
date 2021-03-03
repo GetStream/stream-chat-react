@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useUserRole } from './hooks/useUserRole';
 
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageResponse } from 'stream-chat';
 

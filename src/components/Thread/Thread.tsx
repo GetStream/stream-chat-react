@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
-import { MessageList } from '../MessageList';
+import { MessageList, MessageListProps } from '../MessageList';
 
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -12,7 +12,7 @@ import { smartRender } from '../../utils';
 import type { TFunction } from 'i18next';
 import type { ChannelState, MessageResponse } from 'stream-chat';
 
-import type { MessageUIComponentProps } from '../Message/MessageSimple'; // TODO - add types from MessageSimple
+import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -43,12 +43,12 @@ export type ThreadProps<
    * Additional props for underlying MessageList component.
    * Available props - https://getstream.github.io/stream-chat-react/#messagelist
    * */
-  additionalMessageListProps?: UnknownType; // TODO: add MessageListProps<add generics> when MessageList is typed
+  additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Additional props for underlying Message component of parent message at the top.
    * Available props - https://getstream.github.io/stream-chat-react/#message
    * */
-  additionalParentMessageProps?: UnknownType; // TODO: add MessageProps<add generics> when Message is typed
+  additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Make input focus on mounting thread */
   autoFocus?: boolean;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */

@@ -4,7 +4,7 @@ import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -48,7 +48,7 @@ export const useFlagHandler = <
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
   notifications: FlagMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
-): EventHandlerReturnType => {
+): MouseEventHandler => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

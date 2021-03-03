@@ -2,7 +2,7 @@ import { useChannelContext } from '../../../context/ChannelContext';
 
 import type { MessageResponse } from 'stream-chat';
 
-import type { EventHandlerReturnType } from '../Message';
+import type { MouseEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -25,7 +25,7 @@ export const useDeleteHandler = <
   Us extends UnknownType = DefaultUserType
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-): EventHandlerReturnType => {
+): MouseEventHandler => {
   const { client, updateMessage } = useChannelContext<
     At,
     Ch,

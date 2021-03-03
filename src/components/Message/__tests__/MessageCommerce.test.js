@@ -11,7 +11,7 @@ import {
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
-import MessageCommerce from '../MessageCommerce';
+import { MessageCommerce } from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageText as MessageTextMock } from '../MessageText';
