@@ -60,7 +60,7 @@ module.exports = {
             'src/components/Message/MessageLivestream.js',
             'src/components/Attachment/Attachment.tsx',
             'src/components/Attachment/AttachmentActions.tsx',
-            'src/components/Reactions/ReactionSelector.js',
+            'src/components/Reactions/ReactionSelector.tsx',
             'src/components/MessageActions/MessageActionsBox.tsx',
           ],
           exampleMode: 'collapse',

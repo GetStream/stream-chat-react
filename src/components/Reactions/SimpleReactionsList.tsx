@@ -61,17 +61,19 @@ const UnMemoizedSimpleReactionsList = <
     emojiSetDef,
   } = emojiConfig || {};
 
+  const [tooltipReactionType, setTooltipReactionType] = useState<
+    string | undefined
+  >(undefined);
+
   const emojiData = getStrippedEmojiData(defaultEmojiData);
-  const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(
-    null,
-  );
+
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
 
   if (!reactions || reactions.length === 0) {
     return null;
   }
 
-  const getUsersPerReactionType = (type: string | null) =>
+  const getUsersPerReactionType = (type?: string) =>
     reactions
       ?.map((reaction) => {
         if (reaction.type === type) {
@@ -101,7 +103,7 @@ const UnMemoizedSimpleReactionsList = <
     <ul
       className='str-chat__simple-reactions-list'
       data-testid='simple-reaction-list'
-      onMouseLeave={() => setTooltipReactionType(null)}
+      onMouseLeave={() => setTooltipReactionType(undefined)}
     >
       {getReactionTypes().map((reactionType, i) => {
         const emojiDefinition = getOptionForType(reactionType);
@@ -114,8 +116,6 @@ const UnMemoizedSimpleReactionsList = <
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
               {Emoji && (
                 <Emoji
-                  // emoji-mart type defs don't support spriteSheet use case
-                  // (but implementation does)
                   // @ts-expect-error
                   emoji={emojiDefinition}
                   {...emojiSetDef}
@@ -126,7 +126,6 @@ const UnMemoizedSimpleReactionsList = <
               )}
               &nbsp;
             </span>
-
             {tooltipReactionType === getOptionForType(reactionType)?.id && (
               <div className='str-chat__simple-reactions-list-tooltip'>
                 <div className='arrow' />

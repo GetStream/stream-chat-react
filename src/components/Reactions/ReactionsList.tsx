@@ -8,7 +8,7 @@ import {
   useChannelContext,
 } from '../../context/ChannelContext';
 
-import type { MessageResponse, ReactionResponse } from 'stream-chat';
+import type { ReactionResponse } from 'stream-chat';
 
 import type { MouseEventHandler } from '../Message/types';
 
@@ -24,16 +24,12 @@ import type {
 } from '../../../types/types';
 
 export type ReactionsListProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
   onClick: MouseEventHandler;
   emojiSetDef?: EmojiSetDef;
-  own_reactions?: MessageResponse<At, Ch, Co, Me, Re, Us>['own_reactions'];
+  own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
@@ -69,6 +65,7 @@ const UnMemoizedReactionsList = <
   const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
     fullEmojiData,
   ]);
+
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
 
   const getTotalReactionCount = () =>
@@ -102,8 +99,6 @@ const UnMemoizedReactionsList = <
             <li key={emojiDefinition.id}>
               {Emoji && (
                 <Emoji
-                  // emoji-mart type defs don't support spriteSheet use case
-                  // (but implementation does)
                   // @ts-expect-error
                   emoji={emojiDefinition}
                   {...emojiSetDef}

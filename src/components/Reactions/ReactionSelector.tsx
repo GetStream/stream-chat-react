@@ -7,7 +7,7 @@ import { getStrippedEmojiData } from '../Channel/emojiData';
 
 import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
 
-import type { MessageResponse, ReactionResponse } from 'stream-chat';
+import type { ReactionResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -21,10 +21,6 @@ import type {
 } from '../../../types/types';
 
 export type ReactionSelectorProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
@@ -61,7 +57,7 @@ export type ReactionSelectorProps<
    * ```
    * */
   latest_reactions?: ReactionResponse<Re, Us>[];
-  own_reactions?: MessageResponse<At, Ch, Co, Me, Re, Us>['own_reactions'];
+  own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
@@ -84,12 +80,12 @@ const UnMemoizedReactionSelector = React.forwardRef(
   ) => {
     const {
       Avatar = DefaultAvatar,
+      detailedView = true,
+      handleReaction,
       latest_reactions,
       reaction_counts,
       reactionOptions: reactionOptionsProp,
       reverse = false,
-      handleReaction,
-      detailedView = true,
     } = props;
 
     const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -103,6 +99,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
 
     const emojiData = getStrippedEmojiData(fullEmojiData);
     const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
+
     const [tooltipReactionType, setTooltipReactionType] = useState<
       string | null
     >(null);
@@ -110,8 +107,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
       arrow: number;
       tooltip: number;
     } | null>(null);
-    const tooltipRef = useRef<HTMLDivElement | null>(null);
+
     const targetRef = useRef<HTMLDivElement | null>(null);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
 
     const showTooltip = useCallback((e, reactionType: string) => {
       targetRef.current = e.target;
@@ -127,6 +125,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
       if (tooltipReactionType) {
         const tooltip = tooltipRef.current?.getBoundingClientRect();
         const target = targetRef.current?.getBoundingClientRect();
+
         const container = isMutableRef(ref)
           ? ref.current?.getBoundingClientRect()
           : null;
@@ -140,8 +139,10 @@ const UnMemoizedReactionSelector = React.forwardRef(
               target.width / 2 -
               container.left -
               tooltip.width / 2;
+
         const arrowPosition =
           target.x - tooltip.x + target.width / 2 - tooltipPosition;
+
         setTooltipPositions({
           arrow: arrowPosition,
           tooltip: tooltipPosition,
@@ -194,8 +195,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
         <ul className='str-chat__message-reactions-list'>
           {reactionOptions?.map((reactionOption) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
-
             const count = reaction_counts && reaction_counts[reactionOption.id];
+
             return (
               <li
                 className='str-chat__message-reactions-list-item'
@@ -226,15 +227,13 @@ const UnMemoizedReactionSelector = React.forwardRef(
                 )}
                 {Emoji && (
                   <Emoji
-                    // @ts-expect-error because emoji-mart types don't support specifying
-                    // spriteUrl instead of imageUrl, while the implementation does
+                    // @ts-expect-error
                     emoji={reactionOption}
                     {...emojiSetDef}
                     // @ts-expect-error
                     data={emojiData}
                   />
                 )}
-
                 {Boolean(count) && detailedView && (
                   <span className='str-chat__message-reactions-list-item__count'>
                     {count || ''}
