@@ -1,6 +1,6 @@
 // @ts-check
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 /**
  * @typedef {import('stream-chat').Channel} Channel
@@ -23,6 +23,8 @@ export const usePaginatedChannels = (
   const [offset, setOffset] = useState(0);
   const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
+
+  const filterString = useMemo(() => JSON.stringify(filters), [filters]);
 
   /**
    * @param {string} [queryType]
@@ -78,7 +80,7 @@ export const usePaginatedChannels = (
   useEffect(() => {
     queryChannels('reload');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filterString]);
 
   return {
     channels,
