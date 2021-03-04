@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-
+import { useEffect, useMemo, useState } from 'react';
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type {
@@ -49,6 +48,8 @@ export const usePaginatedChannels = <
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [offset, setOffset] = useState(0);
   const [refreshing, setRefreshing] = useState(true);
+
+  const filterString = useMemo(() => JSON.stringify(filters), [filters]);
 
   const queryChannels = async (queryType?: string) => {
     if (queryType === 'reload') {
@@ -100,7 +101,7 @@ export const usePaginatedChannels = <
 
   useEffect(() => {
     queryChannels('reload');
-  }, [filters]);
+  }, [filterString]);
 
   return {
     channels,

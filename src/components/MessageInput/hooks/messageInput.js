@@ -779,6 +779,7 @@ export default function useMessageInput(props) {
 
   return {
     ...state,
+    closeEmojiPicker,
     emojiPickerRef,
     getCommands,
     getUsers,
