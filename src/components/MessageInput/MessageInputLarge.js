@@ -118,10 +118,18 @@ const MessageInputLarge = (props) => {
             )}
 
             <div className="str-chat__emojiselect-wrapper">
-              <Tooltip>{t('Open emoji picker')}</Tooltip>
+              <Tooltip>
+                {messageInput.emojiPickerIsOpen
+                  ? t('Close emoji picker')
+                  : t('Open emoji picker')}
+              </Tooltip>
               <span
                 className="str-chat__input-emojiselect"
-                onClick={messageInput.openEmojiPicker}
+                onClick={
+                  messageInput.emojiPickerIsOpen
+                    ? messageInput.closeEmojiPicker
+                    : messageInput.openEmojiPicker
+                }
                 onKeyDown={messageInput.handleEmojiKeyDown}
                 ref={messageInput.emojiPickerRef}
                 role="button"

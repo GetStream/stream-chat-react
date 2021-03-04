@@ -50,10 +50,18 @@ const MessageInputFlat = (props) => {
             )}
 
             <div className="str-chat__emojiselect-wrapper">
-              <Tooltip>{t('Open emoji picker')}</Tooltip>
+              <Tooltip>
+                {messageInput.emojiPickerIsOpen
+                  ? t('Close emoji picker')
+                  : t('Open emoji picker')}
+              </Tooltip>
               <span
                 className="str-chat__input-flat-emojiselect"
-                onClick={messageInput.openEmojiPicker}
+                onClick={
+                  messageInput.emojiPickerIsOpen
+                    ? messageInput.closeEmojiPicker
+                    : messageInput.openEmojiPicker
+                }
                 onKeyDown={messageInput.handleEmojiKeyDown}
                 role="button"
                 tabIndex={0}
