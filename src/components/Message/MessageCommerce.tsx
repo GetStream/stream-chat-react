@@ -189,7 +189,7 @@ const UnMemoizedMessageCommerce = <
             />
           )}
           {message?.text && (
-            <MessageText<At, Ch, Co, Ev, Me, Re, Us>
+            <MessageText
               {...props}
               customInnerClass='str-chat__message-commerce-text-inner'
               customOptionProps={{
