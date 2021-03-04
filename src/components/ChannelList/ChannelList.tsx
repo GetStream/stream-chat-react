@@ -247,10 +247,15 @@ const UnMemoizedChannelList = <
   props: ChannelListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
     customActiveChannel,
+    EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
+    LoadingErrorIndicator = ChatDown,
+    LoadingIndicator = LoadingChannels,
+    List = ChannelListTeam,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -260,10 +265,13 @@ const UnMemoizedChannelList = <
     onChannelVisible,
     onMessageNew,
     onRemovedFromChannel,
-    options = {},
+    options,
+    Paginator = LoadMorePaginator,
+    Preview = ChannelPreviewLastMessage,
     setActiveChannelOnMount = true,
-    sort,
-    watchers,
+    showSidebar,
+    sort = DEFAULT_SORT,
+    watchers = {},
   } = props;
 
   const {
@@ -291,7 +299,7 @@ const UnMemoizedChannelList = <
     if (
       !channels ||
       channels.length === 0 ||
-      channels.length > (options.limit || MAX_QUERY_CHANNELS_LIMIT)
+      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
     ) {
       return;
     }
@@ -324,9 +332,7 @@ const UnMemoizedChannelList = <
   // This happens in case of event channel.updated, channel.truncated etc. Inner properties of channel is updated but
   // react renderer will only make shallow comparison and choose to not to re-render the UI.
   // By updating the dummy prop - channelUpdateCount, we can force this re-render.
-  const forceUpdate = () => {
-    setChannelUpdateCount((count) => count + 1);
-  };
+  const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
   const {
     channels,
@@ -383,18 +389,11 @@ const UnMemoizedChannelList = <
   const renderChannel = (item: Channel<At, Ch, Co, Ev, Me, Re, Us>) => {
     if (!item) return null;
 
-    const {
-      Avatar = DefaultAvatar,
-      Preview = ChannelPreviewLastMessage,
-      watchers = {},
-    } = props;
-
     const previewProps = {
       activeChannel: channel,
       Avatar,
       channel: item,
-      // To force the update of preview component upon channel update.
-      channelUpdateCount,
+      channelUpdateCount, // forces the update of preview component on channel update
       key: item.id,
       Preview,
       setActiveChannel,
@@ -404,45 +403,28 @@ const UnMemoizedChannelList = <
     return <ChannelPreview {...previewProps} />;
   };
 
-  const renderEmptyStateIndicator = () => {
-    const { EmptyStateIndicator = DefaultEmptyStateIndicator } = props;
-
-    return <EmptyStateIndicator listType='channel' />;
-  };
-
-  const renderList = () => {
-    const {
-      Avatar = DefaultAvatar,
-      List = ChannelListTeam,
-      Paginator = LoadMorePaginator,
-      showSidebar,
-      LoadingIndicator = LoadingChannels,
-      LoadingErrorIndicator = ChatDown,
-    } = props;
-
-    return (
-      <List
-        Avatar={Avatar}
-        error={status.error}
-        loading={status.loadingChannels}
-        LoadingErrorIndicator={LoadingErrorIndicator}
-        LoadingIndicator={LoadingIndicator}
-        showSidebar={showSidebar}
-      >
-        {!loadedChannels || loadedChannels.length === 0 ? (
-          renderEmptyStateIndicator()
-        ) : (
-          <Paginator
-            hasNextPage={hasNextPage}
-            loadNextPage={loadNextPage}
-            refreshing={status.refreshing}
-          >
-            {loadedChannels.map(renderChannel)}
-          </Paginator>
-        )}
-      </List>
-    );
-  };
+  const renderList = () => (
+    <List
+      Avatar={Avatar}
+      error={status.error}
+      loading={status.loadingChannels}
+      LoadingErrorIndicator={LoadingErrorIndicator}
+      LoadingIndicator={LoadingIndicator}
+      showSidebar={showSidebar}
+    >
+      {!loadedChannels || loadedChannels.length === 0 ? (
+        <EmptyStateIndicator listType='channel' />
+      ) : (
+        <Paginator
+          hasNextPage={hasNextPage}
+          loadNextPage={loadNextPage}
+          refreshing={status.refreshing}
+        >
+          {loadedChannels.map(renderChannel)}
+        </Paginator>
+      )}
+    </List>
+  );
 
   return (
     <>
