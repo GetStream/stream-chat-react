@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type {
