@@ -43,7 +43,10 @@ export type ChannelPreviewUIComponentProps<
   | ChannelPreviewCompactProps<At, Ch, Co, Ev, Me, Re, Us>
   | ChannelPreviewCountOnlyProps<At, Ch, Co, Ev, Me, Re, Us>
   | ChannelPreviewMessengerProps<At, Ch, Co, Ev, Me, Re, Us>
-  | { lastMessage?: MessageResponse<At, Ch, Co, Me, Re, Us> };
+  | {
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      lastMessage?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+    };
 
 export type ChannelPreviewProps<
   At extends UnknownType = DefaultAttachmentType,
@@ -56,13 +59,13 @@ export type ChannelPreviewProps<
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  key: string;
   /** Current selected channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   Avatar?: React.ComponentType<AvatarProps>;
   channelUpdateCount?: number;
   // Prop to trigger a re-render of the preview component after connection is recovered.
   connectionRecoveredCount?: number;
+  key?: string;
   /**
    * Available built-in options (also accepts the same props as):
    *

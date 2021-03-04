@@ -1,8 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useChatContext } from '../../context/ChatContext';
-import { smartRender } from '../../utils';
-
 import { ChannelListTeam, ChannelListTeamProps } from './ChannelListTeam';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
@@ -35,6 +32,8 @@ import {
   LoadMorePaginator,
   LoadMorePaginatorProps,
 } from '../LoadMore/LoadMorePaginator';
+
+import { useChatContext } from '../../context/ChatContext';
 
 import type {
   Channel,
@@ -349,7 +348,6 @@ const UnMemoizedChannelList = <
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  // All the event listeners
   useMessageNewListener(
     setChannels,
     lockChannelOrder,
@@ -366,7 +364,6 @@ const UnMemoizedChannelList = <
   useConnectionRecoveredListener(forceUpdate);
   useUserPresenceChangedListener(setChannels);
 
-  // If the active channel is deleted, then unset the active channel.
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (setActiveChannel && event?.cid === channel?.cid) {
@@ -383,7 +380,6 @@ const UnMemoizedChannelList = <
     };
   }, [channel]);
 
-  // renders the channel preview or item
   const renderChannel = (item: Channel<At, Ch, Co, Ev, Me, Re, Us>) => {
     if (!item) return null;
 
@@ -405,17 +401,15 @@ const UnMemoizedChannelList = <
       watchers,
     };
 
-    return smartRender(ChannelPreview, { ...previewProps });
+    return <ChannelPreview {...previewProps} />;
   };
 
-  // renders the empty state indicator (when there are no channels)
   const renderEmptyStateIndicator = () => {
     const { EmptyStateIndicator = DefaultEmptyStateIndicator } = props;
 
     return <EmptyStateIndicator listType='channel' />;
   };
 
-  // renders the list.
   const renderList = () => {
     const {
       Avatar = DefaultAvatar,
@@ -435,20 +429,23 @@ const UnMemoizedChannelList = <
         LoadingIndicator={LoadingIndicator}
         showSidebar={showSidebar}
       >
-        {!loadedChannels || loadedChannels.length === 0
-          ? renderEmptyStateIndicator()
-          : smartRender(Paginator, {
-              children: loadedChannels.map(renderChannel),
-              hasNextPage,
-              loadNextPage,
-              refreshing: status.refreshing,
-            })}
+        {!loadedChannels || loadedChannels.length === 0 ? (
+          renderEmptyStateIndicator()
+        ) : (
+          <Paginator
+            hasNextPage={hasNextPage}
+            loadNextPage={loadNextPage}
+            refreshing={status.refreshing}
+          >
+            {loadedChannels.map(renderChannel)}
+          </Paginator>
+        )}
       </List>
     );
   };
 
   return (
-    <React.Fragment>
+    <>
       <div
         className={`str-chat str-chat-channel-list ${theme} ${
           navOpen ? 'str-chat-channel-list--open' : ''
@@ -457,7 +454,7 @@ const UnMemoizedChannelList = <
       >
         {renderList()}
       </div>
-    </React.Fragment>
+    </>
   );
 };
 

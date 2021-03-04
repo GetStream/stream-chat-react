@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
@@ -25,8 +26,6 @@ import {
   ReactionSelector as DefaultReactionSelector,
   ReactionsList as DefaultReactionsList,
 } from '../Reactions';
-
-import { smartRender } from '../../utils';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -67,7 +66,7 @@ const UnMemoizedMessageCommerce = <
     handleOpenThread: propHandleOpenThread,
     handleReaction: propHandleReaction,
     message,
-    MessageDeleted,
+    MessageDeleted = DefaultMessageDeleted,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     ReactionSelector = DefaultReactionSelector,
@@ -103,7 +102,7 @@ const UnMemoizedMessageCommerce = <
   }`;
 
   if (message?.deleted_at) {
-    return smartRender(MessageDeleted, props, null);
+    return <MessageDeleted message={message} />;
   }
 
   if (message?.type === 'message.read' || message.type === 'message.date') {
