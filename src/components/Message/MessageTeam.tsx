@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
-import type { TFunction } from 'i18next';
 
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
 import {
@@ -58,18 +58,6 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-export type MessageTeamProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends DefaultUserType = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
-  t: TFunction;
-};
-
 /**
  * MessageTeam - Render component, should be used together with the Message component
  * Implements the look and feel for a team style collaboration environment
@@ -85,24 +73,37 @@ const UnMemoizedMessageTeam = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    addNotification,
     Avatar = DefaultAvatar,
+    Attachment,
     channelConfig: propChannelConfig,
     clearEditingState: propClearEdit,
     editing: propEditing,
     EditMessageInput = DefaultEditMessageForm,
     formatDate,
+    getFlagMessageErrorNotification,
+    getFlagMessageSuccessNotification,
     getMessageActions,
+    getMuteUserErrorNotification,
+    getMuteUserSuccessNotification,
     groupStyles = ['single'],
     handleAction: propHandleAction,
+    handleEdit,
+    handleFlag,
+    handleDelete,
     handleOpenThread: propHandleOpenThread,
+    handleMute,
+    handlePin,
     handleReaction: propHandleReaction,
     handleRetry: propHandleRetry,
     initialMessage,
+    lastReceivedId,
     message,
-    MessageDeleted,
+    MessageDeleted = DefaultMessageDeleted,
+    messageListRect,
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
     onUserClick: propOnUserClick,
@@ -110,8 +111,8 @@ const UnMemoizedMessageTeam = <
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
+    readBy,
     setEditingState: propSetEdit,
-    t: propT,
     threadList,
     unsafeHTML,
     updateMessage: propUpdateMessage,
@@ -126,10 +127,9 @@ const UnMemoizedMessageTeam = <
     Re,
     Us
   >();
-  const { t: contextT, userLanguage } = useTranslationContext();
+  const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
-  const t = propT || contextT;
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -183,7 +183,7 @@ const UnMemoizedMessageTeam = <
   }
 
   if (message?.deleted_at) {
-    return smartRender(MessageDeleted, props, null);
+    return smartRender(MessageDeleted as React.ComponentType, props, null);
   }
 
   if (editing) {
@@ -316,29 +316,29 @@ const UnMemoizedMessageTeam = <
                     getMessageActions &&
                     getMessageActions().length > 0 && (
                       <MessageActions
-                        addNotification={props.addNotification}
+                        addNotification={addNotification}
                         customWrapperClass={''}
                         getFlagMessageErrorNotification={
-                          props.getFlagMessageErrorNotification
+                          getFlagMessageErrorNotification
                         }
                         getFlagMessageSuccessNotification={
-                          props.getFlagMessageSuccessNotification
+                          getFlagMessageSuccessNotification
                         }
-                        getMessageActions={props.getMessageActions}
+                        getMessageActions={getMessageActions}
                         getMuteUserErrorNotification={
-                          props.getMuteUserErrorNotification
+                          getMuteUserErrorNotification
                         }
                         getMuteUserSuccessNotification={
-                          props.getMuteUserSuccessNotification
+                          getMuteUserSuccessNotification
                         }
-                        handleDelete={props.handleDelete}
-                        handleEdit={props.handleEdit}
-                        handleFlag={props.handleFlag}
-                        handleMute={props.handleMute}
-                        handlePin={props.handlePin}
+                        handleDelete={handleDelete}
+                        handleEdit={handleEdit}
+                        handleFlag={handleFlag}
+                        handleMute={handleMute}
+                        handlePin={handlePin}
                         inline
                         message={message}
-                        messageListRect={props.messageListRect}
+                        messageListRect={messageListRect}
                         messageWrapperRef={messageWrapperRef}
                         setEditingState={setEdit}
                       />
@@ -375,7 +375,7 @@ const UnMemoizedMessageTeam = <
             {message && message.text === '' && (
               <MessageTeamAttachments
                 {...props}
-                Attachment={props.Attachment}
+                Attachment={Attachment}
                 handleAction={propHandleAction || handleAction}
                 message={message}
               />
@@ -386,8 +386,7 @@ const UnMemoizedMessageTeam = <
               message.text !== '' &&
               isReactionEnabled && (
                 <ReactionsList
-                  handleReaction={() => propHandleReaction || handleReaction}
-                  // @ts-expect-error
+                  onClick={onReactionListClick}
                   own_reactions={message.own_reactions}
                   reaction_counts={message.reaction_counts || undefined}
                   reactions={message.latest_reactions}
@@ -411,15 +410,15 @@ const UnMemoizedMessageTeam = <
           <MessageTeamStatus<At, Ch, Co, Ev, Me, Re, Us>
             {...props}
             Avatar={Avatar}
-            lastReceivedId={props.lastReceivedId}
+            lastReceivedId={lastReceivedId}
             message={message}
-            readBy={props.readBy}
+            readBy={readBy}
             threadList={threadList}
           />
           {message && message.text !== '' && message.attachments && (
             <MessageTeamAttachments
               {...props}
-              Attachment={props.Attachment}
+              Attachment={Attachment}
               handleAction={propHandleAction || handleAction}
               message={message}
             />
@@ -429,8 +428,7 @@ const UnMemoizedMessageTeam = <
             message.text === '' &&
             isReactionEnabled && (
               <ReactionsList
-                handleReaction={() => propHandleReaction || handleReaction}
-                // @ts-expect-error
+                onClick={onReactionListClick}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -453,7 +451,7 @@ const MessageTeamStatus = <
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
   Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
+  Me extends DefaultMessageType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >({
@@ -462,12 +460,9 @@ const MessageTeamStatus = <
   message,
   readBy,
   threadList,
-  t: propT,
-}: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t: contextT } = useTranslationContext();
-
-  const t = propT || contextT;
+  const { t } = useTranslationContext();
 
   const { isMyMessage } = useUserRole(message);
 
@@ -498,7 +493,10 @@ const MessageTeamStatus = <
       (item) => item && client?.user && item.id !== client.user.id,
     )[0];
     return (
-      <span className='str-chat__message-team-status'>
+      <span
+        className='str-chat__message-team-status'
+        data-test-id='message-team-read-by'
+      >
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
           image={lastReadUser?.image}
@@ -549,7 +547,7 @@ const MessageTeamAttachments = <
   Attachment = DefaultAttachment,
   handleAction,
   message,
-}: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   if (message?.attachments && Attachment) {
     return (
       <Attachment
