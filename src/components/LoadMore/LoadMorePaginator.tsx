@@ -5,8 +5,6 @@ import {
   LoadMoreButtonProps,
 } from './LoadMoreButton';
 
-import { smartRender } from '../../utils';
-
 export type LoadMorePaginatorProps = {
   /** callback to load the next page */
   loadNextPage: () => void;
@@ -32,8 +30,9 @@ export const UnMemoizedLoadMorePaginator: React.FC<LoadMorePaginatorProps> = (
   return (
     <>
       {!reverse && children}
-      {hasNextPage &&
-        smartRender(LoadMoreButton, { onClick: loadNextPage, refreshing })}
+      {hasNextPage && (
+        <LoadMoreButton onClick={loadNextPage} refreshing={refreshing} />
+      )}
       {reverse && children}
     </>
   );

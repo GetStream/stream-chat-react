@@ -30,7 +30,6 @@ import {
 
 import { useChannelContext } from '../../context/ChannelContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { smartRender } from '../../utils';
 
 import type { MessageResponse, StreamChat } from 'stream-chat';
 
@@ -194,7 +193,7 @@ const VirtualizedMessageListWithoutContext = <
       }
 
       if (message.deleted_at) {
-        return smartRender(MessageDeleted, { message }, null);
+        return <MessageDeleted message={message} />;
       }
 
       return (
