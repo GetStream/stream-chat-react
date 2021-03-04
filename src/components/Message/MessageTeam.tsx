@@ -1,24 +1,8 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
+import type { TFunction } from 'i18next';
 
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { isOnlyEmojis, renderText, smartRender } from '../../utils';
-import { ChannelContext, TranslationContext } from '../../context';
-import { Attachment as DefaultAttachment } from '../Attachment';
-import type { MessageUIComponentProps } from './MessageSimple';
-import { Avatar as DefaultAvatar } from '../Avatar';
-import { MML } from '../MML';
-import type { TFunction } from 'i18next';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
-import { MessageActions } from '../MessageActions';
-import { Tooltip } from '../Tooltip';
-import { LoadingIndicator } from '../Loading';
-import {
-  ReactionSelector as DefaultReactionSelector,
-  SimpleReactionsList as DefaultReactionsList,
-} from '../Reactions';
+import { MessageTimestamp } from './MessageTimestamp';
 import {
   useActionHandler,
   useEditHandler,
@@ -30,7 +14,6 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import { areMessagePropsEqual, getReadByTooltipText } from './utils';
 import {
   PinIndicator as DefaultPinIndicator,
   DeliveredCheckIcon,
@@ -38,10 +21,31 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { MessageTimestamp } from './MessageTimestamp';
+import { areMessagePropsEqual, getReadByTooltipText } from './utils';
+
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { LoadingIndicator } from '../Loading';
+import { MessageActions } from '../MessageActions';
+import {
+  EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
+} from '../MessageInput';
+import { MML } from '../MML';
+import {
+  ReactionSelector as DefaultReactionSelector,
+  SimpleReactionsList as DefaultReactionsList,
+} from '../Reactions';
+import { Tooltip } from '../Tooltip';
 
 import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { isOnlyEmojis, renderText, smartRender } from '../../utils';
+
+import type { MessageUIComponentProps } from './types';
+
+import type { TranslationLanguages } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -61,16 +65,8 @@ export type MessageTeamProps<
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType = DefaultUserType
 > = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
-  // customInnerClass?: string;
-  // customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Me, Re, Us>>;
-  // customWrapperClass?: string;
-  // messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  // onReactionListClick?: () => void;
-  // reactionSelectorRef?: React.RefObject<HTMLDivElement>;
-  // showDetailedReactions?: boolean;
-  // theme?: string;
   t: TFunction;
 };
 
@@ -79,7 +75,6 @@ export type MessageTeamProps<
  * Implements the look and feel for a team style collaboration environment
  *
  * @example ./MessageTeam.md
- *
  */
 const UnMemoizedMessageTeam = <
   At extends UnknownType = DefaultAttachmentType,
@@ -93,32 +88,33 @@ const UnMemoizedMessageTeam = <
   props: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    message,
-    threadList,
-    formatDate,
-    initialMessage,
-    unsafeHTML,
-    getMessageActions,
     Avatar = DefaultAvatar,
-    EditMessageInput = DefaultEditMessageForm,
-    MessageDeleted,
-    PinIndicator = DefaultPinIndicator,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
-    editing: propEditing,
-    setEditingState: propSetEdit,
-    clearEditingState: propClearEdit,
-    onMentionsHoverMessage: propOnMentionsHover,
-    onMentionsClickMessage: propOnMentionsClick,
     channelConfig: propChannelConfig,
+    clearEditingState: propClearEdit,
+    editing: propEditing,
+    EditMessageInput = DefaultEditMessageForm,
+    formatDate,
+    getMessageActions,
+    groupStyles = ['single'],
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
     handleReaction: propHandleReaction,
     handleRetry: propHandleRetry,
-    updateMessage: propUpdateMessage,
+    initialMessage,
+    message,
+    MessageDeleted,
+    onMentionsClickMessage: propOnMentionsClick,
+    onMentionsHoverMessage: propOnMentionsHover,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
+    PinIndicator = DefaultPinIndicator,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
+    setEditingState: propSetEdit,
     t: propT,
+    threadList,
+    unsafeHTML,
+    updateMessage: propUpdateMessage,
   } = props;
 
   const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
@@ -130,47 +126,56 @@ const UnMemoizedMessageTeam = <
     Re,
     Us
   >();
-  const channelConfig = propChannelConfig || channel?.getConfig();
   const { t: contextT, userLanguage } = useTranslationContext();
+
+  const channelConfig = propChannelConfig || channel?.getConfig();
   const t = propT || contextT;
-  const groupStyles = props.groupStyles || ['single'];
-  const reactionSelectorRef = useRef(null);
-  const messageWrapperRef = useRef(null);
+
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+
   const {
     clearEdit: ownClearEditing,
     editing: ownEditing,
     setEdit: ownSetEditing,
   } = useEditHandler();
   const editing = propEditing || ownEditing;
+
   const setEdit = propSetEdit || ownSetEditing;
   const clearEdit = propClearEdit || ownClearEditing;
   const handleOpenThread = useOpenThreadHandler(message);
   const handleReaction = useReactionHandler(message);
   const handleAction = useActionHandler(message);
-  const retryHandler = useRetryHandler();
-
+  const retryHandler = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
   const retry = propHandleRetry || retryHandler;
+
   const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
+
   const {
     isReactionEnabled,
     onReactionListClick,
     showDetailedReactions,
   } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
+
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
+
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text`] || message?.text;
+    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message?.text;
+
   const messageMentionedUsersItem = message?.mentioned_users;
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   const messageText = useMemo(
     () => renderText(messageTextToRender, messageMentionedUsersItem),
     [messageMentionedUsersItem, messageTextToRender],
   );
+
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
   if (message?.type === 'message.read') {
@@ -241,11 +246,7 @@ const UnMemoizedMessageTeam = <
               style={{ marginRight: 0, width: 40 }}
             />
           )}
-          <MessageTimestamp
-            formatDate={formatDate}
-            message={message}
-            tDateTimeParser={props.tDateTimeParser}
-          />
+          <MessageTimestamp formatDate={formatDate} message={message} />
         </div>
         <div className='str-chat__message-team-group'>
           {message &&
@@ -365,7 +366,7 @@ const UnMemoizedMessageTeam = <
 
             {message?.mml && (
               <MML
-                actionHandler={handleAction}
+                actionHandler={() => handleAction}
                 align='left'
                 source={message.mml}
               />
@@ -373,6 +374,7 @@ const UnMemoizedMessageTeam = <
 
             {message && message.text === '' && (
               <MessageTeamAttachments
+                {...props}
                 Attachment={props.Attachment}
                 handleAction={propHandleAction || handleAction}
                 message={message}
@@ -384,7 +386,8 @@ const UnMemoizedMessageTeam = <
               message.text !== '' &&
               isReactionEnabled && (
                 <ReactionsList
-                  handleReaction={propHandleReaction || handleReaction}
+                  handleReaction={() => propHandleReaction || handleReaction}
+                  // @ts-expect-error
                   own_reactions={message.own_reactions}
                   reaction_counts={message.reaction_counts || undefined}
                   reactions={message.latest_reactions}
@@ -396,10 +399,6 @@ const UnMemoizedMessageTeam = <
                 data-testid='message-team-failed'
                 onClick={() => {
                   if (message.status === 'failed' && retry) {
-                    // FIXME: type checking fails here because in the case of a failed message,
-                    // `message` is of type Client.Message (i.e. request object)
-                    // instead of Client.MessageResponse (i.e. server response object)
-                    // @ts-expect-error
                     retry(message);
                   }
                 }}
@@ -409,16 +408,17 @@ const UnMemoizedMessageTeam = <
               </button>
             )}
           </div>
-          <MessageTeamStatus
+          <MessageTeamStatus<At, Ch, Co, Ev, Me, Re, Us>
+            {...props}
             Avatar={Avatar}
             lastReceivedId={props.lastReceivedId}
             message={message}
             readBy={props.readBy}
-            t={propT}
             threadList={threadList}
           />
           {message && message.text !== '' && message.attachments && (
             <MessageTeamAttachments
+              {...props}
               Attachment={props.Attachment}
               handleAction={propHandleAction || handleAction}
               message={message}
@@ -429,7 +429,8 @@ const UnMemoizedMessageTeam = <
             message.text === '' &&
             isReactionEnabled && (
               <ReactionsList
-                handleReaction={propHandleReaction || handleReaction}
+                handleReaction={() => propHandleReaction || handleReaction}
+                // @ts-expect-error
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -447,20 +448,29 @@ const UnMemoizedMessageTeam = <
   );
 };
 
-/** @type {(props: import('types').MessageTeamStatusProps) => React.ReactElement | null} */
-const MessageTeamStatus = (props) => {
-  const {
-    Avatar = DefaultAvatar,
-    readBy,
-    message,
-    threadList,
-    lastReceivedId,
-    t: propT,
-  } = props;
-  const { client } = useContext(ChannelContext);
-  const { t: contextT } = useContext(TranslationContext);
+const MessageTeamStatus = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>({
+  Avatar = DefaultAvatar,
+  lastReceivedId,
+  message,
+  readBy,
+  threadList,
+  t: propT,
+}: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t: contextT } = useTranslationContext();
+
   const t = propT || contextT;
+
   const { isMyMessage } = useUserRole(message);
+
   if (!isMyMessage || message?.type === 'error') {
     return null;
   }
@@ -470,6 +480,7 @@ const MessageTeamStatus = (props) => {
     readBy.length === 1 &&
     readBy[0] &&
     readBy[0].id === client.user.id;
+
   if (message && message.status === 'sending') {
     return (
       <span
@@ -526,10 +537,19 @@ const MessageTeamStatus = (props) => {
   return null;
 };
 
-/** @type {(props: import('types').MessageTeamAttachmentsProps) => React.ReactElement | null} Typescript syntax */
-const MessageTeamAttachments = (props) => {
-  const { Attachment = DefaultAttachment, message, handleAction } = props;
-
+const MessageTeamAttachments = <
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+>({
+  Attachment = DefaultAttachment,
+  handleAction,
+  message,
+}: MessageTeamProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   if (message?.attachments && Attachment) {
     return (
       <Attachment
@@ -540,155 +560,6 @@ const MessageTeamAttachments = (props) => {
   }
   return null;
 };
-
-// MessageTeamProps = {
-//   /**
-//    * The attachment UI component.
-//    * Default: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.js)
-//    * */
-//   Attachment:
-//     /** @type {PropTypes.Validator<React.ElementType<import('types').WrapperAttachmentUIComponentProps>>} */ PropTypes.elementType,
-//   /**
-//    * Custom UI component to display user avatar
-//    *
-//    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
-//    * */
-//   Avatar:
-//     /** @type {PropTypes.Validator<React.ElementType<import('types').AvatarProps>>} */ PropTypes.elementType,
-//   /** Channel config object */
-//   channelConfig:
-//     /** @type {PropTypes.Validator<import('stream-chat').ChannelConfig>} */ PropTypes.object,
-//   /** Function to exit edit state */
-//   clearEditingState: PropTypes.func,
-//   /** Client object */
-//   client:
-//     /** @type {PropTypes.Validator<import('stream-chat').StreamChat>} */ PropTypes.object,
-//   /** If the message is in edit state */
-//   editing: PropTypes.bool,
-//   /**
-//    * Custom UI component to override default edit message input
-//    *
-//    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.js)
-//    * */
-//   EditMessageInput:
-//     /** @type {PropTypes.Validator<React.FC<import("types").MessageInputProps>>} */ PropTypes.elementType,
-//   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-//   formatDate: PropTypes.func,
-//   /**
-//    * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply']
-//    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.js) component for default implementation.
-//    * */
-//   getMessageActions:
-//     /** @type {PropTypes.Validator<() => Array<string>>} */ PropTypes.func,
-//   /** Position of message in group. Possible values: top, bottom, middle, single */
-//   groupStyles: PropTypes.array,
-//   /**
-//    * @param name {string} Name of action
-//    * @param value {string} Value of action
-//    * @param event Dom event that triggered this handler
-//    */
-//   handleAction: PropTypes.func,
-//   /** Function to open thread on current message */
-//   handleOpenThread: PropTypes.func,
-//   /**
-//    * Handler for pinning a current message
-//    *
-//    * @param event React's MouseEventHandler event
-//    * @returns void
-//    * */
-//   handlePin: PropTypes.func,
-//   /**
-//    * Add or remove reaction on message
-//    *
-//    * @param type Type of reaction - 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-//    * @param event Dom event which triggered this function
-//    */
-//   handleReaction: PropTypes.func,
-//   /**
-//    * Reattempt sending a message
-//    * @param message A [message object](https://getstream.io/chat/docs/#message_format) to resent.
-//    */
-//   handleRetry: PropTypes.func,
-//   /** If its parent message in thread. */
-//   initialMessage: PropTypes.bool,
-//   /** Returns true if message belongs to current user */
-//   isMyMessage: PropTypes.func,
-//   /** The [message object](https://getstream.io/chat/docs/#message_format) */
-//   message:
-//     /** @type {PropTypes.Validator<import('stream-chat').MessageResponse>} */ PropTypes
-//       .object.isRequired,
-//   /**
-//    *
-//    * @deprecated Its not recommended to use this anymore. All the methods in this HOC are provided explicitly.
-//    *
-//    * The higher order message component, most logic is delegated to this component
-//    * @see See [Message HOC](https://getstream.github.io/stream-chat-react/#message) for example
-//    * */
-//   Message: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageUIComponentProps>>} */ PropTypes.oneOfType(
-//     [PropTypes.node, PropTypes.func, PropTypes.object],
-//   ),
-//   /**
-//    * The component that will be rendered if the message has been deleted.
-//    * All of Message's props are passed into this component.
-//    */
-//   MessageDeleted:
-//     /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ PropTypes.elementType,
-//   /** DOMRect object for parent MessageList component */
-//   messageListRect: /** @type {PropTypes.Validator<DOMRect>} */ PropTypes.object,
-//   /**
-//    * The handler for click event on @mention in message
-//    *
-//    * @param event Dom click event which triggered handler.
-//    * @param user Target user object
-//    */
-//   onMentionsClickMessage: PropTypes.func,
-//   /**
-//    * The handler for hover event on @mention in message
-//    *
-//    * @param event Dom hover event which triggered handler.
-//    * @param user Target user object
-//    */
-//   onMentionsHoverMessage: PropTypes.func,
-//   /**
-//    * The handler for click event on the user that posted the message
-//    *
-//    * @param event Dom click event which triggered handler.
-//    */
-//   onUserClick: PropTypes.func,
-//   /**
-//    * The handler for mouseOver event on the user that posted the message
-//    *
-//    * @param event Dom mouseOver event which triggered handler.
-//    */
-//   onUserHover: PropTypes.func,
-//   /**
-//    * Custom UI component to override default pinned message indicator
-//    *
-//    * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.js)
-//    * */
-//   PinIndicator:
-//     /** @type {PropTypes.Validator<React.FC<import("types").PinIndicatorProps>>} */ PropTypes.elementType,
-//   /**
-//    * A component to display the selector that allows a user to react to a certain message.
-//    */
-//   ReactionSelector:
-//     /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionSelectorProps>>} */ PropTypes.elementType,
-//   /**
-//    * A component to display the a message list of reactions.
-//    */
-//   ReactionsList:
-//     /** @type {PropTypes.Validator<React.ElementType<import('types').ReactionsListProps>>} */ PropTypes.elementType,
-//   /** If component is in thread list */
-//   threadList: PropTypes.bool,
-//   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
-//   unsafeHTML: PropTypes.bool,
-//   /**
-//    * Function to publish updates on message to channel
-//    *
-//    * @param message Updated [message object](https://getstream.io/chat/docs/#message_format)
-//    * */
-//   updateMessage: PropTypes.func,
-// };
 
 export const MessageTeam = React.memo(
   UnMemoizedMessageTeam,

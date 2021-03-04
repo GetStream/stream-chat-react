@@ -186,7 +186,7 @@ const UnMemoizedMessageCommerce = <
           )}
           {message?.mml && (
             <MML
-              actionHandler={handleAction}
+              actionHandler={() => handleAction}
               align={isMyMessage ? 'right' : 'left'}
               source={message.mml}
             />

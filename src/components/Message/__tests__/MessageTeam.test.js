@@ -17,6 +17,7 @@ import { MML as MMLMock } from '../../MML';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import Dayjs from 'dayjs';
+// import { Chat } from '../../Chat/Chat';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
