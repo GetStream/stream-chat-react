@@ -118,7 +118,7 @@ const UnMemoizedFixedHeightMessage = <
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-        {images && <Gallery<At> images={images} />}
+        {images && <Gallery images={images} />}
         <div className='str-chat__virtual-message__text' data-testid='msg-text'>
           {renderedText}
           {message.mml && (

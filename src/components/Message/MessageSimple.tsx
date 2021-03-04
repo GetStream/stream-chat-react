@@ -40,7 +40,6 @@ import { Tooltip } from '../Tooltip';
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { smartRender } from '../../utils';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -139,7 +138,7 @@ const UnMemoizedMessageSimple = <
   }
 
   if (message?.deleted_at) {
-    return smartRender(MessageDeleted, { message }, null);
+    return <MessageDeleted message={message} />;
   }
 
   return (
@@ -229,7 +228,7 @@ const UnMemoizedMessageSimple = <
               </>
             )}
             {message?.attachments && Attachment && (
-              <Attachment<At>
+              <Attachment
                 actionHandler={propHandleAction || handleAction}
                 attachments={message.attachments}
               />

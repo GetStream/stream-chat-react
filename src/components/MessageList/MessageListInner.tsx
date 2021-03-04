@@ -383,11 +383,10 @@ const UnMemoizedMessageListInner = <
       disableDateSeparator || threadList
         ? messages
         : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
-    if (HeaderComponent)
-      return insertIntro<At, Ch, Co, Me, Re, Us>(
-        messageWithDates,
-        headerPosition,
-      );
+
+    if (HeaderComponent) {
+      return insertIntro(messageWithDates, headerPosition);
+    }
 
     return messageWithDates;
   };
@@ -412,7 +411,7 @@ const UnMemoizedMessageListInner = <
   // get the readData, but only for messages submitted by the user themselves
   const readData = useMemo(
     () =>
-      getReadStates<At, Ch, Co, Me, Re, Us>(
+      getReadStates(
         enrichedMessages.filter(({ user }) => user?.id === client.userID),
         read,
       ),
@@ -469,7 +468,7 @@ const UnMemoizedMessageListInner = <
               key={message.id || message.created_at}
               onLoadCapture={onMessageLoadCaptured}
             >
-              <Message<At, Ch, Co, Ev, Me, Re, Us>
+              <Message
                 client={client}
                 groupStyles={[groupStyles]} /* TODO: convert to simple string */
                 lastReceivedId={lastReceivedId}

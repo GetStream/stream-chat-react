@@ -6,7 +6,7 @@ export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
   onClick: React.MouseEventHandler;
   /** If true, LoadingIndicator is displayed instead of button */
-  refreshing: boolean;
+  refreshing?: boolean;
 };
 
 const UnMemoizedLoadMoreButton: React.FC<LoadMoreButtonProps> = (props) => {

@@ -30,16 +30,6 @@ export type ChannelPreviewMessengerProps<
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Setter for selected channel */
-  setActiveChannel: ChatContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['setActiveChannel'];
   /** If channel of component is active (selected) channel */
   active?: boolean;
   /** Current selected channel object */
@@ -58,6 +48,16 @@ export type ChannelPreviewMessengerProps<
   latestMessage?: string;
   /** Length of latest message to truncate at */
   latestMessageLength?: number;
+  /** Setter for selected channel */
+  setActiveChannel?: ChatContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >['setActiveChannel'];
   /** Number of unread messages */
   unread?: number;
   /**

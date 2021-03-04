@@ -405,7 +405,7 @@ class MessageListWithoutContext<
           }`}
           ref={this.messageList}
         >
-          <MessageListInner<At, Ch, Co, Ev, Me, Re, Us>
+          <MessageListInner
             bottomRef={this.bottomRef}
             channel={this.props.channel}
             client={this.props.client}
@@ -522,7 +522,7 @@ export const MessageList = <
   const translation = useTranslationContext();
 
   return (
-    <MessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
+    <MessageListWithoutContext
       {...channelContext}
       {...props}
       {...translation}

@@ -38,6 +38,7 @@ export const useChannelVisibleListener = <
   ) => void,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   useEffect(() => {
     const handleEvent = async (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (customHandler && typeof customHandler === 'function') {

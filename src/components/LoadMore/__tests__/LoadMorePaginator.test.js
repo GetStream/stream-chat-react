@@ -39,7 +39,7 @@ describe('LoadMorePaginator', () => {
       .create(
         <LoadMorePaginator
           hasNextPage
-          LoadMoreButton={<div>custom load more button</div>}
+          LoadMoreButton={() => <div>custom load more button</div>}
         >
           children
         </LoadMorePaginator>,

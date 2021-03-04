@@ -78,7 +78,7 @@ export const defaultMinimalEmojis: MinimalEmoji[] = [
 ];
 
 // use this only for small lists like in ReactionSelector
-export const getStrippedEmojiData = (data: EmojiData) => ({
+export const getStrippedEmojiData = (data?: EmojiData) => ({
   ...data,
   emojis: {},
 });

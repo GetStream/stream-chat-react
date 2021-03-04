@@ -20,6 +20,8 @@ import type { MessageActionsArray } from './utils';
 import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/MessageListInner';
+import type { ReactionsListProps } from '../Reactions';
+import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
 import type { RetrySendMessage } from '../../context/ChannelContext';
 
@@ -47,15 +49,15 @@ export type MessageProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  /** The message object. */
+  /** The message object */
   message: MessageResponse<At, Ch, Co, Me, Re, Us>;
   /**
-   * Additional props for underlying MessageInput component.
+   * Additional props for underlying MessageInput component
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
    * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
-   * Function to add custom notification on message list.
+   * Function to add custom notification on message list
    * @param text Notification text to display
    * @param type Type of notification
    * */
@@ -64,7 +66,7 @@ export type MessageProps<
     type: 'success' | 'error',
   ) => void;
   /**
-   * Attachment UI component to display attachment in individual message.
+   * Attachment UI component to display attachment in individual message
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Attachment?: React.ComponentType<AttachmentProps<At>>;
@@ -124,7 +126,7 @@ export type MessageProps<
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   /**
-   * Message UI component to display a message in message list.
+   * Message UI component to display a message in message list
    * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Message?: React.ComponentType<
@@ -216,7 +218,7 @@ export type MessageUIComponentProps<
   handleReaction: (
     reactionType: string,
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => void;
+  ) => Promise<void>;
   /** Function to retry sending a message */
   handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   /** Function to toggle the edit state on a message */
@@ -231,7 +233,7 @@ export type MessageUIComponentProps<
   /** Function that returns whether or not the message belongs to the current user */
   isMyMessage?: () => boolean;
   /**
-   * The component that will be rendered if the message has been deleted.
+   * The component to be rendered if the message has been deleted
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
    */
   MessageDeleted?: React.ComponentType<
@@ -254,12 +256,14 @@ export type MessageUIComponentProps<
    * A component to display the selector that allows a user to react to a certain message
    * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
    */
-  ReactionSelector?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
+  ReactionSelector?: React.ForwardRefExoticComponent<
+    ReactionSelectorProps<Re, Us>
+  >;
   /**
    * A component to display the a message list of reactions
    * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
    */
-  ReactionsList?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
+  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   /** Whether or not the current message is in a thread */
   threadList?: boolean;
 };

@@ -30,7 +30,6 @@ import {
 
 import { useChannelContext } from '../../context/ChannelContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { smartRender } from '../../utils';
 
 import type { MessageResponse, StreamChat } from 'stream-chat';
 
@@ -174,7 +173,10 @@ const VirtualizedMessageListWithoutContext = <
   );
 
   const messageRenderer = useCallback(
-    (messageList, virtuosoIndex) => {
+    (
+      messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
+      virtuosoIndex: number,
+    ) => {
       const streamMessageIndex =
         virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
       // use custom renderer supplied by client if present and skip the rest
@@ -191,7 +193,7 @@ const VirtualizedMessageListWithoutContext = <
       }
 
       if (message.deleted_at) {
-        return smartRender(MessageDeleted, { message }, null);
+        return <MessageDeleted message={message} />;
       }
 
       return (
@@ -199,7 +201,7 @@ const VirtualizedMessageListWithoutContext = <
           groupedByUser={
             shouldGroupByUser &&
             streamMessageIndex > 0 &&
-            message.user.id === messageList[streamMessageIndex - 1].user.id
+            message.user?.id === messageList[streamMessageIndex - 1].user?.id
           }
           message={message}
         />
@@ -324,7 +326,7 @@ export function VirtualizedMessageList<
   const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
-    <VirtualizedMessageListWithoutContext<At, Ch, Co, Ev, Me, Re, Us>
+    <VirtualizedMessageListWithoutContext
       client={context.client}
       hasMore={!!context.hasMore}
       loadingMore={!!context.loadingMore}

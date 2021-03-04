@@ -169,7 +169,7 @@ const UnMemoizedMessageTextComponent = <
           />
         )}
       </div>
-      <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
+      <MessageOptions
         {...props}
         {...customOptionProps}
         onReactionListClick={onReactionListClick}

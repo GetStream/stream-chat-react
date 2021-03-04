@@ -1,32 +1,23 @@
-// @ts-check
-/* eslint-disable */
-import emojiRegex from 'emoji-regex';
-import RootReactMarkdown from 'react-markdown';
-import ReactMarkdown from 'react-markdown/with-html';
 import React from 'react';
+import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
-import { Channel, StreamChat } from 'stream-chat';
+import RootReactMarkdown, { NodeType } from 'react-markdown';
+import ReactMarkdown from 'react-markdown/with-html';
 
-/** @type {(text: string | undefined) => boolean} */
-export const isOnlyEmojis = (text) => {
+import type { UserResponse } from 'stream-chat';
+
+import type { DefaultUserType, UnknownType } from '../types/types';
+
+export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;
 
   const noEmojis = text.replace(emojiRegex(), '');
   const noSpace = noEmojis.replace(/[\s\n]/gm, '');
+
   return !noSpace;
 };
 
-/** @type {(thing: any) => boolean} */
-export const isPromise = (thing) => typeof thing?.then === 'function';
-
-/**
- * @typedef {{created_at: number}} Datelike
- * @type {(a: Datelike, b: Datelike) => number}
- **/
-export const byDate = (a, b) => a.created_at - b.created_at;
-
-/** @type {import('react-markdown').NodeType[]} */
-const allowedMarkups = [
+const allowedMarkups: NodeType[] = [
   'html',
   // @ts-expect-error
   'root',
@@ -44,11 +35,10 @@ const allowedMarkups = [
   'delete',
 ];
 
-/** @type {(message: string) => (string|null)[]} */
-const matchMarkdownLinks = (message) => {
-  const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm;
+const matchMarkdownLinks = (message: string) => {
+  const regexMdLinks = /\[([^[]+)\](\(.*\))/gm;
   const matches = message.match(regexMdLinks);
-  const singleMatch = /\[([^\[]+)\]\((.*)\)/;
+  const singleMatch = /\[([^[]+)\]\((.*)\)/;
 
   const links = matches
     ? matches.map((match) => {
@@ -56,27 +46,31 @@ const matchMarkdownLinks = (message) => {
         return i && i[2];
       })
     : [];
+
   return links;
 };
 
-/** @type {(message: string) => (string|null)[]} */
-const messageCodeBlocks = (message) => {
+const messageCodeBlocks = (message: string) => {
   const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
   const matches = message.match(codeRegex);
   return matches || [];
 };
 
-/** @type {(input: string, length: number) => string} */
-export const truncate = (input, length, end = '...') => {
+export const truncate = (input: string, length: number, end = '...') => {
   if (input.length > length) {
     return `${input.substring(0, length - end.length)}${end}`;
   }
   return input;
 };
 
+type MarkDownRenderers = {
+  children: React.ReactElement;
+  href?: string;
+};
+
 const markDownRenderers = {
-  /** @param {{ href: string | undefined; children: React.ReactElement; }} props   */
-  link: (props) => {
+  // eslint-disable-next-line react/display-name
+  link: (props: MarkDownRenderers) => {
     if (
       !props.href ||
       (!props.href.startsWith('http') && !props.href.startsWith('mailto:'))
@@ -85,26 +79,28 @@ const markDownRenderers = {
     }
 
     return (
-      <a href={props.href} target='_blank' rel='nofollow noreferrer noopener'>
+      <a href={props.href} rel='nofollow noreferrer noopener' target='_blank'>
         {props.children}
       </a>
     );
   },
 };
 
-/** @type {(input: string | undefined, mentioned_users: import('stream-chat').UserResponse[] | undefined) => React.ReactNode} */
-export const renderText = (text, mentioned_users) => {
+export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  text?: string,
+  mentioned_users?: UserResponse<Us>[],
+) => {
   // take the @ mentions and turn them into markdown?
   // translate links
   if (!text) return null;
 
   let newText = text;
-  let markdownLinks = matchMarkdownLinks(newText);
-  let codeBlocks = messageCodeBlocks(newText);
+  const markdownLinks = matchMarkdownLinks(newText);
+  const codeBlocks = messageCodeBlocks(newText);
   const detectHttp = /(http(s?):\/\/)?(www\.)?/;
 
   // extract all valid links/emails within text and replace it with proper markup
-  linkify.find(newText).forEach(({ type, href, value }) => {
+  linkify.find(newText).forEach(({ href, type, value }) => {
     const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
 
     // check if message is already  markdown
@@ -132,32 +128,38 @@ export const renderText = (text, mentioned_users) => {
   if (mentioned_users && mentioned_users.length) {
     for (let i = 0; i < mentioned_users.length; i++) {
       let username = mentioned_users[i].name || mentioned_users[i].id;
+
       if (username) {
         username = escapeRegExp(username);
       }
-      const mkdown = `**@${username}**`;
-      const re = new RegExp(`@${username}`, 'g');
-      newText = newText.replace(re, mkdown);
+
+      const nameMarkdown = `**@${username}**`;
+      const nameRegex = new RegExp(`@${username}`, 'g');
+
+      newText = newText.replace(nameRegex, nameMarkdown);
     }
   }
 
   return (
     <ReactMarkdown
       allowedTypes={allowedMarkups}
-      source={newText}
-      renderers={markDownRenderers}
       escapeHtml={true}
-      unwrapDisallowed={true}
+      renderers={markDownRenderers}
+      source={newText}
       transformLinkUri={(uri) =>
         uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
       }
+      unwrapDisallowed={true}
     />
   );
 };
 
-/** @param { string } text */
-function escapeRegExp(text) {
+function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
+}
+
+function S4() {
+  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
 
 // https://stackoverflow.com/a/6860916/2570866
@@ -166,23 +168,22 @@ export function generateRandomId() {
   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
 
-function S4() {
-  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-}
-
-// @ts-expect-error
-export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
-  if (ElementOrComponentOrLiteral === undefined) {
+export const smartRender = (
+  ElementOrComponentOrLiteral: React.ComponentType,
+  props?: UnknownType,
+  fallback?: React.ComponentType | null,
+) => {
+  if (ElementOrComponentOrLiteral === undefined && fallback) {
     ElementOrComponentOrLiteral = fallback;
   }
+
   if (React.isValidElement(ElementOrComponentOrLiteral)) {
     // Flow cast through any, to make flow believe it's a React.Element
-    const element = ElementOrComponentOrLiteral; // eslint-disable-line
+    const element = ElementOrComponentOrLiteral;
     return element;
   }
 
   // Flow cast through any to remove React.Element after previous check
-  /** @type {React.Component} */
   const ComponentOrLiteral = ElementOrComponentOrLiteral;
 
   if (
@@ -193,30 +194,6 @@ export const smartRender = (ElementOrComponentOrLiteral, props, fallback) => {
   ) {
     return ComponentOrLiteral;
   }
-  // @ts-expect-error
+
   return <ComponentOrLiteral {...props} />;
-};
-
-/**
- * @type { import('prop-types').Validator<any> }
- **/
-export const checkChannelPropType = (propValue, _, componentName) => {
-  if (propValue?.constructor?.name !== Channel.name) {
-    return Error(
-      `Failed prop type: Invalid prop \`channel\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${Channel.name}\`.`,
-    );
-  }
-  return null;
-};
-
-/**
- * @type { import('prop-types').Validator<any> }
- **/
-export const checkClientPropType = (propValue, _, componentName) => {
-  if (propValue?.constructor?.name !== StreamChat.name) {
-    return Error(
-      `Failed prop type: Invalid prop \`client\` of type \`${propValue.constructor.name}\` supplied to \`${componentName}\`, expected instance of \`${StreamChat.name}\`.`,
-    );
-  }
-  return null;
 };
