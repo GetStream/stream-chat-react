@@ -797,6 +797,7 @@ export default function useMessageInput(props) {
     handleChange,
     onPaste,
     onSelectItem,
+    closeEmojiPicker,
     openEmojiPicker,
     handleEmojiKeyDown,
   };
