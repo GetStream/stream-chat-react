@@ -5,7 +5,7 @@ import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-e
 import { emojiMockConfig, generateReaction, generateUser } from 'mock-builders';
 import { ChannelContext } from '../../../context';
 import { defaultMinimalEmojis } from '../../Channel/emojiData';
-import ReactionSelector from '../ReactionSelector';
+import { ReactionSelector } from '../ReactionSelector';
 import { Avatar as AvatarMock } from '../../Avatar';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
@@ -155,6 +155,6 @@ describe('ReactionSelector', () => {
 
     fireEvent.click(emoji);
 
-    expect(handleReactionMock).toHaveBeenCalledWith('love');
+    expect(handleReactionMock).toHaveBeenCalledWith('love', expect.any(Object));
   });
 });

@@ -20,6 +20,8 @@ import type { MessageActionsArray } from './utils';
 import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/MessageListInner';
+import type { ReactionsListProps } from '../Reactions';
+import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
 import type { RetrySendMessage } from '../../context/ChannelContext';
 
@@ -216,7 +218,7 @@ export type MessageUIComponentProps<
   handleReaction: (
     reactionType: string,
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => void;
+  ) => Promise<void>;
   /** Function to retry sending a message */
   handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   /** Function to toggle the edit state on a message */
@@ -254,12 +256,14 @@ export type MessageUIComponentProps<
    * A component to display the selector that allows a user to react to a certain message
    * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
    */
-  ReactionSelector?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
+  ReactionSelector?: React.ForwardRefExoticComponent<
+    ReactionSelectorProps<Re, Us>
+  >;
   /**
    * A component to display the a message list of reactions
    * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
    */
-  ReactionsList?: React.ComponentType<unknown>; // TODO - add generic when Reactions types
+  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   /** Whether or not the current message is in a thread */
   threadList?: boolean;
 };

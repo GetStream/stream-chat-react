@@ -59,11 +59,9 @@ const UnMemoizedMessageCommerce = <
   >,
 ) => {
   const {
-    actionsEnabled,
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     formatDate,
-    getMessageActions,
     groupStyles,
     handleAction: propHandleAction,
     handleOpenThread: propHandleOpenThread,
@@ -193,7 +191,7 @@ const UnMemoizedMessageCommerce = <
           )}
           {message?.text && (
             <MessageText<At, Ch, Co, Ev, Me, Re, Us>
-              actionsEnabled={actionsEnabled}
+              {...props}
               customInnerClass='str-chat__message-commerce-text-inner'
               customOptionProps={{
                 displayActions: false,
@@ -202,17 +200,7 @@ const UnMemoizedMessageCommerce = <
                 theme: 'commerce',
               }}
               customWrapperClass='str-chat__message-commerce-text'
-              getMessageActions={getMessageActions}
-              message={message}
-              messageListRect={props.messageListRect}
-              onMentionsClickMessage={props.onMentionsClickMessage}
-              onMentionsHoverMessage={props.onMentionsHoverMessage}
-              // @ts-expect-error
-              ReactionSelector={ReactionSelector}
-              // @ts-expect-error
-              ReactionsList={ReactionsList}
               theme='commerce'
-              unsafeHTML={props.unsafeHTML}
             />
           )}
           {!threadList && (

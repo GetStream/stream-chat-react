@@ -3,7 +3,7 @@ import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { emojiMockConfig, generateReaction } from 'mock-builders';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import SimpleReactionsList from '../SimpleReactionsList';
+import { SimpleReactionsList } from '../SimpleReactionsList';
 import { ChannelContext } from '../../../context';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
