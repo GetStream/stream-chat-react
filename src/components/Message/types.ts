@@ -216,7 +216,7 @@ export type MessageUIComponentProps<
   handleReaction: (
     reactionType: string,
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => void;
+  ) => Promise<void>;
   /** Function to retry sending a message */
   handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
   /** Function to toggle the edit state on a message */

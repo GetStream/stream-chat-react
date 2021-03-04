@@ -151,7 +151,6 @@ const UnMemoizedMessageTextComponent = <
         )}
         {hasReactions && !showDetailedReactions && isReactionEnabled && (
           <ReactionsList
-            // @ts-expect-error
             onClick={onReactionListClick}
             own_reactions={message.own_reactions}
             reaction_counts={message.reaction_counts || undefined}
@@ -162,7 +161,6 @@ const UnMemoizedMessageTextComponent = <
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             detailedView
-            // @ts-expect-error
             handleReaction={handleReaction}
             latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}

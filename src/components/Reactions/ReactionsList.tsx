@@ -2,11 +2,15 @@ import React, { useMemo } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { EmojiSetDef, useChannelContext } from '../../context/ChannelContext';
+import {
+  EmojiSetDef,
+  MinimalEmoji,
+  useChannelContext,
+} from '../../context/ChannelContext';
 
 import type { MessageResponse, ReactionResponse } from 'stream-chat';
 
-import type { MinimalEmojiInterface } from 'types';
+import type { MouseEventHandler } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -27,13 +31,13 @@ export type ReactionsListProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  onClick: () => void;
+  onClick: MouseEventHandler;
   emojiSetDef?: EmojiSetDef;
   own_reactions?: MessageResponse<At, Ch, Co, Me, Re, Us>['own_reactions'];
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface[];
+  reactionOptions?: MinimalEmoji[];
   reactions?: ReactionResponse<Re, Us>[];
   reverse?: boolean;
 };

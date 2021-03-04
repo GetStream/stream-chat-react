@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
 
 import type { ReactionResponse } from 'stream-chat';
-
-import type { MinimalEmojiInterface } from 'types';
 
 import type {
   DefaultAttachmentType,
@@ -32,7 +30,7 @@ export type SimpleReactionsListProps<
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface[];
+  reactionOptions?: MinimalEmoji[];
   reactions?: ReactionResponse<Re, Us>[];
 };
 

@@ -155,6 +155,6 @@ describe('ReactionSelector', () => {
 
     fireEvent.click(emoji);
 
-    expect(handleReactionMock).toHaveBeenCalledWith('love');
+    expect(handleReactionMock).toHaveBeenCalledWith('love', expect.any(Object));
   });
 });

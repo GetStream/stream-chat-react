@@ -5,11 +5,9 @@ import { isMutableRef } from './utils/utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
 
 import type { MessageResponse, ReactionResponse } from 'stream-chat';
-
-import type { MinimalEmojiInterface } from 'types';
 
 import type {
   DefaultAttachmentType,
@@ -45,8 +43,8 @@ export type ReactionSelectorProps<
    * */
   handleReaction?: (
     reactionType: string,
-    event?: React.BaseSyntheticEvent,
-  ) => void;
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+  ) => Promise<void>;
   /**
    * Array of latest reactions.
    * Reaction object has following structure:
@@ -67,181 +65,190 @@ export type ReactionSelectorProps<
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmojiInterface[];
+  reactionOptions?: MinimalEmoji[];
   reverse?: boolean;
 };
 
-const UnForwardedReactionSelectorWithRef = <
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: ReactionSelectorProps<Re, Us>,
-  ref: React.ForwardedRef<HTMLDivElement | null>,
-) => {
-  const {
-    Avatar = DefaultAvatar,
-    latest_reactions,
-    reaction_counts,
-    reactionOptions: reactionOptionsProp,
-    reverse = false,
-    handleReaction,
-    detailedView = true,
-  } = props;
+const UnMemoizedReactionSelector = React.forwardRef(
+  <
+    At extends UnknownType = DefaultAttachmentType,
+    Ch extends UnknownType = DefaultChannelType,
+    Co extends string = DefaultCommandType,
+    Ev extends UnknownType = DefaultEventType,
+    Me extends UnknownType = DefaultMessageType,
+    Re extends UnknownType = DefaultReactionType,
+    Us extends DefaultUserType<Us> = DefaultUserType
+  >(
+    props: ReactionSelectorProps<Re, Us>,
+    ref: React.ForwardedRef<HTMLDivElement | null>,
+  ) => {
+    const {
+      Avatar = DefaultAvatar,
+      latest_reactions,
+      reaction_counts,
+      reactionOptions: reactionOptionsProp,
+      reverse = false,
+      handleReaction,
+      detailedView = true,
+    } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
-    emojiConfig || {};
+    const {
+      defaultMinimalEmojis,
+      Emoji,
+      emojiData: fullEmojiData,
+      emojiSetDef,
+    } = emojiConfig || {};
 
-  const emojiData = getStrippedEmojiData(fullEmojiData);
-  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
-  const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(
-    null,
-  );
-  const [tooltipPositions, setTooltipPositions] = useState<{
-    arrow: number;
-    tooltip: number;
-  } | null>(null);
-  const tooltipRef = useRef<HTMLDivElement | null>(null);
-  const targetRef = useRef<HTMLDivElement | null>(null);
+    const emojiData = getStrippedEmojiData(fullEmojiData);
+    const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
+    const [tooltipReactionType, setTooltipReactionType] = useState<
+      string | null
+    >(null);
+    const [tooltipPositions, setTooltipPositions] = useState<{
+      arrow: number;
+      tooltip: number;
+    } | null>(null);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
+    const targetRef = useRef<HTMLDivElement | null>(null);
 
-  const showTooltip = useCallback((e, reactionType: string) => {
-    targetRef.current = e.target;
-    setTooltipReactionType(reactionType);
-  }, []);
+    const showTooltip = useCallback((e, reactionType: string) => {
+      targetRef.current = e.target;
+      setTooltipReactionType(reactionType);
+    }, []);
 
-  const hideTooltip = useCallback(() => {
-    setTooltipReactionType(null);
-    setTooltipPositions(null);
-  }, []);
+    const hideTooltip = useCallback(() => {
+      setTooltipReactionType(null);
+      setTooltipPositions(null);
+    }, []);
 
-  useEffect(() => {
-    if (tooltipReactionType) {
-      const tooltip = tooltipRef.current?.getBoundingClientRect();
-      const target = targetRef.current?.getBoundingClientRect();
-      const container = isMutableRef(ref)
-        ? ref.current?.getBoundingClientRect()
-        : null;
+    useEffect(() => {
+      if (tooltipReactionType) {
+        const tooltip = tooltipRef.current?.getBoundingClientRect();
+        const target = targetRef.current?.getBoundingClientRect();
+        const container = isMutableRef(ref)
+          ? ref.current?.getBoundingClientRect()
+          : null;
 
-      if (!tooltip || !target || !container) return;
+        if (!tooltip || !target || !container) return;
 
-      const tooltipPosition =
-        tooltip.width === container.width || tooltip.x < container.x
-          ? 0
-          : target.left + target.width / 2 - container.left - tooltip.width / 2;
-      const arrowPosition =
-        target.x - tooltip.x + target.width / 2 - tooltipPosition;
-      setTooltipPositions({
-        arrow: arrowPosition,
-        tooltip: tooltipPosition,
-      });
-    }
-  }, [tooltipReactionType, ref]);
+        const tooltipPosition =
+          tooltip.width === container.width || tooltip.x < container.x
+            ? 0
+            : target.left +
+              target.width / 2 -
+              container.left -
+              tooltip.width / 2;
+        const arrowPosition =
+          target.x - tooltip.x + target.width / 2 - tooltipPosition;
+        setTooltipPositions({
+          arrow: arrowPosition,
+          tooltip: tooltipPosition,
+        });
+      }
+    }, [tooltipReactionType, ref]);
 
-  const getUsersPerReactionType = (type: string | null) =>
-    latest_reactions
-      ?.map((reaction) => {
-        if (reaction.type === type) {
-          return reaction.user?.name || reaction.user?.id;
-        }
-        return null;
-      })
-      .filter(Boolean);
+    const getUsersPerReactionType = (type: string | null) =>
+      latest_reactions
+        ?.map((reaction) => {
+          if (reaction.type === type) {
+            return reaction.user?.name || reaction.user?.id;
+          }
+          return null;
+        })
+        .filter(Boolean);
 
-  const getLatestUserForReactionType = (type: string | null) =>
-    latest_reactions?.find(
-      (reaction) => reaction.type === type && !!reaction.user,
-    )?.user || undefined;
+    const getLatestUserForReactionType = (type: string | null) =>
+      latest_reactions?.find(
+        (reaction) => reaction.type === type && !!reaction.user,
+      )?.user || undefined;
 
-  return (
-    <div
-      className={`str-chat__reaction-selector ${
-        reverse ? 'str-chat__reaction-selector--reverse' : ''
-      }`}
-      data-testid='reaction-selector'
-      ref={ref}
-    >
-      {!!tooltipReactionType && detailedView && (
-        <div
-          className='str-chat__reaction-selector-tooltip'
-          ref={tooltipRef}
-          style={{
-            left: tooltipPositions?.tooltip,
-            visibility: tooltipPositions ? 'visible' : 'hidden',
-          }}
-        >
-          <div className='arrow' style={{ left: tooltipPositions?.arrow }} />
-          {getUsersPerReactionType(tooltipReactionType)?.map(
-            (user, i, users) => (
-              <span className='latest-user-username' key={`key-${i}-${user}`}>
-                {`${user}${i < users.length - 1 ? ', ' : ''}`}
-              </span>
-            ),
-          )}
-        </div>
-      )}
-      <ul className='str-chat__message-reactions-list'>
-        {reactionOptions?.map((reactionOption) => {
-          const latestUser = getLatestUserForReactionType(reactionOption.id);
-
-          const count = reaction_counts && reaction_counts[reactionOption.id];
-          return (
-            <li
-              className='str-chat__message-reactions-list-item'
-              data-text={reactionOption.id}
-              key={`item-${reactionOption.id}`}
-              onClick={() =>
-                handleReaction && handleReaction(reactionOption.id)
-              }
-            >
-              {!!count && detailedView && (
-                <React.Fragment>
-                  <div
-                    className='latest-user'
-                    onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
-                    onMouseLeave={hideTooltip}
-                  >
-                    {latestUser ? (
-                      <Avatar
-                        image={latestUser.image}
-                        name={latestUser.name}
-                        size={20}
-                      />
-                    ) : (
-                      <div className='latest-user-not-found' />
-                    )}
-                  </div>
-                </React.Fragment>
-              )}
-              {Emoji && (
-                <Emoji
-                  // @ts-expect-error because emoji-mart types don't support specifying
-                  // spriteUrl instead of imageUrl, while the implementation does
-                  emoji={reactionOption}
-                  {...emojiSetDef}
-                  // @ts-expect-error
-                  data={emojiData}
-                />
-              )}
-
-              {Boolean(count) && detailedView && (
-                <span className='str-chat__message-reactions-list-item__count'>
-                  {count || ''}
+    return (
+      <div
+        className={`str-chat__reaction-selector ${
+          reverse ? 'str-chat__reaction-selector--reverse' : ''
+        }`}
+        data-testid='reaction-selector'
+        ref={ref}
+      >
+        {!!tooltipReactionType && detailedView && (
+          <div
+            className='str-chat__reaction-selector-tooltip'
+            ref={tooltipRef}
+            style={{
+              left: tooltipPositions?.tooltip,
+              visibility: tooltipPositions ? 'visible' : 'hidden',
+            }}
+          >
+            <div className='arrow' style={{ left: tooltipPositions?.arrow }} />
+            {getUsersPerReactionType(tooltipReactionType)?.map(
+              (user, i, users) => (
+                <span className='latest-user-username' key={`key-${i}-${user}`}>
+                  {`${user}${i < users.length - 1 ? ', ' : ''}`}
                 </span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
+              ),
+            )}
+          </div>
+        )}
+        <ul className='str-chat__message-reactions-list'>
+          {reactionOptions?.map((reactionOption) => {
+            const latestUser = getLatestUserForReactionType(reactionOption.id);
+
+            const count = reaction_counts && reaction_counts[reactionOption.id];
+            return (
+              <li
+                className='str-chat__message-reactions-list-item'
+                data-text={reactionOption.id}
+                key={`item-${reactionOption.id}`}
+                onClick={(event) =>
+                  handleReaction && handleReaction(reactionOption.id, event)
+                }
+              >
+                {!!count && detailedView && (
+                  <React.Fragment>
+                    <div
+                      className='latest-user'
+                      onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
+                      onMouseLeave={hideTooltip}
+                    >
+                      {latestUser ? (
+                        <Avatar
+                          image={latestUser.image}
+                          name={latestUser.name}
+                          size={20}
+                        />
+                      ) : (
+                        <div className='latest-user-not-found' />
+                      )}
+                    </div>
+                  </React.Fragment>
+                )}
+                {Emoji && (
+                  <Emoji
+                    // @ts-expect-error because emoji-mart types don't support specifying
+                    // spriteUrl instead of imageUrl, while the implementation does
+                    emoji={reactionOption}
+                    {...emojiSetDef}
+                    // @ts-expect-error
+                    data={emojiData}
+                  />
+                )}
+
+                {Boolean(count) && detailedView && (
+                  <span className='str-chat__message-reactions-list-item__count'>
+                    {count || ''}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  },
+);
 
 export const ReactionSelector = React.memo(
-  React.forwardRef(UnForwardedReactionSelectorWithRef),
-) as typeof UnForwardedReactionSelectorWithRef;
+  UnMemoizedReactionSelector,
+) as typeof UnMemoizedReactionSelector;
