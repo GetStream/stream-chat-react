@@ -142,6 +142,7 @@ const ReactionSelectorWithRef = (
                 <React.Fragment>
                   <div
                     className="latest-user"
+                    onClick={hideTooltip}
                     onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
                     onMouseLeave={hideTooltip}
                   >
