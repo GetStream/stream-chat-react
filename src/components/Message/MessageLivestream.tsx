@@ -203,7 +203,7 @@ const UnMemoizedMessageLivestream = <
   }
 
   return (
-    <React.Fragment>
+    <>
       {message?.pinned && (
         <div className='str-chat__message-livestream-pin-indicator'>
           <PinIndicator message={message} t={t} />
@@ -324,7 +324,7 @@ const UnMemoizedMessageLivestream = <
           </div>
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
