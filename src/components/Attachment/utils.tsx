@@ -6,6 +6,8 @@ import type {
   InnerAttachmentUIComponentProps,
 } from './Attachment';
 
+import type { DefaultAttachmentType } from '../../../types/types';
+
 export const SUPPORTED_VIDEO_FORMATS = [
   'video/mp4',
   'video/ogg',
@@ -13,24 +15,42 @@ export const SUPPORTED_VIDEO_FORMATS = [
   'video/quicktime',
 ];
 
-export const isAudioAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'audio';
+export const isAudioAttachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  attachment: ExtendedAttachment<At>,
+) => attachment.type === 'audio';
 
-export const isFileAttachment = (attachment: ExtendedAttachment) =>
+export const isFileAttachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  attachment: ExtendedAttachment<At>,
+) =>
   attachment.type === 'file' ||
   (attachment.mime_type &&
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
     attachment.type !== 'video');
 
-export const isGalleryAttachment = (attachment: ExtendedAttachment) =>
-  attachment.type === 'gallery';
+export const isGalleryAttachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  attachment: ExtendedAttachment<At>,
+) => attachment.type === 'gallery';
 
-export const isImageAttachment = (attachment: ExtendedAttachment) =>
+export const isImageAttachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  attachment: ExtendedAttachment<At>,
+) =>
   attachment.type === 'image' &&
   !attachment.title_link &&
   !attachment.og_scrape_url;
 
-export const isMediaAttachment = (attachment: ExtendedAttachment) =>
+export const isMediaAttachment = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  attachment: ExtendedAttachment<At>,
+) =>
   (attachment.mime_type &&
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
