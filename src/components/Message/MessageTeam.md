@@ -1,9 +1,10 @@
 MessageTeam handles the rendering of a message and depends on the Message component for all the logic.
 
 ```js
-import { Message, MessageTeam } from '../components';
+import { Message } from './Message';
+import { MessageTeam } from './MessageTeam';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 const readBy = [
   {

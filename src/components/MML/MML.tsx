@@ -3,13 +3,13 @@ import { MML as MMLReact } from 'mml-react';
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type { UnknownType } from '../../../types/types';
+import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 export type MMLProps = {
   /** mml source string */
   source: string;
   /** submit handler for mml actions */
-  actionHandler?: (data: Record<string, UnknownType>) => void;
+  actionHandler?: ActionHandlerReturnType;
   /** align mml components to left/right and default is right */
   align?: 'left' | 'right';
 };

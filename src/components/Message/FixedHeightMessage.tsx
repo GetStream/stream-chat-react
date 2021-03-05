@@ -123,7 +123,7 @@ const UnMemoizedFixedHeightMessage = <
           {renderedText}
           {message.mml && (
             <MML
-              actionHandler={() => handleAction}
+              actionHandler={handleAction}
               align='left'
               source={message.mml}
             />

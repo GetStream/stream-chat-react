@@ -34,18 +34,18 @@ import {
 import { MML } from '../MML';
 import {
   ReactionSelector as DefaultReactionSelector,
-  SimpleReactionsList as DefaultReactionsList,
+  ReactionsList as DefaultReactionsList,
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { isOnlyEmojis, renderText, smartRender } from '../../utils';
-
-import type { MessageUIComponentProps } from './types';
+import { isOnlyEmojis, renderText } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
+
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -183,7 +183,7 @@ const UnMemoizedMessageTeam = <
   }
 
   if (message?.deleted_at) {
-    return smartRender(MessageDeleted as React.ComponentType, props, null);
+    return <MessageDeleted message={message} />;
   }
 
   if (editing) {
@@ -293,7 +293,6 @@ const UnMemoizedMessageTeam = <
                       ref={reactionSelectorRef}
                     />
                   )}
-
                   {isReactionEnabled && (
                     <span
                       data-testid='message-team-reaction-icon'
@@ -312,37 +311,35 @@ const UnMemoizedMessageTeam = <
                       <ThreadIcon />
                     </span>
                   )}
-                  {message &&
-                    getMessageActions &&
-                    getMessageActions().length > 0 && (
-                      <MessageActions
-                        addNotification={addNotification}
-                        customWrapperClass={''}
-                        getFlagMessageErrorNotification={
-                          getFlagMessageErrorNotification
-                        }
-                        getFlagMessageSuccessNotification={
-                          getFlagMessageSuccessNotification
-                        }
-                        getMessageActions={getMessageActions}
-                        getMuteUserErrorNotification={
-                          getMuteUserErrorNotification
-                        }
-                        getMuteUserSuccessNotification={
-                          getMuteUserSuccessNotification
-                        }
-                        handleDelete={handleDelete}
-                        handleEdit={handleEdit}
-                        handleFlag={handleFlag}
-                        handleMute={handleMute}
-                        handlePin={handlePin}
-                        inline
-                        message={message}
-                        messageListRect={messageListRect}
-                        messageWrapperRef={messageWrapperRef}
-                        setEditingState={setEdit}
-                      />
-                    )}
+                  {getMessageActions().length > 0 && (
+                    <MessageActions
+                      addNotification={addNotification}
+                      customWrapperClass={''}
+                      getFlagMessageErrorNotification={
+                        getFlagMessageErrorNotification
+                      }
+                      getFlagMessageSuccessNotification={
+                        getFlagMessageSuccessNotification
+                      }
+                      getMessageActions={getMessageActions}
+                      getMuteUserErrorNotification={
+                        getMuteUserErrorNotification
+                      }
+                      getMuteUserSuccessNotification={
+                        getMuteUserSuccessNotification
+                      }
+                      handleDelete={handleDelete}
+                      handleEdit={handleEdit}
+                      handleFlag={handleFlag}
+                      handleMute={handleMute}
+                      handlePin={handlePin}
+                      inline
+                      message={message}
+                      messageListRect={messageListRect}
+                      messageWrapperRef={messageWrapperRef}
+                      setEditingState={setEdit}
+                    />
+                  )}
                 </div>
               )}
             {message && (
@@ -363,24 +360,20 @@ const UnMemoizedMessageTeam = <
                 )}
               </span>
             )}
-
-            {message?.mml && (
+            {message.mml && (
               <MML
-                actionHandler={() => handleAction}
+                actionHandler={handleAction}
                 align='left'
                 source={message.mml}
               />
             )}
-
-            {message && message.text === '' && (
+            {message.text === '' && (
               <MessageTeamAttachments
-                {...props}
                 Attachment={Attachment}
                 handleAction={propHandleAction || handleAction}
                 message={message}
               />
             )}
-
             {message?.latest_reactions &&
               message.latest_reactions.length !== 0 &&
               message.text !== '' &&
@@ -407,17 +400,15 @@ const UnMemoizedMessageTeam = <
               </button>
             )}
           </div>
-          <MessageTeamStatus<At, Ch, Co, Ev, Me, Re, Us>
-            {...props}
+          <MessageTeamStatus
             Avatar={Avatar}
             lastReceivedId={lastReceivedId}
             message={message}
             readBy={readBy}
             threadList={threadList}
           />
-          {message && message.text !== '' && message.attachments && (
+          {message.text !== '' && message.attachments && (
             <MessageTeamAttachments
-              {...props}
               Attachment={Attachment}
               handleAction={propHandleAction || handleAction}
               message={message}
@@ -434,7 +425,7 @@ const UnMemoizedMessageTeam = <
                 reactions={message.latest_reactions}
               />
             )}
-          {!threadList && message && (
+          {!threadList && (
             <MessageRepliesCountButton
               onClick={propHandleOpenThread || handleOpenThread}
               reply_count={message.reply_count}
@@ -454,13 +445,20 @@ const MessageTeamStatus = <
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  Avatar = DefaultAvatar,
-  lastReceivedId,
-  message,
-  readBy,
-  threadList,
-}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+>(
+  props: Pick<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'Avatar' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
+  >,
+) => {
+  const {
+    Avatar = DefaultAvatar,
+    lastReceivedId,
+    message,
+    readBy,
+    threadList,
+  } = props;
+
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
@@ -469,6 +467,7 @@ const MessageTeamStatus = <
   if (!isMyMessage || message?.type === 'error') {
     return null;
   }
+
   const justReadByMe =
     readBy &&
     client?.user &&
@@ -482,7 +481,7 @@ const MessageTeamStatus = <
         className='str-chat__message-team-status'
         data-testid='message-team-sending'
       >
-        <Tooltip>{t && t('Sending...')}</Tooltip>
+        <Tooltip>{t('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
     );
@@ -523,7 +522,7 @@ const MessageTeamStatus = <
         className='str-chat__message-team-status'
         data-testid='message-team-received'
       >
-        <Tooltip>{t && t('Delivered')}</Tooltip>
+        <Tooltip>{t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
     );
@@ -540,12 +539,15 @@ const MessageTeamAttachments = <
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
->({
-  Attachment = DefaultAttachment,
-  handleAction,
-  message,
-}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
-  if (message?.attachments && Attachment) {
+>(
+  props: Pick<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'Attachment' | 'handleAction' | 'message'
+  >,
+) => {
+  const { Attachment = DefaultAttachment, handleAction, message } = props;
+
+  if (message?.attachments) {
     return (
       <Attachment
         actionHandler={handleAction}
@@ -553,6 +555,7 @@ const MessageTeamAttachments = <
       />
     );
   }
+
   return null;
 };
 
