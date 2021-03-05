@@ -1,7 +1,8 @@
 MessageLivestream handles the rendering of a message and depends on the Message component for all the logic.
 
 ```js
-import { Message, MessageLivestream } from '../components';
+import { Message } from './Message';
+import { MessageLivestream } from './MessageLivestream';
 
 const data = require('./data');
 

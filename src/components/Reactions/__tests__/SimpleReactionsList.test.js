@@ -114,7 +114,7 @@ describe('SimpleReactionsList', () => {
 
     fireEvent.click(getByTestId(loveEmojiTestId));
 
-    expect(handleReactionMock).toHaveBeenCalledWith('love');
+    expect(handleReactionMock).toHaveBeenCalledWith('love', expect.any(Object));
   });
 
   it('should render a tooltip with all users that reacted a certain way if the emoji is hovered', () => {
