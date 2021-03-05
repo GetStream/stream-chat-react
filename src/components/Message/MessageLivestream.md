@@ -4,7 +4,7 @@ MessageLivestream handles the rendering of a message and depends on the Message 
 import { Message } from './Message';
 import { MessageLivestream } from './MessageLivestream';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 const readBy = [
   {

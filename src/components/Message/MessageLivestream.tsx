@@ -8,20 +8,7 @@ import React, {
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-
-import { isOnlyEmojis, renderText } from '../../utils';
-import { useChannelContext, useTranslationContext } from '../../context';
-
-import { Avatar as DefaultAvatar } from '../Avatar';
-import { Attachment as DefaultAttachment } from '../Attachment';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
-import {
-  ReactionSelector as DefaultReactionSelector,
-  SimpleReactionsList as DefaultReactionsList,
-} from '../Reactions';
+import { MessageTimestamp } from './MessageTimestamp';
 import {
   useActionHandler,
   useEditHandler,
@@ -32,17 +19,31 @@ import {
   useRetryHandler,
   useUserHandler,
 } from './hooks';
-import { MessageActions } from '../MessageActions';
 import {
   PinIndicator as DefaultPinIndicator,
   ErrorIcon,
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { MessageTimestamp } from './MessageTimestamp';
+
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { MessageActions } from '../MessageActions';
+import {
+  EditMessageForm as DefaultEditMessageForm,
+  MessageInput,
+} from '../MessageInput';
+import {
+  ReactionSelector as DefaultReactionSelector,
+  SimpleReactionsList as DefaultReactionsList,
+} from '../Reactions';
+
+import { useChannelContext, useTranslationContext } from '../../context';
+import { isOnlyEmojis, renderText } from '../../utils';
+
+import type { TranslationLanguages } from 'stream-chat';
 
 import type { MessageUIComponentProps, MouseEventHandler } from './types';
-import type { TranslationLanguages } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -73,31 +74,34 @@ const UnMemoizedMessageLivestream = <
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    message,
-    groupStyles,
-    editing: propEditing,
-    setEditingState: propSetEdit,
-    clearEditingState: propClearEdit,
-    initialMessage,
-    unsafeHTML,
-    formatDate,
-    channelConfig: propChannelConfig,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
-    onUserClick: propOnUserClick,
-    handleReaction: propHandleReaction,
-    handleOpenThread: propHandleOpenThread,
-    onUserHover: propOnUserHover,
-    handleRetry: propHandleRetry,
-    handleAction: propHandleAction,
-    updateMessage: propUpdateMessage,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
+    addNotification,
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
+    channelConfig: propChannelConfig,
+    clearEditingState: propClearEdit,
     EditMessageInput = DefaultEditMessageForm,
+    editing: propEditing,
+    formatDate,
+    getMessageActions,
+    groupStyles,
+    handleAction: propHandleAction,
+    handleOpenThread: propHandleOpenThread,
+    handleReaction: propHandleReaction,
+    handleRetry: propHandleRetry,
+    initialMessage,
+    message,
     MessageDeleted = DefaultMessageDeleted,
+    onMentionsClickMessage: propOnMentionsClick,
+    onMentionsHoverMessage: propOnMentionsHover,
+    onUserClick: propOnUserClick,
+    onUserHover: propOnUserHover,
     PinIndicator = DefaultPinIndicator,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
+    threadList,
+    setEditingState: propSetEdit,
+    unsafeHTML,
+    updateMessage: propUpdateMessage,
   } = props;
 
   const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
@@ -111,29 +115,26 @@ const UnMemoizedMessageLivestream = <
   >();
   const { t, userLanguage } = useTranslationContext();
 
-  const messageWrapperRef = useRef(null);
-  const reactionSelectorRef = useRef(null);
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const channelConfig = propChannelConfig || channel?.getConfig();
 
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
   const handleAction = useActionHandler(message);
-  const handleReaction = useReactionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message);
+  const handleReaction = useReactionHandler(message);
+  const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
+
   const {
     clearEdit: ownClearEditing,
     editing: ownEditing,
     setEdit: ownSetEditing,
   } = useEditHandler();
 
-  const editing = propEditing || ownEditing;
-  const setEdit = propSetEdit || ownSetEditing;
-  const clearEdit = propClearEdit || ownClearEditing;
-  const handleRetry = useRetryHandler();
-  const retryHandler = propHandleRetry || handleRetry;
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
 
   const {
     isReactionEnabled,
@@ -146,15 +147,18 @@ const UnMemoizedMessageLivestream = <
     onUserHoverHandler: propOnUserHover,
   });
 
+  const clearEdit = propClearEdit || ownClearEditing;
+  const editing = propEditing || ownEditing;
+  const retryHandler = propHandleRetry || handleRetry;
+  const setEdit = propSetEdit || ownSetEditing;
+
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     message?.text;
 
-  const messageMentionedUsersItem = message?.mentioned_users;
-
   const messageText = useMemo(
-    () => renderText(messageTextToRender, messageMentionedUsersItem),
-    [messageMentionedUsersItem, messageTextToRender],
+    () => renderText(messageTextToRender, message?.mentioned_users),
+    [message?.mentioned_users, messageTextToRender],
   );
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
@@ -226,17 +230,17 @@ const UnMemoizedMessageLivestream = <
           />
         )}
         <MessageLivestreamActions
-          addNotification={props.addNotification}
+          addNotification={addNotification}
           channelConfig={channelConfig}
           formatDate={formatDate}
-          getMessageActions={props.getMessageActions}
+          getMessageActions={getMessageActions}
           handleOpenThread={propHandleOpenThread || handleOpenThread}
           initialMessage={initialMessage}
           message={message}
           messageWrapperRef={messageWrapperRef}
           onReactionListClick={onReactionListClick}
           setEditingState={setEdit}
-          threadList={props.threadList}
+          threadList={threadList}
         />
         <div className='str-chat__message-livestream-left'>
           <Avatar
@@ -257,7 +261,6 @@ const UnMemoizedMessageLivestream = <
                 </div>
               )}
             </div>
-
             <div
               className={
                 isOnlyEmojis(message.text)
@@ -272,21 +275,18 @@ const UnMemoizedMessageLivestream = <
                 message.status !== 'failed' &&
                 !unsafeHTML &&
                 messageText}
-
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
                 unsafeHTML &&
                 !!message.html && (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
                 )}
-
               {message.type === 'error' && !message.command && (
                 <p data-testid='message-livestream-error'>
                   <ErrorIcon />
                   {message.text}
                 </p>
               )}
-
               {message.type === 'error' && message.command && (
                 <p data-testid='message-livestream-command-error'>
                   <ErrorIcon />
@@ -295,29 +295,18 @@ const UnMemoizedMessageLivestream = <
                 </p>
               )}
               {message.status === 'failed' && (
-                <p
-                  onClick={() => {
-                    if (retryHandler) {
-                      // FIXME: type checking fails here because in the case of a failed message,
-                      // `message` is of type Client.Message (i.e. request object)
-                      // instead of Client.MessageResponse (i.e. server response object)
-                      retryHandler(message);
-                    }
-                  }}
-                >
+                <p onClick={() => retryHandler(message)}>
                   <ErrorIcon />
                   {t('Message failed. Click to try again.')}
                 </p>
               )}
             </div>
-
             {message?.attachments && Attachment && (
               <Attachment
                 actionHandler={propHandleAction || handleAction}
                 attachments={message.attachments}
               />
             )}
-
             {isReactionEnabled && (
               <ReactionsList
                 handleReaction={propHandleReaction || handleReaction}
@@ -326,7 +315,6 @@ const UnMemoizedMessageLivestream = <
                 reactions={message.latest_reactions}
               />
             )}
-
             {!initialMessage && (
               <MessageRepliesCountButton
                 onClick={propHandleOpenThread || handleOpenThread}
@@ -389,11 +377,13 @@ const MessageLivestreamActions = <
     onReactionListClick,
     threadList,
   } = props;
+
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
   const messageDeletedAt = !!message?.deleted_at;
   const messageWrapper = messageWrapperRef?.current;
+
   useEffect(() => {
     if (messageWrapper) {
       messageWrapper.addEventListener('mouseleave', hideOptions);
@@ -405,6 +395,7 @@ const MessageLivestreamActions = <
       }
     };
   }, [messageWrapper, hideOptions]);
+
   useEffect(() => {
     if (messageDeletedAt) {
       document.removeEventListener('click', hideOptions);
