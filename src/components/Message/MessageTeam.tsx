@@ -451,7 +451,7 @@ const MessageTeamStatus = <
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
   Ev extends UnknownType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
+  Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >({

@@ -52,7 +52,12 @@ async function renderMessageTeam(
   return render(
     <ChatContext.Provider value={{ client }}>
       <ChannelContext.Provider
-        value={{ channel, emojiConfig: emojiMockConfig, t: (key) => key }}
+        value={{
+          channel,
+          client,
+          emojiConfig: emojiMockConfig,
+          t: (key) => key,
+        }}
       >
         <TranslationContext.Provider
           value={{

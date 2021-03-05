@@ -234,7 +234,7 @@ const UnMemoizedMessageSimple = <
               />
             )}
             {message.text && (
-              <MessageText
+              <MessageText<At, Ch, Co, Ev, Me, Re, Us>
                 {...props}
                 customOptionProps={{
                   handleOpenThread: propHandleOpenThread,
