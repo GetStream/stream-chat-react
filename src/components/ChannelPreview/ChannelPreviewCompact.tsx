@@ -117,7 +117,6 @@ const UnMemoizedChannelPreviewCompact = <
 };
 
 /**
- *
  * @example ./ChannelPreviewCompact.md
  */
 export const ChannelPreviewCompact = React.memo(

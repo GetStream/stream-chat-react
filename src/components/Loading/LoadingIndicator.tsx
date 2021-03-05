@@ -45,8 +45,7 @@ const UnMemoizedLoadingIndicator: React.FC<LoadingIndicatorProps> = (props) => {
 };
 
 /**
- * LoadingIndicator - Just a simple loading spinner..
- *
+ * LoadingIndicator - Just a simple loading spinner
  * @example ./LoadingIndicator.md
  */
 export const LoadingIndicator = React.memo(

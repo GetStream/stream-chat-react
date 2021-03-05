@@ -28,11 +28,6 @@ export type WindowProps<
   thread?: MessageResponse<At, Ch, Co, Me, Re, Us>;
 };
 
-/**
- * Window - A UI component for conditionally displaying thread or channel.
- *
- * @example ./Window.md
- */
 const UnMemoizedWindow = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -53,4 +48,8 @@ const UnMemoizedWindow = <
   return <div className={`str-chat__main-panel`}>{children}</div>;
 };
 
+/**
+ * Window - A UI component for conditionally displaying thread or channel.
+ * @example ./Window.md
+ */
 export const Window = React.memo(UnMemoizedWindow) as typeof UnMemoizedWindow;

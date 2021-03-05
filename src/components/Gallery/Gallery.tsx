@@ -12,10 +12,6 @@ export type GalleryProps<At extends UnknownType = DefaultAttachmentType> = {
   images: Attachment<At>[];
 };
 
-/**
- * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
- * @example ./Gallery.md
- */
 const UnMemoizedGallery = <At extends UnknownType = DefaultAttachmentType>(
   props: GalleryProps<At>,
 ) => {
@@ -87,6 +83,10 @@ const UnMemoizedGallery = <At extends UnknownType = DefaultAttachmentType>(
   );
 };
 
+/**
+ * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
+ * @example ./Gallery.md
+ */
 export const Gallery = React.memo(
   UnMemoizedGallery,
 ) as typeof UnMemoizedGallery;

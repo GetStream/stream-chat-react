@@ -249,6 +249,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
   },
 );
 
+/**
+ * @example ./ReactionSelector.md
+ */
 export const ReactionSelector = React.memo(
   UnMemoizedReactionSelector,
 ) as typeof UnMemoizedReactionSelector;

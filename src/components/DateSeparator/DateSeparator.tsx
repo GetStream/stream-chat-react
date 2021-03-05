@@ -16,11 +16,6 @@ export type DateSeparatorProps = {
   unread?: boolean;
 };
 
-/**
- * DateSeparator - A simple date separator
- *
- * @example ./DateSeparator.md
- */
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const { date, formatDate, position = 'right', unread } = props;
 
@@ -51,6 +46,10 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   );
 };
 
+/**
+ * DateSeparator - A simple date separator
+ * @example ./DateSeparator.md
+ */
 export const DateSeparator = React.memo(
   UnMemoizedDateSeparator,
 ) as typeof UnMemoizedDateSeparator;

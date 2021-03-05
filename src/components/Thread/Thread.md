@@ -4,9 +4,9 @@ The threadHasMore={false} disables pagination for this example.
 
 ```js
 import { Chat, Channel, Thread, MessageTeam } from '../../components';
-import { ChannelContext } from '../../context';
+import { ChannelContext } from '../../context/ChannelContext';
 
-const data = require('../../docs/data.js');
+const data = require('../../docs/data');
 
 <Chat client={data.client}>
   <Channel channel={data.channel}>

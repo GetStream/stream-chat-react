@@ -58,12 +58,6 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-/**
- * MessageTeam - Render component, should be used together with the Message component
- * Implements the look and feel for a team style collaboration environment
- *
- * @example ./MessageTeam.md
- */
 const UnMemoizedMessageTeam = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -561,6 +555,11 @@ const MessageTeamAttachments = <
   return null;
 };
 
+/**
+ * MessageTeam - Render component, should be used together with the Message component
+ * Implements the look and feel for a team style collaboration environment
+ * @example ./MessageTeam.md
+ */
 export const MessageTeam = React.memo(
   UnMemoizedMessageTeam,
   areMessageUIPropsEqual,

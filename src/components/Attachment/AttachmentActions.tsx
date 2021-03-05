@@ -17,11 +17,6 @@ export type AttachmentActionsProps = {
   ) => void;
 };
 
-/**
- * AttachmentActions - The actions you can take on an attachment
- *
- * @example ./AttachmentActions.md
- */
 const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
   props,
 ) => {
@@ -59,6 +54,10 @@ const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
   );
 };
 
+/**
+ * AttachmentActions - The actions you can take on an attachment
+ * @example ./AttachmentActions.md
+ */
 export const AttachmentActions = React.memo(
   UnMemoizedAttachmentActions,
 ) as typeof UnMemoizedAttachmentActions;

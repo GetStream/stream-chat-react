@@ -76,7 +76,6 @@ export type ThreadProps<
  * - additionalParentMessageProps
  * - additionalMessageListProps
  * - additionalMessageInputProps
- *
  * @example ./Thread.md
  */
 export const Thread = <

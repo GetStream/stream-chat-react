@@ -134,8 +134,7 @@ const UnMemoizedChannelPreviewLastMessage = <
 };
 
 /**
- * Used as preview component for channel item in [ChannelList](#channellist) component.
- *
+ * Used as preview component for channel item in [ChannelList](#channellist) component
  * @example ./ChannelPreviewLastMessage.md
  */
 export const ChannelPreviewLastMessage = React.memo(

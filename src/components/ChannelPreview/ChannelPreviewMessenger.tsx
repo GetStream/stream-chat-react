@@ -134,7 +134,6 @@ const UnMemoizedChannelPreviewMessenger = <
 /**
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  * Its best suited for messenger type chat.
- *
  * @example ./ChannelPreviewMessenger.md
  */
 export const ChannelPreviewMessenger = React.memo(

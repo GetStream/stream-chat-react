@@ -102,7 +102,6 @@ export type ChatProps<
  * - theme - current theme
  *
  * It also exposes the withChatContext HOC which you can use to consume the ChatContext
- *
  * @example ./Chat.md
  */
 export const Chat = <

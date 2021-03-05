@@ -147,7 +147,6 @@ export type WrapperAttachmentUIComponentProps<
 
 /**
  * Attachment - The message attachment
- *
  * @example ./Attachment.md
  */
 export const Attachment = <

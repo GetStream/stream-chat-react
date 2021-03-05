@@ -37,12 +37,6 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-/**
- * Message - A high level component which implements all the logic required for a message.
- * The actual rendering of the message is delegated via the "Message" property
- *
- * @example ./Message.md
- */
 const UnMemoizedMessage = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
@@ -190,6 +184,11 @@ const UnMemoizedMessage = <
   );
 };
 
+/**
+ * Message - A high level component which implements all the logic required for a message.
+ * The actual rendering of the message is delegated via the "Message" property
+ * @example ./Message.md
+ */
 export const Message = React.memo(
   UnMemoizedMessage,
   areMessagePropsEqual,

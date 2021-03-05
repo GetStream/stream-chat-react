@@ -56,8 +56,8 @@ module.exports = {
           components: [
             'src/components/Message/Message.tsx',
             'src/components/Message/MessageSimple.tsx',
-            'src/components/Message/MessageTeam.js',
-            'src/components/Message/MessageLivestream.js',
+            'src/components/Message/MessageTeam.tsx',
+            'src/components/Message/MessageLivestream.tsx',
             'src/components/Attachment/Attachment.tsx',
             'src/components/Attachment/AttachmentActions.tsx',
             'src/components/Reactions/ReactionSelector.tsx',

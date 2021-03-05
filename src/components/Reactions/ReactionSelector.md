@@ -1,9 +1,9 @@
 React Select allows you to select a reaction. Here's how to use it:
 
 ```js
-import { ReactionSelector } from '../components';
+import { ReactionSelector } from './ReactionSelector';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 function handleReaction(reaction) {
   console.log('reaction', reaction);
@@ -20,9 +20,9 @@ function handleReaction(reaction) {
 Align to the right:
 
 ```js
-import { ReactionSelector } from '../components';
+import { ReactionSelector } from './ReactionSelector';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 function handleReaction(reaction) {
   console.log('reaction', reaction);

@@ -23,11 +23,6 @@ export type CardProps = {
   type?: string;
 };
 
-/**
- * Card - Simple Card Layout
- *
- * @example ./Card.md
- */
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const {
     image_url,
@@ -117,4 +112,8 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   );
 };
 
+/**
+ * Card - Simple Card Layout
+ * @example ./Card.md
+ */
 export const Card = React.memo(UnMemoizedCard) as typeof UnMemoizedCard;

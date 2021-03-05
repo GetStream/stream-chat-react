@@ -20,7 +20,6 @@ const UnMemoizedLoadingChannels: React.FC = () => (
 
 /**
  * LoadingChannels - Fancy loading indicator for the channel list
- *
  * @example ./LoadingChannels.md
  */
 export const LoadingChannels = React.memo(
