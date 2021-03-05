@@ -36,7 +36,6 @@ class Listener {
   }
 
   startListen = () => {
-    console.log('this.listeners in the startListen::', this.listeners);
     if (!this.refCount) {
       // prevent multiple listeners in case of multiple TextareaAutocomplete components on page
       document.addEventListener('keydown', this.f);

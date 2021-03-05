@@ -656,73 +656,57 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
-      it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
-        const { submit } = renderComponent({
+      it('should not submit if valid keycodeSubmitKeys are provided and keydown events do not match', async () => {
+        const { findByPlaceholderText } = renderComponent({
           keycodeSubmitKeys: [17, 13],
         });
+        const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 19,
-          }),
-        );
+        fireEvent.keyDown(input, {
+          keyCode: 19,
+        });
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 13,
-          }),
-        );
-
-        await submit();
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
 
         expect(submitMock).not.toHaveBeenCalled();
       });
-      it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
-        const { submit } = renderComponent({
+      it('should submit if valid keycodeSubmitKeys are provided and keydown events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [17, 13],
         });
+        // const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 17,
-          }),
-        );
+        fireEvent.keyDown(input, {
+          keyCode: 17,
+        });
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 13,
-          }),
-        );
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
 
         await submit();
-        expect(submitMock).toHaveBeenCalledWith(channel.cid);
+        expect(submitMock).toHaveBeenCalledWith();
       });
-      it('should not submit if invalid keycodeSubmitKeys are provided, but keydown events do match', async () => {
-        const { submit } = renderComponent({
+      it('should not submit if invalid keycodeSubmitKeys are provided even when keycode events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [76, 77],
         });
+        const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 76,
-          }),
-        );
+        fireEvent.keyDown(input, {
+          keyCode: 76,
+        });
 
-        fireEvent(
-          document,
-          new KeyboardEvent('keydown', {
-            keyCode: 77,
-          }),
-        );
+        fireEvent.keyDown(input, {
+          keyCode: 77,
+        });
 
         await submit();
 
-        expect(submitMock).not.toHaveBeenCalled();
+        expect(submitMock).not.toHaveBeenCalledWith();
       });
     });
 
