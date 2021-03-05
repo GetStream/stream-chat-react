@@ -90,12 +90,16 @@ const UnMemoizedChannelPreviewMessenger = <
     unread,
     watchers,
   } = props;
-  const channelPreviewButton = useRef<HTMLButtonElement>(null);
+
+  const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
+
   const unreadClass =
     unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
+
   const activeClass = active
     ? 'str-chat__channel-preview-messenger--active'
     : '';
+
   const onSelectChannel = () => {
     if (setActiveChannel) {
       setActiveChannel(channel, watchers);
@@ -120,7 +124,6 @@ const UnMemoizedChannelPreviewMessenger = <
           <span>{displayTitle}</span>
         </div>
         <div className='str-chat__channel-preview-messenger--last-message'>
-          {/* @ts-expect-error TODO: address this when the utils file is converted to TS */}
           {truncate(latestMessage, latestMessageLength)}
         </div>
       </div>

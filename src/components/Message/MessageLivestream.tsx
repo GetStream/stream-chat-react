@@ -25,6 +25,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
+import { areMessageUIPropsEqual } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -465,4 +466,5 @@ const MessageLivestreamActions = <
 
 export const MessageLivestream = React.memo(
   UnMemoizedMessageLivestream,
+  areMessageUIPropsEqual,
 ) as typeof UnMemoizedMessageLivestream;

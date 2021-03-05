@@ -14,7 +14,7 @@ import {
   useUserRole,
 } from './hooks';
 import {
-  areMessagePropsEqual,
+  areMessageUIPropsEqual,
   messageHasAttachments,
   messageHasReactions,
 } from './utils';
@@ -231,5 +231,5 @@ const UnMemoizedMessageCommerce = <
 
 export const MessageCommerce = React.memo(
   UnMemoizedMessageCommerce,
-  areMessagePropsEqual,
+  areMessageUIPropsEqual,
 ) as typeof UnMemoizedMessageCommerce;

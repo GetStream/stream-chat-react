@@ -161,35 +161,32 @@ const UnMemoizedMessage = <
     message && message.type === 'regular' && message.status === 'received';
 
   return (
-    MessageUIComponent && (
-      <MessageUIComponent
-        {...props}
-        actionsEnabled={actionsEnabled}
-        channelConfig={channelConfig}
-        clearEditingState={clearEdit}
-        editing={editing}
-        formatDate={formatDate}
-        getMessageActions={messageActionsHandler}
-        groupStyles={groupStyles}
-        handleAction={handleAction}
-        handleDelete={handleDelete}
-        handleEdit={setEdit}
-        handleFlag={handleFlag}
-        handleMute={handleMute}
-        handleOpenThread={handleOpenThread}
-        handlePin={handlePin}
-        handleReaction={handleReaction}
-        handleRetry={handleRetry}
-        isMyMessage={() => isMyMessage}
-        Message={MessageUIComponent}
-        onMentionsClickMessage={onMentionsClick}
-        onMentionsHoverMessage={onMentionsHover}
-        onUserClick={onUserClick}
-        onUserHover={onUserHover}
-        readBy={props.readBy || []}
-        setEditingState={setEdit}
-      />
-    )
+    <MessageUIComponent
+      {...props}
+      actionsEnabled={actionsEnabled}
+      channelConfig={channelConfig}
+      clearEditingState={clearEdit}
+      editing={editing}
+      formatDate={formatDate}
+      getMessageActions={messageActionsHandler}
+      groupStyles={groupStyles}
+      handleAction={handleAction}
+      handleDelete={handleDelete}
+      handleEdit={setEdit}
+      handleFlag={handleFlag}
+      handleMute={handleMute}
+      handleOpenThread={handleOpenThread}
+      handlePin={handlePin}
+      handleReaction={handleReaction}
+      handleRetry={handleRetry}
+      isMyMessage={() => isMyMessage}
+      Message={MessageUIComponent}
+      onMentionsClickMessage={onMentionsClick}
+      onMentionsHoverMessage={onMentionsHover}
+      onUserClick={onUserClick}
+      onUserHover={onUserHover}
+      setEditingState={setEdit}
+    />
   );
 };
 

@@ -21,7 +21,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { areMessagePropsEqual, getReadByTooltipText } from './utils';
+import { areMessageUIPropsEqual, getReadByTooltipText } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -563,5 +563,5 @@ const MessageTeamAttachments = <
 
 export const MessageTeam = React.memo(
   UnMemoizedMessageTeam,
-  areMessagePropsEqual,
+  areMessageUIPropsEqual,
 ) as typeof UnMemoizedMessageTeam;

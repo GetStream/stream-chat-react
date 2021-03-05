@@ -7,7 +7,6 @@ import { MessageList, MessageListProps } from '../MessageList';
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { smartRender } from '../../utils';
 
 import type { TFunction } from 'i18next';
 import type { ChannelState, MessageResponse } from 'stream-chat';
@@ -230,12 +229,11 @@ const ThreadInner = <
     >
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
-        <Message<At, Ch, Co, Ev, Me, Re, Us>
+        <Message
           channel={channel}
           client={client}
           initialMessage
-          // @ts-expect-error
-          message={thread}
+          message={thread as MessageResponse<At, Ch, Co, Me, Re, Us>}
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}
@@ -243,26 +241,35 @@ const ThreadInner = <
         <div className='str-chat__thread-start'>
           {t('Start of a new thread')}
         </div>
-        <MessageList<At, Ch, Co, Ev, Me, Re, Us>
+        {/** @ts-expect-error */}
+        <MessageList
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}
-          // @ts-expect-error
           loadMore={loadMoreThread}
           Message={ThreadMessage}
-          // @ts-expect-error
-          messages={threadMessages}
+          messages={
+            (threadMessages as unknown) as MessageResponse<
+              At,
+              Ch,
+              Co,
+              Me,
+              Re,
+              Us
+            >[]
+          }
           read={read}
           threadList
           {...additionalMessageListProps}
         />
       </div>
-      {smartRender(ThreadMessageInput, {
-        focus: autoFocus,
-        Input: MessageInputSmall,
-        parent: thread,
-        publishTypingEvent: false,
-        ...additionalMessageInputProps,
-      })}
+      <ThreadMessageInput
+        focus={autoFocus}
+        Input={MessageInputSmall}
+        // @ts-expect-error
+        parent={thread}
+        publishTypingEvent={false}
+        {...additionalMessageInputProps}
+      />
     </div>
   );
 };

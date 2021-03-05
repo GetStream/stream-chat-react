@@ -16,7 +16,7 @@ import {
 } from './hooks';
 import { DeliveredCheckIcon } from './icons';
 import {
-  areMessagePropsEqual,
+  areMessageUIPropsEqual,
   getReadByTooltipText,
   messageHasAttachments,
   messageHasReactions,
@@ -371,5 +371,5 @@ const MessageSimpleStatus = <
 
 export const MessageSimple = React.memo(
   UnMemoizedMessageSimple,
-  areMessagePropsEqual,
+  areMessageUIPropsEqual,
 ) as typeof UnMemoizedMessageSimple;

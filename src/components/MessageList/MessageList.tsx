@@ -120,7 +120,7 @@ export type MessageListProps<
     >['DateSeparator'];
     hasMore?: boolean;
     loadingMore?: boolean;
-    loadMore?(messageLimit?: number | undefined): Promise<number>;
+    loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
     /** The pixel threshold to determine whether or not the user is scrolled up in the list. Default is 200 */
     scrolledUpThreshold?: number;
   };
@@ -389,7 +389,7 @@ class MessageListWithoutContext<
       if (this.props.messageLimit) {
         this.props.loadMore(this.props.messageLimit);
       } else {
-        this.props.loadMore();
+        this.props.loadMore(100);
       }
     }
   };
@@ -484,7 +484,7 @@ class MessageListWithoutContext<
             onClick={this.goToNewMessages}
             showNotification={this.state.newMessagesNotification}
           >
-            {t && t('New Messages!')}
+            {t('New Messages!')}
           </MessageNotification>
         </div>
       </>

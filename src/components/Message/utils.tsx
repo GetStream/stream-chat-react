@@ -2,7 +2,6 @@ import deepequal from 'react-fast-compare';
 
 import type { TFunction } from 'i18next';
 import type {
-  Attachment,
   MessageResponse,
   Mute,
   StreamChat,
@@ -10,7 +9,7 @@ import type {
 } from 'stream-chat';
 
 import type { PinPermissions } from './hooks';
-import type { MessageProps } from './types';
+import type { MessageProps, MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -214,7 +213,12 @@ export type MessageEqualProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Pick<
   MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-  'message' | 'readBy' | 'groupStyles' | 'lastReceivedId' | 'messageListRect'
+  | 'groupStyles'
+  | 'lastReceivedId'
+  | 'message'
+  | 'messageListRect'
+  | 'mutes'
+  | 'readBy'
 >;
 
 export const areMessagePropsEqual = <
@@ -228,24 +232,20 @@ export const areMessagePropsEqual = <
 >(
   props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
   nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
-): boolean =>
+) =>
   // Message content is equal
   nextProps.message === props.message &&
   // Message was read by someone
   deepequal(nextProps.readBy, props.readBy) &&
   // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
   deepequal(nextProps.groupStyles, props.groupStyles) &&
-  // @ts-expect-error
   deepequal(nextProps.mutes, props.mutes) &&
   // Last message received in the channel changes
   deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
-  // User toggles edit state
-  // @ts-expect-error // TODO: fix
-  nextProps.editing === props.editing &&
   // Message wrapper layout changes
   nextProps.messageListRect === props.messageListRect;
 
-export const shouldMessageComponentUpdate = <
+export const areMessageUIPropsEqual = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -254,11 +254,14 @@ export const shouldMessageComponentUpdate = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
-  nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
-): boolean =>
-  // Component should only update if:
-  !areMessagePropsEqual(props, nextProps);
+  props: Pick<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'editing'>,
+  nextProps: Pick<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'editing'
+  >,
+) =>
+  // User toggles edit state
+  nextProps.editing === props.editing;
 
 export const messageHasReactions = <
   At extends UnknownType = DefaultAttachmentType,
@@ -291,7 +294,7 @@ export const getImages = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-): Attachment<At>[] => {
+) => {
   if (!message?.attachments) {
     return [];
   }
@@ -307,7 +310,7 @@ export const getNonImageAttachments = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-): Attachment<At>[] => {
+) => {
   if (!message?.attachments) {
     return [];
   }

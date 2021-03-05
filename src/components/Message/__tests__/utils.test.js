@@ -1,6 +1,7 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import {
   areMessagePropsEqual,
+  areMessageUIPropsEqual,
   getImages,
   getMessageActions,
   getNonImageAttachments,
@@ -8,7 +9,6 @@ import {
   MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
-  shouldMessageComponentUpdate,
   validateAndGetMessage,
 } from '../utils';
 
@@ -128,10 +128,7 @@ describe('Message utils', () => {
       const message = generateMessage();
       const currentProps = { message };
       const nextProps = { message };
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(shouldUpdate).toBe(false);
     });
 
@@ -140,10 +137,7 @@ describe('Message utils', () => {
       const message2 = generateMessage({ id: 'message-2' });
       const currentProps = { message: message1 };
       const nextProps = { message: message2 };
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(shouldUpdate).toBe(true);
     });
 
@@ -154,10 +148,7 @@ describe('Message utils', () => {
       const nextReadBy = [alice, bob];
       const nextProps = { message, readBy: nextReadBy };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -169,10 +160,7 @@ describe('Message utils', () => {
       const nextGroupStyles = ['bottom', 'right'];
       const nextProps = { groupStyles: nextGroupStyles, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -184,10 +172,7 @@ describe('Message utils', () => {
       const nextLastReceivedId = 'some-other-message';
       const nextProps = { lastReceivedId: nextLastReceivedId, message };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -198,11 +183,8 @@ describe('Message utils', () => {
       const currentProps = { editing: currentEditing, message };
       const nextEditing = false;
       const nextProps = { editing: nextEditing, message };
-      const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const arePropsEqual = areMessageUIPropsEqual(nextProps, currentProps);
+      const shouldUpdate = !areMessageUIPropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
@@ -214,10 +196,7 @@ describe('Message utils', () => {
       const nextMessageListRect = { height: 200, width: 200, x: 20, y: 20 };
       const nextProps = { message, messageListRect: nextMessageListRect };
       const arePropsEqual = areMessagePropsEqual(nextProps, currentProps);
-      const shouldUpdate = shouldMessageComponentUpdate(
-        nextProps,
-        currentProps,
-      );
+      const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });

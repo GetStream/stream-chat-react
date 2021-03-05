@@ -74,7 +74,7 @@ export type VirtualizedMessageListProps<
   /** Component to render at the top of the MessageList while loading new messages. */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
-  loadMore?(messageLimit?: number | undefined): Promise<number>;
+  loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages. */
   Message?: React.ComponentType<
     FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>
