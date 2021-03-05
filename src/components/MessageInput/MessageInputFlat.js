@@ -176,6 +176,7 @@ MessageInputFlat.defaultProps = {
   disabled: false,
   publishTypingEvent: true,
   grow: true,
+  keycodeSubmitKeys: null,
   maxRows: 10,
   additionalTextareaProps: {},
 };

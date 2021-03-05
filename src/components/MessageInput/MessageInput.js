@@ -12,9 +12,9 @@ MessageInput.defaultProps = {
   publishTypingEvent: true,
   grow: true,
   Input: MessageInputLarge,
+  keycodeSubmitKeys: null,
   maxRows: 10,
   additionalTextareaProps: {},
-  keycodeSubmitKeys: null,
 };
 
 export default React.memo(MessageInput);
