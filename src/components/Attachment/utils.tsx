@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import type {
   DefaultAttachmentProps,
@@ -55,9 +55,11 @@ export const isMediaAttachment = <
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
 
-export const renderAttachmentWithinContainer: React.FC<
-  Partial<DefaultAttachmentProps>
-> = (props) => {
+export const renderAttachmentWithinContainer = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: PropsWithChildren<Partial<DefaultAttachmentProps<At>>>,
+) => {
   const { attachment, children, componentType } = props;
 
   const extra =
@@ -79,8 +81,10 @@ export const renderAttachmentWithinContainer: React.FC<
   );
 };
 
-export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderAttachmentActions = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { actionHandler, attachment, AttachmentActions } = props;
 
@@ -100,8 +104,10 @@ export const renderAttachmentActions: React.FC<InnerAttachmentUIComponentProps> 
   );
 };
 
-export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderGallery = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment, Gallery } = props;
 
@@ -114,8 +120,10 @@ export const renderGallery: React.FC<InnerAttachmentUIComponentProps> = (
   });
 };
 
-export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderImage = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment, Image } = props;
 
@@ -144,8 +152,10 @@ export const renderImage: React.FC<InnerAttachmentUIComponentProps> = (
   });
 };
 
-export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderCard = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, Card } = props;
 
@@ -174,8 +184,10 @@ export const renderCard: React.FC<InnerAttachmentUIComponentProps> = (
   });
 };
 
-export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderFile = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, File } = props;
 
@@ -190,8 +202,10 @@ export const renderFile: React.FC<InnerAttachmentUIComponentProps> = (
   });
 };
 
-export const renderAudio: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
+export const renderAudio = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
+  props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, Audio } = props;
   if (!Audio) return null;
