@@ -3,7 +3,7 @@ export * from './hooks';
 export * from './Message';
 export * from './MessageCommerce';
 export * from './MessageDeleted';
-export { default as MessageLivestream } from './MessageLivestream';
+export * from './MessageLivestream';
 export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export * from './MessageSimple';

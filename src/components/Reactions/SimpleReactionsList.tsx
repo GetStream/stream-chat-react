@@ -26,7 +26,10 @@ export type SimpleReactionsListProps<
    *
    * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
    * */
-  handleReaction?: (reactionType: string) => void;
+  handleReaction: (
+    reactionType: string,
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+  ) => Promise<void>;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
@@ -111,7 +114,7 @@ const UnMemoizedSimpleReactionsList = <
           <li
             className='str-chat__simple-reactions-list-item'
             key={`${emojiDefinition?.id}-${i}`}
-            onClick={() => handleReaction && handleReaction(reactionType)}
+            onClick={(event) => handleReaction(reactionType, event)}
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
               {Emoji && (

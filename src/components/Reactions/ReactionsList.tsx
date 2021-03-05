@@ -27,8 +27,8 @@ export type ReactionsListProps<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  onClick: MouseEventHandler;
   emojiSetDef?: EmojiSetDef;
+  onClick?: MouseEventHandler;
   own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };

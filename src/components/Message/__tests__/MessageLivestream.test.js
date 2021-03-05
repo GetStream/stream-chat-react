@@ -10,7 +10,7 @@ import {
   getTestClientWithUser,
 } from 'mock-builders';
 
-import MessageLivestream from '../MessageLivestream';
+import { MessageLivestream } from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
