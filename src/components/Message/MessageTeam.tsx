@@ -379,6 +379,7 @@ const UnMemoizedMessageTeam = <
               message.text !== '' &&
               isReactionEnabled && (
                 <ReactionsList
+                  handleReaction={handleReaction}
                   onClick={onReactionListClick}
                   own_reactions={message.own_reactions}
                   reaction_counts={message.reaction_counts || undefined}
@@ -419,6 +420,7 @@ const UnMemoizedMessageTeam = <
             message.text === '' &&
             isReactionEnabled && (
               <ReactionsList
+                handleReaction={handleReaction}
                 onClick={onReactionListClick}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
