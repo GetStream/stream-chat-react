@@ -67,6 +67,7 @@ const EditMessageForm = (props) => {
             onPaste={messageInput.onPaste}
             grow={props.grow}
             additionalTextareaProps={props.additionalTextareaProps}
+            keycodeSubmitKeys={props.keycodeSubmitKeys}
           />
           <div className="str-chat__message-team-form-footer">
             <div className="str-chat__edit-message-form-options">
@@ -123,6 +124,12 @@ EditMessageForm.propTypes = {
   focus: PropTypes.bool.isRequired,
   /** Grow the textarea while you're typing */
   grow: PropTypes.bool.isRequired,
+  /** Optional Array of keycode values
+   * Keycodes in this array will override Enter ([13]), which is the default submit key. Shift+Enter is the default for new line.
+   * Options are Shift+Enter ([16, 13]), ctrl+Enter ([17, 13]), cmd+Enter ([91, 13] or [92, 13]).
+   * If Shift+Enter is submitted, the default for new line is overridden.
+   * */
+  keycodeSubmitKeys: PropTypes.array,
   /** Specify the max amount of rows the textarea is able to grow */
   maxRows: PropTypes.number.isRequired,
   /** Make the textarea disabled */
