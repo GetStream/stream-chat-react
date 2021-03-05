@@ -493,10 +493,7 @@ const MessageTeamStatus = <
       (item) => item && client?.user && item.id !== client.user.id,
     )[0];
     return (
-      <span
-        className='str-chat__message-team-status'
-        data-test-id='message-team-read-by'
-      >
+      <span className='str-chat__message-team-status'>
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
           image={lastReadUser?.image}
