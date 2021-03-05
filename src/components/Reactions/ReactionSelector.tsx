@@ -207,9 +207,10 @@ const UnMemoizedReactionSelector = React.forwardRef(
                 }
               >
                 {!!count && detailedView && (
-                  <React.Fragment>
+                  <>
                     <div
                       className='latest-user'
+                      onClick={hideTooltip}
                       onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
                       onMouseLeave={hideTooltip}
                     >
@@ -223,7 +224,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                         <div className='latest-user-not-found' />
                       )}
                     </div>
-                  </React.Fragment>
+                  </>
                 )}
                 {Emoji && (
                   <Emoji
