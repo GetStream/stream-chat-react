@@ -103,7 +103,9 @@ export type BaseAttachmentUIComponentProps = {
   Media?: React.ComponentType<ReactPlayerProps>;
 };
 
-export type DefaultAttachmentProps = Required<
+export type DefaultAttachmentProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType
+> = Required<
   Pick<
     InnerAttachmentUIComponentProps,
     | 'AttachmentActions'
@@ -115,7 +117,7 @@ export type DefaultAttachmentProps = Required<
     | 'Media'
   >
 > & {
-  attachment: ExtendedAttachment;
+  attachment: ExtendedAttachment<At>;
   componentType: string;
 };
 

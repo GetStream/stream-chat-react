@@ -34,7 +34,7 @@ import {
 import { MML } from '../MML';
 import {
   ReactionSelector as DefaultReactionSelector,
-  ReactionsList as DefaultReactionsList,
+  SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 

@@ -66,7 +66,12 @@ async function renderMessageTeam(
             userLanguage: 'en',
           }}
         >
-          <MessageTeam message={message} typing={false} {...props} />
+          <MessageTeam
+            getMessageActions={() => []}
+            message={message}
+            typing={false}
+            {...props}
+          />
         </TranslationContext.Provider>
       </ChannelContext.Provider>
     </ChatContext.Provider>,
