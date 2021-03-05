@@ -7,7 +7,7 @@ export * from './MessageLivestream';
 export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export * from './MessageSimple';
-export { default as MessageTeam } from './MessageTeam';
+export * from './MessageTeam';
 export * from './MessageText';
 export * from './types';
 export * from './utils';

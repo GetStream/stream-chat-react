@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import EventComponent from '../EventComponent';
+import { EventComponent } from '../EventComponent';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(({ image = '', name = '' }) => (

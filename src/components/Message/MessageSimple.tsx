@@ -172,7 +172,7 @@ const UnMemoizedMessageSimple = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus<At, Ch, Co, Ev, Me, Re, Us> {...props} />
+          <MessageSimpleStatus {...props} />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -197,7 +197,7 @@ const UnMemoizedMessageSimple = <
             {!message.text && (
               <>
                 {
-                  <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
+                  <MessageOptions
                     {...props}
                     handleOpenThread={propHandleOpenThread}
                     messageWrapperRef={messageWrapperRef}

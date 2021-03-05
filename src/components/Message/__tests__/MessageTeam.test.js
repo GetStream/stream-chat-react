@@ -10,8 +10,12 @@ import {
   getTestClientWithUser,
 } from 'mock-builders';
 
-import { ChannelContext, TranslationContext } from '../../../context';
-import MessageTeam from '../MessageTeam';
+import {
+  ChannelContext,
+  ChatContext,
+  TranslationContext,
+} from '../../../context';
+import { MessageTeam } from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
@@ -46,19 +50,31 @@ async function renderMessageTeam(
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChannelContext.Provider
-      value={{ channel, client, emojiConfig: emojiMockConfig, t: (key) => key }}
-    >
-      <TranslationContext.Provider
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
         value={{
+          channel,
+          client,
+          emojiConfig: emojiMockConfig,
           t: (key) => key,
-          tDateTimeParser: customDateTimeParser,
-          userLanguage: 'en',
         }}
       >
-        <MessageTeam message={message} typing={false} {...props} />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+        <TranslationContext.Provider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <MessageTeam
+            getMessageActions={() => []}
+            message={message}
+            typing={false}
+            {...props}
+          />
+        </TranslationContext.Provider>
+      </ChannelContext.Provider>
+    </ChatContext.Provider>,
   );
 }
 
