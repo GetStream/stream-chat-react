@@ -6,6 +6,7 @@ import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -82,13 +83,14 @@ export const PinIndicator = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >({
   message,
   t,
-}: PinIndicatorProps<At, Ch, Co, Me, Re, Us>) => {
+}: PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>) => {
   if (!message || !t) return null;
 
   return (

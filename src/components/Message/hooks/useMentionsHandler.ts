@@ -1,7 +1,10 @@
-import { useChannelContext } from '../../../context/ChannelContext';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 
 import type { MouseEvent } from 'react';
-import type { MessageResponse, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 import type { MouseEventHandler } from '../types';
 
@@ -32,12 +35,13 @@ function createEventHandler<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
   fn?: MentionedUserEventHandler<Us>,
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): MouseEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
@@ -56,7 +60,7 @@ export const useMentionsHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   customMentionHandler?: {
     onMentionsClick?: CustomMentionHandler<Us>;
     onMentionsHover?: CustomMentionHandler<Us>;
@@ -92,7 +96,7 @@ export const useMentionsUIHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   eventHandlers?: {
     onMentionsClick?: MouseEventHandler;
     onMentionsHover?: MouseEventHandler;

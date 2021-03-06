@@ -4,12 +4,13 @@ import { useUserRole } from './hooks/useUserRole';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageResponse } from 'stream-chat';
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -20,22 +21,24 @@ export type MessageDeletedProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 export const MessageDeleted = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: MessageDeletedProps<At, Ch, Co, Me, Re, Us>,
+  props: MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { message } = props;
 

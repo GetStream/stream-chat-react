@@ -1,9 +1,12 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
-import { useChannelContext } from '../../../context/ChannelContext';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { MessageResponse, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 import type { MouseEventHandler } from '../types';
 
@@ -36,7 +39,7 @@ export const useMuteHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
 ): MouseEventHandler => {
   const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();

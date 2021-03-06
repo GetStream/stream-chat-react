@@ -1,6 +1,7 @@
-import { useChannelContext } from '../../../context/ChannelContext';
-
-import type { MessageResponse } from 'stream-chat';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -22,7 +23,7 @@ export const useUserRole = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { channel, client } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
 

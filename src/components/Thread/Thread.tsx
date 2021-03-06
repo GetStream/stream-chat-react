@@ -232,7 +232,7 @@ const ThreadInner = <
           channel={channel}
           client={client}
           initialMessage
-          message={thread as MessageResponse<At, Ch, Co, Me, Re, Us>}
+          message={thread}
           Message={ThreadMessage}
           threadList
           {...additionalParentMessageProps}
@@ -246,16 +246,7 @@ const ThreadInner = <
           loadingMore={threadLoadingMore}
           loadMore={loadMoreThread}
           Message={ThreadMessage}
-          messages={
-            (threadMessages as unknown) as MessageResponse<
-              At,
-              Ch,
-              Co,
-              Me,
-              Re,
-              Us
-            >[]
-          }
+          messages={threadMessages || []}
           read={read}
           threadList
           {...additionalMessageListProps}

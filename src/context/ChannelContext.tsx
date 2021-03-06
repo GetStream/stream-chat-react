@@ -89,10 +89,23 @@ export type RetrySendMessage<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> = (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+> = (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void>;
+
+export type StreamMessage<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> =
+  | ReturnType<StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
+  | MessageResponse<At, Ch, Co, Me, Re, Us>;
 
 export type ChannelState<
   At extends UnknownType = DefaultAttachmentType,
@@ -108,28 +121,13 @@ export type ChannelState<
   loading?: boolean;
   loadingMore?: boolean;
   members?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
-  messages?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages'];
-  pinnedMessages?: StreamChannelState<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['pinnedMessages'];
+  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  pinnedMessages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
-  thread?:
-    | ReturnType<
-        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage'] // TODO - potentially remove ReturnType message
-      >
-    | MessageResponse<At, Ch, Co, Me, Re, Us>
-    | null;
+  thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
-  threadMessages?: Array<
-    ReturnType<StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
-  >;
+  threadMessages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   typing?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['typing'];
   watcherCount?: number;
   watchers?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
@@ -173,15 +171,15 @@ export type ChannelContextValue<
     user: UserResponse<Us>[],
   ) => void;
   openThread?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
-  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
+  removeMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   sendMessage?: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
-  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
+  updateMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   watcher_count?: number;
 };
 

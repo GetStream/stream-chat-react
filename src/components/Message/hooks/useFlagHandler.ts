@@ -1,10 +1,11 @@
-import type { MessageResponse } from 'stream-chat';
-
 import { validateAndGetMessage } from '../utils';
+
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { MouseEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -24,15 +25,16 @@ export type FlagMessageNotifications<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
   getErrorNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   getSuccessNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
@@ -46,8 +48,8 @@ export const useFlagHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  notifications: FlagMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  notifications: FlagMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ): MouseEventHandler => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();

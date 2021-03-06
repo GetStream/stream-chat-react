@@ -11,6 +11,8 @@ import type {
 import type { PinPermissions } from './hooks';
 import type { MessageProps, MessageUIComponentProps } from './types';
 
+import type { StreamMessage } from '../../context/ChannelContext';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -53,11 +55,12 @@ export function isUserMuted<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   mutes?: Mute<Us>[],
 ): boolean {
   if (!mutes || !message) return false;
@@ -267,22 +270,24 @@ export const messageHasReactions = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => !!message?.latest_reactions && !!message.latest_reactions.length;
 
 export const messageHasAttachments = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => !!message?.attachments && !!message.attachments.length;
 
 export const getImages = <

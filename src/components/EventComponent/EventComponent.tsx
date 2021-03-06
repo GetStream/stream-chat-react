@@ -7,12 +7,13 @@ import {
   useTranslationContext,
 } from '../../context/TranslationContext';
 
-import type { MessageResponse } from 'stream-chat';
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -23,15 +24,15 @@ export type EventComponentProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
   /** Message object */
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Custom UI component to display user avatar.
-   *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
@@ -44,18 +45,19 @@ const UnMemoizedEventComponent = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: EventComponentProps<At, Ch, Co, Me, Re, Us>,
+  props: EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { Avatar = DefaultAvatar, message } = props;
 
   const { tDateTimeParser } = useTranslationContext();
   const { created_at = '', event, text, type } = message;
 
-  const dateFormatter = (date: string, format: string) => {
+  const dateFormatter = (date: string | Date, format: string) => {
     const parsedDate = tDateTimeParser(date);
     const formattedDate = isDayjs(parsedDate)
       ? parsedDate.format(format)

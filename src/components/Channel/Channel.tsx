@@ -58,6 +58,7 @@ import {
   ChannelProvider,
   MessageAttachments,
   MessageToSend,
+  StreamMessage,
 } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -459,11 +460,14 @@ const ChannelInner = <
   );
 
   const updateMessage = useCallback(
-    (updatedMessage: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
+    (updatedMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (!channel) return;
       // adds the message to the local channel state..
       // this adds to both the main channel state as well as any reply threads
-      channel.state.addMessageSorted(updatedMessage, true);
+      channel.state.addMessageSorted(
+        updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>,
+        true,
+      );
 
       dispatch({
         channel,
@@ -475,7 +479,7 @@ const ChannelInner = <
   );
 
   const doSendMessage = useCallback(
-    async (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
+    async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (!channel) return;
       const { attachments, id, mentioned_users, parent_id, text } = message;
 
@@ -580,7 +584,7 @@ const ChannelInner = <
   );
 
   const retrySendMessage = useCallback(
-    async (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
+    async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
       // set the message status to sending
       updateMessage({
         ...message,
@@ -594,7 +598,7 @@ const ChannelInner = <
   );
 
   const removeMessage = useCallback(
-    (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => {
+    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (!channel) return;
 
       channel.state.removeMessage(message);
@@ -612,7 +616,7 @@ const ChannelInner = <
 
   const openThread = useCallback(
     (
-      message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
       event: React.SyntheticEvent,
     ) => {
       if (!channel) return;

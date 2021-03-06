@@ -17,9 +17,9 @@ import {
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type { MessageResponse } from 'stream-chat';
-
 import type { MessageUIComponentProps } from '../Message/types';
+
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -42,7 +42,7 @@ export type MessageActionsProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>> & {
   getMessageActions: () => MessageActionsArray;
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   customWrapperClass?: string;
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;

@@ -8,17 +8,14 @@ import {
 } from '../InfiniteScrollPaginator';
 import { Message } from '../Message';
 
-import type {
-  Channel,
-  MessageResponse,
-  StreamChat,
-  UserResponse,
-} from 'stream-chat';
+import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { MessageProps } from '../Message/types';
 import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
+
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -51,7 +48,7 @@ export type MessageListInnerProps<
    */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[];
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser: boolean;
   onMessageLoadCaptured: (
@@ -83,7 +80,7 @@ export type MessageListInnerProps<
    * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
    */
   MessageSystem?: React.ComponentType<{
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   }>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
@@ -93,11 +90,12 @@ const getLastReceived = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[],
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
 ) => {
   for (let i = messages.length - 1; i > 0; i -= 1) {
     if (messages[i].status === 'received') {
@@ -112,11 +110,12 @@ const getReadStates = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[],
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   read: Record<string, { last_read: Date; user: UserResponse<Us> }> = {},
 ) => {
   // create object with empty array for each message id
@@ -144,18 +143,19 @@ const insertDates = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[],
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   lastRead?: Date | string | null,
   userID?: string,
   hideDeletedMessages?: boolean,
-): MessageResponse<At, Ch, Co, Me, Re, Us>[] => {
+) => {
   let unread = false;
   let lastDateSeparator;
-  const newMessages: MessageResponse<At, Ch, Co, Me, Re, Us>[] = [];
+  const newMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[] = [];
 
   for (let i = 0, l = messages.length; i < l; i += 1) {
     const message = messages[i];
@@ -221,18 +221,20 @@ const insertIntro = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  messages: MessageResponse<At, Ch, Co, Me, Re, Us>[],
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({ type: 'channel.intro' } as unknown) as MessageResponse<
+  const intro = ({ type: 'channel.intro' } as unknown) as StreamMessage<
     At,
     Ch,
     Co,
+    Ev,
     Me,
     Re,
     Us
@@ -291,13 +293,14 @@ const getGroupStyles = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  previousMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
-  nextMessage: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   noGroupByUser: boolean,
 ): GroupStyle => {
   if (message.type === 'message.date') return '';
@@ -450,7 +453,7 @@ const UnMemoizedMessageListInner = <
             <li
               key={
                 (message.event as { created_at: string })?.created_at ||
-                message.created_at ||
+                (message.created_at as string) ||
                 ''
               }
             >
@@ -465,7 +468,7 @@ const UnMemoizedMessageListInner = <
           return (
             <li
               className={`str-chat__li str-chat__li--${groupStyles}`}
-              key={message.id || message.created_at}
+              key={message.id || (message.created_at as string)}
               onLoadCapture={onMessageLoadCaptured}
             >
               <Message

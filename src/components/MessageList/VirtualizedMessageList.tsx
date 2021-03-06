@@ -28,10 +28,10 @@ import {
   MessageDeletedProps,
 } from '../Message';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageResponse, StreamChat } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 
 import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
@@ -62,7 +62,7 @@ export type VirtualizedMessageListProps<
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** Custom render function, if passed, certain UI props are ignored. */
   customMessageRenderer(
-    messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
+    messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
   ): React.ReactElement;
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
@@ -77,16 +77,16 @@ export type VirtualizedMessageListProps<
   loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages. */
   Message?: React.ComponentType<
-    FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>
+    FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
   /** Custom UI component to display deleted messages. */
   MessageDeleted?: React.ComponentType<
-    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
+    MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
   /** Set the limit to use when paginating messages. */
   messageLimit?: number;
   /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
-  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>;
+  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages. */
   MessageSystem?: React.ComponentType<unknown>; // TODO - add generic when EventComponent is typed
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport. */
@@ -174,7 +174,7 @@ const VirtualizedMessageListWithoutContext = <
 
   const messageRenderer = useCallback(
     (
-      messageList: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
+      messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
       virtuosoIndex: number,
     ) => {
       const streamMessageIndex =
@@ -326,6 +326,7 @@ export function VirtualizedMessageList<
   const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
+    // @ts-expect-error
     <VirtualizedMessageListWithoutContext
       client={context.client}
       hasMore={!!context.hasMore}
@@ -333,7 +334,6 @@ export function VirtualizedMessageList<
       loadMore={context.loadMore}
       // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
       // 'formatMessage' converts it to Date, which seems to be the correct type
-      //@ts-expect-error
       messages={context.messages}
       {...props}
     />

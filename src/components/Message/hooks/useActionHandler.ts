@@ -1,7 +1,9 @@
-import { useChannelContext } from '../../../context/ChannelContext';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 
 import type { BaseSyntheticEvent } from 'react';
-import type { MessageResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -33,7 +35,9 @@ export function useActionHandler<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
->(message?: MessageResponse<At, Ch, Co, Me, Re, Us>): ActionHandlerReturnType {
+>(
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+): ActionHandlerReturnType {
   const { channel, removeMessage, updateMessage } = useChannelContext<
     At,
     Ch,

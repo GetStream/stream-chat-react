@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MessageResponse } from 'stream-chat';
+
+import type { StreamMessage } from '../../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -15,11 +17,12 @@ export function useNewMessageNotification<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>,
+  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   currentUserId?: string,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);

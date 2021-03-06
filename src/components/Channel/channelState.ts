@@ -5,7 +5,7 @@ import type {
   ChannelState as StreamChannelState,
 } from 'stream-chat';
 
-import type { ChannelState } from '../../context/ChannelContext';
+import type { ChannelState, StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -36,14 +36,12 @@ export type ChannelStateReducerAction<
       type: 'copyStateFromChannelOnEvent';
     }
   | {
-      message: ReturnType<
-        StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-      >;
+      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
       type: 'setThread';
     }
   | {
       hasMore: boolean;
-      messages: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages'];
+      messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
       type: 'loadMoreFinished';
     }
   | {
@@ -62,7 +60,7 @@ export type ChannelStateReducerAction<
     }
   | {
       channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
       type: 'openThread';
     }
   | {

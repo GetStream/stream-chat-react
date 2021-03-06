@@ -1,10 +1,12 @@
 import { useMemo, useRef } from 'react';
-import type { MessageResponse } from 'stream-chat';
+
+import type { StreamMessage } from '../../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -15,10 +17,11 @@ export function usePrependedMessagesCount<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
->(messages?: Array<MessageResponse<At, Ch, Co, Me, Re, Us>>) {
+>(messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[]) {
   const currentFirstMessageId = messages?.[0]?.id;
   const firstMessageId = useRef(currentFirstMessageId);
   const earliestMessageId = useRef(currentFirstMessageId);

@@ -23,7 +23,10 @@ import type { GroupStyle } from '../MessageList/MessageListInner';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
-import type { RetrySendMessage } from '../../context/ChannelContext';
+import type {
+  RetrySendMessage,
+  StreamMessage,
+} from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -50,7 +53,7 @@ export type MessageProps<
   Us extends UnknownType = DefaultUserType
 > = {
   /** The message object */
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Additional props for underlying MessageInput component
    * Available props - https://getstream.github.io/stream-chat-react/#messageinput
@@ -87,7 +90,7 @@ export type MessageProps<
    * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
    * */
   getFlagMessageErrorNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
@@ -95,7 +98,7 @@ export type MessageProps<
    * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
    * */
   getFlagMessageSuccessNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
@@ -115,7 +118,7 @@ export type MessageProps<
    * @param message A [message object](https://getstream.io/chat/docs/#message_format)
    * */
   getPinMessageErrorNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
@@ -157,7 +160,7 @@ export type MessageProps<
   onUserHover?: UserEventHandler<Us>;
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   openThread?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   /** The user roles allowed to pin messages in various channel types */
@@ -167,7 +170,7 @@ export type MessageProps<
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
-  retrySendMessage?: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
+  retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Whether or not the message is in a thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -220,7 +223,7 @@ export type MessageUIComponentProps<
     event: React.MouseEvent<HTMLElement, MouseEvent>,
   ) => Promise<void>;
   /** Function to retry sending a message */
-  handleRetry: RetrySendMessage<At, Ch, Co, Me, Re, Us>;
+  handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Function to toggle the edit state on a message */
   setEditingState: MouseEventHandler;
   /** Channel config object */
@@ -237,7 +240,7 @@ export type MessageUIComponentProps<
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
    */
   MessageDeleted?: React.ComponentType<
-    MessageDeletedProps<At, Ch, Co, Me, Re, Us>
+    MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
   /** Handler function for a click event on an @mention in message */
   onMentionsClickMessage?: MouseEventHandler;
@@ -272,10 +275,11 @@ export type PinIndicatorProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   t?: TFunction;
 };

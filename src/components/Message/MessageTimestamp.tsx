@@ -9,12 +9,13 @@ import {
   useTranslationContext,
 } from '../../context/TranslationContext';
 
-import type { MessageResponse } from 'stream-chat';
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
@@ -77,6 +78,7 @@ export type MessageTimestampProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
@@ -86,18 +88,19 @@ export type MessageTimestampProps<
   format?: string;
   /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
   formatDate?: (date: Date) => string;
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const UnMemoizedMessageTimestamp = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  props: MessageTimestampProps<At, Ch, Co, Me, Re, Us>,
+  props: MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     calendar = false,
@@ -109,7 +112,7 @@ const UnMemoizedMessageTimestamp = <
 
   const { tDateTimeParser } = useTranslationContext();
 
-  const createdAt = message?.created_at;
+  const createdAt = message?.created_at as string;
 
   const when = useMemo(
     () =>

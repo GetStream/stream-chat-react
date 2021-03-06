@@ -1,9 +1,12 @@
 import { validateAndGetMessage } from '../utils';
 
-import { useChannelContext } from '../../../context/ChannelContext';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { MessageResponse, UpdatedMessage } from 'stream-chat';
+import type { UpdatedMessage } from 'stream-chat';
 
 import type { MouseEventHandler } from '../types';
 
@@ -47,12 +50,13 @@ export type PinMessageNotifications<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   getErrorNotification?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
@@ -64,11 +68,11 @@ export const usePinHandler = <
   Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   permissions?: PinPermissions,
-  notifications: PinMessageNotifications<At, Ch, Co, Me, Re, Us> = {},
+  notifications: PinMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 

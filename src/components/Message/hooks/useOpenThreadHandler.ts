@@ -1,6 +1,7 @@
-import { useChannelContext } from '../../../context/ChannelContext';
-
-import type { MessageResponse } from 'stream-chat';
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 
 import type { MouseEventHandler } from '../types';
 
@@ -24,9 +25,9 @@ export const useOpenThreadHandler = <
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   customOpenThread?: (
-    message: MessageResponse<At, Ch, Co, Me, Re, Us>,
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void,
 ): MouseEventHandler => {

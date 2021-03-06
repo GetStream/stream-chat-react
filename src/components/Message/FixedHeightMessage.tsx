@@ -13,7 +13,9 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from '../../utils';
 
-import type { MessageResponse, TranslationLanguages } from 'stream-chat';
+import type { TranslationLanguages } from 'stream-chat';
+
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -46,12 +48,13 @@ export type FixedHeightMessageProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > = {
   groupedByUser: boolean;
-  message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 /**
@@ -67,7 +70,7 @@ const UnMemoizedFixedHeightMessage = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: FixedHeightMessageProps<At, Ch, Co, Me, Re, Us>,
+  props: FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { groupedByUser, message } = props;
 
