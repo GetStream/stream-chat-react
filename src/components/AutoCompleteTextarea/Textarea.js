@@ -57,8 +57,8 @@ class ReactTextareaAutocomplete extends React.Component {
   }
 
   componentDidMount() {
-    Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
-    Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
+    // Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
+    // Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
     let listenerIndex = 0;
 
@@ -131,14 +131,15 @@ class ReactTextareaAutocomplete extends React.Component {
     const trigger = this.state.currentTrigger;
     const hasFocus = this.textareaRef.matches(':focus');
 
-    // don't submit if the element has focus or the shift key is pressed, unless shift+Enter was provided as submit keys
+    // don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter was provided as submit keys
     if (
       !hasFocus ||
       (event.shiftKey === true &&
         (this.props.keycodeSubmitKeys !== null || undefined) &&
         !this.props.keycodeSubmitKeys.includes(event.shiftKey && 13))
-    )
+    ) {
       return;
+    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit

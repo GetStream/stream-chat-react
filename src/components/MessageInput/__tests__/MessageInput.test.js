@@ -676,8 +676,14 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const { findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [17, 13],
         });
-        // const messageText = 'Submission text.';
+        const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
 
         fireEvent.keyDown(input, {
           keyCode: 17,
@@ -688,7 +694,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         });
 
         await submit();
-        expect(submitMock).toHaveBeenCalledWith();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            text: messageText,
+          }),
+        );
       });
       it('should not submit if invalid keycodeSubmitKeys are provided even when keycode events do match', async () => {
         const { findByPlaceholderText, submit } = renderComponent({
