@@ -13,7 +13,6 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../types/types';
 
 export type TypingIndicatorProps = {
@@ -24,7 +23,7 @@ export type TypingIndicatorProps = {
   Avatar?: React.ComponentType<AvatarProps>;
   /** Size in pixels and the default is 32px */
   avatarSize?: number;
-  /** Boolean for it there is a threadlist */
+  /** Whether or not the typing indicator is in a thread */
   threadList?: boolean;
 };
 
@@ -32,13 +31,13 @@ export type TypingIndicatorProps = {
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
 const UnMemoizedTypingIndicator = <
-  At extends UnknownType = DefaultAttachmentType,
+  At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends DefaultUserType = DefaultUserType
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
   props: TypingIndicatorProps,
 ) => {

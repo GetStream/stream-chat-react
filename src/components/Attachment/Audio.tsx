@@ -2,17 +2,21 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType, UnknownType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../../types/types';
 
 const progressUpdateInterval = 500;
 /**
  * Audio attachment with play/pause button and progress bar
  */
-export type AudioProps<At extends UnknownType = DefaultAttachmentType> = {
+export type AudioProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType
+> = {
   og: Attachment<At>;
 };
 
-const UnMemoizedAudio = <At extends UnknownType = DefaultAttachmentType>(
+const UnMemoizedAudio = <
+  At extends DefaultAttachmentType = DefaultAttachmentType
+>(
   props: AudioProps<At>,
 ) => {
   const { og } = props;

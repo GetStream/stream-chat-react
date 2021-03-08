@@ -18,26 +18,27 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../../types/types';
 
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-export type MuteUserNotifications<Us extends UnknownType = DefaultUserType> = {
+export type MuteUserNotifications<
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   getErrorNotification?: (user: UserResponse<Us>) => string;
   getSuccessNotification?: (user: UserResponse<Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useMuteHandler = <
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
