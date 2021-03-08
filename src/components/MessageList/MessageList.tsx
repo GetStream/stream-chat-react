@@ -7,25 +7,28 @@ import { CustomNotification } from './CustomNotification';
 import { MessageListInner, MessageListInnerProps } from './MessageListInner';
 import { MessageNotification } from './MessageNotification';
 
-import { Attachment } from '../Attachment';
-import { Avatar } from '../Avatar';
+import { Attachment as DefaultAttachment } from '../Attachment';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 import {
   LoadingIndicator as DefaultLoadingIndicator,
-  LoadingIndicator,
+  LoadingIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
 import {
+  ChannelContextValue,
   TranslationContextValue,
   useChannelContext,
+  useChatContext,
   useTranslationContext,
 } from '../../context';
-import { smartRender } from '../../utils';
+
+import type { StreamChat } from 'stream-chat';
 
 import type { MessageProps } from '../Message/types';
 
@@ -40,48 +43,9 @@ import type {
   UnknownType,
 } from '../../../types/types';
 
-type PropsDrilledToMessage =
-  | 'Attachment'
-  | 'Avatar'
-  | 'Message'
-  | 'getFlagMessageErrorNotification'
-  | 'getFlagMessageErrorNotification'
-  | 'getFlagMessageSuccessNotification'
-  | 'getMuteUserErrorNotification'
-  | 'getMuteUserSuccessNotification'
-  | 'getPinMessageErrorNotification'
-  | 'members'
-  | 'messageActions'
-  | 'mutes'
-  | 'onMentionsClick'
-  | 'onMentionsHover'
-  | 'onUserClick'
-  | 'onUserHover'
-  | 'openThread'
-  | 'pinPermissions'
-  | 'removeMessage'
-  | 'retrySendMessage'
-  | 'unsafeHTML'
-  | 'updateMessage'
-  | 'watchers';
+type Snapshot = { offsetBottom: number; offsetTop: number } | null;
 
-type PropsDrilledToMessageListInner =
-  | 'channel'
-  | 'client'
-  | 'DateSeparator'
-  | 'disableDateSeparator'
-  | 'EmptyStateIndicator'
-  | 'HeaderComponent'
-  | 'headerPosition'
-  | 'hideDeletedMessages'
-  | 'messages'
-  | 'MessageSystem'
-  | 'noGroupByUser'
-  | 'read'
-  | 'threadList'
-  | 'TypingIndicator';
-
-export type MessageListProps<
+export type MessageListWithContextProps<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -89,45 +53,14 @@ export type MessageListProps<
   Me extends UnknownType = DefaultMessageType,
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
-> = Pick<
-  MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
-  PropsDrilledToMessageListInner
-> &
-  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage> &
-  TranslationContextValue & {
-    /**
-     * Additional props for the underlying MessageInput component.
-     * We have instance of MessageInput component in MessageSimple component, for handling edit state.
-     * Available props - https://getstream.github.io/stream-chat-react/#messageinput
-     */
-    additionalMessageInputProps: Record<string, unknown>; // TODO - add MessageInputProps
-    /** Component to render at the top of the MessageList while loading new messages. */
-    LoadingIndicator: typeof LoadingIndicator;
-    /** The limit to use when paginating messages. */
-    messageLimit: number;
-    /**
-     * Date separator UI component to render.
-     * Defaults to and accepts same props as [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
-     */
-    dateSeparator?: MessageListInnerProps<
-      At,
-      Ch,
-      Co,
-      Ev,
-      Me,
-      Re,
-      Us
-    >['DateSeparator'];
-    hasMore?: boolean;
-    loadingMore?: boolean;
-    loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
-    /** The pixel threshold to determine whether or not the user is scrolled up in the list. Default is 200 */
-    scrolledUpThreshold?: number;
+> = Omit<ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'client' | 'typing'> &
+  TranslationContextValue &
+  MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    /** The client connection object for connecting to Stream */
+    client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   };
 
-type Snapshot = { offsetBottom: number; offsetTop: number } | null;
-
-class MessageListWithoutContext<
+class MessageListWithContext<
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -136,7 +69,7 @@ class MessageListWithoutContext<
   Re extends UnknownType = DefaultReactionType,
   Us extends UnknownType = DefaultUserType
 > extends PureComponent<
-  MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+  MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
   {
     newMessagesNotification: boolean;
     notifications: Array<{
@@ -148,20 +81,9 @@ class MessageListWithoutContext<
   }
 > {
   static defaultProps = {
-    Attachment,
-    Avatar,
-    DateSeparator: DefaultDateSeparator,
-    EmptyStateIndicator: DefaultEmptyStateIndicator,
-    LoadingIndicator: DefaultLoadingIndicator,
-    Message: MessageSimple,
-    messageActions: Object.keys(MESSAGE_ACTIONS),
-    MessageSystem: EventComponent,
-    noGroupByUser: false,
-    pinPermissions: defaultPinPermissions,
+    messages: [],
     scrolledUpThreshold: 200,
     threadList: false,
-    TypingIndicator: DefaultTypingIndicator,
-    unsafeHTML: false,
   };
 
   bottomRef: RefObject<HTMLDivElement>;
@@ -170,7 +92,7 @@ class MessageListWithoutContext<
   closeToTop: boolean | undefined;
   scrollOffset: number | undefined;
 
-  constructor(props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>) {
+  constructor(props: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>) {
     super(props);
 
     this.state = {
@@ -198,7 +120,7 @@ class MessageListWithoutContext<
   }
 
   getSnapshotBeforeUpdate(
-    prevProps: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+    prevProps: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
   ) {
     if (this.props.threadList) {
       return null;
@@ -206,7 +128,9 @@ class MessageListWithoutContext<
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
 
-    if (prevProps.messages.length < this.props.messages.length) {
+    if (
+      (prevProps.messages?.length || 0) < (this.props.messages?.length || 0)
+    ) {
       const list = this.messageList.current;
       if (list) {
         return {
@@ -221,7 +145,7 @@ class MessageListWithoutContext<
   }
 
   componentDidUpdate(
-    prevProps: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+    prevProps: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
     _: unknown,
     snapshot: Snapshot,
   ) {
@@ -229,11 +153,11 @@ class MessageListWithoutContext<
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)
     const userScrolledUp = this.userScrolledUp();
-    const currentLastMessage = this.props.messages[
-      this.props.messages.length - 1
+    const currentLastMessage = this.props.messages?.[
+      this.props.messages?.length - 1
     ];
     const previousLastMessage =
-      prevProps.messages[prevProps.messages.length - 1];
+      prevProps.messages?.[prevProps.messages?.length - 1];
     if (!previousLastMessage || !currentLastMessage) {
       return;
     }
@@ -395,7 +319,25 @@ class MessageListWithoutContext<
   };
 
   render() {
-    const { t } = this.props;
+    const {
+      Attachment = DefaultAttachment,
+      Avatar = DefaultAvatar,
+      DateSeparator = DefaultDateSeparator,
+      EmptyStateIndicator = DefaultEmptyStateIndicator,
+      LoadingIndicator = DefaultLoadingIndicator,
+      Message = MessageSimple,
+      messageActions = Object.keys(MESSAGE_ACTIONS),
+      messages = [],
+      MessageSystem = EventComponent,
+      noGroupByUser = false,
+      pinPermissions = defaultPinPermissions,
+      t,
+      threadList = false,
+      TypingIndicator = DefaultTypingIndicator,
+      unsafeHTML = false,
+    } = this.props;
+
+    if (!this.props.channel) return;
 
     return (
       <>
@@ -405,13 +347,13 @@ class MessageListWithoutContext<
           }`}
           ref={this.messageList}
         >
-          <MessageListInner
+          <MessageListInner<At, Ch, Co, Ev, Me, Re, Us>
             bottomRef={this.bottomRef}
             channel={this.props.channel}
             client={this.props.client}
-            DateSeparator={this.props.DateSeparator || this.props.dateSeparator}
+            DateSeparator={DateSeparator}
             disableDateSeparator={this.props.disableDateSeparator}
-            EmptyStateIndicator={this.props.EmptyStateIndicator}
+            EmptyStateIndicator={EmptyStateIndicator}
             HeaderComponent={this.props.HeaderComponent}
             headerPosition={this.props.headerPosition}
             hideDeletedMessages={this.props.hideDeletedMessages}
@@ -421,7 +363,7 @@ class MessageListWithoutContext<
               listenToScroll: this.listenToScroll,
               loader: (
                 <Center key='loadingindicator'>
-                  {smartRender(this.props.LoadingIndicator, { size: 20 }, null)}
+                  <LoadingIndicator size={20} />
                 </Center>
               ),
               loadMore: this.loadMore,
@@ -430,8 +372,8 @@ class MessageListWithoutContext<
               additionalMessageInputProps: this.props
                 .additionalMessageInputProps,
               addNotification: this.addNotification,
-              Attachment: this.props.Attachment,
-              Avatar: this.props.Avatar,
+              Attachment,
+              Avatar,
               channel: this.props.channel,
               getFlagMessageErrorNotification: this.props
                 .getFlagMessageErrorNotification,
@@ -444,8 +386,8 @@ class MessageListWithoutContext<
               getPinMessageErrorNotification: this.props
                 .getPinMessageErrorNotification,
               members: this.props.members,
-              Message: this.props.Message,
-              messageActions: this.props.messageActions,
+              Message,
+              messageActions,
               messageListRect: this.state.messageListRect,
               mutes: this.props.mutes,
               onMentionsClick: this.props.onMentionsClick,
@@ -453,20 +395,20 @@ class MessageListWithoutContext<
               onUserClick: this.props.onUserClick,
               onUserHover: this.props.onUserHover,
               openThread: this.props.openThread,
-              pinPermissions: this.props.pinPermissions,
+              pinPermissions,
               removeMessage: this.props.removeMessage,
               retrySendMessage: this.props.retrySendMessage,
-              unsafeHTML: this.props.unsafeHTML,
+              unsafeHTML,
               updateMessage: this.props.updateMessage,
               watchers: this.props.watchers,
             }}
-            messages={this.props.messages}
-            MessageSystem={this.props.MessageSystem}
-            noGroupByUser={this.props.noGroupByUser}
+            messages={messages}
+            MessageSystem={MessageSystem}
+            noGroupByUser={noGroupByUser}
             onMessageLoadCaptured={this.onMessageLoadCaptured}
             read={this.props.read}
-            threadList={this.props.threadList}
-            TypingIndicator={this.props.TypingIndicator}
+            threadList={threadList}
+            TypingIndicator={TypingIndicator}
           />
         </div>
         <div className='str-chat__list-notifications'>
@@ -492,6 +434,69 @@ class MessageListWithoutContext<
   }
 }
 
+type PropsDrilledToMessage =
+  | 'additionalMessageInputProps'
+  | 'Attachment'
+  | 'Avatar'
+  | 'Message'
+  | 'getFlagMessageErrorNotification'
+  | 'getFlagMessageErrorNotification'
+  | 'getFlagMessageSuccessNotification'
+  | 'getMuteUserErrorNotification'
+  | 'getMuteUserSuccessNotification'
+  | 'getPinMessageErrorNotification'
+  | 'messageActions'
+  | 'mutes'
+  | 'onUserClick'
+  | 'onUserHover'
+  | 'pinPermissions'
+  | 'unsafeHTML';
+
+type PropsDrilledToMessageListInner =
+  | 'DateSeparator'
+  | 'disableDateSeparator'
+  | 'EmptyStateIndicator'
+  | 'HeaderComponent'
+  | 'headerPosition'
+  | 'hideDeletedMessages'
+  | 'messages'
+  | 'MessageSystem'
+  | 'noGroupByUser'
+  | 'read'
+  | 'threadList'
+  | 'TypingIndicator';
+
+export type MessageListProps<
+  At extends UnknownType = DefaultAttachmentType,
+  Ch extends UnknownType = DefaultChannelType,
+  Co extends string = DefaultCommandType,
+  Ev extends UnknownType = DefaultEventType,
+  Me extends UnknownType = DefaultMessageType,
+  Re extends UnknownType = DefaultReactionType,
+  Us extends UnknownType = DefaultUserType
+> = Partial<
+  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>
+> &
+  Partial<
+    Pick<
+      MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
+      PropsDrilledToMessageListInner
+    >
+  > & {
+    /** Whether or not the list has more items to load */
+    hasMore?: boolean;
+    /** Component to render at the top of the MessageList while loading new messages. */
+    LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+    /** Whether or not the list is currently loading more items */
+    loadingMore?: boolean;
+    /** Function called when more messages are to be loaded */
+    loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
+    /** The limit to use when paginating messages. */
+    messageLimit?: number;
+    /** The pixel threshold to determine whether or not the user is scrolled up in the list. Default is 200 */
+    scrolledUpThreshold?: number;
+  };
+
 /**
  * The MessageList component renders a list of messages.
  * It is a consumer of the [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
@@ -508,23 +513,20 @@ export const MessageList = <
 >(
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { typing, ...channelContext } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const {
+    client: channelClient, // eslint-disable-line
+    typing, // eslint-disable-line
+    ...channelContext
+  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const translation = useTranslationContext();
 
   return (
-    <MessageListWithoutContext
+    <MessageListWithContext
+      client={client}
       {...channelContext}
-      {...props}
       {...translation}
+      {...props}
     />
   );
 };

@@ -4,12 +4,11 @@ import { Message } from '../Message';
 import { MessageInput, MessageInputSmall } from '../MessageInput';
 import { MessageList, MessageListProps } from '../MessageList';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { TFunction } from 'i18next';
-import type { ChannelState, MessageResponse } from 'stream-chat';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
@@ -110,10 +109,7 @@ export type ThreadHeaderProps<
   closeThread?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
-  thread?:
-    | ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']> // TODO - maybe remove ReturnType message
-    | MessageResponse<At, Ch, Co, Me, Re, Us>
-    | null;
+  thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const DefaultThreadHeader = <
@@ -240,7 +236,6 @@ const ThreadInner = <
         <div className='str-chat__thread-start'>
           {t('Start of a new thread')}
         </div>
-        {/** @ts-expect-error */}
         <MessageList
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}

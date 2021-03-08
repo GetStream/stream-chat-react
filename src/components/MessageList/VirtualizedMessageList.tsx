@@ -123,7 +123,7 @@ export type VirtualizedMessageListProps<
 
 const PREPEND_OFFSET = 10 ** 7;
 
-const VirtualizedMessageListWithoutContext = <
+const VirtualizedMessageListWithContext = <
   At extends UnknownType = DefaultAttachmentType,
   Ch extends UnknownType = DefaultChannelType,
   Co extends string = DefaultCommandType,
@@ -326,11 +326,11 @@ export function VirtualizedMessageList<
   const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
-    // @ts-expect-error
-    <VirtualizedMessageListWithoutContext
+    <VirtualizedMessageListWithContext
       client={context.client}
       hasMore={!!context.hasMore}
       loadingMore={!!context.loadingMore}
+      // @ts-expect-error
       loadMore={context.loadMore}
       // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
       // 'formatMessage' converts it to Date, which seems to be the correct type
