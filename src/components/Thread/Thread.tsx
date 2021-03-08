@@ -51,7 +51,7 @@ export type ThreadProps<
   autoFocus?: boolean;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
-  /** UI component to override the default Message stored in channel context */
+  /** UI component to override the default Message stored in ChannelContext */
   Message?: React.ComponentType<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
   >;

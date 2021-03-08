@@ -101,7 +101,7 @@ export type ChatProps<
  * - setActiveChannel - a function to set currently active channel
  * - theme - current theme
  *
- * It also exposes the withChatContext HOC which you can use to consume the ChatContext
+ * It also exposes the [withChatContext](https://getstream.github.io/stream-chat-react/#section-withchatcontext) HOC which you can use to consume the [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext).
  * @example ./Chat.md
  */
 export const Chat = <

@@ -499,7 +499,14 @@ export type MessageListProps<
 
 /**
  * The MessageList component renders a list of messages.
- * It is a consumer of the [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * It is a consumer of the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ *
+ * It keeps the following state:
+ *
+ * - newMessagesNotification (true when there are new messages and you've scrolled up)
+ * - editing (the id of the message you are editing)
+ * - online (if you're online or not)
+ *
  * @example ./MessageList.md
  */
 export const MessageList = <

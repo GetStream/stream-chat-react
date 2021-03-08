@@ -58,8 +58,7 @@ export type ChannelListTeamProps = {
 };
 
 /**
- * ChannelList - A preview list of channels, allowing you to select the channel you want to open
- * @example ./ChannelList.md
+ * ChannelListTeam - A preview list of channels, allowing you to select the channel you want to open
  */
 export const ChannelListTeam = <
   At extends UnknownType = DefaultAttachmentType,

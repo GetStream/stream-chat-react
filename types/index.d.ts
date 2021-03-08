@@ -398,7 +398,7 @@ export interface ChannelListUIComponentProps {
 }
 
 export interface ChannelPreviewProps {
-  /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
+  /** **Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)** */
   channel: Client.Channel;
   /** Current selected channel object */
   activeChannel?: Client.Channel;

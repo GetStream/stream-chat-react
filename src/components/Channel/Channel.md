@@ -88,8 +88,6 @@ const options = {
 </div>;
 ```
 
-**NOTE** The Channel produces the [ChannelContext](#section-channelcontext) and exposes a [withChannelContext](#section-withchannelcontext) HOC.
-
 The example below shows you how to write components that consume the channel context.
 
 ```json

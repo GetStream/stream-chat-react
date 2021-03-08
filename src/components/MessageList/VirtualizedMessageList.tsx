@@ -57,7 +57,7 @@ export type VirtualizedMessageListProps<
 > = {
   /**
    *The client connection object for connecting to Stream.
-   * Available from [chat context](https://getstream.github.io/stream-chat-react/#chat).
+   * Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext).
    */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** Custom render function, if passed, certain UI props are ignored. */
@@ -65,15 +65,15 @@ export type VirtualizedMessageListProps<
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
   ): React.ReactElement;
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
+  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext). */
   hasMore: boolean;
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
+  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext). */
   loadingMore: boolean;
   /** The UI Indicator to use when MessageList or ChannelList is empty. */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
   /** Component to render at the top of the MessageList while loading new messages. */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
+  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext). */
   loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages. */
   Message?: React.ComponentType<
@@ -85,7 +85,7 @@ export type VirtualizedMessageListProps<
   >;
   /** Set the limit to use when paginating messages. */
   messageLimit?: number;
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel). */
+  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext). */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages. */
   MessageSystem?: React.ComponentType<unknown>; // TODO - add generic when EventComponent is typed
@@ -310,8 +310,10 @@ const VirtualizedMessageListWithContext = <
 };
 
 /**
- * The VirtualizedMessageList component renders a list of messages in a virtual list.
- * It is a consumer of [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * The VirtualizedMessageList component renders a list of messages in a virtualized list.
+ * It is a consumer of [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ *
+ * **Note**: It works well when there are thousands of messages in a channel, it has a shortcoming though - the Message UI should have a fixed height.
  * @example ./VirtualizedMessageList.md
  */
 export function VirtualizedMessageList<

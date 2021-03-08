@@ -56,7 +56,7 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Additional props for underlying MessageInput component
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
@@ -70,12 +70,12 @@ export type MessageProps<
   ) => void;
   /**
    * Attachment UI component to display attachment in individual message
-   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
    * */
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   /**
    * Custom UI component to display user avatar
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.js)
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
   /** The current channel this message is displayed in */
@@ -87,7 +87,7 @@ export type MessageProps<
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error
    * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged.
    * */
   getFlagMessageErrorNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
@@ -95,7 +95,7 @@ export type MessageProps<
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful
    * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format) which is flagged.
+   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged.
    * */
   getFlagMessageSuccessNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
@@ -115,7 +115,7 @@ export type MessageProps<
   /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error
    * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/#message_format)
+   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
    * */
   getPinMessageErrorNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
@@ -126,11 +126,11 @@ export type MessageProps<
   initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   /**
    * Message UI component to display a message in message list
-   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
    * */
   Message?: React.ComponentType<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
@@ -144,21 +144,21 @@ export type MessageProps<
   messageListRect?: DOMRect;
   /** Array of muted users coming from ChannelContext */
   mutes?: Mute<Us>[];
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   onMentionsHover?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   onUserClick?: UserEventHandler<Us>;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   onUserHover?: UserEventHandler<Us>;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
@@ -167,15 +167,15 @@ export type MessageProps<
   pinPermissions?: PinPermissions;
   /** A list of users that have read this message */
   readBy?: UserResponse<Us>[];
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Whether or not the message is in a thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   /** Watchers on the currently active channel */
   watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
@@ -252,7 +252,7 @@ export type MessageUIComponentProps<
   onUserHover?: MouseEventHandler;
   /**
    * Custom UI component to override default pinned message indicator
-   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icon.tsx)
+   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx)
    * */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
   /**

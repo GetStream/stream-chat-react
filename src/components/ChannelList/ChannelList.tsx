@@ -114,7 +114,7 @@ export type ChannelListProps<
    *
    * It has access to some additional props:
    *
-   * - `setActiveChannel` {function} Check [chat context](https://getstream.github.io/stream-chat-react/#chat)
+   * - `setActiveChannel` {function} Check [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
    * - `activeChannel` Currently active channel object
    * - `channels` {array} List of channels in channel list
    */

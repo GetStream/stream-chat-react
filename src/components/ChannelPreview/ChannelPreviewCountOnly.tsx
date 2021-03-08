@@ -28,7 +28,7 @@ export type ChannelPreviewCountOnlyProps<
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Title of channel to display */
   displayTitle?: string;
-  /** @see See [chat context](https://getstream.github.io/stream-chat-react/#chat) for doc */
+  /** @see See [ChatContext](https://getstream.github.io/stream-chat-react/#chat) for doc */
   setActiveChannel?: ChatContextValue<
     At,
     Ch,

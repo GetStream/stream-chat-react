@@ -142,14 +142,14 @@ export type ChannelProps<
   EmptyPlaceholder?: React.ReactElement;
   /**
    * Error indicator UI component. This will be shown on the screen if channel query fails.
-   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
+   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingErrorIndicator.tsx).
    * */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
    * being queried from channel. Once the messages are loaded, loading indicator is removed from the screen
    * and replaced with children of the Channel component.
-   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx)
    */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Maximum number of attachments allowed per message */
@@ -159,10 +159,10 @@ export type ChannelProps<
    *
    * Available built-in components (also accepts the same props as):
    *
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
-   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
-   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
-   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
+   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
+   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
+   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
    *
    * */
   Message?: React.ComponentType<
@@ -173,13 +173,13 @@ export type ChannelProps<
   /**
    * Handle for click on @mention in message
    * @param {Event} event DOM Click event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/javascript/init_and_users/?language=javascript) which is clicked
    */
   onMentionsClick?: OnMentionAction<Us>;
   /**
    * Handle for hover on @mention in message
    * @param {Event} event DOM hover event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
+   * @param {User} user   Target [user object](https://getstream.io/chat/docs/javascript/init_and_users/?language=javascript) which is hovered
    */
   onMentionsHover?: OnMentionAction<Us>;
 };
@@ -784,7 +784,7 @@ const ChannelInner = <
  * - updateMessage
  * - watcher_count
  *
- * It also exposes the withChannelContext HOC which you can use to consume the ChannelContext
+ * It also exposes the [withChannelContext](https://getstream.github.io/stream-chat-react/#section-withchannelcontext) HOC which you can use to consume the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
  * @example ./Channel.md
  */
 export const Channel = React.memo(
