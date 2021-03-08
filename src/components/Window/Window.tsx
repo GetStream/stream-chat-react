@@ -1,40 +1,39 @@
 import React, { PropsWithChildren } from 'react';
 
-import { useChannelContext } from '../../context/ChannelContext';
-
-import type { MessageResponse } from 'stream-chat';
+import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../types/types';
 
 export type WindowProps<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   /** show or hide the window when a thread is active */
   hideOnThread?: boolean;
   /** optional prop to manually trigger the opening of a thread*/
-  thread?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const UnMemoizedWindow = <
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
   props: PropsWithChildren<WindowProps<At, Ch, Co, Me, Re, Us>>,
 ) => {

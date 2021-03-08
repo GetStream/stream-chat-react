@@ -13,7 +13,6 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../../types/types';
 
 export type FormData = Record<string, string>;
@@ -28,13 +27,13 @@ export const handleActionWarning = `Action handler was called, but it is missing
       Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
 
 export function useActionHandler<
-  At extends UnknownType = DefaultAttachmentType,
-  Ch extends UnknownType = DefaultChannelType,
-  Co extends string = DefaultCommandType,
-  Ev extends UnknownType = DefaultEventType,
-  Me extends UnknownType = DefaultMessageType,
-  Re extends UnknownType = DefaultReactionType,
-  Us extends UnknownType = DefaultUserType
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): ActionHandlerReturnType {
