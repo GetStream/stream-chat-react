@@ -154,7 +154,7 @@ export type ChannelContextValue<
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   emojiConfig?: EmojiConfig;
-  loadMore?: (limit: number) => Promise<number>;
+  loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
   loadMoreThread?: () => Promise<void>;
   maxNumberOfFiles?: number;
   Message?: React.ComponentType<

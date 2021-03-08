@@ -69,7 +69,7 @@ const UnMemoizedMessageSimple = <
   >,
 ) => {
   const {
-    Attachment = DefaultAttachment,
+    Attachment: PropAttachment,
     Avatar = DefaultAvatar,
     clearEditingState,
     editing,
@@ -89,15 +89,12 @@ const UnMemoizedMessageSimple = <
     updateMessage: propUpdateMessage,
   } = props;
 
-  const { updateMessage: channelUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const {
+    Attachment: ContextAttachment,
+    updateMessage: channelUpdateMessage,
+  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
 
   const updateMessage = propUpdateMessage || channelUpdateMessage;
 

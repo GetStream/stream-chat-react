@@ -61,7 +61,7 @@ export type MessageListInnerProps<
    * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx).
    */
   TypingIndicator: React.ComponentType<TypingIndicatorProps>;
-  /** Disables the injection of date separator components, defaults to `false`  */
+  /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
