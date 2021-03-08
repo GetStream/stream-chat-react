@@ -14,7 +14,7 @@ import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyState
 import { EventComponent } from '../EventComponent';
 import {
   LoadingIndicator as DefaultLoadingIndicator,
-  LoadingIndicator,
+  LoadingIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
@@ -486,7 +486,7 @@ export type MessageListProps<
     /** Whether or not the list has more items to load */
     hasMore?: boolean;
     /** Component to render at the top of the MessageList while loading new messages. */
-    LoadingIndicator?: typeof LoadingIndicator;
+    LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
     /** Whether or not the list is currently loading more items */
     loadingMore?: boolean;
     /** Function called when more messages are to be loaded */

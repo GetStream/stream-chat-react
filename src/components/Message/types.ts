@@ -70,7 +70,7 @@ export type MessageProps<
   ) => void;
   /**
    * Attachment UI component to display attachment in individual message
-   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   /**
@@ -126,11 +126,11 @@ export type MessageProps<
   initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   /**
    * Message UI component to display a message in message list
-   * Available from [channel context](https://getstream.github.io/stream-chat-react/#channelcontext)
+   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext)
    * */
   Message?: React.ComponentType<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
@@ -142,23 +142,23 @@ export type MessageProps<
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from channel context */
+  /** Array of muted users coming from ChannelContext */
   mutes?: Mute<Us>[];
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   onMentionsHover?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   onUserClick?: UserEventHandler<Us>;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   onUserHover?: UserEventHandler<Us>;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
@@ -167,15 +167,15 @@ export type MessageProps<
   pinPermissions?: PinPermissions;
   /** A list of users that have read this message */
   readBy?: UserResponse<Us>[];
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Whether or not the message is in a thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
-  /** @see See [Channel Context](https://getstream.github.io/stream-chat-react/#channelcontext) */
+  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#channelcontext) */
   updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   /** Watchers on the currently active channel */
   watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];

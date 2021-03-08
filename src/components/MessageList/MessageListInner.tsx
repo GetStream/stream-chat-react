@@ -38,16 +38,19 @@ export type MessageListInnerProps<
   Us extends UnknownType = DefaultUserType
 > = {
   bottomRef: RefObject<HTMLDivElement>;
-  /** The current channel this message is displayed in */
+  /** The currently active channel */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Available from [chat context](https://getstream.github.io/stream-chat-react/#chat) */
+  /** Available from [ChatContext](https://getstream.github.io/stream-chat-react/#chat) */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Date separator UI component to render
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx).
    */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
-  /** Available from [channel context](https://getstream.github.io/stream-chat-react/#channel) */
+  /**
+   * The messages to render in the list
+   * Defaults to the messages stored in [ChannelContext](https://getstream.github.io/stream-chat-react/#channel)
+   * */
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser: boolean;
