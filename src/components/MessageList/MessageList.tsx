@@ -499,7 +499,7 @@ export type MessageListProps<
 
 /**
  * The MessageList component renders a list of messages.
- * It is a consumer of the [Channel Context](https://getstream.github.io/stream-chat-react/#channel)
+ * It is a consumer of the [ChannelContext](https://getstream.github.io/stream-chat-react/#channel)
  * @example ./MessageList.md
  */
 export const MessageList = <

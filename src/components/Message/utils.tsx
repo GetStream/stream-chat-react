@@ -236,14 +236,11 @@ export const areMessagePropsEqual = <
   props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
   nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) =>
-  // Message content is equal
   nextProps.message === props.message &&
-  // Message was read by someone
   deepequal(nextProps.readBy, props.readBy) &&
   // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
   deepequal(nextProps.groupStyles, props.groupStyles) &&
   deepequal(nextProps.mutes, props.mutes) &&
-  // Last message received in the channel changes
   deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
   // Message wrapper layout changes
   nextProps.messageListRect === props.messageListRect;
@@ -257,14 +254,11 @@ export const areMessageUIPropsEqual = <
   Re extends UnknownType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Pick<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'editing'>,
-  nextProps: Pick<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'editing'
-  >,
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) =>
-  // User toggles edit state
-  nextProps.editing === props.editing;
+  nextProps.editing === props.editing &&
+  nextProps.message.status === props.message.status;
 
 export const messageHasReactions = <
   At extends UnknownType = DefaultAttachmentType,

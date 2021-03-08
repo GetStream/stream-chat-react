@@ -302,6 +302,7 @@ const MessageSimpleStatus = <
     readBy[0] &&
     client &&
     readBy[0].id === client.user?.id;
+
   if (message && message.status === 'sending') {
     return (
       <span
