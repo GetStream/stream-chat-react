@@ -1,6 +1,6 @@
 ```js
-const data = require('./data');
-import { Chat, Channel, MessageList, MessageInput } from '../components';
+const data = require('../../docs/data');
+import { Chat, Channel, MessageList, MessageInput } from '../../components';
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
@@ -19,7 +19,7 @@ You can test threads and replies by clicking the reply button on the message.
 (Shown on hover..)
 
 ```js
-const data = require('./data');
+const data = require('../../docs/data');
 import {
   Chat,
   Channel,
@@ -27,7 +27,7 @@ import {
   MessageList,
   MessageInput,
   Thread,
-} from '../components';
+} from '../../components';
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
@@ -47,7 +47,7 @@ To combine the channel with the ChannelList for selecting your channel check out
 Note how we are not setting the <Channel channel={} /> property, but instead are relying on the channel list to set the currently active channel.
 
 ```js
-const data = require('./data');
+const data = require('../../docs/data');
 import {
   Chat,
   Channel,
@@ -56,7 +56,7 @@ import {
   ChannelPreviewMessenger,
   MessageList,
   MessageInput,
-} from '../components';
+} from '../../components';
 
 const filters = { type: 'team', example: 1 };
 const sort = {
@@ -88,7 +88,7 @@ const options = {
 </div>;
 ```
 
-**NOTE** The Channel produces the [ChannelContext](#channelcontext) and exposes a [withChannelContext](#withchannelcontext) HOC.
+**NOTE** The Channel produces the [ChannelContext](#section-channelcontext) and exposes a [withChannelContext](#section-withchannelcontext) HOC.
 
 The example below shows you how to write components that consume the channel context.
 

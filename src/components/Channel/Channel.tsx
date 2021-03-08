@@ -756,6 +756,37 @@ const ChannelInner = <
   );
 };
 
+/**
+ * Channel - Wrapper component for Channel. This Channel component provides the ChannelContext.
+ *
+ * ChannelContext provides the following values:
+ *
+ * - client - the client connection
+ * - acceptedFiles
+ * - Attachment
+ * - channel
+ * - closeThread
+ * - dispatch
+ * - editMessage
+ * - emojiConfig
+ * - loadMore
+ * - loadMoreThread
+ * - maxNumberOfFiles
+ * - Message
+ * - multipleUploads
+ * - mutes
+ * - onMentionsClick
+ * - onMentionsHover
+ * - openThread
+ * - removeMessage
+ * - retrySendMessage
+ * - sendMessage
+ * - updateMessage
+ * - watcher_count
+ *
+ * It also exposes the withChannelContext HOC which you can use to consume the ChannelContext
+ * @example ./Channel.md
+ */
 export const Channel = React.memo(
   UnMemoizedChannel,
 ) as typeof UnMemoizedChannel;
