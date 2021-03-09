@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.2) 2021-03-09
+
+### Feature
+
+- Export `ChannelPreview` utility functions [#750](https://github.com/GetStream/stream-chat-react/pull/750)
+- Memoize `ChannelList` `filters` to prevent extra channel queries [#752](https://github.com/GetStream/stream-chat-react/pull/752)
+
+### Chore
+
+- Update Customizing Styles section of README [#756](https://github.com/GetStream/stream-chat-react/pull/756)
+- Change `emoji-mart` imports to support server-side rendering [#764](https://github.com/GetStream/stream-chat-react/pull/764)
+
+### Bug
+
+- Close emoji picker on emoji icon click [#751](https://github.com/GetStream/stream-chat-react/pull/751)
+- Hide reaction tooltip on click [#753](https://github.com/GetStream/stream-chat-react/pull/753)
+
 ## [4.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.1) 2021-02-26
 
 ### Chore
