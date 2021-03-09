@@ -165,7 +165,7 @@
     "build-styles": "sass src/styles/index.scss dist/css/index.css --style compressed",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
-    "build-translations": "rm -rf .tmpi18ncache || true && mkdir .tmpi18ncache && yarn run babel --config-file ./babel.i18next-extract.js 'src/**/*.{js,jsx,ts,tsx}' --out-dir '.tmpi18ncache/' && rm -rf .tmpi18ncache && prettier --write 'src/i18n/*.{js,jsx,ts,jsx,json}'",
+    "build-translations": "rm -rf .tmpi18ncache || true && mkdir .tmpi18ncache && yarn run babel --config-file ./babel.i18next-extract.js --extensions '.ts','.tsx','.js','.jsx' 'src/**/*.{js,jsx,ts,tsx}' --out-dir '.tmpi18ncache/' && rm -rf .tmpi18ncache && prettier --write 'src/i18n/*.{js,jsx,ts,tsx,json}'",
     "coverage": "yarn test --collectCoverage && codecov",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
