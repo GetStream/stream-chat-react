@@ -7,11 +7,11 @@ import React, {
   useLayoutEffect,
 } from 'react';
 // @ts-expect-error
-import DefaultEmoji from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import DefaultEmoji from 'emoji-mart/dist/components/emoji/nimble-emoji.js';
 // @ts-expect-error
-import DefaultEmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-index';
+import DefaultEmojiIndex from 'emoji-mart/dist/utils/emoji-index/nimble-emoji-index.js';
 // @ts-expect-error
-import DefaultEmojiPicker from 'emoji-mart/dist-modern/components/picker/nimble-picker';
+import DefaultEmojiPicker from 'emoji-mart/dist/components/picker/nimble-picker.js';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import PropTypes from 'prop-types';
