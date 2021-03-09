@@ -43,7 +43,7 @@ Use the team messaging render component and set readBy
 
 ```js
 import { Message } from './Message';
-import MessageTeam from './MessageTeam';
+import { MessageTeam } from './MessageTeam';
 
 const data = require('../../docs/data');
 
