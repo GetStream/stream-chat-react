@@ -102,10 +102,11 @@ The React components are created using the [stream-chat-js](https://github.com/g
 
 ### Customizing styles
 
-The preferred method for overriding styles from `stream-chat-react` is to import the CSS file into your project in App.js from the dist directory. For example:
+The preferred method for overriding styles from `stream-chat-react` is to import the CSS file into your project in App.js from the dist directory. Then, locate any Stream selectors you want to override using either the browser or by viewing the library code, and then add these to your local CSS file with your styles. For example:
 
 ```js
 import 'stream-chat-react/dist/css/index.css';
+import './App.css';
 ```
 
 Alternatively, there may be times when you want to make simple changes to our stylesheets and don't want to override classes and styles manually. To make these customizations, you can do the following:
