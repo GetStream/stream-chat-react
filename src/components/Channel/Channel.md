@@ -14,8 +14,8 @@ import { Chat, Channel, MessageList, MessageInput } from '../../components';
 </div>;
 ```
 
-The example below shows how to add a channel header and support for threads.
-You can test threads and replies by clicking the reply button on the message.
+The example below shows how to add a ChannelHeader and support for Threads.
+You can test Threads and replies by clicking the reply button on the message.
 (Shown on hover..)
 
 ```js
@@ -43,8 +43,8 @@ import {
 </div>;
 ```
 
-To combine the channel with the ChannelList for selecting your channel check out this example.
-Note how we are not setting the <Channel channel={} /> property, but instead are relying on the channel list to set the currently active channel.
+To combine the Channel with the ChannelList for selecting your Channel check out this example.
+Note how we are not setting the <Channel channel={} /> property, but instead are relying on the ChannelList to set the currently active Channel.
 
 ```js
 const data = require('../../docs/data');
@@ -88,7 +88,7 @@ const options = {
 </div>;
 ```
 
-The example below shows you how to write components that consume the channel context.
+The example below shows you how to write components that consume the ChannelContext.
 
 ```json
 class CustomChannelHeader extends React.PureComponent {

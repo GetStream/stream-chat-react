@@ -46,9 +46,9 @@ export type ChatProps<
   initialNavOpen?: boolean;
   /**
    *
-   * Theme could be used for custom styling of the components.
+   * Theme could be used for custom styling of the components
    *
-   * You can override the classes used in our components under parent theme class.
+   * You can override the classes used in our components under parent theme class
    *
    * e.g. If you want to build a theme where background of message is black
    *
@@ -86,8 +86,8 @@ export type ChatProps<
 
 /**
  *
- * Chat - Wrapper component for Chat. The needs to be placed around any other chat components.
- * This Chat component provides the ChatContext to all other components.
+ * Chat - Wrapper component for Chat. The needs to be placed around any other Chat components.
+ * This component provides the ChatContext to all other components.
  *
  * ChatContext provides the following values:
  *

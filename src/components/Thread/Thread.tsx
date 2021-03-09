@@ -34,17 +34,17 @@ export type ThreadProps<
 > = {
   /**
    * Additional props for underlying MessageInput component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messageinput
+   * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    * */
   additionalMessageInputProps?: UnknownType; // TODO: add MessageInputProps<add generics> when MessageInput is typed
   /**
    * Additional props for underlying MessageList component.
-   * Available props - https://getstream.github.io/stream-chat-react/#messagelist
+   * [Available props](https://getstream.github.io/stream-chat-react/#messagelist)
    * */
   additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Additional props for underlying Message component of parent message at the top.
-   * Available props - https://getstream.github.io/stream-chat-react/#message
+   * [Available props](https://getstream.github.io/stream-chat-react/#message)
    * */
   additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Make input focus on mounting thread */
@@ -62,15 +62,15 @@ export type ThreadProps<
      ```
  */
   MessageInput?: React.ComponentType<unknown>; // TODO: add generic when MessageInput is typed
-  /** UI component used to override the default header of the thread */
+  /** UI component used to override the default header of the Thread */
   ThreadHeader?: React.ComponentType<
     ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
 };
 
 /**
- * Thread - The Thread renders a parent message with a list of replies. Use the standard message list of the main channel's messages.
- * The thread is only used for the list of replies to a message.
+ * Thread - The Thread renders a parent Message with a list of replies. Use the standard MessageList of the main Channel's Messages.
+ * The Thread is only used for the list of replies to a message.
  * Underlying MessageList, MessageInput and Message components can be customized using props:
  * - additionalParentMessageProps
  * - additionalMessageListProps

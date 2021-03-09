@@ -1,4 +1,4 @@
-Team Style Example
+Team Style Example:
 
 ```jsx
 import {

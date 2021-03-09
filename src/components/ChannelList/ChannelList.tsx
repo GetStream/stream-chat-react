@@ -94,7 +94,7 @@ export type ChannelListProps<
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
   /**
-   * Set a Channel (of this id) to be active and move it to the top of the list of channels by ID.
+   * Set a Channel (of this id) to be active and move it to the top of the list of channels by ID
    */
   customActiveChannel?: string;
   /** Indicator for Empty State */
@@ -138,7 +138,7 @@ export type ChannelListProps<
    */
   LoadingIndicator?: React.ComponentType;
   /**
-   * If true, channels won't be dynamically sorted by most recent message.
+   * If true, channels won't be dynamically sorted by most recent message
    */
   lockChannelOrder?: boolean;
   /** Function that overrides default behavior when users gets added to a channel */
@@ -440,7 +440,7 @@ const UnMemoizedChannelList = <
 };
 
 /**
- * ChannelList - A preview list of channels, allowing you to select the channel you want to open
+ * ChannelList - A preview list of Channels, allowing you to select the Channel you want to open.
  * @example ./ChannelList.md
  */
 export const ChannelList = React.memo(

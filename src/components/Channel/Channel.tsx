@@ -108,7 +108,7 @@ export type ChannelProps<
   ) => Promise<MessageResponse<At, Ch, Co, Me, Re, Us>> | void;
   /**
    * Override send message request (Advanced usage only)
-   * @param {String} channelId full channel ID in format of `type:id`
+   * @param {String} channelId (full channel ID in format of `type:id`),
    * @param {Object} message
    */
   doSendMessageRequest?: (

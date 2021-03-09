@@ -106,7 +106,7 @@ const UnMemoizedChannelHeader = <
 };
 
 /**
-The channel header component renders some basic information about a channel.
+The ChannelHeader component renders some basic information about a Channel.
 * @example ./ChannelHeader.md
 */
 export const ChannelHeader = React.memo(

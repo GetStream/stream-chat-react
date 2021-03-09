@@ -484,7 +484,7 @@ export type MessageListProps<
   > & {
     /** Whether or not the list has more items to load */
     hasMore?: boolean;
-    /** Component to render at the top of the MessageList while loading new messages. */
+    /** Component to render at the top of the MessageList while loading new messages */
     LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
     /** Whether or not the list is currently loading more items */
     loadingMore?: boolean;
@@ -497,8 +497,8 @@ export type MessageListProps<
   };
 
 /**
- * The MessageList component renders a list of messages.
- * It is a consumer of the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
+ * The MessageList component renders a list of Messages.
+ * It is a consumer of the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
  * @example ./MessageList.md
  */
 export const MessageList = <
