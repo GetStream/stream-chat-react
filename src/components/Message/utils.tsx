@@ -257,6 +257,8 @@ export const areMessageUIPropsEqual = <
   nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) =>
   nextProps.editing === props.editing &&
+  nextProps.message.text === props.message.text &&
+  nextProps.message.latest_reactions === props.message.latest_reactions &&
   nextProps.message.status === props.message.status;
 
 export const messageHasReactions = <
