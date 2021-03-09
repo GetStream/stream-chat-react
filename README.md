@@ -102,13 +102,20 @@ The React components are created using the [stream-chat-js](https://github.com/g
 
 ### Customizing styles
 
-`stream-chat-react` uses SCSS for styling. There may be times when you want to make simple changes to our stylesheets and don't want to override classes and styles manually. To make these customizations, you can do the following:
+The preferred method for overriding styles from `stream-chat-react` is to import the CSS file into your project in App.js from the dist directory. Then, locate any Stream selectors you want to override using either the browser or by viewing the library code, and then add these to your local CSS file with your styles. For example:
+
+```js
+import 'stream-chat-react/dist/css/index.css';
+import './App.css';
+```
+
+Alternatively, there may be times when you want to make simple changes to our stylesheets and don't want to override classes and styles manually. To make these customizations, you can do the following:
 
 - Clone this repository
 - Make the changes you want in the SCSS files
 - Run `yarn build-styles` or `yarn watch-styles`
 
-Alternatively, if you're also using SCSS for styling, you can import component styles directly in your .scss files. For example:
+As another alternative option if you're also using SCSS for styling, you can import component styles directly in your .scss files. For example:
 
 ```scss
 // customChatDownComponent.scss
