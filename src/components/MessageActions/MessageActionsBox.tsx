@@ -149,6 +149,10 @@ const UnMemoizedMessageActionsBox = <
   );
 };
 
+/**
+ * MessageActionsBox - Allows the user to flag, edit or delete a message. There's also a command(`/mute`) for muting the user that wrote the message.
+ * @example ./MessageActionsBox.md
+ */
 export const MessageActionsBox = React.memo(
   UnMemoizedMessageActionsBox,
 ) as typeof UnMemoizedMessageActionsBox;

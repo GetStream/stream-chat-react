@@ -61,7 +61,7 @@ export type ReactionSelectorProps<
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmoji[];
-  /** Adds a CSS class that reverses the order, defaults to false */
+  /** Adds a CSS class that changes the horizontal positioning to the opposite (right: 0), defaults to false (left: 0) */
   reverse?: boolean;
 };
 
