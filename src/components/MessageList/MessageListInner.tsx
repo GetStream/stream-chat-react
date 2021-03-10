@@ -43,7 +43,7 @@ export type MessageListInnerProps<
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx).
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
    */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
   /**
@@ -60,7 +60,7 @@ export type MessageListInnerProps<
   threadList: boolean;
   /**
    * Typing indicator UI component to render
-   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx).
+   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx)
    */
   TypingIndicator: React.ComponentType<TypingIndicatorProps>;
   /** Disables the injection of date separator components, defaults to `false` */
@@ -72,7 +72,9 @@ export type MessageListInnerProps<
   headerPosition?: number;
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
+  /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
+  /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
   internalMessageProps?: Omit<
     MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
     'message'

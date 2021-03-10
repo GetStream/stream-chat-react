@@ -323,6 +323,7 @@ class MessageListWithContext<
       Avatar = DefaultAvatar,
       DateSeparator = DefaultDateSeparator,
       EmptyStateIndicator = DefaultEmptyStateIndicator,
+      internalInfiniteScrollProps,
       LoadingIndicator = DefaultLoadingIndicator,
       Message = MessageSimple,
       messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -366,6 +367,7 @@ class MessageListWithContext<
                 </Center>
               ),
               loadMore: this.loadMore,
+              ...internalInfiniteScrollProps,
             }}
             internalMessageProps={{
               additionalMessageInputProps: this.props
@@ -458,6 +460,7 @@ type PropsDrilledToMessageListInner =
   | 'HeaderComponent'
   | 'headerPosition'
   | 'hideDeletedMessages'
+  | 'internalInfiniteScrollProps'
   | 'messages'
   | 'MessageSystem'
   | 'noGroupByUser'
