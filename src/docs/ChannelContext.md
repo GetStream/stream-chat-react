@@ -1,71 +1,65 @@
 The channel context provides the following properties:
 
+- `client` 
+- `acceptedFiles`
+- `Attachment` React.ComponentType<AttachmentProps<At>>;
+- `channel` Channel<At, Ch, Co, Ev, Me, Re, Us>;
+- `closeThread` (event: React.SyntheticEvent) => void;
+- `dispatch`
+- `editMessage` (
+    message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
+  ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
+-  `emojiConfig` EmojiConfig;
+-  `error`
+-  `hasMore`
+-  `loading`
+-  `loadingMore`
+-  `loadMore` ((limit: number) => Promise<number>) | (() => Promise<void>);
+-  `loadMoreThread` () => Promise<void>;
+-  `maxNumberOfFiles` number;
+-  `members`
+-  `Message` React.ComponentType<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+-  `messages`
+-  `multipleUploads` boolean;
+-  `mutes` Mute<Us>[];
+-  `onMentionsClick` (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
+-  `onMentionsHover` (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>[],
+  ) => void;
+-  `openThread` (
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    event: React.SyntheticEvent,
+  ) => void;
+-  `pinnedMessages`
+-  `read`
+-  `removeMessage` (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+-  `retrySendMessage` RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+-  `sendMessage` (
+    message: MessageToSend<At, Ch, Co, Me, Re, Us>,
+  ) => Promise<void>;
+-  `thread`
+-  `threadHasMore`
+-  `threadLoadingMore`
+-  `threadMessages`
+-  `typing`
+-  `updateMessage` (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+-  `watcherCount`
+-  `watchers`
+-  `watcher_count` number;
+
+
+
 - `Message` UI component for message. Its same as prop `Message` of [Channel](#channel) component.
 - `Attachment` UI component for attachment in message. Its same as prop `Attachment` of [Channel](#channel) component.
 - `messages` {Array} List of immutable [message objects](https://getstream.io/chat/docs/#message_format)
 - `online` {number} A count of the online users
 - `typing` {ImmutableObject} A map of user ids of users who are typing vs corresponding typing [event object](https://getstream.io/chat/docs/#event_object) (where event type is `typing.start`).
-
-  e.g.
-
-  ```json
-  {
-    "user_id_1": typing_event_object_of_user_1,
-    "user_id_2": typing_event_object_of_user_2
-  }
-  ```
-
-- `watcher_count` {number} Count of watchers
-- `watchers` {ImmutableObject} A map of user ids vs users who are currently watching the channel.
-
-e.g.,
-
-```json
-{
-  "thierry": {
-    "id": "thierry",
-    "role": "user",
-    "created_at": "2019-04-03T14:42:47.087869Z",
-    "updated_at": "2019-04-16T09:20:03.982283Z",
-    "last_active": "2019-04-16T11:23:51.168113408+02:00",
-    "online": true
-  },
-  "vishal": {
-    "id": "vishal",
-    "role": "user",
-    "created_at": "2019-05-03T14:42:47.087869Z",
-    "updated_at": "2019-05-16T09:20:03.982283Z",
-    "last_active": "2019-06-16T11:23:51.168113408+02:00",
-    "online": true
-  }
-}
-```
-
 - `members` {ImmutableObject} Members of this channel (members are permanent, watchers are users who are online right now)
-
-e.g.,
-
-```json
-{
-  "thierry": {
-    "id": "thierry",
-    "role": "user",
-    "created_at": "2019-04-03T14:42:47.087869Z",
-    "updated_at": "2019-04-16T09:20:03.982283Z",
-    "last_active": "2019-04-16T11:23:51.168113408+02:00",
-    "online": true
-  },
-  "vishal": {
-    "id": "vishal",
-    "role": "user",
-    "created_at": "2019-05-03T14:42:47.087869Z",
-    "updated_at": "2019-05-16T09:20:03.982283Z",
-    "last_active": "2019-06-16T11:23:51.168113408+02:00",
-    "online": false
-  }
-}
-```
-
 - read: the read state for each user
 - `error` {boolean | object} Error object (if any) in loading the channel, otherwise false
 - `loading` {boolean} if the channel is currently loading
@@ -124,4 +118,63 @@ e.g.,
 - **closeThread** Function to close the currently open thread. This function should be attached to close button on thread UI.
 - **loadMoreThread** Function to load next page/batch of messages in a currently active/open thread ((used for pagination).
 
-And the data exposed by the chat context:
+And the data exposed by the ChatContext.
+
+
+  e.g.
+
+  ```json
+  {
+    "user_id_1": typing_event_object_of_user_1,
+    "user_id_2": typing_event_object_of_user_2
+  }
+  ```
+
+- `watcher_count` {number} Count of watchers
+- `watchers` {ImmutableObject} A map of user ids vs users who are currently watching the channel.
+
+e.g.,
+
+```json
+{
+  "thierry": {
+    "id": "thierry",
+    "role": "user",
+    "created_at": "2019-04-03T14:42:47.087869Z",
+    "updated_at": "2019-04-16T09:20:03.982283Z",
+    "last_active": "2019-04-16T11:23:51.168113408+02:00",
+    "online": true
+  },
+  "vishal": {
+    "id": "vishal",
+    "role": "user",
+    "created_at": "2019-05-03T14:42:47.087869Z",
+    "updated_at": "2019-05-16T09:20:03.982283Z",
+    "last_active": "2019-06-16T11:23:51.168113408+02:00",
+    "online": true
+  }
+}
+```
+
+e.g.,
+
+```json
+{
+  "thierry": {
+    "id": "thierry",
+    "role": "user",
+    "created_at": "2019-04-03T14:42:47.087869Z",
+    "updated_at": "2019-04-16T09:20:03.982283Z",
+    "last_active": "2019-04-16T11:23:51.168113408+02:00",
+    "online": true
+  },
+  "vishal": {
+    "id": "vishal",
+    "role": "user",
+    "created_at": "2019-05-03T14:42:47.087869Z",
+    "updated_at": "2019-05-16T09:20:03.982283Z",
+    "last_active": "2019-06-16T11:23:51.168113408+02:00",
+    "online": false
+  }
+}
+```

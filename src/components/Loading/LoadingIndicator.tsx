@@ -3,7 +3,7 @@ import React from 'react';
 export type LoadingIndicatorProps = {
   /** Set the color of the LoadingIndicator */
   color?: string;
-  /** The size of the loading icon */
+  /** The size of the loading icon, default is 15px */
   size?: number;
 };
 
@@ -45,7 +45,7 @@ const UnMemoizedLoadingIndicator: React.FC<LoadingIndicatorProps> = (props) => {
 };
 
 /**
- * LoadingIndicator - Just a simple loading spinner
+ * LoadingIndicator - Just a simple loading spinner.
  * @example ./LoadingIndicator.md
  */
 export const LoadingIndicator = React.memo(

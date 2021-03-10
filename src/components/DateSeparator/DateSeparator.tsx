@@ -47,7 +47,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
 };
 
 /**
- * DateSeparator - A simple date separator
+ * DateSeparator - A simple date separator between messages.
  * @example ./DateSeparator.md
  */
 export const DateSeparator = React.memo(

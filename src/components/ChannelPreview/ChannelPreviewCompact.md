@@ -4,7 +4,7 @@ import { Chat } from '../';
 import { ChannelList } from '../ChannelList/ChannelList';
 
 const data = require('../../docs/data');
-const filters = { type: 'team', example: 1 };
+const filters = { type: 'team' };
 const sort = {
   last_message_at: -1,
   cid: 1,

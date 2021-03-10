@@ -7,7 +7,7 @@ A custom hook to give you access to the message user.
 | `eventHandlers.onUserClickHandler` | func                                                     | A function to handle the user click. Will be called with the user click event and the current message user object as arguments. |
 | `eventHandlers.onUserHoverHandler` | func                                                     | A function to handle the user hover. Will be called with the user hover event and the current message user object as arguments. |
 
-It returns an object containing the event handlers for mentions.
+It returns an object containing the event handlers for mentions.f
 
 | Returns                | Type   | Description                                                                                     |
 | ---------------------- | ------ | ----------------------------------------------------------------------------------------------- |

@@ -1,7 +1,4 @@
-ChatDown is a simple indicator that Chat isn't available.
-It's normally triggered when the network is completely down or the Chat API is unavailable.
-
-Here's an example with a customized error message
+Here's an example with a customized error message:
 
 ```js
 import { Chat } from '../';
