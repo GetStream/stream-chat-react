@@ -154,6 +154,7 @@ const insertDates = <
   lastRead?: Date | string | null,
   userID?: string,
   hideDeletedMessages?: boolean,
+  disableDateSeparator?: boolean,
 ) => {
   let unread = false;
   let lastDateSeparator;
@@ -175,7 +176,7 @@ const insertDates = <
     const messageDate = message.created_at.toDateString();
     let prevMessageDate = messageDate;
 
-    if (i > 0) {
+    if (i > 0 && !disableDateSeparator) {
       //@ts-expect-error
       prevMessageDate = messages[i - 1].created_at.toDateString();
     }
@@ -186,7 +187,7 @@ const insertDates = <
 
       // do not show date separator for current user's messages
       //@ts-expect-error
-      if (unread && message.user.id !== userID) {
+      if (!disableDateSeparator && unread && message.user.id !== userID) {
         //@ts-expect-error
         newMessages.push({
           date: message.created_at,
@@ -197,6 +198,7 @@ const insertDates = <
     }
 
     if (
+      !disableDateSeparator &&
       (i === 0 ||
         messageDate !== prevMessageDate ||
         (hideDeletedMessages &&
@@ -384,10 +386,15 @@ const UnMemoizedMessageListInner = <
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
   const enrichMessages = () => {
-    const messageWithDates =
-      disableDateSeparator || threadList
-        ? messages
-        : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
+    const messageWithDates = threadList
+      ? messages
+      : insertDates(
+          messages,
+          lastRead,
+          client.userID,
+          hideDeletedMessages,
+          disableDateSeparator,
+        );
 
     if (HeaderComponent) {
       return insertIntro(messageWithDates, headerPosition);
