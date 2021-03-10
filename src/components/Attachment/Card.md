@@ -1,5 +1,3 @@
-Card style layout for displaying links. For different message styles, we customized this component with css.
-
 ```js
 import { Card } from './Card';
 

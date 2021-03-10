@@ -1,7 +1,4 @@
-Message Actions box allows the user to flag, edit or delete a message.
-There's also a command(`/mute`) for muting the user that wrote the message.
-
-A closed message box
+A closed message box:
 
 ```js
 import { MessageActionsBox } from './MessageActionsBox';
@@ -18,7 +15,7 @@ const data = require('../../docs/data');
 </div>;
 ```
 
-An open message box
+An open message box:
 
 ```js
 import { MessageActionsBox } from './MessageActionsBox';

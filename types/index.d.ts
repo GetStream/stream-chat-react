@@ -721,14 +721,14 @@ export interface MessageProps<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
 
-  /** Message Deleted rendering component. Optional; if left undefined, the default of the Message rendering component is used */
+  /** Message Deleted rendering component. If left undefined, the default of the Message rendering component is used */
   MessageDeleted?: React.ElementType<
     MessageDeletedProps<At, Ch, Co, Me, Re, Us>
   >;
 
   ReactionSelector?: React.ElementType<ReactionSelectorProps>;
   ReactionsList?: React.ElementType<ReactionsListProps>;
-  /** Allows you to overwrite the attachment component */
+  /** Allows you to overwrite the Attachment component */
   Attachment?: React.ElementType<AttachmentProps<At>>;
   Avatar?: React.ComponentType<AvatarProps>;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */

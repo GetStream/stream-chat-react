@@ -184,8 +184,22 @@ const UnMemoizedMessage = <
 };
 
 /**
- * Message - A high level component which implements all the logic required for a message.
- * The actual rendering of the message is delegated via the "Message" property
+ * Message - A high level component which implements all the logic required for a Message.
+ * The actual rendering of the Message is delegated via the "Message" property.
+ *
+ * The Message component provides the following functions to the rendered component:
+ *
+ * - **isMyMessage** returns true if message belongs to current user, else false. **Params:** message.
+ * - **isAdmin** returns true if current user has admin role.
+ * - **canEditMessage** returns true if current user has permission to edit message.
+ * - **canDeleteMessage** returns true if current user has permission to edit message.
+ * - **handleFlag** Handler to flag a message
+ * - **handleMute** Handler to mute a user of message
+ * - **handleEdit** Handler to edit a message
+ * - **handleDelete** Handler to delete a message
+ * - **handleReaction** Handler to add/remove reaction on message
+ * - **handleRetry** Handler to resend the message, in case of failure.
+ * - **openThread** Handler to open the thread on current message.
  * @example ./Message.md
  */
 export const Message = React.memo(

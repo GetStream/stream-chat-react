@@ -24,7 +24,7 @@ export type ReactionSelectorProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   /**
-   * Custom UI component to display user avatar
+   * Custom UI component to display user avatar.
    *
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
@@ -61,9 +61,14 @@ export type ReactionSelectorProps<
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmoji[];
+  /** Adds a CSS class that reverses the order, defaults to false */
   reverse?: boolean;
 };
 
+/**
+ * Component that allows a user to select a reaction.
+ * @example ./ReactionSelector.md
+ */
 const UnMemoizedReactionSelector = React.forwardRef(
   <
     At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -249,7 +254,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
 );
 
 /**
- * @example ./ReactionSelector.md
+ * Component that allows you to select a reaction.
  */
 export const ReactionSelector = React.memo(
   UnMemoizedReactionSelector,

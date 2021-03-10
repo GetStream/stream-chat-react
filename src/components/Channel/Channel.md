@@ -44,7 +44,7 @@ import {
 ```
 
 To combine the Channel with the ChannelList for selecting your Channel check out this example.
-Note how we are not setting the <Channel channel={} /> property, but instead are relying on the ChannelList to set the currently active Channel.
+Note how we are not setting the <Channel channel={} /> property, but instead are relying on the ChannelList to set the currently active channel.
 
 ```js
 const data = require('../../docs/data');

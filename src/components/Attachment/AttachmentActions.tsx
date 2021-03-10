@@ -55,7 +55,7 @@ const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
 };
 
 /**
- * AttachmentActions - The actions you can take on an attachment
+ * AttachmentActions - renders the attachment action, which are the actions you can take on an attachment.
  * @example ./AttachmentActions.md
  */
 export const AttachmentActions = React.memo(
