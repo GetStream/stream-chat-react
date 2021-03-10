@@ -2,12 +2,12 @@ A custom hook to give you access to the message user.
 
 | Parameter                 | Type                                                     | Description                                                                                                                     |
 | ------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `message`                 | [object](https://getstream.io/chat/docs/#message_format) | The message to be handled.                                                                                                      |
-| `opts`                    | object                                                   | An object containing the following properties.                                                                                  |
-| `opts.onUserClickHandler` | func                                                     | A function to handle the user click. Will be called with the user click event and the current message user object as arguments. |
-| `opts.onUserHoverHandler` | func                                                     | A function to handle the user hover. Will be called with the user hover event and the current message user object as arguments. |
+| `message`                 | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled. |
+| `eventHandlers`                    | object                                                   | An object containing the following properties:   |
+| `eventHandlers.onUserClickHandler` | func                                                     | A function to handle the user click. Will be called with the user click event and the current message user object as arguments. |
+| `eventHandlers.onUserHoverHandler` | func                                                     | A function to handle the user hover. Will be called with the user hover event and the current message user object as arguments. |
 
-It returns and object containing the event handlers for mentions.
+It returns an object containing the event handlers for mentions.
 
 | Returns                | Type   | Description                                                                                     |
 | ---------------------- | ------ | ----------------------------------------------------------------------------------------------- |
