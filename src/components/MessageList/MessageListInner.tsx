@@ -43,7 +43,7 @@ export type MessageListInnerProps<
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx).
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
    */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
   /**
@@ -60,7 +60,7 @@ export type MessageListInnerProps<
   threadList: boolean;
   /**
    * Typing indicator UI component to render
-   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx).
+   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx)
    */
   TypingIndicator: React.ComponentType<TypingIndicatorProps>;
   /** Disables the injection of date separator components, defaults to `false` */
@@ -72,7 +72,9 @@ export type MessageListInnerProps<
   headerPosition?: number;
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
+  /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
+  /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
   internalMessageProps?: Omit<
     MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
     'message'
@@ -154,6 +156,7 @@ const insertDates = <
   lastRead?: Date | string | null,
   userID?: string,
   hideDeletedMessages?: boolean,
+  disableDateSeparator?: boolean,
 ) => {
   let unread = false;
   let lastDateSeparator;
@@ -175,7 +178,7 @@ const insertDates = <
     const messageDate = message.created_at.toDateString();
     let prevMessageDate = messageDate;
 
-    if (i > 0) {
+    if (i > 0 && !disableDateSeparator) {
       //@ts-expect-error
       prevMessageDate = messages[i - 1].created_at.toDateString();
     }
@@ -186,7 +189,7 @@ const insertDates = <
 
       // do not show date separator for current user's messages
       //@ts-expect-error
-      if (unread && message.user.id !== userID) {
+      if (!disableDateSeparator && unread && message.user.id !== userID) {
         //@ts-expect-error
         newMessages.push({
           date: message.created_at,
@@ -197,6 +200,7 @@ const insertDates = <
     }
 
     if (
+      !disableDateSeparator &&
       (i === 0 ||
         messageDate !== prevMessageDate ||
         (hideDeletedMessages &&
@@ -384,10 +388,15 @@ const UnMemoizedMessageListInner = <
   const lastRead = useMemo(() => channel.lastRead(), [channel]);
 
   const enrichMessages = () => {
-    const messageWithDates =
-      disableDateSeparator || threadList
-        ? messages
-        : insertDates(messages, lastRead, client.userID, hideDeletedMessages);
+    const messageWithDates = threadList
+      ? messages
+      : insertDates(
+          messages,
+          lastRead,
+          client.userID,
+          hideDeletedMessages,
+          disableDateSeparator,
+        );
 
     if (HeaderComponent) {
       return insertIntro(messageWithDates, headerPosition);
