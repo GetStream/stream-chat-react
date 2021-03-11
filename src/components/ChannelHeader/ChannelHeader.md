@@ -1,8 +1,8 @@
-The channel header component renders some basic information about a channel:
+Examples of ChannelHeader component usage:
 
 ```js
-const data = require('./data');
-import { ChannelHeader } from '../components';
+const data = require('../../docs/data');
+import { ChannelHeader } from '../../components';
 
 <ChannelHeader
   channel={data.channel}
@@ -12,8 +12,6 @@ import { ChannelHeader } from '../components';
 />;
 ```
 
-Example of ChannelHeader component usage:
-
 ```js
 import {
   Chat,
@@ -22,9 +20,9 @@ import {
   MessageList,
   MessageInput,
   Thread,
-} from '../components';
+} from '../../components';
 
-const data = require('./data');
+const data = require('../../docs/data');
 
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client}>
@@ -41,10 +39,7 @@ const data = require('./data');
 ```
 
 You can put any custom UI component on top of MessageList to behave as header.
-If you need access to numerous properties defined in ChannelContext or ChatContext, you can simply use wrapper functions [`withChannelContext`](#withchannelcontext) or [`withChatContext`](withchatcontext) (which act as Context provider)
-around your custom component.
-
-E.g.,
+If you need access to numerous properties defined in ChannelContext or ChatContext, you can simply use wrapper functions [`withChannelContext`](#section-withchannelcontext) or [`withChatContext`](#section-withchatcontext) (which act as Context provider) around your custom component. Example below:
 
 ```js static
 const CustomChannelHeader = withChannelContext(

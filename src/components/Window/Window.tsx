@@ -48,7 +48,7 @@ const UnMemoizedWindow = <
 };
 
 /**
- * Window - A UI component for conditionally displaying thread or channel.
- * @example ./Window.md
+ * Window - A UI component for conditionally displaying a Thread or Channel. If you want the Thread to be displayed side by side with the Channel that's also possible with the Window.
+ * It's a very minimal component that might fit some usecases, and if not it's an easy to modify and rewrite component.
  */
 export const Window = React.memo(UnMemoizedWindow) as typeof UnMemoizedWindow;

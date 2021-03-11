@@ -184,6 +184,16 @@ module.exports = {
     path.join(path.resolve(path.dirname('')), 'dist/css/index.css'),
     path.join(path.resolve(path.dirname('')), 'styleguidist/styleguidist.css'),
   ],
+  styles: {
+    StyleGuide: {
+      content: {
+        maxWidth: '1300px', // default is 1000px
+      },
+      sidebar: {
+        width: '270px',
+      },
+    },
+  },
   template: {
     favicon: 'https://getstream.imgix.net/images/favicons/favicon-96x96.png',
     link: {
@@ -193,3 +203,4 @@ module.exports = {
     },
   },
 };
+

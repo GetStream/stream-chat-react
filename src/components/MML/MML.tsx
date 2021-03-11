@@ -10,7 +10,9 @@ export type MMLProps = {
   source: string;
   /** submit handler for mml actions */
   actionHandler?: ActionHandlerReturnType;
-  /** align mml components to left/right and default is right */
+  /** align mml components to left/right
+   * @default right
+   */
   align?: 'left' | 'right';
 };
 

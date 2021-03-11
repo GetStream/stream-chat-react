@@ -42,8 +42,8 @@ export type AttachmentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType
 > = {
   /**
-   * The attachment to render
-   * See [Attachment structure](https://getstream.io/chat/docs/#message_format)
+   * The attachment to render.
+   * See [Attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
    **/
   attachments: ExtendedAttachment<At>[];
   /**
@@ -52,54 +52,39 @@ export type AttachmentProps<
 		*/
   actionHandler?: ActionHandlerReturnType;
   /**
-   * Custom UI component for attachment actions
+   * Custom UI component for AttachmentActions.
    * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx)
    */
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
   /**
-   * Custom UI component for audio type attachment
+   * Custom UI component for audio type Attachment.
    * Defaults to [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)
    */
   Audio?: React.ComponentType<AudioProps>;
   /**
-   * Custom UI component for card type attachment
+   * Custom UI component for card type Attachment.
    * Defaults to [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx)
    */
   Card?: React.ComponentType<CardProps>;
   /**
-   * Custom UI component for file type attachment
+   * Custom UI component for file type Attachment.
    * Defaults to [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx)
    */
   File?: React.ComponentType<FileAttachmentProps>;
   /**
-   * Custom UI component for gallery type attachment
+   * Custom UI component for gallery type Attachment.
    * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)
    */
   Gallery?: React.ComponentType<GalleryProps>;
   /**
-   * Custom UI component for image type attachment
+   * Custom UI component for image type Attachment.
    * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)
    */
   Image?: React.ComponentType<ImageProps>;
   /**
-   * Custom UI component for media type attachment
+   * Custom UI component for media type Attachment.
    * Defaults to ReactPlayer from 'react-player'
    */
-  Media?: React.ComponentType<ReactPlayerProps>;
-};
-
-export type BaseAttachmentUIComponentProps = {
-  /**
-   * The handler function to call when an action is selected on an attachment.
-   * Examples include canceling a \/giphy command or shuffling the results.
-   */
-  actionHandler?: ActionHandlerReturnType;
-  AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
-  Audio?: React.ComponentType<AudioProps>;
-  Card?: React.ComponentType<CardProps>;
-  File?: React.ComponentType<FileAttachmentProps>;
-  Gallery?: React.ComponentType<GalleryProps>;
-  Image?: React.ComponentType<ImageProps>;
   Media?: React.ComponentType<ReactPlayerProps>;
 };
 
@@ -135,24 +120,27 @@ export type ExtendedAttachment<
 
 export type InnerAttachmentUIComponentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType
-> = BaseAttachmentUIComponentProps & {
+> = Omit<AttachmentProps<At>, 'attachments'> & {
   attachment: ExtendedAttachment<At>;
 };
 
-export type WrapperAttachmentUIComponentProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = BaseAttachmentUIComponentProps & {
-  attachments: ExtendedAttachment<At>[];
-};
-
 /**
- * Attachment - The message attachment
+ * Attachment - The message Attachment. A message can contain multiple Attachments.
+ * By default, the component supports:
+ * - AttachmentActions
+ * - Audio
+ * - Card
+ * - File
+ * - Gallery
+ * - Image
+ * - Media (video)
+ *
  * @example ./Attachment.md
  */
 export const Attachment = <
   At extends DefaultAttachmentType = DefaultAttachmentType
 >(
-  props: WrapperAttachmentUIComponentProps<At>,
+  props: AttachmentProps<At>,
 ) => {
   const {
     AttachmentActions = DefaultAttachmentActions,

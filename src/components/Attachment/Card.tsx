@@ -113,7 +113,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
 };
 
 /**
- * Card - Simple Card Layout
+ * Card - Simple Card Layout for displaying links. For different message styles, we customized this component with css.
  * @example ./Card.md
  */
 export const Card = React.memo(UnMemoizedCard) as typeof UnMemoizedCard;

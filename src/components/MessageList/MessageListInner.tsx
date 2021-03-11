@@ -48,7 +48,7 @@ export type MessageListInnerProps<
   DateSeparator: React.ComponentType<DateSeparatorProps>;
   /**
    * The messages to render in the list
-   * Defaults to the messages stored in [ChannelContext](https://getstream.github.io/stream-chat-react/#channel)
+   * Defaults to the messages stored in [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
    * */
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Set to `true` to turn off grouping of messages by user */

@@ -2,7 +2,7 @@ A custom hook to handle message deletion.
 
 | Parameter | Type                                                     | Description                |
 | --------- | -------------------------------------------------------- | -------------------------- |
-| `message` | [object](https://getstream.io/chat/docs/#message_format) | The message to be handled. |
+| `message` | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled |
 
 It returns a Promise that takes a mouse event as an argument and handles the trigger of the message deletion + update.
 

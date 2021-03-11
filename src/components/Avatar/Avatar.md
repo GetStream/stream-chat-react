@@ -1,4 +1,4 @@
-The default circle style Avatar
+The default circle style Avatar:
 
 ```js
 import { Avatar } from './Avatar';
@@ -9,7 +9,7 @@ const name = 'uthred';
 <Avatar image={image} name={name} shape='circle' size={35} />;
 ```
 
-A rounded Avatar
+A rounded Avatar:
 
 ```js
 import { Avatar } from './Avatar';
@@ -20,7 +20,7 @@ const name = 'uthred';
 <Avatar image={image} name={name} shape='rounded' size={35} />;
 ```
 
-And a square variation
+And a square variation:
 
 ```js
 import { Avatar } from './Avatar';
@@ -31,7 +31,7 @@ const name = 'uthred';
 <Avatar image={image} name={name} shape='square' size={35} />;
 ```
 
-An example of how the fallback looks
+An example of how the fallback looks:
 
 ```js
 import { Avatar } from './Avatar';

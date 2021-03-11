@@ -13,7 +13,7 @@ export type ImageProps = {
 };
 
 /**
- * Image - displays an image.
+ * Image - a simple component that displays an image.
  * @example ./Image.md
  */
 export const ImageComponent: React.FC<ImageProps> = (props) => {

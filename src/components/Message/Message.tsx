@@ -178,8 +178,8 @@ const MemoizedMessage = React.memo(
 ) as typeof MessageWithContext;
 
 /**
- * Message - A high level component which implements all the logic required for a message.
- * The actual rendering of the message is delegated via the "Message" property
+ * Message - A high level component which implements all the logic required for a Message.
+ * The actual rendering of the Message is delegated via the "Message" property.
  * @example ./Message.md
  */
 export const Message = <

@@ -358,7 +358,7 @@ const MemoizedMessageSimple = React.memo(
 ) as typeof MessageSimpleWithContext;
 
 /**
- * MessageSimple - UI component that renders a message and receives functionality from the Message/MessageList components
+ * MessageSimple - UI component that renders a message and receives functionality and logic from the Message/MessageList components.
  * @example ./MessageSimple.md
  */
 export const MessageSimple = <

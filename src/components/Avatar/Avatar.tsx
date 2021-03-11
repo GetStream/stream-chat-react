@@ -9,14 +9,18 @@ export type AvatarProps = {
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   /** mouseOver event handler */
   onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-  /** Shape of the avatar - circle, rounded or square, and the default is circle */
+  /** Shape of the avatar - circle, rounded or square
+   * @default circle
+   */
   shape?: 'circle' | 'rounded' | 'square';
-  /** Size in pixels and the default is 32px */
+  /** Size in pixels
+   * @default 32px
+   */
   size?: number;
 };
 
 /**
- * Avatar - A round avatar image with fallback to username's first letter
+ * Avatar - A round avatar image with fallback to username's first letter.
  * @example ./Avatar.md
  */
 export const Avatar: React.FC<AvatarProps> = (props) => {

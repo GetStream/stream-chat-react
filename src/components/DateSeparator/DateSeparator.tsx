@@ -10,7 +10,9 @@ export type DateSeparatorProps = {
   date: Date;
   /** Override the default formatting of the date. This is a function that has access to the original date object. */
   formatDate?: (date: Date) => string;
-  /** Set the position of the date in the separator, options are 'left', 'center', 'right' and default is 'right' */
+  /** Set the position of the date in the separator, options are 'left', 'center', 'right'
+   * @default right
+   */
   position?: 'left' | 'center' | 'right';
   /** If following messages are not new */
   unread?: boolean;
@@ -47,7 +49,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
 };
 
 /**
- * DateSeparator - A simple date separator
+ * DateSeparator - A simple date separator between messages.
  * @example ./DateSeparator.md
  */
 export const DateSeparator = React.memo(

@@ -5,17 +5,17 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 
 export type ChannelListMessengerProps = {
   /**
-   * If channel list ran into error
+   * If channel list ran into an error.
    * When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
    */
   error?: boolean;
   /**
-   * If channel list is in loading state
+   * If channel list is in loading state.
    * When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx)
    */
   loading?: boolean;
   /**
-   * Error indicator UI Component. It will be displayed if `error` prop is true
+   * Error indicator UI Component. It will be displayed if `error` prop is true.
    *
    * Defaults to and accepts same props as:
    * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
