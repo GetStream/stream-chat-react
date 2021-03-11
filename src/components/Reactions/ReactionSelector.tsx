@@ -67,7 +67,6 @@ export type ReactionSelectorProps<
 
 /**
  * Component that allows a user to select a reaction.
- * @example ./ReactionSelector.md
  */
 const UnMemoizedReactionSelector = React.forwardRef(
   <
