@@ -60,9 +60,7 @@ export type MessageProps<
    * */
   additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
   /**
-   * Function to add custom notification on message list
-   * @param notificationText Notification text to display
-   * @param type Type of notification
+   * Function to add custom notification on message list. Type param can be 'success' or 'error'
    * */
   addNotification?: (
     notificationText: string,
@@ -86,36 +84,29 @@ export type MessageProps<
   formatDate?: (date: Date) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error.
-   * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged.
+   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
    * */
   getFlagMessageErrorNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful.
-   * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged.
+   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
    * */
   getFlagMessageSuccessNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
   /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error.
-   * This function should accept following params:
-   * @param user A user object which is being muted
+   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
    * */
   getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
   /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful.
-   * This function should accept following params:
-   * @param user A user object which is being muted
+   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
    * */
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
-   * This function should accept following params:
-   * @param message A [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
    * */
   getPinMessageErrorNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,

@@ -7,13 +7,13 @@ A custom hook to give you access to the message user.
 | `eventHandlers.onUserClickHandler` | func                                                     | A function to handle the user click. Will be called with the user click event and the current message user object as arguments. |
 | `eventHandlers.onUserHoverHandler` | func                                                     | A function to handle the user hover. Will be called with the user hover event and the current message user object as arguments. |
 
-It returns an object containing the event handlers for mentions.f
+It returns an object containing the event handlers for users.
 
 | Returns                | Type   | Description                                                                                     |
 | ---------------------- | ------ | ----------------------------------------------------------------------------------------------- |
 | `handlers`             | object | An object containing the event handlers for getting a message user.                             |
 | `handlers.onUserClick` | func   | An event handler tied to the set user click handler. It takes a mouse event as its argument.    |
-| `handlers.onUserHover` | func   | An event handler tied to the set mention hover handler. It takes a mouse event as its argument. |
+| `handlers.onUserHover` | func   | An event handler tied to the set user hover handler. It takes a mouse event as its argument. |
 
 ```json
 import { useUserHandler } from '../components';

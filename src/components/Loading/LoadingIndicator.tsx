@@ -3,7 +3,9 @@ import React from 'react';
 export type LoadingIndicatorProps = {
   /** Set the color of the LoadingIndicator */
   color?: string;
-  /** The size of the loading icon, default is 15px */
+  /** The size of the loading icon
+   * @default 15px
+   */
   size?: number;
 };
 

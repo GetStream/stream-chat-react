@@ -5,7 +5,7 @@ A custom hook to give you quick access to message mentions.
 | `message`              | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled   |
 | `customMentionHandler`                 | object                                                   | An object containing the following properties:  |
 | `customMentionHandler.onMentionsClick` | func                                                     | A function to overwrite the default channel mention handler. It will be called with the user event and user as arguments. |
-| `customMentionHandler.onMentionsHover` | func                                                     | A function that will be called when displaying an 'error' notification. It will be passed a message object as argument, and must return a string. |
+| `customMentionHandler.onMentionsHover` | func                                                     | A function to overwrite the default channel mention handler. It will be called with the user event and user as arguments. |
 
 It returns an object containing the event handlers for mentions.
 

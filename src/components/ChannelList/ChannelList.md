@@ -3,13 +3,12 @@ import { ChannelList } from './ChannelList';
 import { Chat } from '../';
 
 const data = require('../../docs/data');
-const filters = { type: 'team', example: 1 };
+const filters = { type: 'team' };
 const sort = {
   last_message_at: -1,
   cid: 1,
 };
 const options = {
-  member: true,
   watch: true,
   limit: 3,
 };

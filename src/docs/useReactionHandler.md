@@ -2,9 +2,9 @@ A custom hook to handle the message reactions.
 
 | Parameter | Type                                                     | Description                |
 | --------- | -------------------------------------------------------- | -------------------------- |
-| `message` | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript | The message to be handled |
+| `message` | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled |
 
-It returns an event handler for opening threads.
+It returns an event handler for reactions.
 
 | Returns   | Type | Description                                                                          |
 | --------- | ---- | ------------------------------------------------------------------------------------ |

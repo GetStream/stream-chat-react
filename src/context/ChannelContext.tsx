@@ -116,6 +116,7 @@ export type ChannelState<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** */
   error?: Error | null;
   hasMore?: boolean;
   loading?: boolean;
@@ -142,6 +143,7 @@ export type ChannelContextValue<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
+  /** */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   acceptedFiles?: string[];
   Attachment?: React.ComponentType<AttachmentProps<At>>;

@@ -4,7 +4,7 @@ A custom hook to give you access to the message user role.
 | --------- | -------------------------------------------------------- | -------------------------- |
 | `message` | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled |
 
-It returns an object containing the event handlers for mentions.
+It returns an object containing the roles of a user as boolean values.
 
 | Returns                  | Type    | Description                                                                          |
 | ------------------------ | ------- | ------------------------------------------------------------------------------------ |

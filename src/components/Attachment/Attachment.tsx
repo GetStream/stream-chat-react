@@ -88,22 +88,6 @@ export type AttachmentProps<
   Media?: React.ComponentType<ReactPlayerProps>;
 };
 
-export type BaseAttachmentUIComponentProps = {
-  /** The attachment to render */
-  /**
-   * The handler function to call when an action is selected on an attachment.
-   * Examples include canceling a \/giphy command or shuffling the results.
-   */
-  actionHandler?: ActionHandlerReturnType;
-  AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
-  Audio?: React.ComponentType<AudioProps>;
-  Card?: React.ComponentType<CardProps>;
-  File?: React.ComponentType<FileAttachmentProps>;
-  Gallery?: React.ComponentType<GalleryProps>;
-  Image?: React.ComponentType<ImageProps>;
-  Media?: React.ComponentType<ReactPlayerProps>;
-};
-
 export type DefaultAttachmentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType
 > = Required<
@@ -136,34 +120,27 @@ export type ExtendedAttachment<
 
 export type InnerAttachmentUIComponentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType
-> = BaseAttachmentUIComponentProps & {
+> = Omit<AttachmentProps<At>, 'attachments'> & {
   attachment: ExtendedAttachment<At>;
-};
-
-export type WrapperAttachmentUIComponentProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = BaseAttachmentUIComponentProps & {
-  /**
-   * The attachments to render.
-   * See [Attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
-   **/
-  attachments: ExtendedAttachment<At>[];
 };
 
 /**
  * Attachment - The message Attachment. A message can contain multiple Attachments.
  * By default, the component supports:
- * - audio
- * - file
- * - image
- * - video
+ * - AttachmentActions
+ * - Audio
+ * - Card
+ * - File
+ * - Gallery
+ * - Image
+ * - media
  *
  * @example ./Attachment.md
  */
 export const Attachment = <
   At extends DefaultAttachmentType = DefaultAttachmentType
 >(
-  props: WrapperAttachmentUIComponentProps<At>,
+  props: AttachmentProps<At>,
 ) => {
   const {
     AttachmentActions = DefaultAttachmentActions,

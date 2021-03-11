@@ -64,7 +64,6 @@ const sort = {
   cid: 1,
 };
 const options = {
-  member: true,
   watch: true,
   limit: 3,
 };

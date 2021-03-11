@@ -101,15 +101,12 @@ export type ChannelProps<
   channel?: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Override mark channel read request (Advanced usage only)
-   * @param {Channel} channel object
    * */
   doMarkReadRequest?: (
     channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<MessageResponse<At, Ch, Co, Me, Re, Us>> | void;
   /**
    * Override send message request (Advanced usage only)
-   * @param {String} channelId (full channel ID in format of `type:id`),
-   * @param {Object} message
    */
   doSendMessageRequest?: (
     channelId: string,
@@ -119,8 +116,6 @@ export type ChannelProps<
   > | void;
   /**
    * Override update(edit) message request (Advanced usage only)
-   * @param {String} channelId full channel ID in format of `type:id`
-   * @param {Object} updatedMessage
    */
   doUpdateMessageRequest?: (
     cid: string,
@@ -171,14 +166,10 @@ export type ChannelProps<
   multipleUploads?: boolean;
   /**
    * Handle for click on @mention in message
-   * @param {Event} event DOM Click event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/javascript/init_and_users/?language=javascript) which is clicked
    */
   onMentionsClick?: OnMentionAction<Us>;
   /**
-   * Handle for hover on @mention in message
-   * @param {Event} event DOM hover event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/javascript/init_and_users/?language=javascript) which is hovered
+   * Handle for hover on @mention in message, user object
    */
   onMentionsHover?: OnMentionAction<Us>;
 };
@@ -756,32 +747,7 @@ const ChannelInner = <
 };
 
 /**
- * Channel - Wrapper component for Channel. This Channel component provides the ChannelContext.
- *
- * ChannelContext provides the following values:
- *
- * - client - the client connection
- * - acceptedFiles
- * - Attachment
- * - channel
- * - closeThread
- * - dispatch
- * - editMessage
- * - emojiConfig
- * - loadMore
- * - loadMoreThread
- * - maxNumberOfFiles
- * - Message
- * - multipleUploads
- * - mutes
- * - onMentionsClick
- * - onMentionsHover
- * - openThread
- * - removeMessage
- * - retrySendMessage
- * - sendMessage
- * - updateMessage
- * - watcher_count
+ * Channel - Wrapper component for Channel. This Channel component provides the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
  *
  * It also exposes the [withChannelContext](https://getstream.github.io/stream-chat-react/#section-withchannelcontext) HOC which you can use to consume the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
  * @example ./Channel.md

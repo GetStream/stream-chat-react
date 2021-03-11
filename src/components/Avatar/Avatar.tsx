@@ -9,9 +9,13 @@ export type AvatarProps = {
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   /** mouseOver event handler */
   onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-  /** Shape of the avatar - circle, rounded or square, and the default is circle */
+  /** Shape of the avatar - circle, rounded or square
+   * @default circle
+   */
   shape?: 'circle' | 'rounded' | 'square';
-  /** Size in pixels and the default is 32px */
+  /** Size in pixels
+   * @default 32px
+   */
   size?: number;
 };
 

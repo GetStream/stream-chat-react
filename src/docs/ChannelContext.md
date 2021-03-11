@@ -1,56 +1,56 @@
 The channel context provides the following properties:
 
-- `client` 
-- `acceptedFiles`
-- `Attachment` React.ComponentType<AttachmentProps<At>>;
-- `channel` Channel<At, Ch, Co, Ev, Me, Re, Us>;
-- `closeThread` (event: React.SyntheticEvent) => void;
-- `dispatch`
-- `editMessage` (
+- **client** StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+- **acceptedFiles**
+- **Attachment** React.ComponentType<AttachmentProps<At>>;
+- **channel** Channel<At, Ch, Co, Ev, Me, Re, Us>;
+- **closeThread** (event: React.SyntheticEvent) => void;
+- **dispatch**
+- **editMessage** (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
--  `emojiConfig` EmojiConfig;
--  `error`
--  `hasMore`
--  `loading`
--  `loadingMore`
--  `loadMore` ((limit: number) => Promise<number>) | (() => Promise<void>);
--  `loadMoreThread` () => Promise<void>;
--  `maxNumberOfFiles` number;
--  `members`
--  `Message` React.ComponentType<
+-  **emojiConfig** EmojiConfig;
+-  **error**
+-  **hasMore**
+-  **loading**
+-  **loadingMore**
+-  **loadMore** ((limit: number) => Promise<number>) | (() => Promise<void>);
+-  **loadMoreThread** () => Promise<void>;
+-  **maxNumberOfFiles** number;
+-  **members**
+-  **Message**
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
--  `messages`
--  `multipleUploads` boolean;
--  `mutes` Mute<Us>[];
--  `onMentionsClick` (
+-  **messages**
+-  **multipleUploads** boolean;
+-  **mutes** Mute<Us>[];
+-  **onMentionsClick** (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
   ) => void;
--  `onMentionsHover` (
+-  **onMentionsHover** (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
   ) => void;
--  `openThread` (
+-  **openThread** (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
--  `pinnedMessages`
--  `read`
--  `removeMessage` (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
--  `retrySendMessage` RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
--  `sendMessage` (
+-  **pinnedMessages**
+-  **read**
+-  **removeMessage** (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+-  **retrySendMessage** RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+-  **sendMessage** (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
--  `thread`
--  `threadHasMore`
--  `threadLoadingMore`
--  `threadMessages`
--  `typing`
--  `updateMessage` (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
--  `watcherCount`
--  `watchers`
--  `watcher_count` number;
+-  **thread**
+-  **threadHasMore**
+-  **threadLoadingMore**
+-  **threadMessages**
+-  **typing**
+-  **updateMessage** (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+-  **watcherCount**
+-  **watchers**
+-  **watcher_count** number;
 
 
 

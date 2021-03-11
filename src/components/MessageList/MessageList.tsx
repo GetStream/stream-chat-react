@@ -492,7 +492,9 @@ export type MessageListProps<
     loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
     /** The limit to use when paginating messages. */
     messageLimit?: number;
-    /** The pixel threshold to determine whether or not the user is scrolled up in the list. Default is 200 */
+    /** The pixel threshold to determine whether or not the user is scrolled up in the list.
+     * @default 200px
+     */
     scrolledUpThreshold?: number;
   };
 
