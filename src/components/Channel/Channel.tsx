@@ -101,15 +101,12 @@ export type ChannelProps<
   channel?: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Override mark channel read request (Advanced usage only)
-   * @param {Channel} channel object
    * */
   doMarkReadRequest?: (
     channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<MessageResponse<At, Ch, Co, Me, Re, Us>> | void;
   /**
    * Override send message request (Advanced usage only)
-   * @param {String} channelId full channel ID in format of `type:id`
-   * @param {Object} message
    */
   doSendMessageRequest?: (
     channelId: string,
@@ -119,8 +116,6 @@ export type ChannelProps<
   > | void;
   /**
    * Override update(edit) message request (Advanced usage only)
-   * @param {String} channelId full channel ID in format of `type:id`
-   * @param {Object} updatedMessage
    */
   doUpdateMessageRequest?: (
     cid: string,
@@ -141,14 +136,14 @@ export type ChannelProps<
   EmptyPlaceholder?: React.ReactElement;
   /**
    * Error indicator UI component. This will be shown on the screen if channel query fails.
-   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://getstream.github.io/stream-chat-react/#loadingerrorindicator)
+   * Defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingErrorIndicator.tsx).
    * */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /**
    * Loading indicator UI component. This will be shown on the screen until the messages are
    * being queried from channel. Once the messages are loaded, loading indicator is removed from the screen
    * and replaced with children of the Channel component.
-   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.js)
+   * Defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx)
    */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Maximum number of attachments allowed per message */
@@ -158,10 +153,10 @@ export type ChannelProps<
    *
    * Available built-in components (also accepts the same props as):
    *
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.js) (default)
-   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.js)
-   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.js)
-   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.js)
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
+   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
+   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
+   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
    *
    * */
   Message?: React.ComponentType<
@@ -171,14 +166,10 @@ export type ChannelProps<
   multipleUploads?: boolean;
   /**
    * Handle for click on @mention in message
-   * @param {Event} event DOM Click event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is clicked
    */
   onMentionsClick?: OnMentionAction<Us>;
   /**
-   * Handle for hover on @mention in message
-   * @param {Event} event DOM hover event
-   * @param {User} user   Target [user object](https://getstream.io/chat/docs/#chat-doc-set-user) which is hovered
+   * Handle for hover on @mention in message, user object
    */
   onMentionsHover?: OnMentionAction<Us>;
 };
@@ -755,6 +746,12 @@ const ChannelInner = <
   );
 };
 
+/**
+ * Channel - Wrapper component for Channel. This Channel component provides the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ *
+ * It also exposes the [withChannelContext](https://getstream.github.io/stream-chat-react/#section-withchannelcontext) HOC which you can use to consume the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ * @example ./Channel.md
+ */
 export const Channel = React.memo(
   UnMemoizedChannel,
 ) as typeof UnMemoizedChannel;

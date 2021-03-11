@@ -23,9 +23,9 @@ export type ChannelHeaderProps = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** Manually set the image to render, defaults to the channel image */
+  /** Manually set the image to render, defaults to the Channel image */
   image?: string;
-  /** Show a little indicator that the channel is live right now */
+  /** Show a little indicator that the Channel is live right now */
   live?: boolean;
   /** Set title manually */
   title?: string;
@@ -105,6 +105,10 @@ const UnMemoizedChannelHeader = <
   );
 };
 
+/**
+The ChannelHeader component renders some basic information about a Channel.
+* @example ./ChannelHeader.md
+*/
 export const ChannelHeader = React.memo(
   UnMemoizedChannelHeader,
 ) as typeof UnMemoizedChannelHeader;

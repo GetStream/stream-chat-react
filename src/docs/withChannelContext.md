@@ -1,6 +1,4 @@
-Any component can be made a consumer of ChatContext by using function `withChannelContext`.
-
-e.g.,
+Any component can be made a consumer of ChannelContext by using function `withChannelContext`.
 
 ```json
 

@@ -458,7 +458,7 @@ const MessageLivestreamActions = <
 };
 
 /**
- * MessageLivestream - Render component, should be used together with the Message component
+ * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
  * @example ./MessageLivestream.md
  */

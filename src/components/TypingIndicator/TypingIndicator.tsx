@@ -21,7 +21,9 @@ export type TypingIndicatorProps = {
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** Size in pixels and the default is 32px */
+  /** Size in pixels
+   * @default 32px
+   */
   avatarSize?: number;
   /** Whether or not the typing indicator is in a thread */
   threadList?: boolean;

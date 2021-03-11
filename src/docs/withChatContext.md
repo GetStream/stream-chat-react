@@ -1,7 +1,5 @@
 Any component can be made a consumer of ChatContext by using function `withChatContext`.
 
-e.g.,
-
 ```json
 
 const DemoComponentWithChatContext =  withChatContext(DemoComponent);

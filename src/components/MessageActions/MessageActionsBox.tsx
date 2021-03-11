@@ -149,6 +149,10 @@ const UnMemoizedMessageActionsBox = <
   );
 };
 
+/**
+ * MessageActionsBox - Allows a user to edit, flag or delete a message.
+ * @example ./MessageActionsBox.md
+ */
 export const MessageActionsBox = React.memo(
   UnMemoizedMessageActionsBox,
 ) as typeof UnMemoizedMessageActionsBox;

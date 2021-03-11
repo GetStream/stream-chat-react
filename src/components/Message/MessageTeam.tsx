@@ -555,8 +555,8 @@ const MessageTeamAttachments = <
 };
 
 /**
- * MessageTeam - Render component, should be used together with the Message component
- * Implements the look and feel for a team style collaboration environment
+ * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
+ * Implements the look and feel for a team style collaboration environment.
  * @example ./MessageTeam.md
  */
 export const MessageTeam = React.memo(

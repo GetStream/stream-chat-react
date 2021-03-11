@@ -28,11 +28,11 @@ Wrapper around [i18next](https://www.i18next.com/) class for Stream related tran
 
   - **DateTimeParser** (function)
 
-    Moment or Dayjs instance/function.
+    Moment or Dayjs instance/function
 
 - **geti18Instance**
 
-  Returns an instance of [i18next](https://www.i18next.com/) used internally.
+  Returns an instance of [i18next](https://www.i18next.com/) used internally
 
 - **getAvailableLanguages**
 
@@ -276,14 +276,14 @@ const i18n = new Streami18n({
 });
 ```
 
-If you would like to stick with english language for datetimes in Stream compoments, you can set `disableDateTimeTranslations` to true.
+If you would like to stick with English language for datetimes in Stream compoments, you can set `disableDateTimeTranslations` to true.
 
 **NOTE** Please note here that locales in `dayjs/locale/it` (and all other language locale files), does not load calendar related
 config like 'today at', 'tomorrow at' etc. You will need to manually configure calendar locale using [updateLocale](https://day.js.org/docs/en/plugin/update-locale).
 
 **TIPS**
 
-1. If you would like to stick with english language for datetimes in Stream compoments,
+1. If you would like to stick with English language for datetimes in Stream compoments,
    you can set `disableDateTimeTranslations` to true.
 
 ```js static

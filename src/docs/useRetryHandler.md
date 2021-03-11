@@ -2,7 +2,7 @@ A custom hook to handle send message retrying.
 
 | Parameter                | Type | Description                                                                                |
 | ------------------------ | ---- | ------------------------------------------------------------------------------------------ |
-| `customRetrySendMessage` | func | A function that overrides the default retry send message handler from the channel context. |
+| `customRetrySendMessage` | func | A function that overrides the default retry send message handler from the channel context |
 
 It returns a message retry handler.
 

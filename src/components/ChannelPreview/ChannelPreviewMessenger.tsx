@@ -29,7 +29,7 @@ export type ChannelPreviewMessengerProps<
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /** If channel of component is active (selected) channel */
+  /** If channel of component is active (selected) Channel */
   active?: boolean;
   /** Current selected channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
@@ -39,15 +39,15 @@ export type ChannelPreviewMessengerProps<
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** Image of channel to display */
+  /** Image of Channel to display */
   displayImage?: string;
-  /** Title of channel to display */
+  /** Title of Channel to display */
   displayTitle?: string;
-  /** Latest message's text. */
+  /** Latest Message's text. */
   latestMessage?: string;
-  /** Length of latest message to truncate at */
+  /** Length of latest Message to truncate at */
   latestMessageLength?: number;
-  /** Setter for selected channel */
+  /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue<
     At,
     Ch,
@@ -57,11 +57,11 @@ export type ChannelPreviewMessengerProps<
     Re,
     Us
   >['setActiveChannel'];
-  /** Number of unread messages */
+  /** Number of unread Messages */
   unread?: number;
   /**
    * Object containing watcher parameters
-   * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+   * @see See [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
    */
   watchers?: { limit?: number; offset?: number };
 };

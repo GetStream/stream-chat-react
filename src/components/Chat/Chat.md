@@ -1,4 +1,4 @@
-Team Style Example
+Team Style Example:
 
 ```jsx
 import {
@@ -42,9 +42,7 @@ const channel = chatClient.channel('team', 'docs', {
 </div>;
 ```
 
-**NOTE** The Chat produces the [ChatContext](#chatcontext) and exposes a [withChatContext](#withchatcontext) HOC.
-
-If you want to write your own component which consumes the chat context, have a look at the example below:
+If you want to write your own component which consumes the ChatContext, have a look at the example below:
 
 ```json
 

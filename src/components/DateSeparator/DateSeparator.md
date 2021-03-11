@@ -1,5 +1,4 @@
-The date separator between messages.
-Here's what it looks like for today.
+Here's what it looks like for today:
 
 ```js
 import { DateSeparator } from './';
@@ -13,7 +12,7 @@ const date = new Date();
 </React.Fragment>;
 ```
 
-and for a date in the past:
+And for a date in the past:
 
 ```js
 import { DateSeparator } from './';
@@ -27,7 +26,7 @@ const date = new Date('December 17, 1995 03:24:00');
 </React.Fragment>;
 ```
 
-and adding custom date formatting:
+Here's an example adding custom date formatting:
 
 ```js
 import { DateSeparator } from './';

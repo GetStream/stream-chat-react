@@ -27,9 +27,9 @@ export type ChannelPreviewCompactProps<
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /** If channel of component is active (selected) channel */
+  /** If channel of component is active (selected) Channel */
   active?: boolean;
-  /** Current selected channel object */
+  /** Current selected Channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Custom UI component to display user avatar
@@ -37,13 +37,13 @@ export type ChannelPreviewCompactProps<
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** Image of channel to display */
+  /** Image of Channel to display */
   displayImage?: string;
-  /** Title of channel to display */
+  /** Title of Channel to display */
   displayTitle?: string;
-  /** Latest message's text. */
+  /** Latest Message's text */
   latestMessage?: string;
-  /** Setter for selected channel */
+  /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue<
     At,
     Ch,
@@ -53,11 +53,11 @@ export type ChannelPreviewCompactProps<
     Re,
     Us
   >['setActiveChannel'];
-  /** Number of unread messages */
+  /** Number of unread Messages */
   unread?: number;
   /**
    * Object containing watcher parameters
-   * @see See [Pagination documentation](https://getstream.io/chat/docs/#channel_pagination) for a list of available fields for sort.
+   * @see See [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
    */
   watchers?: { limit?: number; offset?: number };
 };
@@ -116,6 +116,7 @@ const UnMemoizedChannelPreviewCompact = <
 };
 
 /**
+ *  Used as preview component for channel item in [ChannelList](#channellist) component.
  * @example ./ChannelPreviewCompact.md
  */
 export const ChannelPreviewCompact = React.memo(

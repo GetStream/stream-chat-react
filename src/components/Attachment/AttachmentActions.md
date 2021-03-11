@@ -1,5 +1,3 @@
-AttachmentActions renders the attachment action
-
 ```js
 import { AttachmentActions } from './AttachmentActions';
 
