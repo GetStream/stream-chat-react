@@ -127,7 +127,7 @@ export type MessageProps<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
   /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'react', 'reply'].
+   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
    * */
   messageActions?: MessageActionsArray;
@@ -190,7 +190,7 @@ export type MessageUIComponentProps<
   /** If the Message is in edit state */
   editing: boolean;
   /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'react', 'reply'].
+   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
    * */
   getMessageActions: () => MessageActionsArray;

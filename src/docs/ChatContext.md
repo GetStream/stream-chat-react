@@ -12,5 +12,5 @@ The channel context provides the following properties:
   **Params**
 
   - `newChannel` Channel that needs to be set as active Channel
-  - `watchers` water parameters: { limit?: number; offset?: number }
+  - `watchers` watcher parameters: { limit?: number; offset?: number }
   - `event`
