@@ -133,7 +133,7 @@ export type InnerAttachmentUIComponentProps<
  * - File
  * - Gallery
  * - Image
- * - media
+ * - Media (video)
  *
  * @example ./Attachment.md
  */
