@@ -140,7 +140,7 @@ export type ChannelListProps<
    */
   lockChannelOrder?: boolean;
   /** Function that overrides default behavior when users gets added to a Channel.
-   * Corresponding to [notification.added_to_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
+   * Corresponding to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onAddedToChannel?: (
     setChannels: React.Dispatch<
@@ -190,7 +190,7 @@ export type ChannelListProps<
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when new Message is received on Channel that is not being watched.
-   * Corresponding to [notification.message_new event](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
+   * Corresponding to [notification.message_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onMessageNew?: (
     setChannels: React.Dispatch<
@@ -199,7 +199,7 @@ export type ChannelListProps<
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when users gets removed from a Channel.
-   * Corresponding to [notification.removed_from_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
+   * Corresponding to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<
