@@ -53,7 +53,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-const UnMemoizedMessageSimple = <
+const MessageSimpleWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -68,7 +68,7 @@ const UnMemoizedMessageSimple = <
   >,
 ) => {
   const {
-    Attachment: PropAttachment,
+    Attachment,
     Avatar = DefaultAvatar,
     clearEditingState,
     editing,
@@ -85,17 +85,8 @@ const UnMemoizedMessageSimple = <
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
     threadList,
-    updateMessage: propUpdateMessage,
+    updateMessage,
   } = props;
-
-  const {
-    Attachment: ContextAttachment,
-    updateMessage: channelUpdateMessage,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
-
-  const updateMessage = propUpdateMessage || channelUpdateMessage;
 
   const { isMyMessage } = useUserRole(message);
   const handleOpenThread = useOpenThreadHandler(message);
@@ -361,11 +352,47 @@ const MessageSimpleStatus = <
   return null;
 };
 
+const MemoizedMessageSimple = React.memo(
+  MessageSimpleWithContext,
+  areMessageUIPropsEqual,
+) as typeof MessageSimpleWithContext;
+
 /**
  * MessageSimple - UI component that renders a message and receives functionality from the Message/MessageList components
  * @example ./MessageSimple.md
  */
-export const MessageSimple = React.memo(
-  UnMemoizedMessageSimple,
-  areMessageUIPropsEqual,
-) as typeof UnMemoizedMessageSimple;
+export const MessageSimple = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  >,
+) => {
+  const {
+    Attachment: PropAttachment,
+    updateMessage: propUpdateMessage,
+  } = props;
+
+  const {
+    Attachment: ContextAttachment,
+    updateMessage: contextUpdateMessage,
+  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
+  const updateMessage = propUpdateMessage || contextUpdateMessage;
+
+  return (
+    <MemoizedMessageSimple
+      {...props}
+      Attachment={Attachment}
+      updateMessage={updateMessage}
+    />
+  );
+};

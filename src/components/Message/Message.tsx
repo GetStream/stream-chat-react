@@ -36,7 +36,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-const UnMemoizedMessage = <
+const MessageWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -49,7 +49,7 @@ const UnMemoizedMessage = <
 ) => {
   const {
     addNotification,
-    channel: propChannel,
+    channel,
     formatDate,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
@@ -69,17 +69,6 @@ const UnMemoizedMessage = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { channel: contextChannel } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
-
-  const channel = propChannel || contextChannel;
   const channelConfig = channel?.getConfig && channel.getConfig();
 
   const handleAction = useActionHandler(message);
@@ -183,12 +172,40 @@ const UnMemoizedMessage = <
   );
 };
 
+const MemoizedMessage = React.memo(
+  MessageWithContext,
+  areMessagePropsEqual,
+) as typeof MessageWithContext;
+
 /**
  * Message - A high level component which implements all the logic required for a message.
  * The actual rendering of the message is delegated via the "Message" property
  * @example ./Message.md
  */
-export const Message = React.memo(
-  UnMemoizedMessage,
-  areMessagePropsEqual,
-) as typeof UnMemoizedMessage;
+export const Message = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { channel: propChannel } = props;
+
+  const { channel: contextChannel } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
+  const channel = propChannel || contextChannel;
+
+  return <MemoizedMessage {...props} channel={channel} />;
+};
