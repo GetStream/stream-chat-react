@@ -24,6 +24,8 @@
 }
 
 .str-chat__virtual-list {
+  // this resolves the issue with 1px tall messages (i.e. deleted messages)
+  font-size: 0;
   .str-chat__message.str-chat__message--deleted {
     align-items: initial;
     padding: 16px 42px;
@@ -33,6 +35,11 @@
   .str-chat__typing-indicator {
     padding: 5px 40px; // important: div height should be big enough to fully contain the avatars
   }
+}
+
+.str-chat__virtual-list-message-wrapper {
+  display: inline-block;
+  width: 100%;
 }
 
 .str-chat__virtual-message__meta {
