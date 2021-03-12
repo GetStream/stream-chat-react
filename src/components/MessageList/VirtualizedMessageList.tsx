@@ -231,13 +231,7 @@ const VirtualizedMessageListWithContext = <
     // using 'display: inline-block' traps CSS margins of the item elements
     // preventing incorrect item measurements.
     const Item: Components['Item'] = (props) => (
-      <div
-        {...props}
-        style={{
-          display: 'inline-block',
-          width: '100%',
-        }}
-      />
+      <div {...props} className='str-chat__virtual-list-message-wrapper' />
     );
 
     const Footer: Components['Footer'] = () =>
