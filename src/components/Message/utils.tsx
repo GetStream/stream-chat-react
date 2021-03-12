@@ -224,10 +224,12 @@ export const areMessagePropsEqual = <
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length ===
       nextMessage.latest_reactions?.length &&
-    prevMessage.status === nextMessage.status &&
+    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+    prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
-    prevMessage.type === nextMessage.type &&
+    prevMessage.status === nextMessage.status &&
     prevMessage.text === nextMessage.text &&
+    prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at;
 
   if (!messagesAreEqual) return false;
@@ -266,10 +268,12 @@ export const areMessageUIPropsEqual = <
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length ===
       nextMessage.latest_reactions?.length &&
+    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+    prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
     prevMessage.status === nextMessage.status &&
-    prevMessage.type === nextMessage.type &&
     prevMessage.text === nextMessage.text &&
+    prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at;
 
   if (!messagesAreEqual) return false;
