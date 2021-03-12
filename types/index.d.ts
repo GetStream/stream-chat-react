@@ -1410,6 +1410,19 @@ export const LoadMorePaginator: React.FC<LoadMorePaginatorProps>;
 export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps>;
 export const LoadingIndicator: React.FC<LoadingIndicatorProps>;
 
+export const getDisplayTitle: (
+  channel: Client.Channel,
+  currentUser: Client.UserResponse,
+) => string | undefined;
+export const getDisplayImage: (
+  channel: Client.Channel,
+  currentUser: Client.UserResponse,
+) => string | undefined;
+export const getLatestMessagePreview: (
+  channel: Client.Channel,
+  t: i18next.TFunction,
+) => string | undefined;
+
 export interface MessageCommerceProps
   extends Omit<MessageUIComponentProps, 'EditMessageForm'> {}
 export const MessageCommerce: React.FC<MessageCommerceProps>;
