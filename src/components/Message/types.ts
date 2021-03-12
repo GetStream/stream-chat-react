@@ -215,6 +215,12 @@ export type MessageUIComponentProps<
   ) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Function that returns whether or not the Message belongs to the current user */
+  isMyMessage: () => boolean;
+  /** Handler function for a click event on the user that posted the Message */
+  onUserClick: MouseEventHandler;
+  /** Handler function for a hover event on the user that posted the Message */
+  onUserHover: MouseEventHandler;
   /** Function to toggle the edit state on a Message */
   setEditingState: MouseEventHandler;
   /** Channel config object */
@@ -224,8 +230,6 @@ export type MessageUIComponentProps<
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
    * */
   EditMessageInput?: React.ComponentType<unknown>; // TODO - add React.ComponentType<MessageInputProps<generics>> when typed
-  /** Function that returns whether or not the Message belongs to the current user */
-  isMyMessage?: () => boolean;
   /**
    * The component to be rendered if the Message has been deleted.
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
@@ -237,10 +241,6 @@ export type MessageUIComponentProps<
   onMentionsClickMessage?: MouseEventHandler;
   /** Handler function for a hover event on an @mention in Message */
   onMentionsHoverMessage?: MouseEventHandler;
-  /** Handler function for a click event on the user that posted the Message */
-  onUserClick?: MouseEventHandler;
-  /** Handler function for a hover event on the user that posted the Message */
-  onUserHover?: MouseEventHandler;
   /**
    * Custom UI component to override default pinned Message indicator.
    * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx)

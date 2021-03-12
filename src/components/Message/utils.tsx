@@ -205,24 +205,6 @@ export function getMessageActions(
   return messageActionsAfterPermission;
 }
 
-export type MessageEqualProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<
-  MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-  | 'groupStyles'
-  | 'lastReceivedId'
-  | 'message'
-  | 'messageListRect'
-  | 'mutes'
-  | 'readBy'
->;
-
 export const areMessagePropsEqual = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -232,17 +214,36 @@ export const areMessagePropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
-  nextProps: MessageEqualProps<At, Ch, Co, Ev, Me, Re, Us>,
-) =>
-  nextProps.message === props.message &&
-  deepequal(nextProps.readBy, props.readBy) &&
-  // Group style changes (it often happens that the last 3 messages of a channel have different group styles)
-  deepequal(nextProps.groupStyles, props.groupStyles) &&
-  deepequal(nextProps.mutes, props.mutes) &&
-  deepequal(nextProps.lastReceivedId, props.lastReceivedId) &&
-  // Message wrapper layout changes
-  nextProps.messageListRect === props.messageListRect;
+  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { message: prevMessage } = prevProps;
+  const { message: nextMessage } = nextProps;
+
+  const messagesAreEqual =
+    prevMessage.deleted_at === nextMessage.deleted_at &&
+    prevMessage.latest_reactions?.length ===
+      nextMessage.latest_reactions?.length &&
+    prevMessage.status === nextMessage.status &&
+    prevMessage.reply_count === nextMessage.reply_count &&
+    prevMessage.type === nextMessage.type &&
+    prevMessage.text === nextMessage.text &&
+    prevMessage.updated_at === nextMessage.updated_at;
+
+  if (!messagesAreEqual) return false;
+
+  const deepEqualProps =
+    deepequal(nextProps.readBy, prevProps.readBy) &&
+    deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
+    deepequal(nextProps.mutes, prevProps.mutes) &&
+    deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
+
+  if (!deepEqualProps) return false;
+
+  return (
+    prevProps.messageListRect === nextProps.messageListRect // MessageList wrapper layout changes
+  );
+};
 
 export const areMessageUIPropsEqual = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -253,13 +254,28 @@ export const areMessageUIPropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  prevProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
   nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-) =>
-  nextProps.editing === props.editing &&
-  nextProps.message.text === props.message.text &&
-  nextProps.message.latest_reactions === props.message.latest_reactions &&
-  nextProps.message.status === props.message.status;
+) => {
+  const { message: prevMessage } = prevProps;
+  const { message: nextMessage } = nextProps;
+
+  if (nextProps.editing !== prevProps.editing) return false;
+
+  const messagesAreEqual =
+    prevMessage.deleted_at === nextMessage.deleted_at &&
+    prevMessage.latest_reactions?.length ===
+      nextMessage.latest_reactions?.length &&
+    prevMessage.reply_count === nextMessage.reply_count &&
+    prevMessage.status === nextMessage.status &&
+    prevMessage.type === nextMessage.type &&
+    prevMessage.text === nextMessage.text &&
+    prevMessage.updated_at === nextMessage.updated_at;
+
+  if (!messagesAreEqual) return false;
+
+  return true;
+};
 
 export const messageHasReactions = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
@@ -72,6 +72,7 @@ async function renderMessageSimple(
       >
         <MessageSimple
           getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+          isMyMessage={() => true}
           message={message}
           threadList={false}
           typing={false}
@@ -95,8 +96,6 @@ function generateBobMessage(messageOptions) {
     ...messageOptions,
   });
 }
-
-const reactionSelectorTestId = 'reaction-selector';
 
 describe('<MessageSimple />', () => {
   afterEach(cleanup);
@@ -158,30 +157,6 @@ describe('<MessageSimple />', () => {
       }),
       {},
     );
-  });
-
-  it('should render reaction selector with custom component when one is given', async () => {
-    const message = generateBobMessage({ text: undefined });
-    // Passing the ref prevents a react warning
-    // eslint-disable-next-line no-unused-vars
-    const CustomReactionSelector = ({ handleReaction }, ref) => (
-      <ul data-testid='custom-reaction-selector'>
-        <li>
-          <button onClick={(e) => handleReaction('smile-emoticon', e)}>
-            :)
-          </button>
-        </li>
-        <li>
-          <button onClick={(e) => handleReaction('sad-emoticon', e)}>:(</button>
-        </li>
-      </ul>
-    );
-    const { getByTestId } = await renderMessageSimple(message, {
-      ReactionSelector: React.forwardRef(CustomReactionSelector),
-    });
-    const { onReactionListClick } = MessageOptionsMock.mock.calls[0][0];
-    act(() => onReactionListClick());
-    expect(getByTestId('custom-reaction-selector')).toBeInTheDocument();
   });
 
   it('should not render reaction list if reaction is disbaled in channel config', async () => {
@@ -318,7 +293,9 @@ describe('<MessageSimple />', () => {
 
   it('should allow message to be retried when it failed', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { getByTestId } = await renderMessageSimple(message);
+    const { getByTestId } = await renderMessageSimple(message, {
+      handleRetry: retrySendMessageMock,
+    });
     expect(retrySendMessageMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-inner'));
     expect(retrySendMessageMock).toHaveBeenCalledWith(message);
@@ -354,7 +331,7 @@ describe('<MessageSimple />', () => {
   it('should render MML on left for others', async () => {
     const mml = '<mml>text</mml>';
     const message = generateBobMessage({ mml });
-    await renderMessageSimple(message);
+    await renderMessageSimple(message, { isMyMessage: () => false });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
       {},
@@ -393,18 +370,6 @@ describe('<MessageSimple />', () => {
     );
   });
 
-  it('should display detailed reactions when reactions action is clicked', async () => {
-    const message = generateAliceMessage({ text: undefined });
-    const { queryByTestId } = await renderMessageSimple(
-      message,
-      {},
-      { reactions: true },
-    );
-    const { onReactionListClick } = MessageOptionsMock.mock.calls[0][0];
-    act(() => onReactionListClick());
-    expect(queryByTestId(reactionSelectorTestId)).toBeInTheDocument();
-  });
-
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {
     const attachment = {
       asset_url: 'file.pdf',
@@ -441,18 +406,21 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { getByTestId } = await renderMessageSimple(message);
+    const { getByTestId } = await renderMessageSimple(message, {
+      handleOpenThread: openThreadMock,
+    });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
     expect(openThreadMock).toHaveBeenCalledWith(
-      message,
       expect.any(Object), // The event object
     );
   });
 
   it("should display message's user name when message not from the current user", async () => {
     const message = generateBobMessage();
-    const { getByText } = await renderMessageSimple(message);
+    const { getByText } = await renderMessageSimple(message, {
+      isMyMessage: () => false,
+    });
     expect(getByText(bob.name)).toBeInTheDocument();
   });
 

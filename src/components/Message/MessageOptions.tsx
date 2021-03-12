@@ -29,11 +29,11 @@ export type MessageOptionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  onReactionListClick: MouseEventHandler;
   displayActions?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  onReactionListClick?: MouseEventHandler;
   theme?: string;
 };
 

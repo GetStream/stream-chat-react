@@ -5,15 +5,7 @@ import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
-import {
-  useActionHandler,
-  useOpenThreadHandler,
-  useReactionClick,
-  useReactionHandler,
-  useRetryHandler,
-  useUserHandler,
-  useUserRole,
-} from './hooks';
+import { useReactionClick } from './hooks';
 import { DeliveredCheckIcon } from './icons';
 import {
   areMessageUIPropsEqual,
@@ -41,7 +33,7 @@ import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageUIComponentProps } from './types';
+import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -53,6 +45,24 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+type MessageSimpleWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Omit<
+  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  'PinIndicator'
+> & {
+  isReactionEnabled: boolean;
+  onReactionListClick: MouseEventHandler;
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
+  showDetailedReactions: boolean;
+};
+
 const MessageSimpleWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -62,56 +72,41 @@ const MessageSimpleWithContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'PinIndicator'
-  >,
+  props: MessageSimpleWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    additionalMessageInputProps,
     Attachment,
     Avatar = DefaultAvatar,
     clearEditingState,
     editing,
     EditMessageInput = DefaultEditMessageForm,
     formatDate,
-    handleAction: propHandleAction,
-    handleOpenThread: propHandleOpenThread,
-    handleReaction: propHandleReaction,
-    handleRetry: propHandleRetry,
+    handleAction,
+    handleOpenThread,
+    handleReaction,
+    handleRetry,
+    isMyMessage,
+    isReactionEnabled,
     message,
     MessageDeleted = DefaultMessageDeleted,
-    onUserClick: onUserClickCustomHandler,
-    onUserHover: onUserHoverCustomHandler,
+    onReactionListClick,
+    onUserClick,
+    onUserHover,
     ReactionSelector = DefaultReactionSelector,
+    reactionSelectorRef,
     ReactionsList = DefaultReactionList,
+    showDetailedReactions,
     threadList,
     updateMessage,
   } = props;
 
-  const { isMyMessage } = useUserRole(message);
-  const handleOpenThread = useOpenThreadHandler(message);
-  const handleReaction = useReactionHandler(message);
-  const handleAction = useActionHandler(message);
-  const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: onUserClickCustomHandler,
-    onUserHoverHandler: onUserHoverCustomHandler,
-  });
-
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
-
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
 
-  const messageClasses = isMyMessage
+  const messageClasses = isMyMessage()
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
 
@@ -132,7 +127,7 @@ const MessageSimpleWithContext = <
             Input={EditMessageInput}
             message={message}
             updateMessage={updateMessage}
-            {...props.additionalMessageInputProps}
+            {...additionalMessageInputProps}
           />
         </Modal>
       )}
@@ -167,12 +162,8 @@ const MessageSimpleWithContext = <
             className='str-chat__message-inner'
             data-testid='message-inner'
             onClick={() => {
-              if (
-                message.status === 'failed' &&
-                (propHandleRetry || handleRetry)
-              ) {
-                const retryHandler = propHandleRetry || handleRetry;
-                retryHandler(message);
+              if (message.status === 'failed') {
+                handleRetry(message);
               }
             }}
           >
@@ -181,7 +172,7 @@ const MessageSimpleWithContext = <
                 {
                   <MessageOptions
                     {...props}
-                    handleOpenThread={propHandleOpenThread}
+                    handleOpenThread={handleOpenThread}
                     messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
                   />
@@ -200,7 +191,7 @@ const MessageSimpleWithContext = <
                 {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
                     detailedView
-                    handleReaction={propHandleReaction || handleReaction}
+                    handleReaction={handleReaction}
                     latest_reactions={message.latest_reactions}
                     own_reactions={message.own_reactions}
                     reaction_counts={message.reaction_counts || undefined}
@@ -211,7 +202,7 @@ const MessageSimpleWithContext = <
             )}
             {message?.attachments && Attachment && (
               <Attachment
-                actionHandler={propHandleAction || handleAction}
+                actionHandler={handleAction}
                 attachments={message.attachments}
               />
             )}
@@ -219,7 +210,7 @@ const MessageSimpleWithContext = <
               <MessageText
                 {...props}
                 customOptionProps={{
-                  handleOpenThread: propHandleOpenThread,
+                  handleOpenThread,
                   messageWrapperRef,
                 }}
                 reactionSelectorRef={reactionSelectorRef}
@@ -228,14 +219,14 @@ const MessageSimpleWithContext = <
             {message.mml && (
               <MML
                 actionHandler={handleAction}
-                align={isMyMessage ? 'right' : 'left'}
+                align={isMyMessage() ? 'right' : 'left'}
                 source={message.mml}
               />
             )}
             {!threadList && message.reply_count !== 0 && (
               <div className='str-chat__message-simple-reply-button'>
                 <MessageRepliesCountButton
-                  onClick={propHandleOpenThread || handleOpenThread}
+                  onClick={handleOpenThread}
                   reply_count={message.reply_count}
                 />
               </div>
@@ -243,7 +234,7 @@ const MessageSimpleWithContext = <
             <div
               className={`str-chat__message-data str-chat__message-simple-data`}
             >
-              {!isMyMessage && message.user ? (
+              {!isMyMessage() && message.user ? (
                 <span className='str-chat__message-simple-name'>
                   {message.user.name || message.user.id}
                 </span>
@@ -272,6 +263,7 @@ const MessageSimpleStatus = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >({
   Avatar = DefaultAvatar,
+  isMyMessage,
   readBy,
   message,
   threadList,
@@ -280,9 +272,7 @@ const MessageSimpleStatus = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const { isMyMessage } = useUserRole(message);
-
-  if (!isMyMessage || message?.type === 'error') {
+  if (!isMyMessage() || message?.type === 'error') {
     return null;
   }
 
@@ -377,6 +367,7 @@ export const MessageSimple = <
 ) => {
   const {
     Attachment: PropAttachment,
+    message,
     updateMessage: propUpdateMessage,
   } = props;
 
@@ -385,6 +376,14 @@ export const MessageSimple = <
     updateMessage: contextUpdateMessage,
   } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    isReactionEnabled,
+    onReactionListClick,
+    showDetailedReactions,
+  } = useReactionClick(message, reactionSelectorRef);
+
   const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
   const updateMessage = propUpdateMessage || contextUpdateMessage;
 
@@ -392,6 +391,10 @@ export const MessageSimple = <
     <MemoizedMessageSimple
       {...props}
       Attachment={Attachment}
+      isReactionEnabled={isReactionEnabled}
+      onReactionListClick={onReactionListClick}
+      reactionSelectorRef={reactionSelectorRef}
+      showDetailedReactions={showDetailedReactions}
       updateMessage={updateMessage}
     />
   );

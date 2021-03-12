@@ -860,28 +860,6 @@ describe('<Message /> component', () => {
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should rerender if it enters edit mode', async () => {
-    const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      editing: false,
-      Message: UIMock,
-    });
-    expect(UIMock).toHaveBeenCalledTimes(1);
-    UIMock.mockClear();
-    await renderComponent(
-      message,
-      {
-        editing: true,
-        Message: UIMock,
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
-    expect(UIMock).toHaveBeenCalledTimes(1);
-  });
-
   it('should rerender if message list changes position', async () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
