@@ -7,7 +7,6 @@ import {
   ChannelList,
   ChannelListMessenger,
   ChannelPreviewMessenger,
-  InfiniteScrollPaginator,
   MessageInput,
   MessageInputFlat,
   MessageList,
@@ -17,28 +16,18 @@ import {
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 
-const urlParams = new URLSearchParams(window.location.search);
-const apiKey =
-  urlParams.get('apiKey') || process.env.REACT_APP_STREAM_KEY || 'qk4nn7rpcn75';
-const userId =
-  urlParams.get('user') || process.env.REACT_APP_USER_ID || 'example-user';
-const theme = urlParams.get('theme') || 'light';
-const userToken =
-  urlParams.get('user_token') ||
-  process.env.REACT_APP_USER_TOKEN ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZXhhbXBsZS11c2VyIn0.HlC0dMKL43y3K_XbfvQS_Yc3V314HU4Z7LrBLil777g';
+const apiKey = process.env.REACT_APP_STREAM_KEY;
+const userId = process.env.REACT_APP_USER_ID;
+const userToken = process.env.REACT_APP_USER_TOKEN;
+const theme = 'light';
 
-const filters = { type: 'messaging', example: 1 };
-const options = { state: true, watch: true, presence: true };
+const filters = { type: 'messaging' };
+const options = { state: true, watch: true, presence: true, limit: 10 };
 const sort = {
   cid: 1,
   last_message_at: -1,
   updated_at: -1,
 };
-
-const Paginator = (props) => (
-  <InfiniteScrollPaginator threshold={300} {...props} />
-);
 
 const chatClient = StreamChat.getInstance(apiKey);
 
@@ -56,7 +45,6 @@ const App = () => (
       filters={filters}
       sort={sort}
       options={options}
-      Paginator={Paginator}
     />
     <Channel>
       <Window>
