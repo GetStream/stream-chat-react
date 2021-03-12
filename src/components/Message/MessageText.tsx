@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 
 import {
   useMentionsUIHandler,
@@ -70,13 +70,12 @@ const UnMemoizedMessageTextComponent = <
     onMentionsHoverMessage: propOnMentionsHover,
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
+    reactionSelectorRef,
     theme = 'simple',
     unsafeHTML,
   } = props;
 
   const { t, userLanguage } = useTranslationContext();
-
-  const reactionSelectorRef = useRef<HTMLDivElement>(null);
 
   const { handleMobilePress } = useMobilePress();
 

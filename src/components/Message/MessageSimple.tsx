@@ -213,7 +213,6 @@ const MessageSimpleWithContext = <
                   handleOpenThread,
                   messageWrapperRef,
                 }}
-                reactionSelectorRef={reactionSelectorRef}
               />
             )}
             {message.mml && (

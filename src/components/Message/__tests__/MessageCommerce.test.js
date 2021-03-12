@@ -42,6 +42,7 @@ async function renderMessageCommerce(
     >
       <MessageCommerce
         getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+        isMyMessage={() => true}
         message={message}
         {...props}
       />
@@ -74,7 +75,6 @@ const imageAttachment = {
 };
 
 const messageCommerceWrapperTestId = 'message-commerce-wrapper';
-const reactionSelectorTestId = 'reaction-selector';
 const reactionListTestId = 'reaction-list';
 const messageCommerceActionsTestId = 'message-reaction-action';
 
@@ -105,36 +105,6 @@ describe('<MessageCommerce />', () => {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
-  });
-
-  it('should render reaction selector with custom component when one is given', async () => {
-    const message = generateBobMessage({ text: undefined });
-    const customSelectorTestId = 'custom-reaction-selector';
-    // Passing the ref prevents a react warning
-    // eslint-disable-next-line no-unused-vars
-    const CustomReactionSelector = (props, ref) => (
-      <ul data-testid={customSelectorTestId}>
-        <li>
-          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>
-            :)
-          </button>
-        </li>
-        <li>
-          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>
-            :(
-          </button>
-        </li>
-      </ul>
-    );
-    const { getByTestId } = await renderMessageCommerce(
-      message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
-      { reactions: true },
-    );
-    fireEvent.click(getByTestId('message-reaction-action'));
-    expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
 
   it('should render reaction list with custom component when one is given', async () => {
@@ -183,7 +153,9 @@ describe('<MessageCommerce />', () => {
 
   it('should position message to the left if it is not from current user', async () => {
     const message = generateBobMessage();
-    const { getByTestId } = await renderMessageCommerce(message);
+    const { getByTestId } = await renderMessageCommerce(message, {
+      isMyMessage: () => false,
+    });
     expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
       '--left',
     );
@@ -307,18 +279,6 @@ describe('<MessageCommerce />', () => {
     expect(getByTestId(reactionListTestId)).toBeInTheDocument();
   });
 
-  it('should show the reaction selector when message has no text and user clicks on the reaction list', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-      text: undefined,
-    });
-    const { getByTestId, queryByTestId } = await renderMessageCommerce(message);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
-    fireEvent.click(getByTestId(reactionListTestId));
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
-  });
-
   it('should render message actions when message has no text and channel has reactions enabled', async () => {
     const message = generateAliceMessage({ text: undefined });
     const { getByTestId } = await renderMessageCommerce(
@@ -352,7 +312,7 @@ describe('<MessageCommerce />', () => {
   it('should render MML on left for others', async () => {
     const mml = '<mml>text</mml>';
     const message = generateBobMessage({ mml });
-    await renderMessageCommerce(message);
+    await renderMessageCommerce(message, { isMyMessage: () => false });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
       {},
@@ -425,18 +385,21 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { getByTestId } = await renderMessageCommerce(message);
+    const { getByTestId } = await renderMessageCommerce(message, {
+      handleOpenThread: openThreadMock,
+    });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
     expect(openThreadMock).toHaveBeenCalledWith(
-      message,
       expect.any(Object), // The Event object
     );
   });
 
   it('should display user name when message is not from current user', async () => {
     const message = generateBobMessage();
-    const { getByText } = await renderMessageCommerce(message);
+    const { getByText } = await renderMessageCommerce(message, {
+      isMyMessage: () => false,
+    });
     expect(getByText(bob.name)).toBeInTheDocument();
   });
 

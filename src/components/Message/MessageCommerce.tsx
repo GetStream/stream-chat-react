@@ -5,14 +5,7 @@ import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
-import {
-  useActionHandler,
-  useOpenThreadHandler,
-  useReactionClick,
-  useReactionHandler,
-  useUserHandler,
-  useUserRole,
-} from './hooks';
+import { useReactionClick, useUserHandler } from './hooks';
 import {
   areMessageUIPropsEqual,
   messageHasAttachments,
@@ -27,7 +20,7 @@ import {
   ReactionsList as DefaultReactionsList,
 } from '../Reactions';
 
-import type { MessageUIComponentProps } from './types';
+import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -39,10 +32,25 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-/**
- * MessageCommerce - UI component that renders a message and receives functionality from the Message/MessageList components
- */
-const UnMemoizedMessageCommerce = <
+type MessageCommerceWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Omit<
+  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  'PinIndicator'
+> & {
+  isReactionEnabled: boolean;
+  onReactionListClick: MouseEventHandler;
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
+  showDetailedReactions: boolean;
+};
+
+const MessageCommerceWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -51,40 +59,29 @@ const UnMemoizedMessageCommerce = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'PinIndicator'
-  >,
+  props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     formatDate,
     groupStyles,
-    handleAction: propHandleAction,
-    handleOpenThread: propHandleOpenThread,
-    handleReaction: propHandleReaction,
+    handleAction,
+    handleOpenThread,
+    handleReaction,
+    isMyMessage,
+    isReactionEnabled,
     message,
     MessageDeleted = DefaultMessageDeleted,
+    onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     ReactionSelector = DefaultReactionSelector,
+    reactionSelectorRef,
     ReactionsList = DefaultReactionsList,
+    showDetailedReactions,
     threadList,
   } = props;
-
-  const handleAction = useActionHandler(message);
-  const handleOpenThread = useOpenThreadHandler(message);
-  const handleReaction = useReactionHandler(message);
-  const { isMyMessage } = useUserRole(message);
-
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -97,7 +94,7 @@ const UnMemoizedMessageCommerce = <
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
   const messageClasses = `str-chat__message-commerce str-chat__message-commerce--${
-    isMyMessage ? 'right' : 'left'
+    isMyMessage() ? 'right' : 'left'
   }`;
 
   if (message?.deleted_at) {
@@ -164,7 +161,7 @@ const UnMemoizedMessageCommerce = <
               {showDetailedReactions && isReactionEnabled && (
                 <ReactionSelector
                   detailedView
-                  handleReaction={propHandleReaction || handleReaction}
+                  handleReaction={handleReaction}
                   latest_reactions={message.latest_reactions}
                   own_reactions={message.own_reactions}
                   reaction_counts={message.reaction_counts || undefined}
@@ -176,14 +173,14 @@ const UnMemoizedMessageCommerce = <
           )}
           {message?.attachments && Attachment && (
             <Attachment
-              actionHandler={propHandleAction || handleAction}
+              actionHandler={handleAction}
               attachments={message.attachments}
             />
           )}
           {message?.mml && (
             <MML
               actionHandler={handleAction}
-              align={isMyMessage ? 'right' : 'left'}
+              align={isMyMessage() ? 'right' : 'left'}
               source={message.mml}
             />
           )}
@@ -204,13 +201,13 @@ const UnMemoizedMessageCommerce = <
           {!threadList && (
             <div className='str-chat__message-commerce-reply-button'>
               <MessageRepliesCountButton
-                onClick={propHandleOpenThread || handleOpenThread}
+                onClick={handleOpenThread}
                 reply_count={message?.reply_count}
               />
             </div>
           )}
           <div className='str-chat__message-commerce-data'>
-            {!isMyMessage ? (
+            {!isMyMessage() ? (
               <span className='str-chat__message-commerce-name'>
                 {message?.user?.name || message?.user?.id}
               </span>
@@ -228,7 +225,45 @@ const UnMemoizedMessageCommerce = <
   );
 };
 
-export const MessageCommerce = React.memo(
-  UnMemoizedMessageCommerce,
+const MemoizedMessageCommerce = React.memo(
+  MessageCommerceWithContext,
   areMessageUIPropsEqual,
-) as typeof UnMemoizedMessageCommerce;
+) as typeof MessageCommerceWithContext;
+
+/**
+ * MessageCommerce - UI component that renders a message and receives functionality from the Message/MessageList components
+ */
+export const MessageCommerce = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: Omit<
+    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    'PinIndicator'
+  >,
+) => {
+  const { message } = props;
+
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    isReactionEnabled,
+    onReactionListClick,
+    showDetailedReactions,
+  } = useReactionClick(message, reactionSelectorRef);
+
+  return (
+    <MemoizedMessageCommerce
+      {...props}
+      isReactionEnabled={isReactionEnabled}
+      onReactionListClick={onReactionListClick}
+      reactionSelectorRef={reactionSelectorRef}
+      showDetailedReactions={showDetailedReactions}
+    />
+  );
+};
