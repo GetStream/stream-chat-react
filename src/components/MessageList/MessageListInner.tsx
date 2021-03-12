@@ -12,6 +12,7 @@ import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
+import type { EventComponentProps } from '../EventComponent/EventComponent';
 import type { MessageProps } from '../Message/types';
 import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
@@ -83,9 +84,9 @@ export type MessageListInnerProps<
    * Custom UI component to display system messages
    * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
    */
-  MessageSystem?: React.ComponentType<{
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  }>;
+  MessageSystem?: React.ComponentType<
+    EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
 

@@ -15,12 +15,15 @@ import { MessageNotification } from './MessageNotification';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
-} from '../EmptyStateIndicator';
-import { EventComponent } from '../EventComponent';
+} from '../EmptyStateIndicator/EmptyStateIndicator';
+import {
+  EventComponent,
+  EventComponentProps,
+} from '../EventComponent/EventComponent';
 import {
   LoadingIndicator as DefaultLoadingIndicator,
   LoadingIndicatorProps,
-} from '../Loading';
+} from '../Loading/LoadingIndicator';
 import {
   FixedHeightMessage as DefaultMessage,
   MessageDeleted as DefaultMessageDeleted,
@@ -87,7 +90,9 @@ export type VirtualizedMessageListProps<
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages */
-  MessageSystem?: React.ComponentType<unknown>; // TODO - add generic when EventComponent is typed
+  MessageSystem?: React.ComponentType<
+    EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>
+  >;
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
   overscan?: number;
   /**

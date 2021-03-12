@@ -22,7 +22,7 @@ type UpdateHandler<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = (
   cid: string,
-  updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>, // TODO - check if right message type
+  updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
 ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
 
 export const useEditMessageHandler = <
