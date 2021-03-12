@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.3) 2021-03-12
+
+### Chore
+
+- Remove legacy example apps [#766](https://github.com/GetStream/stream-chat-react/pull/766)
+- Handle soft deleted messages in `VirtualizedMessageList` [#773](https://github.com/GetStream/stream-chat-react/pull/773)
+
+### Bug
+
+- Add missing ChannelPreview helpers to exports [#775](https://github.com/GetStream/stream-chat-react/pull/775)
+
 ## [4.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.2) 2021-03-09
 
 ### Feature
