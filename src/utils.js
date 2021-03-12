@@ -53,10 +53,10 @@ const matchMarkdownLinks = (message) => {
   const links = matches
     ? matches.map((match) => {
         const i = singleMatch.exec(match);
-        return i && i[2];
+        return i && [i[1], i[2]];
       })
     : [];
-  return links;
+  return links.flat();
 };
 
 /** @type {(message: string) => (string|null)[]} */
