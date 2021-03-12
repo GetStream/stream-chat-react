@@ -30,10 +30,13 @@ const ChatAutoComplete = (props) => {
   /** @param {string} word */
   const emojiReplace = (word) => {
     const found = emojiIndex?.search(word) || [];
-    const emoji = found.slice(0, 10).find(
-      /** @type {{ ({ emoticons } : import('emoji-mart').EmojiData): boolean }} */
-      ({ emoticons }) => !!emoticons?.includes(word),
-    );
+    const emoji = found
+      .filter(Boolean)
+      .slice(0, 10)
+      .find(
+        /** @type {{ ({ emoticons } : import('emoji-mart').EmojiData): boolean }} */
+        ({ emoticons }) => !!emoticons?.includes(word),
+      );
     if (!emoji || !('native' in emoji)) return null;
     return emoji.native;
   };
