@@ -546,6 +546,9 @@ export interface FixedHeightMessageProps {
 export interface VirtualizedMessageListInternalProps {
   /** **Available from [chat context](https://getstream.github.io/stream-chat-react/#chat)** */
   client: StreamChatReactClient;
+  channel: Client.Channel;
+  DateSeparator: React.FC<DateSeparatorProps>;
+  disableDateSeparator?: boolean;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */
   messages?: Array<Client.MessageResponse>;
   /** **Available from [channel context](https://getstream.github.io/stream-chat-react/#channel)** */

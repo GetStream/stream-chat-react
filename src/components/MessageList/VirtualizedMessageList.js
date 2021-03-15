@@ -1,8 +1,13 @@
 // @ts-check
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import { ChannelContext, TranslationContext } from '../../context';
-import { smartRender } from '../../utils';
+
+import { useNewMessageNotification } from './hooks/useNewMessageNotification';
+import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
+import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
+import MessageNotification from './MessageNotification';
+import { insertDates } from './utils';
+
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
@@ -10,10 +15,10 @@ import {
   FixedHeightMessage as DefaultMessage,
   MessageDeleted as DefaultMessageDeleted,
 } from '../Message';
-import { useNewMessageNotification } from './hooks/useNewMessageNotification';
-import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
-import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
-import MessageNotification from './MessageNotification';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
+
+import { ChannelContext, TranslationContext } from '../../context';
+import { smartRender } from '../../utils';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -41,8 +46,18 @@ const VirtualizedMessageList = ({
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
   stickToBottomScrollBehavior = 'smooth',
+  disableDateSeparator = false,
+  DateSeparator = DefaultDateSeparator,
+  channel,
 }) => {
   const { t } = useContext(TranslationContext);
+  const lastRead = useMemo(() => channel.lastRead(), [channel]);
+  const { userID } = client;
+  const processedMessages = useMemo(() => {
+    return disableDateSeparator
+      ? messages
+      : insertDates(messages, lastRead, userID);
+  }, [messages, lastRead, disableDateSeparator, userID, messages?.length]);
 
   const virtuoso = useRef(
     /** @type {import('react-virtuoso').VirtuosoHandle | undefined} */ (undefined),
@@ -52,12 +67,12 @@ const VirtualizedMessageList = ({
     atBottom,
     setNewMessagesNotification,
     newMessagesNotification,
-  } = useNewMessageNotification(messages, client.userID);
+  } = useNewMessageNotification(processedMessages, client.userID);
 
-  const numItemsPrepended = usePrependedMessagesCount(messages);
+  const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(
-    messages,
+    processedMessages,
     client.userID,
   );
 
@@ -71,6 +86,9 @@ const VirtualizedMessageList = ({
       }
 
       const message = messageList[streamMessageIndex];
+      if (message.type === 'message.date') {
+        return <DateSeparator date={message.date} unread={message.unread} />;
+      }
 
       if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
@@ -112,10 +130,7 @@ const VirtualizedMessageList = ({
         <></>
       );
 
-    /**
-     * using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements.
-     * @type {import('react-virtuoso').Components['Item']}
-     */
+    /** @type {import('react-virtuoso').Components['Item']} */
     const Item = (props) => {
       return (
         <div {...props} className="str-chat__virtual-list-message-wrapper" />
@@ -134,7 +149,7 @@ const VirtualizedMessageList = ({
     };
   }, [EmptyStateIndicator, loadingMore, TypingIndicator]);
 
-  if (!messages) {
+  if (!processedMessages) {
     return null;
   }
 
@@ -143,7 +158,7 @@ const VirtualizedMessageList = ({
       <Virtuoso
         // @ts-expect-error
         ref={virtuoso}
-        totalCount={messages.length}
+        totalCount={processedMessages.length}
         overscan={overscan}
         style={{ overflowX: 'hidden' }}
         followOutput={(isAtBottom) => {
@@ -154,7 +169,7 @@ const VirtualizedMessageList = ({
           return isAtBottom ? stickToBottomScrollBehavior : false;
         }}
         itemContent={(i) => {
-          return messageRenderer(messages, i);
+          return messageRenderer(processedMessages, i);
         }}
         components={virtuosoComponents}
         firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
@@ -164,7 +179,9 @@ const VirtualizedMessageList = ({
           }
         }}
         initialTopMostItemIndex={
-          messages && messages.length > 0 ? messages.length - 1 : 0
+          processedMessages && processedMessages.length > 0
+            ? processedMessages.length - 1
+            : 0
         }
         atBottomStateChange={(isAtBottom) => {
           atBottom.current = isAtBottom;
@@ -182,7 +199,7 @@ const VirtualizedMessageList = ({
           showNotification={newMessagesNotification}
           onClick={() => {
             if (virtuoso.current) {
-              virtuoso.current.scrollToIndex(messages.length - 1);
+              virtuoso.current.scrollToIndex(processedMessages.length - 1);
             }
             setNewMessagesNotification(false);
           }}
@@ -208,6 +225,8 @@ export default function VirtualizedMessageListWithContext(props) {
       ) => (
         <VirtualizedMessageList
           client={context.client}
+          // @ts-expect-error
+          channel={context.channel}
           messages={context.messages}
           // @ts-expect-error
           loadMore={context.loadMore}
