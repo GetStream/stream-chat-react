@@ -40,7 +40,7 @@ import {
 } from '../Reactions';
 
 import { useChannelContext, useTranslationContext } from '../../context';
-import { isOnlyEmojis, renderText } from '../../utils';
+import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -92,6 +92,7 @@ const UnMemoizedMessageLivestream = <
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
+    renderText = defaultRenderText,
     threadList,
     setEditingState: propSetEdit,
     unsafeHTML,
