@@ -258,6 +258,14 @@ export type MessageUIComponentProps<
    * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
    */
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  /**
+   * Custom function to render message text content.
+   * Defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts)
+   */
+  renderText?: (
+    text?: string,
+    mentioned_users?: UserResponse<Us>[],
+  ) => JSX.Element | null;
   /** Whether or not the current Message is in a Thread */
   threadList?: boolean;
 };

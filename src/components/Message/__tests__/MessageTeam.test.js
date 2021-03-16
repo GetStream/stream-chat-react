@@ -68,6 +68,7 @@ async function renderMessageTeam(
         >
           <MessageTeam
             getMessageActions={() => []}
+            isMyMessage={() => true}
             message={message}
             typing={false}
             {...props}
@@ -210,12 +211,12 @@ describe('<MessageTeam />', () => {
       <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
-    const { queryAllByTestId } = await renderMessageTeam(message, {
+    const { queryByTestId } = await renderMessageTeam(message, {
       PinIndicator: CustomPinIndicator,
     });
 
     await waitFor(() => {
-      expect(queryAllByTestId('pin-indicator')).toHaveLength(0);
+      expect(queryByTestId('pin-indicator')).not.toBeInTheDocument();
     });
   });
 
@@ -286,8 +287,8 @@ describe('<MessageTeam />', () => {
         editing: true,
         groupStyles: [groupStyle],
       });
-      expect(getByTestId('message-team-edit').className).toContain(
-        `--${groupStyle}`,
+      expect(getByTestId('message-team-edit')).toHaveClass(
+        `str-chat__message-team str-chat__message-team--${groupStyle}`,
       );
       if (shouldDisplay) {
         expect(AvatarMock).toHaveBeenCalledWith(
@@ -349,8 +350,9 @@ describe('<MessageTeam />', () => {
     const { getByTestId } = await renderMessageTeam(message, {
       groupStyles: [groupStyle],
     });
-    expect(getByTestId(messageTeamTestId).className).toContain(
-      `--${groupStyle}`,
+    console.log('messageTeamTestId', messageTeamTestId);
+    expect(getByTestId(messageTeamTestId)).toHaveClass(
+      `str-chat__message-team str-chat__message-team--${groupStyle}`,
     );
   });
 
@@ -367,8 +369,8 @@ describe('<MessageTeam />', () => {
     const messageType = 'message-type';
     const message = generateAliceMessage({ type: messageType });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId(messageTeamTestId).className).toContain(
-      `--${messageType}`,
+    expect(getByTestId(messageTeamTestId)).toHaveClass(
+      `str-chat__message-team--${messageType}`,
     );
   });
 
@@ -376,8 +378,8 @@ describe('<MessageTeam />', () => {
     const messageStatus = 'message-status';
     const message = generateAliceMessage({ status: messageStatus });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId(messageTeamTestId).className).toContain(
-      `--${messageStatus}`,
+    expect(getByTestId(messageTeamTestId)).toHaveClass(
+      `str-chat__message-team--${messageStatus}`,
     );
   });
 
@@ -407,8 +409,8 @@ describe('<MessageTeam />', () => {
     const { getByTestId } = await renderMessageTeam(message, {
       groupStyles: [groupStyle],
     });
-    expect(getByTestId('message-team-content').className).toContain(
-      `--${groupStyle}`,
+    expect(getByTestId('message-team-content')).toHaveClass(
+      `str-chat__message-team-content str-chat__message-team-content--${groupStyle}`,
     );
   });
 
@@ -421,7 +423,7 @@ describe('<MessageTeam />', () => {
   ])('should not render actions if message is of %s %s', async (key, value) => {
     const message = generateAliceMessage({ [key]: value });
     const { queryByTestId } = await renderMessageTeam(message);
-    expect(queryByTestId('message-team-actions')).toBeNull();
+    expect(queryByTestId('message-team-actions')).not.toBeInTheDocument();
   });
 
   it('should display a reactions icon when channel has reactions enabled', async () => {
@@ -443,7 +445,7 @@ describe('<MessageTeam />', () => {
       {},
       { reactions: true },
     );
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId(messageTeamReactionIcon));
     expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
   });
@@ -458,7 +460,7 @@ describe('<MessageTeam />', () => {
     fireEvent.click(getByTestId(messageTeamReactionIcon));
     expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
     fireEvent.click(document);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
   });
 
   it('should display thread action button when channel has replies enabled', async () => {
@@ -497,8 +499,8 @@ describe('<MessageTeam />', () => {
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId(messageTeamMessageTestId).className).toContain(
-      '--is-emoji',
+    expect(getByTestId(messageTeamMessageTestId)).toHaveClass(
+      'str-chat__message-team-text--is-emoji',
     );
   });
 
@@ -581,7 +583,7 @@ describe('<MessageTeam />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId('simple-reaction-list')).toBeNull();
+    expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 
   it('should allow message to be retried when it failed', async () => {
@@ -663,7 +665,7 @@ describe('<MessageTeam />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId('simple-reaction-list')).toBeNull();
+    expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 
   it('should display a message reply button when not on a thread and message has replies', async () => {

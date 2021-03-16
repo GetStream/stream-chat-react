@@ -41,7 +41,7 @@ import { Tooltip } from '../Tooltip';
 import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { isOnlyEmojis, renderText } from '../../utils';
+import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -105,6 +105,7 @@ const UnMemoizedMessageTeam = <
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     readBy,
+    renderText = defaultRenderText,
     setEditingState: propSetEdit,
     threadList,
     unsafeHTML,

@@ -35,7 +35,7 @@ import {
 } from '../Reactions';
 
 import { useChannelContext, useTranslationContext } from '../../context';
-import { isOnlyEmojis, renderText } from '../../utils';
+import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -107,6 +107,7 @@ const MessageLivestreamWithContext = <
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
+    renderText = defaultRenderText,
     threadList,
     setEditingState,
     showDetailedReactions,
