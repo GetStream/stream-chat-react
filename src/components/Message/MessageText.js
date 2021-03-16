@@ -1,6 +1,6 @@
 // @ts-check
 import React, { useMemo, useContext, useRef } from 'react';
-import { isOnlyEmojis, renderText } from '../../utils';
+import { isOnlyEmojis, renderText as defaultRenderText } from '../../utils';
 import { TranslationContext } from '../../context';
 import {
   ReactionsList as DefaultReactionList,
@@ -30,6 +30,7 @@ const MessageTextComponent = (props) => {
     message,
     unsafeHTML,
     customOptionProps,
+    renderText = defaultRenderText,
   } = props;
 
   const reactionSelectorRef = useRef(

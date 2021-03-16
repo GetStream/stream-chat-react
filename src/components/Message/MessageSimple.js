@@ -481,6 +481,12 @@ MessageSimple.propTypes = {
    * All of Message's props are passed into this component.
    */
   MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom function to render message content.
+   *
+   * Defaults to the renderText function in the [utils file](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.js)
+   * */
+  renderText: PropTypes.func,
 };
 
 export default React.memo(MessageSimple, areMessagePropsEqual);

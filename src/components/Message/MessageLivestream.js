@@ -10,7 +10,11 @@ import PropTypes from 'prop-types';
 
 import MessageRepliesCountButton from './MessageRepliesCountButton';
 
-import { isOnlyEmojis, renderText, smartRender } from '../../utils';
+import {
+  isOnlyEmojis,
+  renderText as defaultRenderText,
+  smartRender,
+} from '../../utils';
 import { ChannelContext, TranslationContext } from '../../context';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -80,6 +84,7 @@ const MessageLivestreamComponent = (props) => {
     tDateTimeParser: propTDateTimeParser,
     MessageDeleted,
     PinIndicator = DefaultPinIndicator,
+    renderText = defaultRenderText,
   } = props;
   const { t: contextT, userLanguage } = useContext(TranslationContext);
   const t = propT || contextT;
@@ -552,6 +557,12 @@ MessageLivestreamComponent.propTypes = {
    * All of Message's props are passed into this component.
    */
   MessageDeleted: /** @type {PropTypes.Validator<React.ElementType<import('types').MessageDeletedProps>>} */ (PropTypes.elementType),
+  /**
+   * Custom function to render message content.
+   *
+   * Defaults to the renderText function in the [utils file](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.js)
+   * */
+  renderText: PropTypes.func,
 };
 
 export default React.memo(MessageLivestreamComponent, areMessagePropsEqual);

@@ -988,6 +988,10 @@ export interface MessageUIComponentProps
   initialMessage?: boolean;
   EditMessageInput?: React.FC<MessageInputProps>;
   PinIndicator?: React.FC<PinIndicatorProps>;
+  renderText?(
+    messageText?: string,
+    mentioned_users?: Client.UserResponse[],
+  ): ReactMarkdown | React.ReactNode;
 }
 
 export type PinIndicatorProps = {
