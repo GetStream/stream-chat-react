@@ -10,13 +10,8 @@ import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
 import {
-  useActionHandler,
-  useEditHandler,
   useMentionsUIHandler,
-  useOpenThreadHandler,
   useReactionClick,
-  useReactionHandler,
-  useRetryHandler,
   useUserHandler,
 } from './hooks';
 import {
@@ -56,7 +51,23 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-const UnMemoizedMessageLivestream = <
+type MessageLivestreamWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  isReactionEnabled: boolean;
+  messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
+  onReactionListClick: MouseEventHandler;
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
+  showDetailedReactions: boolean;
+};
+
+const MessageLivestreamWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -65,86 +76,50 @@ const UnMemoizedMessageLivestream = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     addNotification,
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    channelConfig: propChannelConfig,
-    clearEditingState: propClearEdit,
+    channelConfig,
+    clearEditingState,
     EditMessageInput = DefaultEditMessageForm,
-    editing: propEditing,
+    editing,
     formatDate,
     getMessageActions,
     groupStyles,
-    handleAction: propHandleAction,
-    handleOpenThread: propHandleOpenThread,
-    handleReaction: propHandleReaction,
-    handleRetry: propHandleRetry,
+    handleAction,
+    handleOpenThread,
+    handleReaction,
+    handleRetry,
     initialMessage,
+    isReactionEnabled,
     message,
     MessageDeleted = DefaultMessageDeleted,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
+    messageWrapperRef,
+    onMentionsClickMessage,
+    onMentionsHoverMessage,
+    onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
+    reactionSelectorRef,
     threadList,
-    setEditingState: propSetEdit,
+    setEditingState,
+    showDetailedReactions,
     unsafeHTML,
-    updateMessage: propUpdateMessage,
+    updateMessage,
   } = props;
 
-  const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
   const { t, userLanguage } = useTranslationContext();
-
-  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const channelConfig = propChannelConfig || channel?.getConfig();
-
-  const handleAction = useActionHandler(message);
-  const handleOpenThread = useOpenThreadHandler(message);
-  const handleReaction = useReactionHandler(message);
-  const handleRetry = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const {
-    clearEdit: ownClearEditing,
-    editing: ownEditing,
-    setEdit: ownSetEditing,
-  } = useEditHandler();
-
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
-
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
-
-  const clearEdit = propClearEdit || ownClearEditing;
-  const editing = propEditing || ownEditing;
-  const retryHandler = propHandleRetry || handleRetry;
-  const setEdit = propSetEdit || ownSetEditing;
 
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -187,10 +162,10 @@ const UnMemoizedMessageLivestream = <
           </div>
         )}
         <MessageInput
-          clearEditingState={clearEdit}
+          clearEditingState={clearEditingState}
           Input={EditMessageInput}
           message={message}
-          updateMessage={propUpdateMessage || channelUpdateMessage}
+          updateMessage={updateMessage}
         />
       </div>
     );
@@ -228,12 +203,12 @@ const UnMemoizedMessageLivestream = <
           channelConfig={channelConfig}
           formatDate={formatDate}
           getMessageActions={getMessageActions}
-          handleOpenThread={propHandleOpenThread || handleOpenThread}
+          handleOpenThread={handleOpenThread}
           initialMessage={initialMessage}
           message={message}
           messageWrapperRef={messageWrapperRef}
           onReactionListClick={onReactionListClick}
-          setEditingState={setEdit}
+          setEditingState={setEditingState}
           threadList={threadList}
         />
         <div className='str-chat__message-livestream-left'>
@@ -262,8 +237,8 @@ const UnMemoizedMessageLivestream = <
                   : ''
               }
               data-testid='message-livestream-text'
-              onClick={onMentionsClick}
-              onMouseOver={onMentionsHover}
+              onClick={onMentionsClickMessage}
+              onMouseOver={onMentionsHoverMessage}
             >
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
@@ -289,7 +264,7 @@ const UnMemoizedMessageLivestream = <
                 </p>
               )}
               {message.status === 'failed' && (
-                <p onClick={() => retryHandler(message)}>
+                <p onClick={() => handleRetry(message)}>
                   <ErrorIcon />
                   {t('Message failed. Click to try again.')}
                 </p>
@@ -297,13 +272,13 @@ const UnMemoizedMessageLivestream = <
             </div>
             {message?.attachments && Attachment && (
               <Attachment
-                actionHandler={propHandleAction || handleAction}
+                actionHandler={handleAction}
                 attachments={message.attachments}
               />
             )}
             {isReactionEnabled && (
               <ReactionsList
-                handleReaction={propHandleReaction || handleReaction}
+                handleReaction={handleReaction}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -311,7 +286,7 @@ const UnMemoizedMessageLivestream = <
             )}
             {!initialMessage && (
               <MessageRepliesCountButton
-                onClick={propHandleOpenThread || handleOpenThread}
+                onClick={handleOpenThread}
                 reply_count={message.reply_count}
               />
             )}
@@ -429,7 +404,7 @@ const MessageLivestreamActions = <
         formatDate={formatDate}
         message={message}
       />
-      {channelConfig && channelConfig.reactions && (
+      {channelConfig?.reactions && (
         <span
           data-testid='message-livestream-reactions-action'
           onClick={onReactionListClick}
@@ -439,7 +414,7 @@ const MessageLivestreamActions = <
           </span>
         </span>
       )}
-      {!threadList && channelConfig && channelConfig.replies && (
+      {!threadList && channelConfig?.replies && (
         <span
           data-testid='message-livestream-thread-action'
           onClick={handleOpenThread}
@@ -457,12 +432,71 @@ const MessageLivestreamActions = <
   );
 };
 
+const MemoizedMessageLivestream = React.memo(
+  MessageLivestreamWithContext,
+  areMessageUIPropsEqual,
+) as typeof MessageLivestreamWithContext;
+
 /**
  * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
  * @example ./MessageLivestream.md
  */
-export const MessageLivestream = React.memo(
-  UnMemoizedMessageLivestream,
-  areMessageUIPropsEqual,
-) as typeof UnMemoizedMessageLivestream;
+export const MessageLivestream = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    message,
+    onMentionsClickMessage: propOnMentionsClick,
+    onMentionsHoverMessage: propOnMentionsHover,
+    updateMessage: propUpdateMessage,
+  } = props;
+
+  const { updateMessage: contextUpdateMessage } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+
+  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
+    onMentionsClick: propOnMentionsClick,
+    onMentionsHover: propOnMentionsHover,
+  });
+
+  const {
+    isReactionEnabled,
+    onReactionListClick,
+    showDetailedReactions,
+  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
+
+  const updateMessage = propUpdateMessage || contextUpdateMessage;
+
+  return (
+    <MemoizedMessageLivestream
+      {...props}
+      isReactionEnabled={isReactionEnabled}
+      messageWrapperRef={messageWrapperRef}
+      onMentionsClickMessage={onMentionsClick}
+      onMentionsHoverMessage={onMentionsHover}
+      onReactionListClick={onReactionListClick}
+      reactionSelectorRef={reactionSelectorRef}
+      showDetailedReactions={showDetailedReactions}
+      updateMessage={updateMessage}
+    />
+  );
+};

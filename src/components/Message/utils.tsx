@@ -256,13 +256,21 @@ export const areMessageUIPropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  prevProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-  nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  prevProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
+  nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
 ) => {
   const { message: prevMessage } = prevProps;
   const { message: nextMessage } = nextProps;
 
   if (nextProps.editing !== prevProps.editing) return false;
+
+  if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
+    return false;
+  }
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&

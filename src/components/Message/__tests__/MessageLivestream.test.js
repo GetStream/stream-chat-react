@@ -131,13 +131,10 @@ describe('<MessageLivestream />', () => {
         </li>
       </ul>
     );
-    const { getByTestId } = await renderMessageLivestream(
-      message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
-      { reactions: true },
-    );
+    const { getByTestId } = await renderMessageLivestream(message, {
+      channelConfig: { reactions: true },
+      ReactionSelector: React.forwardRef(CustomReactionSelector),
+    });
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
