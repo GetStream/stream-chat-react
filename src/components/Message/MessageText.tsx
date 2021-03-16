@@ -15,7 +15,7 @@ import {
 } from '../Reactions';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { isOnlyEmojis, renderText } from '../../utils';
+import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -71,6 +71,7 @@ const UnMemoizedMessageTextComponent = <
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
+    renderText = defaultRenderText,
     theme = 'simple',
     unsafeHTML,
   } = props;
