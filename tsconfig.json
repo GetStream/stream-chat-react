@@ -15,7 +15,7 @@
     "emitDeclarationOnly": true,
     "noEmitOnError": true,
     "skipLibCheck": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["es2020", "dom"],
     "paths": {
       "*": ["src/@types/*"],
       "types": ["types/index.d.ts"]
