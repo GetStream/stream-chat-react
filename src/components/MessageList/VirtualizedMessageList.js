@@ -118,13 +118,7 @@ const VirtualizedMessageList = ({
      */
     const Item = (props) => {
       return (
-        <div
-          {...props}
-          style={{
-            display: 'inline-block',
-            width: '100%',
-          }}
-        />
+        <div {...props} className="str-chat__virtual-list-message-wrapper" />
       );
     };
 
