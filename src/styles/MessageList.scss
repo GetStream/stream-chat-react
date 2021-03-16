@@ -4,6 +4,8 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
   padding: 0 0 0 0;
+  position: relative;
+  z-index: 0;
   .str-chat__reverse-infinite-scroll {
     padding-top: 75px;
   }
