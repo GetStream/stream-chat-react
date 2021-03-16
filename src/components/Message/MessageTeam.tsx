@@ -556,10 +556,7 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const {
-    message,
-    updateMessage: propUpdateMessage,
-  } = props;
+  const { message, updateMessage: propUpdateMessage } = props;
 
   const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
     At,
