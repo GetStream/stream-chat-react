@@ -38,7 +38,7 @@ The best place to start is the [React Chat Tutorial](https://getstream.io/chat/r
 ## Free for Makers
 
 Stream is free for most side and hobby projects. To qualify your project/company needs to have < 5 team members and < $10k in monthly revenue.
-For full pricing details visit our [Chat Pricing Page](https://getstream.io/chat/pricing/)
+For complete pricing details visit our [Chat Pricing Page](https://getstream.io/chat/pricing/)
 
 ## Installation
 
