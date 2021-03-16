@@ -3,17 +3,7 @@ import React, { useMemo, useRef } from 'react';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
-import {
-  useActionHandler,
-  useEditHandler,
-  useMentionsUIHandler,
-  useOpenThreadHandler,
-  useReactionClick,
-  useReactionHandler,
-  useRetryHandler,
-  useUserHandler,
-  useUserRole,
-} from './hooks';
+import { useReactionClick, useUserHandler } from './hooks';
 import {
   PinIndicator as DefaultPinIndicator,
   DeliveredCheckIcon,
@@ -45,7 +35,7 @@ import { isOnlyEmojis, renderText } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { MessageUIComponentProps } from './types';
+import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -57,7 +47,23 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-const UnMemoizedMessageTeam = <
+type MessageTeamWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  isReactionEnabled: boolean;
+  messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
+  onReactionListClick: MouseEventHandler;
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
+  showDetailedReactions: boolean;
+};
+
+const MessageTeamWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -66,15 +72,16 @@ const UnMemoizedMessageTeam = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     addNotification,
     Avatar = DefaultAvatar,
     Attachment,
+    channel,
     channelConfig: propChannelConfig,
-    clearEditingState: propClearEdit,
-    editing: propEditing,
+    clearEditingState,
+    editing,
     EditMessageInput = DefaultEditMessageForm,
     formatDate,
     getFlagMessageErrorNotification,
@@ -83,86 +90,54 @@ const UnMemoizedMessageTeam = <
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
     groupStyles = ['single'],
-    handleAction: propHandleAction,
+    handleAction,
     handleEdit,
     handleFlag,
     handleDelete,
-    handleOpenThread: propHandleOpenThread,
+    handleOpenThread,
     handleMute,
     handlePin,
-    handleReaction: propHandleReaction,
-    handleRetry: propHandleRetry,
+    handleReaction,
+    handleRetry,
     initialMessage,
+    isMyMessage,
+    isReactionEnabled,
     lastReceivedId,
     message,
     MessageDeleted = DefaultMessageDeleted,
     messageListRect,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
+    messageWrapperRef,
+    onMentionsClickMessage,
+    onMentionsHoverMessage,
+    onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
+    reactionSelectorRef,
     readBy,
-    setEditingState: propSetEdit,
+    showDetailedReactions,
+    setEditingState,
     threadList,
     unsafeHTML,
-    updateMessage: propUpdateMessage,
+    updateMessage,
   } = props;
 
-  const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
   const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
-
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
-
-  const {
-    clearEdit: ownClearEditing,
-    editing: ownEditing,
-    setEdit: ownSetEditing,
-  } = useEditHandler();
-  const editing = propEditing || ownEditing;
-
-  const setEdit = propSetEdit || ownSetEditing;
-  const clearEdit = propClearEdit || ownClearEditing;
-  const handleOpenThread = useOpenThreadHandler(message);
-  const handleReaction = useReactionHandler(message);
-  const handleAction = useActionHandler(message);
-  const retryHandler = useRetryHandler<At, Ch, Co, Ev, Me, Re, Us>();
-  const retry = propHandleRetry || retryHandler;
-
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
-
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const messageTextToRender =
     message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     message?.text;
 
   const messageMentionedUsersItem = message?.mentioned_users;
+
+  const { onUserClick, onUserHover } = useUserHandler(message, {
+    onUserClickHandler: propOnUserClick,
+    onUserHoverHandler: propOnUserHover,
+  });
 
   const messageText = useMemo(
     () => renderText(messageTextToRender, messageMentionedUsersItem),
@@ -197,10 +172,10 @@ const UnMemoizedMessageTeam = <
           </div>
         )}
         <MessageInput
-          clearEditingState={clearEdit}
+          clearEditingState={clearEditingState}
           Input={EditMessageInput}
           message={message}
-          updateMessage={propUpdateMessage || channelUpdateMessage}
+          updateMessage={updateMessage}
         />
       </div>
     );
@@ -279,7 +254,7 @@ const UnMemoizedMessageTeam = <
                   {message && showDetailedReactions && (
                     <ReactionSelector
                       detailedView={true}
-                      handleReaction={propHandleReaction || handleReaction}
+                      handleReaction={handleReaction}
                       latest_reactions={message.latest_reactions}
                       own_reactions={message.own_reactions}
                       reaction_counts={message.reaction_counts || undefined}
@@ -298,7 +273,7 @@ const UnMemoizedMessageTeam = <
                   {!threadList && channelConfig?.replies !== false && (
                     <span
                       data-testid='message-team-thread-icon'
-                      onClick={propHandleOpenThread || handleOpenThread}
+                      onClick={handleOpenThread}
                       title='Start a thread'
                     >
                       <ThreadIcon />
@@ -330,7 +305,7 @@ const UnMemoizedMessageTeam = <
                       message={message}
                       messageListRect={messageListRect}
                       messageWrapperRef={messageWrapperRef}
-                      setEditingState={setEdit}
+                      setEditingState={setEditingState}
                     />
                   )}
                 </div>
@@ -343,8 +318,8 @@ const UnMemoizedMessageTeam = <
                     : ''
                 }
                 data-testid='message-team-message'
-                onClick={onMentionsClick}
-                onMouseOver={onMentionsHover}
+                onClick={onMentionsClickMessage}
+                onMouseOver={onMentionsHoverMessage}
               >
                 {unsafeHTML && message.html ? (
                   <div dangerouslySetInnerHTML={{ __html: message.html }} />
@@ -363,7 +338,7 @@ const UnMemoizedMessageTeam = <
             {message.text === '' && (
               <MessageTeamAttachments
                 Attachment={Attachment}
-                handleAction={propHandleAction || handleAction}
+                handleAction={handleAction}
                 message={message}
               />
             )}
@@ -384,8 +359,8 @@ const UnMemoizedMessageTeam = <
                 className='str-chat__message-team-failed'
                 data-testid='message-team-failed'
                 onClick={() => {
-                  if (message.status === 'failed' && retry) {
-                    retry(message);
+                  if (message.status === 'failed') {
+                    handleRetry(message);
                   }
                 }}
               >
@@ -396,6 +371,7 @@ const UnMemoizedMessageTeam = <
           </div>
           <MessageTeamStatus
             Avatar={Avatar}
+            isMyMessage={isMyMessage}
             lastReceivedId={lastReceivedId}
             message={message}
             readBy={readBy}
@@ -404,7 +380,7 @@ const UnMemoizedMessageTeam = <
           {message.text !== '' && message.attachments && (
             <MessageTeamAttachments
               Attachment={Attachment}
-              handleAction={propHandleAction || handleAction}
+              handleAction={handleAction}
               message={message}
             />
           )}
@@ -422,7 +398,7 @@ const UnMemoizedMessageTeam = <
             )}
           {!threadList && (
             <MessageRepliesCountButton
-              onClick={propHandleOpenThread || handleOpenThread}
+              onClick={handleOpenThread}
               reply_count={message.reply_count}
             />
           )}
@@ -443,11 +419,17 @@ const MessageTeamStatus = <
 >(
   props: Pick<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'Avatar' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
+    | 'Avatar'
+    | 'isMyMessage'
+    | 'lastReceivedId'
+    | 'message'
+    | 'readBy'
+    | 'threadList'
   >,
 ) => {
   const {
     Avatar = DefaultAvatar,
+    isMyMessage,
     lastReceivedId,
     message,
     readBy,
@@ -457,9 +439,7 @@ const MessageTeamStatus = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const { isMyMessage } = useUserRole(message);
-
-  if (!isMyMessage || message?.type === 'error') {
+  if (!isMyMessage() || message?.type === 'error') {
     return null;
   }
 
@@ -554,12 +534,62 @@ const MessageTeamAttachments = <
   return null;
 };
 
+const MemoizedMessageTeam = React.memo(
+  MessageTeamWithContext,
+  areMessageUIPropsEqual,
+) as typeof MessageTeamWithContext;
+
 /**
  * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
  * @example ./MessageTeam.md
  */
-export const MessageTeam = React.memo(
-  UnMemoizedMessageTeam,
-  areMessageUIPropsEqual,
-) as typeof UnMemoizedMessageTeam;
+export const MessageTeam = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    message,
+    updateMessage: propUpdateMessage,
+  } = props;
+
+  const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
+  const updateMessage = propUpdateMessage || channelUpdateMessage;
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    isReactionEnabled,
+    onReactionListClick,
+    showDetailedReactions,
+  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
+
+  return (
+    <MemoizedMessageTeam
+      {...props}
+      channel={channel}
+      isReactionEnabled={isReactionEnabled}
+      messageWrapperRef={messageWrapperRef}
+      onReactionListClick={onReactionListClick}
+      reactionSelectorRef={reactionSelectorRef}
+      showDetailedReactions={showDetailedReactions}
+      updateMessage={updateMessage}
+    />
+  );
+};
