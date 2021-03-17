@@ -554,19 +554,10 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message, updateMessage: propUpdateMessage } = props;
+  const { message } = props;
 
-  const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const updateMessage = propUpdateMessage || channelUpdateMessage;
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -585,7 +576,6 @@ export const MessageTeam = <
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
-      updateMessage={updateMessage}
     />
   );
 };

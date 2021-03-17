@@ -34,7 +34,7 @@ import {
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 
-import { useChannelContext, useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
@@ -456,18 +456,7 @@ export const MessageLivestream = <
     message,
     onMentionsClickMessage: propOnMentionsClick,
     onMentionsHoverMessage: propOnMentionsHover,
-    updateMessage: propUpdateMessage,
   } = props;
-
-  const { updateMessage: contextUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
@@ -483,8 +472,6 @@ export const MessageLivestream = <
     showDetailedReactions,
   } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
 
-  const updateMessage = propUpdateMessage || contextUpdateMessage;
-
   return (
     <MemoizedMessageLivestream
       {...props}
@@ -495,7 +482,6 @@ export const MessageLivestream = <
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
-      updateMessage={updateMessage}
     />
   );
 };
