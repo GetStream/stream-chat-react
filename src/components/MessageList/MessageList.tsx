@@ -337,8 +337,6 @@ class MessageListWithContext<
       unsafeHTML = false,
     } = this.props;
 
-    if (!this.props.channel) return;
-
     return (
       <>
         <div

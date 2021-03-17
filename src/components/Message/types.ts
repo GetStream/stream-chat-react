@@ -76,7 +76,7 @@ export type MessageProps<
    * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
    * */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** The current channel this message is displayed in */
+  /** The currently active channel. */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** The client connection object for connecting to Stream */
   client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
@@ -183,6 +183,8 @@ export type MessageUIComponentProps<
 > = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
+  /** The currently active channel. */
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Function to exit edit state */
   clearEditingState: (
     event?: React.MouseEvent<HTMLElement, globalThis.MouseEvent> | undefined,

@@ -13,7 +13,10 @@ import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBott
 import { MessageNotification } from './MessageNotification';
 import { insertDates } from './utils';
 
-import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
+import {
+  DateSeparatorProps,
+  DateSeparator as DefaultDateSeparator,
+} from '../DateSeparator/DateSeparator';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
@@ -32,7 +35,6 @@ import {
   FixedHeightMessageProps,
   MessageDeletedProps,
 } from '../Message';
-import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 
 import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -361,7 +363,6 @@ export function VirtualizedMessageList<
 
   return (
     <VirtualizedMessageListWithContext
-      //@ts-expect-error
       channel={context.channel}
       client={context.client}
       hasMore={!!context.hasMore}

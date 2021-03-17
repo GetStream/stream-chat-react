@@ -28,6 +28,8 @@ import {
   useChannelContext,
 } from '../../context/ChannelContext';
 
+import type { Channel } from 'stream-chat';
+
 import type { MessageProps, MouseEventHandler } from './types';
 
 import type {
@@ -50,6 +52,7 @@ type MessageWithContextProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
   canPin: boolean;
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   handleAction: ActionHandlerReturnType;
   handleDelete: MouseEventHandler;
   handleFlag: MouseEventHandler;
@@ -107,7 +110,7 @@ const MessageWithContext = <
     userRoles,
   } = props;
 
-  const channelConfig = channel?.getConfig && channel.getConfig();
+  const channelConfig = channel.getConfig && channel.getConfig();
 
   const { clearEdit, editing, setEdit } = useEditHandler();
 
