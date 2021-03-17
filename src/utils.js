@@ -92,6 +92,42 @@ const markDownRenderers = {
   },
 };
 
+const ToMarkdown = ({ text }) => (
+  <ReactMarkdown
+    allowedTypes={allowedMarkups}
+    source={text}
+    renderers={markDownRenderers}
+    escapeHtml={true}
+    unwrapDisallowed={true}
+    transformLinkUri={(uri) =>
+      uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
+    }
+  />
+);
+
+function replaceMentions(textFragment, usernames) {
+  if (!usernames.length) {
+    return <ToMarkdown text={textFragment} key={Math.random().toString()} />;
+  }
+  const username = usernames[0];
+  const regex = new RegExp(username, 'g');
+  const segments = textFragment.split(regex);
+
+  const parts = [];
+  segments.forEach((segment, i) => {
+    if (i > 0) {
+      parts.push(
+        <span className="str-chat__message-mention" key={`user-${i}`}>
+          {' '}
+          {username}{' '}
+        </span>,
+      );
+    }
+    parts.push(replaceMentions(segment, usernames.slice(1)));
+  });
+  return parts;
+}
+
 /** @type {(input: string | undefined, mentioned_users: import('stream-chat').UserResponse[] | undefined) => React.ReactNode} */
 export const renderText = (text, mentioned_users) => {
   // take the @ mentions and turn them into markdown?
@@ -130,29 +166,19 @@ export const renderText = (text, mentioned_users) => {
   });
 
   if (mentioned_users && mentioned_users.length) {
-    for (let i = 0; i < mentioned_users.length; i++) {
-      let username = mentioned_users[i].name || mentioned_users[i].id;
-      if (username) {
-        username = escapeRegExp(username);
-      }
-      const mkdown = `**@${username}**`;
-      const re = new RegExp(`@${username}`, 'g');
-      newText = newText.replace(re, mkdown);
-    }
+    const mentionedUserStrings = mentioned_users
+      .map(({ name, id }) => {
+        const username = name || id;
+        if (username) return escapeRegExp(username);
+        return '';
+      })
+      .filter(Boolean)
+      .map((username) => `@${username}`);
+
+    return replaceMentions(newText, mentionedUserStrings);
   }
 
-  return (
-    <ReactMarkdown
-      allowedTypes={allowedMarkups}
-      source={newText}
-      renderers={markDownRenderers}
-      escapeHtml={true}
-      unwrapDisallowed={true}
-      transformLinkUri={(uri) =>
-        uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
-      }
-    />
-  );
+  return <ToMarkdown text={newText} />;
 };
 
 /** @param { string } text */

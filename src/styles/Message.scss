@@ -293,7 +293,15 @@
         -moz-hyphens: auto;
         -webkit-hyphens: auto;
         hyphens: auto;
+        &:first-child {
+          display: inline;
+        }
+
+        @at-root .str-chat__message-mention + #{&} {
+          display: inline;
+        }
       }
+
 
       /* if text consists is focused */
       &--focused {
@@ -449,7 +457,6 @@
     background: none;
     border: none;
     font-size: 16px;
-    color: $primary-color;
     font-weight: $heavy-font-weight;
   }
 
