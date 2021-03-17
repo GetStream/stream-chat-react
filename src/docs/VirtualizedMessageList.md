@@ -1,5 +1,5 @@
 The VirtualizedMessageList renders a list of messages in a virtualized list.
-It works pretty well when there are thousands of messages in your channel, it has a shortcoming though, the Message UI should have a fixed height.
+It works pretty well when there are thousands of messages in your channel.
 
 Here's an example of how to use it:
 

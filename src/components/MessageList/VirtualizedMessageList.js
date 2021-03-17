@@ -1,5 +1,6 @@
 // @ts-check
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
@@ -46,7 +47,10 @@ const VirtualizedMessageList = ({
   LoadingIndicator = DefaultLoadingIndicator,
   EmptyStateIndicator = DefaultEmptyStateIndicator,
   stickToBottomScrollBehavior = 'smooth',
-  disableDateSeparator = false,
+  /**
+   * Setting to false makes the virtual list display date separators.
+   */
+  disableDateSeparator = true,
   DateSeparator = DefaultDateSeparator,
   channel,
 }) => {
@@ -209,6 +213,11 @@ const VirtualizedMessageList = ({
       </div>
     </div>
   );
+};
+
+VirtualizedMessageList.propTypes = {
+  /** Disables the injection of date separator components */
+  disableDateSeparator: PropTypes.bool,
 };
 
 // TODO: fix the types here when everything converted to proper TS
