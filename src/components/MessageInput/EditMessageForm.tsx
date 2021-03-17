@@ -1,37 +1,74 @@
-// @ts-check
-import React, { useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 // @ts-expect-error
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
-import { Tooltip } from '../Tooltip';
 
-import { ChannelContext, TranslationContext } from '../../context';
-import { ChatAutoComplete } from '../ChatAutoComplete';
-import useMessageInput from './hooks/messageInput';
-import UploadsPreview from './UploadsPreview';
-import EmojiPicker from './EmojiPicker';
+import { EmojiPicker } from './EmojiPicker';
+import { useMessageInput } from './hooks/messageInput';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIcon as DefaultFileUploadIcon,
 } from './icons';
-import { KEY_CODES } from '../AutoCompleteTextarea';
+import { UploadsPreview } from './UploadsPreview';
 
-/** @type {React.FC<import("types").MessageInputProps>} */
-const EditMessageForm = (props) => {
+import { KEY_CODES } from '../AutoCompleteTextarea/listener';
+import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
+import { Tooltip } from '../Tooltip/Tooltip';
+
+import { useChannelContext } from '../../context/ChannelContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { MessageInputProps } from './MessageInput';
+
+import type {
+  CustomTrigger,
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../types/types';
+
+export const EditMessageForm = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
+>(
+  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
+) => {
   const {
+    additionalTextareaProps = {},
     clearEditingState,
+    disabled = false,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
+    focus = false,
+    grow = true,
+    maxRows = 10,
+    publishTypingEvent = true,
   } = props;
 
-  const channelContext = useContext(ChannelContext);
-  const { t } = useContext(TranslationContext);
+  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput(props);
+  const messageInput = useMessageInput({
+    ...props,
+    additionalTextareaProps,
+    disabled,
+    focus,
+    grow,
+    maxRows,
+    publishTypingEvent,
+  });
 
   useEffect(() => {
-    /** @type {(event: KeyboardEvent) => void} Typescript syntax */
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.keyCode === KEY_CODES.ESC && clearEditingState)
         clearEditingState();
     };
@@ -55,12 +92,12 @@ const EditMessageForm = (props) => {
           {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
           <EmojiPicker {...messageInput} small />
           <ChatAutoComplete
-            additionalTextareaProps={props.additionalTextareaProps}
+            additionalTextareaProps={additionalTextareaProps}
             commands={messageInput.getCommands()}
-            grow={props.grow}
+            grow={grow}
             handleSubmit={messageInput.handleSubmit}
             innerRef={messageInput.textareaRef}
-            maxRows={props.maxRows}
+            maxRows={maxRows}
             onChange={messageInput.handleChange}
             onPaste={messageInput.onPaste}
             onSelectItem={messageInput.onSelectItem}
@@ -102,8 +139,8 @@ const EditMessageForm = (props) => {
             <div>
               <button
                 onClick={() => {
-                  if (props.clearEditingState) {
-                    props.clearEditingState();
+                  if (clearEditingState) {
+                    clearEditingState();
                   }
                 }}
               >
@@ -117,62 +154,3 @@ const EditMessageForm = (props) => {
     </div>
   );
 };
-
-EditMessageForm.propTypes = {
-  /**
-   * Any additional attributes that you may want to add for underlying HTML textarea element.
-   */
-  additionalTextareaProps: PropTypes.object,
-  /**
-   * Clears edit state for current message (passed down from message component)
-   */
-  clearEditingState: PropTypes.func,
-  /** Make the textarea disabled */
-  disabled: PropTypes.bool,
-  /** Override file upload request */
-  doFileUploadRequest: PropTypes.func,
-  /** Override image upload request */
-  doImageUploadRequest: PropTypes.func,
-  /**
-   * Custom UI component for emoji button in input.
-   *
-   * Defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.js)
-   * */
-  EmojiIcon: /** @type {PropTypes.Validator<React.FC>} */ (PropTypes.elementType),
-  /**
-   * Custom UI component for file upload button in input.
-   *
-   * Defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.js)
-   * */
-  FileUploadIcon: /** @type {PropTypes.Validator<React.FC>} */ (PropTypes.elementType),
-  /** Set focus to the text input if this is enabled */
-  focus: PropTypes.bool.isRequired,
-  /** Grow the textarea while you're typing */
-  grow: PropTypes.bool.isRequired,
-  /** Specify the max amount of rows the textarea is able to grow */
-  maxRows: PropTypes.number.isRequired,
-  /**
-   * @param message: the Message object to be sent
-   * @param cid: the channel id
-   */
-  overrideSubmitHandler: PropTypes.func,
-  /** enable/disable firing the typing event */
-  publishTypingEvent: PropTypes.bool,
-  /**
-   * Custom UI component for send button.
-   *
-   * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
-   * */
-  SendButton: /** @type {PropTypes.Validator<React.FC<import('types').SendButtonProps>>} */ (PropTypes.elementType),
-};
-
-EditMessageForm.defaultProps = {
-  additionalTextareaProps: {},
-  disabled: false,
-  focus: false,
-  grow: true,
-  maxRows: 10,
-  publishTypingEvent: true,
-};
-
-export default EditMessageForm;

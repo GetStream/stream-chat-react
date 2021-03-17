@@ -1,11 +1,11 @@
 ```js
-import {
-  Chat,
-  Channel,
-  MessageTeam,
-  MessageInput,
-  EditMessageForm,
-} from '../components';
+import { EditMessageForm } from './EditMessageForm';
+import { MessageInput } from './MessageInput';
+
+import { Channel } from '../Channel/Channel';
+import { Chat } from '../Chat/Chat';
+import { MessageTeam } from '../Message/MessageTeam';
+
 
 const StreamChat = require('stream-chat').StreamChat;
 

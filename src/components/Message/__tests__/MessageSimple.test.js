@@ -136,7 +136,6 @@ describe('<MessageSimple />', () => {
 
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
-    const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
@@ -145,7 +144,6 @@ describe('<MessageSimple />', () => {
       clearEditingState,
       editing: true,
       EditMessageInput: CustomEditMessageInput,
-      updateMessage,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
@@ -153,7 +151,6 @@ describe('<MessageSimple />', () => {
         clearEditingState,
         Input: CustomEditMessageInput,
         message,
-        updateMessage,
       }),
       {},
     );
@@ -199,11 +196,9 @@ describe('<MessageSimple />', () => {
   it('should render an edit form in a modal when in edit mode', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
-    const updateMessage = jest.fn();
     await renderMessageSimple(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
     });
     expect(ModalMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -217,7 +212,6 @@ describe('<MessageSimple />', () => {
         clearEditingState,
         Input: EditMessageForm,
         message,
-        updateMessage,
       }),
       {},
     );

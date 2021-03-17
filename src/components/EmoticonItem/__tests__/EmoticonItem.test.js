@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import EmoticonItem from '../EmoticonItem';
+import { EmoticonItem } from '../EmoticonItem';
 
 afterEach(cleanup); // eslint-disable-line
 

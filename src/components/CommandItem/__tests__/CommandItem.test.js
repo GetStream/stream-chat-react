@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import CommandItem from '../CommandItem';
+import { CommandItem } from '../CommandItem';
 
 afterEach(cleanup); // eslint-disable-line
 

@@ -98,7 +98,6 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     showDetailedReactions,
     threadList,
-    updateMessage,
   } = props;
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -126,7 +125,6 @@ const MessageSimpleWithContext = <
             clearEditingState={clearEditingState}
             Input={EditMessageInput}
             message={message}
-            updateMessage={updateMessage}
             {...additionalMessageInputProps}
           />
         </Modal>
@@ -364,16 +362,17 @@ export const MessageSimple = <
     'PinIndicator'
   >,
 ) => {
-  const {
-    Attachment: PropAttachment,
-    message,
-    updateMessage: propUpdateMessage,
-  } = props;
+  const { Attachment: PropAttachment, message } = props;
 
-  const {
-    Attachment: ContextAttachment,
-    updateMessage: contextUpdateMessage,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Attachment: ContextAttachment } = useChannelContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
@@ -384,7 +383,6 @@ export const MessageSimple = <
   } = useReactionClick(message, reactionSelectorRef);
 
   const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
-  const updateMessage = propUpdateMessage || contextUpdateMessage;
 
   return (
     <MemoizedMessageSimple
@@ -394,7 +392,6 @@ export const MessageSimple = <
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
-      updateMessage={updateMessage}
     />
   );
 };

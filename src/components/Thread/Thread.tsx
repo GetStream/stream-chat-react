@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Message } from '../Message';
-import { MessageInput, MessageInputSmall } from '../MessageInput';
-import { MessageList, MessageListProps } from '../MessageList';
+import { Message } from '../Message/Message';
+import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
+import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
+import { MessageList, MessageListProps } from '../MessageList/MessageList';
 
 import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -13,6 +14,7 @@ import type { TFunction } from 'i18next';
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
 import type {
+  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -20,7 +22,6 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../types/types';
 
 export type ThreadProps<
@@ -30,13 +31,23 @@ export type ThreadProps<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = {
   /**
    * Additional props for underlying MessageInput component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
-   * */
-  additionalMessageInputProps?: UnknownType; // TODO: add MessageInputProps<add generics> when MessageInput is typed
+   */
+  additionalMessageInputProps?: MessageInputProps<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us,
+    V
+  >;
   /**
    * Additional props for underlying MessageList component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messagelist)
@@ -61,7 +72,9 @@ export type ThreadProps<
      <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
      ```
  */
-  MessageInput?: React.ComponentType<unknown>; // TODO: add generic when MessageInput is typed
+  MessageInput?: React.ComponentType<
+    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>
+  >;
   /** UI component used to override the default header of the Thread */
   ThreadHeader?: React.ComponentType<
     ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>
@@ -84,9 +97,10 @@ export const Thread = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
-  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
   const { channel, thread } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -162,9 +176,10 @@ const ThreadInner = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
-  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us> & { key: string },
+  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V> & { key: string },
 ) => {
   const {
     additionalMessageInputProps,
@@ -250,7 +265,6 @@ const ThreadInner = <
       <ThreadMessageInput
         focus={autoFocus}
         Input={MessageInputSmall}
-        // @ts-expect-error
         parent={thread}
         publishTypingEvent={false}
         {...additionalMessageInputProps}

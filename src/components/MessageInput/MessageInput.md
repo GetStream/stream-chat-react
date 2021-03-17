@@ -136,9 +136,14 @@ Both functions have access to the selected file and the channel object and expec
 - strikethrough
 
 ```js
-import { Chat, Channel, MessageTeam, MessageInput } from '../components';
+import { MessageInput } from './MessageInput';
 
-const data = require('./data');
+import { Channel } from '../Channel/Channel';
+import { Chat } from '../Chat/Chat';
+import { MessageTeam } from '../Message/MessageTeam';
+
+const data = require('../../docs/data');
+
 <div className="str-chat" style={{ height: 'unset' }}>
   <Chat client={data.client} Message={MessageTeam}>
     <Channel channel={data.channel}>

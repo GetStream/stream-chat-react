@@ -308,7 +308,7 @@ const UnMemoizedMessageListInner = <
     TypingIndicator,
   } = props;
 
-  const lastRead = useMemo(() => channel.lastRead(), [channel]);
+  const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   const enrichMessages = () => {
     const messageWithDates = threadList
@@ -346,13 +346,14 @@ const UnMemoizedMessageListInner = <
   );
 
   // get the readData, but only for messages submitted by the user themselves
+  const userID = client.userID;
   const readData = useMemo(
     () =>
       getReadStates(
-        enrichedMessages.filter(({ user }) => user?.id === client.userID),
+        enrichedMessages.filter(({ user }) => user?.id === userID),
         read,
       ),
-    [client.userID, enrichedMessages, read],
+    [userID, enrichedMessages, read],
   );
 
   const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [

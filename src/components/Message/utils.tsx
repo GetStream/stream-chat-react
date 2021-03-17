@@ -27,10 +27,10 @@ import type {
  * Following function validates a function which returns notification message.
  * It validates if the first parameter is function and also if return value of function is string or no.
  */
-export function validateAndGetMessage<T extends unknown[]>(
+export const validateAndGetMessage = <T extends unknown[]>(
   func: (...args: T) => unknown,
   args: T,
-): string | null {
+) => {
   if (!func || typeof func !== 'function') return null;
 
   // below is due to tests passing a single argument
@@ -45,12 +45,12 @@ export function validateAndGetMessage<T extends unknown[]>(
   if (typeof returnValue !== 'string') return null;
 
   return returnValue;
-}
+};
 
 /**
  * Tell if the owner of the current message is muted
  */
-export function isUserMuted<
+export const isUserMuted = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -61,12 +61,12 @@ export function isUserMuted<
 >(
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   mutes?: Mute<Us>[],
-): boolean {
+) => {
   if (!mutes || !message) return false;
 
   const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
   return !!userMuted.length;
-}
+};
 
 export const MESSAGE_ACTIONS = {
   delete: 'delete',
@@ -150,7 +150,7 @@ export type Capabilities = {
   canReply?: boolean;
 };
 
-export function getMessageActions(
+export const getMessageActions = (
   actions: string[] | boolean,
   {
     canDelete,
@@ -161,7 +161,7 @@ export function getMessageActions(
     canReact,
     canReply,
   }: Capabilities,
-): MessageActionsArray {
+): MessageActionsArray => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
 
@@ -203,7 +203,7 @@ export function getMessageActions(
   }
 
   return messageActionsAfterPermission;
-}
+};
 
 export const areMessagePropsEqual = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

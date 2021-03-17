@@ -1,11 +1,9 @@
-import React, { useContext } from 'react';
-import { TranslationContext } from '../../context';
+import React from 'react';
 
-/**
- * @type { React.FC }
- */
-export const EmojiIconLarge = () => {
-  const { t } = useContext(TranslationContext);
+import { useTranslationContext } from '../../context/TranslationContext';
+
+export const EmojiIconLarge: React.FC = () => {
+  const { t } = useTranslationContext();
 
   return (
     <svg height='28' width='28' xmlns='http://www.w3.org/2000/svg'>
@@ -18,11 +16,8 @@ export const EmojiIconLarge = () => {
   );
 };
 
-/**
- * @type { React.FC }
- */
-export const EmojiIconSmall = () => {
-  const { t } = useContext(TranslationContext);
+export const EmojiIconSmall: React.FC = () => {
+  const { t } = useTranslationContext();
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -35,11 +30,8 @@ export const EmojiIconSmall = () => {
   );
 };
 
-/**
- * @type { React.FC }
- */
-export const FileUploadIcon = () => {
-  const { t } = useContext(TranslationContext);
+export const FileUploadIcon: React.FC = () => {
+  const { t } = useTranslationContext();
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -52,11 +44,8 @@ export const FileUploadIcon = () => {
   );
 };
 
-/**
- * @type { React.FC }
- */
-export const FileUploadIconFlat = () => {
-  const { t } = useContext(TranslationContext);
+export const FileUploadIconFlat: React.FC = () => {
+  const { t } = useTranslationContext();
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -69,13 +58,24 @@ export const FileUploadIconFlat = () => {
   );
 };
 
-/**
- * @type { React.FC<import('types').SendButtonProps> }
- */
-export default function SendButton({ sendMessage }) {
-  const { t } = useContext(TranslationContext);
+export type SendButtonProps = {
+  /** Function that gets triggered on click */
+  sendMessage: React.FormEventHandler<HTMLFormElement>;
+};
+
+export const SendButton: React.FC<SendButtonProps> = ({ sendMessage }) => {
+  const { t } = useTranslationContext();
   return (
-    <button className='str-chat__send-button' onClick={sendMessage}>
+    <button
+      className='str-chat__send-button'
+      onClick={
+        /**
+         * TODO: fix the below at some point because this type casting is wrong
+         * and just forced to not have warnings currently with the unknown casting
+         */
+        (sendMessage as unknown) as React.MouseEventHandler<HTMLButtonElement>
+      }
+    >
       <svg
         height='17'
         viewBox='0 0 18 17'
@@ -91,4 +91,4 @@ export default function SendButton({ sendMessage }) {
       </svg>
     </button>
   );
-}
+};

@@ -177,7 +177,7 @@ const VirtualizedMessageListWithContext = <
   } = props;
 
   const { userID } = client;
-  const lastRead = useMemo(() => channel.lastRead(), [channel]);
+  const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   const processedMessages = useMemo(() => {
     if (typeof messages === 'undefined') {
