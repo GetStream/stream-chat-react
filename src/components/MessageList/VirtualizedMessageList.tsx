@@ -11,7 +11,9 @@ import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification } from './MessageNotification';
+import { insertDates } from './utils';
 
+import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
@@ -30,11 +32,12 @@ import {
   FixedHeightMessageProps,
   MessageDeletedProps,
 } from '../Message';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 
 import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { StreamChat } from 'stream-chat';
+import type { Channel, StreamChat } from 'stream-chat';
 
 import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
@@ -57,6 +60,8 @@ export type VirtualizedMessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** The currently active channel */
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    *The client connection object for connecting to Stream.
    * Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
@@ -67,10 +72,17 @@ export type VirtualizedMessageListProps<
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
   ): React.ReactElement;
+  /**
+   * Date separator UI component to render
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
+   */
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   hasMore: boolean;
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   loadingMore: boolean;
+  /** Disables the injection of date separator components, defaults to `true` */
+  disableDateSeparator?: boolean;
   /** The UI Indicator to use when MessageList or ChannelList is empty */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
   /** Component to render at the top of the MessageList while loading new messages */
@@ -139,8 +151,11 @@ const VirtualizedMessageListWithContext = <
   props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    channel,
     client,
     customMessageRenderer,
+    disableDateSeparator = true,
+    DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     hasMore,
     LoadingIndicator = DefaultLoadingIndicator,
@@ -159,6 +174,18 @@ const VirtualizedMessageListWithContext = <
     TypingIndicator = null,
   } = props;
 
+  const { userID } = client;
+  const lastRead = useMemo(() => channel.lastRead(), [channel]);
+
+  const processedMessages = useMemo(() => {
+    if (typeof messages === 'undefined') {
+      return undefined;
+    }
+    return disableDateSeparator
+      ? messages
+      : insertDates(messages, lastRead, userID);
+  }, [messages, lastRead, disableDateSeparator, userID, messages?.length]);
+
   const { t } = useTranslationContext();
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -167,12 +194,12 @@ const VirtualizedMessageListWithContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(messages, client.userID);
+  } = useNewMessageNotification(processedMessages, client.userID);
 
-  const numItemsPrepended = usePrependedMessagesCount(messages);
+  const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(
-    messages,
+    processedMessages,
     client.userID,
   );
 
@@ -189,6 +216,11 @@ const VirtualizedMessageListWithContext = <
       }
 
       const message = messageList[streamMessageIndex];
+
+      if (message.type === 'message.date') {
+        //@ts-expect-error
+        return <DateSeparator date={message.date} unread={message.unread} />;
+      }
 
       if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
@@ -250,7 +282,7 @@ const VirtualizedMessageListWithContext = <
     } as Partial<Components>;
   }, [EmptyStateIndicator, loadingMore, TypingIndicator]);
 
-  if (!messages) {
+  if (!processedMessages) {
     return null;
   }
 
@@ -273,9 +305,11 @@ const VirtualizedMessageListWithContext = <
           return isAtBottom ? stickToBottomScrollBehavior : false;
         }}
         initialTopMostItemIndex={
-          messages && messages.length > 0 ? messages.length - 1 : 0
+          processedMessages && processedMessages.length > 0
+            ? processedMessages.length - 1
+            : 0
         }
-        itemContent={(i) => messageRenderer(messages, i)}
+        itemContent={(i) => messageRenderer(processedMessages, i)}
         overscan={overscan}
         ref={virtuoso}
         startReached={() => {
@@ -284,7 +318,7 @@ const VirtualizedMessageListWithContext = <
           }
         }}
         style={{ overflowX: 'hidden' }}
-        totalCount={messages.length}
+        totalCount={processedMessages.length}
         {...(scrollSeekPlaceHolder
           ? { scrollSeek: scrollSeekPlaceHolder }
           : {})}
@@ -294,7 +328,7 @@ const VirtualizedMessageListWithContext = <
         <MessageNotification
           onClick={() => {
             if (virtuoso.current) {
-              virtuoso.current.scrollToIndex(messages.length - 1);
+              virtuoso.current.scrollToIndex(processedMessages.length - 1);
             }
             setNewMessagesNotification(false);
           }}
@@ -327,6 +361,8 @@ export function VirtualizedMessageList<
 
   return (
     <VirtualizedMessageListWithContext
+      //@ts-expect-error
+      channel={context.channel}
       client={context.client}
       hasMore={!!context.hasMore}
       loadingMore={!!context.loadingMore}
