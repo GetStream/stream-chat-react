@@ -142,10 +142,10 @@ export type ChannelContextValue<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   acceptedFiles?: string[];
   Attachment?: React.ComponentType<AttachmentProps<At>>;
-  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   closeThread?: (event: React.SyntheticEvent) => void;
   dispatch?: React.Dispatch<
     ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>

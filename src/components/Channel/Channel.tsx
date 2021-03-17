@@ -215,6 +215,7 @@ const ChannelInner = <
 >(
   props: PropsWithChildren<
     ChannelProps<At, Ch, Co, Ev, Me, Re, Us> & {
+      channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
       key: string;
     }
   >,
