@@ -2,8 +2,16 @@ import type { Event, LiteralStringForUnion, Mute } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 
+export type CustomTrigger = {
+  [key: string]: {
+    componentProps: UnknownType;
+    data: UnknownType;
+  };
+};
+
 export type DefaultAttachmentType = UnknownType & {
   file_size?: number;
+  mime_type?: string;
 };
 
 export type DefaultChannelType = UnknownType & {

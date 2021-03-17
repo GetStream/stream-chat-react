@@ -120,12 +120,12 @@ module.exports = {
     {
       name: 'Message Input',
       components: [
-        'src/components/MessageInput/MessageInput.js',
-        'src/components/MessageInput/MessageInputSmall.js',
-        'src/components/MessageInput/MessageInputLarge.js',
-        'src/components/MessageInput/MessageInputFlat.js',
-        'src/components/ChatAutoComplete/ChatAutoComplete.js',
-        'src/components/EditMessageForm/EditMessageForm.js',
+        'src/components/MessageInput/MessageInput.tsx',
+        'src/components/MessageInput/MessageInputSmall.tsx',
+        'src/components/MessageInput/MessageInputLarge.tsx',
+        'src/components/MessageInput/MessageInputFlat.tsx',
+        'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
+        'src/components/EditMessageForm/EditMessageForm.tsx',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',

@@ -67,7 +67,7 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = useOpenThreadHandler(message);
   const { isMyMessage } = useUserRole(message);
 
-  const channelConfig = channel?.getConfig();
+  const channelConfig = channel?.getConfig?.();
   const messageActions = getMessageActions();
 
   const shouldShowReactions =

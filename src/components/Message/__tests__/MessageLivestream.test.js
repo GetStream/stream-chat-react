@@ -206,7 +206,6 @@ describe('<MessageLivestream />', () => {
 
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
-    const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
@@ -215,7 +214,6 @@ describe('<MessageLivestream />', () => {
       clearEditingState,
       editing: true,
       EditMessageInput: CustomEditMessageInput,
-      updateMessage,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
@@ -223,7 +221,6 @@ describe('<MessageLivestream />', () => {
         clearEditingState,
         Input: CustomEditMessageInput,
         message,
-        updateMessage,
       }),
       {},
     );
@@ -231,18 +228,15 @@ describe('<MessageLivestream />', () => {
 
   it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
-    const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
     await renderMessageLivestream(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
     });
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         clearEditingState,
         message,
-        updateMessage,
       }),
       {},
     );

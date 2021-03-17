@@ -109,18 +109,9 @@ const UnMemoizedMessageTeam = <
     setEditingState: propSetEdit,
     threadList,
     unsafeHTML,
-    updateMessage: propUpdateMessage,
   } = props;
 
-  const { channel, updateMessage: channelUpdateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
@@ -201,7 +192,6 @@ const UnMemoizedMessageTeam = <
           clearEditingState={clearEdit}
           Input={EditMessageInput}
           message={message}
-          updateMessage={propUpdateMessage || channelUpdateMessage}
         />
       </div>
     );

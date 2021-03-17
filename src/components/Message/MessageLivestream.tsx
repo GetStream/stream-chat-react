@@ -112,7 +112,6 @@ const MessageLivestreamWithContext = <
     setEditingState,
     showDetailedReactions,
     unsafeHTML,
-    updateMessage,
   } = props;
 
   const { t, userLanguage } = useTranslationContext();
@@ -166,7 +165,6 @@ const MessageLivestreamWithContext = <
           clearEditingState={clearEditingState}
           Input={EditMessageInput}
           message={message}
-          updateMessage={updateMessage}
         />
       </div>
     );

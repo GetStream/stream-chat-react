@@ -1,8 +1,9 @@
 Here's an example with a customized error message:
 
 ```js
-import { Chat } from '../';
 import { ChatDown } from './ChatDown';
+
+import { Chat } from '../Chat/Chat';
 
 const image =
   'https://images.unsplash.com/photo-1527974349915-0d7b47258c02?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=120&q=80';
@@ -19,8 +20,9 @@ const text =
 And here's a version using defaults:
 
 ```js
-import { Chat } from '../';
 import { ChatDown } from './ChatDown';
+
+import { Chat } from '../Chat/Chat';
 
 const data = require('../../docs/data');
 

@@ -98,7 +98,6 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     showDetailedReactions,
     threadList,
-    updateMessage,
   } = props;
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -126,7 +125,6 @@ const MessageSimpleWithContext = <
             clearEditingState={clearEditingState}
             Input={EditMessageInput}
             message={message}
-            updateMessage={updateMessage}
             {...additionalMessageInputProps}
           />
         </Modal>

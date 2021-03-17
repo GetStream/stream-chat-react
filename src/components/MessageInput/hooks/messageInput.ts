@@ -1,51 +1,199 @@
-import {
+import React, {
+  Reducer,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useReducer,
   useRef,
 } from 'react';
-import { logChatPromiseExecution } from 'stream-chat';
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
   // @ts-expect-error
 } from 'react-file-utils';
-import { ChannelContext } from '../../../context/ChannelContext';
+import {
+  Attachment,
+  CommandResponse,
+  logChatPromiseExecution,
+  MessageResponse,
+  SendFileAPIResponse,
+  UpdatedMessage,
+  UserResponse,
+} from 'stream-chat';
+
+import {
+  StreamMessage,
+  useChannelContext,
+} from '../../../context/ChannelContext';
 import { generateRandomId } from '../../../utils';
 
-/**
- * @typedef {import("types").MessageInputState} State
- * @typedef {import("types").MessageInputProps} Props
- * @typedef {import('stream-chat').Unpacked<ReturnType<import("types").StreamChatReactClient['sendFile']>>} FileUploadAPIResponse
- * @typedef {import('stream-chat').UserResponse} UserResponse
- */
+import type { BaseEmoji, EmojiData } from 'emoji-mart';
+
+import type { MessageInputProps } from '../MessageInput';
+
+import type {
+  CustomTrigger,
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../../types/types';
+
+export type FileUpload = {
+  file: {
+    name: string;
+    size?: number | string;
+    type?: string;
+    uri?: string;
+  };
+  id: string;
+  state: 'finished' | 'failed' | 'uploading';
+  url?: string;
+};
+
+export type ImageUpload = {
+  file: {
+    height?: number;
+    name?: string;
+    uri?: string;
+    width?: number;
+  };
+  id: string;
+  state: 'finished' | 'failed' | 'uploading';
+  previewUri?: string;
+  url?: string;
+};
+
+export type MessageInputState<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  attachments: Attachment<At>[];
+  emojiPickerIsOpen: boolean;
+  fileOrder: string[];
+  fileUploads: { [id: string]: FileUpload };
+  imageOrder: string[];
+  imageUploads: {
+    [id: string]: ImageUpload;
+  };
+  // ids of users mentioned in message
+  mentioned_users: UserResponse<Us>[];
+  numberOfUploads: number;
+  text: string;
+};
+
+type SetEmojiPickerIsOpenAction = {
+  type: 'setEmojiPickerIsOpen';
+  value: boolean;
+};
+type SetTextAction = {
+  getNewText: (currentStateText: string) => string;
+  type: 'setText';
+};
+type ClearAction = {
+  type: 'clear';
+};
+type SetImageUploadAction = {
+  id: string;
+  type: 'setImageUpload';
+  file?: File;
+  previewUri?: string;
+  state?: string;
+  url?: string;
+};
+type SetFileUploadAction = {
+  id: string;
+  type: 'setFileUpload';
+  file?: File;
+  state?: string;
+  url?: string;
+};
+type RemoveImageUploadAction = {
+  id: string;
+  type: 'removeImageUpload';
+};
+type RemoveFileUploadAction = {
+  id: string;
+  type: 'removeFileUpload';
+};
+type ReduceNumberOfUploadsAction = {
+  type: 'reduceNumberOfUploads';
+};
+type AddMentionedUserAction<
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  type: 'addMentionedUser';
+  user: UserResponse<Us>;
+};
+
+export type MessageInputReducerAction<
+  Us extends DefaultUserType<Us> = DefaultUserType
+> =
+  | SetEmojiPickerIsOpenAction
+  | SetTextAction
+  | ClearAction
+  | SetImageUploadAction
+  | SetFileUploadAction
+  | RemoveImageUploadAction
+  | RemoveFileUploadAction
+  | ReduceNumberOfUploadsAction
+  | AddMentionedUserAction<Us>;
+
+export type MessageInputHookProps<
+  Co extends DefaultCommandType = DefaultCommandType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  closeEmojiPicker: React.MouseEventHandler<HTMLButtonElement>;
+  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
+  getCommands: () => CommandResponse<Co>[] | undefined;
+  getUsers: () => (UserResponse<Us> | undefined)[];
+  handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
+  handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
+  handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  isUploadEnabled: boolean;
+  maxFilesLeft: number;
+  onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  onSelectEmoji: (emoji: EmojiData) => void;
+  onSelectItem: (item: UserResponse<Us>) => void;
+  openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
+  removeFile: (id: string) => void;
+  removeImage: (id: string) => void;
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  uploadFile: (id: string) => void;
+  uploadImage: (id: string) => void;
+  uploadNewFiles(files: FileList): void;
+};
 
 /**
  * Get attachment type from MIME type
- * @param {string} mime
- * @returns {string}
  */
-const getAttachmentTypeFromMime = (mime) => {
+const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('video/')) return 'media';
   if (mime.includes('audio/')) return 'audio';
   return 'file';
 };
 
-/** @type {{ [id: string]: import('types').FileUpload }} */
-const emptyFileUploads = {};
-/** @type {{ [id: string]: import('types').ImageUpload }} */
-const emptyImageUploads = {};
-
 const apiMaxNumberOfFiles = 10;
+const emptyFileUploads: Record<string, FileUpload> = {};
+const emptyImageUploads: Record<string, ImageUpload> = {};
 
 /**
  * Initializes the state. Empty if the message prop is falsy.
- * @param {import("stream-chat").MessageResponse | undefined} message
- * @returns {State}
  */
-function initState(message) {
+const initState = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+): MessageInputState<At, Us> => {
   if (!message) {
     return {
       attachments: [],
@@ -75,7 +223,7 @@ function initState(message) {
           url: attachment.image_url,
         };
         return acc;
-      }, {}) || {};
+      }, {} as Record<string, ImageUpload>) || {};
   const imageOrder = Object.keys(imageUploads);
 
   const fileUploads =
@@ -85,7 +233,7 @@ function initState(message) {
         const id = generateRandomId();
         acc[id] = {
           file: {
-            name: attachment.title,
+            name: attachment.title || '',
             size: attachment.file_size,
             type: attachment.mime_type,
           },
@@ -94,7 +242,7 @@ function initState(message) {
           url: attachment.asset_url,
         };
         return acc;
-      }, {}) || {};
+      }, {} as Record<string, FileUpload>) || {};
   const fileOrder = Object.keys(fileUploads);
 
   const numberOfUploads = fileOrder.length + imageOrder.length;
@@ -117,14 +265,18 @@ function initState(message) {
     numberOfUploads,
     text: message.text || '',
   };
-}
+};
+
 /**
  * MessageInput state reducer
- * @param {State} state
- * @param {import("./types").MessageInputReducerAction} action
- * @returns {State}
  */
-function messageInputReducer(state, action) {
+const messageInputReducer = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  state: MessageInputState<At, Us>,
+  action: MessageInputReducerAction<Us>,
+) => {
   switch (action.type) {
     case 'setEmojiPickerIsOpen':
       return { ...state, emojiPickerIsOpen: action.value };
@@ -148,7 +300,8 @@ function messageInputReducer(state, action) {
       const imageOrder = imageAlreadyExists
         ? state.imageOrder
         : state.imageOrder.concat(action.id);
-      const { type, ...newUploadFields } = action;
+      const newUploadFields = { ...action } as Partial<SetImageUploadAction>;
+      delete newUploadFields.type;
       return {
         ...state,
         imageOrder,
@@ -167,7 +320,8 @@ function messageInputReducer(state, action) {
       const fileOrder = fileAlreadyExists
         ? state.fileOrder
         : state.fileOrder.concat(action.id);
-      const { type, ...newUploadFields } = action;
+      const newUploadFields = { ...action } as Partial<SetFileUploadAction>;
+      delete newUploadFields.type;
       return {
         ...state,
         fileOrder,
@@ -212,12 +366,23 @@ function messageInputReducer(state, action) {
     default:
       return state;
   }
-}
+};
+
 /**
  * hook for MessageInput state
- * @type{import('types').useMessageInput}
  */
-export default function useMessageInput(props) {
+export const useMessageInput = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
+>(
+  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
+): MessageInputState<At, Us> & MessageInputHookProps<Co, Us> => {
   const {
     additionalTextareaProps,
     clearEditingState,
@@ -238,9 +403,16 @@ export default function useMessageInput(props) {
     maxNumberOfFiles,
     multipleUploads,
     sendMessage,
-  } = useContext(ChannelContext);
+  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const [state, dispatch] = useReducer(messageInputReducer, message, initState);
+  const [state, dispatch] = useReducer(
+    messageInputReducer as Reducer<
+      MessageInputState<At, Us>,
+      MessageInputReducerAction<Us>
+    >,
+    message,
+    initState,
+  );
 
   const {
     attachments,
@@ -253,10 +425,8 @@ export default function useMessageInput(props) {
     text,
   } = state;
 
-  const textareaRef = useRef(
-    /** @type {HTMLTextAreaElement | undefined} */ (undefined),
-  );
-  const emojiPickerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>();
 
   // Focus
   useEffect(() => {
@@ -266,17 +436,17 @@ export default function useMessageInput(props) {
   }, [focus]);
 
   // Text + cursor position
-  const newCursorPosition = useRef(/** @type {number | null} */ (null));
+  const newCursorPosition = useRef<number>();
 
   const insertText = useCallback(
-    (textToInsert) => {
-      const { maxLength } = additionalTextareaProps;
+    (textToInsert: string) => {
+      const { maxLength } = additionalTextareaProps || {};
 
       if (!textareaRef.current) {
         dispatch({
-          getNewText: (t) => {
-            const updatedText = t + textToInsert;
-            if (updatedText.length > maxLength) {
+          getNewText: (text) => {
+            const updatedText = text + textToInsert;
+            if (maxLength && updatedText.length > maxLength) {
               return updatedText.slice(0, maxLength);
             }
             return updatedText;
@@ -296,7 +466,7 @@ export default function useMessageInput(props) {
             textToInsert +
             prevText.slice(selectionEnd);
 
-          if (updatedText.length > maxLength) {
+          if (maxLength && updatedText.length > maxLength) {
             return updatedText.slice(0, maxLength);
           }
 
@@ -310,14 +480,14 @@ export default function useMessageInput(props) {
 
   useEffect(() => {
     const textareaElement = textareaRef.current;
-    if (textareaElement && newCursorPosition.current !== null) {
+    if (textareaElement && newCursorPosition.current !== undefined) {
       textareaElement.selectionStart = newCursorPosition.current;
       textareaElement.selectionEnd = newCursorPosition.current;
-      newCursorPosition.current = null;
+      newCursorPosition.current = undefined;
     }
   }, [text, newCursorPosition]);
 
-  const handleChange = useCallback(
+  const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
       event.preventDefault();
       if (!event || !event.target) {
@@ -342,10 +512,10 @@ export default function useMessageInput(props) {
   // Emoji
 
   const closeEmojiPicker = useCallback(
-    (e) => {
+    (event: MouseEvent) => {
       if (
         emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(e.target)
+        !emojiPickerRef.current.contains(event.target as Node)
       ) {
         dispatch({
           type: 'setEmojiPickerIsOpen',
@@ -356,28 +526,39 @@ export default function useMessageInput(props) {
     [emojiPickerRef],
   );
 
-  const openEmojiPicker = useCallback((event) => {
-    dispatch({
-      type: 'setEmojiPickerIsOpen',
-      value: true,
-    });
+  const openEmojiPicker: React.MouseEventHandler<HTMLSpanElement> = useCallback(
+    (event) => {
+      dispatch({
+        type: 'setEmojiPickerIsOpen',
+        value: true,
+      });
 
-    // Prevent event from bubbling to document, so the close handler is never called for this event
-    event.stopPropagation();
-  }, []);
+      // Prevent event from bubbling to document, so the close handler is never called for this event
+      event.stopPropagation();
+    },
+    [],
+  );
 
-  const handleEmojiKeyDown = (event) => {
+  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement> = (
+    event,
+  ) => {
     if (
       event.key === ' ' ||
       event.key === 'Enter' ||
       event.key === 'Spacebar'
     ) {
       event.preventDefault();
-      openEmojiPicker(event);
+      /**
+       * TODO: fix the below at some point because this type casting is wrong
+       * and just forced to not have warnings currently with the unknown casting
+       */
+      openEmojiPicker(
+        (event as unknown) as React.MouseEvent<HTMLSpanElement, MouseEvent>,
+      );
     }
   };
 
-  const handleEmojiEscape = (event) => {
+  const handleEmojiEscape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       dispatch({
         type: 'setEmojiPickerIsOpen',
@@ -397,13 +578,14 @@ export default function useMessageInput(props) {
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
-  const onSelectEmoji = useCallback((emoji) => insertText(emoji.native), [
-    insertText,
-  ]);
+  const onSelectEmoji = useCallback(
+    (emoji: EmojiData) => insertText((emoji as BaseEmoji).native),
+    [insertText],
+  );
 
   // Commands / mentions
 
-  const getCommands = useCallback(() => channel?.getConfig()?.commands, [
+  const getCommands = useCallback(() => channel?.getConfig?.()?.commands, [
     channel,
   ]);
 
@@ -418,13 +600,9 @@ export default function useMessageInput(props) {
     );
   }, [channel]);
 
-  const onSelectItem = useCallback(
-    /** @param {UserResponse} item */
-    (item) => {
-      dispatch({ type: 'addMentionedUser', user: item });
-    },
-    [],
-  );
+  const onSelectItem = useCallback((item: UserResponse<Us>) => {
+    dispatch({ type: 'addMentionedUser', user: item });
+  }, []);
 
   // Submitting
 
@@ -434,25 +612,31 @@ export default function useMessageInput(props) {
       .filter((upload) => upload.state !== 'failed')
       .filter((
         { id, url },
-        index,
+        _,
         self, // filter out duplicates based on url
       ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .map((upload) => ({
-        fallback: upload.file.name,
-        image_url: upload.url,
-        type: 'image',
-      }));
+      .map(
+        (upload) =>
+          ({
+            fallback: upload.file.name,
+            image_url: upload.url,
+            type: 'image',
+          } as Attachment<At>),
+      );
 
     const fileAttachments = fileOrder
       .map((id) => fileUploads[id])
       .filter((upload) => upload.state !== 'failed')
-      .map((upload) => ({
-        asset_url: upload.url,
-        file_size: upload.file.size,
-        mime_type: upload.file.type,
-        title: upload.file.name,
-        type: getAttachmentTypeFromMime(upload.file.type),
-      }));
+      .map(
+        (upload) =>
+          ({
+            asset_url: upload.url,
+            file_size: upload.file.size,
+            mime_type: upload.file.type,
+            title: upload.file.name,
+            type: getAttachmentTypeFromMime(upload.file.type || ''),
+          } as Attachment<At>),
+      );
 
     return [
       ...attachments, // from state
@@ -461,10 +645,7 @@ export default function useMessageInput(props) {
     ];
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
-  /**
-   * @param {React.FormEvent | React.MouseEvent} event
-   */
-  const handleSubmit = (event) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     const trimmedMessage = text.trim();
     const isEmptyMessage =
@@ -514,20 +695,20 @@ export default function useMessageInput(props) {
 
     if (!!message && editMessage) {
       // TODO: Remove this line and show an error when submit fails
-      if (clearEditingState) clearEditingState();
+      if (clearEditingState) {
+        clearEditingState();
+      }
 
-      const updateMessagePromise = editMessage({
+      const updateMessagePromise = editMessage(({
         ...updatedMessage,
         id: message.id,
-      }).then(clearEditingState);
+      } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>).then(
+        clearEditingState,
+      );
 
       logChatPromiseExecution(updateMessagePromise, 'update message');
       dispatch({ type: 'clear' });
-    } else if (
-      overrideSubmitHandler &&
-      typeof overrideSubmitHandler === 'function' &&
-      channel
-    ) {
+    } else if (overrideSubmitHandler && channel) {
       overrideSubmitHandler(
         {
           ...updatedMessage,
@@ -539,7 +720,7 @@ export default function useMessageInput(props) {
     } else if (sendMessage) {
       const sendMessagePromise = sendMessage({
         ...updatedMessage,
-        parent,
+        parent: parent as MessageResponse<At, Ch, Co, Me, Re, Us>,
       });
       logChatPromiseExecution(sendMessagePromise, 'send message');
       dispatch({ type: 'clear' });
@@ -576,10 +757,10 @@ export default function useMessageInput(props) {
         if (doFileUploadRequest) {
           response = await doFileUploadRequest(file, channel);
         } else {
-          response = await channel.sendFile(file);
+          response = await channel.sendFile(file as File);
         }
-      } catch (e) {
-        console.warn(e);
+      } catch (error) {
+        console.warn(error);
         let alreadyRemoved = false;
 
         dispatch({ type: 'reduceNumberOfUploads' });
@@ -590,7 +771,7 @@ export default function useMessageInput(props) {
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(e, 'upload-file', file);
+          errorHandler(error, 'upload-file', file);
         }
         return;
       }
@@ -626,16 +807,15 @@ export default function useMessageInput(props) {
       if (img.state !== 'uploading') {
         dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
-      /** @type FileUploadAPIResponse */
-      let response;
+      let response: SendFileAPIResponse;
       try {
         if (doImageUploadRequest) {
           response = await doImageUploadRequest(file, channel);
         } else {
-          response = await channel.sendImage(file);
+          response = await channel.sendImage(file as File);
         }
-      } catch (e) {
-        console.warn(e);
+      } catch (error) {
+        console.warn(error);
         let alreadyRemoved = false;
         dispatch({ type: 'reduceNumberOfUploads' });
         if (!imageUploads[id]) {
@@ -645,8 +825,8 @@ export default function useMessageInput(props) {
         }
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(e, 'upload-image', {
-            file,
+          errorHandler(error, 'upload-image', {
+            ...file,
             id,
           });
         }
@@ -691,14 +871,14 @@ export default function useMessageInput(props) {
             type: 'setImageUpload',
           });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file as Blob);
         uploadImage(id);
         return () => {
           reader.onload = null;
         };
       }
     }
-    return () => {};
+    return;
   }, [imageUploads, uploadImage]);
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
@@ -712,10 +892,7 @@ export default function useMessageInput(props) {
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   const uploadNewFiles = useCallback(
-    /**
-     * @param {FileList} files
-     */
-    (files) => {
+    (files: FileList) => {
       Array.from(files)
         .slice(0, maxFilesLeft)
         .forEach((file) => {
@@ -734,8 +911,7 @@ export default function useMessageInput(props) {
   );
 
   const onPaste = useCallback(
-    /** (e: React.ClipboardEvent) */
-    (e) => {
+    (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;
@@ -745,18 +921,17 @@ export default function useMessageInput(props) {
         // Get a promise for the plain text in case no files are
         // found. This needs to be done here because chrome cleans
         // up the DataTransferItems after resolving of a promise.
-        let plainTextPromise;
-        /** @type {DataTransferItem} */
-        const plainTextItem = [...items].find(
-          ({ kind, type }) => kind === 'string' && type === 'text/plain',
-        );
-
-        if (plainTextItem) {
-          plainTextPromise = new Promise((resolve) => {
-            plainTextItem.getAsString((string) => {
-              resolve(string);
+        let plainTextPromise: Promise<string> | undefined = undefined;
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          if (item.kind === 'string' && item.type === 'text/plain') {
+            plainTextPromise = new Promise((resolve) => {
+              item.getAsString((string) => {
+                resolve(string);
+              });
             });
-          });
+            break;
+          }
         }
 
         const fileLikes = await dataTransferItemsToFiles(items);
@@ -770,7 +945,7 @@ export default function useMessageInput(props) {
           const pastedText = await plainTextPromise;
           insertText(pastedText);
         }
-      })(e);
+      })(clipboardEvent);
     },
     [insertText, uploadNewFiles],
   );
@@ -779,7 +954,11 @@ export default function useMessageInput(props) {
 
   return {
     ...state,
-    closeEmojiPicker,
+    /**
+     * TODO: fix the below at some point because this type casting is wrong
+     * and just forced to not have warnings currently with the unknown casting
+     */
+    closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
     emojiPickerRef,
     getCommands,
     getUsers,
@@ -799,4 +978,4 @@ export default function useMessageInput(props) {
     uploadImage,
     uploadNewFiles,
   };
-}
+};

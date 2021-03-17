@@ -1,8 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MessageInput, MessageInputLarge } from '../index';
-import { ChannelContext, TranslationContext } from '../../../context';
+import { MessageInput } from '../MessageInput';
+import { MessageInputLarge } from '../MessageInputLarge';
+import { ChannelContext } from '../../../context/ChannelContext';
+import { TranslationContext } from '../../../context/TranslationContext';
 import { emojiMockConfig } from '../../../mock-builders';
 
 const i18nMock = jest.fn((key) => key);
