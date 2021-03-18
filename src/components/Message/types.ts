@@ -243,7 +243,9 @@ export type MessageUIComponentProps<
    * Custom UI component to override default edit message input.
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
    * */
-  EditMessageInput?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  EditMessageInput?: React.ComponentType<
+    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>
+  >;
   /**
    * The component to be rendered if the Message has been deleted.
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
