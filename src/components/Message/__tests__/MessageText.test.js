@@ -1,3 +1,4 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { fireEvent, render } from '@testing-library/react';
@@ -78,12 +79,12 @@ describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
     const { queryByTestId } = await renderMessageText({ message: undefined });
-    expect(queryByTestId(messageTextTestId)).toBeNull();
+    expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
   });
 
   it('should not render anything if message text is not set', async () => {
     const { queryByTestId } = await renderMessageText({ message: undefined });
-    expect(queryByTestId(messageTextTestId)).toBeNull();
+    expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
   });
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
@@ -209,7 +210,7 @@ describe('<MessageText />', () => {
       { reactions: false },
     );
 
-    expect(queryByTestId('reaction-list')).toBeNull();
+    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
   });
 
   it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
@@ -218,7 +219,7 @@ describe('<MessageText />', () => {
       latest_reactions: [bobReaction],
     });
     const { getByTestId, queryByTestId } = await renderMessageText({ message });
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId('reaction-list'));
     expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
   });

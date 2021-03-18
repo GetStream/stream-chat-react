@@ -16,6 +16,7 @@ const List = (props) => {
     itemStyle,
     onSelect,
     style,
+    SuggestionItem = Item,
     value: propValue,
     values,
   } = props;
@@ -24,7 +25,7 @@ const List = (props) => {
 
   const [selectedItem, setSelectedItem] = useState(undefined);
 
-  const itemsRef = {};
+  const itemsRef = [];
 
   const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
 
@@ -53,9 +54,8 @@ const List = (props) => {
     modifyText(values[selectedItem]);
   };
 
-  const selectItem = (item, keyboard = false) => {
+  const selectItem = (item) => {
     setSelectedItem(values.findIndex((value) => value.id === item.id));
-    if (keyboard) dropdownScroll(itemsRef[getId(item)]);
   };
 
   const handleKeyDown = useCallback(
@@ -63,14 +63,20 @@ const List = (props) => {
       if (event.which === KEY_CODES.UP) {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          return prevSelected === 0 ? values.length - 1 : prevSelected - 1;
+          const newID =
+            prevSelected === 0 ? values.length - 1 : prevSelected - 1;
+          dropdownScroll(itemsRef[newID]);
+          return newID;
         });
       }
 
       if (event.which === KEY_CODES.DOWN) {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          return prevSelected === values.length - 1 ? 0 : prevSelected + 1;
+          const newID =
+            prevSelected === values.length - 1 ? 0 : prevSelected + 1;
+          dropdownScroll(itemsRef[newID]);
+          return newID;
         });
       }
 
@@ -133,8 +139,8 @@ const List = (props) => {
           __html: renderHeader(propValue),
         }}
       />
-      {values.map((item) => (
-        <Item
+      {values.map((item, i) => (
+        <SuggestionItem
           className={itemClassName}
           component={component}
           item={restructureItem(item)}
@@ -142,7 +148,7 @@ const List = (props) => {
           onClickHandler={handleClick}
           onSelectHandler={selectItem}
           ref={(ref) => {
-            itemsRef[getId(item)] = ref;
+            itemsRef[i] = ref;
           }}
           selected={isSelected(item)}
           style={itemStyle}

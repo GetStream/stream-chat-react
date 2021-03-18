@@ -13,7 +13,7 @@ describe('MessageNotification', () => {
         test
       </MessageNotification>,
     );
-    expect(queryByTestId('message-notification')).toBeNull();
+    expect(queryByTestId('message-notification')).not.toBeInTheDocument();
   });
 
   it('should trigger onClick when clicked', () => {

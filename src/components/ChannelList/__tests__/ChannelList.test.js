@@ -201,6 +201,7 @@ describe('ChannelList', () => {
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
       expect(getByRole('list')).toBeInTheDocument();
+      // eslint-disable-next-line jest-dom/prefer-in-document
       expect(queryAllByRole('listitem')).toHaveLength(1);
     });
   });
