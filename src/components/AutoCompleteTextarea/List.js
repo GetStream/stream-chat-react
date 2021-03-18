@@ -123,7 +123,7 @@ const List = (props) => {
   };
 
   const restructureItem = (item) => {
-    const matched = item.name ? item.name : item.id;
+    const matched = item.name || item.id;
 
     const editedPropValue = propValue.slice(1);
     const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
