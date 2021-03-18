@@ -301,13 +301,13 @@ const ChannelInner = <
 
   const handleEvent = useCallback(
     (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (!channel || !event.message) return;
-
-      dispatch({
-        channel,
-        message: event.message,
-        type: 'updateThreadOnEvent',
-      });
+      if (event.message) {
+        dispatch({
+          channel,
+          message: event.message,
+          type: 'updateThreadOnEvent',
+        });
+      }
 
       if (
         event.type === 'connection.changed' &&
@@ -319,11 +319,11 @@ const ChannelInner = <
       if (event.type === 'message.new') {
         let mainChannelUpdated = true;
 
-        if (event.message.parent_id && !event.message.show_in_channel) {
+        if (event.message?.parent_id && !event.message?.show_in_channel) {
           mainChannelUpdated = false;
         }
 
-        if (mainChannelUpdated && event.message.user?.id !== client.userID) {
+        if (mainChannelUpdated && event.message?.user?.id !== client.userID) {
           if (!document.hidden) {
             markReadThrottled();
           } else if (
