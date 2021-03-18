@@ -451,6 +451,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'SuggestionItem',
       'SuggestionList',
       'trigger',
       'value',
@@ -627,8 +628,10 @@ class ReactTextareaAutocomplete extends React.Component {
       itemClassName,
       itemStyle,
       listClassName,
+      SuggestionItem,
       SuggestionList = DefaultSuggestionList,
     } = this.props;
+
     const { component, currentTrigger, dataLoading, value } = this.state;
 
     const selectedItem = this._getItemOnSelect();
@@ -658,7 +661,7 @@ class ReactTextareaAutocomplete extends React.Component {
               itemClassName={itemClassName}
               itemStyle={itemStyle}
               onSelect={this._onSelect}
-              Su
+              SuggestionItem={SuggestionItem}
               value={value}
               values={suggestionData}
             />

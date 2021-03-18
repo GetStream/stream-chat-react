@@ -82,6 +82,7 @@ const externalDependencies = [
 
 const basePlugins = [
   replace({
+    preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
   // Replace our alias for a relative path so the jsdoc resolution still
@@ -89,6 +90,7 @@ const basePlugins = [
   replace({
     delimiters: ['', ''],
     "import('types')": "import('../types')",
+    preventAssignment: true,
   }),
   // Remove peer-dependencies from final bundle
   external(),

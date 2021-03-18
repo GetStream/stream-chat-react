@@ -53,6 +53,7 @@ export const MessageInputSmall = <
     maxRows = 10,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
+    SuggestionItem,
     SuggestionList,
   } = props;
 
@@ -91,7 +92,6 @@ export const MessageInputSmall = <
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
             )}
-
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               commands={messageInput.getCommands()}
@@ -106,11 +106,11 @@ export const MessageInputSmall = <
               onSelectItem={messageInput.onSelectItem}
               placeholder={t('Type your message')}
               rows={1}
+              SuggestionItem={SuggestionItem}
               SuggestionList={SuggestionList}
               triggers={autocompleteTriggers}
               value={messageInput.text}
             />
-
             {messageInput.isUploadEnabled && (
               <div
                 className='str-chat__fileupload-wrapper'
@@ -133,7 +133,6 @@ export const MessageInputSmall = <
                 </FileUploadButton>
               </div>
             )}
-
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
                 {messageInput.emojiPickerIsOpen
