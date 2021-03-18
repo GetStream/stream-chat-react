@@ -1161,6 +1161,7 @@ export interface EmoticonItemProps {
   entity: {
     name: string;
     native: string;
+    highlightedText?: HTMLElement | undefined;
   };
 }
 
