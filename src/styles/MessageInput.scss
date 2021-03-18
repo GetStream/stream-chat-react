@@ -182,15 +182,11 @@
   align-items: center;
   margin: 0 -8px;
 
-  span {
-    display: block;
-  }
-
   &--entity {
     min-width: 24px;
   }
 
-  &--name {
+  &--part {
     font-size: 12px;
   }
 }
