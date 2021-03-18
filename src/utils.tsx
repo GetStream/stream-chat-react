@@ -1,6 +1,8 @@
 import React from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
+//@ts-expect-error
+import findAndReplace from 'mdast-util-find-and-replace';
 import RootReactMarkdown, { NodeType } from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
 
@@ -69,7 +71,7 @@ type MarkDownRenderers = {
   href?: string;
 };
 
-const markDownRenderers = {
+const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
     if (
@@ -85,6 +87,24 @@ const markDownRenderers = {
       </a>
     );
   },
+  span: 'span',
+};
+
+const emojiMarkdownPlugin = () => {
+  function replace(match: RegExpMatchArray | null) {
+    return {
+      children: [{ type: 'text', value: match }],
+      className: 'inline-text-emoji',
+      type: 'span',
+    };
+  }
+
+  const transform = <T extends unknown>(markdownAST: T) => {
+    findAndReplace(markdownAST, emojiRegex(), replace);
+    return markdownAST;
+  };
+
+  return transform;
 };
 
 export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
@@ -145,6 +165,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       escapeHtml={true}
+      plugins={[emojiMarkdownPlugin]}
       renderers={markDownRenderers}
       source={newText}
       transformLinkUri={(uri) =>

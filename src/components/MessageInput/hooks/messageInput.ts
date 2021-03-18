@@ -153,6 +153,7 @@ export type MessageInputHookProps<
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
@@ -965,6 +966,7 @@ export const useMessageInput = <
     handleChange,
     handleEmojiKeyDown,
     handleSubmit,
+    insertText,
     isUploadEnabled,
     maxFilesLeft,
     onPaste,

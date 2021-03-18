@@ -34,6 +34,22 @@ import type {
 
 type ObjectUnion<T> = T[keyof T];
 
+export type SuggestionItemProps<
+  Co extends DefaultCommandType = DefaultCommandType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  className: string;
+  component: JSX.Element;
+  item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>;
+  key: React.Key;
+  onClickHandler: React.MouseEventHandler<HTMLDivElement>;
+  onSelectHandler: (
+    item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>,
+  ) => void;
+  selected: boolean;
+  style: React.CSSProperties;
+};
+
 export type SuggestionListProps<
   Co extends DefaultCommandType = DefaultCommandType,
   Us extends DefaultUserType<Us> = DefaultUserType,
@@ -133,9 +149,7 @@ export type ChatAutoCompleteProps<
   V extends CustomTrigger = CustomTrigger
 > = {
   innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
-  /**
-   * Any additional attributes that you may want to add for underlying HTML textarea element
-   */
+  /** Any additional attributes that you may want to add for underlying HTML textarea element */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Array of commands */
   commands?: CommandResponse<Co>[];
@@ -159,15 +173,21 @@ export type ChatAutoCompleteProps<
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
   /** Function to run on pasting within the textarea */
   onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  /**
-   * Handler for selecting item from suggestions list
-   */
+  /** Handler for selecting item from suggestions list */
   onSelectItem?: (item: UserResponse<Us>) => void;
   /** Placeholder for the textarea */
   placeholder?: string;
   /** The number of rows you want the textarea to have */
   rows?: number;
-  /** Optional UI component prop to override the default List component that displays suggestions */
+  /**
+   * Optional UI component prop to override the default suggestion Item component.
+   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
+   */
+  SuggestionItem?: React.ForwardRefExoticComponent<SuggestionItemProps<Co, Us>>;
+  /**
+   * Optional UI component prop to override the default List component that displays suggestions.
+   * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
+   */
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   /** The triggers for the textarea */
   triggers?: TriggerSettings<Co, Us, V>;
@@ -202,6 +222,7 @@ const UnMemoizedChatAutoComplete = <
     onSelectItem,
     placeholder,
     rows = 3,
+    SuggestionItem,
     SuggestionList,
     triggers,
     value,
@@ -432,6 +453,7 @@ const UnMemoizedChatAutoComplete = <
       placeholder={placeholder}
       replaceWord={emojiReplace}
       rows={rows}
+      SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={getTriggers()}
       value={value}
