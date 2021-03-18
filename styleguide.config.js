@@ -86,6 +86,10 @@ module.exports = {
               content: 'src/docs/useMentionsHandler.md',
             },
             {
+              name: 'useMessageInput',
+              content: 'src/docs/useMessageInput.md',
+            },
+            {
               name: 'useMuteHandler',
               content: 'src/docs/useMuteHandler.md',
             },

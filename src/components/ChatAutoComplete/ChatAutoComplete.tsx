@@ -134,10 +134,10 @@ export type ChatAutoCompleteProps<
 > = {
   innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   /**
-   * Any additional attributes that you may want to add for underlying HTML textarea element.
+   * Any additional attributes that you may want to add for underlying HTML textarea element
    */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Array of [commands](https://getstream.io/chat/docs/#channel_commands) */
+  /** Array of commands */
   commands?: CommandResponse<Co>[];
   /** Make the textarea disabled */
   disabled?: boolean;
@@ -151,7 +151,7 @@ export type ChatAutoCompleteProps<
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Maximum number of rows */
   maxRows?: number;
-  /** Minimum number of Character */
+  /** Minimum number of characters */
   minChar?: number;
   /** Function that runs on change */
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -161,8 +161,6 @@ export type ChatAutoCompleteProps<
   onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   /**
    * Handler for selecting item from suggestions list
-   *
-   * @param item Selected item object.
    */
   onSelectItem?: (item: UserResponse<Us>) => void;
   /** Placeholder for the textarea */
@@ -171,6 +169,7 @@ export type ChatAutoCompleteProps<
   rows?: number;
   /** Optional UI component prop to override the default List component that displays suggestions */
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
+  /** The triggers for the textarea */
   triggers?: TriggerSettings<Co, Us, V>;
   /** The value of the textarea */
   value?: string;
