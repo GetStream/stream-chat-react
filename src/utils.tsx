@@ -1,4 +1,4 @@
-import React, { ElementType } from 'react';
+import React from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
 //@ts-expect-error
@@ -71,7 +71,7 @@ type MarkDownRenderers = {
   href?: string;
 };
 
-const markDownRenderers: { [nodeType: string]: ElementType } = {
+const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
     if (
