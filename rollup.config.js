@@ -65,6 +65,8 @@ const externalDependencies = [
   'lodash.isequal',
   'lodash.throttle',
   'lodash.uniqby',
+  'mdast-util-find-and-replace',
+  'mml-react',
   'pretty-bytes',
   'prop-types',
   'react-fast-compare',
@@ -77,7 +79,6 @@ const externalDependencies = [
   'react-virtuoso',
   'textarea-caret',
   /uuid/,
-  'mml-react',
 ];
 
 const basePlugins = [
