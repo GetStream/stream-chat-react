@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import debounce from 'lodash.debounce';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
@@ -237,6 +237,16 @@ const UnMemoizedChatAutoComplete = <
     Re,
     Us
   >();
+
+  useEffect(() => {
+    const getWatchers = async () => {
+      await channel?.watch({
+        watchers: { limit: 20, offset: 0 },
+      });
+    };
+
+    getWatchers();
+  }, [channel]);
 
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;

@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { StreamChat } from 'stream-chat';
+import { ChannelSort, StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
-  ChannelSort,
   MessageList,
   MessageInput,
   MessageInputFlat,
@@ -15,6 +14,7 @@ import {
   ChannelList,
   Window,
   Thread,
+  Theme,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -50,7 +50,7 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient} theme={`messaging ${theme}`}>
+      <Chat client={this.chatClient} theme={`messaging ${theme}` as Theme}>
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
