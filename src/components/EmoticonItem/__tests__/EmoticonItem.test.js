@@ -34,7 +34,6 @@ describe('EmoticonItem', () => {
 
     const { getByText } = render(Component);
     await waitFor(() => {
-      // expect(getByText(entity.name)).toBeInTheDocument();
       expect(getByText(entity.native)).toBeInTheDocument();
     });
 

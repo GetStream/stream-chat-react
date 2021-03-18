@@ -38,6 +38,7 @@ describe('UserItem', () => {
         </div>
         <span
           className="str-chat__user-item--name"
+          data-testid="user-item-name"
         />
       </div>
     `);
