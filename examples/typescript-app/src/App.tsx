@@ -9,12 +9,10 @@ import {
   MessageSimple,
   ChannelHeader,
   ChannelPreviewMessenger,
-  InfiniteScrollPaginator,
   ChannelListMessenger,
   ChannelList,
   Window,
   Thread,
-  Theme,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -50,16 +48,13 @@ class App extends Component {
 
   render() {
     return (
-      <Chat client={this.chatClient} theme={`messaging ${theme}` as Theme}>
+      <Chat client={this.chatClient} theme={`messaging ${theme}`}>
         <ChannelList
           List={ChannelListMessenger}
           Preview={ChannelPreviewMessenger}
           filters={filters}
           sort={sort}
           options={options}
-          Paginator={(props) => (
-            <InfiniteScrollPaginator threshold={300} {...props} />
-          )}
         />
         <Channel>
           <Window>
