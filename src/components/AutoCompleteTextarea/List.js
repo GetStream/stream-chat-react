@@ -27,7 +27,8 @@ const List = (props) => {
 
   const itemsRef = [];
 
-  const isSelected = (item) => selectedItem === values.indexOf(item);
+  const isSelected = (item) =>
+    selectedItem === values.findIndex((value) => value.id === item.id);
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -55,7 +56,7 @@ const List = (props) => {
   };
 
   const selectItem = (item) => {
-    setSelectedItem(values.indexOf(item));
+    setSelectedItem(values.findIndex((value) => value.id === item.id));
   };
 
   const handleKeyDown = useCallback(
@@ -121,6 +122,17 @@ const List = (props) => {
     return null;
   };
 
+  const restructureItem = (item) => {
+    const matched = item.name || item.id;
+
+    const editedPropValue = propValue.slice(1);
+    const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
+
+    const itemNameParts = { match: editedPropValue, parts };
+
+    return { ...item, itemNameParts };
+  };
+
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
       <li
@@ -133,7 +145,7 @@ const List = (props) => {
         <SuggestionItem
           className={itemClassName}
           component={component}
-          item={item}
+          item={restructureItem(item)}
           key={getId(item)}
           onClickHandler={handleClick}
           onSelectHandler={selectItem}
