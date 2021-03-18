@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  FileUploadButton,
-  ImageDropzone,
-  // @ts-expect-error
-} from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageInput } from './hooks/messageInput';

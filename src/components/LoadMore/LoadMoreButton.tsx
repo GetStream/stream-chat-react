@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { LoadingIndicator } from 'react-file-utils';
 
 export type LoadMoreButtonProps = {

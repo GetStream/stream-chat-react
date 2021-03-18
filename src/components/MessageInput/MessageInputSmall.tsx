@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';

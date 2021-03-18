@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
 import { useChannelContext } from '../../context/ChannelContext';
@@ -24,7 +23,7 @@ export type MessageInputUploadsProps<
   removeImage?: (id: string) => void;
   uploadFile?: (id: string) => void;
   uploadImage?: (id: string) => void;
-  uploadNewFiles?: (files: FileList) => void;
+  uploadNewFiles?: (files: FileList | File[]) => void;
 };
 
 export const UploadsPreview = <
@@ -53,6 +52,9 @@ export const UploadsPreview = <
 
   const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
+  const filesToPreview = fileOrder.map((id) => fileUploads[id]);
+
   return (
     <>
       {imageOrder.length > 0 && (
@@ -64,7 +66,7 @@ export const UploadsPreview = <
           handleFiles={uploadNewFiles}
           handleRemove={removeImage}
           handleRetry={uploadImage}
-          imageUploads={imageOrder.map((id) => imageUploads[id])}
+          imageUploads={imagesToPreview}
           multiple={channelContext.multipleUploads}
         />
       )}
@@ -73,7 +75,7 @@ export const UploadsPreview = <
           handleFiles={uploadNewFiles}
           handleRemove={removeFile}
           handleRetry={uploadFile}
-          uploads={fileOrder.map((id) => fileUploads[id])}
+          uploads={filesToPreview}
         />
       )}
     </>

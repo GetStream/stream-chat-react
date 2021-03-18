@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { LoadingIndicator as DefaultLoadingIndicator } from 'react-file-utils';
 
 import { InfiniteScroll } from './InfiniteScroll';

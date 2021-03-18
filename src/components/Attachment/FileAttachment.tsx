@@ -1,6 +1,5 @@
 import React from 'react';
 import prettybytes from 'pretty-bytes';
-// @ts-expect-error
 import { FileIcon } from 'react-file-utils';
 
 import { SafeAnchor } from '../SafeAnchor';
