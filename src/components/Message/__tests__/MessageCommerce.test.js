@@ -1,3 +1,4 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -266,7 +267,7 @@ describe('<MessageCommerce />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId(reactionListTestId)).toBeNull();
+    expect(queryByTestId(reactionListTestId)).not.toBeInTheDocument();
   });
 
   it('should show the reaction list when message has no text', async () => {
@@ -296,7 +297,7 @@ describe('<MessageCommerce />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
+    expect(queryByTestId(messageCommerceActionsTestId)).not.toBeInTheDocument();
   });
 
   it('should render MML', async () => {
@@ -332,7 +333,9 @@ describe('<MessageCommerce />', () => {
       const { queryByTestId } = await renderMessageCommerce(message, {
         reactions: true,
       });
-      expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
+      expect(
+        queryByTestId(messageCommerceActionsTestId),
+      ).not.toBeInTheDocument();
     },
   );
 

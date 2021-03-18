@@ -1,3 +1,4 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -200,6 +201,7 @@ describe('<MessageLivestream />', () => {
     });
 
     await waitFor(() => {
+      // eslint-disable-next-line jest-dom/prefer-in-document
       expect(queryAllByTestId('pin-indicator')).toHaveLength(0);
     });
   });
@@ -323,7 +325,7 @@ describe('<MessageLivestream />', () => {
   ])('should not render actions if message is of %s %s', async (key, value) => {
     const message = generateAliceMessage({ [key]: value, text: undefined });
     const { queryByTestId } = await renderMessageLivestream(message);
-    expect(queryByTestId('message-livestream-actions')).toBeNull();
+    expect(queryByTestId('message-livestream-actions')).not.toBeInTheDocument();
   });
 
   it("should display message's timestamp with time only format", async () => {
@@ -353,7 +355,7 @@ describe('<MessageLivestream />', () => {
         channelConfig: { reactions: true },
       },
     );
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
   });
@@ -373,7 +375,7 @@ describe('<MessageLivestream />', () => {
       cancelable: false,
     });
     fireEvent(getByTestId(messageLivestreamWrapperTestId), mouseLeave);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
   });
 
   it('should display thread action button when channel has replies enabled', async () => {
@@ -558,7 +560,7 @@ describe('<MessageLivestream />', () => {
       { reactions: false },
     );
 
-    expect(queryByTestId('simple-reaction-list')).toBeNull();
+    expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 
   it('should display a message reply button when not on a thread and message has replies', async () => {

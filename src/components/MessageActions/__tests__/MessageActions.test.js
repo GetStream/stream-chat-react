@@ -69,6 +69,7 @@ describe('<MessageActions /> component', () => {
     const { queryByTestId } = renderMessageActions({
       getMessageActions: () => [],
     });
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(queryByTestId(messageActionsTestId)).toBeNull();
   });
 

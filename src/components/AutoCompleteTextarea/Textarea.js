@@ -658,6 +658,7 @@ class ReactTextareaAutocomplete extends React.Component {
               itemClassName={itemClassName}
               itemStyle={itemStyle}
               onSelect={this._onSelect}
+              Su
               value={value}
               values={suggestionData}
             />

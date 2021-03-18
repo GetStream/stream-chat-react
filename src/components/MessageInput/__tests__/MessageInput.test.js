@@ -473,7 +473,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should not render file upload button', () => {
         const { queryByTestId } = renderComponent();
-        expect(queryByTestId('fileinput')).toBeNull();
+        expect(queryByTestId('fileinput')).not.toBeInTheDocument();
       });
 
       it('Pasting images and files should do nothing', async () => {
@@ -498,7 +498,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const formElement = await findByPlaceholderText(inputPlaceholder);
         formElement.dispatchEvent(clipboardEvent);
         await waitFor(() => {
-          expect(queryByText(filename)).toBeNull();
+          expect(queryByText(filename)).not.toBeInTheDocument();
           expect(doFileUploadRequest).not.toHaveBeenCalled();
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });

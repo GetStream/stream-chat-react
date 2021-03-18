@@ -168,7 +168,7 @@ describe('<MessageSimple />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId('reaction-list')).toBeNull();
+    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
   });
 
   it('should render reaction list with custom component when one is given', async () => {
@@ -220,13 +220,13 @@ describe('<MessageSimple />', () => {
   it('should render no status when message not from the current user', async () => {
     const message = generateAliceMessage();
     const { queryByTestId } = await renderMessageSimple(message);
-    expect(queryByTestId(/message-status/)).toBeNull();
+    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
   });
 
   it('should not render status when message is an error message', async () => {
     const message = generateAliceMessage({ type: 'error' });
     const { queryByTestId } = await renderMessageSimple(message);
-    expect(queryByTestId(/message-status/)).toBeNull();
+    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
   });
 
   it('should render sending status when sending message', async () => {
@@ -265,7 +265,7 @@ describe('<MessageSimple />', () => {
       readBy: [alice, bob, carol],
       threadList: true,
     });
-    expect(queryByTestId(/message-status/)).toBeNull();
+    expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
   });
 
   it("should render the message user's avatar", async () => {

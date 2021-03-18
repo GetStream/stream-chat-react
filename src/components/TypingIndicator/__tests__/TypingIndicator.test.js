@@ -1,3 +1,4 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
@@ -114,6 +115,7 @@ describe('TypingIndicator', () => {
         'str-chat__typing-indicator--typing',
       ),
     ).toBe(true);
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(getAllByTestId('avatar-img')).toHaveLength(1);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
   });

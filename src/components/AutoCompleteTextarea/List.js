@@ -16,6 +16,7 @@ const List = (props) => {
     itemStyle,
     onSelect,
     style,
+    SuggestionItem = Item,
     value: propValue,
     values,
   } = props;
@@ -129,7 +130,7 @@ const List = (props) => {
         }}
       />
       {values.map((item, i) => (
-        <Item
+        <SuggestionItem
           className={itemClassName}
           component={component}
           item={item}
