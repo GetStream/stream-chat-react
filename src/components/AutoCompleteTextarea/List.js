@@ -27,7 +27,8 @@ const List = (props) => {
 
   const itemsRef = [];
 
-  const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
+  const isSelected = (item) =>
+    selectedItem === values.findIndex((value) => value.id === item.id);
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -123,13 +124,15 @@ const List = (props) => {
 
   const restructureItem = (item) => {
     const name = item.name;
+    if (!name) return { ...item, itemNameParts: null };
+
     const editedPropValue = propValue.slice(1);
     const parts = name.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
-    const itemNameParts = { parts: parts, match: editedPropValue };
+    const itemNameParts = { match: editedPropValue, parts };
 
-    return {...item, itemNameParts};
-  }
+    return { ...item, itemNameParts };
+  };
 
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>

@@ -698,7 +698,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('Should add a mentioned user if @ is typed and a user is selected', async () => {
-      const { findByPlaceholderText, findByText, submit } = renderComponent();
+      const { findByPlaceholderText, getByTestId, submit } = renderComponent();
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
       fireEvent.change(formElement, {
@@ -707,7 +707,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           value: '@',
         },
       });
-      const usernameListItem = await findByText(username);
+      const usernameListItem = await getByTestId('user-item-name');
       expect(usernameListItem).toBeInTheDocument();
 
       fireEvent.click(usernameListItem);

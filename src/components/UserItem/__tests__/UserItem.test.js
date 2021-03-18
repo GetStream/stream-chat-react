@@ -36,19 +36,24 @@ describe('UserItem', () => {
             
           </div>
         </div>
-        <div>
-          <strong />
-           
-        </div>
+        <span
+          className="str-chat__user-item--name"
+        />
       </div>
     `);
   });
 
   it('should render username if provided', () => {
     const { getByText } = render(
-      <UserItem entity={{ name: 'Frits Sissing' }} />,
+      <UserItem
+        entity={{
+          itemNameParts: { match: 'g', parts: ['Frits Sissin', 'g'] },
+          name: 'Frits Sissing',
+        }}
+      />,
     );
-    expect(getByText('Frits Sissing')).toBeInTheDocument();
+    expect(getByText('Frits Sissin')).toBeInTheDocument();
+    expect(getByText('g')).toBeInTheDocument();
   });
 
   it('should render id if no name is provided', () => {
@@ -59,7 +64,12 @@ describe('UserItem', () => {
   it('should render profile picture if provided', () => {
     const { getByTestId } = render(
       <UserItem
-        entity={{ id: '123', image: 'frits.jpg', name: 'Frits Sissing' }}
+        entity={{
+          id: '123',
+          image: 'frits.jpg',
+          itemNameParts: { match: 'f', parts: ['F', 'rits Sissing'] },
+          name: 'Frits Sissing',
+        }}
       />,
     );
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'frits.jpg');
