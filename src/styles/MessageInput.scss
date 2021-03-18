@@ -186,6 +186,11 @@
     min-width: 24px;
   }
 
+  &--highlight {
+    font-weight: bold;
+    font-size: 12px;
+  }
+
   &--part {
     font-size: 12px;
   }
@@ -203,6 +208,15 @@
 .str-chat__user-item {
   padding: 10px 15px;
   display: flex;
+
+  &--highlight {
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  &--part {
+    font-size: 12px;
+  }
 }
 
 .str-chat {

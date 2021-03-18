@@ -20,18 +20,13 @@ const List = (props) => {
     values,
   } = props;
 
-  // console.log('values IS:', values);
-
   const { t } = useContext(TranslationContext);
 
   const [selectedItem, setSelectedItem] = useState(undefined);
 
   const itemsRef = {};
 
-  const isSelected = (item) => {
-    console.log('item in isslected', item);
-    selectedItem === values.indexOf(item)
-  };
+  const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -54,18 +49,12 @@ const List = (props) => {
   };
 
   const handleClick = (e) => {
-    console.log('e in click', e);
     if (e) e.preventDefault?.();
-    console.log('selectedItem IN;', selectedItem);
-    console.log('values[selectedItem]:', values[selectedItem]);
-    console.log('values in click:', values);
     modifyText(values[selectedItem]);
-    console.log('after modifytext');
   };
 
   const selectItem = (item, keyboard = false) => {
-    console.log('item in selected IS:', item);
-    setSelectedItem(values.indexOf(item));
+    setSelectedItem(values.findIndex((value) => value.id === item.id));
     if (keyboard) dropdownScroll(itemsRef[getId(item)]);
   };
 
@@ -104,7 +93,6 @@ const List = (props) => {
   }, [handleKeyDown]);
 
   useEffect(() => {
-    console.log('in the first useeffect');
     if (values?.length) selectItem(values[0]);
   }, [values]); // eslint-disable-line
 
@@ -128,12 +116,11 @@ const List = (props) => {
   };
 
   const restructureItem = (item) => {
-    // Adds an object to the item containing the parts of the text split by the user input value
     const name = item.name;
     const editedPropValue = propValue.slice(1);
     const parts = name.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
-    const itemNameParts = { parts: parts, inputValue: editedPropValue };
+    const itemNameParts = { parts: parts, match: editedPropValue };
 
     return {...item, itemNameParts};
   }

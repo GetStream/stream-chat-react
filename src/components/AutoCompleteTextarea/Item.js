@@ -5,7 +5,6 @@ const Item = React.forwardRef((props, innerRef) => {
   const {
     className,
     component: Component,
-    highlightedText,
     item,
     onClickHandler,
     onSelectHandler,
@@ -14,8 +13,6 @@ const Item = React.forwardRef((props, innerRef) => {
   } = props;
 
   const selectItem = () => onSelectHandler(item);
-
-  console.log(highlightedText);
 
   return (
     <li className={`rta__item ${className || ''}`} style={style}>

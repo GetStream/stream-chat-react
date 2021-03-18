@@ -7,7 +7,7 @@ export type EmoticonItemProps = {
     /** Native value or actual emoticon */
     native: string;
     /** The parts of the Name for the emoticon and the user input value for use in custom styling. Default is bold for matches.*/
-    itemNameParts: { parts: string[]; inputValue: string };
+    itemNameParts: { parts: string[]; match: string };
   };
 };
 
@@ -21,7 +21,10 @@ const UnMemoizedEmoticonItem: React.FC<EmoticonItemProps> = (props) => {
       <span className='str-chat__emoji-item--entity'>{entity.native}</span>
       <span className='str-chat__emoji-item--name'>
         {items.parts.map((part, i) => 
-          <span className='str-chat__emoji-item--part'key={i} style={part.toLowerCase() === items.inputValue.toLowerCase() ? { fontWeight: 'bold' } : {} }>
+        part.toLowerCase() === items.match.toLowerCase() ?
+          <span className='str-chat__emoji-item--highlight'key={`part-${i}`}>
+            { part }
+          </span> : <span className='str-chat__emoji-item--part'key={`part-${i}`}>
             { part }
           </span>)
         }
