@@ -57,11 +57,6 @@ describe('UserItem', () => {
     expect(getByText('g')).toBeInTheDocument();
   });
 
-  it('should render id if no name is provided', () => {
-    const { getByText } = render(<UserItem entity={{ id: '123' }} />);
-    expect(getByText('123')).toBeInTheDocument();
-  });
-
   it('should render profile picture if provided', () => {
     const { getByTestId } = render(
       <UserItem

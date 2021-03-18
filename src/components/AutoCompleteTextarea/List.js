@@ -123,11 +123,10 @@ const List = (props) => {
   };
 
   const restructureItem = (item) => {
-    const name = item.name;
-    if (!name) return { ...item, itemNameParts: null };
+    const matched = item.name ? item.name : item.id;
 
     const editedPropValue = propValue.slice(1);
-    const parts = name.split(new RegExp(`(${editedPropValue})`, 'gi'));
+    const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
     const itemNameParts = { match: editedPropValue, parts };
 

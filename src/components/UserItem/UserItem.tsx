@@ -5,14 +5,14 @@ import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 export type UserItemProps = {
   /** The user */
   entity: {
+    /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
+     * Default is bold for matches, but can be overwritten in css.
+     * */
+    itemNameParts: { match: string; parts: string[] };
     /** Id of the user */
     id?: string;
     /** Image of the user */
     image?: string;
-    /** The parts of the Name for the user item input value for use in custom styling.
-     * Default is bold for matches. Will be null if no name provided for entity
-     * */
-    itemNameParts?: { match: string; parts: string[] };
     /** Name of the user */
     name?: string;
   };
@@ -36,11 +36,9 @@ const UnMemoizedUserItem: React.FC<UserItemProps> = (props) => {
   const renderName = () => {
     if (!hasEntity) return null;
 
-    if (!itemParts) return <div>{entity.id}</div>;
-
     return (
       hasEntity &&
-      itemParts?.parts.map((part, i) =>
+      itemParts.parts.map((part, i) =>
         part.toLowerCase() === itemParts.match.toLowerCase() ? (
           <span className='str-chat__emoji-item--highlight' key={`part-${i}`}>
             {part}

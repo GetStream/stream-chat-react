@@ -2,7 +2,9 @@ import React from 'react';
 
 export type EmoticonItemProps = {
   entity: {
-    /** The parts of the Name for the emoticon and the user input value for use in custom styling. Default is bold for matches.*/
+    /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
+     * Default is bold for matches, but can be overwritten in css.
+     * */
     itemNameParts: { match: string; parts: string[] };
     /** Name for emoticon */
     name: string;
