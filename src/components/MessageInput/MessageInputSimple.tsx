@@ -48,6 +48,7 @@ export const MessageInputSimple = <
     maxRows = 10,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
+    SuggestionItem,
     SuggestionList,
   } = props;
 
@@ -85,11 +86,11 @@ export const MessageInputSimple = <
             onSelectItem={messageInput.onSelectItem}
             placeholder={t('Type your message')}
             rows={1}
+            SuggestionItem={SuggestionItem}
             SuggestionList={SuggestionList}
             triggers={autocompleteTriggers}
             value={messageInput.text}
           />
-
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
               {messageInput.emojiPickerIsOpen

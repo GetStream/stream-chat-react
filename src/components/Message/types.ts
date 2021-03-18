@@ -20,6 +20,7 @@ import type { MessageActionsArray } from './utils';
 import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/MessageListInner';
+import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
@@ -29,6 +30,7 @@ import type {
 } from '../../context/ChannelContext';
 
 import type {
+  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -36,7 +38,6 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../../types/types';
 
 export type MouseEventHandler = (
@@ -50,7 +51,8 @@ export type MessageProps<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = {
   /** The message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
@@ -58,7 +60,16 @@ export type MessageProps<
    * Additional props for underlying MessageInput component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    * */
-  additionalMessageInputProps?: UnknownType; // TODO - add MessageInputProps when typed
+  additionalMessageInputProps?: MessageInputProps<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us,
+    V
+  >;
   /**
    * Function to add custom notification on message list. Type param can be 'success' or 'error'
    * */
@@ -179,7 +190,8 @@ export type MessageUIComponentProps<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
@@ -231,7 +243,9 @@ export type MessageUIComponentProps<
    * Custom UI component to override default edit message input.
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
    * */
-  EditMessageInput?: React.ComponentType<unknown>; // TODO - add React.ComponentType<MessageInputProps<generics>> when typed
+  EditMessageInput?: React.ComponentType<
+    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>
+  >;
   /**
    * The component to be rendered if the Message has been deleted.
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)

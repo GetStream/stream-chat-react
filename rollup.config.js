@@ -82,6 +82,7 @@ const externalDependencies = [
 
 const basePlugins = [
   replace({
+    preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
   // Replace our alias for a relative path so the jsdoc resolution still
@@ -89,6 +90,7 @@ const basePlugins = [
   replace({
     delimiters: ['', ''],
     "import('types')": "import('../types')",
+    preventAssignment: true,
   }),
   // Remove peer-dependencies from final bundle
   external(),
@@ -187,9 +189,9 @@ export default () =>
   process.env.ROLLUP_WATCH
     ? [styleBundle(), normalBundle]
     : [
-      styleBundle(),
-      styleBundle({ min: true }),
-      normalBundle,
-      fullBrowserBundle({ min: true }),
-      fullBrowserBundle(),
-    ];
+        styleBundle(),
+        styleBundle({ min: true }),
+        normalBundle,
+        fullBrowserBundle({ min: true }),
+        fullBrowserBundle(),
+      ];

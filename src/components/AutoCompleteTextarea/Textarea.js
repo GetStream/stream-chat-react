@@ -451,6 +451,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'SuggestionItem',
       'SuggestionList',
       'trigger',
       'value',
@@ -619,22 +620,17 @@ class ReactTextareaAutocomplete extends React.Component {
     scrollToItem(this.dropdownRef, item);
   };
 
-  render() {
+  renderSuggestionListContainer() {
     const {
-      className,
-      containerClassName,
-      containerStyle,
       disableMentions,
       dropdownClassName,
       dropdownStyle,
       itemClassName,
       itemStyle,
       listClassName,
-      style,
+      SuggestionItem,
       SuggestionList = DefaultSuggestionList,
     } = this.props;
-
-    let { maxRows } = this.props;
 
     const { component, currentTrigger, dataLoading, value } = this.state;
 
@@ -642,39 +638,46 @@ class ReactTextareaAutocomplete extends React.Component {
     const suggestionData = this._getSuggestions();
     const textToReplace = this._getTextToReplace();
 
-    const SuggestionListContainer = () => {
-      if (
-        (dataLoading || suggestionData) &&
-        currentTrigger &&
-        !(disableMentions && currentTrigger === '@')
-      ) {
-        return (
-          <div
-            className={`rta__autocomplete ${dropdownClassName || ''}`}
-            ref={(ref) => {
-              this.dropdownRef = ref;
-            }}
-            style={dropdownStyle}
-          >
-            {component && suggestionData && textToReplace && (
-              <SuggestionList
-                className={listClassName}
-                component={component}
-                dropdownScroll={this._dropdownScroll}
-                getSelectedItem={selectedItem}
-                getTextToReplace={textToReplace}
-                itemClassName={itemClassName}
-                itemStyle={itemStyle}
-                onSelect={this._onSelect}
-                value={value}
-                values={suggestionData}
-              />
-            )}
-          </div>
-        );
-      }
-      return null;
-    };
+    if (
+      (dataLoading || suggestionData) &&
+      currentTrigger &&
+      !(disableMentions && currentTrigger === '@')
+    ) {
+      return (
+        <div
+          className={`rta__autocomplete ${dropdownClassName || ''}`}
+          ref={(ref) => {
+            this.dropdownRef = ref;
+          }}
+          style={dropdownStyle}
+        >
+          {component && suggestionData && textToReplace && (
+            <SuggestionList
+              className={listClassName}
+              component={component}
+              dropdownScroll={this._dropdownScroll}
+              getSelectedItem={selectedItem}
+              getTextToReplace={textToReplace}
+              itemClassName={itemClassName}
+              itemStyle={itemStyle}
+              onSelect={this._onSelect}
+              SuggestionItem={SuggestionItem}
+              value={value}
+              values={suggestionData}
+            />
+          )}
+        </div>
+      );
+    }
+    return null;
+  }
+
+  render() {
+    const { className, containerClassName, containerStyle, style } = this.props;
+
+    let { maxRows } = this.props;
+
+    const { dataLoading, value } = this.state;
 
     if (!this.props.grow) maxRows = 1;
 
@@ -685,7 +688,7 @@ class ReactTextareaAutocomplete extends React.Component {
         }`}
         style={containerStyle}
       >
-        <SuggestionListContainer />
+        {this.renderSuggestionListContainer()}
         <Textarea
           {...this._cleanUpProps()}
           className={`rta__textarea ${className || ''}`}

@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  FileUploadButton,
-  ImageDropzone,
-  // @ts-expect-error
-} from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageInput } from './hooks/messageInput';
@@ -59,6 +55,7 @@ export const MessageInputLarge = <
     maxRows = 10,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
+    SuggestionItem,
     SuggestionList,
   } = props;
 
@@ -120,7 +117,7 @@ export const MessageInputLarge = <
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
             )}
-            <ChatAutoComplete<At, Ch, Co, Ev, Me, Re, Us, V>
+            <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               commands={messageInput.getCommands()}
               disabled={disabled}
@@ -134,6 +131,7 @@ export const MessageInputLarge = <
               onSelectItem={messageInput.onSelectItem}
               placeholder={t('Type your message')}
               rows={1}
+              SuggestionItem={SuggestionItem}
               SuggestionList={SuggestionList}
               triggers={autocompleteTriggers}
               value={messageInput.text}
@@ -160,7 +158,6 @@ export const MessageInputLarge = <
                 </FileUploadButton>
               </div>
             )}
-
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
                 {messageInput.emojiPickerIsOpen
@@ -182,7 +179,7 @@ export const MessageInputLarge = <
                 <EmojiIcon />
               </span>
             </div>
-            <EmojiPicker<At, Ch, Co, Ev, Me, Re, Us> {...messageInput} />
+            <EmojiPicker {...messageInput} />
           </div>
           <SendButton sendMessage={messageInput.handleSubmit} />
         </div>

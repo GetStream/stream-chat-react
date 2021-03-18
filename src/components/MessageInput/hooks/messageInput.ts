@@ -9,7 +9,7 @@ import React, {
 import {
   dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
-  // @ts-expect-error
+  FileLike,
 } from 'react-file-utils';
 import {
   Attachment,
@@ -99,7 +99,7 @@ type ClearAction = {
 type SetImageUploadAction = {
   id: string;
   type: 'setImageUpload';
-  file?: File;
+  file?: File | FileLike;
   previewUri?: string;
   state?: string;
   url?: string;
@@ -153,6 +153,7 @@ export type MessageInputHookProps<
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
@@ -164,7 +165,7 @@ export type MessageInputHookProps<
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
-  uploadNewFiles(files: FileList): void;
+  uploadNewFiles(files: FileList | File[]): void;
 };
 
 /**
@@ -892,7 +893,7 @@ export const useMessageInput = <
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
 
   const uploadNewFiles = useCallback(
-    (files: FileList) => {
+    (files: FileList | File[] | FileLike[]) => {
       Array.from(files)
         .slice(0, maxFilesLeft)
         .forEach((file) => {
@@ -915,7 +916,7 @@ export const useMessageInput = <
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;
-        if (!dataTransferItemsHaveFiles(items)) return;
+        if (!dataTransferItemsHaveFiles(Array.from(items))) return;
 
         event.preventDefault();
         // Get a promise for the plain text in case no files are
@@ -934,7 +935,7 @@ export const useMessageInput = <
           }
         }
 
-        const fileLikes = await dataTransferItemsToFiles(items);
+        const fileLikes = await dataTransferItemsToFiles(Array.from(items));
         if (fileLikes.length) {
           uploadNewFiles(fileLikes);
           return;
@@ -965,6 +966,7 @@ export const useMessageInput = <
     handleChange,
     handleEmojiKeyDown,
     handleSubmit,
+    insertText,
     isUploadEnabled,
     maxFilesLeft,
     onPaste,

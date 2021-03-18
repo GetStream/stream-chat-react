@@ -175,6 +175,7 @@ describe('ChatAutoComplete', () => {
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
 
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(userText).toHaveLength(0);
   });
 

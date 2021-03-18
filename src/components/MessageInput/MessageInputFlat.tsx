@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
@@ -54,6 +53,7 @@ export const MessageInputFlat = <
     maxRows = 10,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
+    SuggestionItem,
     SuggestionList,
   } = props;
 
@@ -90,7 +90,6 @@ export const MessageInputFlat = <
             {messageInput.isUploadEnabled && (
               <UploadsPreview {...messageInput} />
             )}
-
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
                 {messageInput.emojiPickerIsOpen
@@ -112,7 +111,6 @@ export const MessageInputFlat = <
               </span>
             </div>
             <EmojiPicker {...messageInput} />
-
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               commands={messageInput.getCommands()}
@@ -127,11 +125,11 @@ export const MessageInputFlat = <
               onSelectItem={messageInput.onSelectItem}
               placeholder={t('Type your message')}
               rows={1}
+              SuggestionItem={SuggestionItem}
               SuggestionList={SuggestionList}
               triggers={autocompleteTriggers}
               value={messageInput.text}
             />
-
             {messageInput.isUploadEnabled && (
               <div
                 className='str-chat__fileupload-wrapper'

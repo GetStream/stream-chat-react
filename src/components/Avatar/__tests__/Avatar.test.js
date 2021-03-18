@@ -119,7 +119,7 @@ describe('Avatar', () => {
       <Avatar name='frank N. Stein' />,
     );
     expect(getByTestId('avatar-fallback')).toHaveTextContent('f');
-    expect(queryByTestId('avatar-img')).toBeNull();
+    expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
   });
 
   it('should call onClick prop on user click', () => {
@@ -158,7 +158,7 @@ describe('Avatar', () => {
     const img = getByTestId('avatar-img');
 
     expect(img).toBeInTheDocument();
-    expect(queryByTestId('avatar-fallback')).toBeNull();
+    expect(queryByTestId('avatar-fallback')).not.toBeInTheDocument();
     fireEvent.error(img);
     expect(img).not.toBeInTheDocument();
     expect(getByTestId('avatar-fallback')).toBeInTheDocument();
@@ -170,7 +170,7 @@ describe('Avatar', () => {
     );
 
     fireEvent.error(getByTestId('avatar-img'));
-    expect(queryByTestId('avatar-img')).toBeNull();
+    expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
 
     rerender(<Avatar image='anotherImage' />);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'anotherImage');

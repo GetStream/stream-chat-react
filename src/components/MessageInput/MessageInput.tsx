@@ -8,6 +8,7 @@ import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
 
 import type {
+  SuggestionItemProps,
   SuggestionListProps,
   TriggerSettings,
 } from '../ChatAutoComplete/ChatAutoComplete';
@@ -37,16 +38,17 @@ export type MessageInputProps<
 > = {
   /**
    * Any additional attributes that you may want to add for underlying HTML textarea element.
-   * e.g.
+   * ```
    * <MessageInput
    *  additionalTextareaProps={{
    *    maxLength: 10,
    *  }}
    * />
+   * ```
    */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /**
-   * Override the default triggers of the ChatAutoComplete component
+   * Override the default triggers of the [ChatAutoComplete](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatAutoComplete/Avatar.tsx) component
    */
   autocompleteTriggers?: TriggerSettings<Co, Us, V>;
   /** Callback to clear editing state in parent component */
@@ -67,11 +69,10 @@ export type MessageInputProps<
   ) => Promise<SendFileAPIResponse>;
   /**
    * Custom UI component for emoji button in input.
-   *
-   * Defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.js)
+   * Defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
    */
   EmojiIcon?: React.ComponentType;
-  /** Custom error handler, called when file/image uploads fail. */
+  /** Custom error handler, called when file/image uploads fail */
   errorHandler?: (
     error: Error,
     type: string,
@@ -107,11 +108,18 @@ export type MessageInputProps<
   publishTypingEvent?: boolean;
   /**
    * Custom UI component for send button.
-   *
-   * Defaults to and accepts same props as: [SendButton](https://getstream.github.io/stream-chat-react/#sendbutton)
+   * Defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
    */
   SendButton?: React.ComponentType<SendButtonProps>;
-  /** Override default suggestion list component */
+  /**
+   * Optional UI component prop to override the default suggestion Item component.
+   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
+   */
+  SuggestionItem?: React.ForwardRefExoticComponent<SuggestionItemProps<Co, Us>>;
+  /**
+   * Optional UI component prop to override the default List component that displays suggestions.
+   * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
+   */
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
 };
 
@@ -151,6 +159,13 @@ const UnMemoizedMessageInput = <
   );
 };
 
+/**
+ * MessageInput - a high level component that has provides all functionality to the Input it renders.
+ *
+ * It exposes the [useMessageInput](https://getstream.github.io/stream-chat-react/#section-usemessageinput) hook, which accepts the MessageInput props and returns
+ * all functions needed to customize and build your custom Input components.
+ * @example ./MessageInput.md
+ */
 export const MessageInput = React.memo(
   UnMemoizedMessageInput,
 ) as typeof UnMemoizedMessageInput;
