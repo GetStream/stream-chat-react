@@ -22,7 +22,7 @@ const userToken = process.env.REACT_APP_USER_TOKEN;
 const theme = 'light';
 
 const filters = { type: 'messaging' };
-const options = { state: true, watch: true, presence: true, limit: 10 };
+const options = { state: true, presence: true, limit: 10 };
 const sort = {
   cid: 1,
   last_message_at: -1,

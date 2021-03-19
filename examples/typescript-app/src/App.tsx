@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
-import { StreamChat } from 'stream-chat';
+import { ChannelSort, StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
-  ChannelSort,
   MessageList,
   MessageInput,
   MessageInputFlat,
   MessageSimple,
   ChannelHeader,
   ChannelPreviewMessenger,
-  InfiniteScrollPaginator,
   ChannelListMessenger,
   ChannelList,
   Window,
@@ -57,9 +55,6 @@ class App extends Component {
           filters={filters}
           sort={sort}
           options={options}
-          Paginator={(props) => (
-            <InfiniteScrollPaginator threshold={300} {...props} />
-          )}
         />
         <Channel>
           <Window>

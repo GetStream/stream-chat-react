@@ -19,7 +19,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type Theme =
+export type Theme<T extends string = string> =
   | 'commerce dark'
   | 'commerce light'
   | 'livestream dark'
@@ -27,7 +27,8 @@ export type Theme =
   | 'messaging dark'
   | 'messaging light'
   | 'team dark'
-  | 'team light';
+  | 'team light'
+  | T;
 
 export type ChatProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
