@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
@@ -11,13 +11,15 @@ import {
 import { UserItem, UserItemProps } from '../UserItem/UserItem';
 
 import { useChannelContext } from '../../context/ChannelContext';
+import { useChatContext } from '../../context/ChatContext';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type {
-  Channel,
-  ChannelMemberAPIResponse,
   CommandResponse,
+  UserFilters,
+  UserOptions,
   UserResponse,
+  UserSort,
 } from 'stream-chat';
 
 import type {
@@ -143,6 +145,14 @@ export type TriggerSettings<
   '@': UserTriggerSetting<Us>;
 };
 
+export type MentionQueryParams<
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  filters?: UserFilters<Us>;
+  options?: UserOptions;
+  sort?: UserSort<Us>;
+};
+
 export type ChatAutoCompleteProps<
   Co extends DefaultCommandType = DefaultCommandType,
   Us extends DefaultUserType<Us> = DefaultUserType,
@@ -165,6 +175,10 @@ export type ChatAutoCompleteProps<
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Maximum number of rows */
   maxRows?: number;
+  /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
+  mentionAllAppUsers?: boolean;
+  /** Object containing filters/sort/options overrides for mentions user query */
+  mentionQueryParams?: MentionQueryParams<Us>;
   /** Minimum number of characters */
   minChar?: number;
   /** Function that runs on change */
@@ -216,6 +230,8 @@ const UnMemoizedChatAutoComplete = <
     handleSubmit,
     innerRef,
     maxRows,
+    mentionAllAppUsers = false,
+    mentionQueryParams = {},
     onChange,
     onFocus,
     onPaste,
@@ -237,11 +253,14 @@ const UnMemoizedChatAutoComplete = <
     Re,
     Us
   >();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     const getWatchers = async () => {
       await channel?.watch({
-        watchers: { limit: 20, offset: 0 },
+        watchers: { limit: 100, offset: 0 },
       });
     };
 
@@ -276,33 +295,81 @@ const UnMemoizedChatAutoComplete = <
       : [];
     const watcherUsers = watchers ? Object.values(watchers) : [];
     const users = [...memberUsers, ...watcherUsers];
+
     // make sure we don't list users twice
     const uniqueUsers = {} as Record<string, UserResponse<Us>>;
+
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {
         uniqueUsers[user.id] = user;
       }
     });
+
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
   const queryMembersDebounced = useCallback(
     debounce(
-      async (
-        query: string,
-        onReady: (users: (UserResponse<Us> | undefined)[]) => void,
-      ) => {
-        if (!channel?.queryMembers) return;
-        const response = (await ((channel as unknown) as Channel).queryMembers({
-          name: { $autocomplete: query },
-        })) as ChannelMemberAPIResponse<Us>;
-        const users = response.members.map((member) => member.user);
-        if (onReady) onReady(users);
+      async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
+        try {
+          // @ts-expect-error
+          const response = await channel.queryMembers({
+            name: { $autocomplete: query },
+          });
+
+          const users = response.members.map(
+            (member) => member.user,
+          ) as UserResponse<Us>[];
+
+          if (onReady && users.length) {
+            onReady(users);
+          } else {
+            onReady([]);
+          }
+        } catch (error) {
+          console.log({ error });
+        }
       },
       200,
     ),
-    [channel?.queryMembers],
+    [channel],
   );
+
+  const queryUsers = async (
+    query: string,
+    onReady: (users: UserResponse<Us>[]) => void,
+  ) => {
+    if (searching) return;
+    setSearching(true);
+
+    try {
+      const { users } = await client.queryUsers(
+        // @ts-expect-error
+        {
+          $or: [
+            { id: { $autocomplete: query } },
+            { name: { $autocomplete: query } },
+          ],
+          id: { $ne: client.userID },
+          ...mentionQueryParams.filters,
+        },
+        { id: 1, ...mentionQueryParams.sort },
+        { limit: 10, ...mentionQueryParams.options },
+      );
+
+      if (onReady && users.length) {
+        onReady(users);
+      } else {
+        onReady([]);
+      }
+    } catch (error) {
+      console.log({ error });
+    }
+
+    setSearching(false);
+  };
+
+  const queryUsersDebounced = debounce(queryUsers, 200);
 
   /**
    * dataProvider accepts `onReady` function, which will executed once the data is ready.
@@ -384,29 +451,45 @@ const UnMemoizedChatAutoComplete = <
           callback: (item) => onSelectItem && onSelectItem(item),
           component: UserItem,
           dataProvider: (query, _, onReady) => {
-            // By default, we return maximum 100 members via queryChannels api call.
-            // Thus it is safe to assume, that if number of members in channel.state is < 100,
-            // then all the members are already available on client side and we don't need to
-            // make any api call to queryMembers endpoint.
+            if (mentionAllAppUsers) {
+              return queryUsersDebounced(
+                query,
+                (data: (UserResponse<Us> | undefined)[]) => {
+                  if (onReady) onReady(data, query);
+                },
+              );
+            }
+
+            /**
+             * By default, we return maximum 100 members via queryChannels api call.
+             * Thus it is safe to assume, that if number of members in channel.state is < 100,
+             * then all the members are already available on client side and we don't need to
+             * make any api call to queryMembers endpoint.
+             */
             if (!query || Object.values(members || {}).length < 100) {
               const users = getMembersAndWatchers();
 
               const matchingUsers = users.filter((user) => {
+                if (user.id === client.userID) return false;
                 if (!query) return true;
+
                 if (
                   user.name !== undefined &&
                   user.name.toLowerCase().includes(query.toLowerCase())
                 ) {
                   return true;
                 }
+
                 return user.id.toLowerCase().includes(query.toLowerCase());
               });
+
               const data = matchingUsers.slice(0, 10);
 
               if (onReady) onReady(data, query);
 
               return data;
             }
+
             return queryMembersDebounced(
               query,
               (data: (UserResponse<Us> | undefined)[]) => {

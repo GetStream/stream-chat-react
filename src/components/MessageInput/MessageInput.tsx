@@ -8,6 +8,7 @@ import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
 
 import type {
+  MentionQueryParams,
   SuggestionItemProps,
   SuggestionListProps,
   TriggerSettings,
@@ -55,7 +56,7 @@ export type MessageInputProps<
   clearEditingState?: () => void;
   /** Disable input */
   disabled?: boolean;
-  /** enable/disable firing the typing event */
+  /** If true, the suggestion list will not display and autocomplete mentions. Default: false. */
   disableMentions?: boolean;
   /** Override file upload request */
   doFileUploadRequest?: (
@@ -88,6 +89,10 @@ export type MessageInputProps<
   Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
+  /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
+  mentionAllAppUsers?: boolean;
+  /** Object containing filters/sort/options overrides for mentions user query */
+  mentionQueryParams?: MentionQueryParams<Us>;
   /** Message object. If defined, the message passed will be edited, instead of a new message being created */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, file uploads are disabled. Default: false */
@@ -104,7 +109,7 @@ export type MessageInputProps<
   ) => void;
   /** The parent message object when replying on a thread */
   parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** enable/disable firing the typing event */
+  /** Enable/disable firing the typing event */
   publishTypingEvent?: boolean;
   /**
    * Custom UI component for send button.
@@ -144,17 +149,16 @@ const UnMemoizedMessageInput = <
     maxRows = 10,
     publishTypingEvent = true,
   } = props;
+
   return (
     <Input
       {...props}
-      {...{
-        additionalTextareaProps,
-        disabled,
-        focus,
-        grow,
-        maxRows,
-        publishTypingEvent,
-      }}
+      additionalTextareaProps={additionalTextareaProps}
+      disabled={disabled}
+      focus={focus}
+      grow={grow}
+      maxRows={maxRows}
+      publishTypingEvent={publishTypingEvent}
     />
   );
 };
