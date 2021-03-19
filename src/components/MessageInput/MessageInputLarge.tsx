@@ -53,6 +53,8 @@ export const MessageInputLarge = <
     focus = false,
     grow = true,
     maxRows = 10,
+    mentionAllAppUsers,
+    mentionQueryParams,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
     SuggestionItem,
@@ -126,6 +128,8 @@ export const MessageInputLarge = <
               handleSubmit={messageInput.handleSubmit}
               innerRef={messageInput.textareaRef}
               maxRows={maxRows}
+              mentionAllAppUsers={mentionAllAppUsers}
+              mentionQueryParams={mentionQueryParams}
               onChange={messageInput.handleChange}
               onPaste={messageInput.onPaste}
               onSelectItem={messageInput.onSelectItem}
