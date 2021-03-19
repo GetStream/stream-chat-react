@@ -50,6 +50,8 @@ export const EditMessageForm = <
     focus = false,
     grow = true,
     maxRows = 10,
+    mentionAllAppUsers,
+    mentionQueryParams,
     publishTypingEvent = true,
   } = props;
 
@@ -97,6 +99,8 @@ export const EditMessageForm = <
             handleSubmit={messageInput.handleSubmit}
             innerRef={messageInput.textareaRef}
             maxRows={maxRows}
+            mentionAllAppUsers={mentionAllAppUsers}
+            mentionQueryParams={mentionQueryParams}
             onChange={messageInput.handleChange}
             onPaste={messageInput.onPaste}
             onSelectItem={messageInput.onSelectItem}
