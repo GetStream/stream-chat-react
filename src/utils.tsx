@@ -107,10 +107,29 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-const mentionsMarkdownPlugin = (mentionedUsersRegex: RegExp) => () => {
-  function replace(match: RegExpMatchArray | null) {
+type MentionedUser<
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = UserResponse<Us>;
+
+const mentionsMarkdownPlugin = (mentioned_users: MentionedUser[]) => () => {
+  const mentioned_usernames = mentioned_users
+    .map((user) => user.name || user.id)
+    .filter(Boolean)
+    .map(escapeRegExp);
+
+  const mentionedUsersRegex = new RegExp(
+    mentioned_usernames.map((username) => `@${username}`).join('|'),
+    'g',
+  );
+
+  function replace(match: string) {
+    const usernameOrId = match.replace('@', '');
+    const user = mentioned_users.find(
+      ({ id, name }) => name === usernameOrId || id === usernameOrId,
+    );
     return {
       children: [{ type: 'text', value: match }],
+      mentioned_user: user,
       type: 'mention',
     };
   }
@@ -123,14 +142,16 @@ const mentionsMarkdownPlugin = (mentionedUsersRegex: RegExp) => () => {
   return transform;
 };
 
-const Mention: React.FC = ({ children }) => (
+type MentionProps = { mentioned_user: MentionedUser };
+
+const Mention: React.FC<MentionProps> = ({ children }) => (
   <span className='str-chat__message-mention'>{children}</span>
 );
 
-export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
+export const renderText = (
   text?: string,
-  mentioned_users?: UserResponse<Us>[],
-  MentionComponent: React.ComponentType = Mention,
+  mentioned_users?: MentionedUser[],
+  MentionComponent: React.ComponentType<MentionProps> = Mention,
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -169,17 +190,8 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   const plugins = [emojiMarkdownPlugin];
 
-  const mentioned_usernames = mentioned_users
-    ?.map((user) => user.name || user.id)
-    .filter(Boolean)
-    .map(escapeRegExp);
-
-  if (mentioned_usernames?.length) {
-    const mentionedUsersRegex = new RegExp(
-      mentioned_usernames.map((username) => `@${username}`).join('|'),
-      'g',
-    );
-    plugins.push(mentionsMarkdownPlugin(mentionedUsersRegex));
+  if (mentioned_users?.length) {
+    plugins.push(mentionsMarkdownPlugin(mentioned_users));
   }
 
   const renderers = {
