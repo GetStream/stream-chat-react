@@ -263,12 +263,26 @@ export const areMessageUIPropsEqual = <
     showDetailedReactions?: boolean;
   },
 ) => {
-  const { message: prevMessage } = prevProps;
-  const { message: nextMessage } = nextProps;
+  const {
+    lastReceivedId: prevLastReceivedId,
+    message: prevMessage,
+  } = prevProps;
+  const {
+    lastReceivedId: nextLastReceivedId,
+    message: nextMessage,
+  } = nextProps;
 
   if (nextProps.editing !== prevProps.editing) return false;
 
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
+    return false;
+  }
+
+  if (
+    (prevMessage.id === prevLastReceivedId ||
+      prevMessage.id === nextLastReceivedId) &&
+    prevLastReceivedId !== nextLastReceivedId
+  ) {
     return false;
   }
 
