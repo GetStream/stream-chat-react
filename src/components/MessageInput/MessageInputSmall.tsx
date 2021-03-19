@@ -4,7 +4,7 @@ import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageInput } from './hooks/messageInput';
 import {
-  EmojiIconLarge as DefaultEmojiIcon,
+  EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
 } from './icons';
