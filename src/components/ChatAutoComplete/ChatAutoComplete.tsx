@@ -244,7 +244,7 @@ const UnMemoizedChatAutoComplete = <
     value,
   } = props;
 
-  const { channel, emojiConfig } = useChannelContext<
+  const { channel, emojiConfig, thread } = useChannelContext<
     At,
     Ch,
     Co,
@@ -264,8 +264,10 @@ const UnMemoizedChatAutoComplete = <
       });
     };
 
-    getWatchers();
-  }, [channel]);
+    if (!thread) {
+      getWatchers();
+    }
+  }, []);
 
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
