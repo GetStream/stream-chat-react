@@ -107,9 +107,30 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
+const mentionsMarkdownPlugin = (mentionedUsersRegex: RegExp) => () => {
+  function replace(match: RegExpMatchArray | null) {
+    return {
+      children: [{ type: 'text', value: match }],
+      type: 'mention',
+    };
+  }
+
+  const transform = <T extends unknown>(markdownAST: T) => {
+    findAndReplace(markdownAST, mentionedUsersRegex, replace);
+    return markdownAST;
+  };
+
+  return transform;
+};
+
+const Mention: React.FC = ({ children }) => (
+  <span className='str-chat__message-mention'>{children}</span>
+);
+
 export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   text?: string,
   mentioned_users?: UserResponse<Us>[],
+  MentionComponent: React.ComponentType = Mention,
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -146,27 +167,32 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
-  if (mentioned_users && mentioned_users.length) {
-    for (let i = 0; i < mentioned_users.length; i++) {
-      let username = mentioned_users[i].name || mentioned_users[i].id;
+  const plugins = [emojiMarkdownPlugin];
 
-      if (username) {
-        username = escapeRegExp(username);
-      }
+  const mentioned_usernames = mentioned_users
+    ?.map((user) => user.name || user.id)
+    .filter(Boolean)
+    .map(escapeRegExp);
 
-      const nameMarkdown = `**@${username}**`;
-      const nameRegex = new RegExp(`@${username}`, 'g');
-
-      newText = newText.replace(nameRegex, nameMarkdown);
-    }
+  if (mentioned_usernames?.length) {
+    const mentionedUsersRegex = new RegExp(
+      mentioned_usernames.map((username) => `@${username}`).join('|'),
+      'g',
+    );
+    plugins.push(mentionsMarkdownPlugin(mentionedUsersRegex));
   }
+
+  const renderers = {
+    ...markDownRenderers,
+    mention: MentionComponent,
+  };
 
   return (
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       escapeHtml={true}
-      plugins={[emojiMarkdownPlugin]}
-      renderers={markDownRenderers}
+      plugins={plugins}
+      renderers={renderers}
       source={newText}
       transformLinkUri={(uri) =>
         uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
