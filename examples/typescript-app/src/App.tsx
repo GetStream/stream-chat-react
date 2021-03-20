@@ -38,6 +38,7 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 chatClient.connectUser({ id: userId }, userToken);
 
 const App = () => (
+  // @ts-expect-error TODO: find out why v3.1.3 of stream-chat inits this error
   <Chat client={chatClient} theme={`messaging ${theme}`}>
     <ChannelList
       List={ChannelListMessenger}
