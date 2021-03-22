@@ -117,11 +117,6 @@ const mentionsMarkdownPlugin = <
     .filter(Boolean)
     .map(escapeRegExp);
 
-  const mentionedUsersRegex = new RegExp(
-    mentioned_usernames.map((username) => `@${username}`).join('|'),
-    'g',
-  );
-
   function replace(match: string) {
     const usernameOrId = match.replace('@', '');
     const user = mentioned_users.find(
@@ -135,6 +130,13 @@ const mentionsMarkdownPlugin = <
   }
 
   const transform = <T extends unknown>(markdownAST: T) => {
+    if (!mentioned_usernames.length) {
+      return markdownAST;
+    }
+    const mentionedUsersRegex = new RegExp(
+      mentioned_usernames.map((username) => `@${username}`).join('|'),
+      'g',
+    );
     findAndReplace(markdownAST, mentionedUsersRegex, replace);
     return markdownAST;
   };
