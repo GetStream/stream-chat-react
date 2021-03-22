@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown/with-html';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType, UnknownType } from '../types/types';
+import type { UnknownType } from '../types/types';
 
 export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;
@@ -107,11 +107,7 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-type MentionedUser<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = UserResponse<Us>;
-
-const mentionsMarkdownPlugin = (mentioned_users: MentionedUser[]) => () => {
+const mentionsMarkdownPlugin = (mentioned_users: UserResponse[]) => () => {
   const mentioned_usernames = mentioned_users
     .map((user) => user.name || user.id)
     .filter(Boolean)
@@ -142,7 +138,7 @@ const mentionsMarkdownPlugin = (mentioned_users: MentionedUser[]) => () => {
   return transform;
 };
 
-type MentionProps = { mentioned_user: MentionedUser };
+type MentionProps = { mentioned_user: UserResponse };
 
 const Mention: React.FC<MentionProps> = ({ children }) => (
   <span className='str-chat__message-mention'>{children}</span>
@@ -150,7 +146,7 @@ const Mention: React.FC<MentionProps> = ({ children }) => (
 
 export const renderText = (
   text?: string,
-  mentioned_users?: MentionedUser[],
+  mentioned_users?: UserResponse[],
   MentionComponent: React.ComponentType<MentionProps> = Mention,
 ) => {
   // take the @ mentions and turn them into markdown?
