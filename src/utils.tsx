@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
 //@ts-expect-error
@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown/with-html';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { UnknownType } from '../types/types';
+import type { DefaultUserType, UnknownType } from '../types/types';
 
 export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;
@@ -107,7 +107,11 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-const mentionsMarkdownPlugin = (mentioned_users: UserResponse[]) => () => {
+const mentionsMarkdownPlugin = <
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  mentioned_users: UserResponse<Us>[],
+) => () => {
   const mentioned_usernames = mentioned_users
     .map((user) => user.name || user.id)
     .filter(Boolean)
@@ -138,16 +142,18 @@ const mentionsMarkdownPlugin = (mentioned_users: UserResponse[]) => () => {
   return transform;
 };
 
-type MentionProps = { mentioned_user: UserResponse };
+type MentionProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  mentioned_user: UserResponse<Us>;
+};
 
-const Mention: React.FC<MentionProps> = ({ children }) => (
-  <span className='str-chat__message-mention'>{children}</span>
-);
+const Mention = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: PropsWithChildren<Us>,
+) => <span className='str-chat__message-mention'>{props.children}</span>;
 
-export const renderText = (
+export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   text?: string,
-  mentioned_users?: UserResponse[],
-  MentionComponent: React.ComponentType<MentionProps> = Mention,
+  mentioned_users?: UserResponse<Us>[],
+  MentionComponent: React.ComponentType<MentionProps<Us>> = Mention,
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
