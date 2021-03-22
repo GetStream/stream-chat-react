@@ -1,7 +1,7 @@
 import React from 'react';
-import { fireEvent, render, cleanup } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import MessageRepliesCountButton from '../MessageRepliesCountButton';
+import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
 import { TranslationContext } from '../../../context';
 
 const onClickMock = jest.fn();
@@ -29,7 +29,7 @@ describe('MessageRepliesCountButton', () => {
 
   it('should render the right text when there is one reply, and labelSingle is defined', () => {
     const labelSingle = 'text';
-    const { getByText } = renderComponent({ reply_count: 1, labelSingle });
+    const { getByText } = renderComponent({ labelSingle, reply_count: 1 });
 
     expect(getByText(`1 ${labelSingle}`)).toBeInTheDocument();
   });
@@ -42,7 +42,7 @@ describe('MessageRepliesCountButton', () => {
 
   it('should render the right text when there is more than one reply, and labelPlural is defined', () => {
     const labelPlural = 'text';
-    const { getByText } = renderComponent({ reply_count: 2, labelPlural });
+    const { getByText } = renderComponent({ labelPlural, reply_count: 2 });
 
     expect(getByText(`2 ${labelPlural}`)).toBeInTheDocument();
   });

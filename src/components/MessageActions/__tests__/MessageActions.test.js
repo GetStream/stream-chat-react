@@ -1,28 +1,30 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
-import { act, cleanup, render, fireEvent } from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { generateMessage } from 'mock-builders';
 import { ChannelContext, TranslationContext } from '../../../context';
-import MessageActionsBoxMock from '../MessageActionsBox';
+import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
 import { MessageActions } from '../MessageActions';
 
-jest.mock('../MessageActionsBox', () => jest.fn(() => <div />));
+jest.mock('../MessageActionsBox', () => ({
+  MessageActionsBox: jest.fn(() => <div />),
+}));
 
 const wrapperMock = document.createElement('div');
 jest.spyOn(wrapperMock, 'addEventListener');
 
 const defaultProps = {
   addNotification: () => {},
-  message: generateMessage(),
-  mutes: [],
-  getMessageActions: () => ['flag', 'mute'],
-  messageListRect: { x: 0, y: 0, width: 100, height: 100 },
-  setEditingState: () => {},
-  messageWrapperRef: { current: wrapperMock },
-  getMuteUserSuccessNotification: () => 'success',
-  getMuteUserErrorNotification: () => 'error',
   getFlagMessageErrorNotification: () => 'error',
   getFlagMessageSuccessNotification: () => 'success',
+  getMessageActions: () => ['flag', 'mute'],
+  getMuteUserErrorNotification: () => 'error',
+  getMuteUserSuccessNotification: () => 'success',
+  message: generateMessage(),
+  messageListRect: { height: 100, width: 100, x: 0, y: 0 },
+  messageWrapperRef: { current: wrapperMock },
+  mutes: [],
+  setEditingState: () => {},
 };
 function renderMessageActions(customProps, renderer = render) {
   return renderer(
@@ -67,6 +69,7 @@ describe('<MessageActions /> component', () => {
     const { queryByTestId } = renderMessageActions({
       getMessageActions: () => [],
     });
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(queryByTestId(messageActionsTestId)).toBeNull();
   });
 
@@ -130,16 +133,16 @@ describe('<MessageActions /> component', () => {
     renderMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        open: false,
         getMessageActions: defaultProps.getMessageActions,
-        messageListRect: defaultProps.messageListRect,
+        handleDelete: expect.any(Function),
+        handleEdit: expect.any(Function),
         handleFlag: expect.any(Function),
         handleMute: expect.any(Function),
         handlePin: expect.any(Function),
-        handleEdit: expect.any(Function),
-        handleDelete: expect.any(Function),
         isUserMuted: expect.any(Function),
+        messageListRect: defaultProps.messageListRect,
         mine: false,
+        open: false,
       }),
       {},
     );

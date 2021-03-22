@@ -1,24 +1,22 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import renderer from 'react-test-renderer';
 import { v4 as uuidv4 } from 'uuid';
-import AttachmentActions from '../AttachmentActions';
+import { AttachmentActions } from '../AttachmentActions';
 
-const getComponent = (props) => {
-  return <AttachmentActions {...props} />;
-};
+const getComponent = (props) => <AttachmentActions {...props} />;
 const actions = [
   {
-    value: 'action 1',
     name: 'action 1 name',
     text: 'action 1 text',
+    value: 'action 1',
   },
   {
-    value: 'action 2',
     name: 'action 2 name',
     text: 'action 2 text',
+    value: 'action 2',
   },
 ];
 
@@ -27,9 +25,9 @@ describe('AttachmentActions', () => {
     const tree = renderer
       .create(
         getComponent({
+          actionHandler: jest.fn(),
           actions,
           id: uuidv4(),
-          actionHandler: jest.fn(),
         }),
       )
       .toJSON();
@@ -39,9 +37,9 @@ describe('AttachmentActions', () => {
     const actionHandler = jest.fn();
     const { getByTestId } = render(
       getComponent({
+        actionHandler,
         actions,
         id: uuidv4(),
-        actionHandler,
       }),
     );
 

@@ -1,16 +1,16 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import {
-  useFlagHandler,
   missingUseFlagHandlerParameterWarning,
+  useFlagHandler,
 } from '../useFlagHandler';
-import { ChannelContext } from '../../../../context';
+import { ChannelContext, ChatContext } from '../../../../context';
 
 const alice = generateUser({ name: 'alice' });
 const flagMessage = jest.fn();
@@ -27,15 +27,16 @@ async function renderUseHandleFlagHook(
   client.flagMessage = flagMessage;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        ...channelContextValue,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          ...channelContextValue,
+        }}
+      >
+        {children}
+      </ChannelContext.Provider>
+    </ChatContext.Provider>
   );
   const { result } = renderHook(
     () => useFlagHandler(message, notificationOpts),
@@ -68,8 +69,8 @@ describe('useHandleFlag custom hook', () => {
     const messageFlaggedNotification = 'Message flagged!';
     const getSuccessNotification = jest.fn(() => messageFlaggedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
       getSuccessNotification,
+      notify,
     });
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -96,8 +97,8 @@ describe('useHandleFlag custom hook', () => {
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getErrorNotification = jest.fn(() => messageFlagFailedNotification);
     const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
       getErrorNotification,
+      notify,
     });
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);

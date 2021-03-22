@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import CommandItem from '../CommandItem';
+import { CommandItem } from '../CommandItem';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -29,7 +29,7 @@ describe('commandItem', () => {
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = { name: 'name', args: 'args', description: 'description' };
+    const entity = { args: 'args', description: 'description', name: 'name' };
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { generateUser, generateMessage } from 'mock-builders';
+import { generateMessage, generateUser } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
 import {
   useMentionsHandler,

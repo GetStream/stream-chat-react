@@ -1,15 +1,15 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+import { ChannelContext, ChatContext } from '../../../../context';
 import {
-  useMuteHandler,
   missingUseMuteHandlerParamsWarning,
+  useMuteHandler,
 } from '../useMuteHandler';
 
 const alice = generateUser({ name: 'alice' });
@@ -30,15 +30,16 @@ async function renderUseHandleMuteHook(
   client.unmuteUser = unmuteUser;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        ...channelContextValue,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatContext.Provider value={{ client }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          ...channelContextValue,
+        }}
+      >
+        {children}
+      </ChannelContext.Provider>
+    </ChatContext.Provider>
   );
   const { result } = renderHook(
     () => useMuteHandler(message, notificationOpts),
@@ -71,8 +72,8 @@ describe('useHandleMute custom hook', () => {
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
-      notify,
       getSuccessNotification: getMuteUserSuccessNotification,
+      notify,
     });
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -97,8 +98,8 @@ describe('useHandleMute custom hook', () => {
     const userMutedFailNotification = 'User mute failed!';
     const getErrorNotification = jest.fn(() => userMutedFailNotification);
     const handleMute = await renderUseHandleMuteHook(message, {
-      notify,
       getErrorNotification,
+      notify,
     });
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -128,8 +129,8 @@ describe('useHandleMute custom hook', () => {
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
-        notify,
         getSuccessNotification,
+        notify,
       },
       { mutes: [{ target: { id: bob.id } }] },
     );
@@ -165,8 +166,8 @@ describe('useHandleMute custom hook', () => {
     const handleMute = await renderUseHandleMuteHook(
       message,
       {
-        notify,
         getErrorNotification,
+        notify,
       },
       { mutes: [{ target: { id: bob.id } }] },
     );

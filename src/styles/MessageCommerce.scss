@@ -183,16 +183,6 @@
     text-decoration: none;
   }
 
-  &-mention {
-    margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: $primary-color;
-    font-weight: $heavy-font-weight;
-  }
-
   &--inner {
     display: flex;
     flex-direction: column;

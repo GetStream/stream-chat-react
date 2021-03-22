@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateReaction, emojiMockConfig } from 'mock-builders';
+import { emojiMockConfig, generateReaction } from 'mock-builders';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import ReactionsList from '../ReactionsList';
+import { ReactionsList } from '../ReactionsList';
 import { ChannelContext } from '../../../context';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
@@ -45,8 +45,8 @@ describe('ReactionsList', () => {
   it('should render the total reaction count', () => {
     const { getByText } = renderComponent({
       reaction_counts: {
-        love: 5,
         angry: 2,
+        love: 5,
       },
     });
     const count = getByText('7');
@@ -56,8 +56,8 @@ describe('ReactionsList', () => {
 
   it('should render an emoji for each type of reaction', () => {
     const reaction_counts = {
-      love: 5,
       angry: 2,
+      love: 5,
     };
     renderComponent({ reaction_counts });
 
@@ -77,8 +77,8 @@ describe('ReactionsList', () => {
     renderComponent({
       reaction_counts,
       reactionOptions: [
-        { id: 'banana', emoji: '🍌' },
-        { id: 'cowboy', emoji: '🤠' },
+        { emoji: '🍌', id: 'banana' },
+        { emoji: '🤠', id: 'cowboy' },
       ],
     });
 

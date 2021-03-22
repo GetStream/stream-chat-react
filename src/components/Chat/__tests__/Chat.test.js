@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { cleanup, render, waitFor, act } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
+  dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
-  dispatchNotificationMutesUpdated,
 } from 'mock-builders';
 import { Chat } from '..';
 import { ChatContext, TranslationContext } from '../../../context';
@@ -15,12 +15,12 @@ import { version } from '../../../../package.json';
 
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));
-  return <div data-testid="children" />;
+  return <div data-testid='children' />;
 };
 
 const TranslationContextConsumer = ({ fn }) => {
   fn(useContext(TranslationContext));
-  return <div data-testid="children" />;
+  return <div data-testid='children' />;
 };
 
 describe('Chat', () => {
@@ -31,7 +31,7 @@ describe('Chat', () => {
   it('should render children without crashing', async () => {
     const { getByTestId } = render(
       <Chat client={chatClient}>
-        <div data-testid="children" />
+        <div data-testid='children' />
       </Chat>,
     );
 
@@ -228,7 +228,7 @@ describe('Chat', () => {
       );
       await waitFor(() => expect(context.mutes).toStrictEqual([]));
 
-      const mutes = [{ user: { id: 'user_y' }, target: { id: 'user_y' } }];
+      const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
       act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes));
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
 

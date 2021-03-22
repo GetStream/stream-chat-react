@@ -3,11 +3,11 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import LoadMorePaginator from '../LoadMorePaginator';
+import { LoadMorePaginator } from '../LoadMorePaginator';
 
 jest.mock('../LoadMoreButton', () => ({
   __esModule: true,
-  default: jest.fn(() => <div data-testid="load-more-button" />),
+  LoadMoreButton: jest.fn(() => <div data-testid='load-more-button' />),
 }));
 
 describe('LoadMorePaginator', () => {
@@ -39,7 +39,7 @@ describe('LoadMorePaginator', () => {
       .create(
         <LoadMorePaginator
           hasNextPage
-          LoadMoreButton={<div>custom load more button</div>}
+          LoadMoreButton={() => <div>custom load more button</div>}
         >
           children
         </LoadMorePaginator>,
@@ -81,8 +81,8 @@ describe('LoadMorePaginator', () => {
       .create(
         <LoadMorePaginator
           hasNextPage
-          reverse
           LoadMoreButton={() => <div>load more button</div>}
+          reverse
         >
           children
         </LoadMorePaginator>,

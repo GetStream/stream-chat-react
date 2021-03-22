@@ -1,20 +1,22 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
-import MessageLivestream from '../MessageLivestream';
+import { MessageLivestream } from '../MessageLivestream';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import { ChannelContext, TranslationContext } from '../../../context';
+import Dayjs from 'dayjs';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -28,21 +30,21 @@ jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),
 }));
 
-const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 
 async function renderMessageLivestream(
   message,
   props = {},
-  channelConfig = { replies: true, reactions: true },
+  channelConfig = { reactions: true, replies: true },
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
-  const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
+  const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
     <ChannelContext.Provider
-      value={{ client, channel, emojiConfig: emojiMockConfig }}
+      value={{ channel, client, emojiConfig: emojiMockConfig }}
     >
       <TranslationContext.Provider
         value={{
@@ -65,13 +67,13 @@ function generateAliceMessage(messageOptions) {
 }
 
 const pdfAttachment = {
-  type: 'file',
   asset_url: 'file.pdf',
+  type: 'file',
 };
 
 const imageAttachment = {
-  type: 'image',
   image_url: 'image.jpg',
+  type: 'image',
 };
 
 const messageLivestreamWrapperTestId = 'message-livestream';
@@ -103,7 +105,7 @@ describe('<MessageLivestream />', () => {
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageLivestream(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -130,25 +132,22 @@ describe('<MessageLivestream />', () => {
         </li>
       </ul>
     );
-    const { getByTestId } = await renderMessageLivestream(
-      message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
-      { reactions: true },
-    );
+    const { getByTestId } = await renderMessageLivestream(message, {
+      channelConfig: { reactions: true },
+      ReactionSelector: React.forwardRef(CustomReactionSelector),
+    });
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
 
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;
@@ -169,7 +168,7 @@ describe('<MessageLivestream />', () => {
 
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
-    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
     const { getByTestId } = await renderMessageLivestream(message, {
       Avatar: CustomAvatar,
     });
@@ -179,7 +178,7 @@ describe('<MessageLivestream />', () => {
   it('should render pin indicator when pinned is true', async () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { getByTestId } = await renderMessageLivestream(message, {
@@ -194,7 +193,7 @@ describe('<MessageLivestream />', () => {
   it('should not render pin indicator when pinned is false', async () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => (
-      <div data-testid="pin-indicator">Pin Indicator</div>
+      <div data-testid='pin-indicator'>Pin Indicator</div>
     );
 
     const { queryAllByTestId } = await renderMessageLivestream(message, {
@@ -202,13 +201,13 @@ describe('<MessageLivestream />', () => {
     });
 
     await waitFor(() => {
+      // eslint-disable-next-line jest-dom/prefer-in-document
       expect(queryAllByTestId('pin-indicator')).toHaveLength(0);
     });
   });
 
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
-    const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
@@ -216,16 +215,14 @@ describe('<MessageLivestream />', () => {
     await renderMessageLivestream(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
       EditMessageInput: CustomEditMessageInput,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
         clearEditingState,
-        message,
         Input: CustomEditMessageInput,
-        updateMessage,
+        message,
       }),
       {},
     );
@@ -233,18 +230,15 @@ describe('<MessageLivestream />', () => {
 
   it('should render message input when in edit mode', async () => {
     const message = generateAliceMessage();
-    const updateMessage = jest.fn();
     const clearEditingState = jest.fn();
     await renderMessageLivestream(message, {
       clearEditingState,
       editing: true,
-      updateMessage,
     });
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        message,
-        updateMessage,
         clearEditingState,
+        message,
       }),
       {},
     );
@@ -269,11 +263,11 @@ describe('<MessageLivestream />', () => {
       if (shouldDisplay) {
         expect(AvatarMock).toHaveBeenCalledWith(
           {
+            image: alice.image,
+            name: alice.name,
             onClick: expect.any(Function),
             onMouseOver: expect.any(Function),
             size: 40,
-            image: alice.image,
-            name: alice.name,
           },
           {},
         );
@@ -331,22 +325,16 @@ describe('<MessageLivestream />', () => {
   ])('should not render actions if message is of %s %s', async (key, value) => {
     const message = generateAliceMessage({ [key]: value, text: undefined });
     const { queryByTestId } = await renderMessageLivestream(message);
-    expect(queryByTestId('message-livestream-actions')).toBeNull();
+    expect(queryByTestId('message-livestream-actions')).not.toBeInTheDocument();
   });
 
-  it('should display the formatted message creation date', async () => {
-    const createdAt = new Date('2019-12-12T03:33:00');
-    const message = generateAliceMessage({ created_at: createdAt });
-    const format = jest.fn(() => createdAt.toDateString());
-    const mockDateTimeParser = jest.fn(() => ({
-      format,
-    }));
-    const { getByText } = await renderMessageLivestream(message, {
-      tDateTimeParser: mockDateTimeParser,
+  it("should display message's timestamp with time only format", async () => {
+    const messageDate = new Date('2019-12-12T03:33:00');
+    const message = generateAliceMessage({
+      created_at: messageDate,
     });
-    expect(mockDateTimeParser).toHaveBeenCalledWith(createdAt);
-    expect(format).toHaveBeenCalledWith('h:mmA');
-    expect(getByText(createdAt.toDateString())).toBeInTheDocument();
+    const { getByText } = await renderMessageLivestream(message);
+    expect(getByText('3:33AM')).toBeInTheDocument();
   });
 
   it('should display a reactions icon when channel has reactions enabled', async () => {
@@ -367,7 +355,7 @@ describe('<MessageLivestream />', () => {
         channelConfig: { reactions: true },
       },
     );
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
   });
@@ -387,7 +375,7 @@ describe('<MessageLivestream />', () => {
       cancelable: false,
     });
     fireEvent(getByTestId(messageLivestreamWrapperTestId), mouseLeave);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
+    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
   });
 
   it('should display thread action button when channel has replies enabled', async () => {
@@ -400,11 +388,11 @@ describe('<MessageLivestream />', () => {
 
   it('should display text in users set language', async () => {
     const message = generateAliceMessage({
-      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      i18n: { en_text: 'hello', fr_text: 'bonjour', language: 'fr' },
       text: 'bonjour',
     });
 
-    const { getByText, debug } = await renderMessageLivestream(message);
+    const { debug, getByText } = await renderMessageLivestream(message);
     debug();
 
     expect(getByText('hello')).toBeInTheDocument();
@@ -414,8 +402,8 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage();
     const handleOpenThread = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
-      handleOpenThread,
       channelConfig: { replies: true },
+      handleOpenThread,
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageLivestreamthreadTestId));
@@ -438,11 +426,11 @@ describe('<MessageLivestream />', () => {
     await renderMessageLivestream(message);
     expect(AvatarMock).toHaveBeenCalledWith(
       {
+        image: alice.image,
+        name: alice.name,
         onClick: expect.any(Function),
         onMouseOver: expect.any(Function),
         size: 30,
-        image: alice.image,
-        name: alice.name,
       },
       {},
     );
@@ -510,7 +498,7 @@ describe('<MessageLivestream />', () => {
 
   it('should display message error when message is of error type', async () => {
     const errorMessage = 'Unable to send it!';
-    const message = generateAliceMessage({ type: 'error', text: errorMessage });
+    const message = generateAliceMessage({ text: errorMessage, type: 'error' });
     const { getByTestId } = await renderMessageLivestream(message);
     expect(getByTestId(messageLivestreamErrorTestId)).toContainHTML(
       errorMessage,
@@ -519,7 +507,7 @@ describe('<MessageLivestream />', () => {
 
   it('should display command message error when command message is of error type', async () => {
     const command = 'giphy';
-    const message = generateAliceMessage({ type: 'error', command });
+    const message = generateAliceMessage({ command, type: 'error' });
     const { getByTestId } = await renderMessageLivestream(message);
     expect(getByTestId(messageLivestreamCommandErrorTestId)).toContainHTML(
       `<strong>/${command}</strong> is not a valid command`,
@@ -572,7 +560,7 @@ describe('<MessageLivestream />', () => {
       { reactions: false },
     );
 
-    expect(queryByTestId('simple-reaction-list')).toBeNull();
+    expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 
   it('should display a message reply button when not on a thread and message has replies', async () => {
@@ -587,8 +575,8 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ reply_count: 1 });
     const handleOpenThread = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
-      initialMessage: false,
       handleOpenThread,
+      initialMessage: false,
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));

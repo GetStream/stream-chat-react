@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import EmoticonItem from '../EmoticonItem';
+import { EmoticonItem } from '../EmoticonItem';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -25,12 +25,15 @@ describe('EmoticonItem', () => {
   });
 
   it('should render component with custom entity prop', async () => {
-    const entity = { name: 'name', native: 'native' };
+    const entity = {
+      itemNameParts: { match: 'n', parts: ['n', 'ame'] },
+      name: 'name',
+      native: 'native',
+    };
     const Component = <EmoticonItem entity={entity} />;
 
     const { getByText } = render(Component);
     await waitFor(() => {
-      expect(getByText(entity.name)).toBeInTheDocument();
       expect(getByText(entity.native)).toBeInTheDocument();
     });
 
@@ -47,7 +50,16 @@ describe('EmoticonItem', () => {
         <span
           className="str-chat__emoji-item--name"
         >
-          name
+          <span
+            className="str-chat__emoji-item--highlight"
+          >
+            n
+          </span>
+          <span
+            className="str-chat__emoji-item--part"
+          >
+            ame
+          </span>
         </span>
       </div>
     `);

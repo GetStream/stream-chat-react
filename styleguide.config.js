@@ -9,28 +9,40 @@ module.exports = {
   resolver: require('react-docgen').resolver.findAllComponentDefinitions,
   webpackConfig: require('./styleguidist/webpack.config.styleguidist.js'),
   serverPort: 6068,
+  compilerConfig: {
+    transforms: {
+      dangerousTaggedTemplateString: true,
+      moduleImport: false,
+    },
+    objectAssign: 'Object.assign',
+  },
+  propsParser: require('react-docgen-typescript').withCustomConfig(
+    './tsconfig.json',
+    {
+      propFilter: { skipPropsWithoutDoc: true },
+    },
+  ).parse,
   styleguideComponents: {
     PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
   },
-
   /* getExampleFilename(componentPath) {
-		componentPath = componentPath
-			.replace('src/components/', 'src/components/docs/')
-			.replace('.js', '.md');
-		console.log('componentPath', componentPath);
-		return componentPath;
-	}, */
+    componentPath = componentPath
+      .replace('src/components/', 'src/components/docs/')
+      .replace('.js', '.md');
+    console.log('componentPath', componentPath);
+    return componentPath;
+  }, */
   sections: [
     {
       name: 'Top Level Components',
       components: [
-        'src/components/Chat/Chat.js',
-        'src/components/Channel/Channel.js',
-        'src/components/ChannelList/ChannelList.js',
-        'src/components/MessageList/MessageList.js',
-        'src/components/MessageList/VirtualizedMessageList.js',
-        'src/components/ChannelHeader/ChannelHeader.js',
-        'src/components/Thread/Thread.js',
+        'src/components/Chat/Chat.tsx',
+        'src/components/Channel/Channel.tsx',
+        'src/components/ChannelList/ChannelList.tsx',
+        'src/components/MessageList/MessageList.tsx',
+        'src/components/MessageList/VirtualizedMessageList.tsx',
+        'src/components/ChannelHeader/ChannelHeader.tsx',
+        'src/components/Thread/Thread.tsx',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
@@ -42,14 +54,14 @@ module.exports = {
         {
           name: 'Components',
           components: [
-            'src/components/Message/Message.js',
-            'src/components/Message/MessageSimple.js',
-            'src/components/Message/MessageTeam.js',
-            'src/components/Message/MessageLivestream.js',
-            'src/components/Attachment/Attachment.js',
-            'src/components/Attachment/AttachmentActions.js',
-            'src/components/Reactions/ReactionSelector.js',
-            'src/components/MessageActions/MessageActionsBox.js',
+            'src/components/Message/Message.tsx',
+            'src/components/Message/MessageSimple.tsx',
+            'src/components/Message/MessageTeam.tsx',
+            'src/components/Message/MessageLivestream.tsx',
+            'src/components/Attachment/Attachment.tsx',
+            'src/components/Attachment/AttachmentActions.tsx',
+            'src/components/Reactions/ReactionSelector.tsx',
+            'src/components/MessageActions/MessageActionsBox.tsx',
           ],
           exampleMode: 'collapse',
         },
@@ -72,6 +84,10 @@ module.exports = {
             {
               name: 'useMentionsHandler',
               content: 'src/docs/useMentionsHandler.md',
+            },
+            {
+              name: 'useMessageInput',
+              content: 'src/docs/useMessageInput.md',
             },
             {
               name: 'useMuteHandler',
@@ -108,12 +124,12 @@ module.exports = {
     {
       name: 'Message Input',
       components: [
-        'src/components/MessageInput/MessageInput.js',
-        'src/components/MessageInput/MessageInputSmall.js',
-        'src/components/MessageInput/MessageInputLarge.js',
-        'src/components/MessageInput/MessageInputFlat.js',
-        'src/components/ChatAutoComplete/ChatAutoComplete.js',
-        'src/components/EditMessageForm/EditMessageForm.js',
+        'src/components/MessageInput/MessageInput.tsx',
+        'src/components/MessageInput/MessageInputSmall.tsx',
+        'src/components/MessageInput/MessageInputLarge.tsx',
+        'src/components/MessageInput/MessageInputFlat.tsx',
+        'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
+        'src/components/EditMessageForm/EditMessageForm.tsx',
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
@@ -121,19 +137,19 @@ module.exports = {
     {
       name: 'Utilities',
       components: [
-        'src/components/Card/Card.js',
-        'src/components/ChatDown/ChatDown.js',
-        'src/components/Loading/LoadingChannels.js',
-        'src/components/Avatar/Avatar.js',
-        'src/components/Loading/LoadingIndicator.js',
-        'src/components/Image/Image.js',
-        'src/components/DateSeparator/DateSeparator.js',
-        'src/components/Window/Window.js',
-        'src/components/ChannelList/ChannelListMessenger.js',
-        'src/components/ChannelList/ChannelListTeam.js',
-        'src/components/ChannelPreview/ChannelPreviewMessenger.js',
-        'src/components/ChannelPreview/ChannelPreviewCompact.js',
-        'src/components/ChannelPreview/ChannelPreviewLastMessage.js',
+        'src/components/Attachment/Card.tsx',
+        'src/components/ChatDown/ChatDown.tsx',
+        'src/components/Loading/LoadingChannels.tsx',
+        'src/components/Avatar/Avatar.tsx',
+        'src/components/Loading/LoadingIndicator.tsx',
+        'src/components/Gallery/Image.tsx',
+        'src/components/DateSeparator/DateSeparator.tsx',
+        'src/components/Window/Window.tsx',
+        'src/components/ChannelList/ChannelListMessenger.tsx',
+        'src/components/ChannelList/ChannelListTeam.tsx',
+        'src/components/ChannelPreview/ChannelPreviewMessenger.tsx',
+        'src/components/ChannelPreview/ChannelPreviewCompact.tsx',
+        'src/components/ChannelPreview/ChannelPreviewLastMessage.tsx',
       ],
       sections: [
         {
@@ -172,6 +188,16 @@ module.exports = {
     path.join(path.resolve(path.dirname('')), 'dist/css/index.css'),
     path.join(path.resolve(path.dirname('')), 'styleguidist/styleguidist.css'),
   ],
+  styles: {
+    StyleGuide: {
+      content: {
+        maxWidth: '1300px', // default is 1000px
+      },
+      sidebar: {
+        width: '270px',
+      },
+    },
+  },
   template: {
     favicon: 'https://getstream.imgix.net/images/favicons/favicon-96x96.png',
     link: {
@@ -181,3 +207,4 @@ module.exports = {
     },
   },
 };
+

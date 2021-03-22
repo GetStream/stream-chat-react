@@ -2,18 +2,19 @@ import React from 'react';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import { ChannelListMessenger } from '..';
+
+import { ChannelListMessenger } from '../ChannelListMessenger';
 
 // Weird hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
-const Component = ({ loading = false, error = false }) => (
+const Component = ({ error = false, loading = false }) => (
   <ChannelListMessenger
-    loading={loading}
     error={error}
-    LoadingIndicator={() => <div>Loading Indicator</div>}
+    loading={loading}
     LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
+    LoadingIndicator={() => <div>Loading Indicator</div>}
   >
     <div>children 1</div>
     <div>children 2</div>

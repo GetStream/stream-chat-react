@@ -1,15 +1,16 @@
 import React from 'react';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
-import LoadMoreButton from '../LoadMoreButton';
+
+import { LoadMoreButton } from '../LoadMoreButton';
 
 describe('LoadMoreButton', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
     const tree = renderer
-      .create(<LoadMoreButton refreshing={false} onClick={() => null} />)
+      .create(<LoadMoreButton onClick={() => null} refreshing={false} />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
@@ -30,7 +31,7 @@ describe('LoadMoreButton', () => {
   it('should trigger onClick function when clicked', () => {
     const onClickMock = jest.fn();
     const { getByTestId } = render(
-      <LoadMoreButton refreshing={false} onClick={onClickMock} />,
+      <LoadMoreButton onClick={onClickMock} refreshing={false} />,
     );
 
     fireEvent.click(getByTestId('load-more-button'));
@@ -41,7 +42,7 @@ describe('LoadMoreButton', () => {
   it('should be disabled and show loading indicator when refreshing is true', () => {
     const onClickMock = jest.fn();
     const { getByTestId } = render(
-      <LoadMoreButton refreshing={true} onClick={onClickMock} />,
+      <LoadMoreButton onClick={onClickMock} refreshing={true} />,
     );
     fireEvent.click(getByTestId('load-more-button'));
     expect(onClickMock).not.toHaveBeenCalledTimes(1);
@@ -53,7 +54,7 @@ describe('LoadMoreButton', () => {
 
   it('should display children', () => {
     const { getByText } = render(
-      <LoadMoreButton refreshing={true} onClick={() => null}>
+      <LoadMoreButton onClick={() => null} refreshing={true}>
         Test Button
       </LoadMoreButton>,
     );

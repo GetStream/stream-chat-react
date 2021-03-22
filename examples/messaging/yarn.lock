@@ -1071,10 +1071,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.12.13":
-  version "7.12.13"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
-  integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
+"@babel/runtime@^7.13.10":
+  version "7.13.10"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.10.tgz#47d42a57b6095f4468da440388fdbad8bebf0d7d"
+  integrity sha512-4QPkjJq6Ns3V/RgpEahRk+AGfL0eO6RHHtTWoNNr5mO49G6B5+X6d6THgWEAvTrznU5xYpbAlVKRYcsCgh/Akw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -3368,11 +3368,6 @@ data-urls@^1.0.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
-dayjs@^1.10.3:
-  version "1.10.3"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.3.tgz#cf3357c8e7f508432826371672ebf376cb7d619b"
-  integrity sha512-/2fdLN987N8Ki7Id8BUN2nhuiRyxTLumQnSQf9CNncFCyqFsSKb9TNhzRYcC8K8eJSJOKvbvkImo/MKKhNi4iw==
-
 dayjs@^1.10.4:
   version "1.10.4"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.4.tgz#8e544a9b8683f61783f570980a8a80eaf54ab1e2"
@@ -3928,6 +3923,11 @@ escape-string-regexp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
   integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+
+escape-string-regexp@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
+  integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
 escodegen@^1.9.1:
   version "1.14.3"
@@ -4631,10 +4631,10 @@ fork-ts-checker-webpack-plugin@1.0.0-alpha.6:
     semver "^5.6.0"
     tapable "^1.0.0"
 
-form-data@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.0.tgz#31b7e39c85f1355b7139ee0c647cf0de7f83c682"
-  integrity sha512-CKMFDglpbMi6PyN+brwB9Q/GOw0eAnsrEZDgcsH5Krhz5Od/haKHAX0NmQfha2zPPz0JpWzA7GJHGSnvCRLWsg==
+form-data@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.0.tgz#93919daeaf361ee529584b9b31664dc12c9fa452"
+  integrity sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
@@ -6941,6 +6941,15 @@ mdast-add-list-metadata@1.0.1:
   dependencies:
     unist-util-visit-parents "1.1.2"
 
+mdast-util-find-and-replace@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/mdast-util-find-and-replace/-/mdast-util-find-and-replace-1.1.1.tgz#b7db1e873f96f66588c321f1363069abf607d1b5"
+  integrity sha512-9cKl33Y21lyckGzpSmEQnIDjEfeeWelN5s1kUW1LwdB0Fkuq2u+4GdqcGEygYxJE8GVqCl0741bYXHgamfWAZA==
+  dependencies:
+    escape-string-regexp "^4.0.0"
+    unist-util-is "^4.0.0"
+    unist-util-visit-parents "^3.0.0"
+
 mdast-util-from-markdown@^0.8.0:
   version "0.8.4"
   resolved "https://registry.yarnpkg.com/mdast-util-from-markdown/-/mdast-util-from-markdown-0.8.4.tgz#2882100c1b9fc967d3f83806802f303666682d32"
@@ -9037,6 +9046,7 @@ react-dom@^16.2.0:
 
 "react-dom@link:../../node_modules/react-dom":
   version "0.0.0"
+  uid ""
 
 react-dropzone@11.2.0:
   version "11.2.0"
@@ -9068,10 +9078,10 @@ react-file-icon@^0.2.0:
     react-dom "^16.2.0"
     tinycolor2 "^1.4.1"
 
-react-file-utils@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-0.4.0.tgz#dc18537a94c227cf71648eae9a648f9f719b09a5"
-  integrity sha512-CvjThefxttg1MyxUi0pg2WNA3hHwuEvfrq+3FNRSfSVyijRRkgEjJNhOKR4OzcDHnUCxQjfskPaZWrhHsnkOaA==
+react-file-utils@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.0.1.tgz#59645dc48d94417b87767327ff8627e3943bfbfc"
+  integrity sha512-gk0zvYAprvdQnFDy2zI3IDy8/q6vDPrJ8bFzsYQKonPccov549t5zt96827cLov4mwySvAMaHnlpCifTymu0Gg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.13"
     "@fortawesome/free-regular-svg-icons" "^5.7.0"
@@ -9318,6 +9328,7 @@ react@^16.2.0:
 
 "react@link:../../node_modules/react":
   version "0.0.0"
+  uid ""
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -9777,6 +9788,14 @@ scheduler@^0.19.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+scheduler@^0.20.1:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.1.tgz#da0b907e24026b01181ecbc75efdc7f27b5a000c"
+  integrity sha512-LKTe+2xNJBNxu/QhHvDR14wUXHRQbVY5ZOYpOGWRzhydZUqrLb2JBvLPY7cAqFmqrWuDED0Mjk7013SZiOz6Bw==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
 schema-utils@^0.4.4:
   version "0.4.7"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.4.7.tgz#ba74f597d2be2ea880131746ee17d0a093c68187"
@@ -10220,48 +10239,23 @@ stream-browserify@^2.0.1:
     readable-stream "^2.0.2"
 
 "stream-chat-react@link:../..":
-  version "4.1.1"
-  dependencies:
-    "@braintree/sanitize-url" "5.0.0"
-    custom-event "^1.0.1"
-    dayjs "^1.10.3"
-    emoji-mart "3.0.1"
-    emoji-regex "^9.2.0"
-    i18next "^19.8.4"
-    isomorphic-ws "^4.0.1"
-    linkifyjs "^2.1.9"
-    lodash.debounce "^4.0.8"
-    lodash.isequal "^4.5.0"
-    lodash.throttle "^4.1.1"
-    lodash.uniqby "^4.7.0"
-    mml-react "^0.4.0"
-    pretty-bytes "^5.4.1"
-    prop-types "^15.7.2"
-    react-fast-compare "^3.2.0"
-    react-file-utils "0.4.0"
-    react-images "^1.1.7"
-    react-is "^17.0.1"
-    react-markdown "^5.0.3"
-    react-player "^2.7.0"
-    react-textarea-autosize "^8.3.0"
-    react-virtuoso "1.5.9"
-    textarea-caret "^3.1.0"
-    uuid "^8.3.1"
+  version "0.0.0"
+  uid ""
 
-stream-chat@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-3.1.2.tgz#271ff85f5533ae432bc94168bfeffca8efc6b55a"
-  integrity sha512-hIVkycehlJrkG2D+RV77qhZeOjZyas398DNdD8GeQlVB7Li60p+XPAsaeNob7kEptFow2LC2TTUiR4hQDCbufg==
+stream-chat@3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-3.7.0.tgz#1e2e122feeb594509fdb4e36855cddb1dc5476c3"
+  integrity sha512-a4mg0kmdU6c1Foz8p1a370jAac8wkDNugE+GQrTeOqZqWh/yIrsE31WsJb901hhrl5nFwWPiTpFO0HuFXr8EmA==
   dependencies:
-    "@babel/runtime" "^7.12.13"
+    "@babel/runtime" "^7.13.10"
     "@types/jsonwebtoken" "^8.5.0"
     "@types/ws" "^7.4.0"
     axios "^0.21.1"
     base64-js "^1.5.1"
-    form-data "^3.0.0"
+    form-data "^4.0.0"
     isomorphic-ws "^4.0.1"
     jsonwebtoken "^8.5.1"
-    ws "^7.4.3"
+    ws "^7.4.4"
 
 stream-each@^1.1.0:
   version "1.2.3"
@@ -11554,10 +11548,10 @@ ws@^5.2.0:
   dependencies:
     async-limiter "~1.0.0"
 
-ws@^7.4.3:
-  version "7.4.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.3.tgz#1f9643de34a543b8edb124bdcbc457ae55a6e5cd"
-  integrity sha512-hr6vCR76GsossIRsr8OLR9acVVm1jyfEWvhbNjtgPOrfvAlKzvyeg/P6r8RuDjRyrcQoPQT7K0DGEPc7Ae6jzA==
+ws@^7.4.4:
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.4.tgz#383bc9742cb202292c9077ceab6f6047b17f2d59"
+  integrity sha512-Qm8k8ojNQIMx7S+Zp8u/uHOx7Qazv3Yv4q68MiWWWOJhiwG5W3x7iqmRtJo8xxrciZUY4vRxUTJCKuRnF28ZZw==
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

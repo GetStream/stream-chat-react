@@ -3,21 +3,25 @@ import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
+import {
+  ChannelContext,
+  ChatContext,
+  TranslationContext,
+} from '../../../context';
 import { MESSAGE_ACTIONS } from '../utils';
-import Message from '../Message';
+import { Message } from '../Message';
 
 const alice = generateUser({
-  name: 'alice',
-  image: 'alice-avatar.jpg',
   id: 'alice',
+  image: 'alice-avatar.jpg',
+  name: 'alice',
 });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 
 const CustomMessageUIComponent = jest.fn(() => <div>Message</div>);
 
@@ -34,35 +38,38 @@ async function renderComponent(
   channelOpts,
   channelConfig = { replies: true },
   renderer = render,
+  clientOpts,
 ) {
   const channel = generateChannel({
+    deleteReaction,
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
-    deleteReaction,
     ...channelOpts,
   });
   const client = await getTestClientWithUser(alice);
   return renderer(
-    <ChannelContext.Provider
-      value={{
-        client,
-        channel,
-        updateMessage: jest.fn(),
-        removeMessage: jest.fn(),
-        openThread: jest.fn(),
-        ...channelOpts,
-      }}
-    >
-      <TranslationContext.Provider value={{ t: (key) => key }}>
-        <Message
-          message={message}
-          typing={false}
-          Message={CustomMessageUIComponent}
-          {...props}
-        />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatContext.Provider value={{ client, ...clientOpts }}>
+      <ChannelContext.Provider
+        value={{
+          channel,
+          client,
+          openThread: jest.fn(),
+          removeMessage: jest.fn(),
+          updateMessage: jest.fn(),
+          ...channelOpts,
+        }}
+      >
+        <TranslationContext.Provider value={{ t: (key) => key }}>
+          <Message
+            message={message}
+            Message={CustomMessageUIComponent}
+            typing={false}
+            {...props}
+          />
+        </TranslationContext.Provider>
+      </ChannelContext.Provider>
+    </ChatContext.Provider>,
   );
 }
 
@@ -96,7 +103,7 @@ describe('<Message /> component', () => {
   });
 
   it('should enable actions if message is of type regular and status received', async () => {
-    const message = generateMessage({ type: 'regular', status: 'received' });
+    const message = generateMessage({ status: 'received', type: 'regular' });
     await renderComponent(message);
     expect(CustomMessageUIComponent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -258,9 +265,11 @@ describe('<Message /> component', () => {
         getMuteUserSuccessNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -284,9 +293,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -314,9 +325,11 @@ describe('<Message /> component', () => {
         getMuteUserErrorNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -340,9 +353,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -370,9 +385,11 @@ describe('<Message /> component', () => {
         getMuteUserSuccessNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -396,9 +413,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -426,9 +445,11 @@ describe('<Message /> component', () => {
         getMuteUserErrorNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -452,9 +473,11 @@ describe('<Message /> component', () => {
         addNotification,
       },
       {
-        client,
         mutes: [{ target: { id: bob.id } }],
       },
+      null,
+      render,
+      { client },
     );
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -497,7 +520,7 @@ describe('<Message /> component', () => {
       await renderComponent(
         message,
         {},
-        { state: { membership: { role }, members: {}, watchers: {} } },
+        { state: { members: {}, membership: { role }, watchers: {} } },
       );
       const { getMessageActions } = getRenderedProps();
       expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -510,7 +533,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'owner' }, members: {}, watchers: {} } },
+      { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -535,7 +558,7 @@ describe('<Message /> component', () => {
     await renderComponent(
       message,
       {},
-      { state: { membership: { role: 'admin' }, members: {}, watchers: {} } },
+      { state: { members: {}, membership: { role: 'admin' }, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
@@ -580,9 +603,10 @@ describe('<Message /> component', () => {
         addNotification,
         getFlagMessageSuccessNotification,
       },
-      {
-        client,
-      },
+      {},
+      null,
+      render,
+      { client },
     );
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
@@ -605,6 +629,9 @@ describe('<Message /> component', () => {
       {
         addNotification,
       },
+      {},
+      null,
+      render,
       { client },
     );
     const { handleFlag } = getRenderedProps();
@@ -632,6 +659,9 @@ describe('<Message /> component', () => {
         addNotification,
         getFlagMessageErrorNotification,
       },
+      {},
+      null,
+      render,
       { client },
     );
     const { handleFlag } = getRenderedProps();
@@ -656,9 +686,10 @@ describe('<Message /> component', () => {
       {
         addNotification,
       },
-      {
-        client,
-      },
+      {},
+      null,
+      render,
+      { client },
     );
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
@@ -676,7 +707,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: true } },
       },
-      { type: 'messaging', state: { members: {}, watchers: {} } },
+      { state: { members: {}, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
@@ -689,7 +720,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: false } },
       },
-      { type: 'messaging', state: { members: {}, watchers: {} } },
+      { state: { members: {}, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
@@ -737,19 +768,19 @@ describe('<Message /> component', () => {
 
   it('should pass channel configuration to UI rendered UI component', async () => {
     const message = generateMessage({ user: alice });
-    const channelConfigMock = { replies: false, mutes: false };
+    const channelConfigMock = { mutes: false, replies: false };
     await renderComponent(message, {}, {}, channelConfigMock);
     const { channelConfig } = getRenderedProps();
     expect(channelConfig).toBe(channelConfigMock);
   });
 
   it('should rerender if message changes', async () => {
-    const message = generateMessage({ user: alice, text: 'Helo!' });
+    const message = generateMessage({ text: 'Helo!', user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
       Message: UIMock,
     });
-    const updatedMessage = generateMessage({ user: alice, text: 'Hello*' });
+    const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
@@ -789,16 +820,16 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
-      Message: UIMock,
       groupStyles: ['bottom'],
+      Message: UIMock,
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
       message,
       {
-        Message: UIMock,
         groupStyles: ['bottom', 'left'],
+        Message: UIMock,
       },
       undefined,
       undefined,
@@ -811,38 +842,16 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
     const { rerender } = await renderComponent(message, {
-      Message: UIMock,
       lastReceivedId: 'last-received-id-1',
-    });
-    expect(UIMock).toHaveBeenCalledTimes(1);
-    UIMock.mockClear();
-    await renderComponent(
-      message,
-      {
-        Message: UIMock,
-        lastReceivedId: 'last-received-id-2',
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
-    expect(UIMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should rerender if it enters edit mode', async () => {
-    const message = generateMessage({ user: alice });
-    const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
       Message: UIMock,
-      editing: false,
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
     await renderComponent(
       message,
       {
+        lastReceivedId: 'last-received-id-2',
         Message: UIMock,
-        editing: true,
       },
       undefined,
       undefined,

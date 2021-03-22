@@ -2,7 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import InfiniteScroll from '../InfiniteScroll';
+
+import { InfiniteScroll } from '../InfiniteScroll';
 
 const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 
@@ -30,8 +31,8 @@ describe('InfiniteScroll', () => {
 
   const renderComponent = (props) => {
     const renderResult = render(
-      <div data-testid="scroll-parent">
-        <InfiniteScroll useWindow={false} loadMore={loadMore} {...props} />
+      <div data-testid='scroll-parent'>
+        <InfiniteScroll loadMore={loadMore} useWindow={false} {...props} />
       </div>,
     );
     const scrollParent = renderResult.getByTestId('scroll-parent');
@@ -118,9 +119,9 @@ describe('InfiniteScroll', () => {
         .create(
           <InfiniteScroll
             isLoading
-            loadMore={loadMore}
-            loader={<div key="loader">loader</div>}
             isReverse={isReverse}
+            loader={<div key='loader'>loader</div>}
+            loadMore={loadMore}
           >
             Content
           </InfiniteScroll>,

@@ -1,16 +1,17 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
+  generateMessage,
   generateUser,
   getTestClientWithUser,
-  generateMessage,
 } from 'mock-builders';
 import { ChannelContext } from '../../../context';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import { MESSAGE_ACTIONS } from '../utils';
-import MessageOptions from '../MessageOptions';
+import { MessageOptions } from '../MessageOptions';
 
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),
@@ -18,12 +19,12 @@ jest.mock('../../MessageActions', () => ({
 
 const alice = generateUser({ name: 'alice' });
 const defaultProps = {
-  message: generateMessage(),
+  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
   initialMessage: false,
-  threadList: false,
+  message: generateMessage(),
   messageWrapperRef: { current: document.createElement('div') },
   onReactionListClick: () => {},
-  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
+  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {
@@ -51,7 +52,7 @@ describe('<MessageOptions />', () => {
     const { queryByTestId } = await renderMessageOptions({
       message: undefined,
     });
-    expect(queryByTestId(/message-options/)).toBeNull();
+    expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
 
   it.each([
@@ -65,7 +66,7 @@ describe('<MessageOptions />', () => {
     async (key, value) => {
       const message = generateAliceMessage({ [key]: value });
       const { queryByTestId } = await renderMessageOptions({ message });
-      expect(queryByTestId(/message-options/)).toBeNull();
+      expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
     },
   );
 
@@ -73,7 +74,7 @@ describe('<MessageOptions />', () => {
     const { queryByTestId } = await renderMessageOptions({
       initialMessage: true,
     });
-    expect(queryByTestId(/message-options/)).toBeNull();
+    expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
 
   it('should display thread actions when message is not displayed on a thread list and channel has replies configured', async () => {
@@ -88,7 +89,7 @@ describe('<MessageOptions />', () => {
       { threadList: true },
       { replies: true },
     );
-    expect(queryByTestId(threadActionTestId)).toBeNull();
+    expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should not display thread actions when channel does not have replies enabled', async () => {
@@ -96,14 +97,14 @@ describe('<MessageOptions />', () => {
       {},
       { replies: false },
     );
-    expect(queryByTestId(threadActionTestId)).toBeNull();
+    expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should trigger open thread handler when custom thread action is set and thread action is clicked', async () => {
     const handleOpenThread = jest.fn(() => {});
     const message = generateMessage();
     const { getByTestId } = await renderMessageOptions(
-      { threadList: false, handleOpenThread, message },
+      { handleOpenThread, message, threadList: false },
       { replies: true },
     );
     expect(handleOpenThread).not.toHaveBeenCalled();
@@ -121,7 +122,7 @@ describe('<MessageOptions />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId(reactionActionTestId)).toBeNull();
+    expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 
   it('should trigger reaction list click when reaction action is clicked', async () => {
@@ -146,10 +147,10 @@ describe('<MessageOptions />', () => {
   it('should not render message with "left-to-the-bubble" style if displayLeft is false', async () => {
     const message = generateAliceMessage();
     const { queryByTestId } = await renderMessageOptions({
-      message,
       displayLeft: false,
+      message,
     });
-    expect(queryByTestId('message-options-left')).toBeNull();
+    expect(queryByTestId('message-options-left')).not.toBeInTheDocument();
   });
 
   it('should not render message thread actinos if displayReplies is false', async () => {
@@ -161,7 +162,7 @@ describe('<MessageOptions />', () => {
         replies: true,
       },
     );
-    expect(queryByTestId(threadActionTestId)).toBeNull();
+    expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should render css classes with corresonding theme when it is set', async () => {

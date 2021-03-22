@@ -1,10 +1,10 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import '@testing-library/jest-dom';
 
-import ImageComponent from '../Image';
+import { ImageComponent } from '../Image';
 
 const mockImageAssets = 'https://placeimg.com/640/480/any';
 

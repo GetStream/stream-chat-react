@@ -3,15 +3,15 @@ import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
-import FixedHeightMessage from '../FixedHeightMessage';
+import { FixedHeightMessage } from '../FixedHeightMessage';
 import {
-  ChatContext,
   ChannelContext,
+  ChatContext,
   TranslationContext,
 } from '../../../context';
 import { Avatar as AvatarMock } from '../../Avatar';
@@ -26,7 +26,7 @@ jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn((props) => props.getMessageActions()),
 }));
 
-const aliceProfile = { name: 'alice', image: 'alice-avatar.jpg' };
+const aliceProfile = { image: 'alice-avatar.jpg', name: 'alice' };
 const alice = generateUser(aliceProfile);
 const bob = generateUser({ name: 'bob' });
 
@@ -37,7 +37,7 @@ async function renderMsg(message) {
 
   return render(
     <ChatContext.Provider value={{ theme: 'dark' }}>
-      <ChannelContext.Provider value={{ client, channel }}>
+      <ChannelContext.Provider value={{ channel, client }}>
         <TranslationContext.Provider
           value={{
             t: (key) => key,
@@ -63,9 +63,9 @@ describe('<FixedHeightMessage />', () => {
   });
 
   it('should render message images', async () => {
-    const image = { type: 'image', image_url: 'image.jpg' };
+    const image = { image_url: 'image.jpg', type: 'image' };
     const attachments = [image, image, image];
-    const message = generateMessage({ user: alice, attachments });
+    const message = generateMessage({ attachments, user: alice });
     await renderMsg(message);
     expect(GalleryMock).toHaveBeenCalledWith({ images: attachments }, {});
   });
@@ -81,10 +81,10 @@ describe('<FixedHeightMessage />', () => {
 
   it('should render MML', async () => {
     const mml = '<mml>text</mml>';
-    const message = generateMessage({ user: alice, mml });
+    const message = generateMessage({ mml, user: alice });
     await renderMsg(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'left' }),
+      expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
   });
@@ -107,9 +107,9 @@ describe('<FixedHeightMessage />', () => {
 
   it('should display text in users set language', async () => {
     const message = generateMessage({
-      user: alice,
-      i18n: { fr_text: 'bonjour', en_text: 'hello', language: 'fr' },
+      i18n: { en_text: 'hello', fr_text: 'bonjour', language: 'fr' },
       text: 'bonjour',
+      user: alice,
     });
 
     const { getByText } = await renderMsg(message);

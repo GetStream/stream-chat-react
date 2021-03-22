@@ -2,13 +2,13 @@ A custom hook to handle the message reactions.
 
 | Parameter | Type                                                     | Description                |
 | --------- | -------------------------------------------------------- | -------------------------- |
-| `message` | [object](https://getstream.io/chat/docs/#message_format) | The message to be handled. |
+| `message` | [object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) | The message to be handled |
 
-It returns an event handler for opening threads.
+It returns an event handler for reactions.
 
 | Returns   | Type | Description                                                                          |
 | --------- | ---- | ------------------------------------------------------------------------------------ |
-| `handler` | func | A function that receives a reaction type (string) and user click event as arguments. |
+| `handler` | func | A function that receives a reaction type (string) and user click event as arguments |
 
 ```json
 import { useReactionHandler } from '../components';

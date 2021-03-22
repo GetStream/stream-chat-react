@@ -1,20 +1,20 @@
 import React from 'react';
-import { cleanup, render, waitFor, act } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  getOrCreateChannelApi,
-  generateChannel,
-  generateMessage,
-  generateMember,
-  generateUser,
   dispatchMessageNewEvent,
+  generateChannel,
+  generateMember,
+  generateMessage,
+  generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
+  useMockedApis,
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
-import MessageList from '../MessageList';
+import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 
 describe('MessageList', () => {
@@ -26,13 +26,13 @@ describe('MessageList', () => {
     const user1 = generateUser();
     const user2 = generateUser();
     const mockedChannel = generateChannel({
-      messages: [
-        generateMessage({ user: user1 }),
-        generateMessage({ user: user1 }),
-      ],
       members: [
         generateMember({ user: user1 }),
         generateMember({ user: user1 }),
+      ],
+      messages: [
+        generateMessage({ user: user1 }),
+        generateMessage({ user: user1 }),
       ],
     });
 
@@ -66,11 +66,11 @@ describe('MessageList', () => {
     const user1 = generateUser();
     const user2 = generateUser();
     const mockedChannel = generateChannel({
-      messages: [generateMessage({ user: user1 })],
       members: [
         generateMember({ user: user1 }),
         generateMember({ user: user2 }),
       ],
+      messages: [generateMessage({ user: user1 })],
     });
 
     chatClient = await getTestClientWithUser({ id: 'vishal' });
@@ -82,7 +82,7 @@ describe('MessageList', () => {
       <Chat client={chatClient}>
         <Channel channel={channel}>
           <MessageList
-            Avatar={() => <div data-testid="custom-avatar">Avatar</div>}
+            Avatar={() => <div data-testid='custom-avatar'>Avatar</div>}
           />
         </Channel>
       </Chat>,

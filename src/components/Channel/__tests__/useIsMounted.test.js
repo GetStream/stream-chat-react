@@ -1,5 +1,5 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import useIsMounted from '../hooks/useIsMounted';
+import { act, renderHook } from '@testing-library/react-hooks';
+import { useIsMounted } from '../hooks/useIsMounted';
 
 describe('useIsMounted hook', () => {
   it('should set the value to false after unmounting', () => {

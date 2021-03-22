@@ -1,127 +1,41 @@
-The channel context provides the following properties:
+The ChannelContext provides the following properties:
 
-- `Message` UI component for message. Its same as prop `Message` of [Channel](#channel) component.
-- `Attachment` UI component for attachment in message. Its same as prop `Attachment` of [Channel](#channel) component.
-- `messages` {Array} List of immutable [message objects](https://getstream.io/chat/docs/#message_format)
-- `online` {number} A count of the online users
-- `typing` {ImmutableObject} A map of user ids of users who are typing vs corresponding typing [event object](https://getstream.io/chat/docs/#event_object) (where event type is `typing.start`).
+- **client** The Client connection
+- **acceptedFiles** An array of strings with accepted files for the Channel
+- **Attachment** UI component for Attachment in Message. Its same as prop `Attachment` of [Channel](#channel) component
+- **channel** The currently active channel
+- **closeThread** The function to close the currently open Thread. This function should be attached to close button on Thread UI
+- **dispatch** 
+- **editMessage** A Function that takes a Message to be edited
+-  **emojiConfig** The configuration for Emojis
+-  **error** Part of ChannelState - error object (if any) in loading the channel, otherwise null
+-  **hasMore** Part of ChannelState - if the channel has more messages to paginate through
+-  **loading** Part of ChannelState - boolean for if the channel is currently loading
+-  **loadingMore** Part of ChannelState - if the channel is loading pagination
+-  **loadMore** The function to load next page/batch of messages (used for pagination) and the next batch of results will be available in `messages` object in ChannelContext
+-  **loadMoreThread** The function to load next page/batch of messages in a currently active/open Thread (used for pagination)
+-  **maxNumberOfFiles** The max number of files in a Channel
+-  **members** Part of ChannelState - members of this channel (members are permanent, watchers are users who are online right now)
+-  **Message** UI component for message. Its same as prop `Message` of [Channel](#channel) component
+-  **messages** Part of ChannelState - List of [message objects](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+-  **multipleUploads** Boolean for if there are multiple uploads
+-  **mutes** Muted users
+-  **onMentionsClick** The function to execute when @mention is clicked in message, takes a DOM click event object and an array of mentioned users
+-  **onMentionsHover** The function to execute when @mention is hovered on message, takes a DOM click event object and an array of mentioned users
+-  **openThread** The function to execute when replies count button is clicked, takes the parent message of thread which needs to be opened and DOM click event
+-  **pinnedMessages** Part of ChannelState - the messages that are pinned in the Channel
+-  **read** Part of ChannelState - the read state for each user
+-  **removeMessage** The function to remove a message from MessageList, handled by the Channel component. Takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+-  **retrySendMessage** The function to resend a message, handled by the Channel component. Takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+-  **sendMessage** The function to send a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+-  **thread** Part of ChannelState - a message if it's a Thread, if there is one otherwise null
+-  **threadHasMore** Part of ChannelState - boolean for if there are more messages available in current active thread, set to false when the end of pagination is reached
+-  **threadLoadingMore** Part of ChannelState - if the thread is currently loading more messages
+-  **threadMessages** Part of ChannelState - array of Messages with a Thread has more replies
+-  **typing** Part of ChannelState - typing [event object](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) (where event type is `typing.start`)
+-  **updateMessage** The function to update a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+-  **watcherCount** The number of watchers on the Channel
+-  **watchers** Part of ChannelState - An array of users who are currently watching the channel
+-  **watcher_count** Count of watchers
 
-  e.g.
-
-  ```json
-  {
-    "user_id_1": typing_event_object_of_user_1,
-    "user_id_2": typing_event_object_of_user_2
-  }
-  ```
-
-- `watcher_count` {number} Count of watchers
-- `watchers` {ImmutableObject} A map of user ids vs users who are currently watching the channel.
-
-e.g.,
-
-```json
-{
-  "thierry": {
-    "id": "thierry",
-    "role": "user",
-    "created_at": "2019-04-03T14:42:47.087869Z",
-    "updated_at": "2019-04-16T09:20:03.982283Z",
-    "last_active": "2019-04-16T11:23:51.168113408+02:00",
-    "online": true
-  },
-  "vishal": {
-    "id": "vishal",
-    "role": "user",
-    "created_at": "2019-05-03T14:42:47.087869Z",
-    "updated_at": "2019-05-16T09:20:03.982283Z",
-    "last_active": "2019-06-16T11:23:51.168113408+02:00",
-    "online": true
-  }
-}
-```
-
-- `members` {ImmutableObject} Members of this channel (members are permanent, watchers are users who are online right now)
-
-e.g.,
-
-```json
-{
-  "thierry": {
-    "id": "thierry",
-    "role": "user",
-    "created_at": "2019-04-03T14:42:47.087869Z",
-    "updated_at": "2019-04-16T09:20:03.982283Z",
-    "last_active": "2019-04-16T11:23:51.168113408+02:00",
-    "online": true
-  },
-  "vishal": {
-    "id": "vishal",
-    "role": "user",
-    "created_at": "2019-05-03T14:42:47.087869Z",
-    "updated_at": "2019-05-16T09:20:03.982283Z",
-    "last_active": "2019-06-16T11:23:51.168113408+02:00",
-    "online": false
-  }
-}
-```
-
-- read: the read state for each user
-- `error` {boolean | object} Error object (if any) in loading the channel, otherwise false
-- `loading` {boolean} if the channel is currently loading
-- `loadingMore` {boolean} if the channel is loading pagination
-- `hasMore` {boolean} if the channel has more messages to paginate through
-- `threadLoadingMore` {boolean} If the thread is currently loading more messages
-- `threadHasMore` {boolean} If there are more messages available in current active thread, set to false when the end of pagination is reached.
-  These functions:
-
-- **sendMessage** The function to send a message on channel.
-
-  **Params**
-
-  - `message`: A [message object](https://getstream.io/chat/docs/#message_format) of message to be sent.
-
-- **updateMessage** The function to update a message on channel.
-
-  **Params**
-
-  - `updatedMessage`: Updated [message object](https://getstream.io/chat/docs/#message_format)
-
-- **retrySendMessage** The function to resend a message, handled by the Channel component
-
-  **Params**
-
-  - `message`: A [message](https://getstream.io/chat/docs/#message_format) to be sent
-
-- **removeMessage** The function to remove a message from messagelist, handled by the Channel component
-
-  **Params**
-
-  - `message`: A [message](https://getstream.io/chat/docs/#message_format) to be removed
-
-- **onMentionsClick** The function to execute when @mention is clicked in message.
-
-  **Params**
-
-  - `event` DOM click event object
-  - `mentioned_users` Array of mentioned users in message. This array is available in message object.
-
-- **onMentionsHover** The function to execute when @mention is hovered on message.
-
-  **Params**
-
-  - `event` DOM click event object
-  - `mentioned_users` Array of mentioned users in message. This array is available in message object.
-
-- **openThread** Function to execute when replies count button is clicked.
-
-  **Params**
-
-  - `message` Parent message of thread which needs to be opened
-  - `event` DOM click event
-
-- **loadMore** Function to load next page/batch of messages (used for pagination). Next batch of results will be available in `messages` object in channel context.
-- **closeThread** Function to close the currently open thread. This function should be attached to close button on thread UI.
-- **loadMoreThread** Function to load next page/batch of messages in a currently active/open thread ((used for pagination).
-
-And the data exposed by the chat context:
+- **And the data exposed by the ChatContext**

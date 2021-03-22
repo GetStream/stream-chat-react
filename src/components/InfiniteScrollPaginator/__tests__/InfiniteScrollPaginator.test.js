@@ -1,12 +1,13 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import InfiniteScrollPaginator from '../InfiniteScrollPaginator';
+
+import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator';
 
 function renderInfiniteScrollPaginator(props) {
   return (
     <InfiniteScrollPaginator
-      loadNextPage={jest.fn().mockName('loadNextPage')}
       hasNextPage={true}
+      loadNextPage={jest.fn().mockName('loadNextPage')}
       refreshing={false}
       reverse={true}
       threshold={50}
@@ -50,13 +51,13 @@ describe('<InfiniteScrollPaginator />', () => {
 
   it('should render with a custom loading indicator when it is refreshing', () => {
     const CustomLoadingIndicator = () => (
-      <div className="custom-loading-indicator">loading...</div>
+      <div className='custom-loading-indicator'>loading...</div>
     );
     const rendered = renderer
       .create(
         renderInfiniteScrollPaginator({
-          refreshing: true,
           LoadingIndicator: CustomLoadingIndicator,
+          refreshing: true,
         }),
       )
       .toJSON();
@@ -104,8 +105,8 @@ describe('<InfiniteScrollPaginator />', () => {
     const renderedinfinitescroll = renderer
       .create(
         renderInfiniteScrollPaginator({
-          loadNextPage,
           hasNextPage,
+          loadNextPage,
           refreshing,
           reverse,
           threshold,
@@ -114,10 +115,10 @@ describe('<InfiniteScrollPaginator />', () => {
       .toTree().rendered;
     expect(renderedinfinitescroll.props).toEqual(
       expect.objectContaining({
-        loadMore: loadNextPage,
         hasMore: hasNextPage,
         isLoading: refreshing,
         isReverse: reverse,
+        loadMore: loadNextPage,
         threshold,
         useWindow: false,
       }),

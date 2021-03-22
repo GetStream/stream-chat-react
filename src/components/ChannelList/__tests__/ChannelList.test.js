@@ -1,40 +1,40 @@
 import React from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { getNodeText } from '@testing-library/dom';
 import {
+  act,
   cleanup,
+  fireEvent,
   render,
   waitFor,
-  fireEvent,
-  act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  queryChannelsApi,
-  generateMessage,
-  generateChannel,
-  generateUser,
-  getOrCreateChannelApi,
-  dispatchMessageNewEvent,
   dispatchChannelDeletedEvent,
-  dispatchChannelUpdatedEvent,
   dispatchChannelHiddenEvent,
-  dispatchChannelVisibleEvent,
   dispatchChannelTruncatedEvent,
+  dispatchChannelUpdatedEvent,
+  dispatchChannelVisibleEvent,
+  dispatchConnectionRecoveredEvent,
+  dispatchMessageNewEvent,
   dispatchNotificationAddedToChannelEvent,
   dispatchNotificationMessageNewEvent,
   dispatchNotificationRemovedFromChannel,
-  dispatchConnectionRecoveredEvent,
+  erroredPostApi,
+  generateChannel,
+  generateMessage,
+  generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
-  erroredGetApi,
+  queryChannelsApi,
+  useMockedApis,
 } from 'mock-builders';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
-import ChannelList from '../ChannelList';
+
+import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
   ChannelPreviewLastMessage,
@@ -49,11 +49,11 @@ import {
  */
 const ChannelPreviewComponent = ({
   channel,
-  latestMessage,
   channelUpdateCount,
+  latestMessage,
 }) => (
-  <div role="listitem" data-testid={channel.id}>
-    <div data-testid="channelUpdateCount">{channelUpdateCount}</div>
+  <div data-testid={channel.id} role='listitem'>
+    <div data-testid='channelUpdateCount'>{channelUpdateCount}</div>
     <div>{channel.data.name}</div>
     <div>{latestMessage}</div>
   </div>
@@ -62,14 +62,14 @@ const ChannelPreviewComponent = ({
 const ChannelListComponent = (props) => {
   const { error, loading } = props;
   if (error) {
-    return <div data-testid="error-indicator" />;
+    return <div data-testid='error-indicator' />;
   }
 
   if (loading) {
-    return <div data-testid="loading-indicator" />;
+    return <div data-testid='loading-indicator' />;
   }
 
-  return <div role="list">{props.children}</div>;
+  return <div role='list'>{props.children}</div>;
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
 
@@ -94,20 +94,20 @@ describe('ChannelList', () => {
     beforeEach(() => {
       closeMobileNav = jest.fn();
       props = {
-        filters: {},
-        Preview: ChannelPreviewComponent,
-        List: ChannelListComponent,
         closeMobileNav,
+        filters: {},
+        List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
       useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { getByTestId, getByRole } = render(
+      const { getByRole, getByTestId } = render(
         <ChatContext.Provider
           value={{ client: chatClientUthred, closeMobileNav, navOpen: true }}
         >
           <ChannelList {...props} />
-          <div data-testid="outside-channellist" />
+          <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
       );
 
@@ -123,12 +123,12 @@ describe('ChannelList', () => {
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      const { getByTestId, getByRole } = render(
+      const { getByRole, getByTestId } = render(
         <ChatContext.Provider
           value={{ client: chatClientUthred, closeMobileNav, navOpen: false }}
         >
           <ChannelList {...props} />
-          <div data-testid="outside-channellist" />
+          <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
       );
 
@@ -147,13 +147,13 @@ describe('ChannelList', () => {
   it('should re-query channels when filters change', async () => {
     const props = {
       filters: {},
-      Preview: ChannelPreviewComponent,
       List: ChannelListComponent,
+      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
 
-    const { getByTestId, getByRole, rerender } = render(
+    const { getByRole, getByTestId, rerender } = render(
       <Chat client={chatClientUthred}>
         <ChannelList {...props} />
       </Chat>,
@@ -178,15 +178,14 @@ describe('ChannelList', () => {
   it('should only show filtered channels when a filter function prop is provided', async () => {
     const filteredChannel = generateChannel({ channel: { type: 'filtered' } });
 
-    const customFilterFunction = (channels) => {
-      return channels.filter((channel) => channel.type === 'filtered');
-    };
+    const customFilterFunction = (channels) =>
+      channels.filter((channel) => channel.type === 'filtered');
 
     const props = {
-      filters: {},
-      Preview: ChannelPreviewComponent,
-      List: ChannelListComponent,
       channelRenderFilterFn: customFilterFunction,
+      filters: {},
+      List: ChannelListComponent,
+      Preview: ChannelPreviewComponent,
     };
 
     useMockedApis(chatClientUthred, [
@@ -202,21 +201,22 @@ describe('ChannelList', () => {
     // Wait for list of channels to load in DOM.
     await waitFor(() => {
       expect(getByRole('list')).toBeInTheDocument();
+      // eslint-disable-next-line jest-dom/prefer-in-document
       expect(queryAllByRole('listitem')).toHaveLength(1);
     });
   });
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
-    useMockedApis(chatClientUthred, [erroredGetApi()]);
+    useMockedApis(chatClientUthred, [erroredPostApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const { getByTestId } = render(
       <Chat client={chatClientUthred}>
         <ChannelList
           filters={{}}
-          Preview={ChannelPreviewComponent}
           List={ChannelListComponent}
-          options={{ state: true, watch: true, presence: true }}
+          options={{ presence: true, state: true, watch: true }}
+          Preview={ChannelPreviewComponent}
         />
       </Chat>,
     );
@@ -233,9 +233,9 @@ describe('ChannelList', () => {
     const { getByTestId, rerender } = render(
       <Chat client={chatClientUthred}>
         <ChannelList
-          Avatar={() => <div data-testid="custom-avatar-compact">Avatar</div>}
-          Preview={ChannelPreviewCompact}
+          Avatar={() => <div data-testid='custom-avatar-compact'>Avatar</div>}
           List={ChannelListComponent}
+          Preview={ChannelPreviewCompact}
         />
       </Chat>,
     );
@@ -247,9 +247,9 @@ describe('ChannelList', () => {
     rerender(
       <Chat client={chatClientUthred}>
         <ChannelList
-          Avatar={() => <div data-testid="custom-avatar-last">Avatar</div>}
-          Preview={ChannelPreviewLastMessage}
+          Avatar={() => <div data-testid='custom-avatar-last'>Avatar</div>}
           List={ChannelListComponent}
+          Preview={ChannelPreviewLastMessage}
         />
       </Chat>,
     );
@@ -261,9 +261,9 @@ describe('ChannelList', () => {
     rerender(
       <Chat client={chatClientUthred}>
         <ChannelList
-          Avatar={() => <div data-testid="custom-avatar-messenger">Avatar</div>}
-          Preview={ChannelPreviewMessenger}
+          Avatar={() => <div data-testid='custom-avatar-messenger'>Avatar</div>}
           List={ChannelListComponent}
+          Preview={ChannelPreviewMessenger}
         />
       </Chat>,
     );
@@ -276,17 +276,17 @@ describe('ChannelList', () => {
   it('when queryChannels api returns no channels, `EmptyStateIndicator` should be rendered', async () => {
     useMockedApis(chatClientUthred, [queryChannelsApi([])]);
 
-    const EmptyStateIndicator = () => {
-      return <div data-testid="empty-state-indicator" />;
-    };
+    const EmptyStateIndicator = () => (
+      <div data-testid='empty-state-indicator' />
+    );
 
     const { getByTestId } = render(
       <Chat client={chatClientUthred}>
         <ChannelList
-          filters={{}}
           EmptyStateIndicator={EmptyStateIndicator}
+          filters={{}}
           List={ChannelListComponent}
-          options={{ state: true, watch: true, presence: true }}
+          options={{ presence: true, state: true, watch: true }}
         />
       </Chat>,
     );
@@ -299,8 +299,8 @@ describe('ChannelList', () => {
   describe('Default and custom active channel', () => {
     let setActiveChannel;
     const watchersConfig = { limit: 20, offset: 0 };
-    const testSetActiveChannelCall = (channelInstance) => {
-      return waitFor(() => {
+    const testSetActiveChannelCall = (channelInstance) =>
+      waitFor(() => {
         expect(setActiveChannel).toHaveBeenCalledTimes(1);
         expect(setActiveChannel).toHaveBeenCalledWith(
           channelInstance,
@@ -308,7 +308,6 @@ describe('ChannelList', () => {
         );
         return true;
       });
-    };
 
     beforeEach(() => {
       setActiveChannel = jest.fn();
@@ -325,13 +324,13 @@ describe('ChannelList', () => {
           <ChannelList
             filters={{}}
             List={ChannelListComponent}
-            setActiveChannelOnMount
-            watchers={watchersConfig}
             options={{
+              presence: true,
               state: true,
               watch: true,
-              presence: true,
             }}
+            setActiveChannelOnMount
+            watchers={watchersConfig}
           />
         </ChatContext.Provider>,
       );
@@ -350,13 +349,13 @@ describe('ChannelList', () => {
           value={{ client: chatClientUthred, setActiveChannel }}
         >
           <ChannelList
+            customActiveChannel={testChannel2.channel.id}
             filters={{}}
             List={ChannelListComponent}
-            setActiveChannelOnMount
+            options={{ presence: true, state: true, watch: true }}
             setActiveChannel={setActiveChannel}
-            customActiveChannel={testChannel2.channel.id}
+            setActiveChannelOnMount
             watchers={watchersConfig}
-            options={{ state: true, watch: true, presence: true }}
           />
         </ChatContext.Provider>,
       );
@@ -370,19 +369,19 @@ describe('ChannelList', () => {
     });
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
-      const { getByTestId, getByRole, getAllByRole } = render(
+      const { getAllByRole, getByRole, getByTestId } = render(
         <ChatContext.Provider
           value={{ client: chatClientUthred, setActiveChannel }}
         >
           <ChannelList
-            filters={{}}
-            Preview={ChannelPreviewComponent}
-            List={ChannelListComponent}
-            setActiveChannelOnMount
-            setActiveChannel={setActiveChannel}
             customActiveChannel={testChannel2.channel.id}
+            filters={{}}
+            List={ChannelListComponent}
+            options={{ presence: true, state: true, watch: true }}
+            Preview={ChannelPreviewComponent}
+            setActiveChannel={setActiveChannel}
+            setActiveChannelOnMount
             watchers={watchersConfig}
-            options={{ state: true, watch: true, presence: true }}
           />
         </ChatContext.Provider>,
       );
@@ -407,8 +406,8 @@ describe('ChannelList', () => {
     describe('message.new', () => {
       const props = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
       const sendNewMessageOnChannel3 = () => {
         const newMessage = generateMessage({
@@ -432,7 +431,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list', async () => {
-        const { getByText, getByRole, getAllByRole } = render(
+        const { getAllByRole, getByRole, getByText } = render(
           <Chat client={chatClientUthred}>
             <ChannelList {...props} />
           </Chat>,
@@ -458,7 +457,7 @@ describe('ChannelList', () => {
       });
 
       it('should not alter order if `lockChannelOrder` prop is true', async () => {
-        const { getByText, getByRole, getAllByRole } = render(
+        const { getAllByRole, getByRole, getByText } = render(
           <Chat client={chatClientUthred}>
             <ChannelList {...props} lockChannelOrder />
           </Chat>,
@@ -491,13 +490,13 @@ describe('ChannelList', () => {
           queryChannelsApi([testChannel1, testChannel2]),
         ]);
 
-        const { getByRole, getByTestId, getAllByRole } = render(
+        const { getAllByRole, getByRole, getByTestId } = render(
           <Chat client={chatClientUthred}>
             <ChannelList
               filters={{}}
-              Preview={ChannelPreviewComponent}
               List={ChannelListComponent}
-              options={{ state: true, watch: true, presence: true }}
+              options={{ presence: true, state: true, watch: true }}
+              Preview={ChannelPreviewComponent}
             />
           </Chat>,
         );
@@ -536,10 +535,10 @@ describe('ChannelList', () => {
           <Chat client={chatClientUthred}>
             <ChannelList
               filters={{}}
-              Preview={ChannelPreviewComponent}
               List={ChannelListComponent}
               onMessageNew={onMessageNew}
-              options={{ state: true, watch: true, presence: true }}
+              options={{ presence: true, state: true, watch: true }}
+              Preview={ChannelPreviewComponent}
             />
           </Chat>,
         );
@@ -567,9 +566,9 @@ describe('ChannelList', () => {
     describe('notification.added_to_channel', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
-        options: { state: true, watch: true, presence: true },
+        options: { presence: true, state: true, watch: true },
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -580,7 +579,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list by default', async () => {
-        const { getByRole, getByTestId, getAllByRole } = render(
+        const { getAllByRole, getByRole, getByTestId } = render(
           <Chat client={chatClientUthred}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -643,8 +642,8 @@ describe('ChannelList', () => {
     describe('notification.removed_from_channel', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -708,8 +707,8 @@ describe('ChannelList', () => {
     describe('channel.updated', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -777,8 +776,8 @@ describe('ChannelList', () => {
     describe('channel.deleted', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -866,8 +865,8 @@ describe('ChannelList', () => {
     describe('channel.hidden', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {
@@ -930,9 +929,9 @@ describe('ChannelList', () => {
     describe('channel.visible', () => {
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
-        options: { state: true, watch: true, presence: true },
+        options: { presence: true, state: true, watch: true },
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(async () => {
@@ -943,7 +942,7 @@ describe('ChannelList', () => {
       });
 
       it('should move channel to top of the list by default', async () => {
-        const { getByRole, getByTestId, getAllByRole } = render(
+        const { getAllByRole, getByRole, getByTestId } = render(
           <Chat client={chatClientUthred}>
             <ChannelList {...channelListProps} />
           </Chat>,
@@ -1003,8 +1002,8 @@ describe('ChannelList', () => {
         const channel2 = generateChannel();
         const channelListProps = {
           filters: {},
-          Preview: ChannelPreviewComponent,
           List: ChannelListComponent,
+          Preview: ChannelPreviewComponent,
         };
 
         useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
@@ -1044,8 +1043,8 @@ describe('ChannelList', () => {
 
       const channelListProps = {
         filters: {},
-        Preview: ChannelPreviewComponent,
         List: ChannelListComponent,
+        Preview: ChannelPreviewComponent,
       };
 
       beforeEach(() => {

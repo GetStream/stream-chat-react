@@ -9,11 +9,11 @@ import {
 import emojiData from '../../stream-emoji.json';
 
 export const emojiMockConfig = {
-  emojiData,
-  EmojiPicker,
-  Emoji,
-  EmojiIndex,
-  defaultMinimalEmojis,
   commonEmoji,
+  defaultMinimalEmojis,
+  Emoji,
+  emojiData,
+  EmojiIndex,
+  EmojiPicker,
   emojiSetDef,
 };

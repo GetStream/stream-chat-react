@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { generateMessage } from 'mock-builders';
-import MessageActionsBox from '../MessageActionsBox';
+import { MessageActionsBox } from '../MessageActionsBox';
 
 const getMessageActionsMock = jest.fn(() => []);
 

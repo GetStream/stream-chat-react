@@ -1,13 +1,13 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
-  getTestClientWithUser,
   generateChannel,
   generateMessage,
   generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
-import { useActionHandler, handleActionWarning } from '../useActionHandler';
+import { handleActionWarning, useActionHandler } from '../useActionHandler';
 
 const alice = generateUser({ name: 'alice' });
 const sendAction = jest.fn();

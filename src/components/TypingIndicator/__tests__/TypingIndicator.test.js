@@ -1,18 +1,20 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import {
-  useMockedApis,
-  getTestClientWithUser,
+  generateChannel,
   generateUser,
   getOrCreateChannelApi,
-  generateChannel,
+  getTestClientWithUser,
+  useMockedApis,
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
-import TypingIndicator from '../TypingIndicator';
+import { ChatContext } from '../../../context';
+import { TypingIndicator } from '../TypingIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -22,8 +24,10 @@ async function renderComponent(typing = {}, threadList, value = {}) {
   const client = await getTestClientWithUser(alice);
 
   return render(
-    <ChannelContext.Provider value={{ client, typing, ...value }}>
-      <TypingIndicator threadList={threadList} />
+    <ChannelContext.Provider value={{ typing, ...value }}>
+      <ChatContext.Provider value={{ client }}>
+        <TypingIndicator threadList={threadList} />
+      </ChatContext.Provider>
     </ChannelContext.Provider>,
   );
 }
@@ -33,7 +37,9 @@ describe('TypingIndicator', () => {
     const tree = renderer
       .create(
         <ChannelContext.Provider value={{}}>
-          <TypingIndicator />
+          <ChatContext.Provider value={{}}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();
@@ -45,7 +51,9 @@ describe('TypingIndicator', () => {
     const tree = renderer
       .create(
         <ChannelContext.Provider value={{ client, typing: {} }}>
-          <TypingIndicator />
+          <ChatContext.Provider value={{ client }}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();
@@ -97,7 +105,7 @@ describe('TypingIndicator', () => {
   });
 
   it('should render TypingIndicator when you and someone else are typing', async () => {
-    const { container, getByTestId, getAllByTestId } = await renderComponent({
+    const { container, getAllByTestId, getByTestId } = await renderComponent({
       alice: { user: alice },
       jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
     });
@@ -107,6 +115,7 @@ describe('TypingIndicator', () => {
         'str-chat__typing-indicator--typing',
       ),
     ).toBe(true);
+    // eslint-disable-next-line jest-dom/prefer-in-document
     expect(getAllByTestId('avatar-img')).toHaveLength(1);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
   });
@@ -130,8 +139,10 @@ describe('TypingIndicator', () => {
 
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{ client, typing: {}, channel }}>
-          <TypingIndicator />
+        <ChannelContext.Provider value={{ channel, typing: {} }}>
+          <ChatContext.Provider value={{ client }}>
+            <TypingIndicator />
+          </ChatContext.Provider>
         </ChannelContext.Provider>,
       )
       .toJSON();
@@ -159,8 +170,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread', user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -177,8 +188,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread', user: 'test-user' } },
         false,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -195,8 +206,8 @@ describe('TypingIndicator', () => {
         { example: { user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );
@@ -213,8 +224,8 @@ describe('TypingIndicator', () => {
         { example: { parent_id: 'sample-thread-2', user: 'test-user' } },
         true,
         {
-          client,
           channel,
+          client,
           thread: { id: 'sample-thread' },
         },
       );

@@ -51,7 +51,7 @@ export const triggerPropsCheck = ({ trigger }) => {
     // $FlowFixMe
     const triggerSetting = settings;
 
-    const { component, dataProvider, output, callback } = triggerSetting;
+    const { callback, component, dataProvider, output } = triggerSetting;
 
     if (!isValidElementType(component)) {
       return Error('Invalid prop trigger: component should be defined.');

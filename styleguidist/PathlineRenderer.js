@@ -20,8 +20,8 @@ export const PathlineRenderer = ({ classes, children: source }) => {
     <div className={classes.pathline}>
       <Link
         href={`https://github.com/GetStream/stream-chat-react/blob/master/${source}`}
-        target="blank"
-        rel="noopener"
+        target='blank'
+        rel='noopener'
       >
         {source}
       </Link>

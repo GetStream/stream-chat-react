@@ -1,21 +1,21 @@
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
-import Modal from '../Modal';
+import { Modal } from '../Modal';
 
 describe('Modal', () => {
   afterEach(cleanup); // eslint-disable-line
 
   it('should be closed if the `open` prop is set to false', () => {
-    const { container } = render(<Modal open={false} onClose={() => {}} />);
+    const { container } = render(<Modal onClose={() => {}} open={false} />);
 
     expect(container.firstChild).toHaveClass('str-chat__modal--closed');
   });
 
   it('should be open if the `open` prop is set to true', () => {
-    const { container } = render(<Modal open onClose={() => {}} />);
+    const { container } = render(<Modal onClose={() => {}} open />);
 
     expect(container.firstChild).toHaveClass('str-chat__modal--open');
   });
@@ -23,7 +23,7 @@ describe('Modal', () => {
   it('should render what is passed as props.children', () => {
     const textContent = 'some text';
     const { queryByText } = render(
-      <Modal open={false} onClose={() => {}}>
+      <Modal onClose={() => {}} open={false}>
         {textContent}
       </Modal>,
     );
@@ -33,12 +33,12 @@ describe('Modal', () => {
 
   it('should call the onClose prop function if the escape key is pressed', () => {
     const onClose = jest.fn();
-    render(<Modal open onClose={onClose} />);
+    render(<Modal onClose={onClose} open />);
 
     fireEvent(
       document,
       new KeyboardEvent('keyPress', {
-        keyCode: 27,
+        key: 'Escape',
       }),
     );
 
@@ -47,13 +47,13 @@ describe('Modal', () => {
 
   it('should clean up the escape keypress handler on unmount', () => {
     const onClose = jest.fn();
-    const { unmount } = render(<Modal open onClose={onClose} />);
+    const { unmount } = render(<Modal onClose={onClose} open />);
 
     unmount();
     fireEvent(
       document,
       new KeyboardEvent('keyPress', {
-        keyCode: 27,
+        key: 'Escape',
       }),
     );
 
@@ -66,7 +66,7 @@ describe('Modal', () => {
     it('should not call onClose if the inside of the modal was clicked', () => {
       const onClose = jest.fn();
       const { queryByText } = render(
-        <Modal open onClose={onClose}>
+        <Modal onClose={onClose} open>
           {textContent}
         </Modal>,
       );
@@ -80,7 +80,7 @@ describe('Modal', () => {
     it('should call onClose if the outer part of the modal is clicked', () => {
       const onClose = jest.fn();
       const { container } = render(
-        <Modal open onClose={onClose}>
+        <Modal onClose={onClose} open>
           {textContent}
         </Modal>,
       );
@@ -93,7 +93,7 @@ describe('Modal', () => {
 
   it('should render the expected html', () => {
     const tree = renderer
-      .create(<Modal open={false} onClose={() => {}} />)
+      .create(<Modal onClose={() => {}} open={false} />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div

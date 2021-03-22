@@ -2,6 +2,7 @@ import babel from '@rollup/plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import external from 'rollup-plugin-peer-deps-external';
 import scss from 'rollup-plugin-scss';
 import url from 'rollup-plugin-url';
@@ -19,12 +20,8 @@ import pkg from './package.json';
 process.env.NODE_ENV = 'production';
 
 const styleBundle = ({ min } = { min: false }) => ({
-  input: 'src/styles/index.scss',
   cache: false,
-  watch: {
-    chokidar: false,
-    include: 'src/styles/',
-  },
+  input: 'src/styles/index.scss',
   output: [
     {
       dir: 'dist/css',
@@ -34,15 +31,19 @@ const styleBundle = ({ min } = { min: false }) => ({
   plugins: [
     scss({
       output: min ? pkg.style.replace('.css', '.min.css') : pkg.style,
-      prefix: `@import "./variables.scss";`,
       outputStyle: min ? 'compressed' : 'nested',
+      prefix: `@import "./variables.scss";`,
     }),
   ],
+  watch: {
+    chokidar: false,
+    include: 'src/styles/',
+  },
 });
 
 const baseConfig = {
-  input: 'src/index.js',
   cache: false,
+  input: 'src/index.ts',
   watch: {
     chokidar: false,
   },
@@ -64,6 +65,8 @@ const externalDependencies = [
   'lodash.isequal',
   'lodash.throttle',
   'lodash.uniqby',
+  'mdast-util-find-and-replace',
+  'mml-react',
   'pretty-bytes',
   'prop-types',
   'react-fast-compare',
@@ -76,39 +79,41 @@ const externalDependencies = [
   'react-virtuoso',
   'textarea-caret',
   /uuid/,
-  'mml-react',
 ];
 
 const basePlugins = [
   replace({
+    preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
   // Replace our alias for a relative path so the jsdoc resolution still
   // works after bundling.
   replace({
-    "import('types')": "import('../types')",
     delimiters: ['', ''],
+    "import('types')": "import('../types')",
+    preventAssignment: true,
   }),
   // Remove peer-dependencies from final bundle
   external(),
+  typescript(),
   babel({
     babelHelpers: 'runtime',
     exclude: 'node_modules/**',
   }),
   commonjs({
     namedExports: {
-      'prop-types': Object.keys(PropTypes),
-      'node_modules/react-is/index.js': ['isValidElementType'],
       'node_modules/linkifyjs/index.js': ['find'],
+      'node_modules/react-is/index.js': ['isValidElementType'],
+      'prop-types': Object.keys(PropTypes),
     },
   }),
   // import files as data-uris or es modules
   url(),
   copy(
     [
-      { files: 'src/styles/**/*', dest: 'dist/scss' },
-      { files: 'src/assets/*', dest: 'dist/assets' },
-      { files: 'src/i18n/*.json', dest: 'dist/i18n' },
+      { dest: 'dist/scss', files: 'src/styles/**/*' },
+      { dest: 'dist/assets', files: 'src/assets/*' },
+      { dest: 'dist/i18n', files: 'src/i18n/*.json' },
     ],
     {
       verbose: process.env.VERBOSE,
@@ -122,6 +127,7 @@ const basePlugins = [
 
 const normalBundle = {
   ...baseConfig,
+  external: externalDependencies,
   output: [
     {
       file: pkg.main,
@@ -134,7 +140,6 @@ const normalBundle = {
       sourcemap: true,
     },
   ],
-  external: externalDependencies,
   plugins: [...basePlugins],
 };
 
@@ -142,35 +147,35 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
   output: [
     {
+      extend: true, // extend window, not overwrite it
       file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
-      sourcemap: true,
-      name: 'window', // write all exported values to window
-      extend: true, // extend window, not overwrite it
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
         'stream-chat': 'StreamChat',
       },
+      name: 'window', // write all exported values to window
+      sourcemap: true,
     },
   ],
   plugins: [
     ...basePlugins,
     {
+      load: (id) => (id.match(/.s?css$/) ? '' : null),
       name: 'ignore-css-and-scss',
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
-      load: (id) => (id.match(/.s?css$/) ? '' : null),
     },
     builtins(),
     resolve({
       browser: true,
     }),
     globals({
-      process: true,
-      globals: false,
       buffer: false,
       dirname: false,
       filename: false,
+      globals: false,
+      process: true,
     }),
     // To work with globals rollup expects them to be namespaced, what is not the case with stream-chat.
     // This injects some code to define stream-chat globals as expected by rollup.

@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as sanitizeUrl from '@braintree/sanitize-url';
 
-import SafeAnchor from '../SafeAnchor';
+import { SafeAnchor } from '../SafeAnchor';
 
 describe('SafeAnchor', () => {
   it('should sanitize urls', () => {

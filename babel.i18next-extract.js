@@ -1,7 +1,8 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['@babel/env', '@babel/react'],
+    ignore: ['./**/*.d.ts'],
+    presets: ['@babel/preset-typescript', '@babel/env', '@babel/react'],
     plugins: [
       [
         'i18next-extract',

@@ -3,7 +3,7 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import EmptyStateIndicator from '../EmptyStateIndicator';
+import { EmptyStateIndicator } from '../EmptyStateIndicator';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -19,12 +19,12 @@ describe('EmptyStateIndicator', () => {
   });
 
   it('should return null if listType is message', () => {
-    const { container } = render(<EmptyStateIndicator listType="message" />);
+    const { container } = render(<EmptyStateIndicator listType='message' />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it('should display correct text when listType is channel', () => {
-    const { getByText } = render(<EmptyStateIndicator listType="channel" />);
+    const { getByText } = render(<EmptyStateIndicator listType='channel' />);
     expect(getByText('You have no channels currently')).toBeInTheDocument();
   });
 

@@ -1,9 +1,9 @@
 export default (client, channel = {}) => {
   client.dispatchEvent({
-    type: 'channel.visible',
-    cid: channel.cid,
-    channel_type: channel.type,
-    channel_id: channel.id,
     channel,
+    channel_id: channel.id,
+    channel_type: channel.type,
+    cid: channel.cid,
+    type: 'channel.visible',
   });
 };

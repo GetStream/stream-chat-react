@@ -1,28 +1,28 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import {
+  act,
   cleanup,
+  fireEvent,
   render,
   waitFor,
-  act,
-  fireEvent,
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import MML from '../MML';
+import { MML } from '../MML';
 import { ChatContext } from '../../../context';
 
 afterEach(cleanup); // eslint-disable-line
 
 describe('MML', () => {
   it('should render null without any source', () => {
-    const tree = renderer.create(<MML source="" />).toJSON();
+    const tree = renderer.create(<MML source='' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`null`);
   });
 
   it('should render a basic mml', () => {
     const tree = renderer
-      .create(<MML source="<mml>Some Text</mml>" />)
+      .create(<MML source='<mml>Some Text</mml>' />)
       .toJSON();
 
     expect(tree).toMatchInlineSnapshot(`
@@ -49,18 +49,18 @@ describe('MML', () => {
 
   it('should render with different align prop', () => {
     const { getByTestId, rerender } = render(
-      <MML source="<mml></mml>" align="left" />,
+      <MML align='left' source='<mml></mml>' />,
     );
     expect(getByTestId('mml-container')).toHaveClass('mml-align-left');
 
-    rerender(<MML source="<mml></mml>" align="right" />);
+    rerender(<MML align='right' source='<mml></mml>' />);
     expect(getByTestId('mml-container')).toHaveClass('mml-align-right');
   });
 
   it('should pass down themes from chat context', () => {
     const { getByTestId } = render(
       <ChatContext.Provider value={{ theme: 'team dark' }}>
-        <MML source="<mml></mml>" />,
+        <MML source='<mml></mml>' />,
       </ChatContext.Provider>,
     );
     expect(getByTestId('mml-container')).toHaveClass('team-dark');
@@ -69,7 +69,7 @@ describe('MML', () => {
   it('actionHandler should be called', async () => {
     const handler = jest.fn();
     const { getByTestId } = render(
-      <MML source="<mml></mml>" actionHandler={handler} />,
+      <MML actionHandler={handler} source='<mml></mml>' />,
     );
 
     expect(handler).toHaveBeenCalledTimes(0);
@@ -87,8 +87,8 @@ describe('MML', () => {
     const handler = jest.fn();
     const { getByTestId } = render(
       <MML
-        source="<mml name='mml_number'><number name='no' value='100'/></mml>"
         actionHandler={handler}
+        source="<mml name='mml_number'><number name='no' value='100'/></mml>"
       />,
     );
 

@@ -1,27 +1,28 @@
+/* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
-import { cleanup, render, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   emojiMockConfig,
   generateChannel,
-  getTestClientWithUser,
-  generateUser,
   generateMessage,
   generateReaction,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
 
 import { ChannelContext } from '../../../context';
-import MessageCommerce from '../MessageCommerce';
+import { MessageCommerce } from '../MessageCommerce';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
-import MessageTextMock from '../MessageText';
+import { MessageText as MessageTextMock } from '../MessageText';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
-jest.mock('../MessageText', () => jest.fn(() => <div />));
+jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 
-const alice = generateUser({ name: 'alice', image: 'alice-avatar.jpg' });
-const bob = generateUser({ name: 'bob', image: 'bob-avatar.jpg' });
+const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
+const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const openThreadMock = jest.fn();
 
 async function renderMessageCommerce(
@@ -41,8 +42,9 @@ async function renderMessageCommerce(
       }}
     >
       <MessageCommerce
-        message={message}
         getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+        isMyMessage={() => true}
+        message={message}
         {...props}
       />
     </ChannelContext.Provider>,
@@ -64,17 +66,16 @@ function generateBobMessage(messageOptions) {
 }
 
 const pdfAttachment = {
-  type: 'file',
   asset_url: 'file.pdf',
+  type: 'file',
 };
 
 const imageAttachment = {
-  type: 'image',
   image_url: 'image.jpg',
+  type: 'image',
 };
 
 const messageCommerceWrapperTestId = 'message-commerce-wrapper';
-const reactionSelectorTestId = 'reaction-selector';
 const reactionListTestId = 'reaction-list';
 const messageCommerceActionsTestId = 'message-reaction-action';
 
@@ -99,7 +100,7 @@ describe('<MessageCommerce />', () => {
       deleted_at: new Date('2019-12-10T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
-      <p data-testid="custom-message-deleted">Gone!</p>
+      <p data-testid='custom-message-deleted'>Gone!</p>
     );
     const { getByTestId } = await renderMessageCommerce(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
@@ -107,44 +108,14 @@ describe('<MessageCommerce />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
-  it('should render reaction selector with custom component when one is given', async () => {
-    const message = generateBobMessage({ text: undefined });
-    const customSelectorTestId = 'custom-reaction-selector';
-    // Passing the ref prevents a react warning
-    // eslint-disable-next-line no-unused-vars
-    const CustomReactionSelector = (props, ref) => (
-      <ul data-testid={customSelectorTestId}>
-        <li>
-          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>
-            :)
-          </button>
-        </li>
-        <li>
-          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>
-            :(
-          </button>
-        </li>
-      </ul>
-    );
-    const { getByTestId } = await renderMessageCommerce(
-      message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
-      { reactions: true },
-    );
-    fireEvent.click(getByTestId('message-reaction-action'));
-    expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
-  });
-
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ user: bob, type: 'cool-reaction' });
+    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
     const message = generateAliceMessage({
-      text: undefined,
       latest_reactions: [bobReaction],
+      text: undefined,
     });
     const CustomReactionsList = ({ reactions }) => (
-      <ul data-testid="custom-reaction-list">
+      <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
             return <li key={reaction.type + reaction.user_id}>:)</li>;
@@ -165,7 +136,7 @@ describe('<MessageCommerce />', () => {
 
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
-    const CustomAvatar = () => <div data-testid="custom-avatar">Avatar</div>;
+    const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
     const { getByTestId } = await renderMessageCommerce(message, {
       Avatar: CustomAvatar,
       groupStyles: ['bottom'],
@@ -183,7 +154,9 @@ describe('<MessageCommerce />', () => {
 
   it('should position message to the left if it is not from current user', async () => {
     const message = generateBobMessage();
-    const { getByTestId } = await renderMessageCommerce(message);
+    const { getByTestId } = await renderMessageCommerce(message, {
+      isMyMessage: () => false,
+    });
     expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
       '--left',
     );
@@ -270,10 +243,10 @@ describe('<MessageCommerce />', () => {
         expect(AvatarMock).toHaveBeenCalledWith(
           {
             image: alice.image,
-            size: 32,
             name: alice.name,
             onClick: expect.any(Function),
             onMouseOver: expect.any(Function),
+            size: 32,
           },
           {},
         );
@@ -294,7 +267,7 @@ describe('<MessageCommerce />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId(reactionListTestId)).toBeNull();
+    expect(queryByTestId(reactionListTestId)).not.toBeInTheDocument();
   });
 
   it('should show the reaction list when message has no text', async () => {
@@ -305,18 +278,6 @@ describe('<MessageCommerce />', () => {
     });
     const { getByTestId } = await renderMessageCommerce(message);
     expect(getByTestId(reactionListTestId)).toBeInTheDocument();
-  });
-
-  it('should show the reaction selector when message has no text and user clicks on the reaction list', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-      text: undefined,
-    });
-    const { getByTestId, queryByTestId } = await renderMessageCommerce(message);
-    expect(queryByTestId(reactionSelectorTestId)).toBeNull();
-    fireEvent.click(getByTestId(reactionListTestId));
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
   });
 
   it('should render message actions when message has no text and channel has reactions enabled', async () => {
@@ -336,7 +297,7 @@ describe('<MessageCommerce />', () => {
       {},
       { reactions: false },
     );
-    expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
+    expect(queryByTestId(messageCommerceActionsTestId)).not.toBeInTheDocument();
   });
 
   it('should render MML', async () => {
@@ -344,7 +305,7 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({ mml });
     await renderMessageCommerce(message);
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'right' }),
+      expect.objectContaining({ align: 'right', source: mml }),
       {},
     );
   });
@@ -352,9 +313,9 @@ describe('<MessageCommerce />', () => {
   it('should render MML on left for others', async () => {
     const mml = '<mml>text</mml>';
     const message = generateBobMessage({ mml });
-    await renderMessageCommerce(message);
+    await renderMessageCommerce(message, { isMyMessage: () => false });
     expect(MMLMock).toHaveBeenCalledWith(
-      expect.objectContaining({ source: mml, align: 'left' }),
+      expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
   });
@@ -372,7 +333,9 @@ describe('<MessageCommerce />', () => {
       const { queryByTestId } = await renderMessageCommerce(message, {
         reactions: true,
       });
-      expect(queryByTestId(messageCommerceActionsTestId)).toBeNull();
+      expect(
+        queryByTestId(messageCommerceActionsTestId),
+      ).not.toBeInTheDocument();
     },
   );
 
@@ -399,15 +362,15 @@ describe('<MessageCommerce />', () => {
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        message,
         customOptionProps: expect.objectContaining({
+          displayActions: false,
           displayLeft: false,
           displayReplies: false,
-          displayActions: false,
           theme: 'commerce',
         }),
-        theme: 'commerce',
         customWrapperClass: 'str-chat__message-commerce-text',
+        message,
+        theme: 'commerce',
       }),
       {},
     );
@@ -425,36 +388,30 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { getByTestId } = await renderMessageCommerce(message);
+    const { getByTestId } = await renderMessageCommerce(message, {
+      handleOpenThread: openThreadMock,
+    });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
     expect(openThreadMock).toHaveBeenCalledWith(
-      message,
       expect.any(Object), // The Event object
     );
   });
 
   it('should display user name when message is not from current user', async () => {
     const message = generateBobMessage();
-    const { getByText } = await renderMessageCommerce(message);
+    const { getByText } = await renderMessageCommerce(message, {
+      isMyMessage: () => false,
+    });
     expect(getByText(bob.name)).toBeInTheDocument();
   });
 
   it("should display message's timestamp with time only format", async () => {
-    const messageDate = new Date('2019-12-25T01:00:00');
-    const parsedDateText = '01:00:00';
+    const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    const format = jest.fn(() => parsedDateText);
-    const customTDateTimeParser = jest.fn(() => ({
-      format,
-    }));
-    const { getByText } = await renderMessageCommerce(message, {
-      tDateTimeParser: customTDateTimeParser,
-    });
-    expect(customTDateTimeParser).toHaveBeenCalledWith(messageDate);
-    expect(format).toHaveBeenCalledWith('LT');
-    expect(getByText(parsedDateText)).toBeInTheDocument();
+    const { getByText } = await renderMessageCommerce(message);
+    expect(getByText('3:33 AM')).toBeInTheDocument();
   });
 });

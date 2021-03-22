@@ -1,16 +1,16 @@
 import React from 'react';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
-  getTestClientWithUser,
-  generateUser,
   generateChannel,
+  generateUser,
+  getTestClientWithUser,
 } from 'mock-builders';
-import ChannelHeader from '../ChannelHeader';
+import { ChannelHeader } from '../ChannelHeader';
 import {
+  ChannelContext,
   ChatContext,
   TranslationContext,
-  ChannelContext,
 } from '../../../context';
 
 const alice = generateUser();
@@ -21,8 +21,8 @@ async function renderComponent(props, channelData) {
   const t = jest.fn((key) => key);
   const client = await getTestClientWithUser(alice);
   return render(
-    <ChatContext.Provider value={{ client, channel: testChannel1 }}>
-      <ChannelContext.Provider value={{ client, channel: testChannel1 }}>
+    <ChatContext.Provider value={{ channel: testChannel1, client }}>
+      <ChannelContext.Provider value={{ channel: testChannel1, client }}>
         <TranslationContext.Provider value={{ t }}>
           <ChannelHeader {...props} />
         </TranslationContext.Provider>
@@ -74,25 +74,25 @@ describe('ChannelHeader', () => {
 
   it('should display bigger image if channelType is commerce', async () => {
     const { getByTestId } = await renderComponent(null, {
-      type: 'commerce',
       data: {
         image: 'image.jpg',
         name: 'test-channel-1',
         subtitle: 'test subtitle',
       },
+      type: 'commerce',
     });
     expect(getByTestId('avatar-img')).toHaveStyle({
-      width: '60px',
-      height: '60px',
       flexBasis: '60px',
+      height: '60px',
       objectFit: 'cover',
+      width: '60px',
     });
     expect(getByTestId('avatar')).toHaveStyle({
-      width: '60px',
-      height: '60px',
       flexBasis: '60px',
-      lineHeight: '60px',
       fontSize: 30,
+      height: '60px',
+      lineHeight: '60px',
+      width: '60px',
     });
     expect(getByTestId('avatar')).toHaveClass(
       'str-chat__avatar str-chat__avatar--rounded',
@@ -117,9 +117,9 @@ describe('ChannelHeader', () => {
     const { getByText } = await renderComponent(null, {
       data: {
         image: 'image.jpg',
+        member_count: 34,
         name: 'test-channel-1',
         subtitle: 'test subtitle',
-        member_count: 34,
       },
     });
     waitFor(() => {

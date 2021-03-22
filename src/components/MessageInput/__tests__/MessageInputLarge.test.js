@@ -1,8 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MessageInput, MessageInputLarge } from '../index';
-import { ChannelContext, TranslationContext } from '../../../context';
+import { MessageInput } from '../MessageInput';
+import { MessageInputLarge } from '../MessageInputLarge';
+import { ChannelContext } from '../../../context/ChannelContext';
+import { TranslationContext } from '../../../context/TranslationContext';
 import { emojiMockConfig } from '../../../mock-builders';
 
 const i18nMock = jest.fn((key) => key);
@@ -35,10 +37,10 @@ const renderComponent = (channelContextMock) =>
     </ChannelContext.Provider>,
   );
 
-const user1 = { name: 'User one', id: 'user1' };
-const user2 = { name: 'User two', id: 'user2' };
-const user3 = { name: 'User three', id: 'user3' };
-const user4 = { name: 'User four', id: 'user4' };
+const user1 = { id: 'user1', name: 'User one' };
+const user2 = { id: 'user2', name: 'User two' };
+const user3 = { id: 'user3', name: 'User three' };
+const user4 = { id: 'user4', name: 'User four' };
 
 describe('MessageInputLarge', () => {
   afterEach(() => {

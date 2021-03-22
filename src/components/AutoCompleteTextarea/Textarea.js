@@ -51,8 +51,8 @@ class ReactTextareaAutocomplete extends React.Component {
       listenerIndex: 0,
       selectionEnd: 0,
       selectionStart: 0,
-      value: value || '',
       top: null,
+      value: value || '',
     };
   }
 
@@ -84,14 +84,14 @@ class ReactTextareaAutocomplete extends React.Component {
     if (!this.textareaRef) return null;
 
     return {
-      selectionStart: this.textareaRef.selectionStart,
       selectionEnd: this.textareaRef.selectionEnd,
+      selectionStart: this.textareaRef.selectionStart,
     };
   };
 
   getSelectedText = () => {
     if (!this.textareaRef) return null;
-    const { selectionStart, selectionEnd } = this.textareaRef;
+    const { selectionEnd, selectionStart } = this.textareaRef;
 
     if (selectionStart === selectionEnd) return null;
 
@@ -226,8 +226,8 @@ class ReactTextareaAutocomplete extends React.Component {
     // set the new textarea value and after that set the caret back to its position
     this.setState(
       {
-        value: textareaValue.replace(textToModify, modifiedText),
         dataLoading: false,
+        value: textareaValue.replace(textToModify, modifiedText),
       },
       () => {
         // fire onChange event after successful selection
@@ -295,8 +295,8 @@ class ReactTextareaAutocomplete extends React.Component {
 
         if (typeof textToReplace === 'string') {
           return {
-            text: textToReplace,
             caretPosition: DEFAULT_CARET_POSITION,
+            text: textToReplace,
           };
         }
 
@@ -335,12 +335,13 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   _getValuesFromProvider = () => {
+    const { mutes } = this.props;
     const { actualToken, currentTrigger } = this.state;
     const triggerSettings = this._getCurrentTriggerSettings();
 
     if (!currentTrigger || !triggerSettings) return;
 
-    const { dataProvider, component } = triggerSettings;
+    const { component, dataProvider } = triggerSettings;
 
     if (typeof dataProvider !== 'function') {
       throw new Error('Trigger provider has to be a function!');
@@ -370,6 +371,17 @@ class ReactTextareaAutocomplete extends React.Component {
         return;
       }
 
+      if (currentTrigger === '@' && mutes.length) {
+        data = data.filter((suggestion) => {
+          const mutedUser = mutes.some(
+            (mute) => mute.target.id === suggestion.id,
+          );
+
+          if (mutedUser) return false;
+          return true;
+        });
+      }
+
       this.setState({
         component,
         data,
@@ -397,7 +409,7 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   // TODO: This is an anti pattern in react, should come up with a better way
-  _update({ value, trigger }) {
+  _update({ trigger, value }) {
     const { value: oldValue } = this.state;
     const { trigger: oldTrigger } = this.props;
 
@@ -451,6 +463,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'SuggestionItem',
       'SuggestionList',
       'trigger',
       'value',
@@ -534,7 +547,7 @@ class ReactTextareaAutocomplete extends React.Component {
       // if we have single char - trigger it means we want to re-position the autocomplete
       lastToken.length === 1
     ) {
-      const { top: newTop, left: newLeft } = getCaretCoordinates(
+      const { left: newLeft, top: newTop } = getCaretCoordinates(
         textarea,
         selectionEnd,
       );
@@ -627,8 +640,10 @@ class ReactTextareaAutocomplete extends React.Component {
       itemClassName,
       itemStyle,
       listClassName,
+      SuggestionItem,
       SuggestionList = DefaultSuggestionList,
     } = this.props;
+
     const { component, currentTrigger, dataLoading, value } = this.state;
 
     const selectedItem = this._getItemOnSelect();
@@ -658,6 +673,7 @@ class ReactTextareaAutocomplete extends React.Component {
               itemClassName={itemClassName}
               itemStyle={itemStyle}
               onSelect={this._onSelect}
+              SuggestionItem={SuggestionItem}
               value={value}
               values={suggestionData}
             />
