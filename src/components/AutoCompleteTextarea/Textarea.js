@@ -335,6 +335,7 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   _getValuesFromProvider = () => {
+    const { mutes } = this.props;
     const { actualToken, currentTrigger } = this.state;
     const triggerSettings = this._getCurrentTriggerSettings();
 
@@ -368,6 +369,17 @@ class ReactTextareaAutocomplete extends React.Component {
       if (!data.length) {
         this._closeAutocomplete();
         return;
+      }
+
+      if (currentTrigger === '@' && mutes.length) {
+        data = data.filter((suggestion) => {
+          const mutedUser = mutes.some(
+            (mute) => mute.target.id === suggestion.id,
+          );
+
+          if (mutedUser) return false;
+          return true;
+        });
       }
 
       this.setState({

@@ -253,7 +253,7 @@ const UnMemoizedChatAutoComplete = <
     Re,
     Us
   >();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [searching, setSearching] = useState(false);
 
@@ -542,6 +542,7 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={maxRows}
       minChar={0}
+      mutes={mutes}
       onChange={onChange}
       onFocus={onFocus}
       onPaste={onPaste}
