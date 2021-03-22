@@ -39,7 +39,6 @@ const UnMemoizedGallery = <
     () =>
       images.map((image) => ({
         source: image.image_url || image.thumb_url || '',
-        src: image.image_url || image.thumb_url || '',
       })),
     [images],
   );
