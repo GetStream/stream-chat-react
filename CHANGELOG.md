@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.0) 2021-03-22
+
+### 🎉 TYPESCRIPT 🎉
+
+- The entire component library has been converted to TypeScript
+- Despite the major tag, this release is non-breaking
+- Read our [TypeScript Support](https://github.com/GetStream/stream-chat-react/wiki/Typescript-Support) wiki for guidance on instantiating a `StreamChat` client with your custom types via generics
+
+### Feature
+
+- Conversion to TypeScript [#797](https://github.com/GetStream/stream-chat-react/pull/797)
+
 ## [4.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v4.1.3) 2021-03-12
 
 ### Chore
