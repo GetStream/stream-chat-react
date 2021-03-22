@@ -39,7 +39,6 @@ const UnMemoizedGallery = <
     () =>
       images.map((image) => ({
         source: image.image_url || image.thumb_url || '',
-        src: image.image_url || image.thumb_url || '',
       })),
     [images],
   );
@@ -81,7 +80,7 @@ const UnMemoizedGallery = <
         images={formattedArray}
         index={index}
         modalIsOpen={modalOpen}
-        toggleModal={() => toggleModal}
+        toggleModal={() => setModalOpen(!modalOpen)}
       />
     </div>
   );
