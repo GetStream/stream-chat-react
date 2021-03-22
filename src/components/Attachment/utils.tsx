@@ -95,7 +95,9 @@ export const renderAttachmentActions = <
   return (
     <AttachmentActions
       {...attachment}
-      actionHandler={() => actionHandler}
+      actionHandler={(event, name, value) =>
+        actionHandler?.(name, value, event)
+      }
       actions={attachment.actions || []}
       id={attachment.id || ''}
       key={`key-actions-${attachment.id}`}

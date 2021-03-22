@@ -4,7 +4,7 @@ import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageInput } from './hooks/messageInput';
 import {
-  EmojiIconLarge as DefaultEmojiIcon,
+  EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
 } from './icons';
@@ -51,6 +51,8 @@ export const MessageInputSmall = <
     focus = false,
     grow = true,
     maxRows = 10,
+    mentionAllAppUsers,
+    mentionQueryParams,
     publishTypingEvent = true,
     SendButton = DefaultSendButton,
     SuggestionItem,
@@ -101,6 +103,8 @@ export const MessageInputSmall = <
               handleSubmit={messageInput.handleSubmit}
               innerRef={messageInput.textareaRef}
               maxRows={maxRows}
+              mentionAllAppUsers={mentionAllAppUsers}
+              mentionQueryParams={mentionQueryParams}
               onChange={messageInput.handleChange}
               onPaste={messageInput.onPaste}
               onSelectItem={messageInput.onSelectItem}

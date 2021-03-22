@@ -78,15 +78,24 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
   describe(`${componentName}`, () => {
     const inputPlaceholder = 'Type your message';
+    const userId = 'userId';
     const username = 'username';
-    const userid = 'userid';
+    const mentionId = 'mention-id';
+    const mentionName = 'mention-name';
 
     // First, set up a client and channel, so we can properly set up the context etc.
     beforeAll(async () => {
-      const user1 = generateUser({ id: userid, name: username });
+      const user1 = generateUser({ id: userId, name: username });
+      const mentionUser = generateUser({
+        id: mentionId,
+        name: mentionName,
+      });
       const message1 = generateMessage({ user: user1 });
       const mockedChannel = generateChannel({
-        members: [generateMember({ user: user1 })],
+        members: [
+          generateMember({ user: user1 }),
+          generateMember({ user: mentionUser }),
+        ],
         messages: [message1],
       });
       chatClient = await getTestClientWithUser({ id: user1.id });
@@ -387,7 +396,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         );
       });
 
-      it('should not set multiple attribute on the file input if mutltipleUploads is false', async () => {
+      it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
         const { findByTestId } = renderComponent(
           {},
           {
@@ -398,7 +407,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         expect(input).not.toHaveAttribute('multiple');
       });
 
-      it('should set multiple attribute on the file input if mutltipleUploads is true', async () => {
+      it('should set multiple attribute on the file input if multipleUploads is true', async () => {
         const { findByTestId } = renderComponent(
           {},
           {
@@ -671,7 +680,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         image_url: 'somewhere.png',
         type: 'image',
       };
-      const mentioned_users = [{ id: userid, name: username }];
+      const mentioned_users = [{ id: userId, name: username }];
 
       const message = generateMessage({
         attachments: [file, image],
@@ -691,7 +700,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             expect.objectContaining(image),
             expect.objectContaining(file),
           ]),
-          mentioned_users: [userid],
+          mentioned_users: [userId],
           text: message.text,
         }),
       );
@@ -716,7 +725,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       expect(submitMock).toHaveBeenCalledWith(
         channel.cid,
         expect.objectContaining({
-          mentioned_users: expect.arrayContaining([userid]),
+          mentioned_users: expect.arrayContaining([mentionId]),
         }),
       );
     });
@@ -724,7 +733,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
       const { findByPlaceholderText, submit } = renderComponent({
         message: {
-          mentioned_users: [{ id: userid, name: username }],
+          mentioned_users: [{ id: userId, name: username }],
           text: `@${username}`,
         },
       });

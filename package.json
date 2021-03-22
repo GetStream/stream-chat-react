@@ -164,7 +164,7 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn bundle",
+    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn bundle",
     "build-styles": "sass src/styles/index.scss dist/css/index.css --style compressed",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",

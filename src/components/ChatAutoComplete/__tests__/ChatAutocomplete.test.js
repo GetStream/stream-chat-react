@@ -20,6 +20,7 @@ import { ChatContext } from '../../../context/ChatContext';
 let chatClient;
 let channel;
 const user = generateUser({ id: 'id', name: 'name' });
+const mentionUser = generateUser({ id: 'mention-id', name: 'mention-name' });
 
 const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useContext(ChatContext);
@@ -56,7 +57,10 @@ const renderComponent = async (props = {}, activeChannel = channel) => {
 describe('ChatAutoComplete', () => {
   beforeEach(async () => {
     const messages = [generateMessage({ user })];
-    const members = [generateMember({ user })];
+    const members = [
+      generateMember({ user }),
+      generateMember({ user: mentionUser }),
+    ];
     const mockedChannel = generateChannel({
       members,
       messages,
@@ -109,10 +113,12 @@ describe('ChatAutoComplete', () => {
 
   it('should let you select users when you type @<username>', async () => {
     const onSelectItem = jest.fn();
-    const userAutocompleteText = `@${user.name}`;
-    const { getAllByText, typeText } = await renderComponent({ onSelectItem });
+    const userAutocompleteText = `@${mentionUser.name}`;
+    const { getAllByText, typeText } = await renderComponent({
+      onSelectItem,
+    });
     typeText(userAutocompleteText);
-    const userText = await getAllByText(user.name);
+    const userText = await getAllByText(mentionUser.name);
 
     expect(userText).toHaveLength(2);
 
@@ -120,17 +126,17 @@ describe('ChatAutoComplete', () => {
 
     expect(onSelectItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: user.id,
+        id: mentionUser.id,
       }),
     );
   });
 
   it('should let you select users when you type @<userid>', async () => {
     const onSelectItem = jest.fn();
-    const userAutocompleteText = `@${user.id}`;
+    const userAutocompleteText = `@${mentionUser.id}`;
     const { findByText, typeText } = await renderComponent({ onSelectItem });
     typeText(userAutocompleteText);
-    const userText = await findByText(user.name);
+    const userText = await findByText(mentionUser.name);
 
     expect(userText).toBeInTheDocument();
 
@@ -138,7 +144,7 @@ describe('ChatAutoComplete', () => {
 
     expect(onSelectItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: user.id,
+        id: mentionUser.id,
       }),
     );
   });
