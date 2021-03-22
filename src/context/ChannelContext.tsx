@@ -82,6 +82,8 @@ export type MessageToSend<
   id?: string;
   mentioned_users?: string[];
   parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  parent_id?: string;
+  status?: string;
   text?: string;
 };
 

@@ -25,6 +25,7 @@ import {
   Channel as StreamChannel,
   StreamChat,
   UpdatedMessage,
+  UserResponse,
 } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -451,7 +452,11 @@ const ChannelInner = <
   );
 
   const updateMessage = useCallback(
-    (updatedMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+    (
+      updatedMessage:
+        | MessageToSend<At, Ch, Co, Me, Re, Us>
+        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    ) => {
       if (!channel) return;
       // adds the message to the local channel state..
       // this adds to both the main channel state as well as any reply threads
@@ -469,15 +474,35 @@ const ChannelInner = <
     [channel, state.thread],
   );
 
+  const isUserResponseArray = (
+    output: string[] | UserResponse<Us>[],
+  ): output is UserResponse<Us>[] =>
+    (output as UserResponse<Us>[])[0]?.id != null;
+
   const doSendMessage = useCallback(
-    async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+    async (
+      message:
+        | MessageToSend<At, Ch, Co, Me, Re, Us>
+        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    ) => {
       if (!channel) return;
-      const { attachments, id, mentioned_users, parent_id, text } = message;
+
+      const {
+        attachments,
+        id,
+        mentioned_users = [],
+        parent_id,
+        text,
+      } = message;
+
+      const mentions = isUserResponseArray(mentioned_users)
+        ? mentioned_users.map(({ id }) => id)
+        : mentioned_users;
 
       const messageData = {
         attachments,
         id,
-        mentioned_users,
+        mentioned_users: mentions,
         parent_id,
         text,
       } as Message<At, Me, Us>;
@@ -528,13 +553,19 @@ const ChannelInner = <
     ) => {
       // create a preview of the message
       const clientSideID = `${client.userID}-${uuidv4()}`;
+
+      // channel.state.addMessageSorted expects an array of user responses
+      const mappedMentions = mentioned_users.map((mention) => ({
+        id: mention,
+      }));
+
       return ({
         __html: text,
         attachments,
         created_at: new Date(),
         html: text,
         id: clientSideID,
-        mentioned_users,
+        mentioned_users: mappedMentions,
         reactions: [],
         status: 'sending',
         text,
@@ -569,7 +600,12 @@ const ChannelInner = <
       // first we add the message to the UI
       updateMessage(messagePreview);
 
-      await doSendMessage(messagePreview);
+      const messageToSend = {
+        ...messagePreview,
+        mentioned_users,
+      };
+
+      await doSendMessage(messageToSend);
     },
     [channel?.state, createMessagePreview, doSendMessage, updateMessage],
   );
