@@ -80,7 +80,7 @@ const UnMemoizedGallery = <
         images={formattedArray}
         index={index}
         modalIsOpen={modalOpen}
-        toggleModal={() => toggleModal}
+        toggleModal={() => setModalOpen(!modalOpen)}
       />
     </div>
   );
