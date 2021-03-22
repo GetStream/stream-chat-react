@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
 //@ts-expect-error
@@ -107,9 +107,53 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
+const mentionsMarkdownPlugin = <
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  mentioned_users: UserResponse<Us>[],
+) => () => {
+  const mentioned_usernames = mentioned_users
+    .map((user) => user.name || user.id)
+    .filter(Boolean)
+    .map(escapeRegExp);
+
+  const mentionedUsersRegex = new RegExp(
+    mentioned_usernames.map((username) => `@${username}`).join('|'),
+    'g',
+  );
+
+  function replace(match: string) {
+    const usernameOrId = match.replace('@', '');
+    const user = mentioned_users.find(
+      ({ id, name }) => name === usernameOrId || id === usernameOrId,
+    );
+    return {
+      children: [{ type: 'text', value: match }],
+      mentioned_user: user,
+      type: 'mention',
+    };
+  }
+
+  const transform = <T extends unknown>(markdownAST: T) => {
+    findAndReplace(markdownAST, mentionedUsersRegex, replace);
+    return markdownAST;
+  };
+
+  return transform;
+};
+
+type MentionProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  mentioned_user: UserResponse<Us>;
+};
+
+const Mention = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: PropsWithChildren<Us>,
+) => <span className='str-chat__message-mention'>{props.children}</span>;
+
 export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   text?: string,
   mentioned_users?: UserResponse<Us>[],
+  MentionComponent: React.ComponentType<MentionProps<Us>> = Mention,
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -146,27 +190,23 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
-  if (mentioned_users && mentioned_users.length) {
-    for (let i = 0; i < mentioned_users.length; i++) {
-      let username = mentioned_users[i].name || mentioned_users[i].id;
+  const plugins = [emojiMarkdownPlugin];
 
-      if (username) {
-        username = escapeRegExp(username);
-      }
-
-      const nameMarkdown = `**@${username}**`;
-      const nameRegex = new RegExp(`@${username}`, 'g');
-
-      newText = newText.replace(nameRegex, nameMarkdown);
-    }
+  if (mentioned_users?.length) {
+    plugins.push(mentionsMarkdownPlugin(mentioned_users));
   }
+
+  const renderers = {
+    ...markDownRenderers,
+    mention: MentionComponent,
+  };
 
   return (
     <ReactMarkdown
       allowedTypes={allowedMarkups}
       escapeHtml={true}
-      plugins={[emojiMarkdownPlugin]}
-      renderers={markDownRenderers}
+      plugins={plugins}
+      renderers={renderers}
       source={newText}
       transformLinkUri={(uri) =>
         uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
