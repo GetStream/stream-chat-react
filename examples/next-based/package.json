@@ -1,0 +1,19 @@
+{
+  "name": "learn-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^10.0.0",
+    "react": "link:../../node_modules/react",
+    "react-app-polyfill": "^1.0.2",
+    "react-dom": "link:../../node_modules/react-dom",
+    "react-scripts": "2.1.4",
+    "stream-chat": "3.7.0",
+    "stream-chat-react": "link:../../"
+  }
+}
