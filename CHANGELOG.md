@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [5.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.1) 2021-03-23
+
+### Chore
+
+- Upgrade `react-file-utils` to v1.0.2
+
 ## [5.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.0) 2021-03-22
 
 ### 🎉 TYPESCRIPT 🎉
