@@ -495,6 +495,7 @@ const ChannelInner = <
         text,
       } = message;
 
+      // channel.sendMessage expects an array of user id strings
       const mentions = isUserResponseArray(mentioned_users)
         ? mentioned_users.map(({ id }) => id)
         : mentioned_users;
@@ -549,15 +550,10 @@ const ChannelInner = <
       text: string,
       attachments: MessageAttachments<At>,
       parent: MessageResponse<At, Ch, Co, Me, Re, Us> | undefined,
-      mentioned_users: string[],
+      mentioned_users: UserResponse<Us>[],
     ) => {
       // create a preview of the message
       const clientSideID = `${client.userID}-${uuidv4()}`;
-
-      // channel.state.addMessageSorted expects an array of user responses
-      const mappedMentions = mentioned_users.map((mention) => ({
-        id: mention,
-      }));
 
       return ({
         __html: text,
@@ -565,7 +561,7 @@ const ChannelInner = <
         created_at: new Date(),
         html: text,
         id: clientSideID,
-        mentioned_users: mappedMentions,
+        mentioned_users,
         reactions: [],
         status: 'sending',
         text,

@@ -2,7 +2,12 @@ import React from 'react';
 
 import { MessageInputLarge } from './MessageInputLarge';
 
-import type { Attachment, Channel, SendFileAPIResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Channel,
+  SendFileAPIResponse,
+  UserResponse,
+} from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
@@ -101,7 +106,7 @@ export type MessageInputProps<
   overrideSubmitHandler?: (
     message: {
       attachments: Attachment<At>[];
-      mentioned_users: string[];
+      mentioned_users: UserResponse<Us>[];
       text: string;
       parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
     },

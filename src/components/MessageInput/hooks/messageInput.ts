@@ -679,12 +679,10 @@ export const useMessageInput = <
     // and allows users to easily undo any accidental deletion
     const actualMentionedUsers = Array.from(
       new Set(
-        mentioned_users
-          .filter(
-            ({ id, name }) =>
-              text.includes(`@${id}`) || text.includes(`@${name}`),
-          )
-          .map(({ id }) => id),
+        mentioned_users.filter(
+          ({ id, name }) =>
+            text.includes(`@${id}`) || text.includes(`@${name}`),
+        ),
       ),
     );
 
