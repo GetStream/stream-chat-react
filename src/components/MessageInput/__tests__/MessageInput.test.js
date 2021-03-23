@@ -700,7 +700,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             expect.objectContaining(image),
             expect.objectContaining(file),
           ]),
-          mentioned_users: [userId],
+          mentioned_users: [{ id: userId, name: username }],
           text: message.text,
         }),
       );

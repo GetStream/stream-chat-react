@@ -80,8 +80,10 @@ export type MessageToSend<
 > = {
   attachments?: MessageAttachments<At>;
   id?: string;
-  mentioned_users?: string[];
+  mentioned_users?: UserResponse<Us>[];
   parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  parent_id?: string;
+  status?: string;
   text?: string;
 };
 
