@@ -36,6 +36,10 @@
   &-fallback {
     background-color: $secondary-color;
   }
+
+  &--clickable {
+    cursor: pointer;
+  }
 }
 
 .str-chat__message {

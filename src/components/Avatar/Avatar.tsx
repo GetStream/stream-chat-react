@@ -19,6 +19,8 @@ export type AvatarProps = {
   size?: number;
 };
 
+const noop = () => undefined;
+
 /**
  * Avatar - A round avatar image with fallback to username's first letter.
  * @example ./Avatar.md
@@ -27,8 +29,8 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
   const {
     image,
     name,
-    onClick = () => undefined,
-    onMouseOver = () => undefined,
+    onClick = noop,
+    onMouseOver = noop,
     shape = 'circle',
     size = 32,
   } = props;
@@ -43,9 +45,11 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
 
   const initials = (name || '').charAt(0);
 
+  const clickableClass = onClick !== noop ? 'str-chat__avatar--clickable' : '';
+
   return (
     <div
-      className={`str-chat__avatar str-chat__avatar--${shape}`}
+      className={`str-chat__avatar str-chat__avatar--${shape} ${clickableClass}`}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}
