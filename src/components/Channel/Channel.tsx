@@ -1,4 +1,5 @@
 import React, {
+  MouseEvent,
   PropsWithChildren,
   useCallback,
   useEffect,
@@ -25,6 +26,7 @@ import {
   Channel as StreamChannel,
   StreamChat,
   UpdatedMessage,
+  UserResponse,
 } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -172,6 +174,20 @@ export type ChannelProps<
    * Handle for hover on @mention in message, user object
    */
   onMentionsHover?: OnMentionAction<Us>;
+  /**
+   * Callback invoked when the user clicks on an avatar
+   */
+  onUserClick?: (
+    event: MouseEvent<HTMLElement>,
+    user?: UserResponse<Us>,
+  ) => void;
+  /**
+   * Callback invoked when the user hovers over an avatar
+   */
+  onUserHover?: (
+    event: MouseEvent<HTMLElement>,
+    user?: UserResponse<Us>,
+  ) => void;
 };
 
 const UnMemoizedChannel = <
@@ -239,6 +255,8 @@ const ChannelInner = <
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
+    onUserClick,
+    onUserHover,
   } = props;
 
   const { client, mutes, theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -706,6 +724,8 @@ const ChannelInner = <
     mutes,
     onMentionsClick: onMentionsHoverOrClick,
     onMentionsHover: onMentionsHoverOrClick,
+    onUserClick,
+    onUserHover,
     openThread,
     removeMessage,
     retrySendMessage,

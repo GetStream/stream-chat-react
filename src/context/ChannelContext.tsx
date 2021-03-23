@@ -170,6 +170,14 @@ export type ChannelContextValue<
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
   ) => void;
+  onUserClick?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>,
+  ) => void;
+  onUserHover?: (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserResponse<Us>,
+  ) => void;
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
