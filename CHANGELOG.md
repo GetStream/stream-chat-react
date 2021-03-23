@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [5.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.2) 2021-03-23
+
+### Bug
+
+- Fix optimistic UI for mentions [#800](https://github.com/GetStream/stream-chat-react/pull/800)
+
 ## [5.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.1) 2021-03-23
 
 ### Chore
