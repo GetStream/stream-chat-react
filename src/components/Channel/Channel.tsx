@@ -596,12 +596,7 @@ const ChannelInner = <
       // first we add the message to the UI
       updateMessage(messagePreview);
 
-      const messageToSend = {
-        ...messagePreview,
-        mentioned_users,
-      };
-
-      await doSendMessage(messageToSend);
+      await doSendMessage(messagePreview);
     },
     [channel?.state, createMessagePreview, doSendMessage, updateMessage],
   );
