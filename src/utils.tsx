@@ -144,7 +144,7 @@ const mentionsMarkdownPlugin = <
   return transform;
 };
 
-type MentionProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type MentionProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   mentioned_user: UserResponse<Us>;
 };
 
@@ -152,7 +152,7 @@ const Mention = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: PropsWithChildren<Us>,
 ) => <span className='str-chat__message-mention'>{props.children}</span>;
 
-type RenderTextOptions = {
+export type RenderTextOptions = {
   customMarkDownRenderers?: {
     [nodeType: string]: React.ElementType;
   };
