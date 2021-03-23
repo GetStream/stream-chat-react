@@ -152,10 +152,18 @@ const Mention = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: PropsWithChildren<Us>,
 ) => <span className='str-chat__message-mention'>{props.children}</span>;
 
+type RenderTextOptions = {
+  customMarkDownRenderers?: {
+    [nodeType: string]: React.ElementType;
+  };
+  truncationLimit?: number;
+};
+
 export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   text?: string,
   mentioned_users?: UserResponse<Us>[],
   MentionComponent: React.ComponentType<MentionProps<Us>> = Mention,
+  options: RenderTextOptions = {},
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -188,7 +196,12 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
     const displayLink =
-      type === 'email' ? value : truncate(value.replace(detectHttp, ''), 20);
+      type === 'email'
+        ? value
+        : truncate(
+            value.replace(detectHttp, ''),
+            options.truncationLimit || 20,
+          );
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
@@ -200,6 +213,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   const renderers = {
     ...markDownRenderers,
+    ...options.customMarkDownRenderers,
     mention: MentionComponent,
   };
 
