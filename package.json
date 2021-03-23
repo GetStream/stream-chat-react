@@ -55,7 +55,7 @@
   "files": [
     "built",
     "dist",
-    "/types",
+    "types",
     "README.md"
   ],
   "devDependencies": {
