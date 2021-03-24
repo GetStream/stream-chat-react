@@ -447,6 +447,14 @@
     font-weight: $heavy-font-weight;
   }
 
+  &-url-link {
+    display: inline-block;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
   &--inner {
     display: flex;
     flex-direction: column;
