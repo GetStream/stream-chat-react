@@ -28,7 +28,7 @@ import type {
   RetrySendMessage,
   StreamMessage,
 } from '../../context/ChannelContext';
-import type { MentionProps, RenderTextOptions } from '../../utils';
+import type { RenderTextOptions } from '../../utils';
 
 import type {
   CustomTrigger,
@@ -282,7 +282,6 @@ export type MessageUIComponentProps<
   renderText?: (
     text?: string,
     mentioned_users?: UserResponse<Us>[],
-    MentionComponent?: React.ComponentType<MentionProps<Us>>,
     options?: RenderTextOptions,
   ) => JSX.Element | null;
   /** Whether or not the current Message is in a Thread */

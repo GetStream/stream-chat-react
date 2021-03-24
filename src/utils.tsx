@@ -74,17 +74,26 @@ type MarkDownRenderers = {
 const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
-    if (
-      !props.href ||
-      (!props.href.startsWith('http') && !props.href.startsWith('mailto:'))
-    ) {
-      return props.children;
+    const { children, href } = props;
+
+    const isEmail = href?.startsWith('mailto:');
+    const isUrl = href?.startsWith('http');
+
+    if (!href || (!isEmail && !isUrl)) {
+      return children;
     }
 
     return (
-      <a href={props.href} rel='nofollow noreferrer noopener' target='_blank'>
-        {props.children}
-      </a>
+      <span>
+        <a
+          className={`${isUrl ? 'str-chat__message-url-link' : ''}`}
+          href={href}
+          rel='nofollow noreferrer noopener'
+          target='_blank'
+        >
+          {children}
+        </a>
+      </span>
     );
   },
   span: 'span',
@@ -156,13 +165,11 @@ export type RenderTextOptions = {
   customMarkDownRenderers?: {
     [nodeType: string]: React.ElementType;
   };
-  truncationLimit?: number;
 };
 
 export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   text?: string,
   mentioned_users?: UserResponse<Us>[],
-  MentionComponent: React.ComponentType<MentionProps<Us>> = Mention,
   options: RenderTextOptions = {},
 ) => {
   // take the @ mentions and turn them into markdown?
@@ -196,12 +203,8 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
     const displayLink =
-      type === 'email'
-        ? value
-        : truncate(
-            value.replace(detectHttp, ''),
-            options.truncationLimit || 20,
-          );
+      type === 'email' ? value : value.replace(detectHttp, '');
+
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
@@ -212,9 +215,9 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   }
 
   const renderers = {
+    mention: Mention,
     ...markDownRenderers,
     ...options.customMarkDownRenderers,
-    mention: MentionComponent,
   };
 
   return (
