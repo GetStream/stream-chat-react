@@ -84,16 +84,14 @@ const markDownRenderers: { [nodeType: string]: React.ElementType } = {
     }
 
     return (
-      <span>
-        <a
-          className={`${isUrl ? 'str-chat__message-url-link' : ''}`}
-          href={href}
-          rel='nofollow noreferrer noopener'
-          target='_blank'
-        >
-          {children}
-        </a>
-      </span>
+      <a
+        className={`${isUrl ? 'str-chat__message-url-link' : ''}`}
+        href={href}
+        rel='nofollow noreferrer noopener'
+        target='_blank'
+      >
+        {children}
+      </a>
     );
   },
   span: 'span',
