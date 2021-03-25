@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  isDayjs,
+  isDayOrMoment,
   useTranslationContext,
 } from '../../context/TranslationContext';
 
@@ -29,7 +29,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
 
   const formattedDate = formatDate
     ? formatDate(date)
-    : isDayjs(parsedDate)
+    : isDayOrMoment(parsedDate)
     ? parsedDate.calendar()
     : parsedDate;
 

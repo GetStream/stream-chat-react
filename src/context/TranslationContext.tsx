@@ -6,6 +6,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { getDisplayName } from './utils/getDisplayName';
 
 import type { TFunction } from 'i18next';
+import type { Moment } from 'moment';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../../types/types';
@@ -13,8 +14,10 @@ import type { UnknownType } from '../../types/types';
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
 
-export const isDayjs = (output: TDateTimeParserOutput): output is Dayjs.Dayjs =>
-  (output as Dayjs.Dayjs).isSame != null;
+export const isDayOrMoment = (
+  output: TDateTimeParserOutput,
+): output is Dayjs.Dayjs | Moment =>
+  (output as Dayjs.Dayjs | Moment).isSame != null;
 
 export const isDate = (output: TDateTimeParserOutput): output is Date =>
   (output as Date).getMonth != null;
@@ -26,7 +29,12 @@ export const isNumberOrString = (
 
 export type TDateTimeParserInput = string | number | Date;
 
-export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs;
+export type TDateTimeParserOutput =
+  | string
+  | number
+  | Date
+  | Dayjs.Dayjs
+  | Moment;
 
 export type TDateTimeParser = (
   input?: TDateTimeParserInput,

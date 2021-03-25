@@ -3,7 +3,7 @@ import React from 'react';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import {
-  isDayjs,
+  isDayOrMoment,
   useTranslationContext,
 } from '../../context/TranslationContext';
 
@@ -58,7 +58,7 @@ const UnMemoizedEventComponent = <
 
   const dateFormatter = (date: string | Date, format: string) => {
     const parsedDate = tDateTimeParser(date);
-    const formattedDate = isDayjs(parsedDate)
+    const formattedDate = isDayOrMoment(parsedDate)
       ? parsedDate.format(format)
       : parsedDate;
     return formattedDate;

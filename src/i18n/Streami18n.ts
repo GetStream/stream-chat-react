@@ -6,6 +6,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+import type moment from 'moment';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { TDateTimeParser } from '../context/TranslationContext';
@@ -160,8 +161,14 @@ const en_locale = {
   ],
 };
 
+// Type guards to check DayJs
+const isDayJs = (
+  dateTimeParser: typeof Dayjs | typeof moment,
+): dateTimeParser is typeof Dayjs =>
+  (dateTimeParser as typeof Dayjs).extend !== undefined;
+
 type Options = {
-  DateTimeParser?: typeof Dayjs;
+  DateTimeParser?: typeof Dayjs | typeof moment;
   dayjsLocaleConfigForLanguage?: Partial<ILocale>;
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
@@ -363,7 +370,7 @@ export class Streami18n {
    */
   logger: (msg?: string) => void;
   currentLanguage: TranslationLanguages;
-  DateTimeParser: typeof Dayjs;
+  DateTimeParser: typeof Dayjs | typeof moment;
   isCustomDateTimeParser: boolean;
   i18nextConfig: {
     debug: boolean;
@@ -411,9 +418,7 @@ export class Streami18n {
     this.DateTimeParser = finalOptions.DateTimeParser;
 
     try {
-      // This is a shallow check to see if given parser is instance of Dayjs.
-      // For some reason Dayjs.isDayjs(this.DateTimeParser()) doesn't work.
-      if (this.DateTimeParser && this.DateTimeParser.extend) {
+      if (this.DateTimeParser && isDayJs(this.DateTimeParser)) {
         this.DateTimeParser.extend(LocalizedFormat);
         this.DateTimeParser.extend(calendar);
         this.DateTimeParser.extend(localeData);
@@ -478,7 +483,17 @@ export class Streami18n {
         finalOptions.disableDateTimeTranslations ||
         !this.localeExists(this.currentLanguage)
       ) {
+        /**
+         * TS needs to know which is being called to accept the chain call
+         */
+        if (isDayJs(this.DateTimeParser)) {
+          return this.DateTimeParser(timestamp).locale(defaultLng);
+        }
         return this.DateTimeParser(timestamp).locale(defaultLng);
+      }
+
+      if (isDayJs(this.DateTimeParser)) {
+        return this.DateTimeParser(timestamp).locale(this.currentLanguage);
       }
 
       return this.DateTimeParser(timestamp).locale(this.currentLanguage);
