@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import {
-  ChannelPreviewCountOnly,
-  ChannelPreviewCountOnlyProps,
-} from './ChannelPreviewCountOnly';
+import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
 import {
   getDisplayImage,
   getDisplayTitle,
@@ -13,12 +10,11 @@ import {
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { Channel, Event, MessageResponse } from 'stream-chat';
-
-import type { ChannelPreviewCompactProps } from './ChannelPreviewCompact';
-import type { ChannelPreviewMessengerProps } from './ChannelPreviewMessenger';
+import type { Channel, Event } from 'stream-chat';
 
 import type { AvatarProps } from '../Avatar/Avatar';
+
+import type { StreamMessage } from '../../context/ChannelContext';
 
 import type {
   DefaultAttachmentType,
@@ -38,14 +34,22 @@ export type ChannelPreviewUIComponentProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> =
-  | ChannelPreviewCompactProps<At, Ch, Co, Ev, Me, Re, Us>
-  | ChannelPreviewCountOnlyProps<At, Ch, Co, Ev, Me, Re, Us>
-  | ChannelPreviewMessengerProps<At, Ch, Co, Ev, Me, Re, Us>
-  | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      lastMessage?: MessageResponse<At, Ch, Co, Me, Re, Us>;
-    };
+> = ChannelPreviewProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  /** If the component's channel is the active (selected) Channel */
+  active?: boolean;
+  /** Image of Channel to display */
+  displayImage?: string;
+  /** Title of Channel to display */
+  displayTitle?: string;
+  /** The last message received in a channel */
+  lastMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Latest message preview text to display */
+  latestMessage?: string;
+  /** Text truncation limit for latest message */
+  latestMessageLength?: number;
+  /** Number of unread Messages */
+  unread?: number;
+};
 
 export type ChannelPreviewProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -60,10 +64,13 @@ export type ChannelPreviewProps<
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Current selected channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  /**
+   * Custom UI component to display user avatar
+   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
+   */
   Avatar?: React.ComponentType<AvatarProps>;
+  /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
-  // Prop to trigger a re-render of the preview component after connection is recovered.
-  connectionRecoveredCount?: number;
   key?: string;
   /**
    * Available built-in options (also accepts the same props as):
@@ -77,6 +84,7 @@ export type ChannelPreviewProps<
   Preview?: React.ComponentType<
     ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
   >;
+  /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue<
     At,
     Ch,
@@ -86,6 +94,11 @@ export type ChannelPreviewProps<
     Re,
     Us
   >['setActiveChannel'];
+  /**
+   * Object containing watcher parameters
+   * @see See [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
+   */
+  watchers?: { limit?: number; offset?: number };
 };
 
 export const ChannelPreview = <
@@ -113,8 +126,8 @@ export const ChannelPreview = <
   const { t } = useTranslationContext();
 
   const [lastMessage, setLastMessage] = useState<
-    MessageResponse<At, Ch, Co, Me, Re, Us>
-  >();
+    StreamMessage<At, Ch, Co, Ev, Me, Re, Us>
+  >(channel.state.messages[channel.state.messages.length - 1]);
   const [unread, setUnread] = useState(0);
 
   const isActive = activeChannel?.cid === channel.cid;
@@ -130,7 +143,7 @@ export const ChannelPreview = <
 
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      setLastMessage(event.message);
+      if (event.message) setLastMessage(event.message);
 
       if (!isActive && !muted) {
         setUnread(channel.countUnread());
