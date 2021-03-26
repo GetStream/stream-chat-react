@@ -33,6 +33,12 @@ import type {
   UnknownType,
 } from '../../types/types';
 
+export type ChannelNotifications = Array<{
+  id: string;
+  text: string;
+  type: 'success' | 'error';
+}>;
+
 export type CommonEmoji = {
   custom: boolean;
   emoticons: [];
@@ -144,8 +150,10 @@ export type ChannelContextValue<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
+  addNotification: (text: string, type: 'success' | 'error') => void;
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  notifications: ChannelNotifications;
   acceptedFiles?: string[];
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   closeThread?: (event: React.SyntheticEvent) => void;
