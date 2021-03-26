@@ -123,7 +123,7 @@ export const ChannelPreview = <
     Re,
     Us
   >();
-  const { t } = useTranslationContext();
+  const { t, userLanguage } = useTranslationContext();
 
   const [lastMessage, setLastMessage] = useState<
     StreamMessage<At, Ch, Co, Ev, Me, Re, Us>
@@ -172,7 +172,7 @@ export const ChannelPreview = <
       displayImage={getDisplayImage(channel, client.user)}
       displayTitle={getDisplayTitle(channel, client.user)}
       lastMessage={lastMessage}
-      latestMessage={getLatestMessagePreview(channel, t)}
+      latestMessage={getLatestMessagePreview(channel, t, userLanguage)}
       setActiveChannel={setActiveChannel}
       unread={unread}
     />
