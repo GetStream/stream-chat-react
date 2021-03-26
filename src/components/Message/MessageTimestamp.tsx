@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import {
   isDate,
-  isDayjs,
+  isDayOrMoment,
   isNumberOrString,
   TDateTimeParser,
   TDateTimeParserInput,
@@ -52,7 +52,7 @@ function getDateString(
 
   const parsedTime = tDateTimeParser(messageCreatedAt);
 
-  if (isDayjs(parsedTime)) {
+  if (isDayOrMoment(parsedTime)) {
     /**
      * parsedTime.calendar is guaranteed on the type but is only
      * available when a user calls dayjs.extend(calendar)
