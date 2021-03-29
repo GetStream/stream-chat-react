@@ -97,11 +97,11 @@ const MessageCommerceWithContext = <
     isMyMessage() ? 'right' : 'left'
   }`;
 
-  if (message?.deleted_at) {
+  if (message.deleted_at) {
     return <MessageDeleted message={message} />;
   }
 
-  if (message?.type === 'message.read' || message.type === 'message.date') {
+  if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
   }
 
@@ -110,9 +110,9 @@ const MessageCommerceWithContext = <
       <div
         className={`
 						${messageClasses}
-						str-chat__message-commerce--${message?.type}
+						str-chat__message-commerce--${message.type}
 						${
-              message?.text
+              message.text
                 ? 'str-chat__message-commerce--has-text'
                 : 'str-chat__message-commerce--has-no-text'
             }
@@ -123,15 +123,15 @@ const MessageCommerceWithContext = <
                 : ''
             }
             ${`str-chat__message-commerce--${firstGroupStyle}`}
-            ${message?.pinned ? 'pinned-message' : ''}
+            ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
         data-testid='message-commerce-wrapper'
-        key={message?.id || ''}
+        key={message.id}
       >
         {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
           <Avatar
-            image={message?.user?.image}
-            name={message?.user?.name || message?.user?.id}
+            image={message.user?.image}
+            name={message.user?.name || message.user?.id}
             onClick={onUserClick}
             onMouseOver={onUserHover}
             size={32}
@@ -171,20 +171,20 @@ const MessageCommerceWithContext = <
               )}
             </>
           )}
-          {message?.attachments && Attachment && (
+          {message.attachments && (
             <Attachment
               actionHandler={handleAction}
               attachments={message.attachments}
             />
           )}
-          {message?.mml && (
+          {message.mml && (
             <MML
               actionHandler={handleAction}
               align={isMyMessage() ? 'right' : 'left'}
               source={message.mml}
             />
           )}
-          {message?.text && (
+          {message.text && (
             <MessageText
               {...props}
               customInnerClass='str-chat__message-commerce-text-inner'
@@ -202,14 +202,14 @@ const MessageCommerceWithContext = <
             <div className='str-chat__message-commerce-reply-button'>
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
-                reply_count={message?.reply_count}
+                reply_count={message.reply_count}
               />
             </div>
           )}
           <div className='str-chat__message-commerce-data'>
             {!isMyMessage() ? (
               <span className='str-chat__message-commerce-name'>
-                {message?.user?.name || message?.user?.id}
+                {message.user?.name || message.user?.id}
               </span>
             ) : null}
             <MessageTimestamp

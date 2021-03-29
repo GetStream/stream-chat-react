@@ -22,6 +22,7 @@
   "Error: {{ errorMessage }}": "Ошибка: {{ errorMessage }}",
   "Flag": "Пожаловаться",
   "Message Failed · Click to try again": "Ошибка отправки сообщения · Нажмите чтобы повторить",
+  "Message Failed · Unauthorized": "Ошибка отправки сообщения · Неавторизованный",
   "Message deleted": "Сообщение удалено",
   "Message failed. Click to try again.": "Ошибка отправки сообщения · Нажмите чтобы повторить",
   "Message has been successfully flagged": "Жалоба на сообщение была принята",

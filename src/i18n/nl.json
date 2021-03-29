@@ -22,6 +22,7 @@
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
   "Flag": "Markeer",
   "Message Failed · Click to try again": "Bericht mislukt, klik om het nogmaals te proberen",
+  "Message Failed · Unauthorized": "Bericht mislukt, ongeautoriseerd",
   "Message deleted": "Bericht verwijderd",
   "Message failed. Click to try again.": "Bericht mislukt, klik om het nogmaals te proberen",
   "Message has been successfully flagged": "Bericht is succesvol gemarkeerd",

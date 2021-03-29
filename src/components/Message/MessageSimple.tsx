@@ -109,11 +109,11 @@ const MessageSimpleWithContext = <
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
 
-  if (message?.type === 'message.read' || message?.type === 'message.date') {
+  if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
   }
 
-  if (message?.deleted_at) {
+  if (message.deleted_at) {
     return <MessageDeleted message={message} />;
   }
 
@@ -142,7 +142,7 @@ const MessageSimpleWithContext = <
                 ? 'str-chat__message--with-reactions'
                 : ''
             }
-            ${message?.pinned ? 'pinned-message' : ''}
+            ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
           key={message.id || ''}
           ref={messageWrapperRef}
@@ -159,11 +159,11 @@ const MessageSimpleWithContext = <
           <div
             className='str-chat__message-inner'
             data-testid='message-inner'
-            onClick={() => {
-              if (message.status === 'failed') {
-                handleRetry(message);
-              }
-            }}
+            onClick={
+              message.status === 'failed' && message.errorStatusCode !== 403
+                ? () => handleRetry(message)
+                : undefined
+            }
           >
             {!message.text && (
               <>
@@ -198,7 +198,7 @@ const MessageSimpleWithContext = <
                 )}
               </>
             )}
-            {message?.attachments && Attachment && (
+            {message.attachments && Attachment && (
               <Attachment
                 actionHandler={handleAction}
                 attachments={message.attachments}
@@ -269,7 +269,7 @@ const MessageSimpleStatus = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  if (!isMyMessage() || message?.type === 'error') {
+  if (!isMyMessage() || message.type === 'error') {
     return null;
   }
 

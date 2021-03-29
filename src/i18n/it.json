@@ -22,6 +22,7 @@
   "Error: {{ errorMessage }}": "Errore: {{ errorMessage }}",
   "Flag": "Segnala",
   "Message Failed · Click to try again": "Invio messaggio fallito · Clicca per riprovare",
+  "Message Failed · Unauthorized": "Invio messaggio fallito · Non autorizzato",
   "Message deleted": "Messaggio cancellato",
   "Message failed. Click to try again.": "Invio messaggio fallito. Clicca per riprovare.",
   "Message has been successfully flagged": "Il messaggio é stato segnalato con successo",

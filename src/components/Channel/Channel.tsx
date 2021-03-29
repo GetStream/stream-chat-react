@@ -564,10 +564,14 @@ const ChannelInner = <
             status: 'received',
           });
         }
-      } catch (e) {
-        // set the message to failed..
+      } catch (error) {
+        // error response isn't usable so needs to be stringified then parsed
+        const stringError = JSON.stringify(error);
+        const parsedError = stringError ? JSON.parse(stringError) : {};
+
         updateMessage({
           ...message,
+          errorStatusCode: (parsedError.status as number) || undefined,
           status: 'failed',
         });
       }
