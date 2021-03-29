@@ -1,5 +1,4 @@
 import React, { PureComponent, RefObject } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import { Center } from './Center';
 import { ConnectionStatus } from './ConnectionStatus';
@@ -71,11 +70,6 @@ class MessageListWithContext<
   MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
   {
     newMessagesNotification: boolean;
-    notifications: Array<{
-      id: string;
-      text: string;
-      type: 'success' | 'error';
-    }>;
     messageListRect?: DOMRect;
   }
 > {
@@ -87,7 +81,6 @@ class MessageListWithContext<
 
   bottomRef: RefObject<HTMLDivElement>;
   messageList: RefObject<HTMLDivElement>;
-  notificationTimeouts: Array<NodeJS.Timeout>;
   closeToTop: boolean | undefined;
   scrollOffset: number | undefined;
 
@@ -96,12 +89,10 @@ class MessageListWithContext<
 
     this.state = {
       newMessagesNotification: false,
-      notifications: [],
     };
 
     this.bottomRef = React.createRef();
     this.messageList = React.createRef();
-    this.notificationTimeouts = [];
   }
 
   componentDidMount() {
@@ -112,10 +103,6 @@ class MessageListWithContext<
     this.setState({
       messageListRect,
     });
-  }
-
-  componentWillUnmount() {
-    this.notificationTimeouts.forEach(clearTimeout);
   }
 
   getSnapshotBeforeUpdate(
@@ -270,35 +257,6 @@ class MessageListWithContext<
     }
   };
 
-  /**
-   * Adds a temporary notification to message list.
-   * Notification will be removed after 5 seconds.
-   *
-   * @param notificationText  Text of notification to be added
-   * @param type              Type of notification. success | error
-   */
-  addNotification = (notificationText: string, type: 'success' | 'error') => {
-    if (typeof notificationText !== 'string') return;
-    if (type !== 'success' && type !== 'error') return;
-
-    const id = uuidv4();
-
-    this.setState(({ notifications }) => ({
-      notifications: [...notifications, { id, text: notificationText, type }],
-    }));
-
-    // remove the notification after 5000 ms
-    const ct = setTimeout(
-      () =>
-        this.setState(({ notifications }) => ({
-          notifications: notifications.filter((n) => n.id !== id),
-        })),
-      5000,
-    );
-
-    this.notificationTimeouts.push(ct);
-  };
-
   onMessageLoadCaptured = () => {
     // A load event (emitted by e.g. an <img>) was captured on a message.
     // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
@@ -319,6 +277,7 @@ class MessageListWithContext<
 
   render() {
     const {
+      addNotification,
       Attachment = DefaultAttachment,
       Avatar = DefaultAvatar,
       DateSeparator = DefaultDateSeparator,
@@ -329,6 +288,7 @@ class MessageListWithContext<
       messageActions = Object.keys(MESSAGE_ACTIONS),
       messages = [],
       MessageSystem = EventComponent,
+      notifications,
       noGroupByUser = false,
       pinPermissions = defaultPinPermissions,
       t,
@@ -370,7 +330,7 @@ class MessageListWithContext<
             internalMessageProps={{
               additionalMessageInputProps: this.props
                 .additionalMessageInputProps,
-              addNotification: this.addNotification,
+              addNotification,
               Attachment,
               Avatar,
               channel: this.props.channel,
@@ -411,7 +371,7 @@ class MessageListWithContext<
           />
         </div>
         <div className='str-chat__list-notifications'>
-          {this.state.notifications.map((notification) => (
+          {notifications.map((notification) => (
             <CustomNotification
               active={true}
               key={notification.id}

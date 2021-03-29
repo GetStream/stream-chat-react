@@ -5,6 +5,7 @@ import React, {
   useLayoutEffect,
   useReducer,
   useRef,
+  useState,
 } from 'react';
 // @ts-expect-error
 import DefaultEmoji from 'emoji-mart/dist/components/emoji/nimble-emoji.js';
@@ -56,6 +57,7 @@ import { MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelContextValue,
+  ChannelNotifications,
   ChannelProvider,
   MessageAttachments,
   MessageToSend,
@@ -245,6 +247,9 @@ const ChannelInner = <
   const { client, mutes, theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
+  const [notifications, setNotifications] = useState<ChannelNotifications>([]);
+  const notificationTimeouts: Array<NodeJS.Timeout> = [];
+
   const [state, dispatch] = useReducer<
     ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>
   >(channelReducer, initialState);
@@ -383,6 +388,7 @@ const ChannelInner = <
       if (channel) channel.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
+      notificationTimeouts.forEach(clearTimeout);
     };
   }, [channel, client, handleEvent, markRead]);
 
@@ -398,6 +404,30 @@ const ChannelInner = <
   }, [state.messages, state.thread]);
 
   /** MESSAGE */
+
+  // Adds a temporary notification to message list, will be removed after 5 seconds
+  const addNotification = (text: string, type: 'success' | 'error') => {
+    if (typeof text !== 'string' || (type !== 'success' && type !== 'error')) {
+      return;
+    }
+
+    const id = uuidv4();
+
+    setNotifications((prevNotifications) => [
+      ...prevNotifications,
+      { id, text, type },
+    ]);
+
+    const timeout = setTimeout(
+      () =>
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter((notification) => notification.id !== id),
+        ),
+      5000,
+    );
+
+    notificationTimeouts.push(timeout);
+  };
 
   const loadMoreFinished = useCallback(
     debounce(
@@ -718,6 +748,7 @@ const ChannelInner = <
   const channelContextValue: ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     ...state,
     acceptedFiles,
+    addNotification,
     Attachment,
     channel,
     client, // from chatContext, for legacy reasons
@@ -731,6 +762,7 @@ const ChannelInner = <
     Message,
     multipleUploads,
     mutes,
+    notifications,
     onMentionsClick: onMentionsHoverOrClick,
     onMentionsHover: onMentionsHoverOrClick,
     openThread,
