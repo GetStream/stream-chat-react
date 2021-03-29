@@ -1,4 +1,4 @@
-import type { Channel, UserResponse } from 'stream-chat';
+import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
@@ -23,22 +23,32 @@ export const getLatestMessagePreview = <
 >(
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   t: TranslationContextValue['t'],
+  userLanguage: TranslationContextValue['userLanguage'] = 'en',
 ) => {
   const latestMessage =
     channel.state.messages[channel.state.messages.length - 1];
 
+  const previewTextToRender =
+    latestMessage?.i18n?.[
+      `${userLanguage}_text` as `${TranslationLanguages}_text`
+    ] || latestMessage?.text;
+
   if (!latestMessage) {
     return t('Nothing yet...');
   }
+
   if (latestMessage.deleted_at) {
     return t('Message deleted');
   }
-  if (latestMessage.text) {
-    return latestMessage.text;
+
+  if (previewTextToRender) {
+    return previewTextToRender;
   }
+
   if (latestMessage.command) {
     return `/${latestMessage.command}`;
   }
+
   if (latestMessage.attachments?.length) {
     return t('🏙 Attachment...');
   }
