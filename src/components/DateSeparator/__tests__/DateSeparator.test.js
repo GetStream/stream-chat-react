@@ -12,9 +12,7 @@ Dayjs.extend(calendar);
 
 afterEach(cleanup); // eslint-disable-line
 
-// this changes every time tests are run,
-// but by mocking the actual renderers tests are still deterministic
-const now = new Date();
+const now = new Date('2020-03-30T22:57:47.173Z');
 
 const withContext = (props) => {
   const t = jest.fn((key) => key);
@@ -41,7 +39,7 @@ describe('DateSeparator', () => {
     const { Component, t } = withContext({ date: now, unread: true });
     const { queryByText } = render(Component);
 
-    expect(queryByText('New')).toBeInTheDocument();
+    expect(queryByText('New - 03/30/2020')).toBeInTheDocument();
     expect(t).toHaveBeenCalledWith('New');
   });
 
@@ -58,7 +56,7 @@ describe('DateSeparator', () => {
         <div
           className="str-chat__date-separator-date"
         >
-          New
+          New - 03/30/2020
         </div>
       </div>
     `);
