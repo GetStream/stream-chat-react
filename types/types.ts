@@ -25,6 +25,7 @@ export type DefaultCommandType = LiteralStringForUnion;
 export type DefaultEventType = UnknownType;
 
 export type DefaultMessageType = UnknownType & {
+  errorStatusCode?: number;
   event?: Event<
     DefaultAttachmentType,
     DefaultChannelType,

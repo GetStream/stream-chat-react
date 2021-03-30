@@ -78,12 +78,12 @@ const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
-    const { queryByTestId } = await renderMessageText({ message: undefined });
+    const { queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
   });
 
   it('should not render anything if message text is not set', async () => {
-    const { queryByTestId } = await renderMessageText({ message: undefined });
+    const { queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
   });
 
