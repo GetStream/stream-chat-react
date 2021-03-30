@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
@@ -244,7 +244,7 @@ const UnMemoizedChatAutoComplete = <
     value,
   } = props;
 
-  const { channel, emojiConfig, thread } = useChannelContext<
+  const { channel, emojiConfig } = useChannelContext<
     At,
     Ch,
     Co,
@@ -256,18 +256,6 @@ const UnMemoizedChatAutoComplete = <
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [searching, setSearching] = useState(false);
-
-  useEffect(() => {
-    const getWatchers = async () => {
-      await channel?.watch({
-        watchers: { limit: 100, offset: 0 },
-      });
-    };
-
-    if (!thread) {
-      getWatchers();
-    }
-  }, []);
 
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
