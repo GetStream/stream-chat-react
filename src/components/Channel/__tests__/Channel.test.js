@@ -407,6 +407,9 @@ describe('Channel', () => {
               id_lt: messages[0].id,
               limit,
             },
+            watchers: {
+              limit,
+            },
           }),
         );
 
