@@ -67,6 +67,45 @@
   }
 }
 
+/* declare a font faces for our Emoji Replacement font, based on the default font used by Stream Chat React */
+
+$emoji-flag-unicode-range: U+1F1E6-1F1FF;
+
+/* png based woff for most browsers */
+@font-face {
+  font-family: ReplaceFlagEmojiPNG;
+  src: url("../../assets/NotoColorEmoji.woff") format("woff");
+  /* using the unicode-range attribute to limit the reach of the Flag Emoji web font to only flags */
+  unicode-range: $emoji-flag-unicode-range;
+}
+
+/* svg based for firefox */
+@font-face {
+  font-family: ReplaceFlagEmojiSVG;
+  src: url("../../assets/EmojiOneColor.woff") format("woff");
+  unicode-range: $emoji-flag-unicode-range;
+}
+
+.str-chat--windows-flags {
+  .str-chat__textarea__textarea,
+  .str-chat__message-text-inner *,
+  .str-chat__emoji-item--entity,
+  .emoji-mart-emoji-native * {
+    font-family: ReplaceFlagEmojiPNG, $second-font;
+  }
+}
+
+@-moz-document url-prefix() {
+  .str-chat--windows-flags {
+    .str-chat__textarea__textarea,
+    .str-chat__message-text-inner *,
+    .str-chat__emoji-item--entity,
+    .emoji-mart-emoji-native * {
+      font-family: ReplaceFlagEmojiSVG, $second-font;
+    }
+  }
+}
+
 .str-chat-channel-list {
   float: left;
 }
