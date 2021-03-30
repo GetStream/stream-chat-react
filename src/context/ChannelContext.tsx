@@ -85,6 +85,7 @@ export type MessageToSend<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   attachments?: MessageAttachments<At>;
+  errorStatusCode?: number;
   id?: string;
   mentioned_users?: UserResponse<Us>[];
   parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;

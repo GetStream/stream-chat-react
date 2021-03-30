@@ -96,14 +96,12 @@ const UnMemoizedMessageTextComponent = <
   const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message?.text;
-
-  const messageMentionedUsersItem = message?.mentioned_users;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message.text;
 
   const messageText = useMemo(
-    () => renderText(messageTextToRender, messageMentionedUsersItem),
-    [messageMentionedUsersItem, messageTextToRender],
+    () => renderText(messageTextToRender, message.mentioned_users),
+    [message.mentioned_users, messageTextToRender],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
@@ -111,7 +109,7 @@ const UnMemoizedMessageTextComponent = <
     customInnerClass ||
     `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!message?.text) return null;
+  if (!messageTextToRender) return null;
 
   return (
     <div className={wrapperClass}>
@@ -140,7 +138,9 @@ const UnMemoizedMessageTextComponent = <
         )}
         {message.status === 'failed' && (
           <div className={`str-chat__${theme}-message--error-message`}>
-            {t('Message Failed · Click to try again')}
+            {message.errorStatusCode !== 403
+              ? t('Message Failed · Click to try again')
+              : t('Message Failed · Unauthorized')}
           </div>
         )}
         {unsafeHTML && message.html ? (

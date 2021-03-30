@@ -518,7 +518,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ status: 'failed' });
     const { getByText } = await renderMessageLivestream(message);
     expect(
-      getByText('Message failed. Click to try again.'),
+      getByText('Message Failed · Click to try again'),
     ).toBeInTheDocument();
   });
 
