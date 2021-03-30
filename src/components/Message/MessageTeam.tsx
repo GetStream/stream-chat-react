@@ -284,7 +284,7 @@ const MessageTeamWithContext = <
                       <ThreadIcon />
                     </span>
                   )}
-                  {getMessageActions().length && showActionsBox && (
+                  {showActionsBox && (
                     <MessageActions
                       addNotification={addNotification}
                       customWrapperClass={''}
