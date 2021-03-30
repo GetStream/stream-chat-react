@@ -11,7 +11,11 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { areMessageUIPropsEqual, getReadByTooltipText } from './utils';
+import {
+  areMessageUIPropsEqual,
+  getReadByTooltipText,
+  showMessageActionsBox,
+} from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -127,6 +131,8 @@ const MessageTeamWithContext = <
   const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
+
+  const showActionsBox = showMessageActionsBox(getMessageActions());
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -278,7 +284,7 @@ const MessageTeamWithContext = <
                       <ThreadIcon />
                     </span>
                   )}
-                  {getMessageActions().length > 0 && (
+                  {showActionsBox && (
                     <MessageActions
                       addNotification={addNotification}
                       customWrapperClass={''}

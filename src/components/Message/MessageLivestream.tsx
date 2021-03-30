@@ -20,7 +20,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { areMessageUIPropsEqual } from './utils';
+import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -356,6 +356,8 @@ const MessageLivestreamActions = <
   const messageDeletedAt = !!message.deleted_at;
   const messageWrapper = messageWrapperRef?.current;
 
+  const showActionsBox = showMessageActionsBox(getMessageActions());
+
   useEffect(() => {
     if (messageWrapper) {
       messageWrapper.addEventListener('mouseleave', hideOptions);
@@ -425,12 +427,14 @@ const MessageLivestreamActions = <
           <ThreadIcon />
         </span>
       )}
-      <MessageActions
-        {...props}
-        customWrapperClass={''}
-        getMessageActions={getMessageActions}
-        inline
-      />
+      {showActionsBox && (
+        <MessageActions
+          {...props}
+          customWrapperClass={''}
+          getMessageActions={getMessageActions}
+          inline
+        />
+      )}
     </div>
   );
 };

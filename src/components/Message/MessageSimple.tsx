@@ -12,6 +12,7 @@ import {
   getReadByTooltipText,
   messageHasAttachments,
   messageHasReactions,
+  showMessageActionsBox,
 } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
@@ -82,6 +83,7 @@ const MessageSimpleWithContext = <
     editing,
     EditMessageInput = DefaultEditMessageForm,
     formatDate,
+    getMessageActions,
     handleAction,
     handleOpenThread,
     handleReaction,
@@ -108,6 +110,8 @@ const MessageSimpleWithContext = <
   const messageClasses = isMyMessage()
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
+
+  const showActionsBox = showMessageActionsBox(getMessageActions());
 
   if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
@@ -208,6 +212,7 @@ const MessageSimpleWithContext = <
               <MessageText
                 {...props}
                 customOptionProps={{
+                  displayActions: showActionsBox,
                   handleOpenThread,
                   messageWrapperRef,
                 }}
