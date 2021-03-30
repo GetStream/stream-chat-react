@@ -329,7 +329,7 @@ const UnMemoizedChatAutoComplete = <
     query: string,
     onReady: (users: UserResponse<Us>[]) => void,
   ) => {
-    if (searching) return;
+    if (!query || searching) return;
     setSearching(true);
 
     try {
