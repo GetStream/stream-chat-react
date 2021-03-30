@@ -640,6 +640,7 @@ const ChannelInner = <
       // set the message status to sending
       updateMessage({
         ...message,
+        errorStatusCode: undefined,
         status: 'sending',
       });
 
