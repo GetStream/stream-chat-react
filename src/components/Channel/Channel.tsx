@@ -466,6 +466,7 @@ const ChannelInner = <
       try {
         queryResponse = await channel.query({
           messages: { id_lt: oldestID, limit: perPage },
+          watchers: { limit: perPage },
         });
       } catch (e) {
         console.warn('message pagination request failed with error', e);
