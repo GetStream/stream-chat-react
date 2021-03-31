@@ -807,7 +807,7 @@ const ChannelInner = <
 
   return (
     <div
-      className={`str-chat str-chat-channel ${theme}${
+      className={`str-chat str-chat-channel ${theme} ${
         useImageFlagEmojisOnWindows && (navigator.platform.match(/Win/) || true)
           ? 'str-chat--windows-flags'
           : ''
