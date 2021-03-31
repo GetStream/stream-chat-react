@@ -1,11 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type {
-  Data as EmojiMartData,
-  NimbleEmojiIndex,
-  NimbleEmojiProps,
-  NimblePickerProps,
-} from 'emoji-mart';
+import type { Data as EmojiMartData } from 'emoji-mart';
 import type {
   Channel,
   MessageResponse,
@@ -56,10 +51,7 @@ export type MinimalEmoji = CommonEmoji &
 export type EmojiConfig = {
   commonEmoji: CommonEmoji;
   defaultMinimalEmojis: MinimalEmoji[];
-  Emoji: React.ComponentType<NimbleEmojiProps>;
   emojiData: EmojiMartData;
-  EmojiIndex: NimbleEmojiIndex;
-  EmojiPicker: React.ComponentType<NimblePickerProps>;
   emojiSetDef: EmojiSetDef;
 };
 
