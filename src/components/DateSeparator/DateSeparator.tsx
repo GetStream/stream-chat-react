@@ -39,7 +39,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
         <hr className='str-chat__date-separator-line' />
       )}
       <div className='str-chat__date-separator-date'>
-        {unread ? t('New') : formattedDate}
+        {unread ? `${t('New')} - ${formattedDate}` : formattedDate}
       </div>
       {(position === 'left' || position === 'center') && (
         <hr className='str-chat__date-separator-line' />
