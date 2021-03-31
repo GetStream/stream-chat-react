@@ -103,11 +103,11 @@ export type ChannelStateContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  emojiConfig: EmojiConfig;
+  multipleUploads: boolean;
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
-  emojiConfig?: EmojiConfig;
   maxNumberOfFiles?: number;
-  multipleUploads?: boolean;
   mutes?: Mute<Us>[];
   watcher_count?: number;
 };

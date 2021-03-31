@@ -65,33 +65,33 @@ export type ChannelActionContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
-  closeThread?: (event: React.SyntheticEvent) => void;
-  dispatch?: React.Dispatch<
+  closeThread: (event: React.SyntheticEvent) => void;
+  dispatch: React.Dispatch<
     ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
   >;
-  editMessage?: (
+  editMessage: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
-  loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
-  loadMoreThread?: () => Promise<void>;
-  onMentionsClick?: (
+  loadMore: ((limit: number) => Promise<number>) | (() => Promise<void>);
+  loadMoreThread: () => Promise<void>;
+  onMentionsClick: (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
   ) => void;
-  onMentionsHover?: (
+  onMentionsHover: (
     event: React.MouseEvent<HTMLElement>,
     user: UserResponse<Us>[],
   ) => void;
-  openThread?: (
+  openThread: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
-  removeMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
-  retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  sendMessage?: (
+  removeMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+  retrySendMessage: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  sendMessage: (
     message: MessageToSend<At, Ch, Co, Me, Re, Us>,
   ) => Promise<void>;
-  updateMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
+  updateMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
 };
 
 export const ChannelActionContext = React.createContext<ChannelActionContextValue>(

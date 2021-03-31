@@ -56,13 +56,22 @@ import {
 import { MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
-  ChannelContextValue,
-  ChannelNotifications,
-  ChannelProvider,
+  ChannelActionContextValue,
+  ChannelActionProvider,
   MessageAttachments,
   MessageToSend,
+} from '../../context/ChannelActionContext';
+import {
+  ChannelNotifications,
+  ChannelStateContextValue,
+  ChannelStateProvider,
+  EmojiConfig,
   StreamMessage,
-} from '../../context/ChannelContext';
+} from '../../context/ChannelStateContext';
+import {
+  ComponentContextValue,
+  ComponentProvider,
+} from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import defaultEmojiData from '../../stream-emoji.json';
@@ -260,13 +269,10 @@ const ChannelInner = <
   const lastRead = useRef(new Date());
   const online = useRef(true);
 
-  const emojiConfig = {
+  const emojiConfig: EmojiConfig = {
     commonEmoji,
     defaultMinimalEmojis,
-    Emoji,
     emojiData,
-    EmojiIndex,
-    EmojiPicker,
     emojiSetDef,
   };
 
@@ -751,24 +757,41 @@ const ChannelInner = <
 
   const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
-  const channelContextValue: ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const channelStateContextValue: ChannelStateContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  > = {
     ...state,
     acceptedFiles,
-    addNotification,
-    Attachment,
     channel,
-    client, // from chatContext, for legacy reasons
-    closeThread,
-    dispatch,
-    editMessage,
-    emojiConfig, // emoji config and customization object, potentially find a better home
-    loadMore,
-    loadMoreThread,
+    emojiConfig,
     maxNumberOfFiles,
-    Message,
     multipleUploads,
     mutes,
     notifications,
+    watcher_count: state.watcherCount,
+  };
+
+  const channelActionContextValue: ChannelActionContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  > = {
+    addNotification,
+    closeThread,
+    dispatch,
+    editMessage,
+    loadMore,
+    loadMoreThread,
     onMentionsClick: onMentionsHoverOrClick,
     onMentionsHover: onMentionsHoverOrClick,
     openThread,
@@ -776,7 +799,22 @@ const ChannelInner = <
     retrySendMessage,
     sendMessage,
     updateMessage,
-    watcher_count: state.watcherCount,
+  };
+
+  const componentContextValue: ComponentContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  > = {
+    Attachment,
+    Emoji,
+    EmojiIndex,
+    EmojiPicker,
+    Message,
   };
 
   if (state.error) {
@@ -805,17 +843,23 @@ const ChannelInner = <
 
   return (
     <div className={`str-chat str-chat-channel ${theme}`}>
-      <ChannelProvider<At, Ch, Co, Ev, Me, Re, Us> value={channelContextValue}>
-        <div className='str-chat__container'>{children}</div>
-      </ChannelProvider>
+      <ChannelStateProvider value={channelStateContextValue}>
+        <ChannelActionProvider value={channelActionContextValue}>
+          <ComponentProvider value={componentContextValue}>
+            <div className='str-chat__container'>{children}</div>
+          </ComponentProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
     </div>
   );
 };
 
 /**
- * Channel - Wrapper component for Channel. This Channel component provides the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
- *
- * It also exposes the [withChannelContext](https://getstream.github.io/stream-chat-react/#section-withchannelcontext) HOC which you can use to consume the [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ * Wrapper component that provides channel data and renders children.
+ * The Channel component provides the following contexts:
+ * - [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
+ * - [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext)
+ * - [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
  * @example ./Channel.md
  */
 export const Channel = React.memo(
