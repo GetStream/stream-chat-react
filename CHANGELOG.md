@@ -1,6 +1,27 @@
 # Changelog
 
 
+## [5.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.0) 2021-03-30
+
+### Feature
+
+- Add type support for Moment.js date objects [#809](https://github.com/GetStream/stream-chat-react/pull/809)
+- Add i18n translation support for `ChannelPreview` [#810](https://github.com/GetStream/stream-chat-react/pull/810)
+- Allow `addNotification` function to be called anywhere within `Channel` [#811](https://github.com/GetStream/stream-chat-react/pull/811)
+- Hide `MessageActions` if no actions exist [#816](https://github.com/GetStream/stream-chat-react/pull/816)
+
+### Chore
+
+- Refactor failed message UI component [#811](https://github.com/GetStream/stream-chat-react/pull/811)
+- Remove extra `watchers` query [#817](https://github.com/GetStream/stream-chat-react/pull/817)
+- Prevent `queryUsers` from searching a null value [#817](https://github.com/GetStream/stream-chat-react/pull/817)
+
+## [5.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.3) 2021-03-24
+
+### Feature
+
+- Add customization options for `renderText` function [#807](https://github.com/GetStream/stream-chat-react/pull/807)
+
 ## [5.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.0.2) 2021-03-23
 
 ### Bug

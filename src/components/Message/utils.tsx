@@ -205,6 +205,29 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
+export const showMessageActionsBox = (actions: MessageActionsArray) => {
+  if (actions.length === 0) {
+    return false;
+  }
+
+  if (
+    actions.length === 1 &&
+    (actions.includes('react') || actions.includes('reply'))
+  ) {
+    return false;
+  }
+
+  if (
+    actions.length === 2 &&
+    actions.includes('react') &&
+    actions.includes('reply')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
 export const areMessagePropsEqual = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,

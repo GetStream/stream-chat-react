@@ -53,7 +53,12 @@ async function renderMessageLivestream(
           userLanguage: 'en',
         }}
       >
-        <MessageLivestream message={message} typing={false} {...props} />
+        <MessageLivestream
+          getMessageActions={() => []}
+          message={message}
+          typing={false}
+          {...props}
+        />
       </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );
@@ -518,7 +523,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ status: 'failed' });
     const { getByText } = await renderMessageLivestream(message);
     expect(
-      getByText('Message failed. Click to try again.'),
+      getByText('Message Failed · Click to try again'),
     ).toBeInTheDocument();
   });
 

@@ -20,7 +20,7 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { areMessageUIPropsEqual } from './utils';
+import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -122,21 +122,17 @@ const MessageLivestreamWithContext = <
   });
 
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message?.text;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message.text;
 
   const messageText = useMemo(
-    () => renderText(messageTextToRender, message?.mentioned_users),
-    [message?.mentioned_users, messageTextToRender],
+    () => renderText(messageTextToRender, message.mentioned_users),
+    [message.mentioned_users, messageTextToRender],
   );
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
-  if (
-    !message ||
-    message.type === 'message.read' ||
-    message.type === 'message.date'
-  ) {
+  if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
   }
 
@@ -172,7 +168,7 @@ const MessageLivestreamWithContext = <
 
   return (
     <>
-      {message?.pinned && (
+      {message.pinned && (
         <div className='str-chat__message-livestream-pin-indicator'>
           <PinIndicator message={message} t={t} />
         </div>
@@ -182,7 +178,7 @@ const MessageLivestreamWithContext = <
           message.type
         } str-chat__message-livestream--${message.status} ${
           initialMessage ? 'str-chat__message-livestream--initial-message' : ''
-        } ${message?.pinned ? 'pinned-message' : ''}`}
+        } ${message.pinned ? 'pinned-message' : ''}`}
         data-testid='message-livestream'
         ref={messageWrapperRef}
       >
@@ -190,9 +186,9 @@ const MessageLivestreamWithContext = <
           <ReactionSelector
             detailedView
             handleReaction={handleReaction}
-            latest_reactions={message?.latest_reactions}
+            latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}
-            reaction_counts={message?.reaction_counts || undefined}
+            reaction_counts={message.reaction_counts || undefined}
             ref={reactionSelectorRef}
             reverse={false}
           />
@@ -213,7 +209,7 @@ const MessageLivestreamWithContext = <
         <div className='str-chat__message-livestream-left'>
           <Avatar
             image={message.user?.image}
-            name={message.user?.name || message?.user?.id}
+            name={message.user?.name || message.user?.id}
             onClick={onUserClick}
             onMouseOver={onUserHover}
             size={30}
@@ -223,7 +219,7 @@ const MessageLivestreamWithContext = <
           <div className='str-chat__message-livestream-content'>
             <div className='str-chat__message-livestream-author'>
               <strong>{message.user?.name || message.user?.id}</strong>
-              {message?.type === 'error' && (
+              {message.type === 'error' && (
                 <div className='str-chat__message-team-error-header'>
                   {t('Only visible to you')}
                 </div>
@@ -263,13 +259,21 @@ const MessageLivestreamWithContext = <
                 </p>
               )}
               {message.status === 'failed' && (
-                <p onClick={() => handleRetry(message)}>
+                <p
+                  onClick={
+                    message.errorStatusCode !== 403
+                      ? () => handleRetry(message)
+                      : undefined
+                  }
+                >
                   <ErrorIcon />
-                  {t('Message failed. Click to try again.')}
+                  {message.errorStatusCode !== 403
+                    ? t('Message Failed · Click to try again')
+                    : t('Message Failed · Unauthorized')}
                 </p>
               )}
             </div>
-            {message?.attachments && Attachment && (
+            {message.attachments && Attachment && (
               <Attachment
                 actionHandler={handleAction}
                 attachments={message.attachments}
@@ -349,8 +353,10 @@ const MessageLivestreamActions = <
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
-  const messageDeletedAt = !!message?.deleted_at;
+  const messageDeletedAt = !!message.deleted_at;
   const messageWrapper = messageWrapperRef?.current;
+
+  const showActionsBox = showMessageActionsBox(getMessageActions());
 
   useEffect(() => {
     if (messageWrapper) {
@@ -421,12 +427,14 @@ const MessageLivestreamActions = <
           <ThreadIcon />
         </span>
       )}
-      <MessageActions
-        {...props}
-        customWrapperClass={''}
-        getMessageActions={getMessageActions}
-        inline
-      />
+      {showActionsBox && (
+        <MessageActions
+          {...props}
+          customWrapperClass={''}
+          getMessageActions={getMessageActions}
+          inline
+        />
+      )}
     </div>
   );
 };

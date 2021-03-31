@@ -11,7 +11,11 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import { areMessageUIPropsEqual, getReadByTooltipText } from './utils';
+import {
+  areMessageUIPropsEqual,
+  getReadByTooltipText,
+  showMessageActionsBox,
+} from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -128,11 +132,13 @@ const MessageTeamWithContext = <
 
   const channelConfig = propChannelConfig || channel?.getConfig();
 
-  const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message?.text;
+  const showActionsBox = showMessageActionsBox(getMessageActions());
 
-  const messageMentionedUsersItem = message?.mentioned_users;
+  const messageTextToRender =
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    message.text;
+
+  const messageMentionedUsersItem = message.mentioned_users;
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -146,11 +152,11 @@ const MessageTeamWithContext = <
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
-  if (message?.type === 'message.read') {
+  if (message.type === 'message.read') {
     return null;
   }
 
-  if (message?.deleted_at) {
+  if (message.deleted_at) {
     return <MessageDeleted message={message} />;
   }
 
@@ -163,8 +169,8 @@ const MessageTeamWithContext = <
         {(firstGroupStyle === 'top' || firstGroupStyle === 'single') && (
           <div className='str-chat__message-team-meta'>
             <Avatar
-              image={message?.user?.image}
-              name={message?.user?.name || message?.user?.id}
+              image={message.user?.image}
+              name={message.user?.name || message.user?.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
               size={40}
@@ -182,17 +188,17 @@ const MessageTeamWithContext = <
 
   return (
     <>
-      {message?.pinned && (
+      {message.pinned && (
         <div className='str-chat__message-team-pin-indicator'>
           <PinIndicator message={message} t={t} />
         </div>
       )}
       <div
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
-          message?.type
+          message.type
         } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
-          message?.status
-        } ${message?.pinned ? 'pinned-message' : ''}`}
+          message.status
+        } ${message.pinned ? 'pinned-message' : ''}`}
         data-testid='message-team'
         ref={messageWrapperRef}
       >
@@ -201,8 +207,8 @@ const MessageTeamWithContext = <
           firstGroupStyle === 'single' ||
           initialMessage ? (
             <Avatar
-              image={message?.user?.image}
-              name={message?.user?.name || message?.user?.id}
+              image={message.user?.image}
+              name={message.user?.name || message.user?.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
               size={40}
@@ -235,7 +241,7 @@ const MessageTeamWithContext = <
             )}
           <div
             className={`str-chat__message-team-content str-chat__message-team-content--${firstGroupStyle} str-chat__message-team-content--${
-              message?.text === '' ? 'image' : 'text'
+              message.text === '' ? 'image' : 'text'
             }`}
             data-testid='message-team-content'
           >
@@ -278,7 +284,7 @@ const MessageTeamWithContext = <
                       <ThreadIcon />
                     </span>
                   )}
-                  {getMessageActions().length > 0 && (
+                  {showActionsBox && (
                     <MessageActions
                       addNotification={addNotification}
                       customWrapperClass={''}
@@ -341,8 +347,7 @@ const MessageTeamWithContext = <
                 message={message}
               />
             )}
-            {message?.latest_reactions &&
-              message.latest_reactions.length !== 0 &&
+            {message.latest_reactions?.length !== 0 &&
               message.text !== '' &&
               isReactionEnabled && (
                 <ReactionsList
@@ -353,18 +358,20 @@ const MessageTeamWithContext = <
                   reactions={message.latest_reactions}
                 />
               )}
-            {message?.status === 'failed' && (
+            {message.status === 'failed' && (
               <button
                 className='str-chat__message-team-failed'
                 data-testid='message-team-failed'
-                onClick={() => {
-                  if (message.status === 'failed') {
-                    handleRetry(message);
-                  }
-                }}
+                onClick={
+                  message.errorStatusCode !== 403
+                    ? () => handleRetry(message)
+                    : undefined
+                }
               >
                 <ErrorIcon />
-                {t('Message failed. Click to try again.')}
+                {message.errorStatusCode !== 403
+                  ? t('Message Failed · Click to try again')
+                  : t('Message Failed · Unauthorized')}
               </button>
             )}
           </div>
@@ -383,7 +390,7 @@ const MessageTeamWithContext = <
               message={message}
             />
           )}
-          {message?.latest_reactions &&
+          {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
             message.text === '' &&
             isReactionEnabled && (
@@ -438,7 +445,7 @@ const MessageTeamStatus = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  if (!isMyMessage() || message?.type === 'error') {
+  if (!isMyMessage() || message.type === 'error') {
     return null;
   }
 
@@ -521,7 +528,7 @@ const MessageTeamAttachments = <
 ) => {
   const { Attachment = DefaultAttachment, handleAction, message } = props;
 
-  if (message?.attachments) {
+  if (message.attachments) {
     return (
       <Attachment
         actionHandler={handleAction}

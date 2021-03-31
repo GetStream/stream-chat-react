@@ -474,6 +474,7 @@ const ChannelInner = <
       try {
         queryResponse = await channel.query({
           messages: { id_lt: oldestID, limit: perPage },
+          watchers: { limit: perPage },
         });
       } catch (e) {
         console.warn('message pagination request failed with error', e);
@@ -572,10 +573,14 @@ const ChannelInner = <
             status: 'received',
           });
         }
-      } catch (e) {
-        // set the message to failed..
+      } catch (error) {
+        // error response isn't usable so needs to be stringified then parsed
+        const stringError = JSON.stringify(error);
+        const parsedError = stringError ? JSON.parse(stringError) : {};
+
         updateMessage({
           ...message,
+          errorStatusCode: (parsedError.status as number) || undefined,
           status: 'failed',
         });
       }
@@ -644,6 +649,7 @@ const ChannelInner = <
       // set the message status to sending
       updateMessage({
         ...message,
+        errorStatusCode: undefined,
         status: 'sending',
       });
 
