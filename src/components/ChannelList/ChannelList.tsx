@@ -443,7 +443,8 @@ const UnMemoizedChannelList = <
         className={`str-chat str-chat-channel-list ${theme} ${
           navOpen ? 'str-chat-channel-list--open' : ''
         }${
-          useImageFlagEmojisOnWindows && (navigator.platform.match(/Win/) || true)
+          useImageFlagEmojisOnWindows &&
+          (navigator.platform.match(/Win/) || true)
             ? 'str-chat--windows-flags'
             : ''
         }`}

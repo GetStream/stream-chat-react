@@ -74,7 +74,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* png based woff for most browsers */
 @font-face {
   font-family: ReplaceFlagEmojiPNG;
-  src: url("../../assets/NotoColorEmoji.woff") format("woff");
+  src: url("../assets/NotoColorEmoji-subset.woff") format("woff");
   /* using the unicode-range attribute to limit the reach of the Flag Emoji web font to only flags */
   unicode-range: $emoji-flag-unicode-range;
 }
@@ -82,7 +82,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* svg based for firefox */
 @font-face {
   font-family: ReplaceFlagEmojiSVG;
-  src: url("../../assets/EmojiOneColor.woff") format("woff");
+  src: url("../assets/EmojiOneColor.woff") format("woff");
   unicode-range: $emoji-flag-unicode-range;
 }
 
@@ -91,7 +91,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   .str-chat__message-text-inner *,
   .str-chat__emoji-item--entity,
   .emoji-mart-emoji-native * {
-    font-family: ReplaceFlagEmojiPNG, $second-font;
+    font-family: ReplaceFlagEmojiPNG, $second-font, sans-serif;
   }
 }
 
@@ -101,7 +101,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
     .str-chat__message-text-inner *,
     .str-chat__emoji-item--entity,
     .emoji-mart-emoji-native * {
-      font-family: ReplaceFlagEmojiSVG, $second-font;
+      font-family: ReplaceFlagEmojiSVG, $second-font, sans-serif;
     }
   }
 }
