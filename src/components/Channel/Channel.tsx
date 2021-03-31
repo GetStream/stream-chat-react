@@ -872,6 +872,7 @@ const ChannelInner = <
  * - [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
  * - [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext)
  * - [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
+ * - [TypingContext](https://getstream.github.io/stream-chat-react/#section-typingcontext)
  * @example ./Channel.md
  */
 export const Channel = React.memo(
