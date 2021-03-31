@@ -74,6 +74,10 @@ import {
 } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import {
+  TypingContextValue,
+  TypingProvider,
+} from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type {
@@ -757,6 +761,8 @@ const ChannelInner = <
 
   const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
+  const { typing, ...restState } = state;
+
   const channelStateContextValue: ChannelStateContextValue<
     At,
     Ch,
@@ -766,7 +772,7 @@ const ChannelInner = <
     Re,
     Us
   > = {
-    ...state,
+    ...restState,
     acceptedFiles,
     channel,
     emojiConfig,
@@ -817,6 +823,10 @@ const ChannelInner = <
     Message,
   };
 
+  const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+    typing,
+  };
+
   if (state.error) {
     return (
       <div className={`str-chat str-chat-channel ${theme}`}>
@@ -846,7 +856,9 @@ const ChannelInner = <
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>
-            <div className='str-chat__container'>{children}</div>
+            <TypingProvider value={typingContextValue}>
+              <div className='str-chat__container'>{children}</div>
+            </TypingProvider>
           </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>

@@ -101,7 +101,7 @@ export type ChannelStateContextValue<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = ChannelState<At, Ch, Co, Ev, Me, Re, Us> & {
+> = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   emojiConfig: EmojiConfig;
   multipleUploads: boolean;
