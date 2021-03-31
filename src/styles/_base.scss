@@ -92,6 +92,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   .str-chat__emoji-item--entity,
   .emoji-mart-emoji-native * {
     font-family: ReplaceFlagEmojiPNG, $second-font, sans-serif;
+    font-display: swap;
   }
 }
 
@@ -102,6 +103,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
     .str-chat__emoji-item--entity,
     .emoji-mart-emoji-native * {
       font-family: ReplaceFlagEmojiSVG, $second-font, sans-serif;
+      font-display: swap;
     }
   }
 }
