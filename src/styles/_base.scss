@@ -74,7 +74,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* png based woff for most browsers */
 @font-face {
   font-family: ReplaceFlagEmojiPNG;
-  src: url("../assets/NotoColorEmoji-subset.woff") format("woff");
+  src: url("../assets/NotoColorEmoji-flags.woff2") format("woff2");
   /* using the unicode-range attribute to limit the reach of the Flag Emoji web font to only flags */
   unicode-range: $emoji-flag-unicode-range;
 }
@@ -82,7 +82,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* svg based for firefox */
 @font-face {
   font-family: ReplaceFlagEmojiSVG;
-  src: url("../assets/EmojiOneColor.woff") format("woff");
+  src: url("../assets/EmojiOneColor.woff2") format("woff2");
   unicode-range: $emoji-flag-unicode-range;
 }
 
