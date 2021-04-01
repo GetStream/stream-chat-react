@@ -44,6 +44,14 @@ const config = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
+      {
+        test: /\.(woff2)$/,
+        use: [
+          {
+            loader: 'file-loader',
+          }
+        ]
+      }
     ],
   },
   resolve: {

@@ -25,17 +25,18 @@ export type ChatContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  theme: Theme;
-  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  closeMobileNav?: () => void;
-  mutes?: Mute<Us>[];
-  navOpen?: boolean;
-  openMobileNav?: () => void;
-  setActiveChannel?: (
+  closeMobileNav: () => void;
+  mutes: Mute<Us>[];
+  openMobileNav: () => void;
+  setActiveChannel: (
     newChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
     watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ) => void;
+  theme: Theme;
+  useImageFlagEmojisOnWindows: boolean;
+  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  navOpen?: boolean;
 };
 
 export const ChatContext = React.createContext({} as ChatContextValue);

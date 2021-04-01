@@ -291,6 +291,7 @@ const UnMemoizedChannelList = <
     navOpen = false,
     setActiveChannel,
     theme,
+    useImageFlagEmojisOnWindows,
   } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channelListRef = useRef<HTMLDivElement>(null);
@@ -441,6 +442,10 @@ const UnMemoizedChannelList = <
       <div
         className={`str-chat str-chat-channel-list ${theme} ${
           navOpen ? 'str-chat-channel-list--open' : ''
+        } ${
+          useImageFlagEmojisOnWindows && navigator.platform.match(/Win/)
+            ? 'str-chat--windows-flags'
+            : ''
         }`}
         ref={channelListRef}
       >
