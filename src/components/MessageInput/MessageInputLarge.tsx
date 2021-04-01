@@ -13,8 +13,10 @@ import { UploadsPreview } from './UploadsPreview';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useTypingContext } from '../../context/TypingContext';
 
 import type { Event } from 'stream-chat';
 
@@ -63,12 +65,12 @@ export const MessageInputLarge = <
 
   const {
     acceptedFiles,
-    client,
     multipleUploads,
-    typing,
     watcher_count,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
+  const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageInput = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,

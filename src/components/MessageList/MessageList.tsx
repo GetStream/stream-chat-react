@@ -20,12 +20,22 @@ import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
 import {
-  ChannelContextValue,
+  ChannelActionContextValue,
+  useChannelActionContext,
+} from '../../context/ChannelActionContext';
+import {
+  ChannelStateContextValue,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
+import {
+  ComponentContextValue,
+  useComponentContext,
+} from '../../context/ComponentContext';
+import {
   TranslationContextValue,
-  useChannelContext,
-  useChatContext,
   useTranslationContext,
-} from '../../context';
+} from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
 
@@ -51,7 +61,9 @@ export type MessageListWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'client' | 'typing'> &
+> = ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> &
+  ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
+  ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   TranslationContextValue &
   MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
     /** The client connection object for connecting to Stream */
@@ -475,19 +487,35 @@ export const MessageList = <
 >(
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const {
-    client: channelClient, // eslint-disable-line
-    typing, // eslint-disable-line
-    ...channelContext
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const channelActionContext = useChannelActionContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const channelStateContext = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const translation = useTranslationContext();
+  const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const translationContext = useTranslationContext();
 
   return (
     <MessageListWithContext
       client={client}
-      {...channelContext}
-      {...translation}
+      {...channelActionContext}
+      {...channelStateContext}
+      {...componentContext}
+      {...translationContext}
       {...props}
     />
   );

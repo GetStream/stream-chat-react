@@ -1,9 +1,9 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChatContext } from '../../../context/ChatContext';
 
 import type { MouseEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -26,7 +26,7 @@ export const useDeleteHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): MouseEventHandler => {
-  const { client, updateMessage } = useChannelContext<
+  const { updateMessage } = useChannelActionContext<
     At,
     Ch,
     Co,
@@ -35,6 +35,7 @@ export const useDeleteHandler = <
     Re,
     Us
   >();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
 
   return async (event) => {
     event.preventDefault();

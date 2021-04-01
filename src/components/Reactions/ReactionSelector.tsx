@@ -5,7 +5,11 @@ import { isMutableRef } from './utils/utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
+import {
+  MinimalEmoji,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -91,14 +95,19 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
-    const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { emojiConfig } = useChannelStateContext<
+      At,
+      Ch,
+      Co,
+      Ev,
+      Me,
+      Re,
+      Us
+    >();
+    const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    const {
-      defaultMinimalEmojis,
-      Emoji,
-      emojiData: fullEmojiData,
-      emojiSetDef,
-    } = emojiConfig || {};
+    const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } =
+      emojiConfig || {};
 
     const emojiData = getStrippedEmojiData(fullEmojiData);
     const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;

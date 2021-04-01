@@ -2,8 +2,9 @@ import React from 'react';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useTypingContext } from '../../context/TypingContext';
 
 import type {
   DefaultAttachmentType,
@@ -45,7 +46,7 @@ const UnMemoizedTypingIndicator = <
 ) => {
   const { Avatar = DefaultAvatar, avatarSize = 32, threadList } = props;
 
-  const { channel, thread, typing } = useChannelContext<
+  const { channel, thread } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -55,6 +56,7 @@ const UnMemoizedTypingIndicator = <
     Us
   >();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   if (!typing || !client || channel?.getConfig()?.typing_events === false) {
     return null;

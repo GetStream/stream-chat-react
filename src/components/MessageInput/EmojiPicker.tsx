@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData } from 'emoji-mart';
@@ -49,10 +50,11 @@ export const EmojiPicker = <
 ) => {
   const { emojiPickerIsOpen, emojiPickerRef, onSelectEmoji, small } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { EmojiPicker } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const { emojiData, EmojiPicker: Picker } = emojiConfig || {};
+  const { emojiData } = emojiConfig || {};
 
   if (emojiPickerIsOpen && emojiData) {
     const className = small
@@ -61,8 +63,8 @@ export const EmojiPicker = <
 
     return (
       <div className={className} ref={emojiPickerRef}>
-        {Picker && (
-          <Picker
+        {EmojiPicker && (
+          <EmojiPicker
             color='#006CFF'
             data={emojiData}
             emoji='point_up'

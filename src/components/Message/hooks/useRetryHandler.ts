@@ -1,7 +1,7 @@
 import {
   RetrySendMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+  useChannelActionContext,
+} from '../../../context/ChannelActionContext';
 
 import type {
   DefaultAttachmentType,
@@ -24,7 +24,7 @@ export const useRetryHandler = <
 >(
   customRetrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us> => {
-  const { retrySendMessage: contextRetrySendMessage } = useChannelContext<
+  const { retrySendMessage: contextRetrySendMessage } = useChannelActionContext<
     At,
     Ch,
     Co,

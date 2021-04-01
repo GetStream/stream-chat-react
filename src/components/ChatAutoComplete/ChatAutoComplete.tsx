@@ -10,8 +10,9 @@ import {
 } from '../Loading/LoadingIndicator';
 import { UserItem, UserItemProps } from '../UserItem/UserItem';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type {
@@ -244,7 +245,7 @@ const UnMemoizedChatAutoComplete = <
     value,
   } = props;
 
-  const { channel, emojiConfig } = useChannelContext<
+  const { channel, emojiConfig } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -254,12 +255,13 @@ const UnMemoizedChatAutoComplete = <
     Us
   >();
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { EmojiIndex } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [searching, setSearching] = useState(false);
 
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
-  const { emojiData, EmojiIndex } = emojiConfig || {};
+  const { emojiData } = emojiConfig || {};
 
   const emojiIndex: NimbleEmojiIndex | null = useMemo(() => {
     if (EmojiIndex) {

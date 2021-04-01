@@ -13,7 +13,7 @@ import { KEY_CODES } from '../AutoCompleteTextarea/listener';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageInputProps } from './MessageInput';
@@ -55,7 +55,15 @@ export const EditMessageForm = <
     publishTypingEvent = true,
   } = props;
 
-  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInput({
@@ -81,13 +89,13 @@ export const EditMessageForm = <
   return (
     <div className='str-chat__edit-message-form'>
       <ImageDropzone
-        accept={channelContext.acceptedFiles}
+        accept={acceptedFiles}
         disabled={
           !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
         }
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
-        multiple={channelContext.multipleUploads}
+        multiple={multipleUploads}
       >
         <form onSubmit={messageInput.handleSubmit}>
           {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
@@ -127,10 +135,10 @@ export const EditMessageForm = <
                       : t("You've reached the maximum number of files")}
                   </Tooltip>
                   <FileUploadButton
-                    accepts={channelContext.acceptedFiles}
+                    accepts={acceptedFiles}
                     disabled={messageInput.maxFilesLeft === 0}
                     handleFiles={messageInput.uploadNewFiles}
-                    multiple={channelContext.multipleUploads}
+                    multiple={multipleUploads}
                   >
                     <span className='str-chat__input-fileupload'>
                       <FileUploadIcon />

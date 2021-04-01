@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
+import {
+  MinimalEmoji,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -54,14 +58,11 @@ const UnMemoizedSimpleReactionsList = <
     reactions,
   } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const {
-    defaultMinimalEmojis,
-    Emoji,
-    emojiData: defaultEmojiData,
-    emojiSetDef,
-  } = emojiConfig || {};
+  const { defaultMinimalEmojis, emojiData: defaultEmojiData, emojiSetDef } =
+    emojiConfig || {};
 
   const [tooltipReactionType, setTooltipReactionType] = useState<
     string | undefined

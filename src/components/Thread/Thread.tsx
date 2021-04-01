@@ -5,8 +5,13 @@ import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
 import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
 import { MessageList, MessageListProps } from '../MessageList/MessageList';
 
-import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { TFunction } from 'i18next';
@@ -102,7 +107,15 @@ export const Thread = <
 >(
   props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const { channel, thread } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, thread } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   if (!thread || channel?.getConfig?.()?.replies === false) return null;
 
@@ -194,14 +207,29 @@ const ThreadInner = <
 
   const {
     channel,
-    closeThread,
-    loadMoreThread,
-    Message: ContextMessage,
     thread,
     threadHasMore,
     threadLoadingMore,
     threadMessages,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { closeThread, loadMoreThread } = useChannelActionContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { Message: ContextMessage } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

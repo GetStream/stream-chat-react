@@ -1,7 +1,7 @@
 import React from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type { MessageInputState } from './hooks/messageInput';
 
@@ -50,7 +50,15 @@ export const UploadsPreview = <
     uploadNewFiles,
   } = props;
 
-  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
@@ -60,14 +68,14 @@ export const UploadsPreview = <
       {imageOrder.length > 0 && (
         <ImagePreviewer
           disabled={
-            channelContext.maxNumberOfFiles !== undefined &&
-            numberOfUploads >= channelContext.maxNumberOfFiles
+            maxNumberOfFiles !== undefined &&
+            numberOfUploads >= maxNumberOfFiles
           }
           handleFiles={uploadNewFiles}
           handleRemove={removeImage}
           handleRetry={uploadImage}
           imageUploads={imagesToPreview}
-          multiple={channelContext.multipleUploads}
+          multiple={multipleUploads}
         />
       )}
       {fileOrder.length > 0 && (

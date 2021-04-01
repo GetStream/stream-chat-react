@@ -30,8 +30,8 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageUIComponentProps, MouseEventHandler } from './types';
@@ -369,7 +369,7 @@ export const MessageSimple = <
 ) => {
   const { Attachment: PropAttachment, message } = props;
 
-  const { Attachment: ContextAttachment } = useChannelContext<
+  const { Attachment: ContextAttachment } = useComponentContext<
     At,
     Ch,
     Co,

@@ -1,9 +1,8 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type { MouseEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -30,7 +29,7 @@ export const useOpenThreadHandler = <
     event: React.SyntheticEvent,
   ) => void,
 ): MouseEventHandler => {
-  const { openThread: channelOpenThread } = useChannelContext<
+  const { openThread: channelOpenThread } = useChannelActionContext<
     At,
     Ch,
     Co,

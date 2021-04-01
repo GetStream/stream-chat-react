@@ -21,10 +21,11 @@ import {
   UserResponse,
 } from 'stream-chat';
 
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import {
   StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
 
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
@@ -398,13 +399,24 @@ export const useMessageInput = <
     publishTypingEvent,
   } = props;
 
-  const {
-    channel,
-    editMessage,
-    maxNumberOfFiles,
-    multipleUploads,
-    sendMessage,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { editMessage, sendMessage } = useChannelActionContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<

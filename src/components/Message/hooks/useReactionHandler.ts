@@ -7,10 +7,11 @@ import {
   useState,
 } from 'react';
 
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import {
   StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { MouseEventHandler } from '../types';
@@ -45,7 +46,7 @@ export const useReactionHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { channel, updateMessage } = useChannelContext<
+  const { updateMessage } = useChannelActionContext<
     At,
     Ch,
     Co,
@@ -54,6 +55,7 @@ export const useReactionHandler = <
     Re,
     Us
   >();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (reactionType: string, event: MouseEvent<HTMLElement>) => {
@@ -135,7 +137,7 @@ export const useReactionClick = <
   reactionSelectorRef?: RefObject<HTMLDivElement | null>,
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
 ) => {
-  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 

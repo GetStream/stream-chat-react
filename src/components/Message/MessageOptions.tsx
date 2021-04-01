@@ -6,7 +6,7 @@ import { MESSAGE_ACTIONS } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
@@ -62,7 +62,7 @@ const UnMemoizedMessageOptions = <
     threadList,
   } = props;
 
-  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const handleOpenThread = useOpenThreadHandler(message);
   const { isMyMessage } = useUserRole(message);

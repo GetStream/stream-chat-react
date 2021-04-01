@@ -23,14 +23,13 @@ import {
   MESSAGE_ACTIONS,
 } from './utils';
 
-import {
-  RetrySendMessage,
-  useChannelContext,
-} from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type { Channel } from 'stream-chat';
 
 import type { MessageProps, MouseEventHandler } from './types';
+
+import type { RetrySendMessage } from '../../context/ChannelActionContext';
 
 import type {
   DefaultAttachmentType,
@@ -221,7 +220,7 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { channel: contextChannel } = useChannelContext<
+  const { channel: contextChannel } = useChannelStateContext<
     At,
     Ch,
     Co,

@@ -1,12 +1,11 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type { MouseEvent } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import type { MouseEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -67,7 +66,7 @@ export const useMentionsHandler = <
   const {
     onMentionsClick: channelOnMentionsClick,
     onMentionsHover: channelOnMentionsHover,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick ||
@@ -100,7 +99,7 @@ export const useMentionsUIHandler = <
     onMentionsHover?: MouseEventHandler;
   },
 ) => {
-  const { onMentionsClick, onMentionsHover } = useChannelContext<
+  const { onMentionsClick, onMentionsHover } = useChannelActionContext<
     At,
     Ch,
     Co,

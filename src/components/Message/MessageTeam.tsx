@@ -32,7 +32,7 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
@@ -563,7 +563,7 @@ export const MessageTeam = <
 ) => {
   const { message } = props;
 
-  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);

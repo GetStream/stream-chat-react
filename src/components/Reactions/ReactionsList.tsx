@@ -5,8 +5,9 @@ import { getStrippedEmojiData } from '../Channel/emojiData';
 import {
   EmojiSetDef,
   MinimalEmoji,
-  useChannelContext,
-} from '../../context/ChannelContext';
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -56,9 +57,10 @@ const UnMemoizedReactionsList = <
     reverse = false,
   } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
+  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } =
     emojiConfig || {};
 
   const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [

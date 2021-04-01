@@ -36,7 +36,11 @@ import {
   MessageDeletedProps,
 } from '../Message';
 
-import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
+import {
+  StreamMessage,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Channel, StreamChat } from 'stream-chat';
@@ -359,19 +363,29 @@ export function VirtualizedMessageList<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(props: Partial<VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>>) {
-  const context = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, hasMore, loadingMore, messages } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
+    // @ts-expect-error TODO: check if props need to be Partial
     <VirtualizedMessageListWithContext
-      channel={context.channel}
-      client={context.client}
-      hasMore={!!context.hasMore}
-      loadingMore={!!context.loadingMore}
+      channel={channel}
+      client={client}
+      hasMore={!!hasMore}
+      loadingMore={!!loadingMore}
       // @ts-expect-error
-      loadMore={context.loadMore}
+      loadMore={loadMore}
       // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
       // 'formatMessage' converts it to Date, which seems to be the correct type
-      messages={context.messages}
+      messages={messages}
       {...props}
     />
   );

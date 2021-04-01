@@ -13,7 +13,7 @@ import { UploadsPreview } from './UploadsPreview';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageInputProps } from './MessageInput';
@@ -59,7 +59,15 @@ export const MessageInputFlat = <
     SuggestionList,
   } = props;
 
-  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInput({
@@ -79,13 +87,13 @@ export const MessageInputFlat = <
       }`}
     >
       <ImageDropzone
-        accept={channelContext.acceptedFiles}
+        accept={acceptedFiles}
         disabled={
           !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
         }
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
-        multiple={channelContext.multipleUploads}
+        multiple={multipleUploads}
       >
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
@@ -145,10 +153,10 @@ export const MessageInputFlat = <
                     : t("You've reached the maximum number of files")}
                 </Tooltip>
                 <FileUploadButton
-                  accepts={channelContext.acceptedFiles}
+                  accepts={acceptedFiles}
                   disabled={messageInput.maxFilesLeft === 0}
                   handleFiles={messageInput.uploadNewFiles}
-                  multiple={channelContext.multipleUploads}
+                  multiple={multipleUploads}
                 >
                   <span className='str-chat__input-flat-fileupload'>
                     <FileUploadIcon />

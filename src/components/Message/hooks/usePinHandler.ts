@@ -2,8 +2,9 @@ import { validateAndGetMessage } from '../utils';
 
 import {
   StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+  useChannelStateContext,
+} from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { UpdatedMessage } from 'stream-chat';
@@ -75,7 +76,8 @@ export const usePinHandler = <
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { channel, client } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
   const { t } = useTranslationContext();
 
   const canPin = () => {
