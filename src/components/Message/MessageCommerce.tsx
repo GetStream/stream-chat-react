@@ -117,11 +117,6 @@ const MessageCommerceWithContext = <
                 : 'str-chat__message-commerce--has-no-text'
             }
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
-						${
-              hasReactions && isReactionEnabled
-                ? 'str-chat__message-commerce--with-reactions'
-                : ''
-            }
             ${`str-chat__message-commerce--${firstGroupStyle}`}
             ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
