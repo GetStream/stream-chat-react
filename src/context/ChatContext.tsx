@@ -36,6 +36,7 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.SyntheticEvent,
   ) => void;
+  useImageFlagEmojisOnWindows?: boolean;
 };
 
 export const ChatContext = React.createContext({} as ChatContextValue);
