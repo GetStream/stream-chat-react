@@ -233,7 +233,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   );
 };
 
-function escapeRegExp(text: string) {
+export function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
 }
 
