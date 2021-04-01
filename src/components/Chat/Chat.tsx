@@ -145,7 +145,7 @@ export const Chat = <
   if (!translators.t) return null;
 
   return (
-    <ChatProvider<At, Ch, Co, Ev, Me, Re, Us>
+    <ChatProvider
       value={{
         channel,
         client,
