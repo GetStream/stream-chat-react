@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 import { TranslationContext } from '../../context/TranslationContext';
+import { escapeRegExp } from '../../utils';
 
 import Item from './Item';
 import { KEY_CODES } from './listener';
@@ -125,7 +126,7 @@ const List = (props) => {
   const restructureItem = (item) => {
     const matched = item.name || item.id;
 
-    const editedPropValue = propValue.slice(1);
+    const editedPropValue = escapeRegExp(propValue.slice(1));
     const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
     const itemNameParts = { match: editedPropValue, parts };
