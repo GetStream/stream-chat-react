@@ -53,7 +53,12 @@ async function renderMessageLivestream(
           userLanguage: 'en',
         }}
       >
-        <MessageLivestream message={message} typing={false} {...props} />
+        <MessageLivestream
+          getMessageActions={() => []}
+          message={message}
+          typing={false}
+          {...props}
+        />
       </TranslationContext.Provider>
     </ChannelContext.Provider>,
   );

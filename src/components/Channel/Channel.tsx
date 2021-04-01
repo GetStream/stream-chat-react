@@ -244,7 +244,15 @@ const ChannelInner = <
     onMentionsHover,
   } = props;
 
-  const { client, mutes, theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
@@ -466,6 +474,7 @@ const ChannelInner = <
       try {
         queryResponse = await channel.query({
           messages: { id_lt: oldestID, limit: perPage },
+          watchers: { limit: perPage },
         });
       } catch (e) {
         console.warn('message pagination request failed with error', e);
@@ -803,7 +812,13 @@ const ChannelInner = <
   }
 
   return (
-    <div className={`str-chat str-chat-channel ${theme}`}>
+    <div
+      className={`str-chat str-chat-channel ${theme}${
+        useImageFlagEmojisOnWindows && navigator.platform.match(/Win/)
+          ? ' str-chat--windows-flags'
+          : ''
+      }`}
+    >
       <ChannelProvider<At, Ch, Co, Ev, Me, Re, Us> value={channelContextValue}>
         <div className='str-chat__container'>{children}</div>
       </ChannelProvider>

@@ -83,6 +83,14 @@ export type ChatProps<
    *  - `livestream dark`
    */
   theme?: Theme;
+  /**
+   * Windows 10 does not support country flag emojis out of the box.
+   * It chooses to render these emojis as characters instead.
+   * Stream chat can override this by loading a custom web font that will
+   * render images (PNGs or SVGs depending on the platform) instead.
+   * Set this prop to true if you want to use these custom emojis for Windows users.
+   */
+  useImageFlagEmojisOnWindows?: boolean;
 };
 
 /**
@@ -121,6 +129,7 @@ export const Chat = <
     i18nInstance,
     initialNavOpen = true,
     theme = 'messaging light',
+    useImageFlagEmojisOnWindows = false,
   } = props;
 
   const {
@@ -136,7 +145,7 @@ export const Chat = <
   if (!translators.t) return null;
 
   return (
-    <ChatProvider<At, Ch, Co, Ev, Me, Re, Us>
+    <ChatProvider
       value={{
         channel,
         client,
@@ -146,6 +155,7 @@ export const Chat = <
         openMobileNav,
         setActiveChannel,
         theme,
+        useImageFlagEmojisOnWindows,
       }}
     >
       <TranslationProvider value={translators}>{children}</TranslationProvider>
