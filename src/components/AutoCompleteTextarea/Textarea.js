@@ -130,6 +130,7 @@ class ReactTextareaAutocomplete extends React.Component {
         this.textareaRef.selectionEnd = 0;
       }
       this.props.handleSubmit(event);
+      this._closeAutocomplete();
     }
   };
 
