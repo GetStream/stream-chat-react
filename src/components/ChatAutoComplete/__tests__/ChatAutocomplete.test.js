@@ -40,9 +40,7 @@ const renderComponent = async (props = {}, activeChannel = channel) => {
       </Channel>
     </Chat>,
   );
-  const textarea = await waitFor(() =>
-    renderResult.getByPlaceholderText(placeholderText),
-  );
+  const textarea = await waitFor(() => renderResult.getByPlaceholderText(placeholderText));
   const typeText = (text) => {
     fireEvent.change(textarea, {
       target: {
@@ -57,10 +55,7 @@ const renderComponent = async (props = {}, activeChannel = channel) => {
 describe('ChatAutoComplete', () => {
   beforeEach(async () => {
     const messages = [generateMessage({ user })];
-    const members = [
-      generateMember({ user }),
-      generateMember({ user: mentionUser }),
-    ];
+    const members = [generateMember({ user }), generateMember({ user: mentionUser })];
     const mockedChannel = generateChannel({
       members,
       messages,

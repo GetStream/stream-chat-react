@@ -38,11 +38,7 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageText(
-  customProps,
-  channelConfig = {},
-  renderer = render,
-) {
+async function renderMessageText(customProps, channelConfig = {}, renderer = render) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig: () => ({ reactions: true, ...channelConfig }),
@@ -96,9 +92,7 @@ describe('<MessageText />', () => {
       attachments: [attachment, attachment, attachment],
     });
     const { getByTestId } = await renderMessageText({ message });
-    expect(getByTestId(messageTextTestId).className).toContain(
-      '--has-attachment',
-    );
+    expect(getByTestId(messageTextTestId).className).toContain('--has-attachment');
   });
 
   it('should set emoji css class when message has text that is only emojis', async () => {
@@ -156,9 +150,7 @@ describe('<MessageText />', () => {
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
     const { getByText } = await renderMessageText({ message });
-    expect(
-      getByText('Message Failed · Click to try again'),
-    ).toBeInTheDocument();
+    expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
   });
 
   it('render message html when unsafe html property is enabled', async () => {
@@ -205,10 +197,7 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { queryByTestId } = await renderMessageText(
-      { message },
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageText({ message }, { reactions: false });
 
     expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
   });
@@ -247,11 +236,7 @@ describe('<MessageText />', () => {
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
-    const tree = await renderMessageText(
-      { customWrapperClass, message },
-      {},
-      testRenderer.create,
-    );
+    const tree = await renderMessageText({ customWrapperClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       Array [
         <div
@@ -281,11 +266,7 @@ describe('<MessageText />', () => {
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const tree = await renderMessageText(
-      { customInnerClass, message },
-      {},
-      testRenderer.create,
-    );
+    const tree = await renderMessageText({ customInnerClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       Array [
         <div
@@ -314,11 +295,7 @@ describe('<MessageText />', () => {
 
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
-    const tree = await renderMessageText(
-      { message, theme: 'custom' },
-      {},
-      testRenderer.create,
-    );
+    const tree = await renderMessageText({ message, theme: 'custom' }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       Array [
         <div

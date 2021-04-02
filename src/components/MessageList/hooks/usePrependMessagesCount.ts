@@ -41,11 +41,7 @@ export function usePrependedMessagesCount<
     earliestMessageId.current = currentFirstMessageId;
     // if new messages were prepended, find out how many
     // start with this number because there cannot be fewer prepended items than before
-    for (
-      let i = previousNumItemsPrepended.current;
-      i < messages.length;
-      i += 1
-    ) {
+    for (let i = previousNumItemsPrepended.current; i < messages.length; i += 1) {
       if (messages[i].id === firstMessageId.current) {
         previousNumItemsPrepended.current = i;
         return i;

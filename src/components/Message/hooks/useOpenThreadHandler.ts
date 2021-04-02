@@ -1,7 +1,4 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
 import type { MouseEventHandler } from '../types';
 
@@ -30,23 +27,13 @@ export const useOpenThreadHandler = <
     event: React.SyntheticEvent,
   ) => void,
 ): MouseEventHandler => {
-  const { openThread: channelOpenThread } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { openThread: channelOpenThread } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const openThread = customOpenThread || channelOpenThread;
 
   return (event) => {
     if (!openThread || !message) {
-      console.warn(
-        'Open thread handler was called but it is missing one of its parameters',
-      );
+      console.warn('Open thread handler was called but it is missing one of its parameters');
       return;
     }
 

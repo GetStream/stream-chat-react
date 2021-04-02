@@ -1,7 +1,4 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
 import type { MouseEvent } from 'react';
 import type { UserResponse } from 'stream-chat';
@@ -18,13 +15,12 @@ import type {
   DefaultUserType,
 } from '../../../../types/types';
 
-export type CustomMentionHandler<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (event: MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
+  event: MouseEvent<HTMLElement>,
+  user: UserResponse<Us>[],
+) => void;
 
-export type MentionedUserEventHandler<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (
+export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: MouseEvent<HTMLElement>,
   mentionedUsers: UserResponse<Us>[],
 ) => void;
@@ -70,14 +66,10 @@ export const useMentionsHandler = <
   } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
-    customMentionHandler?.onMentionsClick ||
-    channelOnMentionsClick ||
-    (() => null);
+    customMentionHandler?.onMentionsClick || channelOnMentionsClick || (() => null);
 
   const onMentionsHover =
-    customMentionHandler?.onMentionsHover ||
-    channelOnMentionsHover ||
-    (() => null);
+    customMentionHandler?.onMentionsHover || channelOnMentionsHover || (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),
@@ -100,22 +92,10 @@ export const useMentionsUIHandler = <
     onMentionsHover?: MouseEventHandler;
   },
 ) => {
-  const { onMentionsClick, onMentionsHover } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { onMentionsClick, onMentionsHover } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return {
-    onMentionsClick:
-      eventHandlers?.onMentionsClick ||
-      createEventHandler(onMentionsClick, message),
-    onMentionsHover:
-      eventHandlers?.onMentionsHover ||
-      createEventHandler(onMentionsHover, message),
+    onMentionsClick: eventHandlers?.onMentionsClick || createEventHandler(onMentionsClick, message),
+    onMentionsHover: eventHandlers?.onMentionsHover || createEventHandler(onMentionsHover, message),
   };
 };

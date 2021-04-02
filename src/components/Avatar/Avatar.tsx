@@ -61,9 +61,7 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
       {image && !error ? (
         <img
           alt={initials}
-          className={`str-chat__avatar-image${
-            loaded ? ' str-chat__avatar-image--loaded' : ''
-          }`}
+          className={`str-chat__avatar-image${loaded ? ' str-chat__avatar-image--loaded' : ''}`}
           data-testid='avatar-img'
           onError={() => setError(true)}
           onLoad={() => setLoaded(true)}
@@ -76,10 +74,7 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
           }}
         />
       ) : (
-        <div
-          className='str-chat__avatar-fallback'
-          data-testid='avatar-fallback'
-        >
+        <div className='str-chat__avatar-fallback' data-testid='avatar-fallback'>
           {initials}
         </div>
       )}

@@ -76,24 +76,18 @@ export const MessageInputSmall = <
     <div className='str-chat__small-message-input__wrapper'>
       <ImageDropzone
         accept={channelContext.acceptedFiles}
-        disabled={
-          !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
-        }
+        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
         multiple={channelContext.multipleUploads}
       >
         <div
           className={`str-chat__small-message-input ${
-            SendButton
-              ? 'str-chat__small-message-input--send-button-active'
-              : null
+            SendButton ? 'str-chat__small-message-input--send-button-active' : null
           }`}
         >
           <div className='str-chat__small-message-input--textarea-wrapper'>
-            {messageInput.isUploadEnabled && (
-              <UploadsPreview {...messageInput} />
-            )}
+            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               commands={messageInput.getCommands()}
@@ -116,10 +110,7 @@ export const MessageInputSmall = <
               value={messageInput.text}
             />
             {messageInput.isUploadEnabled && (
-              <div
-                className='str-chat__fileupload-wrapper'
-                data-testid='fileinput'
-              >
+              <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
                   {messageInput.maxFilesLeft
                     ? t('Attach files')
@@ -139,9 +130,7 @@ export const MessageInputSmall = <
             )}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
-                {messageInput.emojiPickerIsOpen
-                  ? t('Close emoji picker')
-                  : t('Open emoji picker')}
+                {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
               <span
                 className='str-chat__small-message-input-emojiselect'

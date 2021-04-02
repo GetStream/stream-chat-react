@@ -8,22 +8,13 @@ import type {
 
 import type { DefaultAttachmentType } from '../../../types/types';
 
-export const SUPPORTED_VIDEO_FORMATS = [
-  'video/mp4',
-  'video/ogg',
-  'video/webm',
-  'video/quicktime',
-];
+export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
-export const isAudioAttachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const isAudioAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: ExtendedAttachment<At>,
 ) => attachment.type === 'audio';
 
-export const isFileAttachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const isFileAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: ExtendedAttachment<At>,
 ) =>
   attachment.type === 'file' ||
@@ -31,28 +22,18 @@ export const isFileAttachment = <
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
     attachment.type !== 'video');
 
-export const isGalleryAttachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const isGalleryAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: ExtendedAttachment<At>,
 ) => attachment.type === 'gallery';
 
-export const isImageAttachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const isImageAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: ExtendedAttachment<At>,
-) =>
-  attachment.type === 'image' &&
-  !attachment.title_link &&
-  !attachment.og_scrape_url;
+) => attachment.type === 'image' && !attachment.title_link && !attachment.og_scrape_url;
 
-export const isMediaAttachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const isMediaAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: ExtendedAttachment<At>,
 ) =>
-  (attachment.mime_type &&
-    SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
+  (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
 
 export const renderAttachmentWithinContainer = <
@@ -81,9 +62,7 @@ export const renderAttachmentWithinContainer = <
   );
 };
 
-export const renderAttachmentActions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderAttachmentActions = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { actionHandler, attachment, AttachmentActions } = props;
@@ -95,9 +74,7 @@ export const renderAttachmentActions = <
   return (
     <AttachmentActions
       {...attachment}
-      actionHandler={(event, name, value) =>
-        actionHandler?.(name, value, event)
-      }
+      actionHandler={(event, name, value) => actionHandler?.(name, value, event)}
       actions={attachment.actions || []}
       id={attachment.id || ''}
       key={`key-actions-${attachment.id}`}
@@ -106,9 +83,7 @@ export const renderAttachmentActions = <
   );
 };
 
-export const renderGallery = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment, Gallery } = props;
@@ -122,9 +97,7 @@ export const renderGallery = <
   });
 };
 
-export const renderImage = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderImage = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment, Image } = props;
@@ -135,10 +108,7 @@ export const renderImage = <
     return renderAttachmentWithinContainer({
       attachment,
       children: (
-        <div
-          className='str-chat__attachment'
-          key={`key-image-${attachment.id}`}
-        >
+        <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
           {<Image {...attachment} />}
           {renderAttachmentActions(props)}
         </div>
@@ -154,9 +124,7 @@ export const renderImage = <
   });
 };
 
-export const renderCard = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderCard = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, Card } = props;
@@ -167,10 +135,7 @@ export const renderCard = <
     return renderAttachmentWithinContainer({
       attachment,
       children: (
-        <div
-          className='str-chat__attachment'
-          key={`key-image-${attachment.id}`}
-        >
+        <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
           <Card {...attachment} key={`key-card-${attachment.id}`} />
           {renderAttachmentActions(props)}
         </div>
@@ -186,9 +151,7 @@ export const renderCard = <
   });
 };
 
-export const renderFile = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderFile = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, File } = props;
@@ -197,16 +160,12 @@ export const renderFile = <
 
   return renderAttachmentWithinContainer({
     attachment,
-    children: (
-      <File attachment={attachment} key={`key-file-${attachment.id}`} />
-    ),
+    children: <File attachment={attachment} key={`key-file-${attachment.id}`} />,
     componentType: 'file',
   });
 };
 
-export const renderAudio = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const renderAudio = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: InnerAttachmentUIComponentProps<At>,
 ) => {
   const { attachment: attachment, Audio } = props;
@@ -223,9 +182,7 @@ export const renderAudio = <
   });
 };
 
-export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
-  props,
-) => {
+export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (props) => {
   const { attachment, Media } = props;
 
   if (!Media) return null;
@@ -257,10 +214,7 @@ export const renderMedia: React.FC<InnerAttachmentUIComponentProps> = (
   return renderAttachmentWithinContainer({
     attachment,
     children: (
-      <div
-        className='str-chat__player-wrapper'
-        key={`key-video-${attachment.id}`}
-      >
+      <div className='str-chat__player-wrapper' key={`key-video-${attachment.id}`}>
         {' '}
         <Media
           className='react-player'

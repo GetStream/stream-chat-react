@@ -29,12 +29,8 @@ export type FlagMessageNotifications<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  getErrorNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
-  getSuccessNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  getSuccessNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
@@ -56,11 +52,7 @@ export const useFlagHandler = <
   return async (event) => {
     event.preventDefault();
 
-    const {
-      getErrorNotification,
-      getSuccessNotification,
-      notify,
-    } = notifications;
+    const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
     if (!client || !t || !notify || !message?.id) {
       console.warn(missingUseFlagHandlerParameterWarning);
@@ -71,17 +63,12 @@ export const useFlagHandler = <
       await client.flagMessage(message.id);
 
       const successMessage =
-        getSuccessNotification &&
-        validateAndGetMessage(getSuccessNotification, [message]);
+        getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
 
-      notify(
-        successMessage || t('Message has been successfully flagged'),
-        'success',
-      );
+      notify(successMessage || t('Message has been successfully flagged'), 'success');
     } catch (e) {
       const errorMessage =
-        getErrorNotification &&
-        validateAndGetMessage(getErrorNotification, [message]);
+        getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
       notify(
         errorMessage ||

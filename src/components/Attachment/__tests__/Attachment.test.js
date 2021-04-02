@@ -41,36 +41,28 @@ const getAttachmentComponent = (props) => (
 describe('Attachment', () => {
   it('should render Audio component for "audio" type attachment', async () => {
     const attachment = generateAudioAttachment();
-    const { getByTestId } = render(
-      getAttachmentComponent({ attachments: [attachment] }),
-    );
+    const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
     await waitFor(() => {
       expect(getByTestId('audio-attachment')).toBeInTheDocument();
     });
   });
   it('should render File component for "file" type attachment', async () => {
     const attachment = generateFileAttachment();
-    const { getByTestId } = render(
-      getAttachmentComponent({ attachments: [attachment] }),
-    );
+    const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
     await waitFor(() => {
       expect(getByTestId('file-attachment')).toBeInTheDocument();
     });
   });
   it('should render Card component for "imgur" type attachment', async () => {
     const attachment = generateImgurAttachment();
-    const { getByTestId } = render(
-      getAttachmentComponent({ attachments: [attachment] }),
-    );
+    const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
     await waitFor(() => {
       expect(getByTestId('card-attachment')).toBeInTheDocument();
     });
   });
   it('should render Card component for "giphy" type attachment', async () => {
     const attachment = generateGiphyAttachment();
-    const { getByTestId } = render(
-      getAttachmentComponent({ attachments: [attachment] }),
-    );
+    const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
     await waitFor(() => {
       expect(getByTestId('card-attachment')).toBeInTheDocument();
     });
@@ -119,9 +111,7 @@ describe('Attachment', () => {
   describe('image type attachment', () => {
     it('should render Card component if attachment has title_link or og_scrape_url', async () => {
       const attachment = generateImageAttachment();
-      const { getByTestId } = render(
-        getAttachmentComponent({ attachments: [attachment] }),
-      );
+      const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
       await waitFor(() => {
         expect(getByTestId('card-attachment')).toBeInTheDocument();
       });
@@ -131,9 +121,7 @@ describe('Attachment', () => {
         og_scrape_url: undefined,
         title_link: undefined,
       });
-      const { getByTestId } = render(
-        getAttachmentComponent({ attachments: [attachment] }),
-      );
+      const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
       await waitFor(() => {
         expect(getByTestId('image-attachment')).toBeInTheDocument();
       });
@@ -142,9 +130,7 @@ describe('Attachment', () => {
       const attachment = generateImageAttachment({
         actions: [generateAttachmentAction(), generateAttachmentAction()],
       });
-      const { getByTestId } = render(
-        getAttachmentComponent({ attachments: [attachment] }),
-      );
+      const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
       await waitFor(() => {
         expect(getByTestId('attachment-actions')).toBeInTheDocument();
       });
@@ -155,9 +141,7 @@ describe('Attachment', () => {
       'should render Media component for video of %s mime-type attachment',
       async (mime_type) => {
         const attachment = generateVideoAttachment({ mime_type });
-        const { getByTestId } = render(
-          getAttachmentComponent({ attachments: [attachment] }),
-        );
+        const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
         await waitFor(() => {
           expect(getByTestId('media-attachment')).toBeInTheDocument();
         });
@@ -178,9 +162,7 @@ describe('Attachment', () => {
         type: 'video',
       });
 
-      const { getByTestId } = render(
-        getAttachmentComponent({ attachments: [attachment] }),
-      );
+      const { getByTestId } = render(getAttachmentComponent({ attachments: [attachment] }));
 
       await waitFor(() => {
         expect(getByTestId('media-attachment')).toBeInTheDocument();

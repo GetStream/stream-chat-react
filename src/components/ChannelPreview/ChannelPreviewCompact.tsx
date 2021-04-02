@@ -37,8 +37,7 @@ const UnMemoizedChannelPreviewCompact = <
   } = props;
 
   const channelPreviewButton = useRef<HTMLButtonElement>(null);
-  const unreadClass =
-    unread && unread >= 1 ? 'str-chat__channel-preview-compact--unread' : '';
+  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-compact--unread' : '';
   const activeClass = active ? 'str-chat__channel-preview-compact--active' : '';
 
   const onSelectChannel = () => {
@@ -60,9 +59,7 @@ const UnMemoizedChannelPreviewCompact = <
       <div className='str-chat__channel-preview-compact--left'>
         <Avatar image={displayImage} name={displayTitle} size={20} />
       </div>
-      <div className='str-chat__channel-preview-compact--right'>
-        {displayTitle}
-      </div>
+      <div className='str-chat__channel-preview-compact--right'>{displayTitle}</div>
     </button>
   );
 };

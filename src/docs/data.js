@@ -13,8 +13,7 @@ client.connectUser(
 );
 
 export const channel = client.channel('team', 'docs', {
-  image:
-    'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
+  image: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg',
   name: 'Talk about the documentation',
 });
 
@@ -155,8 +154,7 @@ export const message = {
       image_url:
         'https://images.unsplash.com/photo-1548256434-c7d2374b1077?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
       og_scrape_url: 'https://unsplash.com/photos/lxuB4abGzXc',
-      text:
-        'Download this photo in Addu City, Maldives by Ibrahim Shabil (@shabilphotos)',
+      text: 'Download this photo in Addu City, Maldives by Ibrahim Shabil (@shabilphotos)',
       thumb_url:
         'https://images.unsplash.com/photo-1548256434-c7d2374b1077?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9',
       title: 'Cosmic Home photo by Ibrahim Shabil (@shabilphotos) on Unsplash',

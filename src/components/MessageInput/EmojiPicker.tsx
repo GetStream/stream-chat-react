@@ -18,10 +18,7 @@ import type {
 } from '../../../types/types';
 
 const filterEmoji = (emoji: EmojiData) => {
-  if (
-    emoji.name === 'White Smiling Face' ||
-    emoji.name === 'White Frowning Face'
-  ) {
+  if (emoji.name === 'White Smiling Face' || emoji.name === 'White Frowning Face') {
     return false;
   }
   return true;

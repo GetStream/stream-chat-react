@@ -7,9 +7,7 @@ import { MessageActionsBox } from '../MessageActionsBox';
 const getMessageActionsMock = jest.fn(() => []);
 
 const renderComponent = (props) =>
-  render(
-    <MessageActionsBox {...props} getMessageActions={getMessageActionsMock} />,
-  );
+  render(<MessageActionsBox {...props} getMessageActions={getMessageActionsMock} />);
 
 describe('MessageActionsBox', () => {
   afterEach(jest.clearAllMocks);

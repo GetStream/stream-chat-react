@@ -25,13 +25,11 @@ export const getLatestMessagePreview = <
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
 ) => {
-  const latestMessage =
-    channel.state.messages[channel.state.messages.length - 1];
+  const latestMessage = channel.state.messages[channel.state.messages.length - 1];
 
   const previewTextToRender =
-    latestMessage?.i18n?.[
-      `${userLanguage}_text` as `${TranslationLanguages}_text`
-    ] || latestMessage?.text;
+    latestMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+    latestMessage?.text;
 
   if (!latestMessage) {
     return t('Nothing yet...');
@@ -72,9 +70,7 @@ export const getDisplayTitle = <
   const members = Object.values(channel.state.members);
 
   if (!title && members.length === 2) {
-    const otherMember = members.find(
-      (member) => member.user?.id !== currentUser?.id,
-    );
+    const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
     if (otherMember?.user?.name) {
       title = otherMember.user.name;
     }
@@ -99,9 +95,7 @@ export const getDisplayImage = <
   const members = Object.values(channel.state.members);
 
   if (!image && members.length === 2) {
-    const otherMember = members.find(
-      (member) => member.user?.id !== currentUser?.id,
-    );
+    const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
     if (otherMember?.user?.image) {
       image = otherMember.user.image;
     }

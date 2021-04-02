@@ -23,18 +23,10 @@ const UnMemoizedSafeAnchor: React.FC<SafeAnchorProps> = (props) => {
   if (!href) return null;
   const sanitized = sanitizeUrl(href);
   return (
-    <a
-      className={className}
-      download={download}
-      href={sanitized}
-      rel={rel}
-      target={target}
-    >
+    <a className={className} download={download} href={sanitized} rel={rel} target={target}>
       {children}
     </a>
   );
 };
 
-export const SafeAnchor = React.memo(
-  UnMemoizedSafeAnchor,
-) as typeof UnMemoizedSafeAnchor;
+export const SafeAnchor = React.memo(UnMemoizedSafeAnchor) as typeof UnMemoizedSafeAnchor;

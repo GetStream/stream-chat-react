@@ -85,18 +85,12 @@ describe('<MessageOptions />', () => {
   });
 
   it('should not display thread actions when message is in a thread list', async () => {
-    const { queryByTestId } = await renderMessageOptions(
-      { threadList: true },
-      { replies: true },
-    );
+    const { queryByTestId } = await renderMessageOptions({ threadList: true }, { replies: true });
     expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should not display thread actions when channel does not have replies enabled', async () => {
-    const { queryByTestId } = await renderMessageOptions(
-      {},
-      { replies: false },
-    );
+    const { queryByTestId } = await renderMessageOptions({}, { replies: false });
     expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
@@ -118,10 +112,7 @@ describe('<MessageOptions />', () => {
   });
 
   it('should not display reactions action when channel has reactions disabled', async () => {
-    const { queryByTestId } = await renderMessageOptions(
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageOptions({}, { reactions: false });
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 
@@ -138,10 +129,7 @@ describe('<MessageOptions />', () => {
 
   it('should render message actions', async () => {
     await renderMessageOptions();
-    expect(MessageActionsMock).toHaveBeenCalledWith(
-      expect.objectContaining(defaultProps),
-      {},
-    );
+    expect(MessageActionsMock).toHaveBeenCalledWith(expect.objectContaining(defaultProps), {});
   });
 
   it('should not render message with "left-to-the-bubble" style if displayLeft is false', async () => {
@@ -166,10 +154,7 @@ describe('<MessageOptions />', () => {
   });
 
   it('should render css classes with corresonding theme when it is set', async () => {
-    const { queryByTestId } = await renderMessageOptions(
-      { theme: 'custom' },
-      { reactions: true },
-    );
+    const { queryByTestId } = await renderMessageOptions({ theme: 'custom' }, { reactions: true });
     expect(queryByTestId(messageOptionsTestId).className).toContain(
       'str-chat__message-custom__actions',
     );

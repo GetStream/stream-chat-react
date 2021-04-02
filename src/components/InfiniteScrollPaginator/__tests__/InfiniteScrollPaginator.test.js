@@ -20,9 +20,7 @@ function renderInfiniteScrollPaginator(props) {
 
 describe('<InfiniteScrollPaginator />', () => {
   it('should render with a default loading indicator when it is refreshing', () => {
-    const rendered = renderer
-      .create(renderInfiniteScrollPaginator({ refreshing: true }))
-      .toJSON();
+    const rendered = renderer.create(renderInfiniteScrollPaginator({ refreshing: true })).toJSON();
     expect(rendered).toMatchInlineSnapshot(`
       <div>
         <div
@@ -50,9 +48,7 @@ describe('<InfiniteScrollPaginator />', () => {
   });
 
   it('should render with a custom loading indicator when it is refreshing', () => {
-    const CustomLoadingIndicator = () => (
-      <div className='custom-loading-indicator'>loading...</div>
-    );
+    const CustomLoadingIndicator = () => <div className='custom-loading-indicator'>loading...</div>;
     const rendered = renderer
       .create(
         renderInfiniteScrollPaginator({

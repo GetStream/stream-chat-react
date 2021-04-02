@@ -45,10 +45,7 @@ describe('ReactionSelector', () => {
     renderComponent();
 
     defaultMinimalEmojis.forEach((emoji) => {
-      expect(EmojiComponentMock).toHaveBeenCalledWith(
-        expect.objectContaining({ emoji }),
-        {},
-      );
+      expect(EmojiComponentMock).toHaveBeenCalledWith(expect.objectContaining({ emoji }), {});
     });
   });
 

@@ -1,9 +1,5 @@
 import type { Reducer } from 'react';
-import type {
-  Channel,
-  MessageResponse,
-  ChannelState as StreamChannelState,
-} from 'stream-chat';
+import type { Channel, MessageResponse, ChannelState as StreamChannelState } from 'stream-chat';
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelContext';
 
@@ -68,9 +64,7 @@ export type ChannelStateReducerAction<
   | {
       threadHasMore: boolean;
       threadMessages: Array<
-        ReturnType<
-          StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']
-        >
+        ReturnType<StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
       >;
       type: 'loadMoreThreadFinished';
     }
@@ -174,12 +168,8 @@ export const channelReducer = <
       return {
         ...state,
         thread:
-          message?.id === state.thread.id
-            ? channel.state.formatMessage(message)
-            : state.thread,
-        threadMessages: state.thread?.id
-          ? { ...channel.state.threads }[state.thread.id] || []
-          : [],
+          message?.id === state.thread.id ? channel.state.formatMessage(message) : state.thread,
+        threadMessages: state.thread?.id ? { ...channel.state.threads }[state.thread.id] || [] : [],
       };
     }
 
@@ -188,9 +178,7 @@ export const channelReducer = <
       return {
         ...state,
         thread: message,
-        threadMessages: message.id
-          ? { ...channel.state.threads }[message.id] || []
-          : [],
+        threadMessages: message.id ? { ...channel.state.threads }[message.id] || [] : [],
       };
     }
 

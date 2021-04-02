@@ -84,14 +84,11 @@ describe('Message utils', () => {
     it.each([
       ['empty', []],
       ['false', false],
-    ])(
-      'should return no message actions if message actions are %s',
-      (_, actionsValue) => {
-        const messageActions = actionsValue;
-        const result = getMessageActions(messageActions, defaultCapabilities);
-        expect(result).toStrictEqual([]);
-      },
-    );
+    ])('should return no message actions if message actions are %s', (_, actionsValue) => {
+      const messageActions = actionsValue;
+      const result = getMessageActions(messageActions, defaultCapabilities);
+      expect(result).toStrictEqual([]);
+    });
 
     it('should return all message actions if actions are set to true', () => {
       const result = getMessageActions(true, defaultCapabilities);
@@ -107,20 +104,17 @@ describe('Message utils', () => {
       ['not allow', 'flag', 'canFlag', false],
       ['allow', 'mute', 'canMute', true],
       ['not allow', 'mute', 'canMute', false],
-    ])(
-      'it should %s %s when %s is %s',
-      (_, action, capabilityKey, capabilityValue) => {
-        const capabilities = {
-          [capabilityKey]: capabilityValue,
-        };
-        const result = getMessageActions(actions, capabilities);
-        if (capabilityValue) {
-          expect(result).toContain(action);
-        } else {
-          expect(result).not.toContain(action);
-        }
-      },
-    );
+    ])('it should %s %s when %s is %s', (_, action, capabilityKey, capabilityValue) => {
+      const capabilities = {
+        [capabilityKey]: capabilityValue,
+      };
+      const result = getMessageActions(actions, capabilities);
+      if (capabilityValue) {
+        expect(result).toContain(action);
+      } else {
+        expect(result).not.toContain(action);
+      }
+    });
   });
 
   describe('shouldMessageComponentUpdate', () => {

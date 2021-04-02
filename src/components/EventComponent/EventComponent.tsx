@@ -2,10 +2,7 @@ import React from 'react';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
-import {
-  isDayOrMoment,
-  useTranslationContext,
-} from '../../context/TranslationContext';
+import { isDayOrMoment, useTranslationContext } from '../../context/TranslationContext';
 
 import type { StreamMessage } from '../../context/ChannelContext';
 
@@ -58,9 +55,7 @@ const UnMemoizedEventComponent = <
 
   const dateFormatter = (date: string | Date, format: string) => {
     const parsedDate = tDateTimeParser(date);
-    const formattedDate = isDayOrMoment(parsedDate)
-      ? parsedDate.format(format)
-      : parsedDate;
+    const formattedDate = isDayOrMoment(parsedDate) ? parsedDate.format(format) : parsedDate;
     return formattedDate;
   };
 
@@ -86,18 +81,14 @@ const UnMemoizedEventComponent = <
   ) {
     const name = event?.user?.name || event?.user?.id;
     const sentence = `${name} ${
-      event.type === 'member.added'
-        ? 'has joined the chat'
-        : 'was removed from the chat'
+      event.type === 'member.added' ? 'has joined the chat' : 'was removed from the chat'
     }`;
 
     return (
       <div className='str-chat__event-component__channel-event'>
         <Avatar image={event?.user?.image} name={name} />
         <div className='str-chat__event-component__channel-event__content'>
-          <em className='str-chat__event-component__channel-event__sentence'>
-            {sentence}
-          </em>
+          <em className='str-chat__event-component__channel-event__sentence'>{sentence}</em>
           <div className='str-chat__event-component__channel-event__date'>
             {dateFormatter(created_at, 'LT')}
           </div>

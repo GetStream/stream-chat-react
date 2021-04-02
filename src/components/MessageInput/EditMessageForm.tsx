@@ -70,8 +70,7 @@ export const EditMessageForm = <
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.keyCode === KEY_CODES.ESC && clearEditingState)
-        clearEditingState();
+      if (event.keyCode === KEY_CODES.ESC && clearEditingState) clearEditingState();
     };
 
     document.addEventListener('keydown', onKeyDown);
@@ -82,9 +81,7 @@ export const EditMessageForm = <
     <div className='str-chat__edit-message-form'>
       <ImageDropzone
         accept={channelContext.acceptedFiles}
-        disabled={
-          !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
-        }
+        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
         multiple={channelContext.multipleUploads}
@@ -110,17 +107,11 @@ export const EditMessageForm = <
           />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
-              <span
-                className='str-chat__input-emojiselect'
-                onClick={messageInput.openEmojiPicker}
-              >
+              <span className='str-chat__input-emojiselect' onClick={messageInput.openEmojiPicker}>
                 <EmojiIcon />
               </span>
               {messageInput.isUploadEnabled && (
-                <div
-                  className='str-chat__fileupload-wrapper'
-                  data-testid='fileinput'
-                >
+                <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>
                     {messageInput.maxFilesLeft
                       ? t('Attach files')

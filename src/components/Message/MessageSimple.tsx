@@ -18,10 +18,7 @@ import {
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
+import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
 import {
@@ -54,10 +51,7 @@ type MessageSimpleWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<
-  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-  'PinIndicator'
-> & {
+> = Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'> & {
   isReactionEnabled: boolean;
   onReactionListClick: MouseEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -141,11 +135,7 @@ const MessageSimpleWithContext = <
 						str-chat__message--${message.status}
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
-            ${
-              hasReactions && isReactionEnabled
-                ? 'str-chat__message--with-reactions'
-                : ''
-            }
+            ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
             ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
           key={message.id || ''}
@@ -179,17 +169,15 @@ const MessageSimpleWithContext = <
                     onReactionListClick={onReactionListClick}
                   />
                 }
-                {hasReactions &&
-                  !showDetailedReactions &&
-                  isReactionEnabled && (
-                    <ReactionsList
-                      onClick={onReactionListClick}
-                      own_reactions={message.own_reactions}
-                      reaction_counts={message.reaction_counts || undefined}
-                      reactions={message.latest_reactions}
-                      reverse={true}
-                    />
-                  )}
+                {hasReactions && !showDetailedReactions && isReactionEnabled && (
+                  <ReactionsList
+                    onClick={onReactionListClick}
+                    own_reactions={message.own_reactions}
+                    reaction_counts={message.reaction_counts || undefined}
+                    reactions={message.latest_reactions}
+                    reverse={true}
+                  />
+                )}
                 {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
                     detailedView
@@ -203,10 +191,7 @@ const MessageSimpleWithContext = <
               </>
             )}
             {message.attachments && Attachment && (
-              <Attachment
-                actionHandler={handleAction}
-                attachments={message.attachments}
-              />
+              <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.text && (
               <MessageText
@@ -233,9 +218,7 @@ const MessageSimpleWithContext = <
                 />
               </div>
             )}
-            <div
-              className={`str-chat__message-data str-chat__message-simple-data`}
-            >
+            <div className={`str-chat__message-data str-chat__message-simple-data`}>
               {!isMyMessage() && message.user ? (
                 <span className='str-chat__message-simple-name'>
                   {message.user.name || message.user.id}
@@ -279,18 +262,11 @@ const MessageSimpleStatus = <
   }
 
   const justReadByMe =
-    readBy &&
-    readBy.length === 1 &&
-    readBy[0] &&
-    client &&
-    readBy[0].id === client.user?.id;
+    readBy && readBy.length === 1 && readBy[0] && client && readBy[0].id === client.user?.id;
 
   if (message && message.status === 'sending') {
     return (
-      <span
-        className='str-chat__message-simple-status'
-        data-testid='message-status-sending'
-      >
+      <span className='str-chat__message-simple-status' data-testid='message-status-sending'>
         <Tooltip>{t('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
@@ -302,16 +278,9 @@ const MessageSimpleStatus = <
       (item) => !!item && !!client && item.id !== client.user?.id,
     )[0];
     return (
-      <span
-        className='str-chat__message-simple-status'
-        data-testid='message-status-read-by'
-      >
+      <span className='str-chat__message-simple-status' data-testid='message-status-read-by'>
         <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar
-          image={lastReadUser?.image}
-          name={lastReadUser?.name}
-          size={15}
-        />
+        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
         {readBy.length > 2 && (
           <span
             className='str-chat__message-simple-status-number'
@@ -324,17 +293,9 @@ const MessageSimpleStatus = <
     );
   }
 
-  if (
-    message &&
-    message.status === 'received' &&
-    message.id === lastReceivedId &&
-    !threadList
-  ) {
+  if (message && message.status === 'received' && message.id === lastReceivedId && !threadList) {
     return (
-      <span
-        className='str-chat__message-simple-status'
-        data-testid='message-status-received'
-      >
+      <span className='str-chat__message-simple-status' data-testid='message-status-received'>
         <Tooltip>{t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
@@ -362,30 +323,18 @@ export const MessageSimple = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'PinIndicator'
-  >,
+  props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
 ) => {
   const { Attachment: PropAttachment, message } = props;
 
-  const { Attachment: ContextAttachment } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { Attachment: ContextAttachment } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+  );
 
   const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
 

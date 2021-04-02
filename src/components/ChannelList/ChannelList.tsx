@@ -17,10 +17,7 @@ import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedLi
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
-import {
-  ChannelPreview,
-  ChannelPreviewUIComponentProps,
-} from '../ChannelPreview/ChannelPreview';
+import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import { ChannelPreviewLastMessage } from '../ChannelPreview/ChannelPreviewLastMessage';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
@@ -28,20 +25,11 @@ import {
   EmptyStateIndicatorProps,
 } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
-import {
-  LoadMorePaginator,
-  LoadMorePaginatorProps,
-} from '../LoadMore/LoadMorePaginator';
+import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type {
-  Channel,
-  ChannelFilters,
-  ChannelOptions,
-  ChannelSort,
-  Event,
-} from 'stream-chat';
+import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
 
 import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 
@@ -143,68 +131,52 @@ export type ChannelListProps<
    * Corresponding to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onAddedToChannel?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when Channel gets deleted. In absence of this prop, Channel will be removed from the list.
    * Corresponding to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onChannelDeleted?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when Channel gets hidden */
   onChannelHidden?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function to customize behavior when Channel gets truncated.
    * Corresponding to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onChannelTruncated?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when Channel gets updated.
    * Corresponding to [notification.channel_updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onChannelUpdated?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when Channel becomes visible */
   onChannelVisible?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when new Message is received on Channel that is not being watched.
    * Corresponding to [notification.message_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onMessageNew?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Function that overrides default behavior when users gets removed from a Channel.
    * Corresponding to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
    */
   onRemovedFromChannel?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Object containing query options */
@@ -220,9 +192,7 @@ export type ChannelListProps<
    * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx)
    * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx)
    */
-  Paginator?: React.ComponentType<
-    InfiniteScrollPaginatorProps | LoadMorePaginatorProps
-  >;
+  Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
   /**
    * Available built-in options (also accepts the same props as):
    *
@@ -232,9 +202,7 @@ export type ChannelListProps<
    *
    * The Preview to use, defaults to ChannelPreviewLastMessage
    */
-  Preview?: React.ComponentType<
-    ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
   /** Boolean to show sidebar */
@@ -303,9 +271,7 @@ const UnMemoizedChannelList = <
    */
   const activeChannelHandler = (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => {
     if (
       !channels ||
@@ -316,17 +282,12 @@ const UnMemoizedChannelList = <
     }
 
     if (customActiveChannel) {
-      const customActiveChannelObject = channels.find(
-        (chan) => chan.id === customActiveChannel,
-      );
+      const customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
       if (customActiveChannelObject) {
         if (setActiveChannel) {
           setActiveChannel(customActiveChannelObject, watchers);
         }
-        const newChannels = moveChannelUp(
-          customActiveChannelObject.cid,
-          channels,
-        );
+        const newChannels = moveChannelUp(customActiveChannelObject.cid, channels);
         setChannels(newChannels);
       }
 
@@ -345,13 +306,7 @@ const UnMemoizedChannelList = <
   // By updating the dummy prop - channelUpdateCount, we can force this re-render.
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
-  const {
-    channels,
-    hasNextPage,
-    loadNextPage,
-    setChannels,
-    status,
-  } = usePaginatedChannels(
+  const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
     sort || DEFAULT_SORT,
@@ -359,17 +314,11 @@ const UnMemoizedChannelList = <
     activeChannelHandler,
   );
 
-  const loadedChannels = channelRenderFilterFn
-    ? channelRenderFilterFn(channels)
-    : channels;
+  const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  useMessageNewListener(
-    setChannels,
-    lockChannelOrder,
-    allowNewMessagesFromUnfilteredChannels,
-  );
+  useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
   useNotificationMessageNewListener(setChannels, onMessageNew);
   useNotificationAddedToChannelListener(setChannels, onAddedToChannel);
   useNotificationRemovedFromChannelListener(setChannels, onRemovedFromChannel);
@@ -459,6 +408,4 @@ const UnMemoizedChannelList = <
  * ChannelList - A preview list of Channels, allowing you to select the Channel you want to open.
  * @example ./ChannelList.md
  */
-export const ChannelList = React.memo(
-  UnMemoizedChannelList,
-) as typeof UnMemoizedChannelList;
+export const ChannelList = React.memo(UnMemoizedChannelList) as typeof UnMemoizedChannelList;

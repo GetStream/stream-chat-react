@@ -23,13 +23,9 @@ export const useChannelDeletedListener = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  setChannels: React.Dispatch<
-    React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-  >,
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   customHandler?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
 ) => {
@@ -41,9 +37,7 @@ export const useChannelDeletedListener = <
         customHandler(setChannels, event);
       } else {
         setChannels((channels) => {
-          const channelIndex = channels.findIndex(
-            (channel) => channel.cid === event.cid,
-          );
+          const channelIndex = channels.findIndex((channel) => channel.cid === event.cid);
 
           if (channelIndex < 0) return [...channels];
 

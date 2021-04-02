@@ -2,11 +2,7 @@ import React, { useMemo } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import {
-  EmojiSetDef,
-  MinimalEmoji,
-  useChannelContext,
-} from '../../context/ChannelContext';
+import { EmojiSetDef, MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -58,23 +54,16 @@ const UnMemoizedReactionsList = <
 
   const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
-    emojiConfig || {};
+  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
-  const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [
-    fullEmojiData,
-  ]);
+  const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [fullEmojiData]);
 
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
 
   const getTotalReactionCount = () =>
-    Object.values(reaction_counts || {}).reduce(
-      (total, count) => total + count,
-      0,
-    );
+    Object.values(reaction_counts || {}).reduce((total, count) => total + count, 0);
 
-  const getOptionForType = (type: string) =>
-    reactionOptions.find((option) => option.id === type);
+  const getOptionForType = (type: string) => reactionOptions.find((option) => option.id === type);
 
   const getReactionTypes = () => {
     if (!reactions) return [];
@@ -85,9 +74,7 @@ const UnMemoizedReactionsList = <
 
   return (
     <div
-      className={`str-chat__reaction-list ${
-        reverse ? 'str-chat__reaction-list--reverse' : ''
-      }`}
+      className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
       data-testid='reaction-list'
       onClick={onClick}
     >
@@ -111,15 +98,11 @@ const UnMemoizedReactionsList = <
           ) : null;
         })}
         <li>
-          <span className='str-chat__reaction-list--counter'>
-            {getTotalReactionCount()}
-          </span>
+          <span className='str-chat__reaction-list--counter'>{getTotalReactionCount()}</span>
         </li>
       </ul>
     </div>
   );
 };
 
-export const ReactionsList = React.memo(
-  UnMemoizedReactionsList,
-) as typeof UnMemoizedReactionsList;
+export const ReactionsList = React.memo(UnMemoizedReactionsList) as typeof UnMemoizedReactionsList;

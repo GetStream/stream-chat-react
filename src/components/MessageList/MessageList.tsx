@@ -11,10 +11,7 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
-import {
-  LoadingIndicator as DefaultLoadingIndicator,
-  LoadingIndicatorProps,
-} from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator, LoadingIndicatorProps } from '../Loading';
 import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
@@ -105,18 +102,14 @@ class MessageListWithContext<
     });
   }
 
-  getSnapshotBeforeUpdate(
-    prevProps: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
-  ) {
+  getSnapshotBeforeUpdate(prevProps: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>) {
     if (this.props.threadList) {
       return null;
     }
     // Are we adding new items to the list?
     // Capture the scroll position so we can adjust scroll later.
 
-    if (
-      (prevProps.messages?.length || 0) < (this.props.messages?.length || 0)
-    ) {
+    if ((prevProps.messages?.length || 0) < (this.props.messages?.length || 0)) {
       const list = this.messageList.current;
       if (list) {
         return {
@@ -139,11 +132,8 @@ class MessageListWithContext<
     // Adjust scroll so these new items don't push the old ones out of view.
     // (snapshot here is the value returned from getSnapshotBeforeUpdate)
     const userScrolledUp = this.userScrolledUp();
-    const currentLastMessage = this.props.messages?.[
-      this.props.messages?.length - 1
-    ];
-    const previousLastMessage =
-      prevProps.messages?.[prevProps.messages?.length - 1];
+    const currentLastMessage = this.props.messages?.[this.props.messages?.length - 1];
+    const previousLastMessage = prevProps.messages?.[prevProps.messages?.length - 1];
     if (!previousLastMessage || !currentLastMessage) {
       return;
     }
@@ -160,8 +150,7 @@ class MessageListWithContext<
       this.scrollToBottom();
 
       // remove the scroll notification if we already scrolled down...
-      if (this.state.newMessagesNotification)
-        this.setState({ newMessagesNotification: false });
+      if (this.state.newMessagesNotification) this.setState({ newMessagesNotification: false });
 
       return;
     }
@@ -195,10 +184,7 @@ class MessageListWithContext<
     this._scrollToRef(this.bottomRef, this.messageList);
   };
 
-  _scrollToRef = (
-    el: RefObject<HTMLElement>,
-    parent: RefObject<HTMLElement>,
-  ) => {
+  _scrollToRef = (el: RefObject<HTMLElement>, parent: RefObject<HTMLElement>) => {
     const scrollDown = () => {
       if (el && el.current && parent && parent.current) {
         this.scrollToTarget(el.current, parent.current);
@@ -215,10 +201,7 @@ class MessageListWithContext<
    * containerEl - DOM element for the container with scrollbars
    * source: https://stackoverflow.com/a/48429314
    */
-  scrollToTarget = (
-    target: HTMLElement | number | 'top' | 'bottom',
-    containerEl: HTMLElement,
-  ) => {
+  scrollToTarget = (target: HTMLElement | number | 'top' | 'bottom', containerEl: HTMLElement) => {
     let scrollTop: number | undefined;
 
     if (target instanceof HTMLElement) {
@@ -242,14 +225,9 @@ class MessageListWithContext<
   };
 
   userScrolledUp = () =>
-    (this.scrollOffset || 0) >
-    ((this.props.scrolledUpThreshold as unknown) as number);
+    (this.scrollOffset || 0) > ((this.props.scrolledUpThreshold as unknown) as number);
 
-  listenToScroll = (
-    offset: number,
-    reverseOffset: number,
-    threshold: number,
-  ) => {
+  listenToScroll = (offset: number, reverseOffset: number, threshold: number) => {
     this.scrollOffset = offset;
     this.closeToTop = reverseOffset < threshold;
     if (this.state.newMessagesNotification && !this.userScrolledUp()) {
@@ -300,9 +278,7 @@ class MessageListWithContext<
     return (
       <>
         <div
-          className={`str-chat__list ${
-            this.props.threadList ? 'str-chat__list--thread' : ''
-          }`}
+          className={`str-chat__list ${this.props.threadList ? 'str-chat__list--thread' : ''}`}
           ref={this.messageList}
         >
           <MessageListInner<At, Ch, Co, Ev, Me, Re, Us>
@@ -328,22 +304,16 @@ class MessageListWithContext<
               ...internalInfiniteScrollProps,
             }}
             internalMessageProps={{
-              additionalMessageInputProps: this.props
-                .additionalMessageInputProps,
+              additionalMessageInputProps: this.props.additionalMessageInputProps,
               addNotification,
               Attachment,
               Avatar,
               channel: this.props.channel,
-              getFlagMessageErrorNotification: this.props
-                .getFlagMessageErrorNotification,
-              getFlagMessageSuccessNotification: this.props
-                .getFlagMessageSuccessNotification,
-              getMuteUserErrorNotification: this.props
-                .getMuteUserErrorNotification,
-              getMuteUserSuccessNotification: this.props
-                .getMuteUserSuccessNotification,
-              getPinMessageErrorNotification: this.props
-                .getPinMessageErrorNotification,
+              getFlagMessageErrorNotification: this.props.getFlagMessageErrorNotification,
+              getFlagMessageSuccessNotification: this.props.getFlagMessageSuccessNotification,
+              getMuteUserErrorNotification: this.props.getMuteUserErrorNotification,
+              getMuteUserSuccessNotification: this.props.getMuteUserSuccessNotification,
+              getPinMessageErrorNotification: this.props.getPinMessageErrorNotification,
               members: this.props.members,
               Message,
               messageActions,
@@ -372,11 +342,7 @@ class MessageListWithContext<
         </div>
         <div className='str-chat__list-notifications'>
           {notifications.map((notification) => (
-            <CustomNotification
-              active={true}
-              key={notification.id}
-              type={notification.type}
-            >
+            <CustomNotification active={true} key={notification.id} type={notification.type}>
               {notification.text}
             </CustomNotification>
           ))}
@@ -434,14 +400,9 @@ export type MessageListProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<
-  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>
-> &
+> = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> &
   Partial<
-    Pick<
-      MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>,
-      PropsDrilledToMessageListInner
-    >
+    Pick<MessageListInnerProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageListInner>
   > & {
     /** Whether or not the list has more items to load */
     hasMore?: boolean;
@@ -483,12 +444,5 @@ export const MessageList = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const translation = useTranslationContext();
 
-  return (
-    <MessageListWithContext
-      client={client}
-      {...channelContext}
-      {...translation}
-      {...props}
-    />
-  );
+  return <MessageListWithContext client={client} {...channelContext} {...translation} {...props} />;
 };

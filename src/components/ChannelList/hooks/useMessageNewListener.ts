@@ -26,9 +26,7 @@ export const useMessageNewListener = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  setChannels: React.Dispatch<
-    React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-  >,
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   lockChannelOrder = false,
   allowNewMessagesFromUnfilteredChannels = true,
 ) => {
@@ -37,14 +35,9 @@ export const useMessageNewListener = <
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       setChannels((channels) => {
-        const channelInList =
-          channels.filter((channel) => channel.cid === event.cid).length > 0;
+        const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
 
-        if (
-          !channelInList &&
-          allowNewMessagesFromUnfilteredChannels &&
-          event.channel_type
-        ) {
+        if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
           const channel = client.channel(event.channel_type, event.channel_id);
           return uniqBy([channel, ...channels], 'cid');
         }

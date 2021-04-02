@@ -2,10 +2,7 @@ import React from 'react';
 
 import { EmojiPicker } from './EmojiPicker';
 import { useMessageInput } from './hooks/messageInput';
-import {
-  EmojiIconLarge as DefaultEmojiIcon,
-  SendButton as DefaultSendButton,
-} from './icons';
+import { EmojiIconLarge as DefaultEmojiIcon, SendButton as DefaultSendButton } from './icons';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -97,9 +94,7 @@ export const MessageInputSimple = <
           />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
-              {messageInput.emojiPickerIsOpen
-                ? t('Close emoji picker')
-                : t('Open emoji picker')}
+              {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
             </Tooltip>
             <span
               className='str-chat__input-flat-emojiselect'

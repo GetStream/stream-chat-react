@@ -68,16 +68,7 @@ export const useChatContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() =>
-  (useContext(ChatContext) as unknown) as ChatContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >;
+>() => (useContext(ChatContext) as unknown) as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 
 /**
  * Typescript currently does not support partial inference so if ChatContext
@@ -103,8 +94,6 @@ export const withChatContext = <
 
     return <Component {...(props as P)} {...chatContext} />;
   };
-  WithChatContextComponent.displayName = `WithChatContext${getDisplayName(
-    Component,
-  )}`;
+  WithChatContextComponent.displayName = `WithChatContext${getDisplayName(Component)}`;
   return WithChatContextComponent;
 };

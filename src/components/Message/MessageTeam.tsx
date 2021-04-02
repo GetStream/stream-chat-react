@@ -11,20 +11,13 @@ import {
   ReactionIcon,
   ThreadIcon,
 } from './icons';
-import {
-  areMessageUIPropsEqual,
-  getReadByTooltipText,
-  showMessageActionsBox,
-} from './utils';
+import { areMessageUIPropsEqual, getReadByTooltipText, showMessageActionsBox } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { MessageActions } from '../MessageActions';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
+import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import {
   ReactionSelector as DefaultReactionSelector,
@@ -135,8 +128,7 @@ const MessageTeamWithContext = <
   const showActionsBox = showMessageActionsBox(getMessageActions());
 
   const messageTextToRender =
-    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message.text;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
   const messageMentionedUsersItem = message.mentioned_users;
 
@@ -145,10 +137,10 @@ const MessageTeamWithContext = <
     onUserHoverHandler: propOnUserHover,
   });
 
-  const messageText = useMemo(
-    () => renderText(messageTextToRender, messageMentionedUsersItem),
-    [messageMentionedUsersItem, messageTextToRender],
-  );
+  const messageText = useMemo(() => renderText(messageTextToRender, messageMentionedUsersItem), [
+    messageMentionedUsersItem,
+    messageTextToRender,
+  ]);
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
@@ -196,16 +188,14 @@ const MessageTeamWithContext = <
       <div
         className={`str-chat__message-team str-chat__message-team--${firstGroupStyle} str-chat__message-team--${
           message.type
-        } ${threadList ? 'thread-list' : ''} str-chat__message-team--${
-          message.status
-        } ${message.pinned ? 'pinned-message' : ''}`}
+        } ${threadList ? 'thread-list' : ''} str-chat__message-team--${message.status} ${
+          message.pinned ? 'pinned-message' : ''
+        }`}
         data-testid='message-team'
         ref={messageWrapperRef}
       >
         <div className='str-chat__message-team-meta'>
-          {firstGroupStyle === 'top' ||
-          firstGroupStyle === 'single' ||
-          initialMessage ? (
+          {firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage ? (
             <Avatar
               image={message.user?.image}
               name={message.user?.name || message.user?.id}
@@ -214,18 +204,13 @@ const MessageTeamWithContext = <
               size={40}
             />
           ) : (
-            <div
-              data-testid='team-meta-spacer'
-              style={{ marginRight: 0, width: 40 }}
-            />
+            <div data-testid='team-meta-spacer' style={{ marginRight: 0, width: 40 }} />
           )}
           <MessageTimestamp formatDate={formatDate} message={message} />
         </div>
         <div className='str-chat__message-team-group'>
           {message &&
-            (firstGroupStyle === 'top' ||
-              firstGroupStyle === 'single' ||
-              initialMessage) && (
+            (firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage) && (
               <div
                 className='str-chat__message-team-author'
                 data-testid='message-team-author'
@@ -288,19 +273,11 @@ const MessageTeamWithContext = <
                     <MessageActions
                       addNotification={addNotification}
                       customWrapperClass={''}
-                      getFlagMessageErrorNotification={
-                        getFlagMessageErrorNotification
-                      }
-                      getFlagMessageSuccessNotification={
-                        getFlagMessageSuccessNotification
-                      }
+                      getFlagMessageErrorNotification={getFlagMessageErrorNotification}
+                      getFlagMessageSuccessNotification={getFlagMessageSuccessNotification}
                       getMessageActions={getMessageActions}
-                      getMuteUserErrorNotification={
-                        getMuteUserErrorNotification
-                      }
-                      getMuteUserSuccessNotification={
-                        getMuteUserSuccessNotification
-                      }
+                      getMuteUserErrorNotification={getMuteUserErrorNotification}
+                      getMuteUserSuccessNotification={getMuteUserSuccessNotification}
                       handleDelete={handleDelete}
                       handleEdit={handleEdit}
                       handleFlag={handleFlag}
@@ -318,9 +295,7 @@ const MessageTeamWithContext = <
             {message && (
               <span
                 className={
-                  isOnlyEmojis(message.text)
-                    ? 'str-chat__message-team-text--is-emoji'
-                    : ''
+                  isOnlyEmojis(message.text) ? 'str-chat__message-team-text--is-emoji' : ''
                 }
                 data-testid='message-team-message'
                 onClick={onMentionsClickMessage}
@@ -333,13 +308,7 @@ const MessageTeamWithContext = <
                 )}
               </span>
             )}
-            {message.mml && (
-              <MML
-                actionHandler={handleAction}
-                align='left'
-                source={message.mml}
-              />
-            )}
+            {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
             {message.text === '' && (
               <MessageTeamAttachments
                 Attachment={Attachment}
@@ -347,26 +316,20 @@ const MessageTeamWithContext = <
                 message={message}
               />
             )}
-            {message.latest_reactions?.length !== 0 &&
-              message.text !== '' &&
-              isReactionEnabled && (
-                <ReactionsList
-                  handleReaction={handleReaction}
-                  onClick={onReactionListClick}
-                  own_reactions={message.own_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  reactions={message.latest_reactions}
-                />
-              )}
+            {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
+              <ReactionsList
+                handleReaction={handleReaction}
+                onClick={onReactionListClick}
+                own_reactions={message.own_reactions}
+                reaction_counts={message.reaction_counts || undefined}
+                reactions={message.latest_reactions}
+              />
+            )}
             {message.status === 'failed' && (
               <button
                 className='str-chat__message-team-failed'
                 data-testid='message-team-failed'
-                onClick={
-                  message.errorStatusCode !== 403
-                    ? () => handleRetry(message)
-                    : undefined
-                }
+                onClick={message.errorStatusCode !== 403 ? () => handleRetry(message) : undefined}
               >
                 <ErrorIcon />
                 {message.errorStatusCode !== 403
@@ -425,12 +388,7 @@ const MessageTeamStatus = <
 >(
   props: Pick<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    | 'Avatar'
-    | 'isMyMessage'
-    | 'lastReceivedId'
-    | 'message'
-    | 'readBy'
-    | 'threadList'
+    'Avatar' | 'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
   >,
 ) => {
   const {
@@ -450,18 +408,11 @@ const MessageTeamStatus = <
   }
 
   const justReadByMe =
-    readBy &&
-    client?.user &&
-    readBy.length === 1 &&
-    readBy[0] &&
-    readBy[0].id === client.user.id;
+    readBy && client?.user && readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
 
   if (message && message.status === 'sending') {
     return (
-      <span
-        className='str-chat__message-team-status'
-        data-testid='message-team-sending'
-      >
+      <span className='str-chat__message-team-status' data-testid='message-team-sending'>
         <Tooltip>{t('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
@@ -475,11 +426,7 @@ const MessageTeamStatus = <
     return (
       <span className='str-chat__message-team-status'>
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar
-          image={lastReadUser?.image}
-          name={lastReadUser?.name}
-          size={15}
-        />
+        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
         {readBy.length - 1 > 1 && (
           <span
             className='str-chat__message-team-status-number'
@@ -492,17 +439,9 @@ const MessageTeamStatus = <
     );
   }
 
-  if (
-    message &&
-    message.status === 'received' &&
-    message.id === lastReceivedId &&
-    !threadList
-  ) {
+  if (message && message.status === 'received' && message.id === lastReceivedId && !threadList) {
     return (
-      <span
-        className='str-chat__message-team-status'
-        data-testid='message-team-received'
-      >
+      <span className='str-chat__message-team-status' data-testid='message-team-received'>
         <Tooltip>{t('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
@@ -529,12 +468,7 @@ const MessageTeamAttachments = <
   const { Attachment = DefaultAttachment, handleAction, message } = props;
 
   if (message.attachments) {
-    return (
-      <Attachment
-        actionHandler={handleAction}
-        attachments={message.attachments}
-      />
-    );
+    return <Attachment actionHandler={handleAction} attachments={message.attachments} />;
   }
 
   return null;
@@ -568,11 +502,11 @@ export const MessageTeam = <
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+    messageWrapperRef,
+  );
 
   return (
     <MemoizedMessageTeam

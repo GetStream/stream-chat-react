@@ -49,9 +49,9 @@ const config = {
         use: [
           {
             loader: 'file-loader',
-          }
-        ]
-      }
+          },
+        ],
+      },
     ],
   },
   resolve: {

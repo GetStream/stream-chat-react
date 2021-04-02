@@ -1,16 +1,5 @@
-import React, {
-  Reducer,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-} from 'react';
-import {
-  dataTransferItemsHaveFiles,
-  dataTransferItemsToFiles,
-  FileLike,
-} from 'react-file-utils';
+import React, { Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
 import {
   Attachment,
   CommandResponse,
@@ -21,10 +10,7 @@ import {
   UserResponse,
 } from 'stream-chat';
 
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 import { generateRandomId } from '../../../utils';
 
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
@@ -122,16 +108,12 @@ type RemoveFileUploadAction = {
 type ReduceNumberOfUploadsAction = {
   type: 'reduceNumberOfUploads';
 };
-type AddMentionedUserAction<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+type AddMentionedUserAction<Us extends DefaultUserType<Us> = DefaultUserType> = {
   type: 'addMentionedUser';
   user: UserResponse<Us>;
 };
 
-export type MessageInputReducerAction<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> =
+export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUserType> =
   | SetEmojiPickerIsOpenAction
   | SetTextAction
   | ClearAction
@@ -249,9 +231,7 @@ const initState = <
   const numberOfUploads = fileOrder.length + imageOrder.length;
 
   const attachments =
-    message.attachments?.filter(
-      ({ type }) => type !== 'file' && type !== 'image',
-    ) || [];
+    message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
 
   const mentioned_users = message.mentioned_users || [];
 
@@ -298,9 +278,7 @@ const messageInputReducer = <
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
       if (!imageAlreadyExists && !action.file) return state;
-      const imageOrder = imageAlreadyExists
-        ? state.imageOrder
-        : state.imageOrder.concat(action.id);
+      const imageOrder = imageAlreadyExists ? state.imageOrder : state.imageOrder.concat(action.id);
       const newUploadFields = { ...action } as Partial<SetImageUploadAction>;
       delete newUploadFields.type;
       return {
@@ -310,17 +288,13 @@ const messageInputReducer = <
           ...state.imageUploads,
           [action.id]: { ...state.imageUploads[action.id], ...newUploadFields },
         },
-        numberOfUploads: imageAlreadyExists
-          ? state.numberOfUploads
-          : state.numberOfUploads + 1,
+        numberOfUploads: imageAlreadyExists ? state.numberOfUploads : state.numberOfUploads + 1,
       };
     }
     case 'setFileUpload': {
       const fileAlreadyExists = state.fileUploads[action.id];
       if (!fileAlreadyExists && !action.file) return state;
-      const fileOrder = fileAlreadyExists
-        ? state.fileOrder
-        : state.fileOrder.concat(action.id);
+      const fileOrder = fileAlreadyExists ? state.fileOrder : state.fileOrder.concat(action.id);
       const newUploadFields = { ...action } as Partial<SetFileUploadAction>;
       delete newUploadFields.type;
       return {
@@ -330,9 +304,7 @@ const messageInputReducer = <
           ...state.fileUploads,
           [action.id]: { ...state.fileUploads[action.id], ...newUploadFields },
         },
-        numberOfUploads: fileAlreadyExists
-          ? state.numberOfUploads
-          : state.numberOfUploads + 1,
+        numberOfUploads: fileAlreadyExists ? state.numberOfUploads : state.numberOfUploads + 1,
       };
     }
     case 'removeImageUpload': {
@@ -407,10 +379,7 @@ export const useMessageInput = <
   } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [state, dispatch] = useReducer(
-    messageInputReducer as Reducer<
-      MessageInputState<At, Us>,
-      MessageInputReducerAction<Us>
-    >,
+    messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,
     message,
     initState,
   );
@@ -463,9 +432,7 @@ export const useMessageInput = <
       dispatch({
         getNewText: (prevText) => {
           const updatedText =
-            prevText.slice(0, selectionStart) +
-            textToInsert +
-            prevText.slice(selectionEnd);
+            prevText.slice(0, selectionStart) + textToInsert + prevText.slice(selectionEnd);
 
           if (maxLength && updatedText.length > maxLength) {
             return updatedText.slice(0, maxLength);
@@ -501,10 +468,7 @@ export const useMessageInput = <
         type: 'setText',
       });
       if (publishTypingEvent && newText && channel) {
-        logChatPromiseExecution(
-          channel.keystroke(parent?.id),
-          'start typing event',
-        );
+        logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
     [channel, parent, publishTypingEvent],
@@ -514,10 +478,7 @@ export const useMessageInput = <
 
   const closeEmojiPicker = useCallback(
     (event: MouseEvent) => {
-      if (
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(event.target as Node)
-      ) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
         dispatch({
           type: 'setEmojiPickerIsOpen',
           value: false,
@@ -527,35 +488,24 @@ export const useMessageInput = <
     [emojiPickerRef],
   );
 
-  const openEmojiPicker: React.MouseEventHandler<HTMLSpanElement> = useCallback(
-    (event) => {
-      dispatch({
-        type: 'setEmojiPickerIsOpen',
-        value: true,
-      });
+  const openEmojiPicker: React.MouseEventHandler<HTMLSpanElement> = useCallback((event) => {
+    dispatch({
+      type: 'setEmojiPickerIsOpen',
+      value: true,
+    });
 
-      // Prevent event from bubbling to document, so the close handler is never called for this event
-      event.stopPropagation();
-    },
-    [],
-  );
+    // Prevent event from bubbling to document, so the close handler is never called for this event
+    event.stopPropagation();
+  }, []);
 
-  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement> = (
-    event,
-  ) => {
-    if (
-      event.key === ' ' ||
-      event.key === 'Enter' ||
-      event.key === 'Spacebar'
-    ) {
+  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement> = (event) => {
+    if (event.key === ' ' || event.key === 'Enter' || event.key === 'Spacebar') {
       event.preventDefault();
       /**
        * TODO: fix the below at some point because this type casting is wrong
        * and just forced to not have warnings currently with the unknown casting
        */
-      openEmojiPicker(
-        (event as unknown) as React.MouseEvent<HTMLSpanElement, MouseEvent>,
-      );
+      openEmojiPicker((event as unknown) as React.MouseEvent<HTMLSpanElement, MouseEvent>);
     }
   };
 
@@ -579,16 +529,13 @@ export const useMessageInput = <
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
-  const onSelectEmoji = useCallback(
-    (emoji: EmojiData) => insertText((emoji as BaseEmoji).native),
-    [insertText],
-  );
+  const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
+    insertText,
+  ]);
 
   // Commands / mentions
 
-  const getCommands = useCallback(() => channel?.getConfig?.()?.commands, [
-    channel,
-  ]);
+  const getCommands = useCallback(() => channel?.getConfig?.()?.commands, [channel]);
 
   const getUsers = useCallback(() => {
     if (!channel) return [];
@@ -596,8 +543,7 @@ export const useMessageInput = <
       ...Object.values(channel.state.members).map(({ user }) => user),
       ...Object.values(channel.state.watchers),
     ].filter(
-      (_user, index, self) =>
-        self.findIndex((user) => user?.id === _user?.id) === index, // filter out non-unique ids
+      (_user, index, self) => self.findIndex((user) => user?.id === _user?.id) === index, // filter out non-unique ids
     );
   }, [channel]);
 
@@ -663,9 +609,7 @@ export const useMessageInput = <
     }
     // the channel component handles the actual sending of the message
     const someAttachmentsUploading =
-      Object.values(imageUploads).some(
-        (upload) => upload.state === 'uploading',
-      ) ||
+      Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
       Object.values(fileUploads).some((upload) => upload.state === 'uploading');
     if (someAttachmentsUploading) {
       // TODO: show error to user that they should wait until image is uploaded
@@ -680,8 +624,7 @@ export const useMessageInput = <
     const actualMentionedUsers = Array.from(
       new Set(
         mentioned_users.filter(
-          ({ id, name }) =>
-            text.includes(`@${id}`) || text.includes(`@${name}`),
+          ({ id, name }) => text.includes(`@${id}`) || text.includes(`@${name}`),
         ),
       ),
     );
@@ -701,9 +644,7 @@ export const useMessageInput = <
       const updateMessagePromise = editMessage(({
         ...updatedMessage,
         id: message.id,
-      } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>).then(
-        clearEditingState,
-      );
+      } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>).then(clearEditingState);
 
       logChatPromiseExecution(updateMessagePromise, 'update message');
       dispatch({ type: 'clear' });
@@ -724,8 +665,7 @@ export const useMessageInput = <
       logChatPromiseExecution(sendMessagePromise, 'send message');
       dispatch({ type: 'clear' });
     }
-    if (channel && publishTypingEvent)
-      logChatPromiseExecution(channel.stopTyping(), 'stop typing');
+    if (channel && publishTypingEvent) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
   };
 
   // Attachments
@@ -853,9 +793,7 @@ export const useMessageInput = <
     if (FileReader) {
       const upload = Object.values(imageUploads).find(
         (imageUpload) =>
-          imageUpload.state === 'uploading' &&
-          !!imageUpload.file &&
-          !imageUpload.previewUri,
+          imageUpload.state === 'uploading' && !!imageUpload.file && !imageUpload.previewUri,
       );
       if (upload) {
         const { file, id } = upload;

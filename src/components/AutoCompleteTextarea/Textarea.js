@@ -60,9 +60,7 @@ class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
-    const listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) =>
-      this._onEnter(e),
-    );
+    const listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
 
     this.setState({
       listenerIndex,
@@ -95,10 +93,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     if (selectionStart === selectionEnd) return null;
 
-    return this.state.value.substr(
-      selectionStart,
-      selectionEnd - selectionStart,
-    );
+    return this.state.value.substr(selectionStart, selectionEnd - selectionStart);
   };
 
   setCaretPosition = (position = 0) => {
@@ -158,10 +153,7 @@ class ReactTextareaAutocomplete extends React.Component {
     const newWord = this.props.replaceWord(lastWord);
     if (newWord == null) return;
 
-    const textBeforeWord = value.slice(
-      0,
-      this.getCaretPosition() - match[0].length,
-    );
+    const textBeforeWord = value.slice(0, this.getCaretPosition() - match[0].length);
     const textAfterCaret = value.slice(this.getCaretPosition(), -1);
     const newText = textBeforeWord + newWord + spaces + textAfterCaret;
 
@@ -193,9 +185,7 @@ class ReactTextareaAutocomplete extends React.Component {
           return startToken + token.length;
         default:
           if (!Number.isInteger(position)) {
-            throw new Error(
-              'RTA: caretPosition should be "start", "next", "end" or number.',
-            );
+            throw new Error('RTA: caretPosition should be "start", "next", "end" or number.');
           }
 
           return position;
@@ -205,23 +195,17 @@ class ReactTextareaAutocomplete extends React.Component {
     const textToModify = textareaValue.slice(0, selectionEnd);
 
     // It's important to escape the currentTrigger char for chars like [, (,...
-    const findTriggerRegExp = new RegExp(
-      `\\${currentTrigger}${`[^\\${currentTrigger}${'\\s'}]`}*`,
-    );
+    const findTriggerRegExp = new RegExp(`\\${currentTrigger}${`[^\\${currentTrigger}${'\\s'}]`}*`);
     // reverse the string so we can easily find the first index of the currentTrigger
     const reversedString = textToModify.split('').reverse().join('');
     // find the first instance of currentTrigger (-1 if not found)
-    const distanceFromEndOfString =
-      reversedString.search(findTriggerRegExp) + 1;
+    const distanceFromEndOfString = reversedString.search(findTriggerRegExp) + 1;
     // if found, distract from the length of the string to revert the position back to an actual string index.
     const startOfTokenPosition =
-      distanceFromEndOfString === -1
-        ? 0
-        : textToModify.length - distanceFromEndOfString;
+      distanceFromEndOfString === -1 ? 0 : textToModify.length - distanceFromEndOfString;
 
     // we add space after emoji is selected if a caret position is next
-    const newTokenString =
-      newToken.caretPosition === 'next' ? `${newToken.text} ` : newToken.text;
+    const newTokenString = newToken.caretPosition === 'next' ? `${newToken.text} ` : newToken.text;
 
     const newCaretPosition = computeCaretPosition(
       newToken.caretPosition,
@@ -229,8 +213,7 @@ class ReactTextareaAutocomplete extends React.Component {
       startOfTokenPosition,
     );
 
-    const modifiedText =
-      textToModify.substring(0, startOfTokenPosition) + newTokenString;
+    const modifiedText = textToModify.substring(0, startOfTokenPosition) + newTokenString;
 
     // set the new textarea value and after that set the caret back to its position
     this.setState(
@@ -282,10 +265,7 @@ class ReactTextareaAutocomplete extends React.Component {
     const { output } = triggerSettings;
 
     return (item) => {
-      if (
-        typeof item === 'object' &&
-        (!output || typeof output !== 'function')
-      ) {
+      if (typeof item === 'object' && (!output || typeof output !== 'function')) {
         throw new Error(
           'Output functor is not defined! If you are using items as object you have to define "output" function. https://github.com/webscopeio/react-textarea-autocomplete#trigger-type',
         );
@@ -382,9 +362,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
       if (currentTrigger === '@' && mutes.length) {
         data = data.filter((suggestion) => {
-          const mutedUser = mutes.some(
-            (mute) => mute.target.id === suggestion.id,
-          );
+          const mutedUser = mutes.some((mute) => mute.target.id === suggestion.id);
 
           if (mutedUser) return false;
           return true;
@@ -412,9 +390,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     // negative lookahead to match only the trigger + the actual token = "bladhwd:adawd:word test" => ":word"
     // https://stackoverflow.com/a/8057827/2719917
-    this.tokenRegExp = new RegExp(
-      `([${Object.keys(trigger).join('')}])(?:(?!\\1)[^\\s])*$`,
-    );
+    this.tokenRegExp = new RegExp(`([${Object.keys(trigger).join('')}])(?:(?!\\1)[^\\s])*$`);
   };
 
   // TODO: This is an anti pattern in react, should come up with a better way
@@ -497,13 +473,7 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   _changeHandler = (e) => {
-    const {
-      minChar,
-      movePopupAsYouType,
-      onCaretPositionChange,
-      onChange,
-      trigger,
-    } = this.props;
+    const { minChar, movePopupAsYouType, onCaretPositionChange, onChange, trigger } = this.props;
     const { left, top } = this.state;
 
     const textarea = e.target;
@@ -525,15 +495,11 @@ class ReactTextareaAutocomplete extends React.Component {
       currentTrigger = '/';
       lastToken = value;
     } else {
-      const tokenMatch = value
-        .slice(0, selectionEnd)
-        .match(/(?!^|\W)?[:@][^\s]*\s?[^\s]*$/g);
+      const tokenMatch = value.slice(0, selectionEnd).match(/(?!^|\W)?[:@][^\s]*\s?[^\s]*$/g);
 
       lastToken = tokenMatch && tokenMatch[tokenMatch.length - 1].trim();
 
-      currentTrigger =
-        (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) ||
-        null;
+      currentTrigger = (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) || null;
     }
 
     /*
@@ -556,10 +522,7 @@ class ReactTextareaAutocomplete extends React.Component {
       // if we have single char - trigger it means we want to re-position the autocomplete
       lastToken.length === 1
     ) {
-      const { left: newLeft, top: newTop } = getCaretCoordinates(
-        textarea,
-        selectionEnd,
-      );
+      const { left: newLeft, top: newTop } = getCaretCoordinates(textarea, selectionEnd);
 
       this.setState({
         // make position relative to textarea
@@ -604,11 +567,7 @@ class ReactTextareaAutocomplete extends React.Component {
     // that was actually clicked. If we clicked inside the auto-select dropdown, then
     // that's not a blur, from the auto-select point of view, so then do nothing.
     const el = e.relatedTarget;
-    if (
-      this.dropdownRef &&
-      el instanceof Node &&
-      this.dropdownRef.contains(el)
-    ) {
+    if (this.dropdownRef && el instanceof Node && this.dropdownRef.contains(el)) {
       return;
     }
 
@@ -704,9 +663,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     return (
       <div
-        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${
-          containerClassName || ''
-        }`}
+        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${containerClassName || ''}`}
         style={containerStyle}
       >
         {this.renderSuggestionListContainer()}

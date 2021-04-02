@@ -21,9 +21,7 @@ describe('Audio', () => {
     // jsdom doesn't define these, so mock them instead
     // see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement#Methods
     jest.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
-    jest
-      .spyOn(HTMLMediaElement.prototype, 'pause')
-      .mockImplementation(() => {});
+    jest.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
   });
   afterEach(cleanup);
 
@@ -72,12 +70,10 @@ describe('Audio', () => {
     const { getByTestId } = renderComponent();
 
     let intervalId;
-    const setIntervalSpy = jest
-      .spyOn(window, 'setInterval')
-      .mockImplementationOnce(() => {
-        intervalId = 'something';
-        return intervalId;
-      });
+    const setIntervalSpy = jest.spyOn(window, 'setInterval').mockImplementationOnce(() => {
+      intervalId = 'something';
+      return intervalId;
+    });
     const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
 
     fireEvent.click(getByTestId(playButtonTestId));
@@ -107,12 +103,8 @@ describe('Audio', () => {
   it('should show the correct progress', async () => {
     const { getByTestId } = renderComponent();
 
-    jest
-      .spyOn(HTMLAudioElement.prototype, 'duration', 'get')
-      .mockImplementationOnce(() => 100);
-    jest
-      .spyOn(HTMLAudioElement.prototype, 'currentTime', 'get')
-      .mockImplementationOnce(() => 50);
+    jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
+    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
 
     fireEvent.click(getByTestId(playButtonTestId));
 

@@ -17,9 +17,7 @@ describe('<MessageTimestamp />', () => {
   afterEach(cleanup);
 
   it('should render correctly', () => {
-    const tree = renderer
-      .create(<MessageTimestamp message={messageMock} />)
-      .toJSON();
+    const tree = renderer.create(<MessageTimestamp message={messageMock} />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <time
         className=""
@@ -48,9 +46,7 @@ describe('<MessageTimestamp />', () => {
 
   it('should render message with custom datetime format if one is set', () => {
     const format = 'LT';
-    const { queryByText } = render(
-      <MessageTimestamp format={format} message={messageMock} />,
-    );
+    const { queryByText } = render(<MessageTimestamp format={format} message={messageMock} />);
     expect(queryByText('2:42 PM')).toBeInTheDocument();
   });
 
@@ -94,9 +90,7 @@ describe('<MessageTimestamp />', () => {
   it('should render message with a custom css class when one is set', () => {
     const customCssClass = 'custom-css-class';
     const tree = renderer
-      .create(
-        <MessageTimestamp customClass={customCssClass} message={messageMock} />,
-      )
+      .create(<MessageTimestamp customClass={customCssClass} message={messageMock} />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <time

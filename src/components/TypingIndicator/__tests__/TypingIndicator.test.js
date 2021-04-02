@@ -84,11 +84,9 @@ describe('TypingIndicator', () => {
 
   it("should not render TypingIndicator when it's just you typing", async () => {
     const { container } = await renderComponent({ alice: { user: alice } });
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(false);
+    expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+      false,
+    );
   });
 
   it('should render TypingIndicator when someone else is typing', async () => {
@@ -96,11 +94,9 @@ describe('TypingIndicator', () => {
       jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
     });
 
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(true);
+    expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+      true,
+    );
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
   });
 
@@ -110,11 +106,9 @@ describe('TypingIndicator', () => {
       jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
     });
 
-    expect(
-      container.firstChild.classList.contains(
-        'str-chat__typing-indicator--typing',
-      ),
-    ).toBe(true);
+    expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+      true,
+    );
     // eslint-disable-next-line jest-dom/prefer-in-document
     expect(getAllByTestId('avatar-img')).toHaveLength(1);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
@@ -176,11 +170,9 @@ describe('TypingIndicator', () => {
         },
       );
 
-      expect(
-        container.firstChild.classList.contains(
-          'str-chat__typing-indicator--typing',
-        ),
-      ).toBe(true);
+      expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+        true,
+      );
     });
 
     it('should not render TypingIndicator in main channel if user is typing in thread', async () => {
@@ -194,29 +186,21 @@ describe('TypingIndicator', () => {
         },
       );
 
-      expect(
-        container.firstChild.classList.contains(
-          'str-chat__typing-indicator--typing',
-        ),
-      ).toBe(false);
+      expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+        false,
+      );
     });
 
     it('should not render TypingIndicator in thread if user is typing in main channel', async () => {
-      const { container } = await renderComponent(
-        { example: { user: 'test-user' } },
-        true,
-        {
-          channel,
-          client,
-          thread: { id: 'sample-thread' },
-        },
-      );
+      const { container } = await renderComponent({ example: { user: 'test-user' } }, true, {
+        channel,
+        client,
+        thread: { id: 'sample-thread' },
+      });
 
-      expect(
-        container.firstChild.classList.contains(
-          'str-chat__typing-indicator--typing',
-        ),
-      ).toBe(false);
+      expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+        false,
+      );
     });
 
     it('should not render TypingIndicator in thread if user is typing in another thread', async () => {
@@ -230,11 +214,9 @@ describe('TypingIndicator', () => {
         },
       );
 
-      expect(
-        container.firstChild.classList.contains(
-          'str-chat__typing-indicator--typing',
-        ),
-      ).toBe(false);
+      expect(container.firstChild.classList.contains('str-chat__typing-indicator--typing')).toBe(
+        false,
+      );
     });
   });
 });

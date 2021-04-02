@@ -21,9 +21,7 @@ const PreviewUIComponent = (props) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
-    <div data-testid='last-event-message'>
-      {props.lastMessage && props.lastMessage.text}
-    </div>
+    <div data-testid='last-event-message'>{props.lastMessage && props.lastMessage.text}</div>
   </>
 );
 
@@ -57,9 +55,7 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     chatClientUthred = await getTestClientWithUser({ id: 'uthred' });
-    useMockedApis(chatClientUthred, [
-      queryChannelsApi([generateChannel(), generateChannel()]),
-    ]);
+    useMockedApis(chatClientUthred, [queryChannelsApi([generateChannel(), generateChannel()])]);
 
     [c0, c1] = await chatClientUthred.queryChannels({}, {});
   });

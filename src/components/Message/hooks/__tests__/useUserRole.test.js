@@ -13,11 +13,7 @@ const getConfig = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUserRoleHook(
-  message = generateMessage(),
-  channelProps,
-  channelContextValue,
-) {
+async function renderUserRoleHook(message = generateMessage(), channelProps, channelContextValue) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig,
@@ -55,20 +51,13 @@ describe('useUserRole custom hook', () => {
     ['moderator', false],
     ['channel_moderator', false],
     ['owner', false],
-  ])(
-    'should tell if user is admin when user has %s role',
-    async (role, expected) => {
-      const message = generateMessage();
-      const adminUser = generateUser({ role });
-      const clientMock = await getTestClientWithUser(adminUser);
-      const { isAdmin } = await renderUserRoleHook(
-        message,
-        {},
-        { client: clientMock },
-      );
-      expect(isAdmin).toBe(expected);
-    },
-  );
+  ])('should tell if user is admin when user has %s role', async (role, expected) => {
+    const message = generateMessage();
+    const adminUser = generateUser({ role });
+    const clientMock = await getTestClientWithUser(adminUser);
+    const { isAdmin } = await renderUserRoleHook(message, {}, { client: clientMock });
+    expect(isAdmin).toBe(expected);
+  });
 
   it.each([
     ['admin', true],
@@ -139,22 +128,16 @@ describe('useUserRole custom hook', () => {
     ['moderator', true],
     ['channel_moderator', true],
     ['owner', true],
-  ])(
-    'should allow user to edit or delete message if user role is %s',
-    async (role, expected) => {
-      const message = generateMessage();
-      const { canDeleteMessage, canEditMessage } = await renderUserRoleHook(
-        message,
-        {
-          state: {
-            membership: {
-              role,
-            },
-          },
+  ])('should allow user to edit or delete message if user role is %s', async (role, expected) => {
+    const message = generateMessage();
+    const { canDeleteMessage, canEditMessage } = await renderUserRoleHook(message, {
+      state: {
+        membership: {
+          role,
         },
-      );
-      expect(canEditMessage).toBe(expected);
-      expect(canDeleteMessage).toBe(expected);
-    },
-  );
+      },
+    });
+    expect(canEditMessage).toBe(expected);
+    expect(canDeleteMessage).toBe(expected);
+  });
 });

@@ -13,16 +13,10 @@ const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 
 describe('InfiniteScroll', () => {
   // not sure if there is a more 'narrow' way of capturing event listeners being added
-  const divAddEventListenerSpy = jest.spyOn(
-    HTMLDivElement.prototype,
-    'addEventListener',
-  );
+  const divAddEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
   const windowAddEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
-  const divRemoveEventListenerSpy = jest.spyOn(
-    HTMLDivElement.prototype,
-    'addEventListener',
-  );
+  const divRemoveEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
   const windowRemoveEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   afterEach(() => {
@@ -53,25 +47,15 @@ describe('InfiniteScroll', () => {
         useWindow,
       });
 
-      const addEventListenerSpy = useWindow
-        ? windowAddEventListenerSpy
-        : divAddEventListenerSpy;
+      const addEventListenerSpy = useWindow ? windowAddEventListenerSpy : divAddEventListenerSpy;
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        'scroll',
-        expect.any(Function),
-        useCapture,
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), useCapture);
       expect(addEventListenerSpy).toHaveBeenCalledWith(
         'mousewheel',
         expect.any(Function),
         useCapture,
       );
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        'resize',
-        expect.any(Function),
-        useCapture,
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), useCapture);
     },
   );
 

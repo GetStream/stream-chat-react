@@ -92,9 +92,7 @@ describe('Modal', () => {
   });
 
   it('should render the expected html', () => {
-    const tree = renderer
-      .create(<Modal onClose={() => {}} open={false} />)
-      .toJSON();
+    const tree = renderer.create(<Modal onClose={() => {}} open={false} />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__modal str-chat__modal--closed"

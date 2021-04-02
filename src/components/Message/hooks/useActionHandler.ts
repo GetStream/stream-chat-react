@@ -1,7 +1,4 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
 import type { BaseSyntheticEvent } from 'react';
 
@@ -34,18 +31,8 @@ export function useActionHandler<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): ActionHandlerReturnType {
-  const { channel, removeMessage, updateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+>(message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>): ActionHandlerReturnType {
+  const { channel, removeMessage, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();

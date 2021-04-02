@@ -17,10 +17,7 @@ import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
-import {
-  EditMessageForm,
-  MessageInput as MessageInputMock,
-} from '../../MessageInput';
+import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 
@@ -125,9 +122,7 @@ describe('<MessageSimple />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-25T03:24:00'),
     });
-    const CustomMessageDeletedComponent = () => (
-      <p data-testid='custom-message-deleted'>Gone!</p>
-    );
+    const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
     const { getByTestId } = await renderMessageSimple(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
@@ -163,11 +158,7 @@ describe('<MessageSimple />', () => {
       text: undefined,
     });
 
-    const { queryByTestId } = await renderMessageSimple(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageSimple(message, {}, { reactions: false });
     expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
   });
 

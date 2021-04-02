@@ -69,9 +69,7 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const tree = renderer
-        .create(<EventComponent message={message} />)
-        .toJSON();
+      const tree = renderer.create(<EventComponent message={message} />).toJSON();
       expect(tree).toMatchInlineSnapshot(`
         <div
           className="str-chat__event-component__channel-event"
@@ -109,9 +107,7 @@ describe('EventComponent', () => {
         type: 'channel.event',
       };
 
-      const tree = renderer
-        .create(<EventComponent message={message} />)
-        .toJSON();
+      const tree = renderer.create(<EventComponent message={message} />).toJSON();
       expect(tree).toMatchInlineSnapshot(`
         <div
           className="str-chat__event-component__channel-event"

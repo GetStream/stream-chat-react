@@ -28,8 +28,7 @@ const List = (props) => {
 
   const itemsRef = [];
 
-  const isSelected = (item) =>
-    selectedItem === values.findIndex((value) => value.id === item.id);
+  const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -65,8 +64,7 @@ const List = (props) => {
       if (event.which === KEY_CODES.UP) {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          const newID =
-            prevSelected === 0 ? values.length - 1 : prevSelected - 1;
+          const newID = prevSelected === 0 ? values.length - 1 : prevSelected - 1;
           dropdownScroll(itemsRef[newID]);
           return newID;
         });
@@ -75,8 +73,7 @@ const List = (props) => {
       if (event.which === KEY_CODES.DOWN) {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          const newID =
-            prevSelected === values.length - 1 ? 0 : prevSelected + 1;
+          const newID = prevSelected === values.length - 1 ? 0 : prevSelected + 1;
           dropdownScroll(itemsRef[newID]);
           return newID;
         });

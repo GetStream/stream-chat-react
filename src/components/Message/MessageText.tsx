@@ -85,29 +85,26 @@ const UnMemoizedMessageTextComponent = <
     onMentionsHover: propOnMentionsHover,
   });
 
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+  );
 
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
   const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
-    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message.text;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
-  const messageText = useMemo(
-    () => renderText(messageTextToRender, message.mentioned_users),
-    [message.mentioned_users, messageTextToRender],
-  );
+  const messageText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
+    message.mentioned_users,
+    messageTextToRender,
+  ]);
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
-    customInnerClass ||
-    `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
+    customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
   if (!messageTextToRender) return null;
 
@@ -116,25 +113,15 @@ const UnMemoizedMessageTextComponent = <
       <div
         className={`
           ${innerClass}
-          ${
-            hasAttachment
-              ? ` str-chat__message-${theme}-text-inner--has-attachment`
-              : ''
-          }
-          ${
-            isOnlyEmojis(message.text)
-              ? ` str-chat__message-${theme}-text-inner--is-emoji`
-              : ''
-          }
+          ${hasAttachment ? ` str-chat__message-${theme}-text-inner--has-attachment` : ''}
+          ${isOnlyEmojis(message.text) ? ` str-chat__message-${theme}-text-inner--is-emoji` : ''}
         `.trim()}
         data-testid='message-text-inner-wrapper'
         onClick={onMentionsClick}
         onMouseOver={onMentionsHover}
       >
         {message.type === 'error' && (
-          <div className={`str-chat__${theme}-message--error-message`}>
-            {t('Error · Unsent')}
-          </div>
+          <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}
         {message.status === 'failed' && (
           <div className={`str-chat__${theme}-message--error-message`}>
@@ -168,11 +155,7 @@ const UnMemoizedMessageTextComponent = <
           />
         )}
       </div>
-      <MessageOptions
-        {...props}
-        {...customOptionProps}
-        onReactionListClick={onReactionListClick}
-      />
+      <MessageOptions {...props} {...customOptionProps} onReactionListClick={onReactionListClick} />
     </div>
   );
 };

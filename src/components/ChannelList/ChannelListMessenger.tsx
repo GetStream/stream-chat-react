@@ -36,9 +36,7 @@ export type ChannelListMessengerProps = {
  * ChannelList - A preview list of channels, allowing you to select the channel you want to open
  * @example ../../docs/ChannelList.md
  */
-export const ChannelListMessenger: React.FC<ChannelListMessengerProps> = (
-  props,
-) => {
+export const ChannelListMessenger: React.FC<ChannelListMessengerProps> = (props) => {
   const {
     children,
     error = false,

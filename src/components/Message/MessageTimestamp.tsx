@@ -57,9 +57,7 @@ function getDateString(
      * parsedTime.calendar is guaranteed on the type but is only
      * available when a user calls dayjs.extend(calendar)
      */
-    return calendar && parsedTime.calendar
-      ? parsedTime.calendar()
-      : parsedTime.format(format);
+    return calendar && parsedTime.calendar ? parsedTime.calendar() : parsedTime.format(format);
   }
 
   if (isDate(parsedTime)) {
@@ -114,8 +112,7 @@ const UnMemoizedMessageTimestamp = <
   const createdAt = message?.created_at as string;
 
   const when = useMemo(
-    () =>
-      getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),
+    () => getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),
     [formatDate, calendar, tDateTimeParser, format, createdAt],
   );
 

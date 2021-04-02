@@ -39,8 +39,6 @@ describe('CustomNotification', () => {
       </CustomNotification>,
     );
 
-    expect(getByTestId('custom-notification').className).toContain(
-      `notification-${type}`,
-    );
+    expect(getByTestId('custom-notification').className).toContain(`notification-${type}`);
   });
 });

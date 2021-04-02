@@ -1,17 +1,9 @@
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {
-  generateChannel,
-  generateUser,
-  getTestClientWithUser,
-} from 'mock-builders';
+import { generateChannel, generateUser, getTestClientWithUser } from 'mock-builders';
 import { ChannelHeader } from '../ChannelHeader';
-import {
-  ChannelContext,
-  ChatContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
 
 const alice = generateUser();
 let testChannel1;
@@ -94,9 +86,7 @@ describe('ChannelHeader', () => {
       lineHeight: '60px',
       width: '60px',
     });
-    expect(getByTestId('avatar')).toHaveClass(
-      'str-chat__avatar str-chat__avatar--rounded',
-    );
+    expect(getByTestId('avatar')).toHaveClass('str-chat__avatar str-chat__avatar--rounded');
   });
 
   it('should display watcher_count', async () => {

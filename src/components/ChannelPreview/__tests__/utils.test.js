@@ -12,11 +12,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
-import {
-  getDisplayImage,
-  getDisplayTitle,
-  getLatestMessagePreview,
-} from '../utils';
+import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from '../utils';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -56,16 +52,8 @@ describe('ChannelPreview utils', () => {
 
     it.each([
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
-      [
-        'Message deleted',
-        'channelWithDeletedMessage',
-        channelWithDeletedMessage,
-      ],
-      [
-        '🏙 Attachment...',
-        'channelWithAttachmentMessage',
-        channelWithAttachmentMessage,
-      ],
+      ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
+      ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
       [customMessage.text, 'channelWithTextMessage', channelWithTextMessage],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
       const t = (text) => text;
@@ -77,9 +65,7 @@ describe('ChannelPreview utils', () => {
   describe('getDisplayTitle', () => {
     it('should return channel name, if it exists', async () => {
       const name = uuidv4();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({ channel: { name } }),
-      );
+      const channel = await getQueriedChannelInstance(generateChannel({ channel: { name } }));
 
       expect(getDisplayTitle(channel, chatClient.user)).toBe(name);
     });
@@ -88,10 +74,7 @@ describe('ChannelPreview utils', () => {
       const otherUser = generateUser();
       const channel = await getQueriedChannelInstance(
         generateChannel({
-          members: [
-            generateMember({ user: otherUser }),
-            generateMember({ user: clientUser }),
-          ],
+          members: [generateMember({ user: otherUser }), generateMember({ user: clientUser })],
         }),
       );
       expect(getDisplayTitle(channel, chatClient.user)).toBe(otherUser.name);
@@ -101,9 +84,7 @@ describe('ChannelPreview utils', () => {
   describe('getDisplayImage', () => {
     it('should return channel image, if it exists', async () => {
       const image = uuidv4();
-      const channel = await getQueriedChannelInstance(
-        generateChannel({ channel: { image } }),
-      );
+      const channel = await getQueriedChannelInstance(generateChannel({ channel: { image } }));
 
       expect(getDisplayImage(channel, chatClient.user)).toBe(image);
     });
@@ -112,10 +93,7 @@ describe('ChannelPreview utils', () => {
       const otherUser = generateUser();
       const channel = await getQueriedChannelInstance(
         generateChannel({
-          members: [
-            generateMember({ user: otherUser }),
-            generateMember({ user: clientUser }),
-          ],
+          members: [generateMember({ user: otherUser }), generateMember({ user: clientUser })],
         }),
       );
       expect(getDisplayImage(channel, chatClient.user)).toBe(otherUser.image);

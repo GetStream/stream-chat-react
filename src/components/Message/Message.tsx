@@ -23,10 +23,7 @@ import {
   MESSAGE_ACTIONS,
 } from './utils';
 
-import {
-  RetrySendMessage,
-  useChannelContext,
-} from '../../context/ChannelContext';
+import { RetrySendMessage, useChannelContext } from '../../context/ChannelContext';
 
 import type { Channel } from 'stream-chat';
 
@@ -152,8 +149,7 @@ const MessageWithContext = <
     messageActions,
   ]);
 
-  const actionsEnabled =
-    message && message.type === 'regular' && message.status === 'received';
+  const actionsEnabled = message && message.type === 'regular' && message.status === 'received';
 
   return (
     <MessageUIComponent
@@ -221,15 +217,7 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { channel: contextChannel } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel: contextChannel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channel = propChannel || contextChannel;
 

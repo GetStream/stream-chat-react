@@ -71,9 +71,7 @@ const UnMemoizedMessageOptions = <
   const messageActions = getMessageActions();
 
   const shouldShowReactions =
-    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 &&
-    channelConfig &&
-    channelConfig.reactions;
+    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 && channelConfig && channelConfig.reactions;
 
   const shouldShowReplies =
     messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 &&
@@ -96,13 +94,8 @@ const UnMemoizedMessageOptions = <
 
   if (isMyMessage && displayLeft) {
     return (
-      <div
-        className={`str-chat__message-${theme}__actions`}
-        data-testid='message-options-left'
-      >
-        {displayActions && (
-          <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
-        )}
+      <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
+        {displayActions && <MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
         {shouldShowReplies && (
           <div
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
@@ -126,10 +119,7 @@ const UnMemoizedMessageOptions = <
   }
 
   return (
-    <div
-      className={`str-chat__message-${theme}__actions`}
-      data-testid='message-options'
-    >
+    <div className={`str-chat__message-${theme}__actions`} data-testid='message-options'>
       {shouldShowReactions && (
         <div
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
@@ -148,9 +138,7 @@ const UnMemoizedMessageOptions = <
           <ThreadIcon />
         </div>
       )}
-      {displayActions && (
-        <MessageActions {...props} messageWrapperRef={messageWrapperRef} />
-      )}
+      {displayActions && <MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
     </div>
   );
 };

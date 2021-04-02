@@ -15,11 +15,7 @@ import { Message as MessageMock } from '../../Message';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
 import { Thread } from '../Thread';
-import {
-  ChannelContext,
-  ChatContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
 
 jest.mock('../../Message/Message', () => ({
   Message: jest.fn(() => <div />),
@@ -53,9 +49,7 @@ const renderComponent = (client, props = {}, channelContextOverrides = {}) =>
   render(
     <ChatContext.Provider value={{ client }}>
       <TranslationContext.Provider value={{ t: i18nMock }}>
-        <ChannelContext.Provider
-          value={{ ...channelContextMock, ...channelContextOverrides }}
-        >
+        <ChannelContext.Provider value={{ ...channelContextMock, ...channelContextOverrides }}>
           <Thread {...props} />
         </ChannelContext.Provider>
       </TranslationContext.Provider>
@@ -156,9 +150,7 @@ describe('Thread', () => {
   });
 
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {
-    const CustomThreadHeader = jest.fn(() => (
-      <div data-testid='custom-thread-header' />
-    ));
+    const CustomThreadHeader = jest.fn(() => <div data-testid='custom-thread-header' />);
 
     const { getByTestId } = renderComponent(chatClient, {
       ThreadHeader: CustomThreadHeader,
@@ -187,24 +179,18 @@ describe('Thread', () => {
 
   it('should assign the str-chat__thread--full modifier class if the fullWidth prop is set to true', () => {
     const { container } = renderComponent(chatClient, { fullWidth: true });
-    expect(
-      container.querySelector('.str-chat__thread--full'),
-    ).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__thread--full')).toBeInTheDocument();
   });
 
   it('should not assign the str-chat__thread--full modifier class if the fullWidth prop is set to false', () => {
     const { container } = renderComponent(chatClient);
-    expect(
-      container.querySelector('.str-chat__thread--full'),
-    ).not.toBeInTheDocument();
+    expect(container.querySelector('.str-chat__thread--full')).not.toBeInTheDocument();
   });
 
   it('should not render anything if the thread in context is falsy', () => {
     const { container } = renderComponent(chatClient, {}, { thread: null });
 
-    expect(
-      container.querySelector('.str-chat__thread'),
-    ).not.toBeInTheDocument();
+    expect(container.querySelector('.str-chat__thread')).not.toBeInTheDocument();
   });
 
   it('should call the loadMoreThread callback on mount if the thread start has a non-zero reply count', () => {
@@ -222,9 +208,7 @@ describe('Thread', () => {
 
     const tree = renderer
       .create(
-        <ChannelContext.Provider
-          value={{ ...channelContextMock, channel, client }}
-        >
+        <ChannelContext.Provider value={{ ...channelContextMock, channel, client }}>
           <Thread />
         </ChannelContext.Provider>,
       )
