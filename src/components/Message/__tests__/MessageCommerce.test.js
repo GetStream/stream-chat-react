@@ -188,17 +188,6 @@ describe('<MessageCommerce />', () => {
     );
   });
 
-  it('should set correct css class modifier if message has reactions', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--with-reactions',
-    );
-  });
-
   it('should not set css class modifier if reactions is disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
