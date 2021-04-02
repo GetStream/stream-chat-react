@@ -2,20 +2,24 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { MessageCommerce } from '../MessageCommerce';
+
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageText as MessageTextMock } from '../MessageText';
+import { MML as MMLMock } from '../../MML';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-
-import { ChannelContext } from '../../../context';
-import { MessageCommerce } from '../MessageCommerce';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { MessageText as MessageTextMock } from '../MessageText';
+} from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
@@ -28,22 +32,20 @@ const openThreadMock = jest.fn();
 async function renderMessageCommerce(message, props = {}, channelConfig = { replies: true }) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
+
   return render(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        emojiConfig: emojiMockConfig,
-        openThread: openThreadMock,
-      }}
-    >
-      <MessageCommerce
-        getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
-        isMyMessage={() => true}
-        message={message}
-        {...props}
-      />
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <ChannelActionProvider value={{ openThread: openThreadMock }}>
+          <MessageCommerce
+            getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+            isMyMessage={() => true}
+            message={message}
+            {...props}
+          />
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
