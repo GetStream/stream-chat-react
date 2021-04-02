@@ -1,16 +1,21 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { Message } from '../Message';
+import { MESSAGE_ACTIONS } from '../utils';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
-import { MESSAGE_ACTIONS } from '../utils';
-import { Message } from '../Message';
+} from '../../../mock-builders';
 
 const alice = generateUser({
   id: 'alice',
@@ -28,49 +33,56 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-async function renderComponent(
+async function renderComponent({
+  channelActionOpts,
+  channelConfig = { replies: true },
+  channelStateOpts,
+  clientOpts,
   message,
   props = {},
-  channelOpts,
-  channelConfig = { replies: true },
   renderer = render,
-  clientOpts,
-) {
+}) {
   const channel = generateChannel({
     deleteReaction,
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
-    ...channelOpts,
+    ...channelStateOpts,
   });
   const client = await getTestClientWithUser(alice);
+
   return renderer(
-    <ChatContext.Provider value={{ client, ...clientOpts }}>
-      <ChannelContext.Provider
-        value={{
-          channel,
-          client,
-          openThread: jest.fn(),
-          removeMessage: jest.fn(),
-          updateMessage: jest.fn(),
-          ...channelOpts,
-        }}
-      >
-        <TranslationContext.Provider value={{ t: (key) => key }}>
-          <Message message={message} Message={CustomMessageUIComponent} typing={false} {...props} />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </ChatContext.Provider>,
+    <ChatProvider value={{ client, ...clientOpts }}>
+      <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
+        <ChannelActionProvider
+          value={{
+            openThread: jest.fn(),
+            removeMessage: jest.fn(),
+            updateMessage: jest.fn(),
+            ...channelActionOpts,
+          }}
+        >
+          <TranslationProvider value={{ t: (key) => key }}>
+            <Message
+              message={message}
+              Message={CustomMessageUIComponent}
+              typing={false}
+              {...props}
+            />
+          </TranslationProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
 function renderComponentWithMessage(
   props = {},
-  channelOpts = {},
+  channelStateOpts = {},
   channelConfig = { replies: true },
 ) {
   const message = generateMessage();
-  return renderComponent(message, props, channelOpts, channelConfig);
+  return renderComponent({ channelConfig, channelStateOpts, message, props });
 }
 
 function getRenderedProps() {
@@ -95,7 +107,7 @@ describe('<Message /> component', () => {
 
   it('should enable actions if message is of type regular and status received', async () => {
     const message = generateMessage({ status: 'received', type: 'regular' });
-    await renderComponent(message);
+    await renderComponent({ message });
     expect(CustomMessageUIComponent).toHaveBeenCalledWith(
       expect.objectContaining({
         actionsEnabled: true,
@@ -110,7 +122,7 @@ describe('<Message /> component', () => {
       own_reactions: [reaction],
     });
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    await renderComponent(message);
+    await renderComponent({ message });
     const { handleReaction } = getRenderedProps();
     handleReaction();
     expect(console.warn).toHaveBeenCalledTimes(1);
@@ -121,7 +133,7 @@ describe('<Message /> component', () => {
     const message = generateMessage({
       own_reactions: [reaction],
     });
-    await renderComponent(message);
+    await renderComponent({ message });
     const { handleReaction } = getRenderedProps();
     await handleReaction(reaction.type);
     expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
@@ -130,7 +142,7 @@ describe('<Message /> component', () => {
   it('should send reaction', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    await renderComponent(message);
+    await renderComponent({ message });
     const { handleReaction } = getRenderedProps();
     await handleReaction(reaction.type);
     expect(sendReaction).toHaveBeenCalledWith(message.id, {
@@ -142,7 +154,7 @@ describe('<Message /> component', () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
     const updateMessage = jest.fn();
-    await renderComponent(message, {}, { updateMessage });
+    await renderComponent({ channelActionOpts: { updateMessage }, message });
     const { handleReaction } = getRenderedProps();
     sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
@@ -158,7 +170,7 @@ describe('<Message /> component', () => {
       value: 'value',
     };
     sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
-    await renderComponent(currentMessage, {}, { updateMessage });
+    await renderComponent({ channelActionOpts: { updateMessage }, message: currentMessage });
     const { handleAction } = getRenderedProps();
     await handleAction(action.name, action.value, mouseEventMock);
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
@@ -175,7 +187,7 @@ describe('<Message /> component', () => {
       value: 'value',
     };
     sendAction.mockImplementationOnce(() => Promise.resolve(undefined));
-    await renderComponent(currentMessage, {}, { removeMessage });
+    await renderComponent({ channelActionOpts: { removeMessage }, message: currentMessage });
     const { handleAction } = getRenderedProps();
     await handleAction(action.name, action.value, mouseEventMock);
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
@@ -187,7 +199,7 @@ describe('<Message /> component', () => {
   it('should handle retry', async () => {
     const message = generateMessage();
     const retrySendMessage = jest.fn(() => Promise.resolve());
-    await renderComponent(message, {}, { retrySendMessage });
+    await renderComponent({ channelActionOpts: { retrySendMessage }, message });
     const { handleRetry } = getRenderedProps();
     await handleRetry(message);
     expect(retrySendMessage).toHaveBeenCalledWith(message);
@@ -198,7 +210,7 @@ describe('<Message /> component', () => {
       mentioned_users: [bob],
     });
     const onMentionsClick = jest.fn(() => {});
-    await renderComponent(message, {}, { onMentionsClick });
+    await renderComponent({ channelActionOpts: { onMentionsClick }, message });
     const { onMentionsClickMessage } = getRenderedProps();
     onMentionsClickMessage(mouseEventMock);
     expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
@@ -209,7 +221,7 @@ describe('<Message /> component', () => {
       mentioned_users: [bob],
     });
     const onMentionsHover = jest.fn(() => {});
-    await renderComponent(message, {}, { onMentionsHover });
+    await renderComponent({ channelActionOpts: { onMentionsHover }, message });
     const { onMentionsHoverMessage } = getRenderedProps();
     onMentionsHoverMessage(mouseEventMock);
     expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
@@ -218,7 +230,7 @@ describe('<Message /> component', () => {
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
     const message = generateMessage({ user: bob });
     const onUserClickMock = jest.fn(() => {});
-    await renderComponent(message, { onUserClick: onUserClickMock });
+    await renderComponent({ message, props: { onUserClick: onUserClickMock } });
     const { onUserClick } = getRenderedProps();
     onUserClick(mouseEventMock);
     expect(onUserClickMock).toHaveBeenCalledWith(mouseEventMock, message.user);
@@ -227,7 +239,7 @@ describe('<Message /> component', () => {
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });
     const onUserHoverMock = jest.fn(() => {});
-    await renderComponent(message, { onUserHover: onUserHoverMock });
+    await renderComponent({ message, props: { onUserHover: onUserHoverMock } });
     const { onUserHover } = getRenderedProps();
     onUserHover(mouseEventMock);
     expect(onUserHoverMock).toHaveBeenCalledWith(mouseEventMock, message.user);
@@ -241,19 +253,12 @@ describe('<Message /> component', () => {
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
     client.muteUser = muteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getMuteUserSuccessNotification,
-      },
-      {
-        mutes: [],
-      },
-      null,
-      render,
-      { client },
-    );
+      props: { addNotification, getMuteUserSuccessNotification },
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -267,18 +272,13 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const muteUser = jest.fn(() => Promise.resolve());
     client.muteUser = muteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {
-        mutes: [],
-      },
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -293,19 +293,13 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.muteUser = muteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getMuteUserErrorNotification,
-      },
-      {
-        mutes: [],
-      },
-      null,
+      props: { addNotification, getMuteUserErrorNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -319,18 +313,13 @@ describe('<Message /> component', () => {
     const muteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     client.muteUser = muteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {
-        mutes: [],
-      },
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
@@ -345,19 +334,13 @@ describe('<Message /> component', () => {
     const userUnmutedNotification = 'User unmuted!';
     const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
     client.unmuteUser = unmuteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getMuteUserSuccessNotification,
-      },
-      {
-        mutes: [{ target: { id: bob.id } }],
-      },
-      null,
+      props: { addNotification, getMuteUserSuccessNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -371,18 +354,13 @@ describe('<Message /> component', () => {
     const unmuteUser = jest.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     client.unmuteUser = unmuteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {
-        mutes: [{ target: { id: bob.id } }],
-      },
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -397,19 +375,13 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.unmuteUser = unmuteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getMuteUserErrorNotification,
-      },
-      {
-        mutes: [{ target: { id: bob.id } }],
-      },
-      null,
+      props: { addNotification, getMuteUserErrorNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -423,18 +395,13 @@ describe('<Message /> component', () => {
     const unmuteUser = jest.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     client.unmuteUser = unmuteUser;
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {
-        mutes: [{ target: { id: bob.id } }],
-      },
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
@@ -449,7 +416,7 @@ describe('<Message /> component', () => {
     async (_, actionsValue) => {
       const message = generateMessage({ user: bob });
       const messageActions = actionsValue;
-      await renderComponent(message, { messageActions });
+      await renderComponent({ message, props: { messageActions } });
       const { getMessageActions } = getRenderedProps();
       expect(getMessageActions()).toStrictEqual([]);
     },
@@ -457,7 +424,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to edit and delete message when message is from the user', async () => {
     const message = generateMessage({ user: alice });
-    await renderComponent(message);
+    await renderComponent({ message });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -468,11 +435,10 @@ describe('<Message /> component', () => {
     ['channel moderator', 'channel_moderator'],
   ])('should allow user to edit and delete message when user is %s', async (_, role) => {
     const message = generateMessage({ user: bob });
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { state: { members: {}, membership: { role }, watchers: {} } },
       message,
-      {},
-      { state: { members: {}, membership: { role }, watchers: {} } },
-    );
+    });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -480,11 +446,10 @@ describe('<Message /> component', () => {
 
   it('should allow user to edit and delete message when user is owner', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
       message,
-      {},
-      { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
-    );
+    });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -497,7 +462,7 @@ describe('<Message /> component', () => {
     });
     const client = await getTestClientWithUser(amin);
     const message = generateMessage({ user: bob });
-    await renderComponent(message, {}, { client });
+    await renderComponent({ clientOpts: { client }, message });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -505,11 +470,10 @@ describe('<Message /> component', () => {
 
   it('should allow user to edit and delete message when user is admin', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { state: { members: {}, membership: { role: 'admin' }, watchers: {} } },
       message,
-      {},
-      { state: { members: {}, membership: { role: 'admin' }, watchers: {} } },
-    );
+    });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
@@ -517,7 +481,7 @@ describe('<Message /> component', () => {
 
   it('should not allow user to edit or delete message when user message is not from user and user has no special role', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(message);
+    await renderComponent({ message });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.edit);
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.delete);
@@ -525,14 +489,14 @@ describe('<Message /> component', () => {
 
   it('should allow user to flag others messages', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(message);
+    await renderComponent({ message });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.flag);
   });
 
   it('should allow user to mute others messages', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(message, {}, {}, { mutes: true });
+    await renderComponent({ channelConfig: { mutes: true }, message });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.mute);
   });
@@ -545,17 +509,12 @@ describe('<Message /> component', () => {
     client.flagMessage = flagMessage;
     const messageFlaggedNotification = 'Message flagged!';
     const getFlagMessageSuccessNotification = jest.fn(() => messageFlaggedNotification);
-    await renderComponent(
+    await renderComponent({
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getFlagMessageSuccessNotification,
-      },
-      {},
-      null,
+      props: { addNotification, getFlagMessageSuccessNotification },
       render,
-      { client },
-    );
+    });
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -569,16 +528,12 @@ describe('<Message /> component', () => {
     const flagMessage = jest.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const defaultSuccessNotification = 'Message has been successfully flagged';
-    await renderComponent(
+    await renderComponent({
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {},
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -593,17 +548,12 @@ describe('<Message /> component', () => {
     client.flagMessage = flagMessage;
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getFlagMessageErrorNotification = jest.fn(() => messageFlagFailedNotification);
-    await renderComponent(
+    await renderComponent({
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-        getFlagMessageErrorNotification,
-      },
-      {},
-      null,
+      props: { addNotification, getFlagMessageErrorNotification },
       render,
-      { client },
-    );
+    });
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -618,16 +568,12 @@ describe('<Message /> component', () => {
     client.flagMessage = flagMessage;
     const defaultFlagMessageFailedNotification =
       'Error adding flag: Either the flag already exist or there is issue with network connection ...';
-    await renderComponent(
+    await renderComponent({
+      clientOpts: { client },
       message,
-      {
-        addNotification,
-      },
-      {},
-      null,
+      props: { addNotification },
       render,
-      { client },
-    );
+    });
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
@@ -636,26 +582,22 @@ describe('<Message /> component', () => {
 
   it('should allow user to pin messages when permissions allow', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { state: { members: {}, watchers: {} }, type: 'messaging' },
       message,
-      {
-        pinPermissions: { messaging: { user: true } },
-      },
-      { state: { members: {}, watchers: {} }, type: 'messaging' },
-    );
+      props: { pinPermissions: { messaging: { user: true } } },
+    });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
   });
 
   it('should not allow user to pin messages when permissions do not allow', async () => {
     const message = generateMessage({ user: bob });
-    await renderComponent(
+    await renderComponent({
+      channelStateOpts: { state: { members: {}, watchers: {} }, type: 'messaging' },
       message,
-      {
-        pinPermissions: { messaging: { user: false } },
-      },
-      { state: { members: {}, watchers: {} }, type: 'messaging' },
-    );
+      props: { pinPermissions: { messaging: { user: false } } },
+    });
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
   });
@@ -663,13 +605,10 @@ describe('<Message /> component', () => {
   it('should allow user to retry sending a message', async () => {
     const message = generateMessage();
     const retrySendMessage = jest.fn(() => Promise.resolve());
-    await renderComponent(
+    await renderComponent({
+      channelActionOpts: { retrySendMessage },
       message,
-      {},
-      {
-        retrySendMessage,
-      },
-    );
+    });
     const { handleRetry } = getRenderedProps();
     handleRetry(message);
     expect(retrySendMessage).toHaveBeenCalledWith(message);
@@ -678,13 +617,10 @@ describe('<Message /> component', () => {
   it('should allow user to open a thread', async () => {
     const message = generateMessage();
     const openThread = jest.fn();
-    await renderComponent(
+    await renderComponent({
+      channelActionOpts: { openThread },
       message,
-      {},
-      {
-        openThread,
-      },
-    );
+    });
     const { handleOpenThread } = getRenderedProps();
     handleOpenThread(mouseEventMock);
     expect(openThread).toHaveBeenCalledWith(message, mouseEventMock);
@@ -693,8 +629,9 @@ describe('<Message /> component', () => {
   it('should correctly tell if message belongs to currently set user', async () => {
     const message = generateMessage({ user: alice });
     const client = await getTestClientWithUser(alice);
-    await renderComponent(message, {
-      client,
+    await renderComponent({
+      clientOpts: { client },
+      message,
     });
     const { isMyMessage } = getRenderedProps();
     expect(isMyMessage(message)).toBe(true);
@@ -703,7 +640,7 @@ describe('<Message /> component', () => {
   it('should pass channel configuration to UI rendered UI component', async () => {
     const message = generateMessage({ user: alice });
     const channelConfigMock = { mutes: false, replies: false };
-    await renderComponent(message, {}, {}, channelConfigMock);
+    await renderComponent({ channelConfig: channelConfigMock, message });
     const { channelConfig } = getRenderedProps();
     expect(channelConfig).toBe(channelConfigMock);
   });
@@ -711,106 +648,92 @@ describe('<Message /> component', () => {
   it('should rerender if message changes', async () => {
     const message = generateMessage({ text: 'Helo!', user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      Message: UIMock,
+    const { rerender } = await renderComponent({
+      message,
+      props: { Message: UIMock },
     });
     const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
-    await renderComponent(
-      updatedMessage,
-      {
-        Message: UIMock,
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
+    await renderComponent({
+      message: updatedMessage,
+      props: { Message: UIMock },
+      render: rerender,
+    });
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 
   it('should rerender if readBy changes', async () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      Message: UIMock,
+    const { rerender } = await renderComponent({
+      message,
+      props: { Message: UIMock },
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
-    await renderComponent(
+    await renderComponent({
       message,
-      {
-        Message: UIMock,
-        readBy: [bob],
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
+      props: { Message: UIMock, readBy: [bob] },
+      render: rerender,
+    });
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 
   it('should rerender if groupStyles change', async () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      groupStyles: ['bottom'],
-      Message: UIMock,
+    const { rerender } = await renderComponent({
+      message,
+      props: { groupStyles: ['bottom'], Message: UIMock },
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
-    await renderComponent(
+    await renderComponent({
       message,
-      {
-        groupStyles: ['bottom', 'left'],
-        Message: UIMock,
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
+      props: { groupStyles: ['bottom', 'left'], Message: UIMock },
+      render: rerender,
+    });
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 
   it('should last received id changes', async () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      lastReceivedId: 'last-received-id-1',
-      Message: UIMock,
+    const { rerender } = await renderComponent({
+      message,
+      props: { lastReceivedId: 'last-received-id-1', Message: UIMock },
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
-    await renderComponent(
+    await renderComponent({
       message,
-      {
-        lastReceivedId: 'last-received-id-2',
-        Message: UIMock,
-      },
-      undefined,
-      undefined,
-      rerender,
-    );
+      props: { lastReceivedId: 'last-received-id-2', Message: UIMock },
+      render: rerender,
+    });
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 
   it('should rerender if message list changes position', async () => {
     const message = generateMessage({ user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
-    const { rerender } = await renderComponent(message, {
-      Message: UIMock,
-      messageListRect: {
-        height: 100,
-        width: 100,
-        x: 10,
-        y: 10,
+    const { rerender } = await renderComponent({
+      message,
+      props: {
+        Message: UIMock,
+        messageListRect: {
+          height: 100,
+          width: 100,
+          x: 10,
+          y: 10,
+        },
       },
     });
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
-    await renderComponent(
+    await renderComponent({
       message,
-      {
+      props: {
         Message: UIMock,
         messageListRect: {
           height: 200,
@@ -819,10 +742,8 @@ describe('<Message /> component', () => {
           y: 20,
         },
       },
-      undefined,
-      undefined,
-      rerender,
-    );
+      render: rerender,
+    });
     expect(UIMock).toHaveBeenCalledTimes(1);
   });
 });
