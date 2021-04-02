@@ -1,22 +1,26 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
+import Dayjs from 'dayjs';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { MessageLivestream } from '../MessageLivestream';
+
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MessageInput as MessageInputMock } from '../../MessageInput';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-
-import { MessageLivestream } from '../MessageLivestream';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext, TranslationContext } from '../../../context';
-import Dayjs from 'dayjs';
+} from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -43,22 +47,24 @@ async function renderMessageLivestream(
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChannelContext.Provider value={{ channel, client, emojiConfig: emojiMockConfig }}>
-      <TranslationContext.Provider
-        value={{
-          t: (key) => key,
-          tDateTimeParser: customDateTimeParser,
-          userLanguage: 'en',
-        }}
-      >
-        <MessageLivestream
-          getMessageActions={() => []}
-          message={message}
-          typing={false}
-          {...props}
-        />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <TranslationProvider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <MessageLivestream
+            getMessageActions={() => []}
+            message={message}
+            typing={false}
+            {...props}
+          />
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
