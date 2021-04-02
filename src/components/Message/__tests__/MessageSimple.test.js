@@ -1,25 +1,31 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Dayjs from 'dayjs';
+import calendar from 'dayjs/plugin/calendar';
+
+import { MessageSimple } from '../MessageSimple';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageText as MessageTextMock } from '../MessageText';
+import { MESSAGE_ACTIONS } from '../utils';
+
+import { Avatar as AvatarMock } from '../../Avatar';
+import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
+import { MML as MMLMock } from '../../MML';
+import { Modal as ModalMock } from '../../Modal';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { MESSAGE_ACTIONS } from '../utils';
-import { ChannelContext, TranslationContext } from '../../../context';
-import { MessageSimple } from '../MessageSimple';
-import { Modal as ModalMock } from '../../Modal';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
-import { MessageText as MessageTextMock } from '../MessageText';
-import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
-import Dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
+} from '../../../mock-builders';
 
 Dayjs.extend(calendar);
 
@@ -55,28 +61,24 @@ async function renderMessageSimple(
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        emojiConfig: emojiMockConfig,
-        openThread: openThreadMock,
-        retrySendMessage: retrySendMessageMock,
-      }}
-    >
-      <TranslationContext.Provider
-        value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}
-      >
-        <MessageSimple
-          getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-          isMyMessage={() => true}
-          message={message}
-          threadList={false}
-          typing={false}
-          {...props}
-        />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <ChannelActionProvider
+          value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
+        >
+          <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
+            <MessageSimple
+              getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+              isMyMessage={() => true}
+              message={message}
+              threadList={false}
+              typing={false}
+              {...props}
+            />
+          </TranslationProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
