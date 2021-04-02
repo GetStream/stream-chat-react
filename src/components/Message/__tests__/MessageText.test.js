@@ -3,17 +3,22 @@ import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageText } from '../MessageText';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
-import { MessageText } from '../MessageText';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+} from '../../../mock-builders';
 
 jest.mock('../MessageOptions', () => ({
   MessageOptions: jest.fn(() => <div />),
@@ -46,25 +51,23 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return renderer(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        emojiConfig: emojiMockConfig,
-        onMentionsClick: onMentionsClickMock,
-        onMentionsHover: onMentionsHoverMock,
-      }}
-    >
-      <TranslationContext.Provider
-        value={{
-          t: (key) => key,
-          tDateTimeParser: customDateTimeParser,
-          userLanguage: 'en',
-        }}
-      >
-        <MessageText {...defaultProps} {...customProps} />{' '}
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <ChannelActionProvider
+          value={{ onMentionsClick: onMentionsClickMock, onMentionsHover: onMentionsHoverMock }}
+        >
+          <TranslationProvider
+            value={{
+              t: (key) => key,
+              tDateTimeParser: customDateTimeParser,
+              userLanguage: 'en',
+            }}
+          >
+            <MessageText {...defaultProps} {...customProps} />{' '}
+          </TranslationProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
