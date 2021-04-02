@@ -2,16 +2,19 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { MESSAGE_ACTIONS } from '../utils';
+import { MessageOptions } from '../MessageOptions';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext } from '../../../context';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { MESSAGE_ACTIONS } from '../utils';
-import { MessageOptions } from '../MessageOptions';
+} from '../../../mock-builders';
 
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),
@@ -37,12 +40,16 @@ function generateAliceMessage(messageOptions) {
 async function renderMessageOptions(customProps, channelConfig) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({ getConfig: () => channelConfig });
+
   return render(
-    <ChannelContext.Provider value={{ channel, client }}>
-      <MessageOptions {...defaultProps} {...customProps} />
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel }}>
+        <MessageOptions {...defaultProps} {...customProps} />
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
+
 const threadActionTestId = 'thread-action';
 const reactionActionTestId = 'message-reaction-action';
 const messageOptionsTestId = 'message-options';
