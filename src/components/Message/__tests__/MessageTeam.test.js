@@ -1,22 +1,26 @@
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Dayjs from 'dayjs';
+
+import { MessageTeam } from '../MessageTeam';
+
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MessageInput as MessageInputMock } from '../../MessageInput';
+import { MML as MMLMock } from '../../MML';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-
-import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
-import { MessageTeam } from '../MessageTeam';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import Dayjs from 'dayjs';
+} from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div />),
@@ -46,16 +50,9 @@ async function renderMessageTeam(
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
-        value={{
-          channel,
-          client,
-          emojiConfig: emojiMockConfig,
-          t: (key) => key,
-        }}
-      >
-        <TranslationContext.Provider
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <TranslationProvider
           value={{
             t: (key) => key,
             tDateTimeParser: customDateTimeParser,
@@ -69,9 +66,9 @@ async function renderMessageTeam(
             typing={false}
             {...props}
           />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </ChatContext.Provider>,
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
