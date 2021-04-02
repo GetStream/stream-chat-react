@@ -42,12 +42,9 @@ const UnMemoizedChannelPreviewMessenger = <
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
-  const unreadClass =
-    unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
+  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
 
-  const activeClass = active
-    ? 'str-chat__channel-preview-messenger--active'
-    : '';
+  const activeClass = active ? 'str-chat__channel-preview-messenger--active' : '';
 
   const onSelectChannel = () => {
     if (setActiveChannel) {

@@ -29,23 +29,13 @@ export const useOpenThreadHandler = <
     event: React.SyntheticEvent,
   ) => void,
 ): MouseEventHandler => {
-  const { openThread: channelOpenThread } = useChannelActionContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const openThread = customOpenThread || channelOpenThread;
 
   return (event) => {
     if (!openThread || !message) {
-      console.warn(
-        'Open thread handler was called but it is missing one of its parameters',
-      );
+      console.warn('Open thread handler was called but it is missing one of its parameters');
       return;
     }
 

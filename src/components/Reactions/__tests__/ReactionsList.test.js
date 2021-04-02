@@ -21,11 +21,7 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
 
   return render(
     <ChannelContext.Provider value={{ emojiConfig: emojiMockConfig }}>
-      <ReactionsList
-        reaction_counts={reaction_counts}
-        reactions={reactions}
-        {...props}
-      />
+      <ReactionsList reaction_counts={reaction_counts} reactions={reactions} {...props} />
     </ChannelContext.Provider>,
   );
 };
@@ -61,9 +57,7 @@ describe('ReactionsList', () => {
     };
     renderComponent({ reaction_counts });
 
-    expect(EmojiComponentMock).toHaveBeenCalledTimes(
-      Object.keys(reaction_counts).length,
-    );
+    expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
   });
@@ -82,9 +76,7 @@ describe('ReactionsList', () => {
       ],
     });
 
-    expect(EmojiComponentMock).toHaveBeenCalledTimes(
-      Object.keys(reaction_counts).length,
-    );
+    expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
   });

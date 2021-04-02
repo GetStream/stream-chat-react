@@ -67,10 +67,7 @@ export const UploadsPreview = <
     <>
       {imageOrder.length > 0 && (
         <ImagePreviewer
-          disabled={
-            maxNumberOfFiles !== undefined &&
-            numberOfUploads >= maxNumberOfFiles
-          }
+          disabled={maxNumberOfFiles !== undefined && numberOfUploads >= maxNumberOfFiles}
           handleFiles={uploadNewFiles}
           handleRemove={removeImage}
           handleRetry={uploadImage}

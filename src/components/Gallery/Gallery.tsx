@@ -8,15 +8,11 @@ import type { Attachment } from 'stream-chat';
 
 import type { DefaultAttachmentType } from '../../../types/types';
 
-export type GalleryProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = {
+export type GalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   images: Attachment<At>[];
 };
 
-const UnMemoizedGallery = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: GalleryProps<At>,
 ) => {
   const { images } = props;
@@ -55,11 +51,7 @@ const UnMemoizedGallery = <
   ));
 
   return (
-    <div
-      className={`str-chat__gallery ${
-        images.length > 3 ? 'str-chat__gallery--square' : ''
-      }`}
-    >
+    <div className={`str-chat__gallery ${images.length > 3 ? 'str-chat__gallery--square' : ''}`}>
       {renderImages}
       {images.length > 3 && (
         <div
@@ -90,6 +82,4 @@ const UnMemoizedGallery = <
  * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
  * @example ./Gallery.md
  */
-export const Gallery = React.memo(
-  UnMemoizedGallery,
-) as typeof UnMemoizedGallery;
+export const Gallery = React.memo(UnMemoizedGallery) as typeof UnMemoizedGallery;

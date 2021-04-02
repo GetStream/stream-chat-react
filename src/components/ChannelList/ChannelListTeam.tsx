@@ -101,14 +101,8 @@ export const ChannelListTeam = <
             <Avatar image={image} name={name || id} size={40} />
           </div>
           <div className='str-chat__channel-list-team__header--middle'>
-            <div className='str-chat__channel-list-team__header--title'>
-              {name || id}
-            </div>
-            <div
-              className={`str-chat__channel-list-team__header--status ${status}`}
-            >
-              {status}
-            </div>
+            <div className='str-chat__channel-list-team__header--title'>{name || id}</div>
+            <div className={`str-chat__channel-list-team__header--status ${status}`}>{status}</div>
           </div>
           <div className='str-chat__channel-list-team__header--right'>
             <button className='str-chat__channel-list-team__header--button'>

@@ -4,10 +4,7 @@ import debounce from 'lodash.debounce';
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { CommandItem, CommandItemProps } from '../CommandItem/CommandItem';
 import { EmoticonItem, EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
-import {
-  LoadingIndicator,
-  LoadingIndicatorProps,
-} from '../Loading/LoadingIndicator';
+import { LoadingIndicator, LoadingIndicatorProps } from '../Loading/LoadingIndicator';
 import { UserItem, UserItemProps } from '../UserItem/UserItem';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -46,9 +43,7 @@ export type SuggestionItemProps<
   item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>;
   key: React.Key;
   onClickHandler: React.MouseEventHandler<HTMLDivElement>;
-  onSelectHandler: (
-    item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>,
-  ) => void;
+  onSelectHandler: (item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>) => void;
   selected: boolean;
   style: React.CSSProperties;
 };
@@ -63,9 +58,7 @@ export type SuggestionListProps<
       component: TriggerSettings<Co, Us, V>[key]['component'];
       dropdownScroll: (element: HTMLDivElement) => void;
       getSelectedItem:
-        | ((
-            item: Parameters<TriggerSettings<Co, Us, V>[key]['output']>[0],
-          ) => void)
+        | ((item: Parameters<TriggerSettings<Co, Us, V>[key]['output']>[0]) => void)
         | null;
       getTextToReplace: (
         item: Parameters<TriggerSettings<Co, Us, V>[key]['output']>[0],
@@ -78,9 +71,7 @@ export type SuggestionListProps<
         caretPosition: 'start' | 'end' | 'next' | number;
         text: string;
       }) => void;
-      values: Parameters<
-        Parameters<TriggerSettings<Co, Us, V>[key]['dataProvider']>[2]
-      >[0];
+      values: Parameters<Parameters<TriggerSettings<Co, Us, V>[key]['dataProvider']>[2]>[0];
       className?: string;
       itemClassName?: string;
       itemStyle?: React.CSSProperties;
@@ -94,14 +85,9 @@ export type SuggestionCommand<
   Co extends DefaultCommandType = DefaultCommandType
 > = CommandResponse<Co>;
 
-export type SuggestionUser<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = UserResponse<Us>;
+export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
 
-export type TriggerSetting<
-  T extends UnknownType = UnknownType,
-  U = UnknownType
-> = {
+export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
   component: string | React.ComponentType<T>;
   dataProvider: (
     query: string,
@@ -125,14 +111,12 @@ export type CommandTriggerSetting<
   Co extends DefaultCommandType = DefaultCommandType
 > = TriggerSetting<Partial<CommandItemProps>, SuggestionCommand<Co>>;
 
-export type EmojiTriggerSetting = TriggerSetting<
-  Partial<EmoticonItemProps>,
-  EmojiData
->;
+export type EmojiTriggerSetting = TriggerSetting<Partial<EmoticonItemProps>, EmojiData>;
 
-export type UserTriggerSetting<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = TriggerSetting<Partial<UserItemProps>, SuggestionUser<Us>>;
+export type UserTriggerSetting<Us extends DefaultUserType<Us> = DefaultUserType> = TriggerSetting<
+  Partial<UserItemProps>,
+  SuggestionUser<Us>
+>;
 
 export type TriggerSettings<
   Co extends DefaultCommandType = DefaultCommandType,
@@ -146,9 +130,7 @@ export type TriggerSettings<
   '@': UserTriggerSetting<Us>;
 };
 
-export type MentionQueryParams<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   filters?: UserFilters<Us>;
   options?: UserOptions;
   sort?: UserSort<Us>;
@@ -245,15 +227,7 @@ const UnMemoizedChatAutoComplete = <
     value,
   } = props;
 
-  const { channel, emojiConfig } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel, emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { EmojiIndex } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -282,9 +256,7 @@ const UnMemoizedChatAutoComplete = <
   };
 
   const getMembersAndWatchers = useCallback(() => {
-    const memberUsers = members
-      ? Object.values(members).map(({ user }) => user)
-      : [];
+    const memberUsers = members ? Object.values(members).map(({ user }) => user) : [];
     const watcherUsers = watchers ? Object.values(watchers) : [];
     const users = [...memberUsers, ...watcherUsers];
 
@@ -301,36 +273,28 @@ const UnMemoizedChatAutoComplete = <
   }, [members, watchers]);
 
   const queryMembersDebounced = useCallback(
-    debounce(
-      async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
-        try {
-          // @ts-expect-error
-          const response = await channel.queryMembers({
-            name: { $autocomplete: query },
-          });
+    debounce(async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
+      try {
+        // @ts-expect-error
+        const response = await channel.queryMembers({
+          name: { $autocomplete: query },
+        });
 
-          const users = response.members.map(
-            (member) => member.user,
-          ) as UserResponse<Us>[];
+        const users = response.members.map((member) => member.user) as UserResponse<Us>[];
 
-          if (onReady && users.length) {
-            onReady(users);
-          } else {
-            onReady([]);
-          }
-        } catch (error) {
-          console.log({ error });
+        if (onReady && users.length) {
+          onReady(users);
+        } else {
+          onReady([]);
         }
-      },
-      200,
-    ),
+      } catch (error) {
+        console.log({ error });
+      }
+    }, 200),
     [channel],
   );
 
-  const queryUsers = async (
-    query: string,
-    onReady: (users: UserResponse<Us>[]) => void,
-  ) => {
+  const queryUsers = async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
     if (!query || searching) return;
     setSearching(true);
 
@@ -338,10 +302,7 @@ const UnMemoizedChatAutoComplete = <
       const { users } = await client.queryUsers(
         // @ts-expect-error
         {
-          $or: [
-            { id: { $autocomplete: query } },
-            { name: { $autocomplete: query } },
-          ],
+          $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
           id: { $ne: client.userID },
           ...mentionQueryParams.filters,
         },
@@ -444,12 +405,9 @@ const UnMemoizedChatAutoComplete = <
           component: UserItem,
           dataProvider: (query, _, onReady) => {
             if (mentionAllAppUsers) {
-              return queryUsersDebounced(
-                query,
-                (data: (UserResponse<Us> | undefined)[]) => {
-                  if (onReady) onReady(data, query);
-                },
-              );
+              return queryUsersDebounced(query, (data: (UserResponse<Us> | undefined)[]) => {
+                if (onReady) onReady(data, query);
+              });
             }
 
             /**
@@ -482,12 +440,9 @@ const UnMemoizedChatAutoComplete = <
               return data;
             }
 
-            return queryMembersDebounced(
-              query,
-              (data: (UserResponse<Us> | undefined)[]) => {
-                if (onReady) onReady(data, query);
-              },
-            );
+            return queryMembersDebounced(query, (data: (UserResponse<Us> | undefined)[]) => {
+              if (onReady) onReady(data, query);
+            });
           },
           output: (entity) => ({
             caretPosition: 'next',

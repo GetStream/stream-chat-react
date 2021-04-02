@@ -27,9 +27,7 @@ export const useMobilePress = () => {
 
   useEffect(() => {
     function handleClick(event: globalThis.MouseEvent) {
-      const isClickInside = targetMessage?.contains(
-        event.target as HTMLElement,
-      );
+      const isClickInside = targetMessage?.contains(event.target as HTMLElement);
 
       if (!isClickInside && targetMessage) {
         targetMessage.classList.remove('mobile-press');

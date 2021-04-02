@@ -1,7 +1,4 @@
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type {
@@ -28,12 +25,9 @@ export const useUserRole = <
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
 
-  const isMyMessage =
-    !!message?.user && !!client?.user && client.user.id === message.user.id;
+  const isMyMessage = !!message?.user && !!client?.user && client.user.id === message.user.id;
 
-  const isAdmin =
-    client?.user?.role === 'admin' ||
-    channel?.state?.membership?.role === 'admin';
+  const isAdmin = client?.user?.role === 'admin' || channel?.state?.membership?.role === 'admin';
 
   const isOwner = channel?.state?.membership?.role === 'owner';
 

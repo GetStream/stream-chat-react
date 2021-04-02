@@ -1,12 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  waitFor,
-} from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { MML } from '../MML';
@@ -21,9 +15,7 @@ describe('MML', () => {
   });
 
   it('should render a basic mml', () => {
-    const tree = renderer
-      .create(<MML source='<mml>Some Text</mml>' />)
-      .toJSON();
+    const tree = renderer.create(<MML source='<mml>Some Text</mml>' />).toJSON();
 
     expect(tree).toMatchInlineSnapshot(`
       <div
@@ -48,9 +40,7 @@ describe('MML', () => {
   });
 
   it('should render with different align prop', () => {
-    const { getByTestId, rerender } = render(
-      <MML align='left' source='<mml></mml>' />,
-    );
+    const { getByTestId, rerender } = render(<MML align='left' source='<mml></mml>' />);
     expect(getByTestId('mml-container')).toHaveClass('mml-align-left');
 
     rerender(<MML align='right' source='<mml></mml>' />);
@@ -68,9 +58,7 @@ describe('MML', () => {
 
   it('actionHandler should be called', async () => {
     const handler = jest.fn();
-    const { getByTestId } = render(
-      <MML actionHandler={handler} source='<mml></mml>' />,
-    );
+    const { getByTestId } = render(<MML actionHandler={handler} source='<mml></mml>' />);
 
     expect(handler).toHaveBeenCalledTimes(0);
     act(() => {

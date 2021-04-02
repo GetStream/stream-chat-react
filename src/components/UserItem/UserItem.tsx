@@ -55,16 +55,11 @@ const UnMemoizedUserItem: React.FC<UserItemProps> = (props) => {
   return (
     <div className='str-chat__user-item'>
       <Avatar image={entity.image} size={20} />
-      <span
-        className='str-chat__user-item--name'
-        data-testid={'user-item-name'}
-      >
+      <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
         {renderName()}
       </span>
     </div>
   );
 };
 
-export const UserItem = React.memo(
-  UnMemoizedUserItem,
-) as typeof UnMemoizedUserItem;
+export const UserItem = React.memo(UnMemoizedUserItem) as typeof UnMemoizedUserItem;

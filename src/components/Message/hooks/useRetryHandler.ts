@@ -1,7 +1,4 @@
-import {
-  RetrySendMessage,
-  useChannelActionContext,
-} from '../../../context/ChannelActionContext';
+import { RetrySendMessage, useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type {
   DefaultAttachmentType,

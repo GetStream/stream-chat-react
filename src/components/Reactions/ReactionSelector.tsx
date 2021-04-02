@@ -5,10 +5,7 @@ import { isMutableRef } from './utils/utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import {
-  MinimalEmoji,
-  useChannelStateContext,
-} from '../../context/ChannelStateContext';
+import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { ReactionResponse } from 'stream-chat';
@@ -95,26 +92,15 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
-    const { emojiConfig } = useChannelStateContext<
-      At,
-      Ch,
-      Co,
-      Ev,
-      Me,
-      Re,
-      Us
-    >();
+    const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
     const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } =
-      emojiConfig || {};
+    const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
     const emojiData = getStrippedEmojiData(fullEmojiData);
     const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
 
-    const [tooltipReactionType, setTooltipReactionType] = useState<
-      string | null
-    >(null);
+    const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
     const [tooltipPositions, setTooltipPositions] = useState<{
       arrow: number;
       tooltip: number;
@@ -138,22 +124,16 @@ const UnMemoizedReactionSelector = React.forwardRef(
         const tooltip = tooltipRef.current?.getBoundingClientRect();
         const target = targetRef.current?.getBoundingClientRect();
 
-        const container = isMutableRef(ref)
-          ? ref.current?.getBoundingClientRect()
-          : null;
+        const container = isMutableRef(ref) ? ref.current?.getBoundingClientRect() : null;
 
         if (!tooltip || !target || !container) return;
 
         const tooltipPosition =
           tooltip.width === container.width || tooltip.x < container.x
             ? 0
-            : target.left +
-              target.width / 2 -
-              container.left -
-              tooltip.width / 2;
+            : target.left + target.width / 2 - container.left - tooltip.width / 2;
 
-        const arrowPosition =
-          target.x - tooltip.x + target.width / 2 - tooltipPosition;
+        const arrowPosition = target.x - tooltip.x + target.width / 2 - tooltipPosition;
 
         setTooltipPositions({
           arrow: arrowPosition,
@@ -173,9 +153,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
         .filter(Boolean);
 
     const getLatestUserForReactionType = (type: string | null) =>
-      latest_reactions?.find(
-        (reaction) => reaction.type === type && !!reaction.user,
-      )?.user || undefined;
+      latest_reactions?.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
+      undefined;
 
     return (
       <div
@@ -195,13 +174,11 @@ const UnMemoizedReactionSelector = React.forwardRef(
             }}
           >
             <div className='arrow' style={{ left: tooltipPositions?.arrow }} />
-            {getUsersPerReactionType(tooltipReactionType)?.map(
-              (user, i, users) => (
-                <span className='latest-user-username' key={`key-${i}-${user}`}>
-                  {`${user}${i < users.length - 1 ? ', ' : ''}`}
-                </span>
-              ),
-            )}
+            {getUsersPerReactionType(tooltipReactionType)?.map((user, i, users) => (
+              <span className='latest-user-username' key={`key-${i}-${user}`}>
+                {`${user}${i < users.length - 1 ? ', ' : ''}`}
+              </span>
+            ))}
           </div>
         )}
         <ul className='str-chat__message-reactions-list'>
@@ -214,9 +191,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                 className='str-chat__message-reactions-list-item'
                 data-text={reactionOption.id}
                 key={`item-${reactionOption.id}`}
-                onClick={(event) =>
-                  handleReaction && handleReaction(reactionOption.id, event)
-                }
+                onClick={(event) => handleReaction && handleReaction(reactionOption.id, event)}
               >
                 {!!count && detailedView && (
                   <>
@@ -227,11 +202,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                       onMouseLeave={hideTooltip}
                     >
                       {latestUser ? (
-                        <Avatar
-                          image={latestUser.image}
-                          name={latestUser.name}
-                          size={20}
-                        />
+                        <Avatar image={latestUser.image} name={latestUser.name} size={20} />
                       ) : (
                         <div className='latest-user-not-found' />
                       )}

@@ -93,10 +93,7 @@ describe('<MessageActions /> component', () => {
     });
     const { getByTestId } = renderMessageActions();
     fireEvent.click(getByTestId(messageActionsTestId));
-    expect(wrapperMock.addEventListener).toHaveBeenCalledWith(
-      'onMouseLeave',
-      expect.any(Function),
-    );
+    expect(wrapperMock.addEventListener).toHaveBeenCalledWith('onMouseLeave', expect.any(Function));
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
@@ -153,10 +150,7 @@ describe('<MessageActions /> component', () => {
     const removeEventListener = jest.spyOn(document, 'removeEventListener');
     expect(document.removeEventListener).not.toHaveBeenCalled();
     unmount();
-    expect(document.removeEventListener).toHaveBeenCalledWith(
-      'click',
-      expect.any(Function),
-    );
+    expect(document.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
     removeEventListener.mockClear();
   });
 

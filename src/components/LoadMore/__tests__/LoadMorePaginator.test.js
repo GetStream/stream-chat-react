@@ -14,9 +14,7 @@ describe('LoadMorePaginator', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
-    const tree = renderer
-      .create(<LoadMorePaginator>children</LoadMorePaginator>)
-      .toJSON();
+    const tree = renderer.create(<LoadMorePaginator>children</LoadMorePaginator>).toJSON();
     expect(tree).toMatchInlineSnapshot(`"children"`);
   });
 
@@ -37,10 +35,7 @@ describe('LoadMorePaginator', () => {
   it('should render LoadMoreButton prop when hasNextPage 1', () => {
     const tree = renderer
       .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>custom load more button</div>}
-        >
+        <LoadMorePaginator hasNextPage LoadMoreButton={() => <div>custom load more button</div>}>
           children
         </LoadMorePaginator>,
       )
@@ -58,10 +53,7 @@ describe('LoadMorePaginator', () => {
   it('should render LoadMoreButton prop when hasNextPage 2', () => {
     const tree = renderer
       .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>load more button</div>}
-        >
+        <LoadMorePaginator hasNextPage LoadMoreButton={() => <div>load more button</div>}>
           children
         </LoadMorePaginator>,
       )
@@ -79,11 +71,7 @@ describe('LoadMorePaginator', () => {
   it('should render children after loader in reverse mode', () => {
     const tree = renderer
       .create(
-        <LoadMorePaginator
-          hasNextPage
-          LoadMoreButton={() => <div>load more button</div>}
-          reverse
-        >
+        <LoadMorePaginator hasNextPage LoadMoreButton={() => <div>load more button</div>} reverse>
           children
         </LoadMorePaginator>,
       )
@@ -129,10 +117,7 @@ describe('LoadMorePaginator', () => {
     );
 
     await waitFor(() => {
-      expect(LoadMoreButton).toHaveBeenCalledWith(
-        { onClick: loadNextPage, refreshing: false },
-        {},
-      );
+      expect(LoadMoreButton).toHaveBeenCalledWith({ onClick: loadNextPage, refreshing: false }, {});
     });
   });
 });

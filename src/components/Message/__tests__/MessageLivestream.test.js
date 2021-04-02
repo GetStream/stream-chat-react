@@ -43,9 +43,7 @@ async function renderMessageLivestream(
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChannelContext.Provider
-      value={{ channel, client, emojiConfig: emojiMockConfig }}
-    >
+    <ChannelContext.Provider value={{ channel, client, emojiConfig: emojiMockConfig }}>
       <TranslationContext.Provider
         value={{
           t: (key) => key,
@@ -109,9 +107,7 @@ describe('<MessageLivestream />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
-    const CustomMessageDeletedComponent = () => (
-      <p data-testid='custom-message-deleted'>Gone!</p>
-    );
+    const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
     const { getByTestId } = await renderMessageLivestream(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
@@ -126,14 +122,10 @@ describe('<MessageLivestream />', () => {
     const CustomReactionSelector = (props, ref) => (
       <ul data-testid={customSelectorTestId}>
         <li>
-          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>
-            :)
-          </button>
+          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>:)</button>
         </li>
         <li>
-          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>
-            :(
-          </button>
+          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>:(</button>
         </li>
       </ul>
     );
@@ -182,9 +174,7 @@ describe('<MessageLivestream />', () => {
 
   it('should render pin indicator when pinned is true', async () => {
     const message = generateAliceMessage({ pinned: true });
-    const CustomPinIndicator = () => (
-      <div data-testid='pin-indicator'>Pin Indicator</div>
-    );
+    const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
     const { getByTestId } = await renderMessageLivestream(message, {
       PinIndicator: CustomPinIndicator,
@@ -197,9 +187,7 @@ describe('<MessageLivestream />', () => {
 
   it('should not render pin indicator when pinned is false', async () => {
     const message = generateAliceMessage({ pinned: false });
-    const CustomPinIndicator = () => (
-      <div data-testid='pin-indicator'>Pin Indicator</div>
-    );
+    const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
     const { queryAllByTestId } = await renderMessageLivestream(message, {
       PinIndicator: CustomPinIndicator,
@@ -262,9 +250,7 @@ describe('<MessageLivestream />', () => {
         editing: true,
         groupStyles: [groupStyle],
       });
-      expect(getByTestId('message-livestream-edit').className).toContain(
-        `--${groupStyle}`,
-      );
+      expect(getByTestId('message-livestream-edit').className).toContain(`--${groupStyle}`);
       if (shouldDisplay) {
         expect(AvatarMock).toHaveBeenCalledWith(
           {
@@ -288,27 +274,21 @@ describe('<MessageLivestream />', () => {
     const { getByTestId } = await renderMessageLivestream(message, {
       groupStyles: [groupStyle],
     });
-    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(
-      `--${groupStyle}`,
-    );
+    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(`--${groupStyle}`);
   });
 
   it('should set message type as css class modifier', async () => {
     const messageType = 'message-type';
     const message = generateAliceMessage({ type: messageType });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(
-      `--${messageType}`,
-    );
+    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(`--${messageType}`);
   });
 
   it('should set message status as css class modifier', async () => {
     const messageStatus = 'message-status';
     const message = generateAliceMessage({ status: messageStatus });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(
-      `--${messageStatus}`,
-    );
+    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(`--${messageStatus}`);
   });
 
   it('should set initial message css class when message is the first one in a thread', async () => {
@@ -316,9 +296,7 @@ describe('<MessageLivestream />', () => {
     const { getByTestId } = await renderMessageLivestream(message, {
       initialMessage: true,
     });
-    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(
-      `--initial-message`,
-    );
+    expect(getByTestId(messageLivestreamWrapperTestId).className).toContain(`--initial-message`);
   });
 
   it.each([
@@ -354,12 +332,9 @@ describe('<MessageLivestream />', () => {
 
   it('should open reaction selector when reaction action is clicked', async () => {
     const message = generateAliceMessage();
-    const { getByTestId, queryByTestId } = await renderMessageLivestream(
-      message,
-      {
-        channelConfig: { reactions: true },
-      },
-    );
+    const { getByTestId, queryByTestId } = await renderMessageLivestream(message, {
+      channelConfig: { reactions: true },
+    });
     expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
@@ -367,12 +342,9 @@ describe('<MessageLivestream />', () => {
 
   it('should close the reaction selector when mouse leaves the message wrapper', async () => {
     const message = generateAliceMessage();
-    const { getByTestId, queryByTestId } = await renderMessageLivestream(
-      message,
-      {
-        channelConfig: { reactions: true },
-      },
-    );
+    const { getByTestId, queryByTestId } = await renderMessageLivestream(message, {
+      channelConfig: { reactions: true },
+    });
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
     const mouseLeave = new MouseEvent('mouseleave', {
@@ -456,9 +428,7 @@ describe('<MessageLivestream />', () => {
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamTextTestId).className).toContain(
-      '--is-emoji',
-    );
+    expect(getByTestId(messageLivestreamTextTestId).className).toContain('--is-emoji');
   });
 
   it('should trigger mentions hover handler when user hovers message text', async () => {
@@ -505,9 +475,7 @@ describe('<MessageLivestream />', () => {
     const errorMessage = 'Unable to send it!';
     const message = generateAliceMessage({ text: errorMessage, type: 'error' });
     const { getByTestId } = await renderMessageLivestream(message);
-    expect(getByTestId(messageLivestreamErrorTestId)).toContainHTML(
-      errorMessage,
-    );
+    expect(getByTestId(messageLivestreamErrorTestId)).toContainHTML(errorMessage);
   });
 
   it('should display command message error when command message is of error type', async () => {
@@ -522,9 +490,7 @@ describe('<MessageLivestream />', () => {
   it('should inform user that message can be retried when it fails', async () => {
     const message = generateAliceMessage({ status: 'failed' });
     const { getByText } = await renderMessageLivestream(message);
-    expect(
-      getByText('Message Failed · Click to try again'),
-    ).toBeInTheDocument();
+    expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
   });
 
   it('should render non-image attachment components when message no text', async () => {
@@ -559,11 +525,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { queryByTestId } = await renderMessageLivestream(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageLivestream(message, {}, { reactions: false });
 
     expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });

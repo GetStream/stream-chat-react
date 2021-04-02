@@ -17,11 +17,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      event.target instanceof Node &&
-      !innerRef.current?.contains(event.target) &&
-      onClose
-    ) {
+    if (event.target instanceof Node && !innerRef.current?.contains(event.target) && onClose) {
       onClose();
     }
   };
@@ -39,9 +35,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
     return () => document.removeEventListener('keyPress', handleEscKey);
   }, [onClose, open]);
 
-  const openClasses = open
-    ? 'str-chat__modal--open'
-    : 'str-chat__modal--closed';
+  const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';
 
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>

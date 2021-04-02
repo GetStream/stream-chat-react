@@ -55,15 +55,7 @@ export const EditMessageForm = <
     publishTypingEvent = true,
   } = props;
 
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInput({
@@ -78,8 +70,7 @@ export const EditMessageForm = <
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.keyCode === KEY_CODES.ESC && clearEditingState)
-        clearEditingState();
+      if (event.keyCode === KEY_CODES.ESC && clearEditingState) clearEditingState();
     };
 
     document.addEventListener('keydown', onKeyDown);
@@ -90,9 +81,7 @@ export const EditMessageForm = <
     <div className='str-chat__edit-message-form'>
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={
-          !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
-        }
+        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
         multiple={multipleUploads}
@@ -118,17 +107,11 @@ export const EditMessageForm = <
           />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
-              <span
-                className='str-chat__input-emojiselect'
-                onClick={messageInput.openEmojiPicker}
-              >
+              <span className='str-chat__input-emojiselect' onClick={messageInput.openEmojiPicker}>
                 <EmojiIcon />
               </span>
               {messageInput.isUploadEnabled && (
-                <div
-                  className='str-chat__fileupload-wrapper'
-                  data-testid='fileinput'
-                >
+                <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>
                     {messageInput.maxFilesLeft
                       ? t('Attach files')

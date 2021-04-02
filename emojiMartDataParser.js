@@ -24,7 +24,4 @@ Object.keys(dataSet.emojis).map(removeSkinTonesInfo);
 
 const newDataSetJson = JSON.stringify(dataSet);
 
-fs.writeFileSync(
-  path.join(__dirname, 'src', 'stream-emoji.json'),
-  newDataSetJson,
-);
+fs.writeFileSync(path.join(__dirname, 'src', 'stream-emoji.json'), newDataSetJson);

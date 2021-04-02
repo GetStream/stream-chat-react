@@ -151,8 +151,7 @@ const MessageWithContext = <
     messageActions,
   ]);
 
-  const actionsEnabled =
-    message && message.type === 'regular' && message.status === 'received';
+  const actionsEnabled = message && message.type === 'regular' && message.status === 'received';
 
   return (
     <MessageUIComponent
@@ -220,15 +219,7 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { channel: contextChannel } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel: contextChannel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channel = propChannel || contextChannel;
 

@@ -1,9 +1,6 @@
 import { validateAndGetMessage } from '../utils';
 
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
@@ -21,9 +18,7 @@ import type {
   DefaultUserType,
 } from '../../../../types/types';
 
-export type PinEnabledUserRoles<T extends string = string> = Partial<
-  Record<T, boolean>
-> & {
+export type PinEnabledUserRoles<T extends string = string> = Partial<Record<T, boolean>> & {
   admin?: boolean;
   anonymous?: boolean;
   channel_member?: boolean;
@@ -35,10 +30,9 @@ export type PinEnabledUserRoles<T extends string = string> = Partial<
   user?: boolean;
 };
 
-export type PinPermissions<
-  T extends string = string,
-  U extends string = string
-> = Partial<Record<T, PinEnabledUserRoles<U>>> & {
+export type PinPermissions<T extends string = string, U extends string = string> = Partial<
+  Record<T, PinEnabledUserRoles<U>>
+> & {
   commerce?: PinEnabledUserRoles<U>;
   gaming?: PinEnabledUserRoles<U>;
   livestream?: PinEnabledUserRoles<U>;
@@ -55,9 +49,7 @@ export type PinMessageNotifications<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  getErrorNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
@@ -81,12 +73,7 @@ export const usePinHandler = <
   const { t } = useTranslationContext();
 
   const canPin = () => {
-    if (
-      !client?.userID ||
-      !channel?.state ||
-      !permissions ||
-      !permissions[channel.type]
-    ) {
+    if (!client?.userID || !channel?.state || !permissions || !permissions[channel.type]) {
       return false;
     }
 
@@ -130,28 +117,21 @@ export const usePinHandler = <
 
     if (!message.pinned) {
       try {
-        await client.pinMessage(
-          message as UpdatedMessage<At, Ch, Co, Me, Re, Us>,
-        );
+        await client.pinMessage(message as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
       } catch (e) {
         const errorMessage =
-          getErrorNotification &&
-          validateAndGetMessage(getErrorNotification, [message]);
+          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error pinning message'), 'error');
       }
     } else {
       try {
-        await client.unpinMessage(
-          message as UpdatedMessage<At, Ch, Co, Me, Re, Us>,
-        );
+        await client.unpinMessage(message as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
       } catch (e) {
         const errorMessage =
-          getErrorNotification &&
-          validateAndGetMessage(getErrorNotification, [message]);
+          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-        if (notify)
-          notify(errorMessage || t('Error removing message pin'), 'error');
+        if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
       }
     }
   };

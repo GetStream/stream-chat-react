@@ -46,15 +46,7 @@ const UnMemoizedTypingIndicator = <
 ) => {
   const { Avatar = DefaultAvatar, avatarSize = 32, threadList } = props;
 
-  const { channel, thread } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -66,15 +58,12 @@ const UnMemoizedTypingIndicator = <
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id == null,
   );
 
-  const typingInThread = Object.values(typing).some(
-    (event) => event?.parent_id === thread?.id,
-  );
+  const typingInThread = Object.values(typing).some((event) => event?.parent_id === thread?.id);
 
   return (
     <div
       className={`str-chat__typing-indicator ${
-        (threadList && typingInThread) ||
-        (!threadList && typingInChannel.length)
+        (threadList && typingInThread) || (!threadList && typingInChannel.length)
           ? 'str-chat__typing-indicator--typing'
           : ''
       }`}

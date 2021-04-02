@@ -1,9 +1,6 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
 
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
@@ -24,9 +21,7 @@ import type {
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-export type MuteUserNotifications<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+export type MuteUserNotifications<Us extends DefaultUserType<Us> = DefaultUserType> = {
   getErrorNotification?: (user: UserResponse<Us>) => string;
   getSuccessNotification?: (user: UserResponse<Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
@@ -51,11 +46,7 @@ export const useMuteHandler = <
   return async (event) => {
     event.preventDefault();
 
-    const {
-      getErrorNotification,
-      getSuccessNotification,
-      notify,
-    } = notifications;
+    const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
     if (!t || !message?.user || !notify || !client) {
       console.warn(missingUseMuteHandlerParamsWarning);
@@ -67,8 +58,7 @@ export const useMuteHandler = <
         await client.muteUser(message.user.id);
 
         const successMessage =
-          getSuccessNotification &&
-          validateAndGetMessage(getSuccessNotification, [message.user]);
+          getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message.user]);
 
         notify(
           successMessage ||
@@ -79,8 +69,7 @@ export const useMuteHandler = <
         );
       } catch (e) {
         const errorMessage =
-          getErrorNotification &&
-          validateAndGetMessage(getErrorNotification, [message.user]);
+          getErrorNotification && validateAndGetMessage(getErrorNotification, [message.user]);
 
         notify(errorMessage || t('Error muting a user ...'), 'error');
       }
@@ -102,8 +91,7 @@ export const useMuteHandler = <
         }
       } catch (e) {
         const errorMessage =
-          (getErrorNotification &&
-            validateAndGetMessage(getErrorNotification, [message.user])) ||
+          (getErrorNotification && validateAndGetMessage(getErrorNotification, [message.user])) ||
           t('Error unmuting a user ...');
 
         if (typeof errorMessage === 'string') {

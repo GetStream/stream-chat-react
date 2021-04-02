@@ -106,18 +106,14 @@ describe('Avatar', () => {
 
   it('should render initials as alt and title', () => {
     const name = 'Cherry Blossom';
-    const { getByAltText, getByTitle } = render(
-      <Avatar image='randomImage' name={name} />,
-    );
+    const { getByAltText, getByTitle } = render(<Avatar image='randomImage' name={name} />);
 
     expect(getByTitle(name)).toBeInTheDocument();
     expect(getByAltText(name[0])).toBeInTheDocument();
   });
 
   it('should render initials as fallback when no image is supplied', () => {
-    const { getByTestId, queryByTestId } = render(
-      <Avatar name='frank N. Stein' />,
-    );
+    const { getByTestId, queryByTestId } = render(<Avatar name='frank N. Stein' />);
     expect(getByTestId('avatar-fallback')).toHaveTextContent('f');
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
   });
@@ -152,9 +148,7 @@ describe('Avatar', () => {
   });
 
   it('should render fallback initials on img error', () => {
-    const { getByTestId, queryByTestId } = render(
-      <Avatar image='randomImage' name='Olive' />,
-    );
+    const { getByTestId, queryByTestId } = render(<Avatar image='randomImage' name='Olive' />);
     const img = getByTestId('avatar-img');
 
     expect(img).toBeInTheDocument();
@@ -165,9 +159,7 @@ describe('Avatar', () => {
   });
 
   it('should render new img on props change for errored img', () => {
-    const { getByTestId, queryByTestId, rerender } = render(
-      <Avatar image='randomImage' />,
-    );
+    const { getByTestId, queryByTestId, rerender } = render(<Avatar image='randomImage' />);
 
     fireEvent.error(getByTestId('avatar-img'));
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();

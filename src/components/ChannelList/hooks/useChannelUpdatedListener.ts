@@ -23,13 +23,9 @@ export const useChannelUpdatedListener = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  setChannels: React.Dispatch<
-    React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-  >,
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   customHandler?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
   forceUpdate?: () => void,
@@ -39,9 +35,7 @@ export const useChannelUpdatedListener = <
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       setChannels((channels) => {
-        const channelIndex = channels.findIndex(
-          (channel) => channel.cid === event.channel?.cid,
-        );
+        const channelIndex = channels.findIndex((channel) => channel.cid === event.channel?.cid);
 
         if (channelIndex > -1 && event.channel) {
           const newChannels = channels;

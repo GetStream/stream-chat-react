@@ -30,23 +30,13 @@ import {
 } from 'stream-chat';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  channelReducer,
-  ChannelStateReducer,
-  initialState,
-} from './channelState';
+import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
-import {
-  OnMentionAction,
-  useMentionsHandlers,
-} from './hooks/useMentionsHandlers';
+import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import {
-  AttachmentProps,
-  Attachment as DefaultAttachment,
-} from '../Attachment';
+import { AttachmentProps, Attachment as DefaultAttachment } from '../Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingIndicator as DefaultLoadingIndicator,
@@ -68,16 +58,10 @@ import {
   EmojiConfig,
   StreamMessage,
 } from '../../context/ChannelStateContext';
-import {
-  ComponentContextValue,
-  ComponentProvider,
-} from '../../context/ComponentContext';
+import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import {
-  TypingContextValue,
-  TypingProvider,
-} from '../../context/TypingContext';
+import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type {
@@ -127,9 +111,7 @@ export type ChannelProps<
   doSendMessageRequest?: (
     channelId: string,
     message: Message<At, Me, Us>,
-  ) => ReturnType<
-    StreamChannel<At, Ch, Co, Ev, Me, Re, Us>['sendMessage']
-  > | void;
+  ) => ReturnType<StreamChannel<At, Ch, Co, Ev, Me, Re, Us>['sendMessage']> | void;
   /**
    * Override update(edit) message request (Advanced usage only)
    */
@@ -175,9 +157,7 @@ export type ChannelProps<
    * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
    *
    * */
-  Message?: React.ComponentType<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /**
@@ -203,15 +183,7 @@ const UnMemoizedChannel = <
 ) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
-  const { channel: contextChannel } = useChatContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channel = propsChannel || contextChannel;
 
@@ -271,9 +243,10 @@ const ChannelInner = <
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
-  const [state, dispatch] = useReducer<
-    ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>
-  >(channelReducer, initialState);
+  const [state, dispatch] = useReducer<ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>>(
+    channelReducer,
+    initialState,
+  );
 
   const isMounted = useIsMounted();
 
@@ -333,10 +306,7 @@ const ChannelInner = <
         });
       }
 
-      if (
-        event.type === 'connection.changed' &&
-        typeof event.online === 'boolean'
-      ) {
+      if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
         online.current = event.online;
       }
 
@@ -350,10 +320,7 @@ const ChannelInner = <
         if (mainChannelUpdated && event.message?.user?.id !== client.userID) {
           if (!document.hidden) {
             markReadThrottled();
-          } else if (
-            channel.getConfig()?.read_events &&
-            !channel.muteStatus().muted
-          ) {
+          } else if (channel.getConfig()?.read_events && !channel.muteStatus().muted) {
             const unread = channel.countUnread(lastRead.current);
             document.title = `(${unread}) ${originalTitle.current}`;
           }
@@ -431,10 +398,7 @@ const ChannelInner = <
 
     const id = uuidv4();
 
-    setNotifications((prevNotifications) => [
-      ...prevNotifications,
-      { id, text, type },
-    ]);
+    setNotifications((prevNotifications) => [...prevNotifications, { id, text, type }]);
 
     const timeout = setTimeout(
       () =>
@@ -449,10 +413,7 @@ const ChannelInner = <
 
   const loadMoreFinished = useCallback(
     debounce(
-      (
-        hasMore: boolean,
-        messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages'],
-      ) => {
+      (hasMore: boolean, messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages']) => {
         if (!isMounted.current) return;
         dispatch({ hasMore, messages, type: 'loadMoreFinished' });
       },
@@ -525,24 +486,15 @@ const ChannelInner = <
 
   const isUserResponseArray = (
     output: string[] | UserResponse<Us>[],
-  ): output is UserResponse<Us>[] =>
-    (output as UserResponse<Us>[])[0]?.id != null;
+  ): output is UserResponse<Us>[] => (output as UserResponse<Us>[])[0]?.id != null;
 
   const doSendMessage = useCallback(
     async (
-      message:
-        | MessageToSend<At, Ch, Co, Me, Re, Us>
-        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+      message: MessageToSend<At, Ch, Co, Me, Re, Us> | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     ) => {
       if (!channel) return;
 
-      const {
-        attachments,
-        id,
-        mentioned_users = [],
-        parent_id,
-        text,
-      } = message;
+      const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
       // channel.sendMessage expects an array of user id strings
       const mentions = isUserResponseArray(mentioned_users)
@@ -558,20 +510,10 @@ const ChannelInner = <
       } as Message<At, Me, Us>;
 
       try {
-        let messageResponse: void | SendMessageAPIResponse<
-          At,
-          Ch,
-          Co,
-          Me,
-          Re,
-          Us
-        >;
+        let messageResponse: void | SendMessageAPIResponse<At, Ch, Co, Me, Re, Us>;
 
         if (doSendMessageRequest) {
-          messageResponse = await doSendMessageRequest(
-            channel.cid,
-            messageData,
-          );
+          messageResponse = await doSendMessageRequest(channel.cid, messageData);
         } else {
           messageResponse = await channel.sendMessage(messageData);
         }
@@ -639,12 +581,7 @@ const ChannelInner = <
       channel.state.filterErrorMessages();
 
       // create a local preview message to show in the UI
-      const messagePreview = createMessagePreview(
-        text,
-        attachments,
-        parent,
-        mentioned_users,
-      );
+      const messagePreview = createMessagePreview(text, attachments, parent, mentioned_users);
 
       // first we add the message to the UI
       updateMessage(messagePreview);
@@ -687,10 +624,7 @@ const ChannelInner = <
   /** THREAD */
 
   const openThread = useCallback(
-    (
-      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-      event: React.SyntheticEvent,
-    ) => {
+    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>, event: React.SyntheticEvent) => {
       if (!channel) return;
 
       if (event && event.preventDefault) {
@@ -762,24 +696,13 @@ const ChannelInner = <
     dispatch({ type: 'closeThread' });
   }, []);
 
-  const onMentionsHoverOrClick = useMentionsHandlers(
-    onMentionsHover,
-    onMentionsClick,
-  );
+  const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
 
   const editMessage = useEditMessageHandler(doUpdateMessageRequest);
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue: ChannelStateContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  > = {
+  const channelStateContextValue: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     ...restState,
     acceptedFiles,
     channel,
@@ -791,15 +714,7 @@ const ChannelInner = <
     watcher_count: state.watcherCount,
   };
 
-  const channelActionContextValue: ChannelActionContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  > = {
+  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     addNotification,
     closeThread,
     dispatch,
@@ -815,15 +730,7 @@ const ChannelInner = <
     updateMessage,
   };
 
-  const componentContextValue: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  > = {
+  const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     Attachment,
     Emoji,
     EmojiIndex,
@@ -889,6 +796,4 @@ const ChannelInner = <
  * - [TypingContext](https://getstream.github.io/stream-chat-react/#section-typingcontext)
  * @example ./Channel.md
  */
-export const Channel = React.memo(
-  UnMemoizedChannel,
-) as typeof UnMemoizedChannel;
+export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;

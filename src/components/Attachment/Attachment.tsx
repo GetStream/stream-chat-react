@@ -7,10 +7,7 @@ import {
 } from './AttachmentActions';
 import { AudioProps, Audio as DefaultAudio } from './Audio';
 import { CardProps, Card as DefaultCard } from './Card';
-import {
-  FileAttachment as DefaultFile,
-  FileAttachmentProps,
-} from './FileAttachment';
+import { FileAttachment as DefaultFile, FileAttachmentProps } from './FileAttachment';
 import {
   isAudioAttachment,
   isFileAttachment,
@@ -38,9 +35,7 @@ import type { ActionHandlerReturnType } from '../Message';
 
 import type { DefaultAttachmentType } from '../../../types/types';
 
-export type AttachmentProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = {
+export type AttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   /**
    * The attachment to render.
    * See [Attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
@@ -93,13 +88,7 @@ export type DefaultAttachmentProps<
 > = Required<
   Pick<
     InnerAttachmentUIComponentProps,
-    | 'AttachmentActions'
-    | 'Audio'
-    | 'Card'
-    | 'File'
-    | 'Gallery'
-    | 'Image'
-    | 'Media'
+    'AttachmentActions' | 'Audio' | 'Card' | 'File' | 'Gallery' | 'Image' | 'Media'
   >
 > & {
   attachment: ExtendedAttachment<At>;
@@ -137,9 +126,7 @@ export type InnerAttachmentUIComponentProps<
  *
  * @example ./Attachment.md
  */
-export const Attachment = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
->(
+export const Attachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: AttachmentProps<At>,
 ) => {
   const {
@@ -157,8 +144,7 @@ export const Attachment = <
   const gallery = {
     images: attachments?.filter(
       (attachment) =>
-        attachment.type === 'image' &&
-        !(attachment.og_scrape_url || attachment.title_link),
+        attachment.type === 'image' && !(attachment.og_scrape_url || attachment.title_link),
     ),
     type: 'gallery',
   };
@@ -169,10 +155,7 @@ export const Attachment = <
     newAttachments = [
       ...attachments.filter(
         (attachment) =>
-          !(
-            attachment.type === 'image' &&
-            !(attachment.og_scrape_url || attachment.title_link)
-          ),
+          !(attachment.type === 'image' && !(attachment.og_scrape_url || attachment.title_link)),
       ),
       gallery,
     ];

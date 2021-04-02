@@ -24,15 +24,7 @@ export type CardProps = {
 };
 
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
-  const {
-    image_url,
-    og_scrape_url,
-    text,
-    thumb_url,
-    title,
-    title_link,
-    type,
-  } = props;
+  const { image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
 
   const { t } = useTranslationContext();
 
@@ -40,9 +32,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
 
   const trimUrl = (url?: string | null) => {
     if (url !== undefined && url !== null) {
-      const [trimmedUrl] = url
-        .replace(/^(?:https?:\/\/)?(?:www\.)?/i, '')
-        .split('/');
+      const [trimmedUrl] = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/');
 
       return trimmedUrl;
     }
@@ -68,9 +58,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   }
 
   return (
-    <div
-      className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}
-    >
+    <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
       {image && (
         <div className='str-chat__message-attachment-card--header'>
           <img alt={image} src={image} />
@@ -78,16 +66,8 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
       )}
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--flex'>
-          {title && (
-            <div className='str-chat__message-attachment-card--title'>
-              {title}
-            </div>
-          )}
-          {text && (
-            <div className='str-chat__message-attachment-card--text'>
-              {text}
-            </div>
-          )}
+          {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
+          {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
           {(title_link || og_scrape_url) && (
             <SafeAnchor
               className='str-chat__message-attachment-card--url'

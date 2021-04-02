@@ -59,15 +59,7 @@ export const MessageInputFlat = <
     SuggestionList,
   } = props;
 
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInput({
@@ -88,23 +80,17 @@ export const MessageInputFlat = <
     >
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={
-          !messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0
-        }
+        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
         handleFiles={messageInput.uploadNewFiles}
         maxNumberOfFiles={messageInput.maxFilesLeft}
         multiple={multipleUploads}
       >
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
-            {messageInput.isUploadEnabled && (
-              <UploadsPreview {...messageInput} />
-            )}
+            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
-                {messageInput.emojiPickerIsOpen
-                  ? t('Close emoji picker')
-                  : t('Open emoji picker')}
+                {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
               <span
                 className='str-chat__input-flat-emojiselect'
@@ -143,10 +129,7 @@ export const MessageInputFlat = <
               value={messageInput.text}
             />
             {messageInput.isUploadEnabled && (
-              <div
-                className='str-chat__fileupload-wrapper'
-                data-testid='fileinput'
-              >
+              <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
                   {messageInput.maxFilesLeft
                     ? t('Attach files')

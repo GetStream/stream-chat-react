@@ -5,9 +5,7 @@ export type CustomNotificationProps = {
   active?: boolean;
 };
 
-const UnMemoizedCustomNotification: React.FC<CustomNotificationProps> = (
-  props,
-) => {
+const UnMemoizedCustomNotification: React.FC<CustomNotificationProps> = (props) => {
   const { active, children, type } = props;
 
   if (!active) return null;

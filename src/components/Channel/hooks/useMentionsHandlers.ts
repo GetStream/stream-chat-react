@@ -4,22 +4,18 @@ import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType } from '../../../../types/types';
 
-export type OnMentionAction<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (event: MouseEvent<HTMLElement>, user?: UserResponse<Us>) => void;
+export type OnMentionAction<Us extends DefaultUserType<Us> = DefaultUserType> = (
+  event: MouseEvent<HTMLElement>,
+  user?: UserResponse<Us>,
+) => void;
 
-export const useMentionsHandlers = <
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
+export const useMentionsHandlers = <Us extends DefaultUserType<Us> = DefaultUserType>(
   onMentionsHover?: OnMentionAction<Us>,
   onMentionsClick?: OnMentionAction<Us>,
 ) =>
   useCallback(
     (event: MouseEvent<HTMLElement>, mentioned_users: UserResponse<Us>[]) => {
-      if (
-        (!onMentionsHover && !onMentionsClick) ||
-        !(event.target instanceof HTMLElement)
-      ) {
+      if ((!onMentionsHover && !onMentionsClick) || !(event.target instanceof HTMLElement)) {
         return;
       }
 
@@ -29,9 +25,7 @@ export const useMentionsHandlers = <
 
       if (tagName === 'strong' && textContent[0] === '@') {
         const userName = textContent.replace('@', '');
-        const user = mentioned_users.find(
-          ({ id, name }) => name === userName || id === userName,
-        );
+        const user = mentioned_users.find(({ id, name }) => name === userName || id === userName);
 
         if (
           onMentionsHover &&
@@ -41,11 +35,7 @@ export const useMentionsHandlers = <
           onMentionsHover(event, user);
         }
 
-        if (
-          onMentionsClick &&
-          event.type === 'click' &&
-          typeof onMentionsClick === 'function'
-        ) {
+        if (onMentionsClick && event.type === 'click' && typeof onMentionsClick === 'function') {
           onMentionsClick(event, user);
         }
       }

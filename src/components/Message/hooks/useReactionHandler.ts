@@ -1,26 +1,12 @@
-import {
-  MouseEvent,
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { MouseEvent, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { MouseEventHandler } from '../types';
 
-import type {
-  Reaction,
-  ReactionAPIResponse,
-  ReactionResponse,
-} from 'stream-chat';
+import type { Reaction, ReactionAPIResponse, ReactionResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -46,15 +32,7 @@ export const useReactionHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { updateMessage } = useChannelActionContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -76,11 +54,7 @@ export const useReactionHandler = <
       message.own_reactions.forEach((reaction) => {
         // own user should only ever contain the current user id
         // just in case we check to prevent bugs with message updates from breaking reactions
-        if (
-          reaction.user &&
-          currentUser === reaction.user.id &&
-          reaction.type === reactionType
-        ) {
+        if (reaction.user && currentUser === reaction.user.id && reaction.type === reactionType) {
           userExistingReaction = reaction;
         } else if (reaction.user && currentUser !== reaction.user.id) {
           console.warn(
@@ -91,18 +65,13 @@ export const useReactionHandler = <
     }
 
     const originalMessage = message;
-    let reactionChangePromise: Promise<
-      ReactionAPIResponse<At, Ch, Co, Me, Re, Us>
-    >;
+    let reactionChangePromise: Promise<ReactionAPIResponse<At, Ch, Co, Me, Re, Us>>;
 
     // Make the API call in the background
     // If it fails, revert to the old message...
     if (message.id) {
       if (userExistingReaction) {
-        reactionChangePromise = channel.deleteReaction(
-          message.id,
-          userExistingReaction.type,
-        );
+        reactionChangePromise = channel.deleteReaction(message.id, userExistingReaction.type);
       } else {
         // add the reaction
         const messageID = message.id;
@@ -178,10 +147,7 @@ export const useReactionClick = <
       document.removeEventListener('touchend', closeDetailedReactions);
 
       if (messageWrapper) {
-        messageWrapper.removeEventListener(
-          'mouseleave',
-          closeDetailedReactions,
-        );
+        messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
       }
 
       hasListener.current = false;
@@ -193,10 +159,7 @@ export const useReactionClick = <
         document.removeEventListener('touchend', closeDetailedReactions);
 
         if (messageWrapper) {
-          messageWrapper.removeEventListener(
-            'mouseleave',
-            closeDetailedReactions,
-          );
+          messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
         }
 
         hasListener.current = false;
@@ -212,10 +175,7 @@ export const useReactionClick = <
       document.removeEventListener('touchend', closeDetailedReactions);
 
       if (messageWrapper) {
-        messageWrapper.removeEventListener(
-          'mouseleave',
-          closeDetailedReactions,
-        );
+        messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
       }
 
       hasListener.current = false;

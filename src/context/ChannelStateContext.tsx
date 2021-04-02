@@ -130,9 +130,7 @@ export const ChannelStateProvider = <
 }: PropsWithChildren<{
   value: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 }>) => (
-  <ChannelStateContext.Provider
-    value={(value as unknown) as ChannelStateContextValue}
-  >
+  <ChannelStateContext.Provider value={(value as unknown) as ChannelStateContextValue}>
     {children}
   </ChannelStateContext.Provider>
 );
@@ -172,9 +170,7 @@ export const withChannelStateContext = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   Component: React.ComponentType<P>,
-): React.FC<
-  Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>
-> => {
+): React.FC<Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
   const WithChannelStateContextComponent = (
     props: Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {

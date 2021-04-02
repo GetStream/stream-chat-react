@@ -1,9 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 
-import {
-  StreamMessage,
-  useChannelStateContext,
-} from '../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

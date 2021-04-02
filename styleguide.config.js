@@ -16,12 +16,9 @@ module.exports = {
     },
     objectAssign: 'Object.assign',
   },
-  propsParser: require('react-docgen-typescript').withCustomConfig(
-    './tsconfig.json',
-    {
-      propFilter: { skipPropsWithoutDoc: true },
-    },
-  ).parse,
+  propsParser: require('react-docgen-typescript').withCustomConfig('./tsconfig.json', {
+    propFilter: { skipPropsWithoutDoc: true },
+  }).parse,
   styleguideComponents: {
     PathlineRenderer: path.join(__dirname, 'styleguidist/PathlineRenderer'),
   },
@@ -207,4 +204,3 @@ module.exports = {
     },
   },
 };
-

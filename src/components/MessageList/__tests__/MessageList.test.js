@@ -26,14 +26,8 @@ describe('MessageList', () => {
     const user1 = generateUser();
     const user2 = generateUser();
     const mockedChannel = generateChannel({
-      members: [
-        generateMember({ user: user1 }),
-        generateMember({ user: user1 }),
-      ],
-      messages: [
-        generateMessage({ user: user1 }),
-        generateMessage({ user: user1 }),
-      ],
+      members: [generateMember({ user: user1 }), generateMember({ user: user1 })],
+      messages: [generateMessage({ user: user1 }), generateMessage({ user: user1 })],
     });
 
     chatClient = await getTestClientWithUser({ id: 'vishal' });
@@ -53,9 +47,7 @@ describe('MessageList', () => {
     });
 
     const newMessage = generateMessage({ user: user2 });
-    act(() =>
-      dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel),
-    );
+    act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel));
 
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -66,10 +58,7 @@ describe('MessageList', () => {
     const user1 = generateUser();
     const user2 = generateUser();
     const mockedChannel = generateChannel({
-      members: [
-        generateMember({ user: user1 }),
-        generateMember({ user: user2 }),
-      ],
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
       messages: [generateMessage({ user: user1 })],
     });
 
@@ -81,9 +70,7 @@ describe('MessageList', () => {
     const { getByTestId } = render(
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <MessageList
-            Avatar={() => <div data-testid='custom-avatar'>Avatar</div>}
-          />
+          <MessageList Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} />
         </Channel>
       </Chat>,
     );

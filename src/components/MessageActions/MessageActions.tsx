@@ -9,11 +9,7 @@ import {
   usePinHandler,
   useUserRole,
 } from '../Message/hooks';
-import {
-  defaultPinPermissions,
-  isUserMuted,
-  MessageActionsArray,
-} from '../Message/utils';
+import { defaultPinPermissions, isUserMuted, MessageActionsArray } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
 
@@ -104,10 +100,7 @@ export const MessageActions = <
     notify: addNotification,
   });
 
-  const isMuted = useCallback(() => isUserMuted(message, mutes), [
-    message,
-    mutes,
-  ]);
+  const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
 
@@ -157,12 +150,7 @@ export const MessageActions = <
         mine={isMyMessage}
         open={actionsBoxOpen}
       />
-      <svg
-        height='4'
-        viewBox='0 0 11 4'
-        width='11'
-        xmlns='http://www.w3.org/2000/svg'
-      >
+      <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
         <path
           d='M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'
           fillRule='nonzero'
@@ -185,9 +173,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
     'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
 
   const wrapperClass =
-    typeof customWrapperClass === 'string'
-      ? customWrapperClass
-      : defaultWrapperClass;
+    typeof customWrapperClass === 'string' ? customWrapperClass : defaultWrapperClass;
 
   const onClickOptionsAction = (event: React.MouseEvent) => {
     event.stopPropagation();

@@ -25,10 +25,7 @@ const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
       <div className='str-chat__down-main'>
         <img data-testid='chatdown-img' src={image || placeholder} />
         <h1>{type}</h1>
-        <h3>
-          {text ||
-            t('Error connecting to chat, refresh the page to try again.')}
-        </h3>
+        <h3>{text || t('Error connecting to chat, refresh the page to try again.')}</h3>
       </div>
     </div>
   );
@@ -38,6 +35,4 @@ const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
  * ChatDown - A simple indicator that chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
  * @example ./ChatDown.md
  */
-export const ChatDown = React.memo(
-  UnMemoizedChatDown,
-) as typeof UnMemoizedChatDown;
+export const ChatDown = React.memo(UnMemoizedChatDown) as typeof UnMemoizedChatDown;

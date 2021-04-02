@@ -2,13 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
-import type {
-  Channel,
-  ChannelFilters,
-  ChannelOptions,
-  ChannelSort,
-  StreamChat,
-} from 'stream-chat';
+import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -35,14 +29,10 @@ export const usePaginatedChannels = <
   options: ChannelOptions,
   activeChannelHandler: (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => void,
 ) => {
-  const [channels, setChannels] = useState<
-    Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>
-  >([]);
+  const [channels, setChannels] = useState<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>([]);
   const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [loadingChannels, setLoadingChannels] = useState(true);
@@ -66,11 +56,7 @@ export const usePaginatedChannels = <
     };
 
     try {
-      const channelQueryResponse = await client.queryChannels(
-        filters,
-        sort || {},
-        newOptions,
-      );
+      const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
 
       let newChannels;
       if (queryType === 'reload') {

@@ -54,9 +54,7 @@ describe('useDeleteHandler custom hook', () => {
   it('should update the message with the result of deletion', async () => {
     const message = generateMessage();
     const deletedMessage = generateMessage();
-    deleteMessage.mockImplementationOnce(() =>
-      Promise.resolve({ message: deletedMessage }),
-    );
+    deleteMessage.mockImplementationOnce(() => Promise.resolve({ message: deletedMessage }));
     const handleDelete = await renderUseDeleteHandler(message);
     await handleDelete(mouseEventMock);
     expect(updateMessage).toHaveBeenCalledWith(deletedMessage);

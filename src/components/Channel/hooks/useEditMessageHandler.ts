@@ -40,9 +40,7 @@ export const useEditMessageHandler = <
 
   return (updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>) => {
     if (doUpdateMessageRequest && channel) {
-      return Promise.resolve(
-        doUpdateMessageRequest(channel.cid, updatedMessage),
-      );
+      return Promise.resolve(doUpdateMessageRequest(channel.cid, updatedMessage));
     }
     return client.updateMessage(updatedMessage);
   };

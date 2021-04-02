@@ -150,21 +150,11 @@ const en_locale = {
     'December',
   ],
   relativeTime: {},
-  weekdays: [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ],
+  weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 };
 
 // Type guards to check DayJs
-const isDayJs = (
-  dateTimeParser: typeof Dayjs | typeof moment,
-): dateTimeParser is typeof Dayjs =>
+const isDayJs = (dateTimeParser: typeof Dayjs | typeof moment): dateTimeParser is typeof Dayjs =>
   (dateTimeParser as typeof Dayjs).extend !== undefined;
 
 type Options = {
@@ -463,8 +453,7 @@ export class Streami18n {
 
     this.validateCurrentLanguage();
 
-    const dayjsLocaleConfigForLanguage =
-      finalOptions.dayjsLocaleConfigForLanguage;
+    const dayjsLocaleConfigForLanguage = finalOptions.dayjsLocaleConfigForLanguage;
 
     if (dayjsLocaleConfigForLanguage) {
       this.addOrUpdateLocale(this.currentLanguage, {
@@ -479,10 +468,7 @@ export class Streami18n {
     }
 
     this.tDateTimeParser = (timestamp) => {
-      if (
-        finalOptions.disableDateTimeTranslations ||
-        !this.localeExists(this.currentLanguage)
-      ) {
+      if (finalOptions.disableDateTimeTranslations || !this.localeExists(this.currentLanguage)) {
         /**
          * TS needs to know which is being called to accept the chain call
          */
@@ -557,10 +543,7 @@ export class Streami18n {
   async getTranslators() {
     if (!this.initialized) {
       if (this.dayjsLocales[this.currentLanguage]) {
-        this.addOrUpdateLocale(
-          this.currentLanguage,
-          this.dayjsLocales[this.currentLanguage],
-        );
+        this.addOrUpdateLocale(this.currentLanguage, this.dayjsLocales[this.currentLanguage]);
       }
 
       return await this.init();
@@ -623,10 +606,7 @@ export class Streami18n {
     try {
       const t = await this.i18nInstance.changeLanguage(language);
       if (this.dayjsLocales[language]) {
-        this.addOrUpdateLocale(
-          this.currentLanguage,
-          this.dayjsLocales[this.currentLanguage],
-        );
+        this.addOrUpdateLocale(this.currentLanguage, this.dayjsLocales[this.currentLanguage]);
       }
 
       this.setLanguageCallback(t);

@@ -10,11 +10,7 @@ import {
   getTestClientWithUser,
 } from 'mock-builders';
 
-import {
-  ChannelContext,
-  ChatContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
 import { MessageTeam } from '../MessageTeam';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
@@ -116,9 +112,7 @@ describe('<MessageTeam />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-08-27T00:24:00'),
     });
-    const CustomMessageDeletedComponent = () => (
-      <p data-testid='custom-message-deleted'>Gone!</p>
-    );
+    const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
     const { getByTestId } = await renderMessageTeam(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
@@ -133,14 +127,10 @@ describe('<MessageTeam />', () => {
     const CustomReactionSelector = (props, ref) => (
       <ul data-testid={customSelectorTestId}>
         <li>
-          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>
-            :)
-          </button>
+          <button onClick={(e) => props.handleReaction('smile-emoticon', e)}>:)</button>
         </li>
         <li>
-          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>
-            :(
-          </button>
+          <button onClick={(e) => props.handleReaction('sad-emoticon', e)}>:(</button>
         </li>
       </ul>
     );
@@ -192,9 +182,7 @@ describe('<MessageTeam />', () => {
 
   it('should render pin indicator when pinned is true', async () => {
     const message = generateAliceMessage({ pinned: true });
-    const CustomPinIndicator = () => (
-      <div data-testid='pin-indicator'>Pin Indicator</div>
-    );
+    const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
     const { getByTestId } = await renderMessageTeam(message, {
       PinIndicator: CustomPinIndicator,
@@ -207,9 +195,7 @@ describe('<MessageTeam />', () => {
 
   it('should not render pin indicator when pinned is false', async () => {
     const message = generateAliceMessage({ pinned: false });
-    const CustomPinIndicator = () => (
-      <div data-testid='pin-indicator'>Pin Indicator</div>
-    );
+    const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
     const { queryByTestId } = await renderMessageTeam(message, {
       PinIndicator: CustomPinIndicator,
@@ -363,18 +349,14 @@ describe('<MessageTeam />', () => {
     const messageType = 'message-type';
     const message = generateAliceMessage({ type: messageType });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId(messageTeamTestId)).toHaveClass(
-      `str-chat__message-team--${messageType}`,
-    );
+    expect(getByTestId(messageTeamTestId)).toHaveClass(`str-chat__message-team--${messageType}`);
   });
 
   it('should set message status as css class modifier', async () => {
     const messageStatus = 'message-status';
     const message = generateAliceMessage({ status: messageStatus });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId(messageTeamTestId)).toHaveClass(
-      `str-chat__message-team--${messageStatus}`,
-    );
+    expect(getByTestId(messageTeamTestId)).toHaveClass(`str-chat__message-team--${messageStatus}`);
   });
 
   it('should render the user name and handle a click on it when message is the first in a thread list', async () => {
@@ -459,11 +441,7 @@ describe('<MessageTeam />', () => {
 
   it('should display thread action button when channel has replies enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageTeam(
-      message,
-      {},
-      { replies: true },
-    );
+    const { getByTestId } = await renderMessageTeam(message, {}, { replies: true });
     expect(getByTestId(messageTeamThreadIcon)).toBeInTheDocument();
   });
 
@@ -572,11 +550,7 @@ describe('<MessageTeam />', () => {
       latest_reactions: [bobReaction],
       text: 'Welcome, bob!',
     });
-    const { queryByTestId } = await renderMessageTeam(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageTeam(message, {}, { reactions: false });
     expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 
@@ -654,11 +628,7 @@ describe('<MessageTeam />', () => {
       latest_reactions: [bobReaction],
       text: '',
     });
-    const { queryByTestId } = await renderMessageTeam(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageTeam(message, {}, { reactions: false });
     expect(queryByTestId('simple-reaction-list')).not.toBeInTheDocument();
   });
 

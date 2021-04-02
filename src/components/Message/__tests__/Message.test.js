@@ -8,11 +8,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import {
-  ChannelContext,
-  ChatContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
 import { MESSAGE_ACTIONS } from '../utils';
 import { Message } from '../Message';
 
@@ -61,12 +57,7 @@ async function renderComponent(
         }}
       >
         <TranslationContext.Provider value={{ t: (key) => key }}>
-          <Message
-            message={message}
-            Message={CustomMessageUIComponent}
-            typing={false}
-            {...props}
-          />
+          <Message message={message} Message={CustomMessageUIComponent} typing={false} {...props} />
         </TranslationContext.Provider>
       </ChannelContext.Provider>
     </ChatContext.Provider>,
@@ -166,9 +157,7 @@ describe('<Message /> component', () => {
       name: 'action',
       value: 'value',
     };
-    sendAction.mockImplementationOnce(() =>
-      Promise.resolve({ message: updatedMessage }),
-    );
+    sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
     await renderComponent(currentMessage, {}, { updateMessage });
     const { handleAction } = getRenderedProps();
     await handleAction(action.name, action.value, mouseEventMock);
@@ -212,10 +201,7 @@ describe('<Message /> component', () => {
     await renderComponent(message, {}, { onMentionsClick });
     const { onMentionsClickMessage } = getRenderedProps();
     onMentionsClickMessage(mouseEventMock);
-    expect(onMentionsClick).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
-    );
+    expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
   });
 
   it('should trigger channel mentions hover on mentions hover', async () => {
@@ -226,10 +212,7 @@ describe('<Message /> component', () => {
     await renderComponent(message, {}, { onMentionsHover });
     const { onMentionsHoverMessage } = getRenderedProps();
     onMentionsHoverMessage(mouseEventMock);
-    expect(onMentionsHover).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
-    );
+    expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
@@ -274,10 +257,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      userMutedNotification,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(userMutedNotification, 'success');
   });
 
   it('should allow to mute a user and notify with default success notification when it is successful', async () => {
@@ -302,10 +282,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultSuccessMessage,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultSuccessMessage, 'success');
   });
 
   it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
@@ -314,9 +291,7 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const muteUser = jest.fn(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
-    const getMuteUserErrorNotification = jest.fn(
-      () => userMutedFailNotification,
-    );
+    const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.muteUser = muteUser;
     await renderComponent(
       message,
@@ -334,10 +309,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      userMutedFailNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(userMutedFailNotification, 'error');
   });
 
   it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
@@ -362,10 +334,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultFailNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultFailNotification, 'error');
   });
 
   it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
@@ -374,9 +343,7 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const unmuteUser = jest.fn(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
-    const getMuteUserSuccessNotification = jest.fn(
-      () => userUnmutedNotification,
-    );
+    const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
     client.unmuteUser = unmuteUser;
     await renderComponent(
       message,
@@ -394,10 +361,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      userUnmutedNotification,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(userUnmutedNotification, 'success');
   });
 
   it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
@@ -422,10 +386,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultSuccessNotification,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
   });
 
   it('should allow to unmute a user and notify with custom error message when it fails', async () => {
@@ -434,9 +395,7 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const unmuteUser = jest.fn(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
-    const getMuteUserErrorNotification = jest.fn(
-      () => userMutedFailNotification,
-    );
+    const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.unmuteUser = unmuteUser;
     await renderComponent(
       message,
@@ -454,10 +413,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      userMutedFailNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(userMutedFailNotification, 'error');
   });
 
   it('should allow to unmute a user and notify with default error message when it fails', async () => {
@@ -482,10 +438,7 @@ describe('<Message /> component', () => {
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultFailNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultFailNotification, 'error');
   });
 
   it.each([
@@ -513,20 +466,17 @@ describe('<Message /> component', () => {
   it.each([
     ['moderator', 'moderator'],
     ['channel moderator', 'channel_moderator'],
-  ])(
-    'should allow user to edit and delete message when user is %s',
-    async (_, role) => {
-      const message = generateMessage({ user: bob });
-      await renderComponent(
-        message,
-        {},
-        { state: { members: {}, membership: { role }, watchers: {} } },
-      );
-      const { getMessageActions } = getRenderedProps();
-      expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-      expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
-    },
-  );
+  ])('should allow user to edit and delete message when user is %s', async (_, role) => {
+    const message = generateMessage({ user: bob });
+    await renderComponent(
+      message,
+      {},
+      { state: { members: {}, membership: { role }, watchers: {} } },
+    );
+    const { getMessageActions } = getRenderedProps();
+    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
+    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
+  });
 
   it('should allow user to edit and delete message when user is owner', async () => {
     const message = generateMessage({ user: bob });
@@ -594,9 +544,7 @@ describe('<Message /> component', () => {
     const flagMessage = jest.fn(() => Promise.resolve());
     client.flagMessage = flagMessage;
     const messageFlaggedNotification = 'Message flagged!';
-    const getFlagMessageSuccessNotification = jest.fn(
-      () => messageFlaggedNotification,
-    );
+    const getFlagMessageSuccessNotification = jest.fn(() => messageFlaggedNotification);
     await renderComponent(
       message,
       {
@@ -611,10 +559,7 @@ describe('<Message /> component', () => {
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      messageFlaggedNotification,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(messageFlaggedNotification, 'success');
   });
 
   it('should allow to flag a message and notify with default success notification when it is successful', async () => {
@@ -637,10 +582,7 @@ describe('<Message /> component', () => {
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultSuccessNotification,
-      'success',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
   });
 
   it('should allow to flag a message and notify with custom error message when it fails', async () => {
@@ -650,9 +592,7 @@ describe('<Message /> component', () => {
     const flagMessage = jest.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
     const messageFlagFailedNotification = 'Message flagged failed!';
-    const getFlagMessageErrorNotification = jest.fn(
-      () => messageFlagFailedNotification,
-    );
+    const getFlagMessageErrorNotification = jest.fn(() => messageFlagFailedNotification);
     await renderComponent(
       message,
       {
@@ -667,10 +607,7 @@ describe('<Message /> component', () => {
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      messageFlagFailedNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(messageFlagFailedNotification, 'error');
   });
 
   it('should allow to flag a user and notify with default error message when it fails', async () => {
@@ -694,10 +631,7 @@ describe('<Message /> component', () => {
     const { handleFlag } = getRenderedProps();
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addNotification).toHaveBeenCalledWith(
-      defaultFlagMessageFailedNotification,
-      'error',
-    );
+    expect(addNotification).toHaveBeenCalledWith(defaultFlagMessageFailedNotification, 'error');
   });
 
   it('should allow user to pin messages when permissions allow', async () => {

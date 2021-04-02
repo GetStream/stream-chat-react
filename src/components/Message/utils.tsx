@@ -1,12 +1,7 @@
 import deepequal from 'react-fast-compare';
 
 import type { TFunction } from 'i18next';
-import type {
-  MessageResponse,
-  Mute,
-  StreamChat,
-  UserResponse,
-} from 'stream-chat';
+import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
 
 import type { PinPermissions } from './hooks';
 import type { MessageProps, MessageUIComponentProps } from './types';
@@ -152,15 +147,7 @@ export type Capabilities = {
 
 export const getMessageActions = (
   actions: string[] | boolean,
-  {
-    canDelete,
-    canEdit,
-    canFlag,
-    canMute,
-    canPin,
-    canReact,
-    canReply,
-  }: Capabilities,
+  { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply }: Capabilities,
 ): MessageActionsArray => {
   const messageActionsAfterPermission = [];
   let messageActions = [];
@@ -210,18 +197,11 @@ export const showMessageActionsBox = (actions: MessageActionsArray) => {
     return false;
   }
 
-  if (
-    actions.length === 1 &&
-    (actions.includes('react') || actions.includes('reply'))
-  ) {
+  if (actions.length === 1 && (actions.includes('react') || actions.includes('reply'))) {
     return false;
   }
 
-  if (
-    actions.length === 2 &&
-    actions.includes('react') &&
-    actions.includes('reply')
-  ) {
+  if (actions.length === 2 && actions.includes('react') && actions.includes('reply')) {
     return false;
   }
 
@@ -245,8 +225,7 @@ export const areMessagePropsEqual = <
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length ===
-      nextMessage.latest_reactions?.length &&
+    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
@@ -286,14 +265,8 @@ export const areMessageUIPropsEqual = <
     showDetailedReactions?: boolean;
   },
 ) => {
-  const {
-    lastReceivedId: prevLastReceivedId,
-    message: prevMessage,
-  } = prevProps;
-  const {
-    lastReceivedId: nextLastReceivedId,
-    message: nextMessage,
-  } = nextProps;
+  const { lastReceivedId: prevLastReceivedId, message: prevMessage } = prevProps;
+  const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (nextProps.editing !== prevProps.editing) return false;
 
@@ -302,8 +275,7 @@ export const areMessageUIPropsEqual = <
   }
 
   if (
-    (prevMessage.id === prevLastReceivedId ||
-      prevMessage.id === nextLastReceivedId) &&
+    (prevMessage.id === prevLastReceivedId || prevMessage.id === nextLastReceivedId) &&
     prevLastReceivedId !== nextLastReceivedId
   ) {
     return false;
@@ -311,8 +283,7 @@ export const areMessageUIPropsEqual = <
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length ===
-      nextMessage.latest_reactions?.length &&
+    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
@@ -398,9 +369,7 @@ export const getReadByTooltipText = <
   let outStr = '';
 
   if (!t) {
-    throw new Error(
-      '`getReadByTooltipText was called, but translation function is not available`',
-    );
+    throw new Error('`getReadByTooltipText was called, but translation function is not available`');
   }
 
   // first filter out client user, so restLength won't count it

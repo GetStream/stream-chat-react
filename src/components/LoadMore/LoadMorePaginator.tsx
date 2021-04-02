@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  LoadMoreButton as DefaultLoadMoreButton,
-  LoadMoreButtonProps,
-} from './LoadMoreButton';
+import { LoadMoreButton as DefaultLoadMoreButton, LoadMoreButtonProps } from './LoadMoreButton';
 
 export type LoadMorePaginatorProps = {
   /** callback to load the next page */
@@ -15,9 +12,7 @@ export type LoadMorePaginatorProps = {
   reverse?: boolean;
 };
 
-export const UnMemoizedLoadMorePaginator: React.FC<LoadMorePaginatorProps> = (
-  props,
-) => {
+export const UnMemoizedLoadMorePaginator: React.FC<LoadMorePaginatorProps> = (props) => {
   const {
     children,
     hasNextPage,
@@ -30,9 +25,7 @@ export const UnMemoizedLoadMorePaginator: React.FC<LoadMorePaginatorProps> = (
   return (
     <>
       {!reverse && children}
-      {hasNextPage && (
-        <LoadMoreButton onClick={loadNextPage} refreshing={refreshing} />
-      )}
+      {hasNextPage && <LoadMoreButton onClick={loadNextPage} refreshing={refreshing} />}
       {reverse && children}
     </>
   );

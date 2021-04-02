@@ -17,13 +17,12 @@ import type {
   DefaultUserType,
 } from '../../../../types/types';
 
-export type CustomMentionHandler<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (event: MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
+  event: MouseEvent<HTMLElement>,
+  user: UserResponse<Us>[],
+) => void;
 
-export type MentionedUserEventHandler<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (
+export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: MouseEvent<HTMLElement>,
   mentionedUsers: UserResponse<Us>[],
 ) => void;
@@ -69,14 +68,10 @@ export const useMentionsHandler = <
   } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
-    customMentionHandler?.onMentionsClick ||
-    channelOnMentionsClick ||
-    (() => null);
+    customMentionHandler?.onMentionsClick || channelOnMentionsClick || (() => null);
 
   const onMentionsHover =
-    customMentionHandler?.onMentionsHover ||
-    channelOnMentionsHover ||
-    (() => null);
+    customMentionHandler?.onMentionsHover || channelOnMentionsHover || (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),
@@ -110,11 +105,7 @@ export const useMentionsUIHandler = <
   >();
 
   return {
-    onMentionsClick:
-      eventHandlers?.onMentionsClick ||
-      createEventHandler(onMentionsClick, message),
-    onMentionsHover:
-      eventHandlers?.onMentionsHover ||
-      createEventHandler(onMentionsHover, message),
+    onMentionsClick: eventHandlers?.onMentionsClick || createEventHandler(onMentionsClick, message),
+    onMentionsHover: eventHandlers?.onMentionsHover || createEventHandler(onMentionsHover, message),
   };
 };

@@ -23,9 +23,9 @@ import type {
   UnknownType,
 } from '../../types/types';
 
-export type MessageAttachments<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = Array<Attachment<At> & { file_size?: number; mime_type?: string }>;
+export type MessageAttachments<At extends DefaultAttachmentType = DefaultAttachmentType> = Array<
+  Attachment<At> & { file_size?: number; mime_type?: string }
+>;
 
 export type MessageToSend<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -66,31 +66,21 @@ export type ChannelActionContextValue<
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event: React.SyntheticEvent) => void;
-  dispatch: React.Dispatch<
-    ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  dispatch: React.Dispatch<ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>>;
   editMessage: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   loadMore: ((limit: number) => Promise<number>) | (() => Promise<void>);
   loadMoreThread: () => Promise<void>;
-  onMentionsClick: (
-    event: React.MouseEvent<HTMLElement>,
-    user: UserResponse<Us>[],
-  ) => void;
-  onMentionsHover: (
-    event: React.MouseEvent<HTMLElement>,
-    user: UserResponse<Us>[],
-  ) => void;
+  onMentionsClick: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+  onMentionsHover: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
   openThread: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   removeMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  sendMessage: (
-    message: MessageToSend<At, Ch, Co, Me, Re, Us>,
-  ) => Promise<void>;
+  sendMessage: (message: MessageToSend<At, Ch, Co, Me, Re, Us>) => Promise<void>;
   updateMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
 };
 
@@ -112,9 +102,7 @@ export const ChannelActionProvider = <
 }: PropsWithChildren<{
   value: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 }>) => (
-  <ChannelActionContext.Provider
-    value={(value as unknown) as ChannelActionContextValue}
-  >
+  <ChannelActionContext.Provider value={(value as unknown) as ChannelActionContextValue}>
     {children}
   </ChannelActionContext.Provider>
 );
@@ -154,21 +142,11 @@ export const withChannelActionContext = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   Component: React.ComponentType<P>,
-): React.FC<
-  Omit<P, keyof ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>>
-> => {
+): React.FC<Omit<P, keyof ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
   const WithChannelActionContextComponent = (
     props: Omit<P, keyof ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {
-    const channelContext = useChannelActionContext<
-      At,
-      Ch,
-      Co,
-      Ev,
-      Me,
-      Re,
-      Us
-    >();
+    const channelContext = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
     return <Component {...(props as P)} {...channelContext} />;
   };

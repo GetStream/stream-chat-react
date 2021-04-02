@@ -10,11 +10,7 @@ import type {
 } from 'stream-chat';
 
 import type { MessageDeletedProps } from './MessageDeleted';
-import type {
-  ActionHandlerReturnType,
-  PinPermissions,
-  UserEventHandler,
-} from './hooks';
+import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
 
 import type { AttachmentProps } from '../Attachment';
@@ -24,10 +20,7 @@ import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
-import type {
-  RetrySendMessage,
-  StreamMessage,
-} from '../../context/ChannelContext';
+import type { RetrySendMessage, StreamMessage } from '../../context/ChannelContext';
 import type { RenderTextOptions } from '../../utils';
 
 import type {
@@ -61,23 +54,11 @@ export type MessageProps<
    * Additional props for underlying MessageInput component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    * */
-  additionalMessageInputProps?: MessageInputProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us,
-    V
-  >;
+  additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /**
    * Function to add custom notification on message list. Type param can be 'success' or 'error'
    * */
-  addNotification?: (
-    notificationText: string,
-    type: 'success' | 'error',
-  ) => void;
+  addNotification?: (notificationText: string, type: 'success' | 'error') => void;
   /**
    * Attachment UI component to display attachment in individual message.
    * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
@@ -98,9 +79,7 @@ export type MessageProps<
    * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error.
    * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
    * */
-  getFlagMessageErrorNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful.
    * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
@@ -120,9 +99,7 @@ export type MessageProps<
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
    * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
    * */
-  getPinMessageErrorNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */
@@ -135,9 +112,7 @@ export type MessageProps<
    * Message UI component to display a Message in MessageList.
    * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
    * */
-  Message?: React.ComponentType<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /**
    * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
@@ -244,16 +219,12 @@ export type MessageUIComponentProps<
    * Custom UI component to override default edit message input.
    * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
    * */
-  EditMessageInput?: React.ComponentType<
-    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>
-  >;
+  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   /**
    * The component to be rendered if the Message has been deleted.
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
    */
-  MessageDeleted?: React.ComponentType<
-    MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage?: MouseEventHandler;
   /** Handler function for a hover event on an @mention in Message */
@@ -267,9 +238,7 @@ export type MessageUIComponentProps<
    * A component to display the selector that allows a user to react to a certain Message.
    * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
    */
-  ReactionSelector?: React.ForwardRefExoticComponent<
-    ReactionSelectorProps<Re, Us>
-  >;
+  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   /**
    * A component to display the a MessageList of reactions.
    * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
