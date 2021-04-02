@@ -9,11 +9,7 @@ import {
 } from 'mock-builders';
 
 import { FixedHeightMessage } from '../FixedHeightMessage';
-import {
-  ChannelContext,
-  ChatContext,
-  TranslationContext,
-} from '../../../context';
+import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MML as MMLMock } from '../../MML';
 import { Gallery as GalleryMock } from '../../Gallery';
@@ -73,10 +69,7 @@ describe('<FixedHeightMessage />', () => {
   it('should render user avatar', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(AvatarMock).toHaveBeenCalledWith(
-      expect.objectContaining(aliceProfile),
-      {},
-    );
+    expect(AvatarMock).toHaveBeenCalledWith(expect.objectContaining(aliceProfile), {});
   });
 
   it('should render MML', async () => {
@@ -92,10 +85,7 @@ describe('<FixedHeightMessage />', () => {
   it('should render message action for owner', async () => {
     const message = generateMessage({ user: alice });
     await renderMsg(message);
-    expect(MessageActionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({ message }),
-      {},
-    );
+    expect(MessageActionsMock).toHaveBeenCalledWith(expect.objectContaining({ message }), {});
     expect(MessageActionsMock).toHaveReturnedWith(['delete']);
   });
 

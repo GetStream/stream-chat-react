@@ -114,9 +114,7 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-const mentionsMarkdownPlugin = <
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
+const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
   mentioned_users: UserResponse<Us>[],
 ) => () => {
   const mentioned_usernames = mentioned_users
@@ -192,16 +190,12 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
         if (!strippedHref || !strippedText) return false;
 
-        return (
-          strippedHref.includes(strippedText) ||
-          strippedText.includes(strippedHref)
-        );
+        return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
       });
 
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
-    const displayLink =
-      type === 'email' ? value : value.replace(detectHttp, '');
+    const displayLink = type === 'email' ? value : value.replace(detectHttp, '');
 
     newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
   });

@@ -72,9 +72,9 @@ export type EmojiConfig = {
   emojiSetDef: EmojiSetDef;
 };
 
-export type MessageAttachments<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = Array<Attachment<At> & { file_size?: number; mime_type?: string }>;
+export type MessageAttachments<At extends DefaultAttachmentType = DefaultAttachmentType> = Array<
+  Attachment<At> & { file_size?: number; mime_type?: string }
+>;
 
 export type MessageToSend<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -158,9 +158,7 @@ export type ChannelContextValue<
   acceptedFiles?: string[];
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   closeThread?: (event: React.SyntheticEvent) => void;
-  dispatch?: React.Dispatch<
-    ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  dispatch?: React.Dispatch<ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>>;
   editMessage?: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
@@ -168,35 +166,23 @@ export type ChannelContextValue<
   loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
   loadMoreThread?: () => Promise<void>;
   maxNumberOfFiles?: number;
-  Message?: React.ComponentType<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   multipleUploads?: boolean;
   mutes?: Mute<Us>[];
-  onMentionsClick?: (
-    event: React.MouseEvent<HTMLElement>,
-    user: UserResponse<Us>[],
-  ) => void;
-  onMentionsHover?: (
-    event: React.MouseEvent<HTMLElement>,
-    user: UserResponse<Us>[],
-  ) => void;
+  onMentionsClick?: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+  onMentionsHover?: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
   ) => void;
   removeMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  sendMessage?: (
-    message: MessageToSend<At, Ch, Co, Me, Re, Us>,
-  ) => Promise<void>;
+  sendMessage?: (message: MessageToSend<At, Ch, Co, Me, Re, Us>) => Promise<void>;
   updateMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   watcher_count?: number;
 };
 
-export const ChannelContext = React.createContext<ChannelContextValue>(
-  {} as ChannelContextValue,
-);
+export const ChannelContext = React.createContext<ChannelContextValue>({} as ChannelContextValue);
 
 export const ChannelProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -225,16 +211,7 @@ export const useChannelContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() =>
-  (useContext(ChannelContext) as unknown) as ChannelContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >;
+>() => (useContext(ChannelContext) as unknown) as ChannelContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 
 /**
  * Typescript currently does not support partial inference, so if ChannelContext

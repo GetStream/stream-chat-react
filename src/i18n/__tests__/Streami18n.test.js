@@ -12,9 +12,7 @@ const customDayjsLocaleConfig = {
     '_',
   ),
   monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
-  weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split(
-    '_',
-  ),
+  weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split('_'),
   weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),
   weekdaysMin: 'su_má_tý_mi_hó_fr_le'.split('_'),
   formats: {
@@ -137,9 +135,7 @@ describe('Streami18n instance - with built-in langauge', () => {
       for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
         if (localeConfig[key]) {
           expect(
-            typeof localeConfig[key] === 'function'
-              ? localeConfig[key]()
-              : localeConfig[key],
+            typeof localeConfig[key] === 'function' ? localeConfig[key]() : localeConfig[key],
           ).toStrictEqual(streami18nOptions.dayjsLocaleConfigForLanguage[key]);
         }
       }
@@ -190,11 +186,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     text1: 'अनुवादित मजकूर 1',
     text2: 'अनुवादित मजकूर 2',
   };
-  streami18n.registerTranslation(
-    languageCode,
-    translations,
-    customDayjsLocaleConfig,
-  );
+  streami18n.registerTranslation(languageCode, translations, customDayjsLocaleConfig);
 
   streami18n.setLanguage('mr');
 
@@ -212,9 +204,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     for (const key in customDayjsLocaleConfig) {
       if (localeConfig[key]) {
         expect(customDayjsLocaleConfig[key]).toStrictEqual(
-          typeof localeConfig[key] === 'function'
-            ? localeConfig[key]()
-            : localeConfig[key],
+          typeof localeConfig[key] === 'function' ? localeConfig[key]() : localeConfig[key],
         );
       }
     }

@@ -11,8 +11,7 @@ const i18nMock = jest.fn((key) => key);
 
 const singleUserTyping = '{{ user }} is typing...';
 const twoUsersTyping = '{{ firstUser }} and {{ secondUser }} are typing...';
-const manyUsersTyping =
-  '{{ commaSeparatedUsers }} and {{ lastUser }} are typing...';
+const manyUsersTyping = '{{ commaSeparatedUsers }} and {{ lastUser }} are typing...';
 
 const getChannelContextMock = ({ ownUser, typingUsers }) => ({
   client: {
@@ -54,18 +53,15 @@ describe('MessageInputLarge', () => {
     [user1, [user1, user2], singleUserTyping],
     [user1, [user1, user2, user3], twoUsersTyping],
     [user1, [user1, user2, user3, user4], manyUsersTyping],
-  ])(
-    'should properly construct typing string',
-    async (ownUser, typingUsers, expectedI18nKey) => {
-      const channelContextMock = getChannelContextMock({
-        ownUser,
-        typingUsers,
-      });
-      const { findByText } = renderComponent(channelContextMock);
-      const textEl = await findByText(expectedI18nKey);
-      expect(textEl).toBeInTheDocument();
-    },
-  );
+  ])('should properly construct typing string', async (ownUser, typingUsers, expectedI18nKey) => {
+    const channelContextMock = getChannelContextMock({
+      ownUser,
+      typingUsers,
+    });
+    const { findByText } = renderComponent(channelContextMock);
+    const textEl = await findByText(expectedI18nKey);
+    expect(textEl).toBeInTheDocument();
+  });
 
   it('should not show anything if only the current user is typing', () => {
     const channelContextMock = getChannelContextMock({

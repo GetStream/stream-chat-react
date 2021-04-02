@@ -1,7 +1,4 @@
-import {
-  StreamMessage,
-  useChannelContext,
-} from '../../../context/ChannelContext';
+import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
 import type { MouseEventHandler } from '../types';
 
@@ -26,15 +23,7 @@ export const useDeleteHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): MouseEventHandler => {
-  const { client, updateMessage } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { client, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (event) => {
     event.preventDefault();

@@ -23,13 +23,9 @@ export const useChannelTruncatedListener = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  setChannels: React.Dispatch<
-    React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-  >,
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   customHandler?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
   forceUpdate?: () => void,

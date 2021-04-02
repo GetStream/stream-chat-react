@@ -10,9 +10,7 @@ const mousewheelListener = (event: Event) => {
   }
 };
 
-const calculateTopPosition = (
-  element: HTMLElement | Element | null,
-): number => {
+const calculateTopPosition = (element: HTMLElement | Element | null): number => {
   if (element instanceof HTMLElement) {
     return element.offsetTop + calculateTopPosition(element.offsetParent);
   }
@@ -27,10 +25,7 @@ const calculateOffset = (element: HTMLElement, scrollTop: number) => {
     return 0;
   }
 
-  return (
-    calculateTopPosition(element) +
-    (element.offsetHeight - scrollTop - window.innerHeight)
-  );
+  return calculateTopPosition(element) + (element.offsetHeight - scrollTop - window.innerHeight);
 };
 
 export type InfiniteScrollProps = {
@@ -40,11 +35,7 @@ export type InfiniteScrollProps = {
   initialLoad?: boolean;
   isLoading?: boolean;
   isReverse?: boolean;
-  listenToScroll?: (
-    offset: number,
-    reverseOffset: number,
-    threshold: number,
-  ) => void;
+  listenToScroll?: (offset: number, reverseOffset: number, threshold: number) => void;
   loader?: React.ReactNode;
   loading?: React.ReactNode;
   loadMore?: () => void;
@@ -81,17 +72,12 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
     let offset = 0;
     let reverseOffset = 0;
     if (useWindow) {
-      const doc =
-        document.documentElement || document.body.parentNode || document.body;
-      const scrollTop =
-        window.pageYOffset !== undefined ? window.pageYOffset : doc.scrollTop;
+      const doc = document.documentElement || document.body.parentNode || document.body;
+      const scrollTop = window.pageYOffset !== undefined ? window.pageYOffset : doc.scrollTop;
       offset = calculateOffset(element, scrollTop);
       reverseOffset = scrollTop;
     } else if (parentElement) {
-      offset =
-        element.scrollHeight -
-        parentElement.scrollTop -
-        parentElement.clientHeight;
+      offset = element.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
       reverseOffset = parentElement.scrollTop;
     }
     if (listenToScroll) {
@@ -110,9 +96,7 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
   }, [hasMore, useWindow, isReverse, threshold, listenToScroll, loadMore]);
 
   useEffect(() => {
-    const scrollElement = useWindow
-      ? window
-      : scrollComponent.current?.parentNode;
+    const scrollElement = useWindow ? window : scrollComponent.current?.parentNode;
     if (isLoading || !scrollElement) {
       return () => undefined;
     }
@@ -131,23 +115,13 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
   }, [initialLoad, isLoading, scrollListener, useCapture, useWindow]);
 
   useEffect(() => {
-    const scrollElement = useWindow
-      ? window
-      : scrollComponent.current?.parentNode;
+    const scrollElement = useWindow ? window : scrollComponent.current?.parentNode;
     if (scrollElement) {
-      scrollElement.addEventListener(
-        'mousewheel',
-        mousewheelListener,
-        useCapture,
-      );
+      scrollElement.addEventListener('mousewheel', mousewheelListener, useCapture);
     }
     return () => {
       if (scrollElement) {
-        scrollElement.removeEventListener(
-          'mousewheel',
-          mousewheelListener,
-          useCapture,
-        );
+        scrollElement.removeEventListener('mousewheel', mousewheelListener, useCapture);
       }
     };
   }, [useCapture, useWindow]);

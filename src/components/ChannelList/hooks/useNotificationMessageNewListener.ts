@@ -26,13 +26,9 @@ export const useNotificationMessageNewListener = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  setChannels: React.Dispatch<
-    React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-  >,
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   customHandler?: (
-    setChannels: React.Dispatch<
-      React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>
-    >,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
 ) => {
@@ -45,11 +41,7 @@ export const useNotificationMessageNewListener = <
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else if (event.channel?.type) {
-        const channel = await getChannel(
-          client,
-          event.channel.type,
-          event.channel.id,
-        );
+        const channel = await getChannel(client, event.channel.type, event.channel.id);
         // move channel to starting position
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }

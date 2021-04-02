@@ -38,9 +38,7 @@ describe('Card', () => {
   });
 
   it('should render Card with default props and og_scrape_url', () => {
-    const tree = renderer
-      .create(<Card og_scrape_url='https://google.com' />)
-      .toJSON();
+    const tree = renderer.create(<Card og_scrape_url='https://google.com' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
@@ -59,9 +57,7 @@ describe('Card', () => {
   });
 
   it('should render Card with default props and title and og_scrape_url', () => {
-    const tree = renderer
-      .create(<Card og_scrape_url='https://google.com' title='test' />)
-      .toJSON();
+    const tree = renderer.create(<Card og_scrape_url='https://google.com' title='test' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
@@ -93,13 +89,7 @@ describe('Card', () => {
 
   it('should render Card with default props and title, og_scrape_url, image_url', () => {
     const tree = renderer
-      .create(
-        <Card
-          image_url='test.jpg'
-          og_scrape_url='https://google.com'
-          title='test'
-        />,
-      )
+      .create(<Card image_url='test.jpg' og_scrape_url='https://google.com' title='test' />)
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div

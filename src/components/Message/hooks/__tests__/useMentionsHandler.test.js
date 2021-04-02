@@ -2,10 +2,7 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { generateMessage, generateUser } from 'mock-builders';
 import { ChannelContext } from '../../../../context';
-import {
-  useMentionsHandler,
-  useMentionsUIHandler,
-} from '../useMentionsHandler';
+import { useMentionsHandler, useMentionsUIHandler } from '../useMentionsHandler';
 
 const onMentionsClickMock = jest.fn();
 const onMentionsHoverMock = jest.fn();
@@ -56,10 +53,7 @@ describe('useMentionsHandler custom hooks', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 
   it('should not call onMentionsClick when it is not defined', () => {
@@ -86,10 +80,7 @@ describe('useMentionsHandler custom hooks', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsHover } = renderUseMentionsHandlerHook(message);
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsHoverMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 
   it('should not call onMentionsHover when it is not defined', () => {
@@ -123,10 +114,7 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsHover: onMentionsHoverHandler,
     });
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverHandler).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsHoverHandler).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 
   it('should call the custom mention click handler when one is set', () => {
@@ -138,16 +126,11 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsClick: onMentionsClickHandler,
     });
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickHandler).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsClickHandler).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 });
 
-const renderUseMentionsUIHandlerHook = generateHookHandler(
-  useMentionsUIHandler,
-);
+const renderUseMentionsUIHandlerHook = generateHookHandler(useMentionsUIHandler);
 
 describe('useMentionsUIHandler', () => {
   afterEach(jest.clearAllMocks);
@@ -166,10 +149,7 @@ describe('useMentionsUIHandler', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsClick } = renderUseMentionsUIHandlerHook(message);
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 
   it("should call onMentionsHover with message's mentioned users when user hovers on a mention", () => {
@@ -179,10 +159,7 @@ describe('useMentionsUIHandler', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsHover } = renderUseMentionsUIHandlerHook(message);
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-    );
+    expect(onMentionsHoverMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
   });
 
   it('should call the custom message mention click processor when one is set', () => {

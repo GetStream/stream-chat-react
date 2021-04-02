@@ -65,9 +65,7 @@ describe('SimpleReactionsList', () => {
     });
     const count = getByText('7');
     expect(count).toBeInTheDocument();
-    expect(count).toHaveClass(
-      'str-chat__simple-reactions-list-item--last-number',
-    );
+    expect(count).toHaveClass('str-chat__simple-reactions-list-item--last-number');
   });
 
   it('should render an emoji for each type of reaction', () => {
@@ -77,9 +75,7 @@ describe('SimpleReactionsList', () => {
     };
     renderComponent({ reaction_counts });
 
-    expect(EmojiComponentMock).toHaveBeenCalledTimes(
-      Object.keys(reaction_counts).length,
-    );
+    expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
   });
@@ -98,9 +94,7 @@ describe('SimpleReactionsList', () => {
       ],
     });
 
-    expect(EmojiComponentMock).toHaveBeenCalledTimes(
-      Object.keys(reaction_counts).length,
-    );
+    expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
   });
@@ -129,9 +123,7 @@ describe('SimpleReactionsList', () => {
     fireEvent.mouseEnter(getByTestId(loveEmojiTestId));
 
     reactions.forEach(({ user }) => {
-      expect(
-        queryByText(user.name || user.id, { exact: false }),
-      ).toBeInTheDocument();
+      expect(queryByText(user.name || user.id, { exact: false })).toBeInTheDocument();
     });
 
     fireEvent.mouseLeave(getByTestId(loveEmojiTestId));

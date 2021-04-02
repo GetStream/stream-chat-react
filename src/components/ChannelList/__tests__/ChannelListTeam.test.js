@@ -38,23 +38,17 @@ describe('ChannelListTeam', () => {
   });
 
   it('by default, should render sidebar, userbar and children', () => {
-    const tree = renderer
-      .create(<Component client={chatClientVishal} />)
-      .toJSON();
+    const tree = renderer.create(<Component client={chatClientVishal} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('when `error` prop is true, `LoadingErrorIndicator` should be rendered', () => {
-    const tree = renderer
-      .create(<Component client={chatClientVishal} error />)
-      .toJSON();
+    const tree = renderer.create(<Component client={chatClientVishal} error />).toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('when `loading` prop is true, `LoadingIndicator` should be rendered', () => {
-    const tree = renderer
-      .create(<Component client={chatClientVishal} loading />)
-      .toJSON();
+    const tree = renderer.create(<Component client={chatClientVishal} loading />).toJSON();
     expect(tree).toMatchSnapshot();
   });
 

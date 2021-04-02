@@ -22,10 +22,7 @@ const updateMessage = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUseReactionHandlerHook(
-  message = generateMessage(),
-  channelContextProps,
-) {
+async function renderUseReactionHandlerHook(message = generateMessage(), channelContextProps) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     deleteReaction,
@@ -139,18 +136,11 @@ describe('useReactionClick custom hook', () => {
     });
 
     const { rerender, result } = renderHook(
-      () =>
-        useReactionClick(
-          generateMessage(),
-          React.createRef(),
-          React.createRef(),
-        ),
+      () => useReactionClick(generateMessage(), React.createRef(), React.createRef()),
       {
         // eslint-disable-next-line react/display-name
         wrapper: ({ children }) => (
-          <ChannelContext.Provider value={{ channel }}>
-            {children}
-          </ChannelContext.Provider>
+          <ChannelContext.Provider value={{ channel }}>{children}</ChannelContext.Provider>
         ),
       },
     );
@@ -170,24 +160,16 @@ describe('useReactionClick custom hook', () => {
     };
     const { result } = renderUseReactionClickHook();
     let onDocumentClick;
-    const addEventListenerSpy = jest
-      .spyOn(document, 'addEventListener')
-      .mockImplementation(
-        jest.fn((_, fn) => {
-          onDocumentClick = fn;
-        }),
-      );
+    const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
+      jest.fn((_, fn) => {
+        onDocumentClick = fn;
+      }),
+    );
     act(() => result.current.onReactionListClick());
     expect(result.current.showDetailedReactions).toBe(true);
     expect(document.addEventListener).toHaveBeenCalledTimes(2);
-    expect(document.addEventListener).toHaveBeenCalledWith(
-      'click',
-      expect.any(Function),
-    );
-    expect(document.addEventListener).toHaveBeenCalledWith(
-      'touchend',
-      expect.any(Function),
-    );
+    expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('touchend', expect.any(Function));
     act(() => onDocumentClick(clickMock));
     expect(result.current.showDetailedReactions).toBe(false);
     addEventListenerSpy.mockRestore();
@@ -206,17 +188,16 @@ describe('useReactionClick custom hook', () => {
       mockMessageWrapperReference,
     );
     act(() => result.current.onReactionListClick());
-    expect(
-      mockMessageWrapperReference.current.addEventListener,
-    ).toHaveBeenCalledWith('mouseleave', expect.any(Function));
+    expect(mockMessageWrapperReference.current.addEventListener).toHaveBeenCalledWith(
+      'mouseleave',
+      expect.any(Function),
+    );
   });
 
   it('should not close reaction list on document click when click is on the reaction list itself', () => {
     const message = generateMessage();
     const reactionSelectorEl = document.createElement('div');
-    const reactionListElement = document
-      .createElement('div')
-      .appendChild(reactionSelectorEl);
+    const reactionListElement = document.createElement('div').appendChild(reactionSelectorEl);
     const clickMock = {
       target: reactionSelectorEl,
     };
@@ -224,13 +205,11 @@ describe('useReactionClick custom hook', () => {
       current: reactionListElement,
     });
     let onDocumentClick;
-    const addEventListenerSpy = jest
-      .spyOn(document, 'addEventListener')
-      .mockImplementation(
-        jest.fn((_, fn) => {
-          onDocumentClick = fn;
-        }),
-      );
+    const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
+      jest.fn((_, fn) => {
+        onDocumentClick = fn;
+      }),
+    );
     act(() => result.current.onReactionListClick());
     expect(result.current.showDetailedReactions).toBe(true);
     act(() => onDocumentClick(clickMock));
@@ -244,13 +223,11 @@ describe('useReactionClick custom hook', () => {
     };
     const { result } = renderUseReactionClickHook();
     let onDocumentClick;
-    const addEventListenerSpy = jest
-      .spyOn(document, 'addEventListener')
-      .mockImplementation(
-        jest.fn((_, fn) => {
-          onDocumentClick = fn;
-        }),
-      );
+    const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
+      jest.fn((_, fn) => {
+        onDocumentClick = fn;
+      }),
+    );
     const removeEventListenerSpy = jest
       .spyOn(document, 'removeEventListener')
       .mockImplementationOnce(jest.fn());
@@ -258,14 +235,8 @@ describe('useReactionClick custom hook', () => {
     expect(result.current.showDetailedReactions).toBe(true);
     act(() => onDocumentClick(clickMock));
     expect(result.current.showDetailedReactions).toBe(false);
-    expect(document.removeEventListener).toHaveBeenCalledWith(
-      'click',
-      onDocumentClick,
-    );
-    expect(document.removeEventListener).toHaveBeenCalledWith(
-      'touchend',
-      onDocumentClick,
-    );
+    expect(document.removeEventListener).toHaveBeenCalledWith('click', onDocumentClick);
+    expect(document.removeEventListener).toHaveBeenCalledWith('touchend', onDocumentClick);
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
   });
@@ -276,13 +247,11 @@ describe('useReactionClick custom hook', () => {
     };
     const message = generateMessage();
     let onDocumentClick;
-    const addEventListenerSpy = jest
-      .spyOn(document, 'addEventListener')
-      .mockImplementation(
-        jest.fn((_, fn) => {
-          onDocumentClick = fn;
-        }),
-      );
+    const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
+      jest.fn((_, fn) => {
+        onDocumentClick = fn;
+      }),
+    );
     const removeEventListenerSpy = jest
       .spyOn(document, 'removeEventListener')
       .mockImplementationOnce(jest.fn());
@@ -291,14 +260,8 @@ describe('useReactionClick custom hook', () => {
     act(() => result.current.onReactionListClick(clickMock));
     message.deleted_at = new Date();
     rerender();
-    expect(document.removeEventListener).toHaveBeenCalledWith(
-      'click',
-      onDocumentClick,
-    );
-    expect(document.removeEventListener).toHaveBeenCalledWith(
-      'touchend',
-      onDocumentClick,
-    );
+    expect(document.removeEventListener).toHaveBeenCalledWith('click', onDocumentClick);
+    expect(document.removeEventListener).toHaveBeenCalledWith('touchend', onDocumentClick);
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
   });

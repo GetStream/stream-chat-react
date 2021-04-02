@@ -55,9 +55,7 @@ export const MessageDeleted = <
       data-testid={'message-deleted-component'}
       key={message.id}
     >
-      <div className='str-chat__message--deleted-inner'>
-        {t('This message was deleted...')}
-      </div>
+      <div className='str-chat__message--deleted-inner'>{t('This message was deleted...')}</div>
     </div>
   );
 };

@@ -2,11 +2,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {
-  generateMessage,
-  generateUser,
-  getTestClientWithUser,
-} from 'mock-builders';
+import { generateMessage, generateUser, getTestClientWithUser } from 'mock-builders';
 import { MessageDeleted } from '../MessageDeleted';
 import { ChannelContext, TranslationContext } from '../../../context';
 
@@ -32,21 +28,13 @@ describe('MessageDeleted component', () => {
   });
 
   it('should set specific css class when message is from current user', async () => {
-    const { queryByTestId } = await renderComponent(
-      generateMessage({ user: alice }),
-    );
-    expect(queryByTestId(messageDeletedTestId).className).toContain(
-      ownMessageCssClass,
-    );
+    const { queryByTestId } = await renderComponent(generateMessage({ user: alice }));
+    expect(queryByTestId(messageDeletedTestId).className).toContain(ownMessageCssClass);
   });
 
   it('should not set specific css class when message is not from current user', async () => {
-    const { queryByTestId } = await renderComponent(
-      generateMessage({ user: bob }),
-    );
-    expect(queryByTestId(messageDeletedTestId).className).not.toContain(
-      ownMessageCssClass,
-    );
+    const { queryByTestId } = await renderComponent(generateMessage({ user: bob }));
+    expect(queryByTestId(messageDeletedTestId).className).not.toContain(ownMessageCssClass);
   });
 
   it('should set specific css class based on message type', async () => {

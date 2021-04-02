@@ -2,12 +2,7 @@ import React from 'react';
 
 import { MessageInputLarge } from './MessageInputLarge';
 
-import type {
-  Attachment,
-  Channel,
-  SendFileAPIResponse,
-  UserResponse,
-} from 'stream-chat';
+import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
@@ -175,6 +170,4 @@ const UnMemoizedMessageInput = <
  * all functions needed to customize and build your custom Input components.
  * @example ./MessageInput.md
  */
-export const MessageInput = React.memo(
-  UnMemoizedMessageInput,
-) as typeof UnMemoizedMessageInput;
+export const MessageInput = React.memo(UnMemoizedMessageInput) as typeof UnMemoizedMessageInput;

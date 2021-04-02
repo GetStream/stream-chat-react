@@ -5,22 +5,15 @@ export const DEFAULT_CARET_POSITION = 'next';
 export function defaultScrollToItem(container, item) {
   if (!item) return;
 
-  const itemHeight = parseInt(
-    getComputedStyle(item).getPropertyValue('height'),
-    10,
-  );
+  const itemHeight = parseInt(getComputedStyle(item).getPropertyValue('height'), 10);
 
   const containerHight =
-    parseInt(getComputedStyle(container).getPropertyValue('height'), 10) -
-    itemHeight;
+    parseInt(getComputedStyle(container).getPropertyValue('height'), 10) - itemHeight;
 
   const actualScrollTop = container.scrollTop;
   const itemOffsetTop = item.offsetTop;
 
-  if (
-    itemOffsetTop < actualScrollTop + containerHight &&
-    actualScrollTop < itemOffsetTop
-  ) {
+  if (itemOffsetTop < actualScrollTop + containerHight && actualScrollTop < itemOffsetTop) {
     return;
   }
 
@@ -43,9 +36,7 @@ export const triggerPropsCheck = ({ trigger }) => {
     const [triggerChar, settings] = triggers[i];
 
     if (typeof triggerChar !== 'string' || triggerChar.length !== 1) {
-      return Error(
-        'Invalid prop trigger. Keys of the object has to be string / one character.',
-      );
+      return Error('Invalid prop trigger. Keys of the object has to be string / one character.');
     }
 
     // $FlowFixMe

@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  isDayOrMoment,
-  useTranslationContext,
-} from '../../context/TranslationContext';
+import { isDayOrMoment, useTranslationContext } from '../../context/TranslationContext';
 
 export type DateSeparatorProps = {
   /** The date to format */
@@ -52,6 +49,4 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
  * DateSeparator - A simple date separator between messages.
  * @example ./DateSeparator.md
  */
-export const DateSeparator = React.memo(
-  UnMemoizedDateSeparator,
-) as typeof UnMemoizedDateSeparator;
+export const DateSeparator = React.memo(UnMemoizedDateSeparator) as typeof UnMemoizedDateSeparator;

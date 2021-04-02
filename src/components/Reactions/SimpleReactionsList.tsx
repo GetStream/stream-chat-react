@@ -56,16 +56,10 @@ const UnMemoizedSimpleReactionsList = <
 
   const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const {
-    defaultMinimalEmojis,
-    Emoji,
-    emojiData: defaultEmojiData,
-    emojiSetDef,
-  } = emojiConfig || {};
+  const { defaultMinimalEmojis, Emoji, emojiData: defaultEmojiData, emojiSetDef } =
+    emojiConfig || {};
 
-  const [tooltipReactionType, setTooltipReactionType] = useState<
-    string | undefined
-  >(undefined);
+  const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
 
   const emojiData = getStrippedEmojiData(defaultEmojiData);
 
@@ -86,10 +80,7 @@ const UnMemoizedSimpleReactionsList = <
       .filter(Boolean);
 
   const getTotalReactionCount = () =>
-    Object.values(reaction_counts || {}).reduce(
-      (total, count) => total + count,
-      0,
-    );
+    Object.values(reaction_counts || {}).reduce((total, count) => total + count, 0);
 
   const getReactionTypes = () => {
     if (!reactions) return [];
@@ -98,8 +89,7 @@ const UnMemoizedSimpleReactionsList = <
     return Array.from(allTypes);
   };
 
-  const getOptionForType = (type: string) =>
-    reactionOptions.find((option) => option.id === type);
+  const getOptionForType = (type: string) => reactionOptions.find((option) => option.id === type);
 
   return (
     <ul

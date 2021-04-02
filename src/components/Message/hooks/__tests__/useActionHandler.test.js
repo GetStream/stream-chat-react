@@ -59,9 +59,7 @@ describe('useHandleAction custom hook', () => {
       name: 'action',
       value: 'value',
     };
-    sendAction.mockImplementationOnce(() =>
-      Promise.resolve({ message: updatedMessage }),
-    );
+    sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
     const handleAction = await renderUseHandleActionHook(currentMessage);
     await handleAction(action.name, action.value, mouseEventMock);
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {

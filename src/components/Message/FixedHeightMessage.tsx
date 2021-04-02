@@ -80,13 +80,12 @@ const UnMemoizedFixedHeightMessage = <
   const role = useUserRole(message);
 
   const messageTextToRender =
-    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message?.text;
+    message?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message?.text;
 
-  const renderedText = useMemo(
-    () => renderText(messageTextToRender, message.mentioned_users),
-    [message.mentioned_users, messageTextToRender],
-  );
+  const renderedText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
+    message.mentioned_users,
+    messageTextToRender,
+  ]);
 
   const userId = message.user?.id || '';
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);
@@ -113,23 +112,14 @@ const UnMemoizedFixedHeightMessage = <
       />
       <div className='str-chat__virtual-message__content'>
         <div className='str-chat__virtual-message__meta'>
-          <div
-            className='str-chat__virtual-message__author'
-            style={{ color: userColor }}
-          >
+          <div className='str-chat__virtual-message__author' style={{ color: userColor }}>
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
         {images && <Gallery images={images} />}
         <div className='str-chat__virtual-message__text' data-testid='msg-text'>
           {renderedText}
-          {message.mml && (
-            <MML
-              actionHandler={handleAction}
-              align='left'
-              source={message.mml}
-            />
-          )}
+          {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
           <div className='str-chat__virtual-message__data'>
             <MessageActions<At, Ch, Co, Ev, Me, Re, Us>
               customWrapperClass='str-chat__virtual-message__actions'

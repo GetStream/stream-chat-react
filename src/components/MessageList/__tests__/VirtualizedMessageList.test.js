@@ -123,23 +123,13 @@ describe('usePrependedMessagesCount', () => {
     });
 
     await renderer.act(async () => {
-      await render.update(
-        <TestCase messages={[{ id: 'c' }, { id: 'b' }, { id: 'a' }]} />,
-      );
+      await render.update(<TestCase messages={[{ id: 'c' }, { id: 'b' }, { id: 'a' }]} />);
       expectPrependCount(2);
     });
 
     await renderer.act(async () => {
       await render.update(
-        <TestCase
-          messages={[
-            { id: 'e' },
-            { id: 'd' },
-            { id: 'c' },
-            { id: 'b' },
-            { id: 'a' },
-          ]}
-        />,
+        <TestCase messages={[{ id: 'e' }, { id: 'd' }, { id: 'c' }, { id: 'b' }, { id: 'a' }]} />,
       );
       expectPrependCount(4);
     });

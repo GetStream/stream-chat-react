@@ -6,11 +6,7 @@ import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
 import { useReactionClick, useUserHandler } from './hooks';
-import {
-  areMessageUIPropsEqual,
-  messageHasAttachments,
-  messageHasReactions,
-} from './utils';
+import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -40,10 +36,7 @@ type MessageCommerceWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<
-  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-  'PinIndicator'
-> & {
+> = Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'> & {
   isReactionEnabled: boolean;
   onReactionListClick: MouseEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -111,11 +104,7 @@ const MessageCommerceWithContext = <
         className={`
 						${messageClasses}
 						str-chat__message-commerce--${message.type}
-						${
-              message.text
-                ? 'str-chat__message-commerce--has-text'
-                : 'str-chat__message-commerce--has-no-text'
-            }
+						${message.text ? 'str-chat__message-commerce--has-text' : 'str-chat__message-commerce--has-no-text'}
 						${hasAttachment ? 'str-chat__message-commerce--has-attachment' : ''}
             ${`str-chat__message-commerce--${firstGroupStyle}`}
             ${message.pinned ? 'pinned-message' : ''}
@@ -167,10 +156,7 @@ const MessageCommerceWithContext = <
             </>
           )}
           {message.attachments && (
-            <Attachment
-              actionHandler={handleAction}
-              attachments={message.attachments}
-            />
+            <Attachment actionHandler={handleAction} attachments={message.attachments} />
           )}
           {message.mml && (
             <MML
@@ -237,20 +223,16 @@ export const MessageCommerce = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'PinIndicator'
-  >,
+  props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
 ) => {
   const { message } = props;
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef);
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+  );
 
   return (
     <MemoizedMessageCommerce

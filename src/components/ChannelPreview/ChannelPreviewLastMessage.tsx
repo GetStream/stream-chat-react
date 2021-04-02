@@ -49,8 +49,7 @@ const UnMemoizedChannelPreviewLastMessage = <
     }
   };
 
-  const unreadClass =
-    unread && unread >= 1 ? 'str-chat__channel-preview--unread' : '';
+  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview--unread' : '';
   const activeClass = active ? 'str-chat__channel-preview--active' : '';
 
   return (
@@ -60,21 +59,15 @@ const UnMemoizedChannelPreviewLastMessage = <
         onClick={onSelectChannel}
         ref={channelPreviewButton}
       >
-        {unread && unread >= 1 ? (
-          <div className='str-chat__channel-preview--dot' />
-        ) : null}
+        {unread && unread >= 1 ? <div className='str-chat__channel-preview--dot' /> : null}
         <Avatar image={displayImage} name={displayTitle} />
         <div className='str-chat__channel-preview-info'>
-          <span className='str-chat__channel-preview-title'>
-            {displayTitle}
-          </span>
+          <span className='str-chat__channel-preview-title'>{displayTitle}</span>
           <span className='str-chat__channel-preview-last-message'>
             {truncate(latestMessage, latestMessageLength)}
           </span>
           {unread && unread >= 1 ? (
-            <span className='str-chat__channel-preview-unread-count'>
-              {unread}
-            </span>
+            <span className='str-chat__channel-preview-unread-count'>{unread}</span>
           ) : null}
         </div>
       </button>

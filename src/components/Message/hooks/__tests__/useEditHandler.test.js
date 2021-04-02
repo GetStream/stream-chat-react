@@ -11,11 +11,7 @@ function renderUseEditHandler(
   customClearEditing = undefined,
 ) {
   const { result } = renderHook(() =>
-    useEditHandler(
-      customInitialState,
-      customSetEditingHandler,
-      customClearEditing,
-    ),
+    useEditHandler(customInitialState, customSetEditingHandler, customClearEditing),
   );
   return result;
 }
@@ -49,10 +45,7 @@ describe('useEditHandler custom hook', () => {
 
   it('should call the custom editing handler when one is set', () => {
     const customSetEditingHandler = jest.fn();
-    const renderedHook = renderUseEditHandler(
-      undefined,
-      customSetEditingHandler,
-    );
+    const renderedHook = renderUseEditHandler(undefined, customSetEditingHandler);
     expect(customSetEditingHandler).not.toHaveBeenCalled();
     act(() => renderedHook.current.setEdit(mouseEventMock));
     expect(customSetEditingHandler).toHaveBeenCalledWith(mouseEventMock);
@@ -73,11 +66,7 @@ describe('useEditHandler custom hook', () => {
 
   it('should call the custom clear editing handler when one is set', () => {
     const customClearEditingHandler = jest.fn();
-    const renderedHook = renderUseEditHandler(
-      undefined,
-      undefined,
-      customClearEditingHandler,
-    );
+    const renderedHook = renderUseEditHandler(undefined, undefined, customClearEditingHandler);
     expect(customClearEditingHandler).not.toHaveBeenCalled();
     act(() => renderedHook.current.clearEdit(mouseEventMock));
     expect(customClearEditingHandler).toHaveBeenCalledWith(mouseEventMock);

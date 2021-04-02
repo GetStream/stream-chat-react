@@ -28,9 +28,7 @@ const withContext = (props) => {
 
 describe('DateSeparator', () => {
   it('should use formatDate if it is provided', () => {
-    const { queryByText } = render(
-      <DateSeparator date={now} formatDate={() => 'the date'} />,
-    );
+    const { queryByText } = render(<DateSeparator date={now} formatDate={() => 'the date'} />);
 
     expect(queryByText('the date')).toBeInTheDocument();
   });
@@ -67,18 +65,12 @@ describe('DateSeparator', () => {
     const { queryByText } = render(Component);
 
     expect(tDateTimeParser).toHaveBeenCalledWith(now.toISOString());
-    expect(
-      queryByText(Dayjs(now.toISOString()).calendar()),
-    ).toBeInTheDocument();
+    expect(queryByText(Dayjs(now.toISOString()).calendar())).toBeInTheDocument();
   });
 
   describe('Position prop', () => {
     const renderWithPosition = (position) => (
-      <DateSeparator
-        date={now}
-        formatDate={() => 'the date'}
-        position={position}
-      />
+      <DateSeparator date={now} formatDate={() => 'the date'} position={position} />
     );
 
     const defaultPosition = renderer.create(renderWithPosition()).toJSON();

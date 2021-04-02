@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
-import {
-  getDisplayImage,
-  getDisplayTitle,
-  getLatestMessagePreview,
-} from './utils';
+import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -81,19 +77,9 @@ export type ChannelPreviewProps<
    *
    * The Preview to use, defaults to ChannelPreviewLastMessage
    * */
-  Preview?: React.ComponentType<
-    ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Setter for selected Channel */
-  setActiveChannel?: ChatContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['setActiveChannel'];
+  setActiveChannel?: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['setActiveChannel'];
   /**
    * Object containing watcher parameters
    * @see See [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
@@ -125,9 +111,9 @@ export const ChannelPreview = <
   >();
   const { t, userLanguage } = useTranslationContext();
 
-  const [lastMessage, setLastMessage] = useState<
-    StreamMessage<At, Ch, Co, Ev, Me, Re, Us>
-  >(channel.state.messages[channel.state.messages.length - 1]);
+  const [lastMessage, setLastMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>(
+    channel.state.messages[channel.state.messages.length - 1],
+  );
   const [unread, setUnread] = useState(0);
 
   const isActive = activeChannel?.cid === channel.cid;

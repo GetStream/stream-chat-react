@@ -17,9 +17,7 @@ export type AttachmentActionsProps = {
   ) => void;
 };
 
-const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
-  props,
-) => {
+const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
   const { actionHandler, actions, id, text } = props;
 
   const handleActionClick = (
@@ -42,9 +40,7 @@ const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (
             data-testid={`${action.name}`}
             data-value={action.value}
             key={`${id}-${action.value}`}
-            onClick={(event) =>
-              handleActionClick(event, action.name, action.value)
-            }
+            onClick={(event) => handleActionClick(event, action.name, action.value)}
           >
             {action.text}
           </button>

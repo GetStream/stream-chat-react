@@ -9,10 +9,7 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-function renderUseOpenThreadHandlerHook(
-  message = generateMessage(),
-  openThread = openThreadMock,
-) {
+function renderUseOpenThreadHandlerHook(message = generateMessage(), openThread = openThreadMock) {
   const wrapper = ({ children }) => (
     <ChannelContext.Provider
       value={{
@@ -51,10 +48,7 @@ describe('useOpenThreadHandler custom hook', () => {
 
   it('should warn user if it open thread is not defined in the channel context', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    const handleOpenThread = renderUseOpenThreadHandlerHook(
-      generateMessage(),
-      null,
-    );
+    const handleOpenThread = renderUseOpenThreadHandlerHook(generateMessage(), null);
     handleOpenThread(mouseEventMock);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });
@@ -62,10 +56,7 @@ describe('useOpenThreadHandler custom hook', () => {
   it('should allow user to open a thread with a custom thread handler if one is set', () => {
     const message = generateMessage();
     const customThreadHandler = jest.fn();
-    const handleOpenThread = renderUseOpenThreadHandlerHook(
-      message,
-      customThreadHandler,
-    );
+    const handleOpenThread = renderUseOpenThreadHandlerHook(message, customThreadHandler);
     handleOpenThread(mouseEventMock);
     expect(customThreadHandler).toHaveBeenCalledWith(message, mouseEventMock);
     expect(openThreadMock).not.toHaveBeenCalled();

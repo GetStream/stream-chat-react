@@ -15,9 +15,10 @@ import type {
   DefaultUserType,
 } from '../../../../types/types';
 
-export type UserEventHandler<
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = (event: MouseEvent<HTMLElement>, user: User<Us>) => void;
+export type UserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
+  event: MouseEvent<HTMLElement>,
+  user: User<Us>,
+) => void;
 
 export const useUserHandler = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -38,19 +39,13 @@ export const useUserHandler = <
   onUserHover: MouseEventHandler;
 } => ({
   onUserClick: (event) => {
-    if (
-      typeof eventHandlers?.onUserClickHandler !== 'function' ||
-      !message?.user
-    ) {
+    if (typeof eventHandlers?.onUserClickHandler !== 'function' || !message?.user) {
       return;
     }
     eventHandlers.onUserClickHandler(event, message.user);
   },
   onUserHover: (event) => {
-    if (
-      typeof eventHandlers?.onUserHoverHandler !== 'function' ||
-      !message?.user
-    ) {
+    if (typeof eventHandlers?.onUserHoverHandler !== 'function' || !message?.user) {
       return;
     }
 

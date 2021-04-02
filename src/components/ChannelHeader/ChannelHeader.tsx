@@ -44,20 +44,11 @@ const UnMemoizedChannelHeader = <
 ) => {
   const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
 
-  const { channel, watcher_count } = useChannelContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel, watcher_count } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const { image: channelImage, member_count, name, subtitle } =
-    channel?.data || {};
+  const { image: channelImage, member_count, name, subtitle } = channel?.data || {};
 
   const image = propImage || channelImage;
 
@@ -69,26 +60,14 @@ const UnMemoizedChannelHeader = <
         <span className='str-chat__header-hamburger--line'></span>
       </div>
       {image && (
-        <Avatar
-          image={image}
-          shape='rounded'
-          size={channel?.type === 'commerce' ? 60 : 40}
-        />
+        <Avatar image={image} shape='rounded' size={channel?.type === 'commerce' ? 60 : 40} />
       )}
       <div className='str-chat__header-livestream-left'>
         <p className='str-chat__header-livestream-left--title'>
           {title || name}{' '}
-          {live && (
-            <span className='str-chat__header-livestream-left--livelabel'>
-              {t('live')}
-            </span>
-          )}
+          {live && <span className='str-chat__header-livestream-left--livelabel'>{t('live')}</span>}
         </p>
-        {subtitle && (
-          <p className='str-chat__header-livestream-left--subtitle'>
-            {subtitle}
-          </p>
-        )}
+        {subtitle && <p className='str-chat__header-livestream-left--subtitle'>{subtitle}</p>}
         <p className='str-chat__header-livestream-left--members'>
           {!live && !!member_count && member_count > 0 && (
             <>
@@ -109,6 +88,4 @@ const UnMemoizedChannelHeader = <
 The ChannelHeader component renders some basic information about a Channel.
 * @example ./ChannelHeader.md
 */
-export const ChannelHeader = React.memo(
-  UnMemoizedChannelHeader,
-) as typeof UnMemoizedChannelHeader;
+export const ChannelHeader = React.memo(UnMemoizedChannelHeader) as typeof UnMemoizedChannelHeader;

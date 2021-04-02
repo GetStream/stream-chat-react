@@ -77,8 +77,7 @@ export const useChat = <
     setMutes(clientMutes || []);
 
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (event.type === 'notification.mutes_updated')
-        setMutes(event.me?.mutes || []);
+      if (event.type === 'notification.mutes_updated') setMutes(event.me?.mutes || []);
     };
 
     if (client) client.on(handleEvent);
@@ -91,9 +90,7 @@ export const useChat = <
 
   useEffect(() => {
     const streami18n =
-      i18nInstance instanceof Streami18n
-        ? i18nInstance
-        : new Streami18n({ language: 'en' });
+      i18nInstance instanceof Streami18n ? i18nInstance : new Streami18n({ language: 'en' });
 
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),

@@ -38,16 +38,7 @@ export type ThreadProps<
    * Additional props for underlying MessageInput component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    */
-  additionalMessageInputProps?: MessageInputProps<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us,
-    V
-  >;
+  additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /**
    * Additional props for underlying MessageList component.
    * [Available props](https://getstream.github.io/stream-chat-react/#messagelist)
@@ -63,22 +54,16 @@ export type ThreadProps<
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
   /** UI component to override the default Message stored in ChannelContext */
-  Message?: React.ComponentType<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Customized MessageInput component to used within Thread instead of default MessageInput
      Useable as follows:
      ```
      <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
      ```
  */
-  MessageInput?: React.ComponentType<
-    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>
-  >;
+  MessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   /** UI component used to override the default header of the Thread */
-  ThreadHeader?: React.ComponentType<
-    ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 /**
@@ -120,9 +105,7 @@ export type ThreadHeaderProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   t: TFunction;
-  closeThread?: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => void;
+  closeThread?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
@@ -232,11 +215,7 @@ const ThreadInner = <
   const read = {};
 
   return (
-    <div
-      className={`str-chat__thread ${
-        fullWidth ? 'str-chat__thread--full' : ''
-      }`}
-    >
+    <div className={`str-chat__thread ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
@@ -248,9 +227,7 @@ const ThreadInner = <
           threadList
           {...additionalParentMessageProps}
         />
-        <div className='str-chat__thread-start'>
-          {t('Start of a new thread')}
-        </div>
+        <div className='str-chat__thread-start'>{t('Start of a new thread')}</div>
         <MessageList
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}

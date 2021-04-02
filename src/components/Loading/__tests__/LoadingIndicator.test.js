@@ -16,9 +16,7 @@ describe('LoadingIndicator', () => {
   it('should update style based on props', () => {
     const size = 30;
     const color = '#000000';
-    const { getByTestId } = render(
-      <LoadingIndicator color={color} size={size} />,
-    );
+    const { getByTestId } = render(<LoadingIndicator color={color} size={size} />);
     const wrapper = getByTestId('loading-indicator-wrapper');
     const circle = getByTestId('loading-indicator-circle');
     waitFor(() => {

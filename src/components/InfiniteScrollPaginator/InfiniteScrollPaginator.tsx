@@ -20,9 +20,7 @@ export type InfiniteScrollPaginatorProps = {
   threshold?: number;
 };
 
-export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps> = (
-  props,
-) => {
+export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps> = (props) => {
   const {
     children,
     hasNextPage,
@@ -39,10 +37,7 @@ export const InfiniteScrollPaginator: React.FC<InfiniteScrollPaginatorProps> = (
       isLoading={refreshing}
       isReverse={reverse}
       loader={
-        <div
-          className='str-chat__infinite-scroll-paginator'
-          key='loadingindicator'
-        >
+        <div className='str-chat__infinite-scroll-paginator' key='loadingindicator'>
           <LoadingIndicator />
         </div>
       }

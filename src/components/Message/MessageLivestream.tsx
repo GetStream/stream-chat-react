@@ -1,34 +1,16 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
-import {
-  useMentionsUIHandler,
-  useReactionClick,
-  useUserHandler,
-} from './hooks';
-import {
-  PinIndicator as DefaultPinIndicator,
-  ErrorIcon,
-  ReactionIcon,
-  ThreadIcon,
-} from './icons';
+import { useMentionsUIHandler, useReactionClick, useUserHandler } from './hooks';
+import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
-import {
-  EditMessageForm as DefaultEditMessageForm,
-  MessageInput,
-} from '../MessageInput';
+import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import {
   ReactionSelector as DefaultReactionSelector,
   SimpleReactionsList as DefaultReactionsList,
@@ -122,13 +104,12 @@ const MessageLivestreamWithContext = <
   });
 
   const messageTextToRender =
-    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    message.text;
+    message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
-  const messageText = useMemo(
-    () => renderText(messageTextToRender, message.mentioned_users),
-    [message.mentioned_users, messageTextToRender],
-  );
+  const messageText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
+    message.mentioned_users,
+    messageTextToRender,
+  ]);
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : '';
 
@@ -227,9 +208,7 @@ const MessageLivestreamWithContext = <
             </div>
             <div
               className={
-                isOnlyEmojis(message.text)
-                  ? 'str-chat__message-livestream-text--is-emoji'
-                  : ''
+                isOnlyEmojis(message.text) ? 'str-chat__message-livestream-text--is-emoji' : ''
               }
               data-testid='message-livestream-text'
               onClick={onMentionsClickMessage}
@@ -242,9 +221,7 @@ const MessageLivestreamWithContext = <
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
                 unsafeHTML &&
-                !!message.html && (
-                  <div dangerouslySetInnerHTML={{ __html: message.html }} />
-                )}
+                !!message.html && <div dangerouslySetInnerHTML={{ __html: message.html }} />}
               {message.type === 'error' && !message.command && (
                 <p data-testid='message-livestream-error'>
                   <ErrorIcon />
@@ -260,11 +237,7 @@ const MessageLivestreamWithContext = <
               )}
               {message.status === 'failed' && (
                 <p
-                  onClick={
-                    message.errorStatusCode !== 403
-                      ? () => handleRetry(message)
-                      : undefined
-                  }
+                  onClick={message.errorStatusCode !== 403 ? () => handleRetry(message) : undefined}
                 >
                   <ErrorIcon />
                   {message.errorStatusCode !== 403
@@ -274,10 +247,7 @@ const MessageLivestreamWithContext = <
               )}
             </div>
             {message.attachments && Attachment && (
-              <Attachment
-                actionHandler={handleAction}
-                attachments={message.attachments}
-              />
+              <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {isReactionEnabled && (
               <ReactionsList
@@ -410,20 +380,14 @@ const MessageLivestreamActions = <
         message={message}
       />
       {channelConfig?.reactions && (
-        <span
-          data-testid='message-livestream-reactions-action'
-          onClick={onReactionListClick}
-        >
+        <span data-testid='message-livestream-reactions-action' onClick={onReactionListClick}>
           <span>
             <ReactionIcon />
           </span>
         </span>
       )}
       {!threadList && channelConfig?.replies && (
-        <span
-          data-testid='message-livestream-thread-action'
-          onClick={handleOpenThread}
-        >
+        <span data-testid='message-livestream-thread-action' onClick={handleOpenThread}>
           <ThreadIcon />
         </span>
       )}
@@ -474,11 +438,11 @@ export const MessageLivestream = <
     onMentionsHover: propOnMentionsHover,
   });
 
-  const {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
-  } = useReactionClick(message, reactionSelectorRef, messageWrapperRef);
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+    messageWrapperRef,
+  );
 
   return (
     <MemoizedMessageLivestream

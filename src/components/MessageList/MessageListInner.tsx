@@ -4,10 +4,7 @@ import isEqual from 'lodash.isequal';
 
 import { insertDates } from './utils';
 
-import {
-  InfiniteScroll,
-  InfiniteScrollProps,
-} from '../InfiniteScrollPaginator';
+import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { Message } from '../Message';
 
 import type { Channel, StreamChat, UserResponse } from 'stream-chat';
@@ -56,9 +53,7 @@ export type MessageListInnerProps<
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser: boolean;
-  onMessageLoadCaptured: (
-    event: React.SyntheticEvent<HTMLLIElement, Event>,
-  ) => void;
+  onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   /** Set to `true` to indicate that the list is a thread  */
   threadList: boolean;
   /**
@@ -78,17 +73,12 @@ export type MessageListInnerProps<
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
   /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
-  internalMessageProps?: Omit<
-    MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'message'
-  >;
+  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message'>;
   /**
    * Custom UI component to display system messages
    * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
    */
-  MessageSystem?: React.ComponentType<
-    EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
 
@@ -159,15 +149,7 @@ const insertIntro = <
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({ type: 'channel.intro' } as unknown) as StreamMessage<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >;
+  const intro = ({ type: 'channel.intro' } as unknown) as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -199,8 +181,7 @@ const insertIntro = <
     if (messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime < headerPosition) {
-        if (messages[i + 1] && messages[i + 1].type === 'message.date')
-          continue;
+        if (messages[i + 1] && messages[i + 1].type === 'message.date') continue;
         if (!nextMessageTime) {
           newMessages.push(intro);
           return newMessages;
@@ -266,8 +247,7 @@ const getGroupStyles = <
   }
 
   if (isBottomMessage) {
-    if (isTopMessage || message.deleted_at || message.type === 'error')
-      return 'single';
+    if (isTopMessage || message.deleted_at || message.type === 'error') return 'single';
     return 'bottom';
   }
 
@@ -313,13 +293,7 @@ const UnMemoizedMessageListInner = <
   const enrichMessages = () => {
     const messageWithDates = threadList
       ? messages
-      : insertDates(
-          messages,
-          lastRead,
-          client.userID,
-          hideDeletedMessages,
-          disableDateSeparator,
-        );
+      : insertDates(messages, lastRead, client.userID, hideDeletedMessages, disableDateSeparator);
 
     if (HeaderComponent) {
       return insertIntro(messageWithDates, headerPosition);
@@ -356,9 +330,7 @@ const UnMemoizedMessageListInner = <
     [userID, enrichedMessages, read],
   );
 
-  const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [
-    enrichedMessages,
-  ]);
+  const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
 
   const elements = useMemo(
     () =>
@@ -366,10 +338,7 @@ const UnMemoizedMessageListInner = <
         if (message.type === 'message.date') {
           return (
             <li key={`${(message.date as Date).toISOString()}-i`}>
-              <DateSeparator
-                date={message.date as Date}
-                unread={!!message.unread}
-              />
+              <DateSeparator date={message.date as Date} unread={!!message.unread} />
             </li>
           );
         }

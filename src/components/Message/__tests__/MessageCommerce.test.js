@@ -25,11 +25,7 @@ const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const openThreadMock = jest.fn();
 
-async function renderMessageCommerce(
-  message,
-  props = {},
-  channelConfig = { replies: true },
-) {
+async function renderMessageCommerce(message, props = {}, channelConfig = { replies: true }) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   return render(
@@ -99,9 +95,7 @@ describe('<MessageCommerce />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-10T03:24:00'),
     });
-    const CustomMessageDeletedComponent = () => (
-      <p data-testid='custom-message-deleted'>Gone!</p>
-    );
+    const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
     const { getByTestId } = await renderMessageCommerce(deletedMessage, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
@@ -147,9 +141,7 @@ describe('<MessageCommerce />', () => {
   it('should position message to the right if it is from current user', async () => {
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--right',
-    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).toContain('--right');
   });
 
   it('should position message to the left if it is not from current user', async () => {
@@ -157,9 +149,7 @@ describe('<MessageCommerce />', () => {
     const { getByTestId } = await renderMessageCommerce(message, {
       isMyMessage: () => false,
     });
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--left',
-    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).toContain('--left');
   });
 
   it('should set correct css class modifier if message has text', async () => {
@@ -167,25 +157,19 @@ describe('<MessageCommerce />', () => {
       text: 'Some text will go on this message',
     });
     const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--has-text',
-    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).toContain('--has-text');
   });
 
   it('should set correct css class modifier if message has not text', async () => {
     const message = generateAliceMessage({ text: undefined });
     const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--has-no-text',
-    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).toContain('--has-no-text');
   });
 
   it('should set correct css class modifier if message has attachments', async () => {
     const message = generateAliceMessage({ attachments: [pdfAttachment] });
     const { getByTestId } = await renderMessageCommerce(message);
-    expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-      '--has-attachment',
-    );
+    expect(getByTestId(messageCommerceWrapperTestId).className).toContain('--has-attachment');
   });
 
   it('should not set css class modifier if reactions is disabled in channel config', async () => {
@@ -193,14 +177,8 @@ describe('<MessageCommerce />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { getByTestId } = await renderMessageCommerce(
-      message,
-      {},
-      { reactions: false },
-    );
-    expect(getByTestId(messageCommerceWrapperTestId).className).not.toContain(
-      '--with-reactions',
-    );
+    const { getByTestId } = await renderMessageCommerce(message, {}, { reactions: false });
+    expect(getByTestId(messageCommerceWrapperTestId).className).not.toContain('--with-reactions');
   });
 
   it.each([['top'], ['bottom'], ['middle'], ['single']])(
@@ -210,9 +188,7 @@ describe('<MessageCommerce />', () => {
       const { getByTestId } = await renderMessageCommerce(message, {
         groupStyles: [modifier],
       });
-      expect(getByTestId(messageCommerceWrapperTestId).className).toContain(
-        modifier,
-      );
+      expect(getByTestId(messageCommerceWrapperTestId).className).toContain(modifier);
     },
   );
 
@@ -221,29 +197,26 @@ describe('<MessageCommerce />', () => {
     ['should display', 'single', { shouldDisplay: true }],
     ['should not display', 'top', { shouldDisplay: false }],
     ['should not display', 'middle', { shouldDisplay: false }],
-  ])(
-    '%s user avatar when group style is %s',
-    async (_, groupStyle, { shouldDisplay }) => {
-      const message = generateAliceMessage();
-      await renderMessageCommerce(message, {
-        groupStyles: [groupStyle],
-      });
-      if (shouldDisplay) {
-        expect(AvatarMock).toHaveBeenCalledWith(
-          {
-            image: alice.image,
-            name: alice.name,
-            onClick: expect.any(Function),
-            onMouseOver: expect.any(Function),
-            size: 32,
-          },
-          {},
-        );
-      } else {
-        expect(AvatarMock).not.toHaveBeenCalled();
-      }
-    },
-  );
+  ])('%s user avatar when group style is %s', async (_, groupStyle, { shouldDisplay }) => {
+    const message = generateAliceMessage();
+    await renderMessageCommerce(message, {
+      groupStyles: [groupStyle],
+    });
+    if (shouldDisplay) {
+      expect(AvatarMock).toHaveBeenCalledWith(
+        {
+          image: alice.image,
+          name: alice.name,
+          onClick: expect.any(Function),
+          onMouseOver: expect.any(Function),
+          size: 32,
+        },
+        {},
+      );
+    } else {
+      expect(AvatarMock).not.toHaveBeenCalled();
+    }
+  });
 
   it('should not show the reaction list if reactions disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
@@ -251,11 +224,7 @@ describe('<MessageCommerce />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const { queryByTestId } = await renderMessageCommerce(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageCommerce(message, {}, { reactions: false });
     expect(queryByTestId(reactionListTestId)).not.toBeInTheDocument();
   });
 
@@ -271,21 +240,13 @@ describe('<MessageCommerce />', () => {
 
   it('should render message actions when message has no text and channel has reactions enabled', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { getByTestId } = await renderMessageCommerce(
-      message,
-      {},
-      { reactions: true },
-    );
+    const { getByTestId } = await renderMessageCommerce(message, {}, { reactions: true });
     expect(getByTestId(messageCommerceActionsTestId)).toBeInTheDocument();
   });
 
   it('should not render message actions when message has no text and channel has reactions disabled', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { queryByTestId } = await renderMessageCommerce(
-      message,
-      {},
-      { reactions: false },
-    );
+    const { queryByTestId } = await renderMessageCommerce(message, {}, { reactions: false });
     expect(queryByTestId(messageCommerceActionsTestId)).not.toBeInTheDocument();
   });
 
@@ -315,18 +276,13 @@ describe('<MessageCommerce />', () => {
     ['type', 'ephemeral'],
     ['status', 'sending'],
     ['status', 'failed'],
-  ])(
-    'should not render message actions when message has %s %s',
-    async (key, value) => {
-      const message = generateAliceMessage({ [key]: value, text: undefined });
-      const { queryByTestId } = await renderMessageCommerce(message, {
-        reactions: true,
-      });
-      expect(
-        queryByTestId(messageCommerceActionsTestId),
-      ).not.toBeInTheDocument();
-    },
-  );
+  ])('should not render message actions when message has %s %s', async (key, value) => {
+    const message = generateAliceMessage({ [key]: value, text: undefined });
+    const { queryByTestId } = await renderMessageCommerce(message, {
+      reactions: true,
+    });
+    expect(queryByTestId(messageCommerceActionsTestId)).not.toBeInTheDocument();
+  });
 
   it('should render non-image attachment components when message no text', async () => {
     const message = generateAliceMessage({

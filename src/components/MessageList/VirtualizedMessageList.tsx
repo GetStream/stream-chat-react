@@ -21,10 +21,7 @@ import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
 } from '../EmptyStateIndicator/EmptyStateIndicator';
-import {
-  EventComponent,
-  EventComponentProps,
-} from '../EventComponent/EventComponent';
+import { EventComponent, EventComponentProps } from '../EventComponent/EventComponent';
 import {
   LoadingIndicator as DefaultLoadingIndicator,
   LoadingIndicatorProps,
@@ -92,21 +89,15 @@ export type VirtualizedMessageListProps<
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages */
-  Message?: React.ComponentType<
-    FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display deleted messages */
-  MessageDeleted?: React.ComponentType<
-    MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages */
-  MessageSystem?: React.ComponentType<
-    EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>
-  >;
+  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
   overscan?: number;
   /**
@@ -183,9 +174,7 @@ const VirtualizedMessageListWithContext = <
     if (typeof messages === 'undefined') {
       return undefined;
     }
-    return disableDateSeparator
-      ? messages
-      : insertDates(messages, lastRead, userID);
+    return disableDateSeparator ? messages : insertDates(messages, lastRead, userID);
   }, [messages, lastRead, disableDateSeparator, userID, messages?.length]);
 
   const { t } = useTranslationContext();
@@ -200,18 +189,11 @@ const VirtualizedMessageListWithContext = <
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(
-    processedMessages,
-    client.userID,
-  );
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
 
   const messageRenderer = useCallback(
-    (
-      messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
-      virtuosoIndex: number,
-    ) => {
-      const streamMessageIndex =
-        virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
+    (messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], virtuosoIndex: number) => {
+      const streamMessageIndex = virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
       // use custom renderer supplied by client if present and skip the rest
       if (customMessageRenderer) {
         return customMessageRenderer(messageList, streamMessageIndex);
@@ -245,12 +227,7 @@ const VirtualizedMessageListWithContext = <
         />
       );
     },
-    [
-      MessageDeleted,
-      customMessageRenderer,
-      shouldGroupByUser,
-      numItemsPrepended,
-    ],
+    [MessageDeleted, customMessageRenderer, shouldGroupByUser, numItemsPrepended],
   );
 
   const virtuosoComponents = useMemo(() => {
@@ -307,9 +284,7 @@ const VirtualizedMessageListWithContext = <
           return isAtBottom ? stickToBottomScrollBehavior : false;
         }}
         initialTopMostItemIndex={
-          processedMessages && processedMessages.length > 0
-            ? processedMessages.length - 1
-            : 0
+          processedMessages && processedMessages.length > 0 ? processedMessages.length - 1 : 0
         }
         itemContent={(i) => messageRenderer(processedMessages, i)}
         overscan={overscan}
@@ -321,9 +296,7 @@ const VirtualizedMessageListWithContext = <
         }}
         style={{ overflowX: 'hidden' }}
         totalCount={processedMessages.length}
-        {...(scrollSeekPlaceHolder
-          ? { scrollSeek: scrollSeekPlaceHolder }
-          : {})}
+        {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
       />
 
       <div className='str-chat__list-notifications'>

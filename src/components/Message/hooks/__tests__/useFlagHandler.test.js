@@ -6,10 +6,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from 'mock-builders';
-import {
-  missingUseFlagHandlerParameterWarning,
-  useFlagHandler,
-} from '../useFlagHandler';
+import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 import { ChannelContext, ChatContext } from '../../../../context';
 
 const alice = generateUser({ name: 'alice' });
@@ -38,10 +35,7 @@ async function renderUseHandleFlagHook(
       </ChannelContext.Provider>
     </ChatContext.Provider>
   );
-  const { result } = renderHook(
-    () => useFlagHandler(message, notificationOpts),
-    { wrapper },
-  );
+  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), { wrapper });
   return result.current;
 }
 describe('useHandleFlag custom hook', () => {
@@ -52,14 +46,10 @@ describe('useHandleFlag custom hook', () => {
   });
 
   it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = jest
-      .spyOn(console, 'warn')
-      .mockImplementationOnce(() => null);
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleFlag = await renderUseHandleFlagHook(undefined);
     await handleFlag(mouseEventMock);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      missingUseFlagHandlerParameterWarning,
-    );
+    expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
   });
 
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
@@ -116,9 +106,6 @@ describe('useHandleFlag custom hook', () => {
     });
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(notify).toHaveBeenCalledWith(
-      defaultFlagMessageFailedNotification,
-      'error',
-    );
+    expect(notify).toHaveBeenCalledWith(defaultFlagMessageFailedNotification, 'error');
   });
 });

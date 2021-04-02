@@ -13,9 +13,7 @@ describe('SafeAnchor', () => {
       .mockImplementation(() => mockSanitizedUrl);
     const href = 'something';
     const anchorText = 'something else';
-    const { getByText } = render(
-      <SafeAnchor href={href}>{anchorText}</SafeAnchor>,
-    );
+    const { getByText } = render(<SafeAnchor href={href}>{anchorText}</SafeAnchor>);
 
     expect(sanitizeUrlSpy).toHaveBeenCalledWith(href);
     expect(getByText(anchorText).href).toBe(mockSanitizedUrl);
