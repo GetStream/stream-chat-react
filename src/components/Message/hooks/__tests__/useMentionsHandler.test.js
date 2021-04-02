@@ -1,8 +1,10 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { generateMessage, generateUser } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+
 import { useMentionsHandler, useMentionsUIHandler } from '../useMentionsHandler';
+
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { generateMessage, generateUser } from '../../../../mock-builders';
 
 const onMentionsClickMock = jest.fn();
 const onMentionsHoverMock = jest.fn();
@@ -18,14 +20,9 @@ function generateHookHandler(hook) {
     onMentionsHover = onMentionsHoverMock,
   ) => {
     const wrapper = ({ children }) => (
-      <ChannelContext.Provider
-        value={{
-          onMentionsClick,
-          onMentionsHover,
-        }}
-      >
+      <ChannelActionProvider value={{ onMentionsClick, onMentionsHover }}>
         {children}
-      </ChannelContext.Provider>
+      </ChannelActionProvider>
     );
     const { result } = renderHook(() => hook(message, hookOptions), {
       wrapper,

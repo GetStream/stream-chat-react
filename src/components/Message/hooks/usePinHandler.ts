@@ -69,7 +69,7 @@ export const usePinHandler = <
   const { getErrorNotification, notify } = notifications;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const canPin = () => {

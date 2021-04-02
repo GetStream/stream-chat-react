@@ -23,7 +23,7 @@ export const useUserRole = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(); // TODO - fix breaking tests that result from pulling client from ChatContext
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const isMyMessage = !!message?.user && !!client?.user && client.user.id === message.user.id;
 

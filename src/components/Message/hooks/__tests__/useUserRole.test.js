@@ -1,35 +1,41 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { useUserRole } from '../useUserRole';
+
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext } from '../../../../context';
-import { useUserRole } from '../useUserRole';
+} from '../../../../mock-builders';
 
 const getConfig = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUserRoleHook(message = generateMessage(), channelProps, channelContextValue) {
+async function renderUserRoleHook(
+  message = generateMessage(),
+  channelProps,
+  channelContextValue,
+  clientContextValue,
+) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig,
     ...channelProps,
   });
+
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        ...channelContextValue,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatProvider value={{ client, ...clientContextValue }}>
+      <ChannelStateProvider value={{ channel, ...channelContextValue }}>
+        {children}
+      </ChannelStateProvider>
+    </ChatProvider>
   );
+
   const { result } = renderHook(() => useUserRole(message), { wrapper });
   return result.current;
 }
@@ -55,7 +61,7 @@ describe('useUserRole custom hook', () => {
     const message = generateMessage();
     const adminUser = generateUser({ role });
     const clientMock = await getTestClientWithUser(adminUser);
-    const { isAdmin } = await renderUserRoleHook(message, {}, { client: clientMock });
+    const { isAdmin } = await renderUserRoleHook(message, {}, {}, { client: clientMock });
     expect(isAdmin).toBe(expected);
   });
 

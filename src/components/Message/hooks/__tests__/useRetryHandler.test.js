@@ -1,24 +1,22 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { generateMessage } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+
 import { useRetryHandler } from '../useRetryHandler';
+
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { generateMessage } from '../../../../mock-builders';
 
 const retrySendMessage = jest.fn();
 
 function renderUseRetryHandlerHook(customRetrySendMessage) {
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        retrySendMessage,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChannelActionProvider value={{ retrySendMessage }}>{children}</ChannelActionProvider>
   );
+
   const { result } = renderHook(() => useRetryHandler(customRetrySendMessage), {
     wrapper,
   });
+
   return result.current;
 }
 

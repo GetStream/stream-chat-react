@@ -1,8 +1,10 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { generateMessage } from 'mock-builders';
-import { ChannelContext } from '../../../../context';
+
 import { useOpenThreadHandler } from '../useOpenThreadHandler';
+
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { generateMessage } from '../../../../mock-builders';
 
 const openThreadMock = jest.fn();
 const mouseEventMock = {
@@ -11,17 +13,11 @@ const mouseEventMock = {
 
 function renderUseOpenThreadHandlerHook(message = generateMessage(), openThread = openThreadMock) {
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        openThread,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChannelActionProvider value={{ openThread }}>{children}</ChannelActionProvider>
   );
-  const { result } = renderHook(() => useOpenThreadHandler(message), {
-    wrapper,
-  });
+
+  const { result } = renderHook(() => useOpenThreadHandler(message), { wrapper });
+
   return result.current;
 }
 

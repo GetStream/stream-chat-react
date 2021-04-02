@@ -1,13 +1,16 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
+
+import { ChatProvider } from '../../../../context/ChatContext';
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
-import { ChannelContext, ChatContext } from '../../../../context';
+} from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const flagMessage = jest.fn();
@@ -24,16 +27,16 @@ async function renderUseHandleFlagHook(
   client.flagMessage = flagMessage;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider
         value={{
           channel,
           ...channelContextValue,
         }}
       >
         {children}
-      </ChannelContext.Provider>
-    </ChatContext.Provider>
+      </ChannelStateProvider>
+    </ChatProvider>
   );
   const { result } = renderHook(() => useFlagHandler(message, notificationOpts), { wrapper });
   return result.current;

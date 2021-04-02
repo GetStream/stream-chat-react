@@ -1,13 +1,16 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
+
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext, ChatContext } from '../../../../context';
-import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
+} from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -26,18 +29,20 @@ async function renderUseHandleMuteHook(
   client.muteUser = muteUser;
   client.unmuteUser = unmuteUser;
   const channel = generateChannel();
+
   const wrapper = ({ children }) => (
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider
         value={{
           channel,
           ...channelContextValue,
         }}
       >
         {children}
-      </ChannelContext.Provider>
-    </ChatContext.Provider>
+      </ChannelStateProvider>
+    </ChatProvider>
   );
+
   const { result } = renderHook(() => useMuteHandler(message, notificationOpts), { wrapper });
   return result.current;
 }
