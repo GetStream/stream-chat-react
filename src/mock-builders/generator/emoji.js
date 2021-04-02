@@ -4,12 +4,15 @@ import EmojiIndex from 'emoji-mart/dist-modern/utils/emoji-index/nimble-emoji-in
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from '../../components/Channel/emojiData';
 import emojiData from '../../stream-emoji.json';
 
-export const emojiMockConfig = {
+export const emojiDataMock = {
   commonEmoji,
   defaultMinimalEmojis,
-  Emoji,
   emojiData,
+  emojiSetDef,
+};
+
+export const emojiComponentMock = {
+  Emoji,
   EmojiIndex,
   EmojiPicker,
-  emojiSetDef,
 };
