@@ -33,6 +33,7 @@ import {
   MessageDeletedProps,
 } from '../Message';
 
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -333,6 +334,7 @@ export function VirtualizedMessageList<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(props: Partial<VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>>) {
+  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel, hasMore, loadingMore, messages } = useChannelStateContext<
     At,
     Ch,
@@ -345,7 +347,6 @@ export function VirtualizedMessageList<
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
-    // @ts-expect-error TODO: check if props need to be Partial
     <VirtualizedMessageListWithContext
       channel={channel}
       client={client}
