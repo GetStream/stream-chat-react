@@ -21,8 +21,8 @@ export type ActionHandlerReturnType = (
   event?: BaseSyntheticEvent,
 ) => Promise<void>;
 
-export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.
-      Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
+export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments. 
+Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export function useActionHandler<
   At extends DefaultAttachmentType = DefaultAttachmentType,

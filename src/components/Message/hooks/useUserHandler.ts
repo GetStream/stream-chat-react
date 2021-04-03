@@ -3,7 +3,7 @@ import type { User } from 'stream-chat';
 
 import type { MouseEventHandler } from '../types';
 
-import type { StreamMessage } from '../../../context/ChannelContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

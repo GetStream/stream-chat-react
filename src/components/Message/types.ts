@@ -20,7 +20,8 @@ import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
-import type { RetrySendMessage, StreamMessage } from '../../context/ChannelContext';
+import type { RetrySendMessage } from '../../context/ChannelActionContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { RenderTextOptions } from '../../utils';
 
 import type {
@@ -61,7 +62,7 @@ export type MessageProps<
   addNotification?: (notificationText: string, type: 'success' | 'error') => void;
   /**
    * Attachment UI component to display attachment in individual message.
-   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
+   * Available from [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
    * */
   Attachment?: React.ComponentType<AttachmentProps<At>>;
   /**
@@ -106,11 +107,11 @@ export type MessageProps<
   initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   /**
    * Message UI component to display a Message in MessageList.
-   * Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext)
+   * Available from [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
    * */
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /**
@@ -120,23 +121,23 @@ export type MessageProps<
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   mutes?: Mute<Us>[];
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onMentionsClick?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onMentionsHover?: (
     event: React.MouseEvent<HTMLElement>,
     mentioned_users: UserResponse<Us>[],
   ) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onUserClick?: UserEventHandler<Us>;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onUserHover?: UserEventHandler<Us>;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,
@@ -145,15 +146,15 @@ export type MessageProps<
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
-  /** @see See [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   /** Watchers on the currently active Channel */
   watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];

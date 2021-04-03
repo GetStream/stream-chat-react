@@ -6,7 +6,7 @@ import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-cha
 import type { PinPermissions } from './hooks';
 import type { MessageProps, MessageUIComponentProps } from './types';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

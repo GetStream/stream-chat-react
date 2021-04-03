@@ -1,10 +1,13 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { generateMessage } from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
-import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
+
 import { MessageActions } from '../MessageActions';
+import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import { generateMessage } from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -26,13 +29,14 @@ const defaultProps = {
   mutes: [],
   setEditingState: () => {},
 };
+
 function renderMessageActions(customProps, renderer = render) {
   return renderer(
-    <ChannelContext.Provider value={{}}>
-      <TranslationContext.Provider value={{ t: (key) => key }}>
+    <ChannelStateProvider value={{}}>
+      <TranslationProvider value={{ t: (key) => key }}>
         <MessageActions {...defaultProps} {...customProps} />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+      </TranslationProvider>
+    </ChannelStateProvider>,
   );
 }
 

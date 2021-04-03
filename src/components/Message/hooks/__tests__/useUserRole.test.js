@@ -19,7 +19,7 @@ const bob = generateUser({ name: 'bob' });
 async function renderUserRoleHook(
   message = generateMessage(),
   channelProps,
-  channelContextValue,
+  channelStateContextValue,
   clientContextValue,
 ) {
   const client = await getTestClientWithUser(alice);
@@ -30,7 +30,7 @@ async function renderUserRoleHook(
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client, ...clientContextValue }}>
-      <ChannelStateProvider value={{ channel, ...channelContextValue }}>
+      <ChannelStateProvider value={{ channel, ...channelStateContextValue }}>
         {children}
       </ChannelStateProvider>
     </ChatProvider>

@@ -10,7 +10,7 @@ import type { Channel, Event } from 'stream-chat';
 
 import type { AvatarProps } from '../Avatar/Avatar';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

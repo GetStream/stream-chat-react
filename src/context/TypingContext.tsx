@@ -76,9 +76,9 @@ export const withTypingContext = <
   const WithTypingContextComponent = (
     props: Omit<P, keyof TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {
-    const channelContext = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const typingContext = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    return <Component {...(props as P)} {...channelContext} />;
+    return <Component {...(props as P)} {...typingContext} />;
   };
 
   WithTypingContextComponent.displayName = (

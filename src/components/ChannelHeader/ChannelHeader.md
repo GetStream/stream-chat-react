@@ -39,10 +39,10 @@ const data = require('../../docs/data');
 ```
 
 You can put any custom UI component on top of MessageList to behave as header.
-If you need access to numerous properties defined in ChannelContext or ChatContext, you can simply use wrapper functions [`withChannelContext`](#section-withchannelcontext) or [`withChatContext`](#section-withchatcontext) (which act as Context provider) around your custom component. Example below:
+If you need access to any properties defined in our React contexts, you can simply use HOC wrapper functions like [`withChannelStateContext`](#section-withchannelstatecontext) (which act as Context provider) around your custom component. Example below:
 
 ```js static
-const CustomChannelHeader = withChannelContext(
+const CustomChannelHeader = withChannelStateContext(
   class CustomChannelHeader extends React.PureComponent {
     render() {
       return (

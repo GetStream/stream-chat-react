@@ -174,9 +174,9 @@ export const withChannelStateContext = <
   const WithChannelStateContextComponent = (
     props: Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {
-    const channelContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    return <Component {...(props as P)} {...channelContext} />;
+    return <Component {...(props as P)} {...channelStateContext} />;
   };
 
   WithChannelStateContextComponent.displayName = (

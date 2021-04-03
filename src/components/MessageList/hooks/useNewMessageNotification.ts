@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { StreamMessage } from '../../../context/ChannelContext';
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

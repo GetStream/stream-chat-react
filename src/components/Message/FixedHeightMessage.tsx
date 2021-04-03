@@ -15,7 +15,7 @@ import { renderText } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

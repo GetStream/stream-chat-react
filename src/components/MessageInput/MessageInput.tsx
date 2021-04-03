@@ -14,7 +14,7 @@ import type {
   TriggerSettings,
 } from '../ChatAutoComplete/ChatAutoComplete';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   CustomTrigger,

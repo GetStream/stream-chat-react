@@ -9,9 +9,9 @@ Accepts the [MessageInputProps](https://getstream.github.io/stream-chat-react/#m
 |  `emojiPickerIsOpen` | boolean | Part of MessageInputState, whether the message input emoji picker is opened or 
 |  `emojiPickerRef` | object | A reference to the DOM element containing the emoji picker when it is opened.
 |  `fileOrder` | array | Part of MessageInputState, an array containing the keys of the non-image attachments attached to the message input.
-| `fileUploads` | array | Part of MessageInputState, an array containing the attachment objects of the attachments attached to the message input
-|  `getCommands` | func | Handler to get commands from the ChannelContext, returns an array of commands.
-|  `getUsers` | func | Handler to get the users from the ChannelContext.
+|  `fileUploads` | array | Part of MessageInputState, an array containing the attachment objects of the attachments attached to the message input
+|  `getCommands` | func | Handler to get commands from the currently active `channel`, returns an array of commands.
+|  `getUsers` | func | Handler to get the users from the currently active `channel` state.
 |  `handleChange` | func | Handles the message input change event, receiving it as its argument.
 |  `handleEmojiKeyDown` | func | Handles the input handle keydown event, receiving KeyboardEventHandler as argument.
 |  `handleSubmit` | func | Handles the message input form submit event, receiving it as its argument.

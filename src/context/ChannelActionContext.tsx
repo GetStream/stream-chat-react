@@ -146,9 +146,9 @@ export const withChannelActionContext = <
   const WithChannelActionContextComponent = (
     props: Omit<P, keyof ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {
-    const channelContext = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const channelActionContext = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    return <Component {...(props as P)} {...channelContext} />;
+    return <Component {...(props as P)} {...channelActionContext} />;
   };
 
   WithChannelActionContextComponent.displayName = (

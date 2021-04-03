@@ -21,7 +21,7 @@ const mouseEventMock = {
 async function renderUseHandleFlagHook(
   message = generateMessage(),
   notificationOpts,
-  channelContextValue,
+  channelStateContextValue,
 ) {
   const client = await getTestClientWithUser(alice);
   client.flagMessage = flagMessage;
@@ -31,7 +31,7 @@ async function renderUseHandleFlagHook(
       <ChannelStateProvider
         value={{
           channel,
-          ...channelContextValue,
+          ...channelStateContextValue,
         }}
       >
         {children}

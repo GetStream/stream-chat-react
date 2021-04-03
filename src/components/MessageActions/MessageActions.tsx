@@ -15,7 +15,7 @@ import { useChatContext } from '../../context/ChatContext';
 
 import type { MessageUIComponentProps } from '../Message/types';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

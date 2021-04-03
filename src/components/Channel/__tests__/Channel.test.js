@@ -30,10 +30,10 @@ jest.mock('../../Loading', () => ({
 let chatClient;
 let channel;
 
-// This component is used for performing effects in a component that consumes ChannelContext,
+// This component is used for performing effects in a component that consumes the contexts from Channel,
 // i.e. making use of the callbacks & values provided by the Channel component.
 // the effect is called every time channelContext changes
-const CallbackEffectWithChannelContext = ({ callback }) => {
+const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelStateContext = useChannelStateContext();
   const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
@@ -66,13 +66,12 @@ const renderComponent = (props = {}, callback = () => {}) =>
       <ActiveChannelSetter activeChannel={channel} />
       <Channel {...props}>
         {props.children}
-        <CallbackEffectWithChannelContext callback={callback} />
+        <CallbackEffectWithChannelContexts callback={callback} />
       </Channel>
     </Chat>,
   );
 
 describe('Channel', () => {
-  // A simple component that consumes ChannelContext and renders text for non-failed messages
   const MockMessageList = () => {
     const { messages: channelMessages } = useChannelStateContext();
 
@@ -214,7 +213,7 @@ describe('Channel', () => {
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
   });
 
-  describe('Children that consume ChannelContext', () => {
+  describe('Children that consume the contexts set in Channel', () => {
     it('should expose the emoji config', async () => {
       let context;
       const emojiData = {
@@ -508,7 +507,7 @@ describe('Channel', () => {
         );
       });
 
-      it('should eventually pass the result of the sendMessage API as part of ChannelContext', async () => {
+      it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
         const sentMessage = { text: 'message' };
         const messageResponse = { text: 'different message' };
         let hasSent = false;

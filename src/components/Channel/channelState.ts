@@ -1,7 +1,7 @@
 import type { Reducer } from 'react';
 import type { Channel, MessageResponse, ChannelState as StreamChannelState } from 'stream-chat';
 
-import type { ChannelState, StreamMessage } from '../../context/ChannelContext';
+import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

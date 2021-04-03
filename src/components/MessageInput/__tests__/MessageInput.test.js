@@ -1,13 +1,17 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
 import { MessageInput } from '../MessageInput';
+import { MessageInputFlat } from '../MessageInputFlat';
 import { MessageInputLarge } from '../MessageInputLarge';
 import { MessageInputSmall } from '../MessageInputSmall';
-import { MessageInputFlat } from '../MessageInputFlat';
 import { EditMessageForm } from '../EditMessageForm';
+
 import { Chat } from '../../Chat/Chat';
 import { Channel } from '../../Channel/Channel';
+
+import { useChatContext } from '../../../context/ChatContext';
 import {
   generateChannel,
   generateMember,
@@ -17,7 +21,6 @@ import {
   getTestClientWithUser,
   useMockedApis,
 } from '../../../mock-builders';
-import { ChatContext } from '../../../context/ChatContext';
 
 // mock image loader fn used by ImagePreview
 jest.mock('blueimp-load-image/js/load-image-fetch', () =>
@@ -31,7 +34,7 @@ const submitMock = jest.fn();
 const editMock = jest.fn();
 
 const ActiveChannelSetter = ({ activeChannel }) => {
-  const { setActiveChannel } = useContext(ChatContext);
+  const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
   });
@@ -45,9 +48,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
 ].forEach(({ InputComponent, name: componentName }) => {
   const renderComponent = (props = {}, channelProps = {}) => {
-    // MessageInput components rely on ChannelContext.
-    // ChannelContext is created by Channel component,
-    // Which relies on ChatContext, created by Chat component.
     const renderResult = render(
       <Chat client={chatClient}>
         <ActiveChannelSetter activeChannel={channel} />

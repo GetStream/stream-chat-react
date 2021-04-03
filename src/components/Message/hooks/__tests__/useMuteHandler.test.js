@@ -23,7 +23,7 @@ const mouseEventMock = {
 async function renderUseHandleMuteHook(
   message = generateMessage(),
   notificationOpts,
-  channelContextValue,
+  channelStateContextValue,
 ) {
   const client = await getTestClientWithUser(alice);
   client.muteUser = muteUser;
@@ -35,7 +35,7 @@ async function renderUseHandleMuteHook(
       <ChannelStateProvider
         value={{
           channel,
-          ...channelContextValue,
+          ...channelStateContextValue,
         }}
       >
         {children}

@@ -9,7 +9,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 export const insertDates = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

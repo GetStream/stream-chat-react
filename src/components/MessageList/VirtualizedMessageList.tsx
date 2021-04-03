@@ -75,12 +75,12 @@ export type VirtualizedMessageListProps<
   ): React.ReactElement;
   /**
    * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx)
    */
   DateSeparator: React.ComponentType<DateSeparatorProps>;
-  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   hasMore: boolean;
-  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   loadingMore: boolean;
   /** Disables the injection of date separator components, defaults to `true` */
   disableDateSeparator?: boolean;
@@ -88,7 +88,7 @@ export type VirtualizedMessageListProps<
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** Available from [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -96,7 +96,7 @@ export type VirtualizedMessageListProps<
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
-  /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages */
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -320,7 +320,7 @@ const VirtualizedMessageListWithContext = <
 
 /**
  * The VirtualizedMessageList component renders a list of Messages in a virtualized list.
- * It is a consumer of [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext).
+ * It is a consumer of the React contexts set in [Channel](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/Channel.tsx).
  *
  * **Note**: It works well when there are thousands of Messages in a Channel, it has a shortcoming though - the Message UI should have a fixed height.
  * @example ./VirtualizedMessageList.md

@@ -86,9 +86,9 @@ export const withComponentContext = <
   const WithComponentContextComponent = (
     props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => {
-    const channelContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-    return <Component {...(props as P)} {...channelContext} />;
+    return <Component {...(props as P)} {...componentContext} />;
   };
 
   WithComponentContextComponent.displayName = (
