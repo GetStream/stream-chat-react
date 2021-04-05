@@ -7,6 +7,8 @@ import { insertDates } from './utils';
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { Message } from '../Message';
 
+import { isDate } from '../../context/TranslationContext';
+
 import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
@@ -70,6 +72,8 @@ export type MessageListInnerProps<
   headerPosition?: number;
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
+  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to `false` */
+  hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
   /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
@@ -277,6 +281,7 @@ const UnMemoizedMessageListInner = <
     HeaderComponent,
     headerPosition,
     hideDeletedMessages = false,
+    hideNewMessageSeparator = false,
     internalInfiniteScrollProps,
     internalMessageProps,
     messages,
@@ -293,7 +298,14 @@ const UnMemoizedMessageListInner = <
   const enrichMessages = () => {
     const messageWithDates = threadList
       ? messages
-      : insertDates(messages, lastRead, client.userID, hideDeletedMessages, disableDateSeparator);
+      : insertDates(
+          messages,
+          lastRead,
+          client.userID,
+          hideDeletedMessages,
+          disableDateSeparator,
+          hideNewMessageSeparator,
+        );
 
     if (HeaderComponent) {
       return insertIntro(messageWithDates, headerPosition);
@@ -335,10 +347,10 @@ const UnMemoizedMessageListInner = <
   const elements = useMemo(
     () =>
       enrichedMessages.map((message) => {
-        if (message.type === 'message.date') {
+        if (message.type === 'message.date' && message.date && isDate(message.date)) {
           return (
-            <li key={`${(message.date as Date).toISOString()}-i`}>
-              <DateSeparator date={message.date as Date} unread={!!message.unread} />
+            <li key={`${message.date.toISOString()}-i`}>
+              <DateSeparator date={message.date} unread={message.unread} />
             </li>
           );
         }

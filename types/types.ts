@@ -25,6 +25,7 @@ export type DefaultCommandType = LiteralStringForUnion;
 export type DefaultEventType = UnknownType;
 
 export type DefaultMessageType = UnknownType & {
+  date?: string | Date;
   errorStatusCode?: number;
   event?: Event<
     DefaultAttachmentType,
@@ -35,6 +36,7 @@ export type DefaultMessageType = UnknownType & {
     DefaultReactionType,
     DefaultUserType
   >;
+  unread?: boolean;
 };
 
 export type DefaultReactionType = UnknownType;

@@ -297,6 +297,7 @@ class MessageListWithContext<
             HeaderComponent={this.props.HeaderComponent}
             headerPosition={this.props.headerPosition}
             hideDeletedMessages={this.props.hideDeletedMessages}
+            hideNewMessageSeparator={this.props.hideNewMessageSeparator}
             internalInfiniteScrollProps={{
               hasMore: this.props.hasMore,
               isLoading: this.props.loadingMore,
@@ -378,6 +379,8 @@ type PropsDrilledToMessage =
   | 'getPinMessageErrorNotification'
   | 'messageActions'
   | 'mutes'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
   | 'onUserClick'
   | 'onUserHover'
   | 'pinPermissions'
@@ -390,6 +393,7 @@ type PropsDrilledToMessageListInner =
   | 'HeaderComponent'
   | 'headerPosition'
   | 'hideDeletedMessages'
+  | 'hideNewMessageSeparator'
   | 'internalInfiniteScrollProps'
   | 'messages'
   | 'MessageSystem'
