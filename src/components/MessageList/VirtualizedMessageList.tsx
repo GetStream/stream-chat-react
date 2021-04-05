@@ -217,7 +217,7 @@ const VirtualizedMessageListWithContext = <
       }
 
       return (
-        <Message<At, Ch, Co, Ev, Me, Re, Us>
+        <Message
           groupedByUser={
             shouldGroupByUser &&
             streamMessageIndex > 0 &&

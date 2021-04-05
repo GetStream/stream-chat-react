@@ -20,10 +20,9 @@ export const useMentionsHandlers = <Us extends DefaultUserType<Us> = DefaultUser
       }
 
       const target = event.target;
-      const tagName = target.tagName.toLowerCase();
       const textContent = target.innerHTML.replace('*', '');
 
-      if (tagName === 'strong' && textContent[0] === '@') {
+      if (textContent[0] === '@') {
         const userName = textContent.replace('@', '');
         const user = mentioned_users.find(({ id, name }) => name === userName || id === userName);
 

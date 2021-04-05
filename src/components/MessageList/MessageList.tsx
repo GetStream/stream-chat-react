@@ -372,6 +372,8 @@ type PropsDrilledToMessage =
   | 'getPinMessageErrorNotification'
   | 'messageActions'
   | 'mutes'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
   | 'onUserClick'
   | 'onUserHover'
   | 'pinPermissions'
