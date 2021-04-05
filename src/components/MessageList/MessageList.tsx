@@ -35,11 +35,14 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
 import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
 import type { MessageProps } from '../Message/types';
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
+import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
+
+import type { StreamMessage } from '../../context/ChannelStateContext';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -49,7 +52,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
-import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
 export type MessageListWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -94,7 +96,7 @@ const MessageListNotifications = ({
   </div>
 );
 
-const useInternalInifinteScrollProps = (
+const useInternalInfiniteScrollProps = (
   props: Pick<
     MessageListWithContextProps,
     | 'hasMore'
@@ -138,6 +140,7 @@ const MessageListWithContext = <
     Avatar = DefaultAvatar,
     disableDateSeparator = false,
     hideDeletedMessages = false,
+    hideNewMessageSeparator = false,
     DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     Message = MessageSimple,
@@ -164,8 +167,8 @@ const MessageListWithContext = <
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
-    currentUserId: props.client.userID,
-    messages: props.messages,
+    currentUserId: client.userID,
+    messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
   });
 
@@ -176,6 +179,7 @@ const MessageListWithContext = <
     HeaderComponent,
     headerPosition,
     hideDeletedMessages,
+    hideNewMessageSeparator,
     messages,
     noGroupByUser,
     threadList,
@@ -191,7 +195,7 @@ const MessageListWithContext = <
       addNotification: props.addNotification,
       Attachment,
       Avatar,
-      channel: props.channel,
+      channel,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
@@ -221,7 +225,7 @@ const MessageListWithContext = <
     threadList,
   });
 
-  const finalInternalInfiniteScrollProps = useInternalInifinteScrollProps(props);
+  const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
   return (
     <>
@@ -270,6 +274,8 @@ type PropsDrilledToMessage =
   | 'getPinMessageErrorNotification'
   | 'messageActions'
   | 'mutes'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
   | 'onUserClick'
   | 'onUserHover'
   | 'pinPermissions'
@@ -286,70 +292,55 @@ export type MessageListProps<
 > = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
   /** The currently active channel */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-
   /**
    * Date separator UI component to render
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
    */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
-
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
-
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
-
   /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ComponentType;
-
+  /** Position to render HeaderComponent */
   headerPosition?: number;
-
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
-
+  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
+  hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
-
   /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
   internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message'>;
-
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
-
   /** Function called when more messages are to be loaded */
   loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
-
   /** The limit to use when paginating messages. */
   messageLimit?: number;
-
   /**
    * The messages to render in the list
    * Defaults to the messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
    */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-
   /**
    * Custom UI component to display system messages
    * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
    */
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
-
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
-
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
   /**
    * The pixel threshold to determine whether or not the user is scrolled up in the list.
    * @default 200px
    */
   scrolledUpThreshold?: number;
-
   /** Set to `true` to indicate that the list is a thread  */
   threadList?: boolean;
 

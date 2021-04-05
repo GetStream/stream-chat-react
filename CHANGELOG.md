@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [5.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.2) 2021-04-05
+
+### Feature
+
+- Provide option to hide `DateSeparator` component for new messages with the `hideNewMessageSeparator` prop on `MessageList` and `VirtualizedMessageList` components [#837](https://github.com/GetStream/stream-chat-react/pull/837)
+
+### Bug
+
+- Fix bad conditional in `useMentionsHandlers` custom hook [#836](https://github.com/GetStream/stream-chat-react/pull/836)
+
 ## [5.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.1) 2021-04-02
 
 ### Feature

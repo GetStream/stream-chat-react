@@ -1,4 +1,6 @@
 /* eslint-disable no-continue */
+import { isDate } from '../../context/TranslationContext';
+
 import type { UserResponse } from 'stream-chat';
 
 import type {
@@ -27,6 +29,7 @@ export const insertDates = <
   userID?: string,
   hideDeletedMessages?: boolean,
   disableDateSeparator?: boolean,
+  hideNewMessageSeparator?: boolean,
 ) => {
   let unread = false;
   let lastDateSeparator;
@@ -44,29 +47,31 @@ export const insertDates = <
       continue;
     }
 
-    //@ts-expect-error
-    const messageDate = message.created_at.toDateString();
+    const messageDate =
+      (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
     let prevMessageDate = messageDate;
+    const previousMessage = messages[i - 1];
 
-    if (i > 0 && !disableDateSeparator) {
-      //@ts-expect-error
-      prevMessageDate = messages[i - 1].created_at.toDateString();
+    if (
+      i > 0 &&
+      !disableDateSeparator &&
+      previousMessage.created_at &&
+      isDate(previousMessage.created_at)
+    ) {
+      prevMessageDate = previousMessage.created_at.toDateString();
     }
 
-    if (!unread) {
-      //@ts-expect-error
-      unread = lastRead && new Date(lastRead) < message.created_at;
+    if (!unread && !hideNewMessageSeparator) {
+      unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      //@ts-expect-error
-      if (!disableDateSeparator && unread && message.user.id !== userID) {
-        //@ts-expect-error
+      if (!disableDateSeparator && unread && message.user?.id !== userID) {
         newMessages.push({
           date: message.created_at,
           id: message.id,
           type: 'message.date',
           unread,
-        });
+        } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>);
       }
     }
 
@@ -82,12 +87,11 @@ export const insertDates = <
       lastDateSeparator = messageDate;
 
       newMessages.push(
-        //@ts-expect-error
         {
           date: message.created_at,
           id: message.id,
           type: 'message.date',
-        },
+        } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
         message,
       );
     } else {

@@ -5,4 +5,4 @@ export const useCallLoadMore = (loadMore: undefined | ((limit: number) => void),
     if (loadMore) {
       loadMore(limit);
     }
-  }, [loadMore, limit]);
+  }, [limit, loadMore]);

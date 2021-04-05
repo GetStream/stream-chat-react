@@ -1,14 +1,19 @@
 /* eslint-disable no-continue */
 import React, { useMemo } from 'react';
 
+import { useLastReadData } from './useLastReadData';
 import { getLastReceived, GroupStyle } from '../utils';
+
 import { Message } from '../../Message';
+
+import { isDate } from '../../../context/TranslationContext';
 
 import type { StreamChat, UserResponse } from 'stream-chat';
 
 import type { DateSeparatorProps } from '../../DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../../EventComponent/EventComponent';
 import type { MessageProps } from '../../Message/types';
+
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
@@ -20,7 +25,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../../types/types';
-import { useLastReadData } from './useLastReadData';
 
 export function useMessageListElements<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -62,10 +66,10 @@ export function useMessageListElements<
   return useMemo(
     () =>
       enrichedMessages.map((message) => {
-        if (message.type === 'message.date') {
+        if (message.type === 'message.date' && message.date && isDate(message.date)) {
           return (
-            <li key={`${(message.date as Date).toISOString()}-i`}>
-              <DateSeparator date={message.date as Date} unread={!!message.unread} />
+            <li key={`${message.date.toISOString()}-i`}>
+              <DateSeparator date={message.date} unread={message.unread} />
             </li>
           );
         }

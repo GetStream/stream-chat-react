@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 
+import { getReadStates } from '../utils';
+
 import type { UserResponse } from 'stream-chat';
+
 import type { StreamMessage } from '../../../context/ChannelStateContext';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -11,7 +15,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../../types/types';
-import { getReadStates } from '../utils';
 
 export const useLastReadData = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -32,5 +35,5 @@ export const useLastReadData = <
         messages.filter(({ user }) => user?.id === userID),
         read,
       ),
-    [userID, messages, read],
+    [messages, read, userID],
   );

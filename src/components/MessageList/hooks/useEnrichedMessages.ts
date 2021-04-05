@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 
+import { getGroupStyles, GroupStyle, insertDates, insertIntro } from '../utils';
+
 import type { Channel, StreamChat } from 'stream-chat';
+
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
@@ -12,7 +15,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../../types/types';
-import { getGroupStyles, GroupStyle, insertDates, insertIntro } from '../utils';
 
 export const useEnrichedMessages = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -27,6 +29,7 @@ export const useEnrichedMessages = <
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
+  hideNewMessageSeparator: boolean;
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   noGroupByUser: boolean;
   threadList: boolean;
@@ -40,6 +43,7 @@ export const useEnrichedMessages = <
     HeaderComponent,
     headerPosition,
     hideDeletedMessages,
+    hideNewMessageSeparator,
     messages,
     noGroupByUser,
     threadList,
@@ -48,7 +52,14 @@ export const useEnrichedMessages = <
 
   let messagesWithDates = threadList
     ? messages
-    : insertDates(messages, lastRead, client.userID, hideDeletedMessages, disableDateSeparator);
+    : insertDates(
+        messages,
+        lastRead,
+        client.userID,
+        hideDeletedMessages,
+        disableDateSeparator,
+        hideNewMessageSeparator,
+      );
 
   if (HeaderComponent) {
     messagesWithDates = insertIntro(messagesWithDates, headerPosition);
