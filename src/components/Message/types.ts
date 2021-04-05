@@ -15,7 +15,7 @@ import type { MessageActionsArray } from './utils';
 
 import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
-import type { GroupStyle } from '../MessageList/MessageListInner';
+import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';

@@ -52,90 +52,6 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type VirtualizedMessageListProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
-  /** The currently active channel */
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   *The client connection object for connecting to Stream.
-   * Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
-   */
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Custom render function, if passed, certain UI props are ignored */
-  customMessageRenderer(
-    messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
-    index: number,
-  ): React.ReactElement;
-  /**
-   * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx)
-   */
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  hasMore: boolean;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  loadingMore: boolean;
-  /** Disables the injection of date separator components, defaults to `true` */
-  disableDateSeparator?: boolean;
-  /** The UI Indicator to use when MessageList or ChannelList is empty */
-  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
-  /** Hides the MessageDeleted components from the list, defaults to `false` */
-  hideDeletedMessages?: boolean;
-  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
-  hideNewMessageSeparator?: boolean;
-  /** Component to render at the top of the MessageList while loading new messages */
-  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Available from [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  loadMore?: (messageLimit: number) => Promise<number>;
-  /** Custom UI component to display messages */
-  Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Custom UI component to display deleted messages */
-  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Set the limit to use when paginating messages */
-  messageLimit?: number;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /** Custom UI component to display system messages */
-  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
-  overscan?: number;
-  /**
-   * Performance improvement by showing placeholders if user scrolls fast through list.
-   * it can be used like this:
-   * ```
-   *  {
-   *    enter: (velocity) => Math.abs(velocity) > 120,
-   *    exit: (velocity) => Math.abs(velocity) < 40,
-   *    change: () => null,
-   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
-   *  }
-   *  ```
-   */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
-    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
-  };
-  /**
-   * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
-   */
-  shouldGroupByUser?: boolean;
-  /**
-   * The scrollTo Behavior when new messages appear. Use ``"smooth"``
-   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
-   * if you expect high throughput.
-   */
-  stickToBottomScrollBehavior?: 'smooth' | 'auto';
-  /** The UI Indicator to use when someone is typing, defaults to `null` */
-  TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
-};
-
 const PREPEND_OFFSET = 10 ** 7;
 
 const VirtualizedMessageListWithContext = <
@@ -338,6 +254,90 @@ const VirtualizedMessageListWithContext = <
       </div>
     </div>
   );
+};
+
+export type VirtualizedMessageListProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  /** The currently active channel */
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  /**
+   *The client connection object for connecting to Stream.
+   * Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
+   */
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Custom render function, if passed, certain UI props are ignored */
+  customMessageRenderer(
+    messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
+    index: number,
+  ): React.ReactElement;
+  /**
+   * Date separator UI component to render
+   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx)
+   */
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  hasMore: boolean;
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  loadingMore: boolean;
+  /** Disables the injection of date separator components, defaults to `true` */
+  disableDateSeparator?: boolean;
+  /** The UI Indicator to use when MessageList or ChannelList is empty */
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
+  /** Hides the MessageDeleted components from the list, defaults to `false` */
+  hideDeletedMessages?: boolean;
+  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
+  hideNewMessageSeparator?: boolean;
+  /** Component to render at the top of the MessageList while loading new messages */
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  /** Available from [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  loadMore?: (messageLimit: number) => Promise<number>;
+  /** Custom UI component to display messages */
+  Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** Custom UI component to display deleted messages */
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** Set the limit to use when paginating messages */
+  messageLimit?: number;
+  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  /** Custom UI component to display system messages */
+  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
+  overscan?: number;
+  /**
+   * Performance improvement by showing placeholders if user scrolls fast through list.
+   * it can be used like this:
+   * ```
+   *  {
+   *    enter: (velocity) => Math.abs(velocity) > 120,
+   *    exit: (velocity) => Math.abs(velocity) < 40,
+   *    change: () => null,
+   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
+   *  }
+   *  ```
+   */
+  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
+    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
+  };
+  /**
+   * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
+   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
+   */
+  shouldGroupByUser?: boolean;
+  /**
+   * The scrollTo Behavior when new messages appear. Use ``"smooth"``
+   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
+   * if you expect high throughput.
+   */
+  stickToBottomScrollBehavior?: 'smooth' | 'auto';
+  /** The UI Indicator to use when someone is typing, defaults to `null` */
+  TypingIndicator?: React.ComponentType<TypingIndicatorProps> | null;
 };
 
 /**
