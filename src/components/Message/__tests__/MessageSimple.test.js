@@ -68,6 +68,7 @@ async function renderMessageSimple(
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
             <MessageSimple
+              client={client}
               getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
               isMyMessage={() => true}
               message={message}

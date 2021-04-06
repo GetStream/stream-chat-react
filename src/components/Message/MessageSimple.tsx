@@ -27,7 +27,6 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
-import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -127,7 +126,7 @@ const MessageSimpleWithContext = <
           />
         </Modal>
       )}
-      {message && (
+      {
         <div
           className={`
 						${messageClasses}
@@ -209,7 +208,7 @@ const MessageSimpleWithContext = <
                 source={message.mml}
               />
             )}
-            {!threadList && message.reply_count !== 0 && (
+            {!threadList && !!message.reply_count && (
               <div className='str-chat__message-simple-reply-button'>
                 <MessageRepliesCountButton
                   onClick={handleOpenThread}
@@ -232,7 +231,7 @@ const MessageSimpleWithContext = <
             </div>
           </div>
         </div>
-      )}
+      }
     </>
   );
 };
@@ -245,25 +244,28 @@ const MessageSimpleStatus = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  Avatar = DefaultAvatar,
-  isMyMessage,
-  readBy,
-  message,
-  threadList,
-  lastReceivedId,
-}: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+>(
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    Avatar = DefaultAvatar,
+    client,
+    isMyMessage,
+    readBy,
+    message,
+    threadList,
+    lastReceivedId,
+  } = props;
+
   const { t } = useTranslationContext();
 
-  if (!isMyMessage() || message.type === 'error') {
+  if (!client || !isMyMessage() || message.type === 'error') {
     return null;
   }
 
-  const justReadByMe =
-    readBy && readBy.length === 1 && readBy[0] && client && readBy[0].id === client.user?.id;
+  const justReadByMe = readBy?.length === 1 && readBy[0].id === client.user?.id;
 
-  if (message && message.status === 'sending') {
+  if (message.status === 'sending') {
     return (
       <span className='str-chat__message-simple-status' data-testid='message-status-sending'>
         <Tooltip>{t('Sending...')}</Tooltip>
@@ -272,13 +274,12 @@ const MessageSimpleStatus = <
     );
   }
 
-  if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter(
-      (item) => !!item && !!client && item.id !== client.user?.id,
-    )[0];
+  if (readBy?.length && !threadList && !justReadByMe) {
+    const lastReadUser = readBy.filter((item) => item.id !== client.user?.id)[0];
+
     return (
       <span className='str-chat__message-simple-status' data-testid='message-status-read-by'>
-        <Tooltip>{readBy && getReadByTooltipText(readBy, t, client)}</Tooltip>
+        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
         {readBy.length > 2 && (
           <span
@@ -292,7 +293,7 @@ const MessageSimpleStatus = <
     );
   }
 
-  if (message && message.status === 'received' && message.id === lastReceivedId && !threadList) {
+  if (message.status === 'received' && message.id === lastReceivedId && !threadList) {
     return (
       <span className='str-chat__message-simple-status' data-testid='message-status-received'>
         <Tooltip>{t('Delivered')}</Tooltip>

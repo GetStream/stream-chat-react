@@ -91,14 +91,6 @@ const MessageWithContext = <
     channel,
     formatDate,
     groupStyles = [],
-    handleAction,
-    handleDelete,
-    handleFlag,
-    handleMute,
-    handleOpenThread,
-    handlePin,
-    handleReaction,
-    handleRetry,
     Message: MessageUIComponent = MessageSimple,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -151,7 +143,7 @@ const MessageWithContext = <
     messageActions,
   ]);
 
-  const actionsEnabled = message && message.type === 'regular' && message.status === 'received';
+  const actionsEnabled = message.type === 'regular' && message.status === 'received';
 
   return (
     <MessageUIComponent
@@ -163,15 +155,7 @@ const MessageWithContext = <
       formatDate={formatDate}
       getMessageActions={messageActionsHandler}
       groupStyles={groupStyles}
-      handleAction={handleAction}
-      handleDelete={handleDelete}
       handleEdit={setEdit}
-      handleFlag={handleFlag}
-      handleMute={handleMute}
-      handleOpenThread={handleOpenThread}
-      handlePin={handlePin}
-      handleReaction={handleReaction}
-      handleRetry={handleRetry}
       isMyMessage={() => isMyMessage}
       onMentionsClickMessage={onMentionsClickMessage}
       onMentionsHoverMessage={onMentionsHoverMessage}
