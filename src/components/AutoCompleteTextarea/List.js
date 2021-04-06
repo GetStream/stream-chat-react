@@ -10,6 +10,7 @@ const List = (props) => {
   const {
     className,
     component,
+    currentTrigger,
     dropdownScroll,
     getSelectedItem,
     getTextToReplace,
@@ -17,6 +18,7 @@ const List = (props) => {
     itemStyle,
     onSelect,
     style,
+    selectionEnd,
     SuggestionItem = Item,
     value: propValue,
     values,
@@ -123,7 +125,10 @@ const List = (props) => {
   const restructureItem = (item) => {
     const matched = item.name || item.id;
 
-    const editedPropValue = escapeRegExp(propValue.slice(1));
+    const textBeforeCursor = propValue.slice(0, selectionEnd);
+    const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
+    const editedPropValue = escapeRegExp(textBeforeCursor.slice(triggerIndex + 1));
+
     const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
     const itemNameParts = { match: editedPropValue, parts };
