@@ -296,6 +296,8 @@ export type MessageListProps<
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
+  /** Whether or not the list has more items to load */
+  hasMore?: boolean;
   /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ComponentType;
   /** Position to render HeaderComponent */
@@ -308,6 +310,8 @@ export type MessageListProps<
   internalInfiniteScrollProps?: InfiniteScrollProps;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  /** Whether or not the list is currently loading more items */
+  loadingMore?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
   /** The limit to use when paginating messages */

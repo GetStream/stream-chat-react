@@ -213,8 +213,6 @@ const ThreadInner = <
 
   if (!thread) return null;
 
-  const read = {};
-
   return (
     <div className={`str-chat__thread ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
@@ -235,7 +233,6 @@ const ThreadInner = <
           loadMore={loadMoreThread}
           Message={ThreadMessage}
           messages={threadMessages || []}
-          read={read}
           threadList
           {...additionalMessageListProps}
         />
