@@ -54,6 +54,22 @@ import type {
 
 const PREPEND_OFFSET = 10 ** 7;
 
+type VirtualizedMessageListWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  hasMore: boolean;
+  loadingMore: boolean;
+  loadMore: (messageLimit: number) => Promise<number>;
+};
+
 const VirtualizedMessageListWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -63,7 +79,7 @@ const VirtualizedMessageListWithContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: VirtualizedMessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     channel,
@@ -90,6 +106,8 @@ const VirtualizedMessageListWithContext = <
     stickToBottomScrollBehavior = 'smooth',
     TypingIndicator = null,
   } = props;
+
+  const { t } = useTranslationContext();
 
   const { userID } = client;
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
@@ -118,19 +136,17 @@ const VirtualizedMessageListWithContext = <
     userID,
   ]);
 
-  const { t } = useTranslationContext();
-
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const {
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(processedMessages, client.userID);
+  } = useNewMessageNotification(processedMessages, userID);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, userID);
 
   const messageRenderer = useCallback(
     (messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], virtuosoIndex: number) => {
@@ -238,7 +254,6 @@ const VirtualizedMessageListWithContext = <
         totalCount={processedMessages.length}
         {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
       />
-
       <div className='str-chat__list-notifications'>
         <MessageNotification
           onClick={() => {
@@ -265,27 +280,16 @@ export type VirtualizedMessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  /** The currently active channel */
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   *The client connection object for connecting to Stream.
-   * Available from [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
-   */
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** Custom render function, if passed, certain UI props are ignored */
-  customMessageRenderer(
+  customMessageRenderer?: (
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
-  ): React.ReactElement;
+  ) => React.ReactElement;
   /**
    * Date separator UI component to render
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx)
    */
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  hasMore: boolean;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  loadingMore: boolean;
+  DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Disables the injection of date separator components, defaults to `true` */
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when MessageList or ChannelList is empty */
@@ -296,15 +300,13 @@ export type VirtualizedMessageListProps<
   hideNewMessageSeparator?: boolean;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Available from [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  loadMore?: (messageLimit: number) => Promise<number>;
   /** Custom UI component to display messages */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display deleted messages */
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
-  /** Available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages */
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -331,7 +333,7 @@ export type VirtualizedMessageListProps<
    */
   shouldGroupByUser?: boolean;
   /**
-   * The scrollTo Behavior when new messages appear. Use ``"smooth"``
+   * The scrollTo Behavior when new messages appear. Use `"smooth"`
    * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
    * if you expect high throughput.
    */
@@ -355,9 +357,9 @@ export function VirtualizedMessageList<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(props: Partial<VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>>) {
+>(props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>) {
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel, hasMore, loadingMore, messages } = useChannelStateContext<
+  const { channel, hasMore, loadingMore, messages: contextMessages } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -367,6 +369,8 @@ export function VirtualizedMessageList<
     Us
   >();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const messages = props.messages || contextMessages;
 
   return (
     <VirtualizedMessageListWithContext
