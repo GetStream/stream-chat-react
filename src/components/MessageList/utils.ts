@@ -143,8 +143,9 @@ export const getReadStates = <
 
     let userLastReadMsgId;
     messages.forEach((msg) => {
-      //@ts-expect-error
-      if (msg.updated_at < readState.last_read) userLastReadMsgId = msg.id;
+      if (msg.updated_at && msg.updated_at < readState.last_read) {
+        userLastReadMsgId = msg.id;
+      }
     });
 
     if (userLastReadMsgId) {
@@ -184,23 +185,21 @@ export const insertIntro = <
   }
 
   // else loop over the messages
-  for (let i = 0, l = messages.length; i < l; i += 1) {
+  for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
+    const messageTime =
+      message.created_at && isDate(message.created_at) ? message.created_at.getTime() : null;
 
-    const messageTime = message.created_at
-      ? //@ts-expect-error
-        message.created_at.getTime()
-      : null;
+    const nextMessage = messages[i + 1];
     const nextMessageTime =
-      messages[i + 1] && messages[i + 1].created_at
-        ? //@ts-expect-error
-          messages[i + 1].created_at.getTime()
+      nextMessage.created_at && isDate(nextMessage.created_at)
+        ? nextMessage.created_at.getTime()
         : null;
 
     // header position is smaller than message time so comes after;
-    if (messageTime < headerPosition) {
+    if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
-      if (nextMessageTime < headerPosition) {
+      if (nextMessageTime && nextMessageTime < headerPosition) {
         if (messages[i + 1] && messages[i + 1].type === 'message.date') continue;
         if (!nextMessageTime) {
           newMessages.push(intro);

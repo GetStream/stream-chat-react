@@ -33,7 +33,7 @@ import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
-import type { Channel, StreamChat, UserResponse } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
@@ -53,7 +53,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type MessageListWithContextProps<
+type MessageListWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -66,7 +66,6 @@ export type MessageListWithContextProps<
   ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   TranslationContextValue &
   MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    /** The client connection object for connecting to Stream */
     client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   };
 
@@ -250,7 +249,6 @@ const MessageListWithContext = <
           </InfiniteScroll>
         )}
       </div>
-
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
         notifications={notifications}
@@ -273,7 +271,6 @@ type PropsDrilledToMessage =
   | 'getMuteUserSuccessNotification'
   | 'getPinMessageErrorNotification'
   | 'messageActions'
-  | 'mutes'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'
@@ -290,8 +287,6 @@ export type MessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
-  /** The currently active channel */
-  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * Date separator UI component to render
    * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
@@ -301,8 +296,6 @@ export type MessageListProps<
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-  /** Whether or not the list has more items to load */
-  hasMore?: boolean;
   /** Component to render at the top of the MessageList */
   HeaderComponent?: React.ComponentType;
   /** Position to render HeaderComponent */
@@ -313,15 +306,11 @@ export type MessageListProps<
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
-  /** Overrides the default props passed to [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) */
-  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message'>;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** Whether or not the list is currently loading more items */
-  loadingMore?: boolean;
-  /** Function called when more messages are to be loaded */
+  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
-  /** The limit to use when paginating messages. */
+  /** The limit to use when paginating messages */
   messageLimit?: number;
   /**
    * The messages to render in the list
@@ -335,15 +324,13 @@ export type MessageListProps<
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
-  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
   /**
-   * The pixel threshold to determine whether or not the user is scrolled up in the list.
+   * The pixel threshold to determine whether or not the user is scrolled up in the list
    * @default 200px
    */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */
   threadList?: boolean;
-
   /**
    * Typing indicator UI component to render
    * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx)

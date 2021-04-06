@@ -109,7 +109,6 @@ const VirtualizedMessageListWithContext = <
 
   const { t } = useTranslationContext();
 
-  const { userID } = client;
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   const processedMessages = useMemo(() => {
@@ -121,7 +120,7 @@ const VirtualizedMessageListWithContext = <
       : insertDates(
           messages,
           lastRead,
-          userID,
+          client.userID,
           hideDeletedMessages,
           disableDateSeparator,
           hideNewMessageSeparator,
@@ -133,7 +132,7 @@ const VirtualizedMessageListWithContext = <
     lastRead,
     messages,
     messages?.length,
-    userID,
+    client.userID,
   ]);
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -142,11 +141,11 @@ const VirtualizedMessageListWithContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(processedMessages, userID);
+  } = useNewMessageNotification(processedMessages, client.userID);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, userID);
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
 
   const messageRenderer = useCallback(
     (messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], virtuosoIndex: number) => {
