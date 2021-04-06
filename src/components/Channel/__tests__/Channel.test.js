@@ -47,7 +47,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 };
 
 const user = generateUser({ id: 'id', name: 'name' });
-const messages = [generateMessage({ user })];
+
+// create a full message state so we can properly test `loadMore`
+const messages = [];
+for (let i = 0; i < 25; i++) {
+  messages.push(generateMessage());
+}
+
 const pinnedMessages = [generateMessage({ pinned: true, user })];
 
 const renderComponent = (props = {}, callback = () => {}) =>
@@ -289,7 +295,7 @@ describe('Channel', () => {
             openThread(threadMessage);
             threadHasAlreadyBeenOpened = true;
           } else {
-            // if we opened it ourselves before, it means the thread was succesfully closed
+            // if we opened it ourselves before, it means the thread was successfully closed
             threadHasClosed = true;
           }
         } else {
@@ -539,7 +545,7 @@ describe('Channel', () => {
         );
       });
 
-      it('should update messages passed into the updaetMessage callback', async () => {
+      it('should update messages passed into the updateMessage callback', async () => {
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
         let hasUpdated = false;
