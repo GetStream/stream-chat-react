@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [5.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.3) 2021-04-06
+
+### Feature
+
+- Optimize message list components by limiting excess `loadMore` calls [#841](https://github.com/GetStream/stream-chat-react/pull/841)
+
+### Bug
+
+- Fix `AutoCompleteTextarea` trigger highlighting bug [#839](https://github.com/GetStream/stream-chat-react/pull/839)
+
 ## [5.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.2) 2021-04-05
 
 ### Feature
