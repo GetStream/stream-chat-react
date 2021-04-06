@@ -194,15 +194,7 @@ class ReactTextareaAutocomplete extends React.Component {
 
     const textToModify = textareaValue.slice(0, selectionEnd);
 
-    // It's important to escape the currentTrigger char for chars like [, (,...
-    const findTriggerRegExp = new RegExp(`\\${currentTrigger}${`[^\\${currentTrigger}${'\\s'}]`}*`);
-    // reverse the string so we can easily find the first index of the currentTrigger
-    const reversedString = textToModify.split('').reverse().join('');
-    // find the first instance of currentTrigger (-1 if not found)
-    const distanceFromEndOfString = reversedString.search(findTriggerRegExp) + 1;
-    // if found, distract from the length of the string to revert the position back to an actual string index.
-    const startOfTokenPosition =
-      distanceFromEndOfString === -1 ? 0 : textToModify.length - distanceFromEndOfString;
+    const startOfTokenPosition = textToModify.lastIndexOf(currentTrigger);
 
     // we add space after emoji is selected if a caret position is next
     const newTokenString = newToken.caretPosition === 'next' ? `${newToken.text} ` : newToken.text;
