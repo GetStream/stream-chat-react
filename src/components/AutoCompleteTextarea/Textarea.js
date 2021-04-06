@@ -635,12 +635,14 @@ class ReactTextareaAutocomplete extends React.Component {
             <SuggestionList
               className={listClassName}
               component={component}
+              currentTrigger={currentTrigger}
               dropdownScroll={this._dropdownScroll}
               getSelectedItem={selectedItem}
               getTextToReplace={textToReplace}
               itemClassName={itemClassName}
               itemStyle={itemStyle}
               onSelect={this._onSelect}
+              selectionEnd={this.state.selectionEnd}
               SuggestionItem={SuggestionItem}
               value={value}
               values={suggestionData}
