@@ -254,10 +254,11 @@ describe('<Message /> component', () => {
     const getMuteUserSuccessNotification = jest.fn(() => userMutedNotification);
     client.muteUser = muteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       message,
-      props: { addNotification, getMuteUserSuccessNotification },
+      props: { getMuteUserSuccessNotification },
     });
     const { handleMute } = getRenderedProps();
     await handleMute(mouseEventMock);
@@ -273,10 +274,10 @@ describe('<Message /> component', () => {
     const muteUser = jest.fn(() => Promise.resolve());
     client.muteUser = muteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -294,10 +295,11 @@ describe('<Message /> component', () => {
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.muteUser = muteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       message,
-      props: { addNotification, getMuteUserErrorNotification },
+      props: { getMuteUserErrorNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -314,10 +316,10 @@ describe('<Message /> component', () => {
     const defaultFailNotification = 'Error muting a user ...';
     client.muteUser = muteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [] },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -335,10 +337,11 @@ describe('<Message /> component', () => {
     const getMuteUserSuccessNotification = jest.fn(() => userUnmutedNotification);
     client.unmuteUser = unmuteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       message,
-      props: { addNotification, getMuteUserSuccessNotification },
+      props: { getMuteUserSuccessNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -355,10 +358,10 @@ describe('<Message /> component', () => {
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     client.unmuteUser = unmuteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -376,10 +379,11 @@ describe('<Message /> component', () => {
     const getMuteUserErrorNotification = jest.fn(() => userMutedFailNotification);
     client.unmuteUser = unmuteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       message,
-      props: { addNotification, getMuteUserErrorNotification },
+      props: { getMuteUserErrorNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -396,10 +400,10 @@ describe('<Message /> component', () => {
     const defaultFailNotification = 'Error unmuting a user ...';
     client.unmuteUser = unmuteUser;
     await renderComponent({
+      channelActionOpts: { addNotification },
       channelStateOpts: { mutes: [{ target: { id: bob.id } }] },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleMute } = getRenderedProps();
@@ -510,9 +514,10 @@ describe('<Message /> component', () => {
     const messageFlaggedNotification = 'Message flagged!';
     const getFlagMessageSuccessNotification = jest.fn(() => messageFlaggedNotification);
     await renderComponent({
+      channelActionOpts: { addNotification },
       clientOpts: { client },
       message,
-      props: { addNotification, getFlagMessageSuccessNotification },
+      props: { getFlagMessageSuccessNotification },
       render,
     });
     const { handleFlag } = getRenderedProps();
@@ -529,9 +534,9 @@ describe('<Message /> component', () => {
     client.flagMessage = flagMessage;
     const defaultSuccessNotification = 'Message has been successfully flagged';
     await renderComponent({
+      channelActionOpts: { addNotification },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleFlag } = getRenderedProps();
@@ -549,9 +554,10 @@ describe('<Message /> component', () => {
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getFlagMessageErrorNotification = jest.fn(() => messageFlagFailedNotification);
     await renderComponent({
+      channelActionOpts: { addNotification },
       clientOpts: { client },
       message,
-      props: { addNotification, getFlagMessageErrorNotification },
+      props: { getFlagMessageErrorNotification },
       render,
     });
     const { handleFlag } = getRenderedProps();
@@ -569,9 +575,9 @@ describe('<Message /> component', () => {
     const defaultFlagMessageFailedNotification =
       'Error adding flag: Either the flag already exist or there is issue with network connection ...';
     await renderComponent({
+      channelActionOpts: { addNotification },
       clientOpts: { client },
       message,
-      props: { addNotification },
       render,
     });
     const { handleFlag } = getRenderedProps();

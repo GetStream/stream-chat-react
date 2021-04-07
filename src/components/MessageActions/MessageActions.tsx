@@ -11,6 +11,7 @@ import {
 } from '../Message/hooks';
 import { defaultPinPermissions, isUserMuted, MessageActionsArray } from '../Message/utils';
 
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { MessageUIComponentProps } from '../Message/types';
@@ -55,7 +56,6 @@ export const MessageActions = <
   props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
     customWrapperClass,
     getMessageActions,
     getFlagMessageErrorNotification,
@@ -75,6 +75,7 @@ export const MessageActions = <
     setEditingState,
   } = props;
 
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);

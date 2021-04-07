@@ -23,13 +23,12 @@ import {
   MESSAGE_ACTIONS,
 } from './utils';
 
+import { RetrySendMessage, useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type { Channel } from 'stream-chat';
 
 import type { MessageProps, MouseEventHandler } from './types';
-
-import type { RetrySendMessage } from '../../context/ChannelActionContext';
 
 import type {
   DefaultAttachmentType,
@@ -188,7 +187,6 @@ export const Message = <
   props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
     channel: propChannel,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
@@ -203,6 +201,7 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel: contextChannel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channel = propChannel || contextChannel;

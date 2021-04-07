@@ -106,7 +106,10 @@ describe('<MessageText />', () => {
 
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({ message });
+    const { getByTestId } = await renderMessageText({
+      message,
+      onMentionsHoverMessage: onMentionsHoverMock,
+    });
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTextTestId));
     expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
@@ -126,7 +129,10 @@ describe('<MessageText />', () => {
 
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({ message });
+    const { getByTestId } = await renderMessageText({
+      message,
+      onMentionsClickMessage: onMentionsClickMock,
+    });
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
     expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
@@ -248,8 +254,6 @@ describe('<MessageText />', () => {
           <div
             className="str-chat__message-text-inner str-chat__message-simple-text-inner"
             data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
           >
             <div
               onClick={[Function]}
@@ -278,8 +282,6 @@ describe('<MessageText />', () => {
           <div
             className="custom-inner"
             data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
           >
             <div
               onClick={[Function]}
@@ -307,8 +309,6 @@ describe('<MessageText />', () => {
           <div
             className="str-chat__message-text-inner str-chat__message-custom-text-inner"
             data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
           >
             <div
               onClick={[Function]}

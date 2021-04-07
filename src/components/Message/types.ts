@@ -3,14 +3,18 @@ import type {
   Channel,
   ChannelConfigWithInfo,
   ChannelState,
-  MessageResponse,
   Mute,
   StreamChat,
   UserResponse,
 } from 'stream-chat';
 
 import type { MessageDeletedProps } from './MessageDeleted';
-import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from './hooks';
+import type {
+  ActionHandlerReturnType,
+  CustomMentionHandler,
+  PinPermissions,
+  UserEventHandler,
+} from './hooks';
 import type { MessageActionsArray } from './utils';
 
 import type { AttachmentProps } from '../Attachment';
@@ -56,10 +60,6 @@ export type MessageProps<
    * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
    * */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /**
-   * Function to add custom notification on message list. Type param can be 'success' or 'error'
-   * */
-  addNotification?: (notificationText: string, type: 'success' | 'error') => void;
   /**
    * Attachment UI component to display attachment in individual message.
    * Available from [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
@@ -123,16 +123,10 @@ export type MessageProps<
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   mutes?: Mute<Us>[];
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  onMentionsClick?: (
-    event: React.MouseEvent<HTMLElement>,
-    mentioned_users: UserResponse<Us>[],
-  ) => void;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  onMentionsHover?: (
-    event: React.MouseEvent<HTMLElement>,
-    mentioned_users: UserResponse<Us>[],
-  ) => void;
+  /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  onMentionsClick?: CustomMentionHandler<Us>;
+  /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  onMentionsHover?: CustomMentionHandler<Us>;
   /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onUserClick?: UserEventHandler<Us>;
   /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
@@ -147,18 +141,16 @@ export type MessageProps<
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
   /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  removeMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  updateMessage?: (message: MessageResponse<At, Ch, Co, Me, Re, Us>) => void;
   /** Watchers on the currently active Channel */
   watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
 };
+
+type MessagePropsToOmit = 'onUserClick' | 'onUserHover';
 
 export type MessageUIComponentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -169,7 +161,7 @@ export type MessageUIComponentProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
-> = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> & {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
   /** The currently active channel. */
@@ -208,6 +200,10 @@ export type MessageUIComponentProps<
   handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
+  /** Handler function for a click event on an @mention in Message */
+  onMentionsClickMessage: MouseEventHandler;
+  /** Handler function for a hover event on an @mention in Message */
+  onMentionsHoverMessage: MouseEventHandler;
   /** Handler function for a click event on the user that posted the Message */
   onUserClick: MouseEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
@@ -226,10 +222,6 @@ export type MessageUIComponentProps<
    * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
    */
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Handler function for a click event on an @mention in Message */
-  onMentionsClickMessage?: MouseEventHandler;
-  /** Handler function for a hover event on an @mention in Message */
-  onMentionsHoverMessage?: MouseEventHandler;
   /**
    * Custom UI component to override default pinned Message indicator.
    * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx)

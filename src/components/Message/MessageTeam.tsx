@@ -72,7 +72,6 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
     Avatar = DefaultAvatar,
     Attachment,
     channel,
@@ -271,7 +270,6 @@ const MessageTeamWithContext = <
                   )}
                   {showActionsBox && (
                     <MessageActions
-                      addNotification={addNotification}
                       customWrapperClass={''}
                       getFlagMessageErrorNotification={getFlagMessageErrorNotification}
                       getFlagMessageSuccessNotification={getFlagMessageSuccessNotification}

@@ -19,12 +19,7 @@ import type {
 
 export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: MouseEvent<HTMLElement>,
-  user: UserResponse<Us>[],
-) => void;
-
-export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
-  mentionedUsers: UserResponse<Us>[],
+  mentioned_users: UserResponse<Us>[],
 ) => void;
 
 function createEventHandler<
@@ -36,11 +31,11 @@ function createEventHandler<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  fn?: MentionedUserEventHandler<Us>,
+  fn?: CustomMentionHandler<Us>,
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): MouseEventHandler {
   return (event) => {
-    if (typeof fn !== 'function' || !message?.mentioned_users) {
+    if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
       return;
     }
     fn(event, message.mentioned_users);
@@ -63,49 +58,18 @@ export const useMentionsHandler = <
   },
 ) => {
   const {
-    onMentionsClick: channelOnMentionsClick,
-    onMentionsHover: channelOnMentionsHover,
+    onMentionsClick: contextOnMentionsClick,
+    onMentionsHover: contextOnMentionsHover,
   } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
-    customMentionHandler?.onMentionsClick || channelOnMentionsClick || (() => null);
+    customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);
 
   const onMentionsHover =
-    customMentionHandler?.onMentionsHover || channelOnMentionsHover || (() => null);
+    customMentionHandler?.onMentionsHover || contextOnMentionsHover || (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),
     onMentionsHover: createEventHandler(onMentionsHover, message),
-  };
-};
-
-export const useMentionsUIHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  eventHandlers?: {
-    onMentionsClick?: MouseEventHandler;
-    onMentionsHover?: MouseEventHandler;
-  },
-) => {
-  const { onMentionsClick, onMentionsHover } = useChannelActionContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
-
-  return {
-    onMentionsClick: eventHandlers?.onMentionsClick || createEventHandler(onMentionsClick, message),
-    onMentionsHover: eventHandlers?.onMentionsHover || createEventHandler(onMentionsHover, message),
   };
 };

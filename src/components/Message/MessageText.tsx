@@ -1,11 +1,6 @@
 import React, { useMemo } from 'react';
 
-import {
-  useMentionsUIHandler,
-  useMobilePress,
-  useReactionClick,
-  useReactionHandler,
-} from './hooks';
+import { useMobilePress, useReactionClick, useReactionHandler } from './hooks';
 import { MessageOptions, MessageOptionsProps } from './MessageOptions';
 import { messageHasAttachments, messageHasReactions } from './utils';
 
@@ -66,8 +61,8 @@ const UnMemoizedMessageTextComponent = <
     customOptionProps,
     customWrapperClass,
     message,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
+    onMentionsClickMessage,
+    onMentionsHoverMessage,
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
@@ -79,11 +74,6 @@ const UnMemoizedMessageTextComponent = <
   const { t, userLanguage } = useTranslationContext();
 
   const { handleMobilePress } = useMobilePress();
-
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
@@ -117,8 +107,8 @@ const UnMemoizedMessageTextComponent = <
           ${isOnlyEmojis(message.text) ? ` str-chat__message-${theme}-text-inner--is-emoji` : ''}
         `.trim()}
         data-testid='message-text-inner-wrapper'
-        onClick={onMentionsClick}
-        onMouseOver={onMentionsHover}
+        onClick={onMentionsClickMessage}
+        onMouseOver={onMentionsHoverMessage}
       >
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>

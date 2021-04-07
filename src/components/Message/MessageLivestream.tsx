@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
-import { useMentionsUIHandler, useReactionClick, useUserHandler } from './hooks';
+import { useReactionClick, useUserHandler } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
@@ -61,7 +61,6 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     channelConfig,
@@ -175,7 +174,6 @@ const MessageLivestreamWithContext = <
           />
         )}
         <MessageLivestreamActions
-          addNotification={addNotification}
           channelConfig={channelConfig}
           formatDate={formatDate}
           getMessageActions={getMessageActions}
@@ -271,7 +269,6 @@ const MessageLivestreamWithContext = <
 };
 
 type PropsDrilledToMessageLivestreamActions =
-  | 'addNotification'
   | 'channelConfig'
   | 'formatDate'
   | 'getMessageActions'
@@ -424,19 +421,10 @@ export const MessageLivestream = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const {
-    message,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
-  } = props;
+  const { message, onMentionsClickMessage, onMentionsHoverMessage } = props;
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
@@ -449,8 +437,8 @@ export const MessageLivestream = <
       {...props}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
-      onMentionsClickMessage={onMentionsClick}
-      onMentionsHoverMessage={onMentionsHover}
+      onMentionsClickMessage={onMentionsClickMessage}
+      onMentionsHoverMessage={onMentionsHoverMessage}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}

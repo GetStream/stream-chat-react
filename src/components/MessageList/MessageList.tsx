@@ -37,6 +37,7 @@ import type { StreamChat } from 'stream-chat';
 
 import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
+import type { UserEventHandler } from '../Message/hooks/useUserHandler';
 import type { MessageProps } from '../Message/types';
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
@@ -61,8 +62,7 @@ type MessageListWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'loadMore'> &
-  ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
+> = ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   TranslationContextValue &
   MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
@@ -191,7 +191,6 @@ const MessageListWithContext = <
     HeaderComponent,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
-      addNotification: props.addNotification,
       Attachment,
       Avatar,
       channel,
@@ -211,10 +210,8 @@ const MessageListWithContext = <
       onUserHover: props.onUserHover,
       openThread: props.openThread,
       pinPermissions,
-      removeMessage: props.removeMessage,
       retrySendMessage: props.retrySendMessage,
       unsafeHTML,
-      updateMessage: props.updateMessage,
       watchers: props.watchers,
     },
     messageGroupStyles,
@@ -273,9 +270,9 @@ type PropsDrilledToMessage =
   | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'
-  | 'onUserClick'
-  | 'onUserHover'
+  | 'openThread'
   | 'pinPermissions'
+  | 'retrySendMessage'
   | 'unsafeHTML';
 
 export type MessageListProps<
@@ -328,6 +325,10 @@ export type MessageListProps<
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
+  /** Optional override for the click event handler on the user that posted the Message*/
+  onUserClick?: UserEventHandler<Us>;
+  /** Optional override for the hover event handler on the user that posted the Message*/
+  onUserHover?: UserEventHandler<Us>;
   /**
    * The pixel threshold to determine whether or not the user is scrolled up in the list
    * @default 200px
@@ -362,7 +363,7 @@ export const MessageList = <
 >(
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const channelActionContext = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -371,7 +372,7 @@ export const MessageList = <
   return (
     <MessageListWithContext
       client={client}
-      {...channelActionContext}
+      loadMore={loadMore}
       {...channelStateContext}
       {...componentContext}
       {...translationContext}
