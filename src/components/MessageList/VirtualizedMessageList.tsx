@@ -34,7 +34,7 @@ import {
 } from '../Message';
 
 import { StreamMessage, useChannelContext } from '../../context/ChannelContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+import { isDate, useTranslationContext } from '../../context/TranslationContext';
 
 import type { Channel, StreamChat } from 'stream-chat';
 
@@ -84,6 +84,10 @@ export type VirtualizedMessageListProps<
   disableDateSeparator?: boolean;
   /** The UI Indicator to use when MessageList or ChannelList is empty */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps> | null;
+  /** Hides the MessageDeleted components from the list, defaults to `false` */
+  hideDeletedMessages?: boolean;
+  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
+  hideNewMessageSeparator?: boolean;
   /** Component to render at the top of the MessageList while loading new messages */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
@@ -151,6 +155,8 @@ const VirtualizedMessageListWithContext = <
     DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     hasMore,
+    hideDeletedMessages = false,
+    hideNewMessageSeparator = false,
     LoadingIndicator = DefaultLoadingIndicator,
     loadMore,
     loadingMore,
@@ -174,8 +180,25 @@ const VirtualizedMessageListWithContext = <
     if (typeof messages === 'undefined') {
       return undefined;
     }
-    return disableDateSeparator ? messages : insertDates(messages, lastRead, userID);
-  }, [messages, lastRead, disableDateSeparator, userID, messages?.length]);
+    return disableDateSeparator
+      ? messages
+      : insertDates(
+          messages,
+          lastRead,
+          userID,
+          hideDeletedMessages,
+          disableDateSeparator,
+          hideNewMessageSeparator,
+        );
+  }, [
+    disableDateSeparator,
+    hideDeletedMessages,
+    hideNewMessageSeparator,
+    lastRead,
+    messages,
+    messages?.length,
+    userID,
+  ]);
 
   const { t } = useTranslationContext();
 
@@ -201,8 +224,7 @@ const VirtualizedMessageListWithContext = <
 
       const message = messageList[streamMessageIndex];
 
-      if (message.type === 'message.date') {
-        //@ts-expect-error
+      if (message.type === 'message.date' && message.date && isDate(message.date)) {
         return <DateSeparator date={message.date} unread={message.unread} />;
       }
 
@@ -217,7 +239,7 @@ const VirtualizedMessageListWithContext = <
       }
 
       return (
-        <Message<At, Ch, Co, Ev, Me, Re, Us>
+        <Message
           groupedByUser={
             shouldGroupByUser &&
             streamMessageIndex > 0 &&

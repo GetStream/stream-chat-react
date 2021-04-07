@@ -432,6 +432,12 @@ const ChannelInner = <
 
       if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
 
+      // initial state loads with up to 25 messages, so if less than 25 no need for additional query
+      if (channel.state.messages.length < 25) {
+        loadMoreFinished(false, channel.state.messages);
+        return channel.state.messages.length;
+      }
+
       dispatch({ loadingMore: true, type: 'setLoadingMore' });
 
       const oldestID = oldestMessage?.id;

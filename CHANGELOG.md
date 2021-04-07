@@ -1,6 +1,45 @@
 # Changelog
 
 
+## [5.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.3) 2021-04-06
+
+### Feature
+
+- Optimize message list components by limiting excess `loadMore` calls [#841](https://github.com/GetStream/stream-chat-react/pull/841)
+
+### Bug
+
+- Fix `AutoCompleteTextarea` trigger highlighting bug [#839](https://github.com/GetStream/stream-chat-react/pull/839)
+
+## [5.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.2) 2021-04-05
+
+### Feature
+
+- Provide option to hide `DateSeparator` component for new messages with the `hideNewMessageSeparator` prop on `MessageList` and `VirtualizedMessageList` components [#837](https://github.com/GetStream/stream-chat-react/pull/837)
+
+### Bug
+
+- Fix bad conditional in `useMentionsHandlers` custom hook [#836](https://github.com/GetStream/stream-chat-react/pull/836)
+
+## [5.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.1) 2021-04-02
+
+### Feature
+
+- Show formatted date separator for new messages [#818](https://github.com/GetStream/stream-chat-react/pull/818)
+- Provide option to display flag emojis as images on Windows via `useImageFlagEmojisOnWindows` prop [#821](https://github.com/GetStream/stream-chat-react/pull/821)
+- Hide reaction icon when a message has reactions [#826](https://github.com/GetStream/stream-chat-react/pull/826)
+
+### Chore
+
+- Update types on `Chat` component [#825](https://github.com/GetStream/stream-chat-react/pull/825)
+- Update Prettier settings [#831](https://github.com/GetStream/stream-chat-react/pull/831)
+
+### Bug
+
+- Escape characters that break emoji regex [#823](https://github.com/GetStream/stream-chat-react/pull/823)
+- Fix autocomplete textarea text replace algorithm [#827](https://github.com/GetStream/stream-chat-react/pull/827)
+- Force close suggestions list on submit [#828](https://github.com/GetStream/stream-chat-react/pull/828)
+
 ## [5.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.0) 2021-03-30
 
 ### Feature
