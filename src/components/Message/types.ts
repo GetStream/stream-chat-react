@@ -8,24 +8,19 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
+import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from './hooks';
 import type { MessageDeletedProps } from './MessageDeleted';
-import type {
-  ActionHandlerReturnType,
-  CustomMentionHandler,
-  PinPermissions,
-  UserEventHandler,
-} from './hooks';
 import type { MessageActionsArray } from './utils';
 
-import type { AttachmentProps } from '../Attachment';
 import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
 import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
-import type { RetrySendMessage } from '../../context/ChannelActionContext';
+import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { RenderTextOptions } from '../../utils';
 
 import type {
@@ -55,22 +50,13 @@ export type MessageProps<
 > = {
   /** The message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   * Additional props for underlying MessageInput component.
-   * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
-   * */
+  /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /**
-   * Attachment UI component to display attachment in individual message.
-   * Available from [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
-   * */
-  Attachment?: React.ComponentType<AttachmentProps<At>>;
-  /**
-   * Custom UI component to display user avatar.
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   * */
+  /** UI component to display an attachment on a message, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
+  Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
+  /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** The currently active channel. */
+  /** The currently active channel */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** The client connection object for connecting to Stream */
   client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
@@ -88,13 +74,9 @@ export type MessageProps<
   getFlagMessageSuccessNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user runs into error
-   * */
+  /** Function that returns message/text as string to be shown as notification, when request for muting a user runs into error */
   getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for muting a user is successful
-   * */
+  /** Function that returns message/text as string to be shown as notification, when request for muting a user is successful */
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /**
    * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
@@ -109,11 +91,8 @@ export type MessageProps<
   lastReceivedId?: string | null;
   /** @see See [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   members?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
-  /**
-   * Message UI component to display a Message in MessageList.
-   * Available from [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
-   * */
-  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
+  Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /**
    * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
    * If all the actions need to be disabled, empty array or false should be provided as value of prop.
@@ -124,24 +103,21 @@ export type MessageProps<
   /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   mutes?: Mute<Us>[];
   /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  onMentionsClick?: CustomMentionHandler<Us>;
+  onMentionsClick?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsClick'];
   /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  onMentionsHover?: CustomMentionHandler<Us>;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  onMentionsHover?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsHover'];
+  /** Custom function to run on user avatar click */
   onUserClick?: UserEventHandler<Us>;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom function to run on user avatar hover */
   onUserHover?: UserEventHandler<Us>;
   /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  openThread?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.SyntheticEvent,
-  ) => void;
+  openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
   /** The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
   /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  retrySendMessage?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -197,7 +173,7 @@ export type MessageUIComponentProps<
     event: React.MouseEvent<HTMLElement, MouseEvent>,
   ) => Promise<void>;
   /** Function to retry sending a Message */
-  handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  handleRetry: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** Handler function for a click event on an @mention in Message */
@@ -223,17 +199,17 @@ export type MessageUIComponentProps<
    */
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /**
-   * Custom UI component to override default pinned Message indicator.
+   * Custom UI component to override default pinned message indicator.
    * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx)
    * */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
   /**
-   * A component to display the selector that allows a user to react to a certain Message.
+   * Custom UI component to display the selector that allows a user to react to a message.
    * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
    */
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   /**
-   * A component to display the a MessageList of reactions.
+   * Custom UI component to display the list of message reactions.
    * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
    */
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;

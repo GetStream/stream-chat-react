@@ -11,6 +11,7 @@ import type {
 import type { StreamMessage } from './ChannelStateContext';
 
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
+import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
 import type {
   DefaultAttachmentType,
@@ -72,8 +73,8 @@ export type ChannelActionContextValue<
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
   loadMore: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
-  onMentionsClick: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
-  onMentionsHover: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+  onMentionsClick: CustomMentionHandler<Us>;
+  onMentionsHover: CustomMentionHandler<Us>;
   openThread: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.SyntheticEvent,

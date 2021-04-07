@@ -34,7 +34,7 @@ export const useRetryHandler = <
   const retrySendMessage = customRetrySendMessage || contextRetrySendMessage;
 
   return async (message) => {
-    if (retrySendMessage && message) {
+    if (message) {
       await retrySendMessage(message);
     }
   };

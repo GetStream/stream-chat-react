@@ -370,7 +370,7 @@ export const MessageList = <
   const translationContext = useTranslationContext();
 
   return (
-    <MessageListWithContext
+    <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
       client={client}
       loadMore={loadMore}
       {...channelStateContext}
