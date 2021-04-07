@@ -61,7 +61,7 @@ type MessageListWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> &
+> = Omit<ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'loadMore'> &
   ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   TranslationContextValue &
@@ -313,7 +313,7 @@ export type MessageListProps<
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
-  loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
+  loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /**

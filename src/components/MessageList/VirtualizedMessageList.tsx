@@ -377,7 +377,6 @@ export function VirtualizedMessageList<
       client={client}
       hasMore={!!hasMore}
       loadingMore={!!loadingMore}
-      // @ts-expect-error
       loadMore={loadMore}
       // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
       // 'formatMessage' converts it to Date, which seems to be the correct type

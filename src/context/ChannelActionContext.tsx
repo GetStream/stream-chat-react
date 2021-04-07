@@ -70,7 +70,7 @@ export type ChannelActionContextValue<
   editMessage: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => Promise<UpdateMessageAPIResponse<At, Ch, Co, Me, Re, Us> | void>;
-  loadMore: ((limit: number) => Promise<number>) | (() => Promise<void>);
+  loadMore: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
   onMentionsClick: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
   onMentionsHover: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;

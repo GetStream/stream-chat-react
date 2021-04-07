@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 
-export const useCallLoadMore = (loadMore: undefined | ((limit: number) => void), limit: number) =>
+import type { MessageListProps } from '../MessageList';
+
+export const useCallLoadMore = (loadMore: MessageListProps['loadMore'], limit: number) =>
   useCallback(() => {
     if (loadMore) {
       loadMore(limit);
