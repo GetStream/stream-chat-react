@@ -284,10 +284,7 @@ export type MessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
-  /**
-   * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx)
-   */
+  /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
@@ -313,15 +310,9 @@ export type MessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** The limit to use when paginating messages */
   messageLimit?: number;
-  /**
-   * The messages to render in the list
-   * Defaults to the messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
-   */
+  /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /**
-   * Custom UI component to display system messages
-   * Defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
-   */
+  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
@@ -329,17 +320,11 @@ export type MessageListProps<
   onUserClick?: UserEventHandler<Us>;
   /** Optional override for the hover event handler on the user that posted the Message*/
   onUserHover?: UserEventHandler<Us>;
-  /**
-   * The pixel threshold to determine whether or not the user is scrolled up in the list
-   * @default 200px
-   */
+  /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */
   threadList?: boolean;
-  /**
-   * Typing indicator UI component to render
-   * Defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx)
-   */
+  /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
 };
 

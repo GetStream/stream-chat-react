@@ -110,13 +110,13 @@ export type MessageProps<
   onUserClick?: UserEventHandler<Us>;
   /** Custom function to run on user avatar hover */
   onUserHover?: UserEventHandler<Us>;
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
   /** The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
-  /** @see See [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   retrySendMessage?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
@@ -188,35 +188,17 @@ export type MessageUIComponentProps<
   setEditingState: MouseEventHandler;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
-  /**
-   * Custom UI component to override default edit message input.
-   * Defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx)
-   * */
+  /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
-  /**
-   * The component to be rendered if the Message has been deleted.
-   * Defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
-   */
+  /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /**
-   * Custom UI component to override default pinned message indicator.
-   * Defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx)
-   * */
+  /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
-  /**
-   * Custom UI component to display the selector that allows a user to react to a message.
-   * Defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx)
-   */
+  /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
-  /**
-   * Custom UI component to display the list of message reactions.
-   * Defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)
-   */
+  /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
-  /**
-   * Custom function to render message text content.
-   * Defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts)
-   */
+  /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (
     text?: string,
     mentioned_users?: UserResponse<Us>[],
