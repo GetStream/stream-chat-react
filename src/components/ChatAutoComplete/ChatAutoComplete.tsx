@@ -386,8 +386,8 @@ const UnMemoizedChatAutoComplete = <
               return [];
             }
             const emojis = emojiIndex?.search(query) || [];
-            const result = emojis.slice(0, 10);
-
+            // emojiIndex.search sometimes returns undefined values, so filter those out first
+            const result = emojis.filter(Boolean).slice(0, 10);
             if (onReady) onReady(result, query);
 
             return result;
