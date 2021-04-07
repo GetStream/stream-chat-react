@@ -596,7 +596,12 @@ export const useMessageInput = <
     ];
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit = (
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     event.preventDefault();
     const trimmedMessage = text.trim();
     const isEmptyMessage =
