@@ -134,7 +134,12 @@ export type MessageInputHookProps<
   getUsers: () => (UserResponse<Us> | undefined)[];
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
-  handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleSubmit: (
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.KeyboardEvent<HTMLInputElement>
+      | React.MouseEvent<HTMLButtonElement>,
+  ) => void;
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
@@ -595,8 +600,8 @@ export const useMessageInput = <
   const handleSubmit = (
     event:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement>
-      | React.KeyboardEvent<HTMLInputElement>,
+      | React.KeyboardEvent<HTMLInputElement>
+      | React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
     const trimmedMessage = text.trim();
