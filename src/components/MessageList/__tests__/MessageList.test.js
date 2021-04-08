@@ -13,6 +13,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
+import { Attachment as AttachmentMock } from '../../Attachment';
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
@@ -38,7 +39,7 @@ describe('MessageList', () => {
     const { getByTestId, getByText } = render(
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <MessageList />
+          <MessageList Attachment={AttachmentMock} />
         </Channel>
       </Chat>,
     );
@@ -70,7 +71,10 @@ describe('MessageList', () => {
     const { getByTestId } = render(
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <MessageList Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} />
+          <MessageList
+            Attachment={AttachmentMock}
+            Avatar={() => <div data-testid='custom-avatar'>Avatar</div>}
+          />
         </Channel>
       </Chat>,
     );
