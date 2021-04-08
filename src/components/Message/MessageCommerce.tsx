@@ -56,7 +56,6 @@ const MessageCommerceWithContext = <
   props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    Avatar = DefaultAvatar,
     formatDate,
     groupStyles,
     handleAction,
@@ -76,7 +75,7 @@ const MessageCommerceWithContext = <
     threadList,
   } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,

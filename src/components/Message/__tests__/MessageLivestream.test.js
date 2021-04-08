@@ -35,6 +35,7 @@ async function renderMessageLivestream(
   message,
   props = {},
   channelConfig = { reactions: true, replies: true },
+  components = {},
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -50,7 +51,7 @@ async function renderMessageLivestream(
             userLanguage: 'en',
           }}
         >
-          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
             <MessageLivestream
               getMessageActions={() => []}
               message={message}
@@ -168,7 +169,7 @@ describe('<MessageLivestream />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageLivestream(message, {
+    const { getByTestId } = await renderMessageLivestream(message, null, null, {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();

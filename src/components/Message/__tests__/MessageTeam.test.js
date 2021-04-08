@@ -37,6 +37,7 @@ async function renderMessageTeam(
   message,
   props = {},
   channelConfig = { reactions: true, replies: true },
+  components = {},
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -52,7 +53,7 @@ async function renderMessageTeam(
             userLanguage: 'en',
           }}
         >
-          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
             <MessageTeam
               getMessageActions={() => []}
               isMyMessage={() => true}
@@ -166,7 +167,7 @@ describe('<MessageTeam />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageTeam(message, {
+    const { getByTestId } = await renderMessageTeam(message, null, null, {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();

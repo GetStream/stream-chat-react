@@ -15,7 +15,7 @@ import {
   showMessageActionsBox,
 } from './utils';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
@@ -69,7 +69,6 @@ const MessageSimpleWithContext = <
 ) => {
   const {
     additionalMessageInputProps,
-    Avatar = DefaultAvatar,
     clearEditingState,
     editing,
     EditMessageInput = DefaultEditMessageForm,
@@ -93,7 +92,7 @@ const MessageSimpleWithContext = <
     threadList,
   } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -139,7 +138,7 @@ const MessageSimpleWithContext = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus {...props} />
+          <MessageSimpleStatus {...props} Avatar={Avatar} />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -245,17 +244,11 @@ const MessageSimpleStatus = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    Avatar: React.ComponentType<AvatarProps>;
+  },
 ) => {
-  const {
-    Avatar = DefaultAvatar,
-    client,
-    isMyMessage,
-    readBy,
-    message,
-    threadList,
-    lastReceivedId,
-  } = props;
+  const { Avatar, client, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
 
   const { t } = useTranslationContext();
 

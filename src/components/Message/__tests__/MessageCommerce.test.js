@@ -31,7 +31,12 @@ const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const openThreadMock = jest.fn();
 
-async function renderMessageCommerce(message, props = {}, channelConfig = { replies: true }) {
+async function renderMessageCommerce(
+  message,
+  props = {},
+  channelConfig = { replies: true },
+  components = {},
+) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
 
@@ -39,7 +44,7 @@ async function renderMessageCommerce(message, props = {}, channelConfig = { repl
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
         <ChannelActionProvider value={{ openThread: openThreadMock }}>
-          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
             <MessageCommerce
               getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
               isMyMessage={() => true}
@@ -137,10 +142,12 @@ describe('<MessageCommerce />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageCommerce(message, {
-      Avatar: CustomAvatar,
-      groupStyles: ['bottom'],
-    });
+    const { getByTestId } = await renderMessageCommerce(
+      message,
+      { groupStyles: ['bottom'] },
+      null,
+      { Avatar: CustomAvatar },
+    );
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
   });
 

@@ -13,7 +13,7 @@ import {
 } from './icons';
 import { areMessageUIPropsEqual, getReadByTooltipText, showMessageActionsBox } from './utils';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
+import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
@@ -72,7 +72,6 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    Avatar = DefaultAvatar,
     channel,
     channelConfig: propChannelConfig,
     clearEditingState,
@@ -119,7 +118,7 @@ const MessageTeamWithContext = <
     unsafeHTML,
   } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
@@ -386,17 +385,10 @@ const MessageTeamStatus = <
 >(
   props: Pick<
     MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'Avatar' | 'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
-  >,
+    'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
+  > & { Avatar: React.ComponentType<AvatarProps> },
 ) => {
-  const {
-    Avatar = DefaultAvatar,
-    isMyMessage,
-    lastReceivedId,
-    message,
-    readBy,
-    threadList,
-  } = props;
+  const { Avatar, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
 
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();

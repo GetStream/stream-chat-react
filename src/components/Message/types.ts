@@ -12,7 +12,6 @@ import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from '
 import type { MessageDeletedProps } from './MessageDeleted';
 import type { MessageActionsArray } from './utils';
 
-import type { AvatarProps } from '../Avatar';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 import type { ReactionsListProps } from '../Reactions';
@@ -52,8 +51,6 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
   /** The currently active channel */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** The client connection object for connecting to Stream */

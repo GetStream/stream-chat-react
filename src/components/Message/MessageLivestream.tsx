@@ -61,7 +61,6 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    Avatar = DefaultAvatar,
     channelConfig,
     clearEditingState,
     EditMessageInput = DefaultEditMessageForm,
@@ -94,7 +93,7 @@ const MessageLivestreamWithContext = <
     unsafeHTML,
   } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {

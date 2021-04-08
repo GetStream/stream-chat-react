@@ -3,6 +3,7 @@ import React, { PropsWithChildren, useContext } from 'react';
 import type { NimbleEmojiIndex, NimbleEmojiProps, NimblePickerProps } from 'emoji-mart';
 
 import type { AttachmentProps } from '../components/Attachment/Attachment';
+import type { AvatarProps } from '../components/Avatar/Avatar';
 import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
 import type { MessageUIComponentProps } from '../components/Message/types';
@@ -32,6 +33,7 @@ export type ComponentContextValue<
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Avatar?: React.ComponentType<AvatarProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
