@@ -8,13 +8,14 @@ import { MessageTimestamp } from './MessageTimestamp';
 import { useReactionClick, useUserHandler } from './hooks';
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MML } from '../MML';
 import {
   ReactionSelector as DefaultReactionSelector,
   ReactionsList as DefaultReactionsList,
 } from '../Reactions';
+
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { MessageUIComponentProps, MouseEventHandler } from './types';
 
@@ -55,7 +56,6 @@ const MessageCommerceWithContext = <
   props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     formatDate,
     groupStyles,
@@ -75,6 +75,8 @@ const MessageCommerceWithContext = <
     showDetailedReactions,
     threadList,
   } = props;
+
+  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -225,12 +227,10 @@ export const MessageCommerce = <
 >(
   props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
 ) => {
-  const { message } = props;
-
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
+    props.message,
     reactionSelectorRef,
   );
 

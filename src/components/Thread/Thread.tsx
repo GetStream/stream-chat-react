@@ -192,7 +192,7 @@ const ThreadInner = <
   const messageList = useRef<HTMLDivElement | null>(null);
 
   const parentID = thread?.id;
-  const ThreadMessage = PropMessage || ContextMessage;
+  const ThreadMessage = PropMessage || additionalMessageListProps?.Message || ContextMessage;
 
   useEffect(() => {
     if (parentID && thread?.reply_count && loadMoreThread) {

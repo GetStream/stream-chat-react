@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 
 import { MessageCommerce } from '../MessageCommerce';
 
+import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MML as MMLMock } from '../../MML';
@@ -12,6 +13,7 @@ import { MML as MMLMock } from '../../MML';
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import {
   emojiDataMock,
   generateChannel,
@@ -37,12 +39,14 @@ async function renderMessageCommerce(message, props = {}, channelConfig = { repl
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
         <ChannelActionProvider value={{ openThread: openThreadMock }}>
-          <MessageCommerce
-            getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
-            isMyMessage={() => true}
-            message={message}
-            {...props}
-          />
+          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+            <MessageCommerce
+              getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+              isMyMessage={() => true}
+              message={message}
+              {...props}
+            />
+          </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>,

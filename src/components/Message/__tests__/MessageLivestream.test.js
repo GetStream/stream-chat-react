@@ -6,12 +6,14 @@ import '@testing-library/jest-dom';
 
 import { MessageLivestream } from '../MessageLivestream';
 
+import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   emojiDataMock,
@@ -22,17 +24,9 @@ import {
   getTestClientWithUser,
 } from '../../../mock-builders';
 
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn(() => <div />),
-}));
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MessageInput', () => ({ MessageInput: jest.fn(() => <div />) }));
+jest.mock('../../MessageActions', () => ({ MessageActions: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
@@ -56,12 +50,14 @@ async function renderMessageLivestream(
             userLanguage: 'en',
           }}
         >
-          <MessageLivestream
-            getMessageActions={() => []}
-            message={message}
-            typing={false}
-            {...props}
-          />
+          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+            <MessageLivestream
+              getMessageActions={() => []}
+              message={message}
+              typing={false}
+              {...props}
+            />
+          </ComponentProvider>
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,

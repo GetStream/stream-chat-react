@@ -3,6 +3,8 @@ import React, { PropsWithChildren, useContext } from 'react';
 import type { NimbleEmojiIndex, NimbleEmojiProps, NimblePickerProps } from 'emoji-mart';
 
 import type { AttachmentProps } from '../components/Attachment/Attachment';
+import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
+import type { EventComponentProps } from '../components/EventComponent/EventComponent';
 import type { MessageUIComponentProps } from '../components/Message/types';
 
 import type {
@@ -30,6 +32,8 @@ export type ComponentContextValue<
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -48,12 +52,17 @@ export const ComponentProvider = <
   children,
   value,
 }: PropsWithChildren<{
-  value: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>;
-}>) => (
-  <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
-    {children}
-  </ComponentContext.Provider>
-);
+  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+}>) => {
+  const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const updatedValue = { ...existingValue, ...value };
+
+  return (
+    <ComponentContext.Provider value={(updatedValue as unknown) as ComponentContextValue}>
+      {children}
+    </ComponentContext.Provider>
+  );
+};
 
 export const useComponentContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

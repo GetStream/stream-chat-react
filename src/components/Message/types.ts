@@ -52,8 +52,6 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /** UI component to display an attachment on a message, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
-  Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
   /** The currently active channel */

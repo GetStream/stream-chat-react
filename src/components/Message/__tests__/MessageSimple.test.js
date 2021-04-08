@@ -9,6 +9,7 @@ import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MESSAGE_ACTIONS } from '../utils';
 
+import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
 import { MML as MMLMock } from '../../MML';
@@ -26,25 +27,19 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { ComponentProvider } from '../../../context/ComponentContext';
 
 Dayjs.extend(calendar);
 
-jest.mock('../MessageOptions', () => ({
-  MessageOptions: jest.fn(() => <div />),
-}));
-
+jest.mock('../MessageOptions', () => ({ MessageOptions: jest.fn(() => <div />) }));
 jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
-
 jest.mock('../../MessageInput', () => ({
   EditMessageForm: jest.fn(() => <div />),
   MessageInput: jest.fn(() => <div />),
 }));
-
-jest.mock('../../Modal', () => ({
-  Modal: jest.fn((props) => <div>{props.children}</div>),
-}));
+jest.mock('../../Modal', () => ({ Modal: jest.fn((props) => <div>{props.children}</div>) }));
 
 const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
@@ -67,15 +62,17 @@ async function renderMessageSimple(
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
-            <MessageSimple
-              client={client}
-              getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-              isMyMessage={() => true}
-              message={message}
-              threadList={false}
-              typing={false}
-              {...props}
-            />
+            <ComponentProvider value={{ Attachment: AttachmentMock }}>
+              <MessageSimple
+                client={client}
+                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                isMyMessage={() => true}
+                message={message}
+                threadList={false}
+                typing={false}
+                {...props}
+              />
+            </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>

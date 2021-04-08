@@ -15,7 +15,6 @@ import {
   showMessageActionsBox,
 } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
@@ -70,7 +69,6 @@ const MessageSimpleWithContext = <
 ) => {
   const {
     additionalMessageInputProps,
-    Attachment,
     Avatar = DefaultAvatar,
     clearEditingState,
     editing,
@@ -94,6 +92,8 @@ const MessageSimpleWithContext = <
     showDetailedReactions,
     threadList,
   } = props;
+
+  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -188,7 +188,7 @@ const MessageSimpleWithContext = <
                 )}
               </>
             )}
-            {message.attachments && Attachment && (
+            {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.text && (
@@ -325,9 +325,7 @@ export const MessageSimple = <
 >(
   props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
 ) => {
-  const { Attachment: PropAttachment, message } = props;
-
-  const { Attachment: ContextAttachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { message } = props;
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
@@ -336,12 +334,9 @@ export const MessageSimple = <
     reactionSelectorRef,
   );
 
-  const Attachment = PropAttachment || ContextAttachment || DefaultAttachment;
-
   return (
     <MemoizedMessageSimple
       {...props}
-      Attachment={Attachment}
       isReactionEnabled={isReactionEnabled}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}

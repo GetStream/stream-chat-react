@@ -20,9 +20,8 @@ import {
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
-import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
+import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { TranslationContextValue, useTranslationContext } from '../../context/TranslationContext';
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -63,7 +62,6 @@ type MessageListWithContextProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
-  ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> &
   TranslationContextValue &
   MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
     client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
@@ -135,7 +133,6 @@ const MessageListWithContext = <
   const {
     channel,
     client,
-    Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     disableDateSeparator = false,
     hideDeletedMessages = false,
@@ -191,7 +188,6 @@ const MessageListWithContext = <
     HeaderComponent,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
-      Attachment,
       Avatar,
       channel,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
@@ -258,7 +254,6 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
-  | 'Attachment'
   | 'Avatar'
   | 'Message'
   | 'getFlagMessageErrorNotification'
@@ -284,6 +279,8 @@ export type MessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
+  /** UI component to display an attachment on a message, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
+  Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Disables the injection of date separator components, defaults to `false` */
@@ -351,17 +348,25 @@ export const MessageList = <
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const translationContext = useTranslationContext();
 
+  const updatedComponentContext = {
+    Attachment: props.Attachment,
+    Avatar: props.Avatar,
+    DateSeparator: props.DateSeparator,
+    Message: props.Message,
+    MessageSystem: props.MessageSystem,
+  };
+
   return (
-    <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
-      client={client}
-      loadMore={loadMore}
-      {...channelStateContext}
-      {...componentContext}
-      {...translationContext}
-      {...props}
-    />
+    <ComponentProvider value={updatedComponentContext}>
+      <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
+        client={client}
+        loadMore={loadMore}
+        {...channelStateContext}
+        {...translationContext}
+        {...props}
+      />
+    </ComponentProvider>
   );
 };

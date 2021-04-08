@@ -5,6 +5,7 @@ import Dayjs from 'dayjs';
 
 import { MessageTeam } from '../MessageTeam';
 
+import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 import { MessageInput as MessageInputMock } from '../../MessageInput';
@@ -12,6 +13,7 @@ import { MML as MMLMock } from '../../MML';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   emojiDataMock,
@@ -22,18 +24,9 @@ import {
   getTestClientWithUser,
 } from '../../../mock-builders';
 
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn(() => <div />),
-}));
-
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MessageInput', () => ({ MessageInput: jest.fn(() => <div />) }));
+jest.mock('../../MessageActions', () => ({ MessageActions: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
@@ -59,13 +52,15 @@ async function renderMessageTeam(
             userLanguage: 'en',
           }}
         >
-          <MessageTeam
-            getMessageActions={() => []}
-            isMyMessage={() => true}
-            message={message}
-            typing={false}
-            {...props}
-          />
+          <ComponentProvider value={{ Attachment: AttachmentMock }}>
+            <MessageTeam
+              getMessageActions={() => []}
+              isMyMessage={() => true}
+              message={message}
+              typing={false}
+              {...props}
+            />
+          </ComponentProvider>
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,

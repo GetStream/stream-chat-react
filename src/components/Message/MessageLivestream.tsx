@@ -7,7 +7,6 @@ import { useReactionClick, useUserHandler } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
@@ -16,6 +15,7 @@ import {
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -61,7 +61,6 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     channelConfig,
     clearEditingState,
@@ -95,6 +94,7 @@ const MessageLivestreamWithContext = <
     unsafeHTML,
   } = props;
 
+  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
@@ -244,7 +244,7 @@ const MessageLivestreamWithContext = <
                 </p>
               )}
             </div>
-            {message.attachments && Attachment && (
+            {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {isReactionEnabled && (
@@ -421,13 +421,11 @@ export const MessageLivestream = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message, onMentionsClickMessage, onMentionsHoverMessage } = props;
-
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
+    props.message,
     reactionSelectorRef,
     messageWrapperRef,
   );
@@ -437,8 +435,6 @@ export const MessageLivestream = <
       {...props}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
-      onMentionsClickMessage={onMentionsClickMessage}
-      onMentionsHoverMessage={onMentionsHoverMessage}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}

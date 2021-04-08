@@ -13,7 +13,6 @@ import {
 } from './icons';
 import { areMessageUIPropsEqual, getReadByTooltipText, showMessageActionsBox } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
 import { MessageActions } from '../MessageActions';
@@ -27,6 +26,7 @@ import { Tooltip } from '../Tooltip';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -73,7 +73,6 @@ const MessageTeamWithContext = <
 ) => {
   const {
     Avatar = DefaultAvatar,
-    Attachment,
     channel,
     channelConfig: propChannelConfig,
     clearEditingState,
@@ -120,6 +119,7 @@ const MessageTeamWithContext = <
     unsafeHTML,
   } = props;
 
+  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const channelConfig = propChannelConfig || channel?.getConfig();
@@ -458,12 +458,11 @@ const MessageTeamAttachments = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Pick<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'Attachment' | 'handleAction' | 'message'
-  >,
+  props: Pick<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'handleAction' | 'message'> & {
+    Attachment: ComponentContextValue<At>['Attachment'];
+  },
 ) => {
-  const { Attachment = DefaultAttachment, handleAction, message } = props;
+  const { Attachment, handleAction, message } = props;
 
   if (message.attachments) {
     return <Attachment actionHandler={handleAction} attachments={message.attachments} />;
@@ -493,15 +492,13 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message } = props;
-
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
+    props.message,
     reactionSelectorRef,
     messageWrapperRef,
   );
