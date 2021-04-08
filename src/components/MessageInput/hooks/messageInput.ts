@@ -125,6 +125,11 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | ReduceNumberOfUploadsAction
   | AddMentionedUserAction<Us>;
 
+export type ReactEventUnion =
+  | React.FormEvent<HTMLFormElement>
+  | React.KeyboardEvent<HTMLInputElement>
+  | React.MouseEvent<HTMLButtonElement>;
+
 export type MessageInputHookProps<
   Co extends DefaultCommandType = DefaultCommandType,
   Us extends DefaultUserType<Us> = DefaultUserType
@@ -135,7 +140,7 @@ export type MessageInputHookProps<
   getUsers: () => (UserResponse<Us> | undefined)[];
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
-  handleSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleSubmit: (event: ReactEventUnion) => void;
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
@@ -596,12 +601,7 @@ export const useMessageInput = <
     ];
   }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
 
-  const handleSubmit = (
-    event:
-      | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement>
-      | React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleSubmit = (event: ReactEventUnion) => {
     event.preventDefault();
     const trimmedMessage = text.trim();
     const isEmptyMessage =
