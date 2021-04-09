@@ -12,7 +12,7 @@ import { isDate } from '../../../context/TranslationContext';
 
 import type { StreamChat, UserResponse } from 'stream-chat';
 
-import type { EventComponentProps } from '../../EventComponent/EventComponent';
+import { EventComponent } from '../../EventComponent/EventComponent';
 import type { MessageProps } from '../../Message/types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
@@ -41,8 +41,7 @@ export function useMessageListElements<
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   threadList: boolean;
-  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message'>;
-  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message' | 'Message'>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 }) {
   const {
@@ -50,21 +49,16 @@ export function useMessageListElements<
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
-    MessageSystem,
     onMessageLoadCaptured,
     read,
     threadList,
   } = args;
 
-  const { DateSeparator = DefaultDateSeparator, HeaderComponent } = useComponentContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const {
+    DateSeparator = DefaultDateSeparator,
+    HeaderComponent,
+    MessageSystem = EventComponent,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData(client.userID, enrichedMessages, read);
@@ -91,7 +85,6 @@ export function useMessageListElements<
         }
 
         if (message.type === 'channel.event' || message.type === 'system') {
-          if (!MessageSystem) return null;
           return (
             <li
               key={

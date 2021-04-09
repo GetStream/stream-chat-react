@@ -22,23 +22,25 @@ import {
 import { useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { TranslationContextValue, useTranslationContext } from '../../context/TranslationContext';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { EventComponent } from '../EventComponent';
+import {
+  EmptyStateIndicator as DefaultEmptyStateIndicator,
+  EmptyStateIndicatorProps,
+} from '../EmptyStateIndicator';
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { LoadingIndicator as DefaultLoadingIndicator, LoadingIndicatorProps } from '../Loading';
-import { MessageSimple } from '../Message';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
-import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
+import {
+  TypingIndicator as DefaultTypingIndicator,
+  TypingIndicatorProps,
+} from '../TypingIndicator';
 
 import type { StreamChat } from 'stream-chat';
 
 import type { AvatarProps } from '../Avatar';
-import type { EmptyStateIndicatorProps } from '../EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
 import type { UserEventHandler } from '../Message/hooks/useUserHandler';
 import type { MessageProps } from '../Message/types';
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
-import type { TypingIndicatorProps } from '../TypingIndicator/TypingIndicator';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
@@ -52,9 +54,13 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-type MessageListPropsToOmit = 'Attachment' | 'Avatar' | 'DateSeparator' | 'HeaderComponent';
-// | 'Message'
-// | 'MessageSystem';
+type MessageListPropsToOmit =
+  | 'Attachment'
+  | 'Avatar'
+  | 'DateSeparator'
+  | 'HeaderComponent'
+  | 'Message'
+  | 'MessageSystem';
 
 type MessageListWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -140,10 +146,8 @@ const MessageListWithContext = <
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
-    Message = MessageSimple,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     messages = [],
-    MessageSystem = EventComponent,
     notifications,
     noGroupByUser = false,
     pinPermissions = defaultPinPermissions,
@@ -192,7 +196,6 @@ const MessageListWithContext = <
       getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
       members: props.members,
-      Message,
       messageActions,
       messageListRect: wrapperRect,
       mutes: props.mutes,
@@ -207,7 +210,6 @@ const MessageListWithContext = <
       watchers: props.watchers,
     },
     messageGroupStyles,
-    MessageSystem,
     onMessageLoadCaptured,
     read,
     threadList,
@@ -250,13 +252,12 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
-  | 'Message'
-  | 'getFlagMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
   | 'getMuteUserErrorNotification'
   | 'getMuteUserSuccessNotification'
   | 'getPinMessageErrorNotification'
+  | 'Message'
   | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'

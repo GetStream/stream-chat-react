@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 
-import { MessageSimple } from './MessageSimple';
 import {
   ActionHandlerReturnType,
   useActionHandler,
@@ -25,6 +24,7 @@ import {
 
 import { RetrySendMessage, useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { Channel } from 'stream-chat';
 
@@ -90,7 +90,7 @@ const MessageWithContext = <
     channel,
     formatDate,
     groupStyles = [],
-    Message: MessageUIComponent = MessageSimple,
+    Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     onMentionsClickMessage,
@@ -99,6 +99,10 @@ const MessageWithContext = <
     onUserHover: propOnUserHover,
     userRoles,
   } = props;
+
+  const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const MessageUIComponent = propMessage || contextMessage;
 
   const channelConfig = channel.getConfig && channel.getConfig();
 
