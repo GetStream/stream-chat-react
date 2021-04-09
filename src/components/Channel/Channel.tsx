@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -736,13 +737,16 @@ const ChannelInner = <
     updateMessage,
   };
 
-  const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
-    Attachment,
-    Emoji,
-    EmojiIndex,
-    EmojiPicker,
-    Message,
-  };
+  const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+    () => ({
+      Attachment,
+      Emoji,
+      EmojiIndex,
+      EmojiPicker,
+      Message,
+    }),
+    [Attachment, Emoji, EmojiIndex, EmojiPicker, Message],
+  );
 
   const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     typing,

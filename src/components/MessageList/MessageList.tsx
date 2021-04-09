@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useCallLoadMore } from './hooks/useCallLoadMore';
 import { useEnrichedMessages } from './hooks/useEnrichedMessages';
@@ -22,7 +22,6 @@ import {
 import { useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { TranslationContextValue, useTranslationContext } from '../../context/TranslationContext';
-import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { EventComponent } from '../EventComponent';
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
@@ -53,8 +52,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-type MessageListPropsToOmit = 'Attachment' | 'Avatar';
-// | 'DateSeparator'
+type MessageListPropsToOmit = 'Attachment' | 'Avatar' | 'DateSeparator';
 // | 'Message'
 // | 'MessageSystem';
 
@@ -141,7 +139,6 @@ const MessageListWithContext = <
     disableDateSeparator = false,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
-    DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     Message = MessageSimple,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -187,7 +184,6 @@ const MessageListWithContext = <
 
   const elements = useMessageListElements<At, Ch, Co, Ev, Me, Re, Us>({
     client,
-    DateSeparator,
     enrichedMessages,
     HeaderComponent,
     internalMessageProps: {
@@ -356,13 +352,16 @@ export const MessageList = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const translationContext = useTranslationContext();
 
-  const updatedComponentContext = {
-    Attachment,
-    Avatar,
-    DateSeparator,
-    Message,
-    MessageSystem,
-  };
+  const updatedComponentContext = useMemo(
+    () => ({
+      Attachment,
+      Avatar,
+      DateSeparator,
+      Message,
+      MessageSystem,
+    }),
+    [Attachment, Avatar, DateSeparator, Message, MessageSystem],
+  );
 
   return (
     <ComponentProvider value={updatedComponentContext}>

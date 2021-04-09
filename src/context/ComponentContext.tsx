@@ -57,7 +57,13 @@ export const ComponentProvider = <
   value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
 }>) => {
   const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const updatedValue = { ...existingValue, ...value };
+
+  const updatedValue = {
+    ...existingValue,
+    ...value,
+    Attachment: value.Attachment || existingValue.Attachment,
+    Message: value.Message || existingValue.Message,
+  };
 
   return (
     <ComponentContext.Provider value={(updatedValue as unknown) as ComponentContextValue}>

@@ -4,13 +4,14 @@ import React, { useMemo } from 'react';
 import { useLastReadData } from './useLastReadData';
 import { getLastReceived, GroupStyle } from '../utils';
 
+import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
 import { Message } from '../../Message';
 
+import { useComponentContext } from '../../../context/ComponentContext';
 import { isDate } from '../../../context/TranslationContext';
 
 import type { StreamChat, UserResponse } from 'stream-chat';
 
-import type { DateSeparatorProps } from '../../DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../../EventComponent/EventComponent';
 import type { MessageProps } from '../../Message/types';
 
@@ -36,7 +37,6 @@ export function useMessageListElements<
   Us extends DefaultUserType<Us> = DefaultUserType
 >(args: {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
   enrichedMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
@@ -48,7 +48,6 @@ export function useMessageListElements<
 }) {
   const {
     client,
-    DateSeparator,
     enrichedMessages,
     HeaderComponent,
     internalMessageProps,
@@ -58,6 +57,17 @@ export function useMessageListElements<
     read,
     threadList,
   } = args;
+
+  const { DateSeparator = DefaultDateSeparator } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData(client.userID, enrichedMessages, read);
 
