@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { PropsWithChildren, useContext, useMemo } from 'react';
 
 import type { NimbleEmojiIndex, NimbleEmojiProps, NimblePickerProps } from 'emoji-mart';
 
@@ -58,15 +58,32 @@ export const ComponentProvider = <
 }>) => {
   const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const updatedValue = {
-    ...existingValue,
-    ...value,
-    Attachment: value.Attachment || existingValue.Attachment,
-    Message: value.Message || existingValue.Message,
-  };
+  // prevent undefined values from replaced defined ones
+  const Attachment = value.Attachment || existingValue.Attachment;
+  const Avatar = value.Avatar || existingValue.Avatar;
+  const DateSeparator = value.DateSeparator || existingValue.DateSeparator;
+  const Emoji = value.Emoji || existingValue.Emoji;
+  const EmojiIndex = value.EmojiIndex || existingValue.EmojiIndex;
+  const EmojiPicker = value.EmojiPicker || existingValue.EmojiPicker;
+  const Message = value.Message || existingValue.Message;
+  const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
+
+  const memoizedValue = useMemo(
+    () => ({
+      Attachment,
+      Avatar,
+      DateSeparator,
+      Emoji,
+      EmojiIndex,
+      EmojiPicker,
+      Message,
+      MessageSystem,
+    }),
+    [Attachment, Avatar, DateSeparator, Emoji, EmojiIndex, EmojiPicker, Message, MessageSystem],
+  );
 
   return (
-    <ComponentContext.Provider value={(updatedValue as unknown) as ComponentContextValue}>
+    <ComponentContext.Provider value={(memoizedValue as unknown) as ComponentContextValue}>
       {children}
     </ComponentContext.Provider>
   );
