@@ -177,7 +177,7 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { getByTestId } = await renderMessageTeam(message, {
+    const { getByTestId } = await renderMessageTeam(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -190,7 +190,7 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { queryByTestId } = await renderMessageTeam(message, {
+    const { queryByTestId } = await renderMessageTeam(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 

@@ -39,7 +39,7 @@ import type { StreamChat } from 'stream-chat';
 import type { AvatarProps } from '../Avatar';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
 import type { UserEventHandler } from '../Message/hooks/useUserHandler';
-import type { MessageProps } from '../Message/types';
+import type { MessageProps, PinIndicatorProps } from '../Message/types';
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -53,28 +53,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
-
-type MessageListPropsToOmit =
-  | 'Attachment'
-  | 'Avatar'
-  | 'DateSeparator'
-  | 'HeaderComponent'
-  | 'Message'
-  | 'MessageSystem';
-
-type MessageListWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
-  TranslationContextValue &
-  Omit<MessageListProps<At, Ch, Co, Ev, Me, Re, Us>, MessageListPropsToOmit> & {
-    client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  };
 
 type MessageListNotificationsProps = {
   hasNewMessages: boolean;
@@ -106,10 +84,10 @@ const useInternalInfiniteScrollProps = (
   props: Pick<
     MessageListWithContextProps,
     | 'hasMore'
+    | 'internalInfiniteScrollProps'
     | 'loadMore'
     | 'LoadingIndicator'
     | 'loadingMore'
-    | 'internalInfiniteScrollProps'
     | 'messageLimit'
   >,
 ) => {
@@ -127,6 +105,29 @@ const useInternalInfiniteScrollProps = (
     ...props.internalInfiniteScrollProps,
   };
 };
+
+type MessageListPropsToOmit =
+  | 'Attachment'
+  | 'Avatar'
+  | 'DateSeparator'
+  | 'HeaderComponent'
+  | 'Message'
+  | 'MessageSystem'
+  | 'PinIndicator';
+
+type MessageListWithContextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
+  TranslationContextValue &
+  Omit<MessageListProps<At, Ch, Co, Ev, Me, Re, Us>, MessageListPropsToOmit> & {
+    client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  };
 
 const MessageListWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -315,6 +316,8 @@ export type MessageListProps<
   onUserClick?: UserEventHandler<Us>;
   /** Optional override for the hover event handler on the user that posted the Message*/
   onUserHover?: UserEventHandler<Us>;
+  /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
+  PinIndicator?: React.ComponentType<PinIndicatorProps>;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */
@@ -350,6 +353,7 @@ export const MessageList = <
     HeaderComponent,
     Message,
     MessageSystem,
+    PinIndicator,
     ...rest
   } = props;
 
@@ -366,8 +370,9 @@ export const MessageList = <
       HeaderComponent,
       Message,
       MessageSystem,
+      PinIndicator,
     }),
-    [Attachment, Avatar, DateSeparator, HeaderComponent, Message, MessageSystem],
+    [Attachment, Avatar, DateSeparator, HeaderComponent, Message, MessageSystem, PinIndicator],
   );
 
   return (

@@ -82,7 +82,6 @@ const MessageLivestreamWithContext = <
     onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
-    PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
@@ -93,7 +92,11 @@ const MessageLivestreamWithContext = <
     unsafeHTML,
   } = props;
 
-  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    Attachment,
+    Avatar = DefaultAvatar,
+    PinIndicator = DefaultPinIndicator,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {

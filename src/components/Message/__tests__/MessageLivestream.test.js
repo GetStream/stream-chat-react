@@ -179,7 +179,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { getByTestId } = await renderMessageLivestream(message, {
+    const { getByTestId } = await renderMessageLivestream(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -192,7 +192,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { queryAllByTestId } = await renderMessageLivestream(message, {
+    const { queryAllByTestId } = await renderMessageLivestream(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 

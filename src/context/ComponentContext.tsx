@@ -6,7 +6,7 @@ import type { AttachmentProps } from '../components/Attachment/Attachment';
 import type { AvatarProps } from '../components/Avatar/Avatar';
 import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
-import type { MessageUIComponentProps } from '../components/Message/types';
+import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -37,6 +37,7 @@ export type ComponentContextValue<
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   HeaderComponent?: React.ComponentType;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  PinIndicator?: React.ComponentType<PinIndicatorProps>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -69,6 +70,7 @@ export const ComponentProvider = <
   const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
   const Message = value.Message || existingValue.Message;
   const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
+  const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
 
   const memoizedValue = useMemo(
     () => ({
@@ -81,6 +83,7 @@ export const ComponentProvider = <
       HeaderComponent,
       Message,
       MessageSystem,
+      PinIndicator,
     }),
     [
       Attachment,
@@ -92,6 +95,7 @@ export const ComponentProvider = <
       HeaderComponent,
       Message,
       MessageSystem,
+      PinIndicator,
     ],
   );
 
