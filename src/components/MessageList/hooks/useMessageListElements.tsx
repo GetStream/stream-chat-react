@@ -41,7 +41,6 @@ export function useMessageListElements<
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   threadList: boolean;
-  HeaderComponent?: React.ComponentType;
   internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message'>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
@@ -49,7 +48,6 @@ export function useMessageListElements<
   const {
     client,
     enrichedMessages,
-    HeaderComponent,
     internalMessageProps,
     messageGroupStyles,
     MessageSystem,
@@ -58,7 +56,7 @@ export function useMessageListElements<
     threadList,
   } = args;
 
-  const { DateSeparator = DefaultDateSeparator } = useComponentContext<
+  const { DateSeparator = DefaultDateSeparator, HeaderComponent } = useComponentContext<
     At,
     Ch,
     Co,

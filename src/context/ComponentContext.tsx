@@ -35,6 +35,7 @@ export type ComponentContextValue<
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   Avatar?: React.ComponentType<AvatarProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  HeaderComponent?: React.ComponentType;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
@@ -65,6 +66,7 @@ export const ComponentProvider = <
   const Emoji = value.Emoji || existingValue.Emoji;
   const EmojiIndex = value.EmojiIndex || existingValue.EmojiIndex;
   const EmojiPicker = value.EmojiPicker || existingValue.EmojiPicker;
+  const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
   const Message = value.Message || existingValue.Message;
   const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
 
@@ -76,10 +78,21 @@ export const ComponentProvider = <
       Emoji,
       EmojiIndex,
       EmojiPicker,
+      HeaderComponent,
       Message,
       MessageSystem,
     }),
-    [Attachment, Avatar, DateSeparator, Emoji, EmojiIndex, EmojiPicker, Message, MessageSystem],
+    [
+      Attachment,
+      Avatar,
+      DateSeparator,
+      Emoji,
+      EmojiIndex,
+      EmojiPicker,
+      HeaderComponent,
+      Message,
+      MessageSystem,
+    ],
   );
 
   return (

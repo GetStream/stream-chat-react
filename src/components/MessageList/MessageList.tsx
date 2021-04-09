@@ -52,7 +52,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-type MessageListPropsToOmit = 'Attachment' | 'Avatar' | 'DateSeparator';
+type MessageListPropsToOmit = 'Attachment' | 'Avatar' | 'DateSeparator' | 'HeaderComponent';
 // | 'Message'
 // | 'MessageSystem';
 
@@ -152,7 +152,6 @@ const MessageListWithContext = <
     TypingIndicator = DefaultTypingIndicator,
     unsafeHTML = false,
     headerPosition,
-    HeaderComponent,
     read,
   } = props;
 
@@ -173,7 +172,6 @@ const MessageListWithContext = <
     channel,
     client,
     disableDateSeparator,
-    HeaderComponent,
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
@@ -185,7 +183,6 @@ const MessageListWithContext = <
   const elements = useMessageListElements<At, Ch, Co, Ev, Me, Re, Us>({
     client,
     enrichedMessages,
-    HeaderComponent,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       channel,
@@ -345,7 +342,15 @@ export const MessageList = <
 >(
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { Attachment, Avatar, DateSeparator, Message, MessageSystem, ...rest } = props;
+  const {
+    Attachment,
+    Avatar,
+    DateSeparator,
+    HeaderComponent,
+    Message,
+    MessageSystem,
+    ...rest
+  } = props;
 
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -357,10 +362,11 @@ export const MessageList = <
       Attachment,
       Avatar,
       DateSeparator,
+      HeaderComponent,
       Message,
       MessageSystem,
     }),
-    [Attachment, Avatar, DateSeparator, Message, MessageSystem],
+    [Attachment, Avatar, DateSeparator, HeaderComponent, Message, MessageSystem],
   );
 
   return (

@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import { getGroupStyles, GroupStyle, insertDates, insertIntro } from '../utils';
 
+import { useComponentContext } from '../../../context/ComponentContext';
+
 import type { Channel, StreamChat } from 'stream-chat';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
@@ -33,14 +35,12 @@ export const useEnrichedMessages = <
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   noGroupByUser: boolean;
   threadList: boolean;
-  HeaderComponent?: React.ComponentType;
   headerPosition?: number;
 }) => {
   const {
     channel,
     client,
     disableDateSeparator,
-    HeaderComponent,
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
@@ -48,6 +48,9 @@ export const useEnrichedMessages = <
     noGroupByUser,
     threadList,
   } = args;
+
+  const { HeaderComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   let messagesWithDates = threadList
