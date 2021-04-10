@@ -220,8 +220,10 @@ export const areMessagePropsEqual = <
   prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
   nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message: prevMessage } = prevProps;
-  const { message: nextMessage } = nextProps;
+  const { message: prevMessage, Message: prevMessageUI } = prevProps;
+  const { message: nextMessage, Message: nextMessageUI } = nextProps;
+
+  if (prevMessageUI !== nextMessageUI) return false;
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&
