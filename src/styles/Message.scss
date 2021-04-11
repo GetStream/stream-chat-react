@@ -601,11 +601,7 @@
         }
       }
     }
-    &.str-chat__message--with-reactions {
-      .str-chat__message-simple__actions__action--reactions {
-        display: flex;
-      }
-    }
+
     &:hover {
       .str-chat__message-simple__actions__action--thread {
         display: flex;
