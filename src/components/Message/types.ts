@@ -9,13 +9,10 @@ import type {
 } from 'stream-chat';
 
 import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from './hooks';
-import type { MessageDeletedProps } from './MessageDeleted';
 import type { MessageActionsArray } from './utils';
 
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
-import type { ReactionsListProps } from '../Reactions';
-import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -130,8 +127,7 @@ export type MessageUIComponentProps<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
+  Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> & {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
@@ -183,14 +179,6 @@ export type MessageUIComponentProps<
   setEditingState: MouseEventHandler;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
-  /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
-  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
-  /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
-  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
-  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
-  /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
-  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (
     text?: string,

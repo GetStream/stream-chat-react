@@ -9,6 +9,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -63,14 +64,16 @@ const UnMemoizedMessageTextComponent = <
     message,
     onMentionsClickMessage,
     onMentionsHoverMessage,
-    ReactionsList = DefaultReactionList,
-    ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
     renderText = defaultRenderText,
     theme = 'simple',
     unsafeHTML,
   } = props;
 
+  const {
+    ReactionsList = DefaultReactionList,
+    ReactionSelector = DefaultReactionSelector,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const { handleMobilePress } = useMobilePress();

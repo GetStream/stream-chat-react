@@ -63,7 +63,6 @@ const MessageLivestreamWithContext = <
   const {
     channelConfig,
     clearEditingState,
-    EditMessageInput = DefaultEditMessageForm,
     editing,
     formatDate,
     getMessageActions,
@@ -75,15 +74,12 @@ const MessageLivestreamWithContext = <
     initialMessage,
     isReactionEnabled,
     message,
-    MessageDeleted = DefaultMessageDeleted,
     messageWrapperRef,
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
     renderText = defaultRenderText,
     threadList,
@@ -95,7 +91,11 @@ const MessageLivestreamWithContext = <
   const {
     Attachment,
     Avatar = DefaultAvatar,
+    EditMessageInput = DefaultEditMessageForm,
+    MessageDeleted = DefaultMessageDeleted,
     PinIndicator = DefaultPinIndicator,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 

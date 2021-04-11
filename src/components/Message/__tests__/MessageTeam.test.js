@@ -106,7 +106,7 @@ describe('<MessageTeam />', () => {
       deleted_at: new Date('2019-08-27T00:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageTeam(deletedMessage, {
+    const { getByTestId } = await renderMessageTeam(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -129,10 +129,9 @@ describe('<MessageTeam />', () => {
     );
     const { getByTestId } = await renderMessageTeam(
       message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
+      null,
       { reactions: true },
+      { ReactionSelector: React.forwardRef(CustomReactionSelector) },
     );
     fireEvent.click(getByTestId(messageTeamReactionIcon));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
@@ -156,10 +155,9 @@ describe('<MessageTeam />', () => {
     );
     const { getByTestId } = await renderMessageTeam(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      null,
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
@@ -205,9 +203,7 @@ describe('<MessageTeam />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageTeam(message, {
-      clearEditingState,
-      editing: true,
+    await renderMessageTeam(message, { clearEditingState, editing: true }, null, {
       EditMessageInput: CustomEditMessageInput,
     });
 

@@ -107,7 +107,7 @@ describe('<MessageCommerce />', () => {
       deleted_at: new Date('2019-12-10T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageCommerce(deletedMessage, {
+    const { getByTestId } = await renderMessageCommerce(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -131,10 +131,9 @@ describe('<MessageCommerce />', () => {
     );
     const { getByTestId } = await renderMessageCommerce(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      null,
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });

@@ -7,6 +7,10 @@ import type { AvatarProps } from '../components/Avatar/Avatar';
 import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
+import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
+import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
+import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
 
 import type {
   DefaultAttachmentType,
@@ -35,9 +39,13 @@ export type ComponentContextValue<
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   Avatar?: React.ComponentType<AvatarProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   HeaderComponent?: React.ComponentType;
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
+  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
+  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -64,38 +72,50 @@ export const ComponentProvider = <
   const Attachment = value.Attachment || existingValue.Attachment;
   const Avatar = value.Avatar || existingValue.Avatar;
   const DateSeparator = value.DateSeparator || existingValue.DateSeparator;
+  const EditMessageInput = value.EditMessageInput || existingValue.EditMessageInput;
   const Emoji = value.Emoji || existingValue.Emoji;
   const EmojiIndex = value.EmojiIndex || existingValue.EmojiIndex;
   const EmojiPicker = value.EmojiPicker || existingValue.EmojiPicker;
   const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
   const Message = value.Message || existingValue.Message;
+  const MessageDeleted = value.MessageDeleted || existingValue.MessageDeleted;
   const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
   const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
+  const ReactionSelector = value.ReactionSelector || existingValue.ReactionSelector;
+  const ReactionsList = value.ReactionsList || existingValue.ReactionsList;
 
   const memoizedValue = useMemo(
     () => ({
       Attachment,
       Avatar,
       DateSeparator,
+      EditMessageInput,
       Emoji,
       EmojiIndex,
       EmojiPicker,
       HeaderComponent,
       Message,
+      MessageDeleted,
       MessageSystem,
       PinIndicator,
+      ReactionSelector,
+      ReactionsList,
     }),
     [
       Attachment,
       Avatar,
       DateSeparator,
+      EditMessageInput,
       Emoji,
       EmojiIndex,
       EmojiPicker,
       HeaderComponent,
       Message,
+      MessageDeleted,
       MessageSystem,
       PinIndicator,
+      ReactionSelector,
+      ReactionsList,
     ],
   );
 

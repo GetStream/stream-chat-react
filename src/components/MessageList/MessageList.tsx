@@ -37,10 +37,14 @@ import {
 import type { StreamChat } from 'stream-chat';
 
 import type { AvatarProps } from '../Avatar';
+import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
 import type { UserEventHandler } from '../Message/hooks/useUserHandler';
+import type { MessageDeletedProps } from '../Message/MessageDeleted';
 import type { MessageProps, PinIndicatorProps } from '../Message/types';
-import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
+import type { MessageInputProps } from '../MessageInput/MessageInput';
+import type { ReactionsListProps } from '../Reactions/ReactionsList';
+import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
@@ -225,7 +229,7 @@ const MessageListWithContext = <
         onScroll={onScroll}
         ref={ref}
       >
-        {!elements.length && EmptyStateIndicator ? (
+        {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
@@ -284,6 +288,8 @@ export type MessageListProps<
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
+  /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
+  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** Whether or not the list has more items to load */
@@ -304,6 +310,8 @@ export type MessageListProps<
   loadingMore?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
+  /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
@@ -318,6 +326,10 @@ export type MessageListProps<
   onUserHover?: UserEventHandler<Us>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
+  /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
+  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
+  /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
+  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */
@@ -350,10 +362,14 @@ export const MessageList = <
     Attachment,
     Avatar,
     DateSeparator,
+    EditMessageInput,
     HeaderComponent,
     Message,
+    MessageDeleted,
     MessageSystem,
     PinIndicator,
+    ReactionSelector,
+    ReactionsList,
     ...rest
   } = props;
 
@@ -367,12 +383,28 @@ export const MessageList = <
       Attachment,
       Avatar,
       DateSeparator,
+      EditMessageInput,
       HeaderComponent,
       Message,
+      MessageDeleted,
       MessageSystem,
       PinIndicator,
+      ReactionSelector,
+      ReactionsList,
     }),
-    [Attachment, Avatar, DateSeparator, HeaderComponent, Message, MessageSystem, PinIndicator],
+    [
+      Attachment,
+      Avatar,
+      DateSeparator,
+      EditMessageInput,
+      HeaderComponent,
+      Message,
+      MessageDeleted,
+      MessageSystem,
+      PinIndicator,
+      ReactionSelector,
+      ReactionsList,
+    ],
   );
 
   return (

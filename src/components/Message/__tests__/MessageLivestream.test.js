@@ -85,7 +85,7 @@ const imageAttachment = {
 const messageLivestreamWrapperTestId = 'message-livestream';
 const messageLiveStreamReactionsTestId = 'message-livestream-reactions-action';
 const reactionSelectorTestId = 'reaction-selector';
-const messageLivestreamthreadTestId = 'message-livestream-thread-action';
+const messageLivestreamThreadTestId = 'message-livestream-thread-action';
 const messageLivestreamTextTestId = 'message-livestream-text';
 const messageLivestreamErrorTestId = 'message-livestream-error';
 const messageLivestreamCommandErrorTestId = 'message-livestream-command-error';
@@ -111,7 +111,7 @@ describe('<MessageLivestream />', () => {
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageLivestream(deletedMessage, {
+    const { getByTestId } = await renderMessageLivestream(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -132,10 +132,12 @@ describe('<MessageLivestream />', () => {
         </li>
       </ul>
     );
-    const { getByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { reactions: true },
-      ReactionSelector: React.forwardRef(CustomReactionSelector),
-    });
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      { channelConfig: { reactions: true } },
+      null,
+      { ReactionSelector: React.forwardRef(CustomReactionSelector) },
+    );
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
@@ -158,10 +160,9 @@ describe('<MessageLivestream />', () => {
     );
     const { getByTestId } = await renderMessageLivestream(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      null,
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
@@ -208,9 +209,7 @@ describe('<MessageLivestream />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageLivestream(message, {
-      clearEditingState,
-      editing: true,
+    await renderMessageLivestream(message, { clearEditingState, editing: true }, null, {
       EditMessageInput: CustomEditMessageInput,
     });
 
@@ -363,7 +362,7 @@ describe('<MessageLivestream />', () => {
     const { getByTestId } = await renderMessageLivestream(message, {
       channelConfig: { replies: true },
     });
-    expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
+    expect(getByTestId(messageLivestreamThreadTestId)).toBeInTheDocument();
   });
 
   it('should display text in users set language', async () => {
@@ -386,7 +385,7 @@ describe('<MessageLivestream />', () => {
       handleOpenThread,
     });
     expect(handleOpenThread).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(messageLivestreamthreadTestId));
+    fireEvent.click(getByTestId(messageLivestreamThreadTestId));
     expect(handleOpenThread).toHaveBeenCalledWith(
       expect.any(Object), // THe click event
     );

@@ -52,6 +52,7 @@ async function renderMessageSimple(
   message,
   props = {},
   channelConfig = { reactions: true, replies: true },
+  components = {},
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
@@ -62,7 +63,7 @@ async function renderMessageSimple(
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
-            <ComponentProvider value={{ Attachment: AttachmentMock }}>
+            <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
               <MessageSimple
                 client={client}
                 getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
@@ -123,7 +124,7 @@ describe('<MessageSimple />', () => {
       deleted_at: new Date('2019-12-25T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageSimple(deletedMessage, {
+    const { getByTestId } = await renderMessageSimple(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -135,9 +136,7 @@ describe('<MessageSimple />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageSimple(message, {
-      clearEditingState,
-      editing: true,
+    await renderMessageSimple(message, { clearEditingState, editing: true }, null, {
       EditMessageInput: CustomEditMessageInput,
     });
 
@@ -178,7 +177,7 @@ describe('<MessageSimple />', () => {
         })}
       </ul>
     );
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
       ReactionsList: CustomReactionsList,
     });
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();

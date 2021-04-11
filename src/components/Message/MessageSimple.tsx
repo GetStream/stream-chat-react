@@ -71,7 +71,6 @@ const MessageSimpleWithContext = <
     additionalMessageInputProps,
     clearEditingState,
     editing,
-    EditMessageInput = DefaultEditMessageForm,
     formatDate,
     getMessageActions,
     handleAction,
@@ -81,18 +80,22 @@ const MessageSimpleWithContext = <
     isMyMessage,
     isReactionEnabled,
     message,
-    MessageDeleted = DefaultMessageDeleted,
     onReactionListClick,
     onUserClick,
     onUserHover,
-    ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
-    ReactionsList = DefaultReactionList,
     showDetailedReactions,
     threadList,
   } = props;
 
-  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    Attachment,
+    Avatar = DefaultAvatar,
+    EditMessageInput = DefaultEditMessageForm,
+    MessageDeleted = DefaultMessageDeleted,
+    ReactionSelector = DefaultReactionSelector,
+    ReactionsList = DefaultReactionList,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 

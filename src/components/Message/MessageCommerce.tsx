@@ -64,18 +64,21 @@ const MessageCommerceWithContext = <
     isMyMessage,
     isReactionEnabled,
     message,
-    MessageDeleted = DefaultMessageDeleted,
     onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
-    ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
-    ReactionsList = DefaultReactionsList,
     showDetailedReactions,
     threadList,
   } = props;
 
-  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    Attachment,
+    Avatar = DefaultAvatar,
+    MessageDeleted = DefaultMessageDeleted,
+    ReactionSelector = DefaultReactionSelector,
+    ReactionsList = DefaultReactionsList,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,

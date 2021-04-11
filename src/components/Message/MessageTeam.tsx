@@ -76,7 +76,6 @@ const MessageTeamWithContext = <
     channelConfig: propChannelConfig,
     clearEditingState,
     editing,
-    EditMessageInput = DefaultEditMessageForm,
     formatDate,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
@@ -98,7 +97,6 @@ const MessageTeamWithContext = <
     isReactionEnabled,
     lastReceivedId,
     message,
-    MessageDeleted = DefaultMessageDeleted,
     messageListRect,
     messageWrapperRef,
     onMentionsClickMessage,
@@ -106,8 +104,6 @@ const MessageTeamWithContext = <
     onReactionListClick,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
     reactionSelectorRef,
     readBy,
     renderText = defaultRenderText,
@@ -120,7 +116,11 @@ const MessageTeamWithContext = <
   const {
     Attachment,
     Avatar = DefaultAvatar,
+    EditMessageInput = DefaultEditMessageForm,
+    MessageDeleted = DefaultMessageDeleted,
     PinIndicator = DefaultPinIndicator,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
