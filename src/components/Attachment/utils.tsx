@@ -74,7 +74,7 @@ export const renderAttachmentActions = <At extends DefaultAttachmentType = Defau
   return (
     <AttachmentActions
       {...attachment}
-      actionHandler={(event, name, value) => actionHandler?.(name, value, event)}
+      actionHandler={actionHandler}
       actions={attachment.actions || []}
       id={attachment.id || ''}
       key={`key-actions-${attachment.id}`}

@@ -626,7 +626,7 @@ const ChannelInner = <
   /** THREAD */
 
   const openThread = useCallback(
-    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>, event: React.SyntheticEvent) => {
+    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>, event: React.BaseSyntheticEvent) => {
       if (!channel) return;
 
       if (event && event.preventDefault) {
@@ -690,7 +690,7 @@ const ChannelInner = <
     }
   }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
-  const closeThread = useCallback((event: React.SyntheticEvent) => {
+  const closeThread = useCallback((event: React.BaseSyntheticEvent) => {
     if (event && event.preventDefault) {
       event.preventDefault();
     }

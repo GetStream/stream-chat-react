@@ -12,7 +12,7 @@ export type ModalWrapperProps = {
   /** Boolean for if modal is open*/
   modalIsOpen: boolean;
   /** click event handler for toggling modal */
-  toggleModal: (event: React.SyntheticEvent<HTMLButtonElement, Event>) => void;
+  toggleModal: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
   /** The index for the component */
   index?: number;
 };

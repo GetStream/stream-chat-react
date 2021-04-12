@@ -6,7 +6,7 @@ export type ModalProps = {
   /** If true, modal is opened or visible. */
   open: boolean;
   /** Callback handler for closing of modal. */
-  onClose?: () => void | ((event?: React.SyntheticEvent) => void);
+  onClose?: () => void | ((event?: React.BaseSyntheticEvent) => void);
 };
 
 export const Modal: React.FC<ModalProps> = (props) => {
@@ -17,7 +17,11 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target instanceof Node && !innerRef.current?.contains(event.target) && onClose) {
+    if (
+      event.target instanceof HTMLDivElement &&
+      !innerRef.current?.contains(event.target) &&
+      onClose
+    ) {
       onClose();
     }
   };

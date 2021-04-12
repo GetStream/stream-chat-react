@@ -175,7 +175,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const wrapperClass =
     typeof customWrapperClass === 'string' ? customWrapperClass : defaultWrapperClass;
 
-  const onClickOptionsAction = (event: React.MouseEvent) => {
+  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
     setActionsBoxOpen(true);
   };

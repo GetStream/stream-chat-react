@@ -1,11 +1,11 @@
-import { MouseEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType } from '../../../../types/types';
 
 export type OnMentionAction<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
+  event: React.BaseSyntheticEvent,
   user?: UserResponse<Us>,
 ) => void;
 
@@ -14,7 +14,7 @@ export const useMentionsHandlers = <Us extends DefaultUserType<Us> = DefaultUser
   onMentionsClick?: OnMentionAction<Us>,
 ) =>
   useCallback(
-    (event: MouseEvent<HTMLElement>, mentioned_users: UserResponse<Us>[]) => {
+    (event: React.BaseSyntheticEvent, mentioned_users: UserResponse<Us>[]) => {
       if ((!onMentionsHover && !onMentionsClick) || !(event.target instanceof HTMLElement)) {
         return;
       }
