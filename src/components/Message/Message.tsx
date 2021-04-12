@@ -88,13 +88,9 @@ const MessageWithContext = <
   const {
     canPin,
     channelConfig,
-    formatDate,
-    groupStyles = [],
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
-    onMentionsClickMessage,
-    onMentionsHoverMessage,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     userRoles,
@@ -102,6 +98,7 @@ const MessageWithContext = <
 
   const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage || contextMessage;
 
   const { clearEdit, editing, setEdit } = useEditHandler();
@@ -144,22 +141,15 @@ const MessageWithContext = <
     messageActions,
   ]);
 
-  const actionsEnabled = message.type === 'regular' && message.status === 'received';
-
   return (
     <MessageUIComponent
       {...props}
       actionsEnabled={actionsEnabled}
-      channelConfig={channelConfig}
       clearEditingState={clearEdit}
       editing={editing}
-      formatDate={formatDate}
       getMessageActions={messageActionsHandler}
-      groupStyles={groupStyles}
       handleEdit={setEdit}
       isMyMessage={() => isMyMessage}
-      onMentionsClickMessage={onMentionsClickMessage}
-      onMentionsHoverMessage={onMentionsHoverMessage}
       onUserClick={onUserClick}
       onUserHover={onUserHover}
       setEditingState={setEdit}
