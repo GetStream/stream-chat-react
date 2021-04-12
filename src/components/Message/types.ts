@@ -109,7 +109,7 @@ export type MessageProps<
   watchers?: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
 };
 
-type MessagePropsToOmit = 'onUserClick' | 'onUserHover';
+type MessagePropsToOmit = 'channel' | 'onUserClick' | 'onUserHover';
 
 export type MessageUIComponentProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -122,8 +122,6 @@ export type MessageUIComponentProps<
 > = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> & {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
-  /** The currently active channel. */
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Function to exit edit state */
   clearEditingState: (
     event?: React.MouseEvent<HTMLElement, globalThis.MouseEvent> | undefined,
@@ -176,8 +174,6 @@ export type MessageUIComponentProps<
     mentioned_users?: UserResponse<Us>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
-  /** Whether or not the current Message is in a Thread */
-  threadList?: boolean;
 };
 
 export type PinIndicatorProps<

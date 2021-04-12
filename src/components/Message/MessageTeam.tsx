@@ -24,7 +24,6 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -72,8 +71,7 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channel,
-    channelConfig: propChannelConfig,
+    channelConfig,
     clearEditingState,
     editing,
     formatDate,
@@ -123,8 +121,6 @@ const MessageTeamWithContext = <
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
-
-  const channelConfig = propChannelConfig || channel?.getConfig();
 
   const showActionsBox = showMessageActionsBox(getMessageActions());
 
@@ -487,8 +483,6 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -501,7 +495,6 @@ export const MessageTeam = <
   return (
     <MemoizedMessageTeam
       {...props}
-      channel={channel}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
       onReactionListClick={onReactionListClick}

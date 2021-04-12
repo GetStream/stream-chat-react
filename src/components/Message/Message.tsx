@@ -26,7 +26,7 @@ import { RetrySendMessage, useChannelActionContext } from '../../context/Channel
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { Channel } from 'stream-chat';
+import type { ChannelConfigWithInfo } from 'stream-chat';
 
 import type { MessageProps, MouseEventHandler } from './types';
 
@@ -48,9 +48,8 @@ type MessageWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'channel'> & {
   canPin: boolean;
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   handleAction: ActionHandlerReturnType;
   handleDelete: MouseEventHandler;
   handleFlag: MouseEventHandler;
@@ -72,6 +71,7 @@ type MessageWithContextProps<
     isMyMessage: boolean;
     isOwner: boolean;
   };
+  channelConfig?: ChannelConfigWithInfo<Co>;
 };
 
 const MessageWithContext = <
@@ -87,7 +87,7 @@ const MessageWithContext = <
 ) => {
   const {
     canPin,
-    channel,
+    channelConfig,
     formatDate,
     groupStyles = [],
     Message: propMessage,
@@ -103,8 +103,6 @@ const MessageWithContext = <
   const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const MessageUIComponent = propMessage || contextMessage;
-
-  const channelConfig = channel.getConfig && channel.getConfig();
 
   const { clearEdit, editing, setEdit } = useEditHandler();
 
@@ -209,6 +207,7 @@ export const Message = <
   const { channel: contextChannel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const channel = propChannel || contextChannel;
+  const channelConfig = channel.getConfig();
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
@@ -239,11 +238,14 @@ export const Message = <
     notify: addNotification,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { channel: channelPropToNotPass, ...rest } = props;
+
   return (
     <MemoizedMessage
-      {...props}
+      {...rest}
       canPin={canPin}
-      channel={channel}
+      channelConfig={channelConfig}
       handleAction={handleAction}
       handleDelete={handleDelete}
       handleFlag={handleFlag}
