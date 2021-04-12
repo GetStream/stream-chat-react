@@ -135,6 +135,7 @@ const MessageSimpleWithContext = <
 						str-chat__message--${message.status}
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
+            ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
             ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
           key={message.id || ''}
