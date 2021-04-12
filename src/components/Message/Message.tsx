@@ -25,6 +25,7 @@ import {
 import { RetrySendMessage, useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { MessageProvider } from '../../context/MessageContext';
 
 import type { ChannelConfigWithInfo } from 'stream-chat';
 
@@ -150,25 +151,41 @@ const MessageWithContext = <
 
   const {
     canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...rest
   } = props;
 
+  const messageContextValue = {
+    ...rest,
+    actionsEnabled,
+    clearEditingState: clearEdit,
+    editing,
+    getMessageActions: messageActionsHandler,
+    handleEdit: setEdit,
+    isMyMessage: () => isMyMessage,
+    onUserClick,
+    onUserHover,
+    setEditingState: setEdit,
+  };
+
   return (
-    <MessageUIComponent
-      {...rest}
-      actionsEnabled={actionsEnabled}
-      clearEditingState={clearEdit}
-      editing={editing}
-      getMessageActions={messageActionsHandler}
-      handleEdit={setEdit}
-      isMyMessage={() => isMyMessage}
-      onUserClick={onUserClick}
-      onUserHover={onUserHover}
-      setEditingState={setEdit}
-    />
+    <MessageProvider value={messageContextValue}>
+      <MessageUIComponent
+        {...rest}
+        actionsEnabled={actionsEnabled}
+        clearEditingState={clearEdit}
+        editing={editing}
+        getMessageActions={messageActionsHandler}
+        handleEdit={setEdit}
+        isMyMessage={() => isMyMessage}
+        onUserClick={onUserClick}
+        onUserHover={onUserHover}
+        setEditingState={setEdit}
+      />
+    </MessageProvider>
   );
 };
 
