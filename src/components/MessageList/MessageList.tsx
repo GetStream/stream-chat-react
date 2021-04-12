@@ -39,7 +39,6 @@ import type { StreamChat } from 'stream-chat';
 import type { AvatarProps } from '../Avatar';
 import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
 import type { EventComponentProps } from '../EventComponent/EventComponent';
-import type { UserEventHandler } from '../Message/hooks/useUserHandler';
 import type { MessageDeletedProps } from '../Message/MessageDeleted';
 import type { MessageProps, PinIndicatorProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
@@ -179,7 +178,6 @@ const MessageListWithContext = <
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
-    client,
     disableDateSeparator,
     headerPosition,
     hideDeletedMessages,
@@ -190,7 +188,6 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements<At, Ch, Co, Ev, Me, Re, Us>({
-    client,
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
@@ -266,6 +263,8 @@ type PropsDrilledToMessage =
   | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'
+  | 'onUserClick'
+  | 'onUserHover'
   | 'openThread'
   | 'pinPermissions'
   | 'retrySendMessage'
@@ -320,12 +319,8 @@ export type MessageListProps<
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
-  /** Optional override for the click event handler on the user that posted the Message*/
-  onUserClick?: UserEventHandler<Us>;
-  /** Optional override for the hover event handler on the user that posted the Message*/
-  onUserHover?: UserEventHandler<Us>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
-  PinIndicator?: React.ComponentType<PinIndicatorProps>;
+  PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */

@@ -7,10 +7,11 @@ import { getLastReceived, GroupStyle } from '../utils';
 import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
 import { Message } from '../../Message';
 
+import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { isDate } from '../../../context/TranslationContext';
 
-import type { StreamChat, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 import { EventComponent } from '../../EventComponent/EventComponent';
 import type { MessageProps } from '../../Message/types';
@@ -36,7 +37,6 @@ export function useMessageListElements<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(args: {
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   enrichedMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
@@ -45,7 +45,6 @@ export function useMessageListElements<
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 }) {
   const {
-    client,
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
@@ -54,6 +53,7 @@ export function useMessageListElements<
     threadList,
   } = args;
 
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
@@ -108,7 +108,6 @@ export function useMessageListElements<
               onLoadCapture={onMessageLoadCaptured}
             >
               <Message
-                client={client}
                 groupStyles={[groupStyles]} /* TODO: convert to simple string */
                 lastReceivedId={lastReceivedId}
                 message={message}
@@ -123,7 +122,6 @@ export function useMessageListElements<
         return null;
       }),
     [
-      client,
       enrichedMessages,
       internalMessageProps,
       lastReceivedId,

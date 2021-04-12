@@ -26,6 +26,7 @@ import {
 } from '../Reactions';
 import { Tooltip } from '../Tooltip';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -252,11 +253,12 @@ const MessageSimpleStatus = <
     Avatar: React.ComponentType<AvatarProps>;
   },
 ) => {
-  const { Avatar, client, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
+  const { Avatar, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
 
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  if (!client || !isMyMessage() || message.type === 'error') {
+  if (!isMyMessage() || message.type === 'error') {
     return null;
   }
 

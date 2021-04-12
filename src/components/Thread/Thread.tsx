@@ -7,7 +7,6 @@ import { MessageList, MessageListProps } from '../MessageList/MessageList';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -186,7 +185,6 @@ const ThreadInner = <
   } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Message: ContextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const messageList = useRef<HTMLDivElement | null>(null);
@@ -219,7 +217,6 @@ const ThreadInner = <
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           channel={channel}
-          client={client}
           initialMessage
           message={thread}
           Message={ThreadMessage}

@@ -1,12 +1,5 @@
 import type { TFunction } from 'i18next';
-import type {
-  Channel,
-  ChannelConfigWithInfo,
-  ChannelState,
-  Mute,
-  StreamChat,
-  UserResponse,
-} from 'stream-chat';
+import type { Channel, ChannelConfigWithInfo, ChannelState, Mute, UserResponse } from 'stream-chat';
 
 import type { ActionHandlerReturnType, PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
@@ -50,8 +43,6 @@ export type MessageProps<
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /** The currently active channel */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /** The client connection object for connecting to Stream */
-  client?: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /**
