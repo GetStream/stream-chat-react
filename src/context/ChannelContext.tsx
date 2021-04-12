@@ -157,7 +157,7 @@ export type ChannelContextValue<
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
   Attachment?: React.ComponentType<AttachmentProps<At>>;
-  closeThread?: (event: React.SyntheticEvent) => void;
+  closeThread?: (event: React.BaseSyntheticEvent) => void;
   dispatch?: React.Dispatch<ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>>;
   editMessage?: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
@@ -169,11 +169,11 @@ export type ChannelContextValue<
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   multipleUploads?: boolean;
   mutes?: Mute<Us>[];
-  onMentionsClick?: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
-  onMentionsHover?: (event: React.MouseEvent<HTMLElement>, user: UserResponse<Us>[]) => void;
+  onMentionsClick?: (event: React.BaseSyntheticEvent, user: UserResponse<Us>[]) => void;
+  onMentionsHover?: (event: React.BaseSyntheticEvent, user: UserResponse<Us>[]) => void;
   openThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.SyntheticEvent,
+    event: React.BaseSyntheticEvent,
   ) => void;
   removeMessage?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage?: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;

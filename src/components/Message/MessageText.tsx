@@ -19,7 +19,7 @@ import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { MessageUIComponentProps, MouseEventHandler } from './types';
+import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -44,7 +44,7 @@ export type MessageTextProps<
   customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   customWrapperClass?: string;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  onReactionListClick?: MouseEventHandler;
+  onReactionListClick?: ReactEventHandler;
   reactionSelectorRef?: React.RefObject<HTMLDivElement>;
   showDetailedReactions?: boolean;
   theme?: string;

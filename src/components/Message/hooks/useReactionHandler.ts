@@ -1,9 +1,9 @@
-import { MouseEvent, RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { Reaction, ReactionAPIResponse, ReactionResponse } from 'stream-chat';
 
@@ -34,8 +34,8 @@ export const useReactionHandler = <
   const { channel, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  return async (reactionType: string, event: MouseEvent<HTMLElement>) => {
-    if (event && event.preventDefault) {
+  return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
+    if (event?.preventDefault) {
       event.preventDefault();
     }
 
@@ -180,8 +180,8 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  const onReactionListClick: MouseEventHandler = (event) => {
-    if (event && event.stopPropagation) {
+  const onReactionListClick: ReactEventHandler = (event) => {
+    if (event?.stopPropagation) {
       event.stopPropagation();
     }
     setShowDetailedReactions(true);
