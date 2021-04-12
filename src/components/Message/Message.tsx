@@ -40,6 +40,13 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+type MessagePropsToOmit =
+  | 'channel'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'openThread'
+  | 'retrySendMessage';
+
 type MessageWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -48,7 +55,7 @@ type MessageWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'channel'> & {
+> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> & {
   canPin: boolean;
   handleAction: ActionHandlerReturnType;
   handleDelete: MouseEventHandler;
@@ -141,9 +148,17 @@ const MessageWithContext = <
     messageActions,
   ]);
 
+  const {
+    canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    ...rest
+  } = props;
+
   return (
     <MessageUIComponent
-      {...props}
+      {...rest}
       actionsEnabled={actionsEnabled}
       clearEditingState={clearEdit}
       editing={editing}
@@ -228,8 +243,14 @@ export const Message = <
     notify: addNotification,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { channel: channelPropToNotPass, ...rest } = props;
+  const {
+    channel: channelPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onMentionsClick: onMentionsClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onMentionsHover: onMentionsHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    openThread: openThreadPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    retrySendMessage: retryPropPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    ...rest
+  } = props;
 
   return (
     <MemoizedMessage

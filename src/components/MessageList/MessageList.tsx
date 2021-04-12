@@ -113,8 +113,10 @@ type MessageListPropsToOmit =
   | 'Attachment'
   | 'Avatar'
   | 'DateSeparator'
+  | 'EditMessageInput'
   | 'HeaderComponent'
   | 'Message'
+  | 'MessageDeleted'
   | 'MessageSystem'
   | 'PinIndicator';
 
@@ -126,9 +128,9 @@ type MessageListWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> &
-  TranslationContextValue &
-  Omit<MessageListProps<At, Ch, Co, Ev, Me, Re, Us>, MessageListPropsToOmit> & {
+> = Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'members' | 'watchers'> &
+  Omit<MessageListProps<At, Ch, Co, Ev, Me, Re, Us>, MessageListPropsToOmit> &
+  TranslationContextValue & {
     client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   };
 
@@ -197,7 +199,6 @@ const MessageListWithContext = <
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
       getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
-      members: props.members,
       messageActions,
       messageListRect: wrapperRect,
       mutes: props.mutes,
@@ -209,7 +210,6 @@ const MessageListWithContext = <
       pinPermissions,
       retrySendMessage: props.retrySendMessage,
       unsafeHTML,
-      watchers: props.watchers,
     },
     messageGroupStyles,
     onMessageLoadCaptured,
@@ -369,7 +369,11 @@ export const MessageList = <
   } = props;
 
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    ...restChannelStateContext
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const translationContext = useTranslationContext();
 
@@ -407,7 +411,7 @@ export const MessageList = <
       <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
         client={client}
         loadMore={loadMore}
-        {...channelStateContext}
+        {...restChannelStateContext}
         {...translationContext}
         {...rest}
       />
