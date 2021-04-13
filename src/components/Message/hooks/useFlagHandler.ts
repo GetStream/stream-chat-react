@@ -3,7 +3,7 @@ import { validateAndGetMessage } from '../utils';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelContext';
 
@@ -45,7 +45,7 @@ export const useFlagHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: FlagMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
-): MouseEventHandler => {
+): ReactEventHandler => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

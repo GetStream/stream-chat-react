@@ -1,9 +1,9 @@
 import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
-import type { MouseEvent } from 'react';
+import type React from 'react';
 import type { UserResponse } from 'stream-chat';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -16,12 +16,12 @@ import type {
 } from '../../../../types/types';
 
 export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
+  event: React.BaseSyntheticEvent,
   user: UserResponse<Us>[],
 ) => void;
 
 export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
+  event: React.BaseSyntheticEvent,
   mentionedUsers: UserResponse<Us>[],
 ) => void;
 
@@ -36,7 +36,7 @@ function createEventHandler<
 >(
   fn?: MentionedUserEventHandler<Us>,
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): MouseEventHandler {
+): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users) {
       return;
@@ -88,8 +88,8 @@ export const useMentionsUIHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   eventHandlers?: {
-    onMentionsClick?: MouseEventHandler;
-    onMentionsHover?: MouseEventHandler;
+    onMentionsClick?: ReactEventHandler;
+    onMentionsHover?: ReactEventHandler;
   },
 ) => {
   const { onMentionsClick, onMentionsHover } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();

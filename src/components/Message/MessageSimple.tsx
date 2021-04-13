@@ -31,7 +31,7 @@ import { useChannelContext } from '../../context/ChannelContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageUIComponentProps, MouseEventHandler } from './types';
+import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -53,7 +53,7 @@ type MessageSimpleWithContextProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'> & {
   isReactionEnabled: boolean;
-  onReactionListClick: MouseEventHandler;
+  onReactionListClick: ReactEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
   showDetailedReactions: boolean;
 };

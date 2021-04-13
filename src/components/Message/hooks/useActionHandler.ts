@@ -1,6 +1,6 @@
 import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
-import type { BaseSyntheticEvent } from 'react';
+import type React from 'react';
 
 import type {
   DefaultAttachmentType,
@@ -17,7 +17,7 @@ export type FormData = Record<string, string>;
 export type ActionHandlerReturnType = (
   dataOrName?: string | FormData,
   value?: string,
-  event?: BaseSyntheticEvent,
+  event?: React.BaseSyntheticEvent,
 ) => Promise<void>;
 
 export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.

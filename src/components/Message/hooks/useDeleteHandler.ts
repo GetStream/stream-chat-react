@@ -1,6 +1,6 @@
 import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type {
   DefaultAttachmentType,
@@ -22,7 +22,7 @@ export const useDeleteHandler = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): MouseEventHandler => {
+): ReactEventHandler => {
   const { client, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (event) => {

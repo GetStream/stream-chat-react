@@ -31,7 +31,7 @@ export type ChatContextValue<
   setActiveChannel: (
     newChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
     watchers?: { limit?: number; offset?: number },
-    event?: React.SyntheticEvent,
+    event?: React.BaseSyntheticEvent,
   ) => void;
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;

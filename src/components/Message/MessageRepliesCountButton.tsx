@@ -4,12 +4,12 @@ import { ReplyIcon } from './icons';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MouseEventHandler } from './types';
+import type { ReactEventHandler } from './types';
 
 export type MessageRepliesCountButtonProps = {
   labelPlural?: string;
   labelSingle?: string;
-  onClick?: MouseEventHandler;
+  onClick?: ReactEventHandler;
   reply_count?: number;
 };
 

@@ -32,7 +32,7 @@ import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { MessageUIComponentProps, MouseEventHandler } from './types';
+import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -55,7 +55,7 @@ type MessageTeamWithContextProps<
 > = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
-  onReactionListClick: MouseEventHandler;
+  onReactionListClick: ReactEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
   showDetailedReactions: boolean;
 };

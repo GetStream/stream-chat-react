@@ -27,7 +27,7 @@ import { RetrySendMessage, useChannelContext } from '../../context/ChannelContex
 
 import type { Channel } from 'stream-chat';
 
-import type { MessageProps, MouseEventHandler } from './types';
+import type { MessageProps, ReactEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -51,18 +51,15 @@ type MessageWithContextProps<
   canPin: boolean;
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   handleAction: ActionHandlerReturnType;
-  handleDelete: MouseEventHandler;
-  handleFlag: MouseEventHandler;
-  handleMute: MouseEventHandler;
-  handleOpenThread: MouseEventHandler;
-  handlePin: MouseEventHandler;
-  handleReaction: (
-    reactionType: string,
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => Promise<void>;
+  handleDelete: ReactEventHandler;
+  handleFlag: ReactEventHandler;
+  handleMute: ReactEventHandler;
+  handleOpenThread: ReactEventHandler;
+  handlePin: ReactEventHandler;
+  handleReaction: ReturnType<typeof useReactionHandler>;
   handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  onMentionsClickMessage: MouseEventHandler;
-  onMentionsHoverMessage: MouseEventHandler;
+  onMentionsClickMessage: ReactEventHandler;
+  onMentionsHoverMessage: ReactEventHandler;
   userRoles: {
     canDeleteMessage: boolean;
     canEditMessage: boolean;
