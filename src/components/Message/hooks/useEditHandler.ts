@@ -1,9 +1,11 @@
 import { useState } from 'react';
 
+import type { ReactEventHandler } from '../types';
+
 export type EditHandlerReturnType = {
   clearEdit: (event?: React.BaseSyntheticEvent) => void;
   editing: boolean;
-  setEdit: (event: React.BaseSyntheticEvent) => Promise<void> | void;
+  setEdit: ReactEventHandler;
 };
 
 export const useEditHandler = (
