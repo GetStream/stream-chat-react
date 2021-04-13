@@ -113,9 +113,9 @@ const MessageWithContext = <
     onUserHoverHandler: propOnUserHover,
   });
 
-  const { isAdmin, isModerator, isMyMessage, isOwner } = userRoles;
+  const { isAdmin, isModerator, isMyMessage } = userRoles;
 
-  const canEdit = isMyMessage || isModerator || isOwner || isAdmin;
+  const canEdit = isMyMessage || isModerator || isAdmin;
   const canDelete = canEdit;
   const canReact = true;
   const canReply = true;
