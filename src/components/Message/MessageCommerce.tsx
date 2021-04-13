@@ -16,6 +16,7 @@ import {
 } from '../Reactions';
 
 import { useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
@@ -37,7 +38,7 @@ type MessageCommerceWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   onReactionListClick: ReactEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -103,9 +104,8 @@ const MessageCommerceWithContext = <
   }
 
   return (
-    <>
-      <div
-        className={`
+    <div
+      className={`
 						${messageClasses}
 						str-chat__message-commerce--${message.type}
 						${message.text ? 'str-chat__message-commerce--has-text' : 'str-chat__message-commerce--has-no-text'}
@@ -114,100 +114,99 @@ const MessageCommerceWithContext = <
             ${`str-chat__message-commerce--${firstGroupStyle}`}
             ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
-        data-testid='message-commerce-wrapper'
-        key={message.id}
-      >
-        {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
-          <Avatar
-            image={message.user?.image}
-            name={message.user?.name || message.user?.id}
-            onClick={onUserClick}
-            onMouseOver={onUserHover}
-            size={32}
+      data-testid='message-commerce-wrapper'
+      key={message.id}
+    >
+      {(firstGroupStyle === 'bottom' || firstGroupStyle === 'single') && (
+        <Avatar
+          image={message.user?.image}
+          name={message.user?.name || message.user?.id}
+          onClick={onUserClick}
+          onMouseOver={onUserHover}
+          size={32}
+        />
+      )}
+      <div className='str-chat__message-commerce-inner'>
+        {message && !message.text && (
+          <>
+            {
+              <MessageOptions
+                {...props}
+                displayActions={false}
+                displayLeft={false}
+                displayReplies={false}
+                onReactionListClick={onReactionListClick}
+                theme='commerce'
+              />
+            }
+            {hasReactions && !showDetailedReactions && isReactionEnabled && (
+              <ReactionsList
+                onClick={onReactionListClick}
+                own_reactions={message.own_reactions}
+                reaction_counts={message.reaction_counts || undefined}
+                reactions={message.latest_reactions}
+              />
+            )}
+            {showDetailedReactions && isReactionEnabled && (
+              <ReactionSelector
+                detailedView
+                handleReaction={handleReaction}
+                latest_reactions={message.latest_reactions}
+                own_reactions={message.own_reactions}
+                reaction_counts={message.reaction_counts || undefined}
+                ref={reactionSelectorRef}
+                reverse={false}
+              />
+            )}
+          </>
+        )}
+        {message.attachments && (
+          <Attachment actionHandler={handleAction} attachments={message.attachments} />
+        )}
+        {message.mml && (
+          <MML
+            actionHandler={handleAction}
+            align={isMyMessage() ? 'right' : 'left'}
+            source={message.mml}
           />
         )}
-        <div className='str-chat__message-commerce-inner'>
-          {message && !message.text && (
-            <>
-              {
-                <MessageOptions<At, Ch, Co, Ev, Me, Re, Us>
-                  {...props}
-                  displayActions={false}
-                  displayLeft={false}
-                  displayReplies={false}
-                  onReactionListClick={onReactionListClick}
-                  theme='commerce'
-                />
-              }
-              {hasReactions && !showDetailedReactions && isReactionEnabled && (
-                <ReactionsList
-                  onClick={onReactionListClick}
-                  own_reactions={message.own_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  reactions={message.latest_reactions}
-                />
-              )}
-              {showDetailedReactions && isReactionEnabled && (
-                <ReactionSelector
-                  detailedView
-                  handleReaction={handleReaction}
-                  latest_reactions={message.latest_reactions}
-                  own_reactions={message.own_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  ref={reactionSelectorRef}
-                  reverse={false}
-                />
-              )}
-            </>
-          )}
-          {message.attachments && (
-            <Attachment actionHandler={handleAction} attachments={message.attachments} />
-          )}
-          {message.mml && (
-            <MML
-              actionHandler={handleAction}
-              align={isMyMessage() ? 'right' : 'left'}
-              source={message.mml}
-            />
-          )}
-          {message.text && (
-            <MessageText
-              {...props}
-              customInnerClass='str-chat__message-commerce-text-inner'
-              customOptionProps={{
-                displayActions: false,
-                displayLeft: false,
-                displayReplies: false,
-                theme: 'commerce',
-              }}
-              customWrapperClass='str-chat__message-commerce-text'
-              theme='commerce'
-            />
-          )}
-          {!threadList && (
-            <div className='str-chat__message-commerce-reply-button'>
-              <MessageRepliesCountButton
-                onClick={handleOpenThread}
-                reply_count={message.reply_count}
-              />
-            </div>
-          )}
-          <div className='str-chat__message-commerce-data'>
-            {!isMyMessage() ? (
-              <span className='str-chat__message-commerce-name'>
-                {message.user?.name || message.user?.id}
-              </span>
-            ) : null}
-            <MessageTimestamp
-              customClass='str-chat__message-commerce-timestamp'
-              format='LT'
-              formatDate={formatDate}
-              message={message}
+        {message.text && (
+          <MessageText
+            {...props}
+            customInnerClass='str-chat__message-commerce-text-inner'
+            customOptionProps={{
+              displayActions: false,
+              displayLeft: false,
+              displayReplies: false,
+              theme: 'commerce',
+            }}
+            customWrapperClass='str-chat__message-commerce-text'
+            theme='commerce'
+          />
+        )}
+        {!threadList && (
+          <div className='str-chat__message-commerce-reply-button'>
+            <MessageRepliesCountButton
+              onClick={handleOpenThread}
+              reply_count={message.reply_count}
             />
           </div>
+        )}
+        <div className='str-chat__message-commerce-data'>
+          {!isMyMessage() ? (
+            <span className='str-chat__message-commerce-name'>
+              {message.user?.name || message.user?.id}
+            </span>
+          ) : null}
+          <MessageTimestamp
+            customClass='str-chat__message-commerce-timestamp'
+            format='LT'
+            formatDate={formatDate}
+            message={message}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -228,22 +227,27 @@ export const MessageCommerce = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
+  const message = props.message || messageContext.message;
+
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    props.message,
+    message,
     reactionSelectorRef,
   );
 
   return (
     <MemoizedMessageCommerce
-      {...props}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };

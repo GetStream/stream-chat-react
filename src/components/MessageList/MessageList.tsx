@@ -36,14 +36,7 @@ import {
 
 import type { StreamChat } from 'stream-chat';
 
-import type { AvatarProps } from '../Avatar';
-import type { DateSeparatorProps } from '../DateSeparator/DateSeparator';
-import type { EventComponentProps } from '../EventComponent/EventComponent';
-import type { MessageDeletedProps } from '../Message/MessageDeleted';
-import type { MessageProps, PinIndicatorProps } from '../Message/types';
-import type { MessageInputProps } from '../MessageInput/MessageInput';
-import type { ReactionsListProps } from '../Reactions/ReactionsList';
-import type { ReactionSelectorProps } from '../Reactions/ReactionSelector';
+import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
@@ -267,6 +260,7 @@ type PropsDrilledToMessage =
   | 'onUserHover'
   | 'openThread'
   | 'pinPermissions'
+  | 'renderText'
   | 'retrySendMessage'
   | 'unsafeHTML';
 
@@ -282,19 +276,19 @@ export type MessageListProps<
   /** UI component to display an attachment on a message, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
   Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Avatar'];
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
-  DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  DateSeparator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['DateSeparator'];
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
-  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  EditMessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EditMessageInput'];
   /** The UI Indicator to use when `MessageList` or `ChannelList` is empty  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
   /** Component to render at the top of the MessageList */
-  HeaderComponent?: React.ComponentType;
+  HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
   /** Position to render HeaderComponent */
   headerPosition?: number;
   /** Hides the MessageDeleted components from the list, defaults to `false` */
@@ -310,21 +304,21 @@ export type MessageListProps<
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
-  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
-  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
-  PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  PinIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['PinIndicator'];
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
-  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
+  ReactionSelector?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionSelector'];
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
-  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */

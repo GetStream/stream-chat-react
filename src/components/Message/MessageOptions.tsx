@@ -8,7 +8,9 @@ import { MessageActions } from '../MessageActions';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
-import type { MessageUIComponentProps, ReactEventHandler } from './types';
+import type { ReactEventHandler } from './types';
+
+import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -28,7 +30,7 @@ export type MessageOptionsProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   onReactionListClick: ReactEventHandler;
   displayActions?: boolean;
   displayLeft?: boolean;

@@ -16,6 +16,7 @@ import {
 } from '../Reactions';
 
 import { useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -41,7 +42,7 @@ type MessageLivestreamWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -289,7 +290,7 @@ export type MessageLivestreamActionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Pick<
-  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>,
   PropsDrilledToMessageLivestreamActions
 > & {
   messageWrapperRef: React.RefObject<HTMLDivElement>;
@@ -423,23 +424,28 @@ export const MessageLivestream = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
+  const message = props.message || messageContext.message;
+
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    props.message,
+    message,
     reactionSelectorRef,
     messageWrapperRef,
   );
 
   return (
     <MemoizedMessageLivestream
-      {...props}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };

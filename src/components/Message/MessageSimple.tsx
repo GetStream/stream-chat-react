@@ -28,6 +28,7 @@ import { Tooltip } from '../Tooltip';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageUIComponentProps, ReactEventHandler } from './types';
@@ -50,7 +51,7 @@ type MessageSimpleWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   onReactionListClick: ReactEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -249,7 +250,7 @@ const MessageSimpleStatus = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  props: MessageSimpleWithContextProps<At, Ch, Co, Ev, Me, Re, Us> & {
     Avatar: React.ComponentType<AvatarProps>;
   },
 ) => {
@@ -322,11 +323,13 @@ export const MessageSimple = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Omit<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'PinIndicator'>,
+  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message } = props;
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
+
+  const message = props.message || messageContext.message;
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
@@ -335,11 +338,12 @@ export const MessageSimple = <
 
   return (
     <MemoizedMessageSimple
-      {...props}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };

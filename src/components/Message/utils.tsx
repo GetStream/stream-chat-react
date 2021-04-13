@@ -4,9 +4,10 @@ import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
 
 import type { PinPermissions } from './hooks';
-import type { MessageProps, MessageUIComponentProps } from './types';
+import type { MessageProps } from './types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -260,10 +261,10 @@ export const areMessageUIPropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  prevProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  prevProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  nextProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
     showDetailedReactions?: boolean;
   },
 ) => {

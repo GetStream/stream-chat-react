@@ -170,18 +170,7 @@ const MessageWithContext = <
 
   return (
     <MessageProvider value={messageContextValue}>
-      <MessageUIComponent
-        {...rest}
-        actionsEnabled={actionsEnabled}
-        clearEditingState={clearEdit}
-        editing={editing}
-        getMessageActions={messageActionsHandler}
-        handleEdit={setEdit}
-        isMyMessage={() => isMyMessage}
-        onUserClick={onUserClick}
-        onUserHover={onUserHover}
-        setEditingState={setEdit}
-      />
+      <MessageUIComponent />
     </MessageProvider>
   );
 };

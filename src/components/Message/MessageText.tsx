@@ -15,7 +15,9 @@ import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { MessageUIComponentProps, ReactEventHandler } from './types';
+import type { ReactEventHandler } from './types';
+
+import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -35,7 +37,7 @@ export type MessageTextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   customInnerClass?: string;
   customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   customWrapperClass?: string;

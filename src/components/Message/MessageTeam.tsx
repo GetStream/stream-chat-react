@@ -26,6 +26,7 @@ import { Tooltip } from '../Tooltip';
 
 import { useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -51,7 +52,7 @@ type MessageTeamWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -383,7 +384,7 @@ const MessageTeamStatus = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   props: Pick<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+    MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>,
     'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
   > & { Avatar: React.ComponentType<AvatarProps> },
 ) => {
@@ -449,7 +450,7 @@ const MessageTeamAttachments = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: Pick<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>, 'handleAction' | 'message'> & {
+  props: Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleAction' | 'message'> & {
     Attachment: ComponentContextValue<At>['Attachment'];
   },
 ) => {
@@ -483,23 +484,28 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
+  const message = props.message || messageContext.message;
+
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    props.message,
+    message,
     reactionSelectorRef,
     messageWrapperRef,
   );
 
   return (
     <MemoizedMessageTeam
-      {...props}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };
