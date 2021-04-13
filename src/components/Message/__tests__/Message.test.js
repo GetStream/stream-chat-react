@@ -478,7 +478,7 @@ describe('<Message /> component', () => {
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
   });
 
-  it('should allow user to edit and delete message when user is owner', async () => {
+  it('should not allow user to edit and delete messages when user is the channel owner', async () => {
     const message = generateMessage({ user: bob });
     await renderComponent(
       message,
@@ -486,8 +486,8 @@ describe('<Message /> component', () => {
       { state: { members: {}, membership: { role: 'owner' }, watchers: {} } },
     );
     const { getMessageActions } = getRenderedProps();
-    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-    expect(getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
+    expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.edit);
+    expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.delete);
   });
 
   it('should allow user to edit and delete message when moderator role is set on client', async () => {
