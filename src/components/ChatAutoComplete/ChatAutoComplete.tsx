@@ -153,7 +153,7 @@ export type ChatAutoCompleteProps<
   /** Grow the number of rows of the textarea while you're typing */
   grow?: boolean;
   /** Function that runs on submit */
-  handleSubmit?: React.FormEventHandler<HTMLFormElement>;
+  handleSubmit?: (event: React.BaseSyntheticEvent) => void;
   /** What loading component to use for the auto complete when loading results. */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Maximum number of rows */

@@ -6,9 +6,9 @@ export type AvatarProps = {
   /** Name of the image, used for title tag fallback */
   name?: string;
   /** click event handler */
-  onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onClick?: (event: React.BaseSyntheticEvent) => void;
   /** mouseOver event handler */
-  onMouseOver?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onMouseOver?: (event: React.BaseSyntheticEvent) => void;
   /** Shape of the avatar - circle, rounded or square
    * @default circle
    */

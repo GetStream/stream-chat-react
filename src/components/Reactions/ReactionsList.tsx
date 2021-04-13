@@ -11,7 +11,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
-import type { MouseEventHandler } from '../Message/types';
+import type { ReactEventHandler } from '../Message/types';
 
 import type {
   DefaultAttachmentType,
@@ -28,7 +28,7 @@ export type ReactionsListProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   emojiSetDef?: EmojiSetDef;
-  onClick?: MouseEventHandler;
+  onClick?: ReactEventHandler;
   own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };

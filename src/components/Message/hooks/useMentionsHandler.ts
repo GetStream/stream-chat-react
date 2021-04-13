@@ -1,9 +1,9 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
-import type { MouseEvent } from 'react';
+import type React from 'react';
 import type { UserResponse } from 'stream-chat';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
@@ -18,8 +18,13 @@ import type {
 } from '../../../../types/types';
 
 export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
+  event: React.BaseSyntheticEvent,
   mentioned_users: UserResponse<Us>[],
+) => void;
+
+export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
+  event: React.BaseSyntheticEvent,
+  mentionedUsers: UserResponse<Us>[],
 ) => void;
 
 function createEventHandler<
@@ -33,7 +38,7 @@ function createEventHandler<
 >(
   fn?: CustomMentionHandler<Us>,
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): MouseEventHandler {
+): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
       return;

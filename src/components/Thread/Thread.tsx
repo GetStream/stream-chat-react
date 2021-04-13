@@ -106,7 +106,7 @@ export type ThreadHeaderProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   t: TFunction;
-  closeThread?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  closeThread?: (event: React.BaseSyntheticEvent) => void;
   thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 

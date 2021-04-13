@@ -23,9 +23,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type MouseEventHandler = (
-  event: React.MouseEvent<HTMLElement, MouseEvent>,
-) => Promise<void> | void;
+export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
 export type MessageProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -123,9 +121,7 @@ export type MessageUIComponentProps<
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
   /** Function to exit edit state */
-  clearEditingState: (
-    event?: React.MouseEvent<HTMLElement, globalThis.MouseEvent> | undefined,
-  ) => void;
+  clearEditingState: (event?: React.BaseSyntheticEvent | undefined) => void;
   /** If the Message is in edit state */
   editing: boolean;
   /**
@@ -136,36 +132,33 @@ export type MessageUIComponentProps<
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
-  handleDelete: MouseEventHandler;
+  handleDelete: ReactEventHandler;
   /** Function to edit a message in a Channel */
-  handleEdit: MouseEventHandler;
+  handleEdit: ReactEventHandler;
   /** Function to flag a message in a Channel */
-  handleFlag: MouseEventHandler;
+  handleFlag: ReactEventHandler;
   /** Function to mute a user in a Channel */
-  handleMute: MouseEventHandler;
+  handleMute: ReactEventHandler;
   /** Function to open a Thread on a Message */
-  handleOpenThread: MouseEventHandler;
+  handleOpenThread: ReactEventHandler;
   /** Function to pin a Message in a Channel */
-  handlePin: MouseEventHandler;
+  handlePin: ReactEventHandler;
   /** Function to post a reaction on a Message */
-  handleReaction: (
-    reactionType: string,
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => Promise<void>;
+  handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** Handler function for a click event on an @mention in Message */
-  onMentionsClickMessage: MouseEventHandler;
+  onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
-  onMentionsHoverMessage: MouseEventHandler;
+  onMentionsHoverMessage: ReactEventHandler;
   /** Handler function for a click event on the user that posted the Message */
-  onUserClick: MouseEventHandler;
+  onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
-  onUserHover: MouseEventHandler;
+  onUserHover: ReactEventHandler;
   /** Function to toggle the edit state on a Message */
-  setEditingState: MouseEventHandler;
+  setEditingState: ReactEventHandler;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */

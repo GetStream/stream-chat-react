@@ -66,7 +66,7 @@ export type ChannelActionContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
-  closeThread: (event: React.SyntheticEvent) => void;
+  closeThread: (event: React.BaseSyntheticEvent) => void;
   dispatch: React.Dispatch<ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>>;
   editMessage: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
@@ -77,7 +77,7 @@ export type ChannelActionContextValue<
   onMentionsHover: CustomMentionHandler<Us>;
   openThread: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.SyntheticEvent,
+    event: React.BaseSyntheticEvent,
   ) => void;
   removeMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;

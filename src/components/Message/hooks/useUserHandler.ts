@@ -1,7 +1,6 @@
-import type { MouseEvent } from 'react';
 import type { User } from 'stream-chat';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
@@ -16,7 +15,7 @@ import type {
 } from '../../../../types/types';
 
 export type UserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: MouseEvent<HTMLElement>,
+  event: React.BaseSyntheticEvent,
   user: User<Us>,
 ) => void;
 
@@ -35,8 +34,8 @@ export const useUserHandler = <
     onUserHoverHandler?: UserEventHandler<Us>;
   },
 ): {
-  onUserClick: MouseEventHandler;
-  onUserHover: MouseEventHandler;
+  onUserClick: ReactEventHandler;
+  onUserHover: ReactEventHandler;
 } => ({
   onUserClick: (event) => {
     if (typeof eventHandlers?.onUserClickHandler !== 'function' || !message?.user) {

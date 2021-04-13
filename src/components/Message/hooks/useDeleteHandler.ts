@@ -1,7 +1,7 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
@@ -25,7 +25,7 @@ export const useDeleteHandler = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): MouseEventHandler => {
+): ReactEventHandler => {
   const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 

@@ -8,7 +8,7 @@ import { MessageActions } from '../MessageActions';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
-import type { MessageUIComponentProps, MouseEventHandler } from './types';
+import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -29,7 +29,7 @@ export type MessageOptionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
-  onReactionListClick: MouseEventHandler;
+  onReactionListClick: ReactEventHandler;
   displayActions?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;

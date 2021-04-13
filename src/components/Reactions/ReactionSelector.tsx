@@ -37,10 +37,7 @@ export type ReactionSelectorProps<
    *
    * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
    * */
-  handleReaction?: (
-    reactionType: string,
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) => Promise<void>;
+  handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /**
    * Array of latest reactions.
    * Reaction object has following structure:

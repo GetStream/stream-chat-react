@@ -1,17 +1,17 @@
-import { MouseEvent, useState } from 'react';
+import { useState } from 'react';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 export type EditHandlerReturnType = {
-  clearEdit: (event?: React.MouseEvent<HTMLElement>) => void;
+  clearEdit: (event?: React.BaseSyntheticEvent) => void;
   editing: boolean;
-  setEdit: MouseEventHandler;
+  setEdit: ReactEventHandler;
 };
 
 export const useEditHandler = (
   customInitialState = false,
-  customSetEditing?: (event?: MouseEvent<HTMLElement>) => void,
-  customClearEditingHandler?: (event?: React.MouseEvent<HTMLElement>) => void,
+  customSetEditing?: (event?: React.BaseSyntheticEvent) => void,
+  customClearEditingHandler?: (event?: React.BaseSyntheticEvent) => void,
 ): EditHandlerReturnType => {
   const [editing, setEditing] = useState(customInitialState);
 

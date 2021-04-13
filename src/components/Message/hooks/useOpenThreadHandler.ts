@@ -1,6 +1,6 @@
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
-import type { MouseEventHandler } from '../types';
+import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
@@ -26,9 +26,9 @@ export const useOpenThreadHandler = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   customOpenThread?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.SyntheticEvent,
+    event: React.BaseSyntheticEvent,
   ) => void,
-): MouseEventHandler => {
+): ReactEventHandler => {
   const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const openThread = customOpenThread || channelOpenThread;

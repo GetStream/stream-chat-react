@@ -60,22 +60,13 @@ export const FileUploadIconFlat: React.FC = () => {
 
 export type SendButtonProps = {
   /** Function that gets triggered on click */
-  sendMessage: React.FormEventHandler<HTMLFormElement>;
+  sendMessage: (event: React.BaseSyntheticEvent) => void;
 };
 
 export const SendButton: React.FC<SendButtonProps> = ({ sendMessage }) => {
   const { t } = useTranslationContext();
   return (
-    <button
-      className='str-chat__send-button'
-      onClick={
-        /**
-         * TODO: fix the below at some point because this type casting is wrong
-         * and just forced to not have warnings currently with the unknown casting
-         */
-        (sendMessage as unknown) as React.MouseEventHandler<HTMLButtonElement>
-      }
-    >
+    <button className='str-chat__send-button' onClick={sendMessage}>
       <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
         <title>{t('Send')}</title>
         <path
