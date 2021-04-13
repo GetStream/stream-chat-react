@@ -2,8 +2,6 @@ import React from 'react';
 
 import type { Action } from 'stream-chat';
 
-import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
-
 export type AttachmentActionsProps = {
   /** A list of actions */
   actions: Action[];
@@ -12,11 +10,25 @@ export type AttachmentActionsProps = {
   /** The text for the form input */
   text: string;
   /** Click event handler */
-  actionHandler?: ActionHandlerReturnType;
+  actionHandler?: (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    name?: string,
+    value?: string,
+  ) => void;
 };
 
 const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
   const { actionHandler, actions, id, text } = props;
+
+  const handleActionClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    name?: string,
+    value?: string,
+  ) => {
+    if (actionHandler) {
+      actionHandler(event, name, value);
+    }
+  };
 
   return (
     <div className='str-chat__message-attachment-actions'>
@@ -28,7 +40,7 @@ const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) =>
             data-testid={`${action.name}`}
             data-value={action.value}
             key={`${id}-${action.value}`}
-            onClick={(event) => actionHandler?.(action.name, action.value, event)}
+            onClick={(event) => handleActionClick(event, action.name, action.value)}
           >
             {action.text}
           </button>
