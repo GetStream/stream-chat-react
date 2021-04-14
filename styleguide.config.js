@@ -169,12 +169,20 @@ module.exports = {
           content: 'src/docs/withChatContext.md',
         },
         {
-          name: 'ChannelContext',
-          content: 'src/docs/ChannelContext.md',
+          name: 'ChannelActionContext',
+          content: 'src/docs/ChannelActionContext.md',
+        },
+        {
+          name: 'ChannelStateContext',
+          content: 'src/docs/ChannelStateContext.md',
         },
         {
           name: 'withChannelContext',
           content: 'src/docs/withChannelContext.md',
+        },
+        {
+          name: 'MessageContext',
+          content: 'src/docs/MessageContext.md',
         },
       ],
       exampleMode: 'collapse',
