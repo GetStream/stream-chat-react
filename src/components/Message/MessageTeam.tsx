@@ -75,7 +75,6 @@ const MessageTeamWithContext = <
     channelConfig,
     clearEditingState,
     editing,
-    formatDate,
     getMessageActions,
     groupStyles = ['single'],
     handleAction,
@@ -188,7 +187,7 @@ const MessageTeamWithContext = <
           ) : (
             <div data-testid='team-meta-spacer' style={{ marginRight: 0, width: 40 }} />
           )}
-          <MessageTimestamp formatDate={formatDate} message={message} />
+          <MessageTimestamp />
         </div>
         <div className='str-chat__message-team-group'>
           {message &&

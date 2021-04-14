@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import {
   isDate,
   isDayOrMoment,
@@ -8,8 +9,6 @@ import {
   TDateTimeParserInput,
   useTranslationContext,
 } from '../../context/TranslationContext';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -31,7 +30,7 @@ export const noParsingFunctionWarning =
 
 function getDateString(
   messageCreatedAt?: string,
-  formatDate?: MessageTimestampProps['formatDate'],
+  formatDate?: MessageContextValue['formatDate'],
   calendar?: boolean,
   tDateTimeParser?: TDateTimeParser,
   format?: string,
@@ -71,21 +70,10 @@ function getDateString(
   return null;
 }
 
-export type MessageTimestampProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+export type MessageTimestampProps = {
   calendar?: boolean;
   customClass?: string;
   format?: string;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?: (date: Date) => string;
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const UnMemoizedMessageTimestamp = <
@@ -97,19 +85,14 @@ const UnMemoizedMessageTimestamp = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageTimestampProps,
 ) => {
-  const {
-    calendar = false,
-    customClass = '',
-    format = defaultTimestampFormat,
-    formatDate,
-    message,
-  } = props;
+  const { calendar = false, customClass = '', format = defaultTimestampFormat } = props;
 
+  const { formatDate, message } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { tDateTimeParser } = useTranslationContext();
 
-  const createdAt = message?.created_at as string;
+  const createdAt = message.created_at as string;
 
   const when = useMemo(
     () => getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),

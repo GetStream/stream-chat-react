@@ -278,7 +278,6 @@ const MessageLivestreamActions = <
 
   const {
     channelConfig,
-    formatDate,
     getMessageActions,
     handleOpenThread,
     initialMessage,
@@ -340,11 +339,7 @@ const MessageLivestreamActions = <
       className={`str-chat__message-livestream-actions`}
       data-testid={'message-livestream-actions'}
     >
-      <MessageTimestamp
-        customClass='str-chat__message-livestream-time'
-        formatDate={formatDate}
-        message={message}
-      />
+      <MessageTimestamp customClass='str-chat__message-livestream-time' />
       {channelConfig?.reactions && (
         <span data-testid='message-livestream-reactions-action' onClick={onReactionListClick}>
           <span>

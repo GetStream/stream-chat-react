@@ -57,7 +57,6 @@ const MessageCommerceWithContext = <
   props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    formatDate,
     groupStyles,
     handleAction,
     handleOpenThread,
@@ -197,12 +196,7 @@ const MessageCommerceWithContext = <
               {message.user?.name || message.user?.id}
             </span>
           ) : null}
-          <MessageTimestamp
-            customClass='str-chat__message-commerce-timestamp'
-            format='LT'
-            formatDate={formatDate}
-            message={message}
-          />
+          <MessageTimestamp customClass='str-chat__message-commerce-timestamp' format='LT' />
         </div>
       </div>
     </div>

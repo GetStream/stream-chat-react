@@ -73,7 +73,6 @@ const MessageSimpleWithContext = <
     additionalMessageInputProps,
     clearEditingState,
     editing,
-    formatDate,
     getMessageActions,
     handleAction,
     handleOpenThread,
@@ -199,7 +198,6 @@ const MessageSimpleWithContext = <
                 {...props}
                 customOptionProps={{
                   displayActions: showActionsBox,
-                  handleOpenThread,
                   messageWrapperRef,
                 }}
               />
@@ -225,12 +223,7 @@ const MessageSimpleWithContext = <
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <MessageTimestamp
-                calendar
-                customClass='str-chat__message-simple-timestamp'
-                formatDate={formatDate}
-                message={message}
-              />
+              <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
             </div>
           </div>
         </div>
