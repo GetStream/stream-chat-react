@@ -3,7 +3,7 @@ import React, { useMemo, useRef } from 'react';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
+import { useReactionClick } from './hooks';
 import {
   PinIndicator as DefaultPinIndicator,
   DeliveredCheckIcon,
@@ -76,19 +76,10 @@ const MessageTeamWithContext = <
     clearEditingState,
     editing,
     formatDate,
-    getFlagMessageErrorNotification,
-    getFlagMessageSuccessNotification,
     getMessageActions,
-    getMuteUserErrorNotification,
-    getMuteUserSuccessNotification,
     groupStyles = ['single'],
     handleAction,
-    handleEdit,
-    handleFlag,
-    handleDelete,
     handleOpenThread,
-    handleMute,
-    handlePin,
     handleReaction,
     handleRetry,
     initialMessage,
@@ -96,18 +87,16 @@ const MessageTeamWithContext = <
     isReactionEnabled,
     lastReceivedId,
     message,
-    messageListRect,
     messageWrapperRef,
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     readBy,
     renderText = defaultRenderText,
     showDetailedReactions,
-    setEditingState,
     threadList,
     unsafeHTML,
   } = props;
@@ -129,11 +118,6 @@ const MessageTeamWithContext = <
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
   const messageMentionedUsersItem = message.mentioned_users;
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const messageText = useMemo(() => renderText(messageTextToRender, messageMentionedUsersItem), [
     messageMentionedUsersItem,
@@ -268,24 +252,7 @@ const MessageTeamWithContext = <
                     </span>
                   )}
                   {showActionsBox && (
-                    <MessageActions
-                      customWrapperClass={''}
-                      getFlagMessageErrorNotification={getFlagMessageErrorNotification}
-                      getFlagMessageSuccessNotification={getFlagMessageSuccessNotification}
-                      getMessageActions={getMessageActions}
-                      getMuteUserErrorNotification={getMuteUserErrorNotification}
-                      getMuteUserSuccessNotification={getMuteUserSuccessNotification}
-                      handleDelete={handleDelete}
-                      handleEdit={handleEdit}
-                      handleFlag={handleFlag}
-                      handleMute={handleMute}
-                      handlePin={handlePin}
-                      inline
-                      message={message}
-                      messageListRect={messageListRect}
-                      messageWrapperRef={messageWrapperRef}
-                      setEditingState={setEditingState}
-                    />
+                    <MessageActions inline messageWrapperRef={messageWrapperRef} />
                   )}
                 </div>
               )}

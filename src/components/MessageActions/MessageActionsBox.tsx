@@ -2,9 +2,8 @@ import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
+import type { MessageContextValue } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { MessageActionsProps } from './MessageActions';
 
 import type {
   DefaultAttachmentType,
@@ -34,7 +33,7 @@ export type MessageActionsBoxProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageActionsBox> & {
+> = Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageActionsBox> & {
   isUserMuted: () => boolean;
   mine: boolean;
   open: boolean;

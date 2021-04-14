@@ -82,27 +82,6 @@ export type MessageContextValue<
   channelConfig?: ChannelConfigWithInfo<Co>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-   */
-  getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-   */
-  getFlagMessageSuccessNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user runs into error */
-  getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user is successful */
-  getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
-   */
-  getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */

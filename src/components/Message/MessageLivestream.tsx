@@ -62,11 +62,8 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channelConfig,
     clearEditingState,
     editing,
-    formatDate,
-    getMessageActions,
     groupStyles,
     handleAction,
     handleOpenThread,
@@ -83,8 +80,6 @@ const MessageLivestreamWithContext = <
     onUserHover: propOnUserHover,
     reactionSelectorRef,
     renderText = defaultRenderText,
-    threadList,
-    setEditingState,
     showDetailedReactions,
     unsafeHTML,
   } = props;
@@ -177,16 +172,8 @@ const MessageLivestreamWithContext = <
           />
         )}
         <MessageLivestreamActions
-          channelConfig={channelConfig}
-          formatDate={formatDate}
-          getMessageActions={getMessageActions}
-          handleOpenThread={handleOpenThread}
-          initialMessage={initialMessage}
-          message={message}
           messageWrapperRef={messageWrapperRef}
           onReactionListClick={onReactionListClick}
-          setEditingState={setEditingState}
-          threadList={threadList}
         />
         <div className='str-chat__message-livestream-left'>
           <Avatar
@@ -271,28 +258,7 @@ const MessageLivestreamWithContext = <
   );
 };
 
-type PropsDrilledToMessageLivestreamActions =
-  | 'channelConfig'
-  | 'formatDate'
-  | 'getMessageActions'
-  | 'handleOpenThread'
-  | 'initialMessage'
-  | 'message'
-  | 'setEditingState'
-  | 'threadList';
-
-export type MessageLivestreamActionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<
-  MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>,
-  PropsDrilledToMessageLivestreamActions
-> & {
+export type MessageLivestreamActionsProps = {
   messageWrapperRef: React.RefObject<HTMLDivElement>;
   onReactionListClick: ReactEventHandler;
 };
@@ -306,8 +272,10 @@ const MessageLivestreamActions = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageLivestreamActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageLivestreamActionsProps,
 ) => {
+  const { messageWrapperRef, onReactionListClick } = props;
+
   const {
     channelConfig,
     formatDate,
@@ -315,10 +283,8 @@ const MessageLivestreamActions = <
     handleOpenThread,
     initialMessage,
     message,
-    messageWrapperRef,
-    onReactionListClick,
     threadList,
-  } = props;
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -391,14 +357,7 @@ const MessageLivestreamActions = <
           <ThreadIcon />
         </span>
       )}
-      {showActionsBox && (
-        <MessageActions
-          {...props}
-          customWrapperClass={''}
-          getMessageActions={getMessageActions}
-          inline
-        />
-      )}
+      {showActionsBox && <MessageActions inline />}
     </div>
   );
 };

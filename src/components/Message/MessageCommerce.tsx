@@ -131,7 +131,6 @@ const MessageCommerceWithContext = <
           <>
             {
               <MessageOptions
-                {...props}
                 displayActions={false}
                 displayLeft={false}
                 displayReplies={false}

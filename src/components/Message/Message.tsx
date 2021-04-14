@@ -15,12 +15,7 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import {
-  areMessagePropsEqual,
-  defaultPinPermissions,
-  getMessageActions,
-  MESSAGE_ACTIONS,
-} from './utils';
+import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
 import { RetrySendMessage, useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -207,7 +202,7 @@ export const Message = <
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
-    pinPermissions = defaultPinPermissions,
+    pinPermissions,
     retrySendMessage: propRetrySendMessage,
   } = props;
 
@@ -246,20 +241,12 @@ export const Message = <
     notify: addNotification,
   });
 
-  const {
-    channel: channelPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onMentionsClick: onMentionsClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onMentionsHover: onMentionsHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    openThread: openThreadPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    retrySendMessage: retryPropPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    ...rest
-  } = props;
-
   return (
     <MemoizedMessage
-      {...rest}
+      additionalMessageInputProps={props.additionalMessageInputProps}
       canPin={canPin}
       channelConfig={channelConfig}
+      groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
       handleFlag={handleFlag}
@@ -268,8 +255,19 @@ export const Message = <
       handlePin={handlePin}
       handleReaction={handleReaction}
       handleRetry={handleRetry}
+      lastReceivedId={props.lastReceivedId}
+      message={message}
+      messageActions={props.messageActions}
+      messageListRect={props.messageListRect}
+      mutes={props.mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
+      onUserClick={props.onUserClick}
+      onUserHover={props.onUserHover}
+      pinPermissions={props.pinPermissions}
+      readBy={props.readBy}
+      threadList={props.threadList}
+      unsafeHTML={props.unsafeHTML}
       userRoles={userRoles}
     />
   );

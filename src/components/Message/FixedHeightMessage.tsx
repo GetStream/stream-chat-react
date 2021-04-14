@@ -121,10 +121,9 @@ const UnMemoizedFixedHeightMessage = <
           {renderedText}
           {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
           <div className='str-chat__virtual-message__data'>
-            <MessageActions<At, Ch, Co, Ev, Me, Re, Us>
+            <MessageActions
               customWrapperClass='str-chat__virtual-message__actions'
               getMessageActions={messageActionsHandler}
-              message={message}
             />
             <span className='str-chat__virtual-message__date'>
               <MessageTimestamp

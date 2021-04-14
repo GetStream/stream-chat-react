@@ -1,16 +1,13 @@
 import React from 'react';
 
-import { useOpenThreadHandler, useUserRole } from './hooks';
 import { ReactionIcon, ThreadIcon } from './icons';
 import { MESSAGE_ACTIONS } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { ReactEventHandler } from './types';
-
-import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -30,7 +27,7 @@ export type MessageOptionsProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleOpenThread'>> & {
   onReactionListClick: ReactEventHandler;
   displayActions?: boolean;
   displayLeft?: boolean;
@@ -54,26 +51,28 @@ const UnMemoizedMessageOptions = <
     displayActions = true,
     displayLeft = true,
     displayReplies = true,
-    getMessageActions,
     handleOpenThread: propHandleOpenThread,
-    initialMessage,
-    message,
     messageWrapperRef,
     onReactionListClick,
     theme = 'simple',
-    threadList,
   } = props;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    channelConfig,
+    getMessageActions,
+    handleOpenThread: contextHandleOpenThread,
+    initialMessage,
+    isMyMessage,
+    message,
+    threadList,
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const handleOpenThread = useOpenThreadHandler(message);
-  const { isMyMessage } = useUserRole(message);
+  const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
-  const channelConfig = channel?.getConfig?.();
   const messageActions = getMessageActions();
 
   const shouldShowReactions =
-    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 && channelConfig && channelConfig.reactions;
+    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 && channelConfig?.reactions;
 
   const shouldShowReplies =
     messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 &&
@@ -94,15 +93,15 @@ const UnMemoizedMessageOptions = <
     return null;
   }
 
-  if (isMyMessage && displayLeft) {
+  if (isMyMessage() && displayLeft) {
     return (
       <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {displayActions && <MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
+        {displayActions && <MessageActions messageWrapperRef={messageWrapperRef} />}
         {shouldShowReplies && (
           <div
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
             data-testid='thread-action'
-            onClick={propHandleOpenThread || handleOpenThread}
+            onClick={handleOpenThread}
           >
             <ThreadIcon />
           </div>
@@ -135,12 +134,12 @@ const UnMemoizedMessageOptions = <
         <div
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
           data-testid='thread-action'
-          onClick={propHandleOpenThread || handleOpenThread}
+          onClick={handleOpenThread}
         >
           <ThreadIcon />
         </div>
       )}
-      {displayActions && <MessageActions {...props} messageWrapperRef={messageWrapperRef} />}
+      {displayActions && <MessageActions messageWrapperRef={messageWrapperRef} />}
     </div>
   );
 };

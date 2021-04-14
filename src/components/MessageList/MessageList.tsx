@@ -54,7 +54,7 @@ type MessageListNotificationsProps = {
   hasNewMessages: boolean;
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
-  t: (key: string) => string;
+  t: TranslationContextValue['t'];
 };
 
 const MessageListNotifications = ({
@@ -182,7 +182,7 @@ const MessageListWithContext = <
     threadList,
   });
 
-  const elements = useMessageListElements<At, Ch, Co, Ev, Me, Re, Us>({
+  const elements = useMessageListElements({
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
@@ -385,24 +385,12 @@ export const MessageList = <
       ReactionSelector,
       ReactionsList,
     }),
-    [
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageSystem,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    ],
+    [Message],
   );
 
   return (
     <ComponentProvider value={updatedComponentContext}>
-      <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
+      <MessageListWithContext
         client={client}
         loadMore={loadMore}
         {...restChannelStateContext}

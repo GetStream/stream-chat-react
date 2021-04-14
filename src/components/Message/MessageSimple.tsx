@@ -144,7 +144,7 @@ const MessageSimpleWithContext = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus {...props} Avatar={Avatar} />
+          <MessageSimpleStatus Avatar={Avatar} />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -166,8 +166,6 @@ const MessageSimpleWithContext = <
               <>
                 {
                   <MessageOptions
-                    {...props}
-                    handleOpenThread={handleOpenThread}
                     messageWrapperRef={messageWrapperRef}
                     onReactionListClick={onReactionListClick}
                   />
@@ -249,14 +247,21 @@ const MessageSimpleStatus = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: MessageSimpleWithContextProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    Avatar: React.ComponentType<AvatarProps>;
-  },
-) => {
-  const { Avatar, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
-
+>({
+  Avatar,
+}: {
+  Avatar: React.ComponentType<AvatarProps>;
+}) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { isMyMessage, lastReceivedId, message, readBy, threadList } = useMessageContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   if (!isMyMessage() || message.type === 'error') {
