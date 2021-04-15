@@ -2,8 +2,7 @@ import React from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-
-import type { MessageInputState } from './hooks/messageInput';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -15,17 +14,6 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type MessageInputUploadsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageInputState<At, Us> & {
-  removeFile?: (id: string) => void;
-  removeImage?: (id: string) => void;
-  uploadFile?: (id: string) => void;
-  uploadImage?: (id: string) => void;
-  uploadNewFiles?: (files: FileList | File[]) => void;
-};
-
 export const UploadsPreview = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -34,9 +22,17 @@ export const UploadsPreview = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: MessageInputUploadsProps<At, Us>,
-) => {
+>() => {
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const messageInput = useMessageInput<At, Co, Us>();
   const {
     fileOrder,
     fileUploads,
@@ -48,17 +44,7 @@ export const UploadsPreview = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = props;
-
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  } = messageInput;
 
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);

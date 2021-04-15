@@ -77,7 +77,7 @@ export const MessageInputSmall = <
           }`}
         >
           <div className='str-chat__small-message-input--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
+            {messageInput.isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               disabled={disabled}

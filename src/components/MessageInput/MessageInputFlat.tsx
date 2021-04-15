@@ -77,7 +77,7 @@ export const MessageInputFlat = <
       >
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
+            {messageInput.isUploadEnabled && <UploadsPreview />}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
                 {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}

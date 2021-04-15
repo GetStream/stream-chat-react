@@ -113,7 +113,7 @@ export const MessageInputLarge = <
       >
         <div className='str-chat__input'>
           <div className='str-chat__input--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
+            {messageInput.isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               disabled={disabled}
