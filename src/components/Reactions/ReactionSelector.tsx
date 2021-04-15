@@ -218,13 +218,15 @@ const UnMemoizedReactionSelector = React.forwardRef(
                     </div>
                   </>
                 )}
-                <Emoji
-                  // @ts-expect-error
-                  emoji={reactionOption}
-                  {...emojiSetDef}
-                  // @ts-expect-error
-                  data={emojiData}
-                />
+                {Emoji && (
+                  <Emoji
+                    // @ts-expect-error
+                    emoji={reactionOption}
+                    {...emojiSetDef}
+                    // @ts-expect-error
+                    data={emojiData}
+                  />
+                )}
                 {Boolean(count) && detailedView && (
                   <span className='str-chat__message-reactions-list-item__count'>
                     {count || ''}

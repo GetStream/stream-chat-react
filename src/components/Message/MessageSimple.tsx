@@ -155,7 +155,10 @@ const MessageSimpleWithContext = <
           >
             {!message.text && (
               <>
-                <MessageOptions messageWrapperRef={messageWrapperRef} />
+                <MessageOptions
+                  handleOpenThread={handleOpenThread}
+                  messageWrapperRef={messageWrapperRef}
+                />
                 {hasReactions && !showDetailedReactions && isReactionEnabled && (
                   <ReactionsList
                     own_reactions={message.own_reactions}

@@ -106,14 +106,16 @@ const UnMemoizedSimpleReactionsList = <
             onClick={(event) => handleReaction(reactionType, event)}
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
-              <Emoji
-                // @ts-expect-error
-                emoji={emojiDefinition}
-                {...emojiSetDef}
-                // @ts-expect-error
-                data={emojiData}
-                size={13}
-              />
+              {Emoji && (
+                <Emoji
+                  // @ts-expect-error
+                  emoji={emojiDefinition}
+                  {...emojiSetDef}
+                  // @ts-expect-error
+                  data={emojiData}
+                  size={13}
+                />
+              )}
               &nbsp;
             </span>
             {tooltipReactionType === getOptionForType(reactionType)?.id && (

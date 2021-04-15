@@ -79,7 +79,7 @@ const UnMemoizedMessageOptions = <
     channelConfig.replies;
 
   if (
-    !message ||
+    !message.type ||
     message.type === 'error' ||
     message.type === 'system' ||
     message.type === 'ephemeral' ||

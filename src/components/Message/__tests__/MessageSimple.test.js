@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 
+import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
@@ -63,14 +64,19 @@ async function renderMessageSimple(
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
-            <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
-              <MessageSimple
-                client={client}
+            <ComponentProvider
+              value={{
+                Attachment: AttachmentMock,
+                // eslint-disable-next-line react/display-name
+                Message: () => <MessageSimple {...props} />,
+                ...components,
+              }}
+            >
+              <Message
                 getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
                 isMyMessage={() => true}
                 message={message}
                 threadList={false}
-                typing={false}
                 {...props}
               />
             </ComponentProvider>
@@ -290,16 +296,8 @@ describe('<MessageSimple />', () => {
     await renderMessageSimple(message, {
       handleOpenThread: jest.fn(),
     });
-    expect(MessageOptionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        handleOpenThread: expect.any(Function),
-        message,
-        messageWrapperRef: expect.any(Object),
-        onReactionListClick: expect.any(Function),
-        threadList: false,
-      }),
-      {},
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageOptionsMock).toHaveBeenCalled();
   });
 
   it('should render MML', async () => {
@@ -342,16 +340,8 @@ describe('<MessageSimple />', () => {
       messageListRect,
       unsafeHTML,
     });
-    expect(MessageTextMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        actionsEnabled,
-        message,
-        messageListRect,
-        reactionSelectorRef: expect.any(Object),
-        unsafeHTML,
-      }),
-      {},
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageTextMock).toHaveBeenCalled();
   });
 
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {

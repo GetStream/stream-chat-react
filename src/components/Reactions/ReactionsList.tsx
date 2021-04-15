@@ -91,14 +91,16 @@ const UnMemoizedReactionsList = <
           const emojiDefinition = getOptionForType(reactionType);
           return emojiDefinition ? (
             <li key={emojiDefinition.id}>
-              <Emoji
-                // @ts-expect-error
-                emoji={emojiDefinition}
-                {...emojiSetDef}
-                // @ts-expect-error
-                data={emojiData}
-                size={16}
-              />
+              {Emoji && (
+                <Emoji
+                  // @ts-expect-error
+                  emoji={emojiDefinition}
+                  {...emojiSetDef}
+                  // @ts-expect-error
+                  data={emojiData}
+                  size={16}
+                />
+              )}
               &nbsp;
             </li>
           ) : null;

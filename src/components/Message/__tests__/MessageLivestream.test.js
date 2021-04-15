@@ -4,6 +4,7 @@ import Dayjs from 'dayjs';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { Message } from '../Message';
 import { MessageLivestream } from '../MessageLivestream';
 
 import { Attachment as AttachmentMock } from '../../Attachment';
@@ -51,12 +52,19 @@ async function renderMessageLivestream(
             userLanguage: 'en',
           }}
         >
-          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
-            <MessageLivestream
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageLivestream {...props} />,
+              ...components,
+            }}
+          >
+            <Message
+              channelConfig={channelConfig}
               getMessageActions={() => []}
               message={message}
-              typing={false}
-              {...props}
+              openThread={props.openThread}
             />
           </ComponentProvider>
         </TranslationProvider>
@@ -111,7 +119,7 @@ describe('<MessageLivestream />', () => {
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageLivestream(deletedMessage, null, null, {
+    const { getByTestId } = await renderMessageLivestream(deletedMessage, {}, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -132,12 +140,14 @@ describe('<MessageLivestream />', () => {
         </li>
       </ul>
     );
+
     const { getByTestId } = await renderMessageLivestream(
       message,
-      { channelConfig: { reactions: true } },
-      null,
+      {},
+      { reactions: true },
       { ReactionSelector: React.forwardRef(CustomReactionSelector) },
     );
+
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
@@ -160,7 +170,7 @@ describe('<MessageLivestream />', () => {
     );
     const { getByTestId } = await renderMessageLivestream(
       message,
-      null,
+      {},
       { reactions: true },
       { ReactionsList: CustomReactionsList },
     );
@@ -170,7 +180,7 @@ describe('<MessageLivestream />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageLivestream(message, null, null, {
+    const { getByTestId } = await renderMessageLivestream(message, {}, null, {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
@@ -180,7 +190,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { getByTestId } = await renderMessageLivestream(message, null, null, {
+    const { getByTestId } = await renderMessageLivestream(message, {}, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -193,7 +203,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { queryAllByTestId } = await renderMessageLivestream(message, null, null, {
+    const { queryAllByTestId } = await renderMessageLivestream(message, {}, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -379,16 +389,15 @@ describe('<MessageLivestream />', () => {
 
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
-    const handleOpenThread = jest.fn();
+    const openThread = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       channelConfig: { replies: true },
-      handleOpenThread,
+      openThread,
     });
-    expect(handleOpenThread).not.toHaveBeenCalled();
+    expect(openThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageLivestreamThreadTestId));
-    expect(handleOpenThread).toHaveBeenCalledWith(
-      expect.any(Object), // THe click event
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(openThread).toHaveBeenCalled();
   });
 
   it('should render action options', async () => {

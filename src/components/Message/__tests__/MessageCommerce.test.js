@@ -3,6 +3,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { Message } from '../Message';
 import { MessageCommerce } from '../MessageCommerce';
 
 import { Attachment as AttachmentMock } from '../../Attachment';
@@ -44,12 +45,18 @@ async function renderMessageCommerce(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
         <ChannelActionProvider value={{ openThread: openThreadMock }}>
-          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
-            <MessageCommerce
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageCommerce {...props} />,
+              ...components,
+            }}
+          >
+            <Message
               getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
               isMyMessage={() => true}
               message={message}
-              {...props}
             />
           </ComponentProvider>
         </ChannelActionProvider>
@@ -335,7 +342,6 @@ describe('<MessageCommerce />', () => {
           theme: 'commerce',
         }),
         customWrapperClass: 'str-chat__message-commerce-text',
-        message,
         theme: 'commerce',
       }),
       {},
@@ -359,9 +365,8 @@ describe('<MessageCommerce />', () => {
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThreadMock).toHaveBeenCalledWith(
-      expect.any(Object), // The Event object
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(openThreadMock).toHaveBeenCalled();
   });
 
   it('should display user name when message is not from current user', async () => {

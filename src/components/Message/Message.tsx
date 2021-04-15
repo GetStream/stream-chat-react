@@ -267,6 +267,7 @@ export const Message = <
       handlePin={handlePin}
       handleReaction={handleReaction}
       handleRetry={handleRetry}
+      initialMessage={props.initialMessage}
       isReactionEnabled={isReactionEnabled}
       lastReceivedId={props.lastReceivedId}
       message={message}
