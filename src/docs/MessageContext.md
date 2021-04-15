@@ -46,12 +46,6 @@ The MessageContext provides the following properties:
 
 - **formatDate** Override the default formatting of the date. This is a function that has access to the original date object, returns a string
 
-- **getFlagMessageErrorNotification** Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error. This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-
-- **getFlagMessageSuccessNotification** Function that returns message/text as string to be shown as notification, when request for flagging a message is successful. This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-
-- **getPinMessageErrorNotification** Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error. This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
-
 - **groupStyles** A list of styles to apply to this message, ie. top, bottom, single
 
 - **initialMessage** Whether the threaded message is the first in the thread list
