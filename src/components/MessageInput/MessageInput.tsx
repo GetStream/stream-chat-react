@@ -6,6 +6,8 @@ import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'str
 
 import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
+import { useMessageInput } from './hooks/messageInput';
+import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
 import type {
   MentionQueryParams,
@@ -140,26 +142,22 @@ const UnMemoizedMessageInput = <
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const {
-    additionalTextareaProps = {},
-    disabled = false,
-    focus = false,
-    grow = true,
-    Input = MessageInputLarge,
-    maxRows = 10,
-    publishTypingEvent = true,
-  } = props;
+  const { Input = MessageInputLarge } = props;
+
+  const messageInput = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
+    ...props,
+    additionalTextareaProps: props.additionalTextareaProps || {},
+    disabled: props.disabled || false,
+    focus: props.focus || false,
+    grow: props.grow || true,
+    maxRows: props.maxRows || 10,
+    publishTypingEvent: props.publishTypingEvent || true,
+  });
 
   return (
-    <Input
-      {...props}
-      additionalTextareaProps={additionalTextareaProps}
-      disabled={disabled}
-      focus={focus}
-      grow={grow}
-      maxRows={maxRows}
-      publishTypingEvent={publishTypingEvent}
-    />
+    <MessageInputContextProvider value={messageInput}>
+      <Input {...props} />
+    </MessageInputContextProvider>
   );
 };
 
