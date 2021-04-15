@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIcon as DefaultFileUploadIcon,
@@ -15,6 +14,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type { MessageInputProps } from './MessageInput';
 
@@ -44,29 +44,18 @@ export const EditMessageForm = <
   const {
     additionalTextareaProps = {},
     clearEditingState,
-    disabled = false,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
-    focus = false,
     grow = true,
     maxRows = 10,
     mentionAllAppUsers,
     mentionQueryParams,
-    publishTypingEvent = true,
   } = props;
 
   const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput({
-    ...props,
-    additionalTextareaProps,
-    disabled,
-    focus,
-    grow,
-    maxRows,
-    publishTypingEvent,
-  });
+  const messageInput = useMessageInput<At, Co, Us>();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -87,23 +76,16 @@ export const EditMessageForm = <
         multiple={multipleUploads}
       >
         <form onSubmit={messageInput.handleSubmit}>
-          {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
-          <EmojiPicker {...messageInput} small />
+          {messageInput.isUploadEnabled && <UploadsPreview />}
+          <EmojiPicker small />
           <ChatAutoComplete
             additionalTextareaProps={additionalTextareaProps}
-            commands={messageInput.getCommands()}
             grow={grow}
-            handleSubmit={messageInput.handleSubmit}
-            innerRef={messageInput.textareaRef}
             maxRows={maxRows}
             mentionAllAppUsers={mentionAllAppUsers}
             mentionQueryParams={mentionQueryParams}
-            onChange={messageInput.handleChange}
-            onPaste={messageInput.onPaste}
-            onSelectItem={messageInput.onSelectItem}
             placeholder={t('Type your message')}
             rows={1}
-            value={messageInput.text}
           />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
