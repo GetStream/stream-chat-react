@@ -10,6 +10,8 @@ import {
   useTranslationContext,
 } from '../../context/TranslationContext';
 
+import type { StreamMessage } from '../../context/ChannelStateContext';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -70,10 +72,19 @@ function getDateString(
   return null;
 }
 
-export type MessageTimestampProps = {
+export type MessageTimestampProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   calendar?: boolean;
   customClass?: string;
   format?: string;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const UnMemoizedMessageTimestamp = <
@@ -85,12 +96,19 @@ const UnMemoizedMessageTimestamp = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageTimestampProps,
+  props: MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { calendar = false, customClass = '', format = defaultTimestampFormat } = props;
+  const {
+    calendar = false,
+    customClass = '',
+    format = defaultTimestampFormat,
+    message: propMessage,
+  } = props;
 
-  const { formatDate, message } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { formatDate, message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { tDateTimeParser } = useTranslationContext();
+
+  const message = propMessage || contextMessage;
 
   const createdAt = message.created_at as string;
 

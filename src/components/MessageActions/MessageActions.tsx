@@ -17,12 +17,13 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-type HandlersToPick =
+type MessageContextPropsToPick =
   | 'getMessageActions'
   | 'handleDelete'
   | 'handleFlag'
   | 'handleMute'
-  | 'handlePin';
+  | 'handlePin'
+  | 'message';
 
 export type MessageActionsProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -32,7 +33,7 @@ export type MessageActionsProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, HandlersToPick>> & {
+> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
   customWrapperClass?: string;
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
@@ -57,6 +58,7 @@ export const MessageActions = <
     handleMute: propHandleMute,
     handlePin: propHandlePin,
     inline,
+    message: propMessage,
     messageWrapperRef,
   } = props;
 
@@ -68,7 +70,7 @@ export const MessageActions = <
     handleMute: contextHandleMute,
     handlePin: contextHandlePin,
     isMyMessage,
-    message,
+    message: contextMessage,
     setEditingState,
   } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -77,6 +79,7 @@ export const MessageActions = <
   const handleFlag = propHandleFlag || contextHandleFlag;
   const handleMute = propHandleMute || contextHandleMute;
   const handlePin = propHandlePin || contextHandlePin;
+  const message = propMessage || contextMessage;
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 

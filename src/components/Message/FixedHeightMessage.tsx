@@ -124,9 +124,13 @@ const UnMemoizedFixedHeightMessage = <
             <MessageActions
               customWrapperClass='str-chat__virtual-message__actions'
               getMessageActions={messageActionsHandler}
+              message={message}
             />
             <span className='str-chat__virtual-message__date'>
-              <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
+              <MessageTimestamp
+                customClass='str-chat__message-simple-timestamp'
+                message={message}
+              />
             </span>
           </div>
         </div>
