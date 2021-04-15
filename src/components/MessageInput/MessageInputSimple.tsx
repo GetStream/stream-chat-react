@@ -63,24 +63,17 @@ export const MessageInputSimple = <
         <div className='str-chat__input-flat--textarea-wrapper'>
           <ChatAutoComplete
             additionalTextareaProps={additionalTextareaProps}
-            commands={messageInput.getCommands()}
             disabled={disabled}
             disableMentions={disableMentions}
             grow={grow}
-            handleSubmit={messageInput.handleSubmit}
-            innerRef={messageInput.textareaRef}
             maxRows={maxRows}
             mentionAllAppUsers={mentionAllAppUsers}
             mentionQueryParams={mentionQueryParams}
-            onChange={messageInput.handleChange}
-            onPaste={messageInput.onPaste}
-            onSelectItem={messageInput.onSelectItem}
             placeholder={t('Type your message')}
             rows={1}
             SuggestionItem={SuggestionItem}
             SuggestionList={SuggestionList}
             triggers={autocompleteTriggers}
-            value={messageInput.text}
           />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>

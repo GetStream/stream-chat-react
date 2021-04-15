@@ -10,6 +10,7 @@ import { UserItem, UserItemProps } from '../UserItem/UserItem';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type {
@@ -141,19 +142,14 @@ export type ChatAutoCompleteProps<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = {
-  innerRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   /** Any additional attributes that you may want to add for underlying HTML textarea element */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Array of commands */
-  commands?: CommandResponse<Co>[];
   /** Make the textarea disabled */
   disabled?: boolean;
   /** Disable mentions */
   disableMentions?: boolean;
   /** Grow the number of rows of the textarea while you're typing */
   grow?: boolean;
-  /** Function that runs on submit */
-  handleSubmit?: (event: React.BaseSyntheticEvent) => void;
   /** What loading component to use for the auto complete when loading results. */
   LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
   /** Maximum number of rows */
@@ -164,14 +160,8 @@ export type ChatAutoCompleteProps<
   mentionQueryParams?: MentionQueryParams<Us>;
   /** Minimum number of characters */
   minChar?: number;
-  /** Function that runs on change */
-  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
   /** Listener for onfocus event on textarea */
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
-  /** Function to run on pasting within the textarea */
-  onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  /** Handler for selecting item from suggestions list */
-  onSelectItem?: (item: UserResponse<Us>) => void;
   /** Placeholder for the textarea */
   placeholder?: string;
   /** The number of rows you want the textarea to have */
@@ -188,8 +178,6 @@ export type ChatAutoCompleteProps<
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   /** The triggers for the textarea */
   triggers?: TriggerSettings<Co, Us, V>;
-  /** The value of the textarea */
-  value?: string;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -206,26 +194,23 @@ const UnMemoizedChatAutoComplete = <
 ) => {
   const {
     additionalTextareaProps,
-    commands,
     disabled,
     disableMentions,
     grow,
-    handleSubmit,
-    innerRef,
     maxRows,
     mentionAllAppUsers = false,
     mentionQueryParams = {},
-    onChange,
     onFocus,
-    onPaste,
-    onSelectItem,
     placeholder,
     rows = 3,
     SuggestionItem,
     SuggestionList,
     triggers,
-    value,
   } = props;
+
+  const messageInput = useMessageInput<At, Co, Us>();
+  const commands = messageInput.getCommands();
+  const { onSelectItem, textareaRef: innerRef } = messageInput;
 
   const { channel, emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -480,7 +465,7 @@ const UnMemoizedChatAutoComplete = <
       disableMentions={disableMentions}
       dropdownClassName='str-chat__emojisearch'
       grow={grow}
-      handleSubmit={handleSubmit}
+      handleSubmit={messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
       listClassName='str-chat__emojisearch__list'
@@ -488,16 +473,16 @@ const UnMemoizedChatAutoComplete = <
       maxRows={maxRows}
       minChar={0}
       mutes={mutes}
-      onChange={onChange}
+      onChange={messageInput.handleChange}
       onFocus={onFocus}
-      onPaste={onPaste}
+      onPaste={messageInput.onPaste}
       placeholder={placeholder}
       replaceWord={emojiReplace}
       rows={rows}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={getTriggers()}
-      value={value}
+      value={messageInput.text}
     />
   );
 };

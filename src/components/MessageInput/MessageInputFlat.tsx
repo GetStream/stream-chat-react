@@ -99,24 +99,17 @@ export const MessageInputFlat = <
             <EmojiPicker {...messageInput} />
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
-              commands={messageInput.getCommands()}
               disabled={disabled}
               disableMentions={disableMentions}
               grow={grow}
-              handleSubmit={messageInput.handleSubmit}
-              innerRef={messageInput.textareaRef}
               maxRows={maxRows}
               mentionAllAppUsers={mentionAllAppUsers}
               mentionQueryParams={mentionQueryParams}
-              onChange={messageInput.handleChange}
-              onPaste={messageInput.onPaste}
-              onSelectItem={messageInput.onSelectItem}
               placeholder={t('Type your message')}
               rows={1}
               SuggestionItem={SuggestionItem}
               SuggestionList={SuggestionList}
               triggers={autocompleteTriggers}
-              value={messageInput.text}
             />
             {messageInput.isUploadEnabled && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
