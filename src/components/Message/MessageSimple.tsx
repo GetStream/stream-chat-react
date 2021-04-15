@@ -70,12 +70,10 @@ const MessageSimpleWithContext = <
     getMessageActions,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     isMyMessage,
     isReactionEnabled,
     message,
-    onReactionListClick,
     onUserClick,
     onUserHover,
     reactionSelectorRef,
@@ -160,17 +158,15 @@ const MessageSimpleWithContext = <
                 <MessageOptions messageWrapperRef={messageWrapperRef} />
                 {hasReactions && !showDetailedReactions && isReactionEnabled && (
                   <ReactionsList
-                    onClick={onReactionListClick}
                     own_reactions={message.own_reactions}
                     reaction_counts={message.reaction_counts || undefined}
                     reactions={message.latest_reactions}
-                    reverse={true}
+                    reverse
                   />
                 )}
                 {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
                     detailedView
-                    handleReaction={handleReaction}
                     latest_reactions={message.latest_reactions}
                     own_reactions={message.own_reactions}
                     reaction_counts={message.reaction_counts || undefined}

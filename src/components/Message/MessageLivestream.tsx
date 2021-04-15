@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
+import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
@@ -67,7 +67,6 @@ const MessageLivestreamWithContext = <
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     initialMessage,
     isReactionEnabled,
@@ -76,8 +75,8 @@ const MessageLivestreamWithContext = <
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     renderText = defaultRenderText,
     showDetailedReactions,
@@ -94,11 +93,6 @@ const MessageLivestreamWithContext = <
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -163,7 +157,6 @@ const MessageLivestreamWithContext = <
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             detailedView
-            handleReaction={handleReaction}
             latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}
             reaction_counts={message.reaction_counts || undefined}
@@ -239,7 +232,6 @@ const MessageLivestreamWithContext = <
             )}
             {isReactionEnabled && (
               <ReactionsList
-                handleReaction={handleReaction}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}

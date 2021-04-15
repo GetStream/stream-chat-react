@@ -7,6 +7,7 @@ import { getStrippedEmojiData } from '../Channel/emojiData';
 
 import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -80,9 +81,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
     ref: React.ForwardedRef<HTMLDivElement | null>,
   ) => {
     const {
-      Avatar = DefaultAvatar,
+      Avatar: propAvatar,
       detailedView = true,
-      handleReaction,
+      handleReaction: propHandleReaction,
       latest_reactions,
       reaction_counts,
       reactionOptions: reactionOptionsProp,
@@ -90,11 +91,22 @@ const UnMemoizedReactionSelector = React.forwardRef(
     } = props;
 
     const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-    const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { Avatar: contextAvatar, Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { handleReaction: contextHandleReaction } = useMessageContext<
+      At,
+      Ch,
+      Co,
+      Ev,
+      Me,
+      Re,
+      Us
+    >();
 
     const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
+    const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const emojiData = getStrippedEmojiData(fullEmojiData);
+    const handleReaction = propHandleReaction || contextHandleReaction;
     const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
@@ -188,7 +200,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                 className='str-chat__message-reactions-list-item'
                 data-text={reactionOption.id}
                 key={`item-${reactionOption.id}`}
-                onClick={(event) => handleReaction && handleReaction(reactionOption.id, event)}
+                onClick={(event) => handleReaction(reactionOption.id, event)}
               >
                 {!!count && detailedView && (
                   <>
@@ -206,15 +218,13 @@ const UnMemoizedReactionSelector = React.forwardRef(
                     </div>
                   </>
                 )}
-                {Emoji && (
-                  <Emoji
-                    // @ts-expect-error
-                    emoji={reactionOption}
-                    {...emojiSetDef}
-                    // @ts-expect-error
-                    data={emojiData}
-                  />
-                )}
+                <Emoji
+                  // @ts-expect-error
+                  emoji={reactionOption}
+                  {...emojiSetDef}
+                  // @ts-expect-error
+                  data={emojiData}
+                />
                 {Boolean(count) && detailedView && (
                   <span className='str-chat__message-reactions-list-item__count'>
                     {count || ''}

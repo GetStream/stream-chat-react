@@ -59,11 +59,9 @@ const MessageCommerceWithContext = <
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     isMyMessage,
     isReactionEnabled,
     message,
-    onReactionListClick,
     onUserClick,
     onUserHover,
     reactionSelectorRef,
@@ -120,7 +118,7 @@ const MessageCommerceWithContext = <
         />
       )}
       <div className='str-chat__message-commerce-inner'>
-        {message && !message.text && (
+        {!message.text && (
           <>
             {
               <MessageOptions
@@ -132,7 +130,6 @@ const MessageCommerceWithContext = <
             }
             {hasReactions && !showDetailedReactions && isReactionEnabled && (
               <ReactionsList
-                onClick={onReactionListClick}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -141,7 +138,6 @@ const MessageCommerceWithContext = <
             {showDetailedReactions && isReactionEnabled && (
               <ReactionSelector
                 detailedView
-                handleReaction={handleReaction}
                 latest_reactions={message.latest_reactions}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
@@ -163,7 +159,6 @@ const MessageCommerceWithContext = <
         )}
         {message.text && (
           <MessageText
-            {...props}
             customInnerClass='str-chat__message-commerce-text-inner'
             customOptionProps={{
               displayActions: false,
