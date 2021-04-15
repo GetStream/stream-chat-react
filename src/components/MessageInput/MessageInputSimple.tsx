@@ -93,7 +93,7 @@ export const MessageInputSimple = <
               <EmojiIcon />
             </span>
           </div>
-          <EmojiPicker {...messageInput} />
+          <EmojiPicker />
         </div>
         {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
       </div>

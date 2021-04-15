@@ -6,7 +6,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData } from 'emoji-mart';
 
-import type { MessageInputState } from './hooks/messageInput';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -25,12 +25,7 @@ const filterEmoji = (emoji: EmojiData) => {
   return true;
 };
 
-export type MessageInputEmojiPickerProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageInputState<At, Us> & {
-  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
-  onSelectEmoji: (emoji: EmojiData) => void;
+export type MessageInputEmojiPickerProps = {
   small?: boolean;
 };
 
@@ -43,23 +38,25 @@ export const EmojiPicker = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageInputEmojiPickerProps<At, Us>,
+  props: MessageInputEmojiPickerProps,
 ) => {
-  const { emojiPickerIsOpen, emojiPickerRef, onSelectEmoji, small } = props;
+  const { small } = props;
 
   const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { EmojiPicker } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
+  const messageInput = useMessageInput<At, Co, Us>();
+
   const { emojiData } = emojiConfig || {};
 
-  if (emojiPickerIsOpen && emojiData) {
+  if (messageInput.emojiPickerIsOpen && emojiData) {
     const className = small
       ? 'str-chat__small-message-input-emojipicker'
       : 'str-chat__input--emojipicker';
 
     return (
-      <div className={className} ref={emojiPickerRef}>
+      <div className={className} ref={messageInput.emojiPickerRef}>
         {EmojiPicker && (
           <EmojiPicker
             color='#006CFF'
@@ -67,7 +64,7 @@ export const EmojiPicker = <
             emoji='point_up'
             emojisToShowFilter={filterEmoji}
             native
-            onSelect={onSelectEmoji}
+            onSelect={messageInput.onSelectEmoji}
             set='facebook'
             showPreview={false}
             showSkinTones={false}

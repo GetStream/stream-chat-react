@@ -166,7 +166,7 @@ export const MessageInputLarge = <
                 <EmojiIcon />
               </span>
             </div>
-            <EmojiPicker {...messageInput} />
+            <EmojiPicker />
           </div>
           <SendButton sendMessage={messageInput.handleSubmit} />
         </div>

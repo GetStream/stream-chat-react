@@ -96,7 +96,7 @@ export const MessageInputFlat = <
                 <EmojiIcon />
               </span>
             </div>
-            <EmojiPicker {...messageInput} />
+            <EmojiPicker />
             <ChatAutoComplete
               additionalTextareaProps={additionalTextareaProps}
               disabled={disabled}
