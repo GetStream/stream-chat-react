@@ -64,18 +64,26 @@ export type MessageContextValue<
   handleRetry: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
+  /** Whether or not reactions are enabled for the active channel */
+  isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
   onMentionsHoverMessage: ReactEventHandler;
+  /** Handler function for a click event on the reaction list */
+  onReactionListClick: ReactEventHandler;
   /** Handler function for a click event on the user that posted the Message */
   onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
   onUserHover: ReactEventHandler;
+  /** Ref to be placed on the reaction selector component */
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
   /** Function to toggle the edit state on a Message */
   setEditingState: ReactEventHandler;
+  /** Whether or not to show reaction list details */
+  showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Channel config object */

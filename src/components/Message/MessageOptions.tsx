@@ -7,8 +7,6 @@ import { MessageActions } from '../MessageActions';
 
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type { ReactEventHandler } from './types';
-
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -28,7 +26,6 @@ export type MessageOptionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleOpenThread'>> & {
-  onReactionListClick: ReactEventHandler;
   displayActions?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;
@@ -53,7 +50,6 @@ const UnMemoizedMessageOptions = <
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
     messageWrapperRef,
-    onReactionListClick,
     theme = 'simple',
   } = props;
 
@@ -64,6 +60,7 @@ const UnMemoizedMessageOptions = <
     initialMessage,
     isMyMessage,
     message,
+    onReactionListClick,
     threadList,
   } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 

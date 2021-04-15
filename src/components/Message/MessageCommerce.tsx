@@ -1,11 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -65,8 +64,8 @@ const MessageCommerceWithContext = <
     isReactionEnabled,
     message,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     showDetailedReactions,
     threadList,
@@ -79,11 +78,6 @@ const MessageCommerceWithContext = <
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -133,7 +127,6 @@ const MessageCommerceWithContext = <
                 displayActions={false}
                 displayLeft={false}
                 displayReplies={false}
-                onReactionListClick={onReactionListClick}
                 theme='commerce'
               />
             }
@@ -224,23 +217,5 @@ export const MessageCommerce = <
 ) => {
   const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const message = props.message || messageContext.message;
-
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
-
-  return (
-    <MemoizedMessageCommerce
-      {...messageContext}
-      isReactionEnabled={isReactionEnabled}
-      onReactionListClick={onReactionListClick}
-      reactionSelectorRef={reactionSelectorRef}
-      showDetailedReactions={showDetailedReactions}
-      {...props}
-    />
-  );
+  return <MemoizedMessageCommerce {...messageContext} {...props} />;
 };

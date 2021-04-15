@@ -69,7 +69,6 @@ export const MessageActions = <
     handlePin: contextHandlePin,
     isMyMessage,
     message,
-    messageListRect,
     setEditingState,
   } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -126,8 +125,6 @@ export const MessageActions = <
         handleMute={handleMute}
         handlePin={handlePin}
         isUserMuted={isMuted}
-        message={message}
-        messageListRect={messageListRect}
         mine={isMyMessage()}
         open={actionsBoxOpen}
       />
@@ -153,8 +150,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const defaultWrapperClass =
     'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
 
-  const wrapperClass =
-    typeof customWrapperClass === 'string' ? customWrapperClass : defaultWrapperClass;
+  const wrapperClass = customWrapperClass || defaultWrapperClass;
 
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();

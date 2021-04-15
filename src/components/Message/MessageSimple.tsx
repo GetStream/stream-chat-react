@@ -5,7 +5,6 @@ import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick } from './hooks';
 import { DeliveredCheckIcon } from './icons';
 import {
   areMessageUIPropsEqual,
@@ -31,7 +30,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageUIComponentProps, ReactEventHandler } from './types';
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -51,12 +50,7 @@ type MessageSimpleWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
-  isReactionEnabled: boolean;
-  onReactionListClick: ReactEventHandler;
-  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
-  showDetailedReactions: boolean;
-};
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 
 const MessageSimpleWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -163,12 +157,7 @@ const MessageSimpleWithContext = <
           >
             {!message.text && (
               <>
-                {
-                  <MessageOptions
-                    messageWrapperRef={messageWrapperRef}
-                    onReactionListClick={onReactionListClick}
-                  />
-                }
+                <MessageOptions messageWrapperRef={messageWrapperRef} />
                 {hasReactions && !showDetailedReactions && isReactionEnabled && (
                   <ReactionsList
                     onClick={onReactionListClick}
@@ -195,7 +184,6 @@ const MessageSimpleWithContext = <
             )}
             {message.text && (
               <MessageText
-                {...props}
                 customOptionProps={{
                   displayActions: showActionsBox,
                   messageWrapperRef,
@@ -325,23 +313,5 @@ export const MessageSimple = <
 ) => {
   const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const message = props.message || messageContext.message;
-
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
-
-  return (
-    <MemoizedMessageSimple
-      {...messageContext}
-      isReactionEnabled={isReactionEnabled}
-      onReactionListClick={onReactionListClick}
-      reactionSelectorRef={reactionSelectorRef}
-      showDetailedReactions={showDetailedReactions}
-      {...props}
-    />
-  );
+  return <MemoizedMessageSimple {...messageContext} {...props} />;
 };
