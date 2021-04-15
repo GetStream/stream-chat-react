@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
 import { EmojiIconLarge as DefaultEmojiIcon, SendButton as DefaultSendButton } from './icons';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type { MessageInputProps } from './MessageInput';
 
@@ -40,12 +40,10 @@ export const MessageInputSimple = <
     disabled = false,
     disableMentions,
     EmojiIcon = DefaultEmojiIcon,
-    focus = false,
     grow = true,
     maxRows = 10,
     mentionAllAppUsers,
     mentionQueryParams,
-    publishTypingEvent = true,
     SendButton = DefaultSendButton,
     SuggestionItem,
     SuggestionList,
@@ -53,15 +51,7 @@ export const MessageInputSimple = <
 
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput({
-    ...props,
-    additionalTextareaProps,
-    disabled,
-    focus,
-    grow,
-    maxRows,
-    publishTypingEvent,
-  });
+  const messageInput = useMessageInput<At, Co, Us>();
 
   return (
     <div

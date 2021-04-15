@@ -2,7 +2,6 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIcon as DefaultFileUploadIcon,
@@ -17,6 +16,7 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useTypingContext } from '../../context/TypingContext';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type { Event } from 'stream-chat';
 
@@ -52,12 +52,10 @@ export const MessageInputLarge = <
     disableMentions,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
-    focus = false,
     grow = true,
     maxRows = 10,
     mentionAllAppUsers,
     mentionQueryParams,
-    publishTypingEvent = true,
     SendButton = DefaultSendButton,
     SuggestionItem,
     SuggestionList,
@@ -76,12 +74,7 @@ export const MessageInputLarge = <
   const { t } = useTranslationContext();
   const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const messageInput = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
-    ...props,
-    additionalTextareaProps,
-    focus,
-    publishTypingEvent,
-  });
+  const messageInput = useMessageInput<At, Co, Us>();
 
   const constructTypingString = (
     typingUsers: Record<string, Event<At, Ch, Co, Ev, Me, Re, Us>>,

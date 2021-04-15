@@ -2,7 +2,6 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -15,6 +14,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useMessageInput } from '../../context/MessageInputContext';
 
 import type { MessageInputProps } from './MessageInput';
 
@@ -48,12 +48,10 @@ export const MessageInputSmall = <
     disableMentions,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
-    focus = false,
     grow = true,
     maxRows = 10,
     mentionAllAppUsers,
     mentionQueryParams,
-    publishTypingEvent = true,
     SendButton = DefaultSendButton,
     SuggestionItem,
     SuggestionList,
@@ -62,15 +60,7 @@ export const MessageInputSmall = <
   const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput({
-    ...props,
-    additionalTextareaProps,
-    disabled,
-    focus,
-    grow,
-    maxRows,
-    publishTypingEvent,
-  });
+  const messageInput = useMessageInput<At, Co, Us>();
 
   return (
     <div className='str-chat__small-message-input__wrapper'>
