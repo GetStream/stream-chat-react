@@ -272,6 +272,7 @@ export const Message = <
       isReactionEnabled={isReactionEnabled}
       lastReceivedId={props.lastReceivedId}
       message={message}
+      Message={props.Message}
       messageActions={props.messageActions}
       messageListRect={props.messageListRect}
       mutes={props.mutes}
