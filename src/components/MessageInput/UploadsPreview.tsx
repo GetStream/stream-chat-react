@@ -2,7 +2,7 @@ import React from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useMessageInput } from '../../context/MessageInputContext';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -32,7 +32,7 @@ export const UploadsPreview = <
     Re,
     Us
   >();
-  const messageInput = useMessageInput<At, Co, Us>();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     fileOrder,
     fileUploads,

@@ -144,7 +144,7 @@ const UnMemoizedMessageInput = <
 ) => {
   const { Input = MessageInputLarge } = props;
 
-  const messageInput = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
+  const messageInputState = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,
     additionalTextareaProps: props.additionalTextareaProps || {},
     disabled: props.disabled || false,
@@ -154,9 +154,14 @@ const UnMemoizedMessageInput = <
     publishTypingEvent: props.publishTypingEvent || true,
   });
 
+  const messageInputContextValue = {
+    ...messageInputState,
+    ...props,
+  };
+
   return (
-    <MessageInputContextProvider value={messageInput}>
-      <Input {...props} />
+    <MessageInputContextProvider value={messageInputContextValue}>
+      <Input />
     </MessageInputContextProvider>
   );
 };

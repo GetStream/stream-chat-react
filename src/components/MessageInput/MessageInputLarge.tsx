@@ -16,11 +16,9 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useTypingContext } from '../../context/TypingContext';
-import { useMessageInput } from '../../context/MessageInputContext';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type { Event } from 'stream-chat';
-
-import type { MessageInputProps } from './MessageInput';
 
 import type {
   CustomTrigger,
@@ -42,25 +40,7 @@ export const MessageInputLarge = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    autocompleteTriggers,
-    disabled = false,
-    disableMentions,
-    EmojiIcon = DefaultEmojiIcon,
-    FileUploadIcon = DefaultFileUploadIcon,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-    SendButton = DefaultSendButton,
-    SuggestionItem,
-    SuggestionList,
-  } = props;
-
+>() => {
   const { acceptedFiles, multipleUploads, watcher_count } = useChannelStateContext<
     At,
     Ch,
@@ -74,7 +54,20 @@ export const MessageInputLarge = <
   const { t } = useTranslationContext();
   const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const messageInput = useMessageInput<At, Co, Us>();
+  const {
+    closeEmojiPicker,
+    EmojiIcon = DefaultEmojiIcon,
+    emojiPickerIsOpen,
+    emojiPickerRef,
+    FileUploadIcon = DefaultFileUploadIcon,
+    handleEmojiKeyDown,
+    handleSubmit,
+    isUploadEnabled,
+    maxFilesLeft,
+    openEmojiPicker,
+    SendButton = DefaultSendButton,
+    uploadNewFiles,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   const constructTypingString = (
     typingUsers: Record<string, Event<At, Ch, Co, Ev, Me, Re, Us>>,
@@ -106,39 +99,26 @@ export const MessageInputLarge = <
     <div className='str-chat__input-large'>
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
-        handleFiles={messageInput.uploadNewFiles}
-        maxNumberOfFiles={messageInput.maxFilesLeft}
+        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        handleFiles={uploadNewFiles}
+        maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
         <div className='str-chat__input'>
           <div className='str-chat__input--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview />}
-            <ChatAutoComplete
-              additionalTextareaProps={additionalTextareaProps}
-              disabled={disabled}
-              disableMentions={disableMentions}
-              grow={grow}
-              maxRows={maxRows}
-              mentionAllAppUsers={mentionAllAppUsers}
-              mentionQueryParams={mentionQueryParams}
-              placeholder={t('Type your message')}
-              rows={1}
-              SuggestionItem={SuggestionItem}
-              SuggestionList={SuggestionList}
-              triggers={autocompleteTriggers}
-            />
-            {messageInput.isUploadEnabled && (
+            {isUploadEnabled && <UploadsPreview />}
+            <ChatAutoComplete />
+            {isUploadEnabled && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
-                  {messageInput.maxFilesLeft
+                  {maxFilesLeft
                     ? t('Attach files')
                     : t("You've reached the maximum number of files")}
                 </Tooltip>
                 <FileUploadButton
                   accepts={acceptedFiles}
-                  disabled={messageInput.maxFilesLeft === 0}
-                  handleFiles={messageInput.uploadNewFiles}
+                  disabled={maxFilesLeft === 0}
+                  handleFiles={uploadNewFiles}
                   multiple={multipleUploads}
                 >
                   <span className='str-chat__input-fileupload'>
@@ -149,17 +129,13 @@ export const MessageInputLarge = <
             )}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
-                {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+                {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
               <span
                 className='str-chat__input-emojiselect'
-                onClick={
-                  messageInput.emojiPickerIsOpen
-                    ? messageInput.closeEmojiPicker
-                    : messageInput.openEmojiPicker
-                }
-                onKeyDown={messageInput.handleEmojiKeyDown}
-                ref={messageInput.emojiPickerRef}
+                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+                onKeyDown={handleEmojiKeyDown}
+                ref={emojiPickerRef}
                 role='button'
                 tabIndex={0}
               >
@@ -168,7 +144,7 @@ export const MessageInputLarge = <
             </div>
             <EmojiPicker />
           </div>
-          <SendButton sendMessage={messageInput.handleSubmit} />
+          <SendButton sendMessage={handleSubmit} />
         </div>
         <div>
           <div className='str-chat__input-footer'>

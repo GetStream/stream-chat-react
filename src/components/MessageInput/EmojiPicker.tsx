@@ -6,7 +6,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData } from 'emoji-mart';
 
-import { useMessageInput } from '../../context/MessageInputContext';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -46,7 +46,7 @@ export const EmojiPicker = <
   const { EmojiPicker } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput<At, Co, Us>();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { emojiData } = emojiConfig || {};
 

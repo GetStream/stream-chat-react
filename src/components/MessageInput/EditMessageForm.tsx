@@ -14,9 +14,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useMessageInput } from '../../context/MessageInputContext';
-
-import type { MessageInputProps } from './MessageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   CustomTrigger,
@@ -38,24 +36,20 @@ export const EditMessageForm = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    clearEditingState,
-    EmojiIcon = DefaultEmojiIcon,
-    FileUploadIcon = DefaultFileUploadIcon,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-  } = props;
-
+>() => {
   const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput<At, Co, Us>();
+  const {
+    clearEditingState,
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+    isUploadEnabled,
+    handleSubmit,
+    maxFilesLeft,
+    openEmojiPicker,
+    uploadNewFiles,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -70,39 +64,31 @@ export const EditMessageForm = <
     <div className='str-chat__edit-message-form'>
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
-        handleFiles={messageInput.uploadNewFiles}
-        maxNumberOfFiles={messageInput.maxFilesLeft}
+        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        handleFiles={uploadNewFiles}
+        maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
-        <form onSubmit={messageInput.handleSubmit}>
-          {messageInput.isUploadEnabled && <UploadsPreview />}
+        <form onSubmit={handleSubmit}>
+          {isUploadEnabled && <UploadsPreview />}
           <EmojiPicker small />
-          <ChatAutoComplete
-            additionalTextareaProps={additionalTextareaProps}
-            grow={grow}
-            maxRows={maxRows}
-            mentionAllAppUsers={mentionAllAppUsers}
-            mentionQueryParams={mentionQueryParams}
-            placeholder={t('Type your message')}
-            rows={1}
-          />
+          <ChatAutoComplete />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
-              <span className='str-chat__input-emojiselect' onClick={messageInput.openEmojiPicker}>
+              <span className='str-chat__input-emojiselect' onClick={openEmojiPicker}>
                 <EmojiIcon />
               </span>
-              {messageInput.isUploadEnabled && (
+              {isUploadEnabled && (
                 <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>
-                    {messageInput.maxFilesLeft
+                    {maxFilesLeft
                       ? t('Attach files')
                       : t("You've reached the maximum number of files")}
                   </Tooltip>
                   <FileUploadButton
                     accepts={acceptedFiles}
-                    disabled={messageInput.maxFilesLeft === 0}
-                    handleFiles={messageInput.uploadNewFiles}
+                    disabled={maxFilesLeft === 0}
+                    handleFiles={uploadNewFiles}
                     multiple={multipleUploads}
                   >
                     <span className='str-chat__input-fileupload'>

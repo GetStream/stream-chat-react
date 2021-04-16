@@ -7,9 +7,7 @@ import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useMessageInput } from '../../context/MessageInputContext';
-
-import type { MessageInputProps } from './MessageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   CustomTrigger,
@@ -31,27 +29,18 @@ export const MessageInputSimple = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    autocompleteTriggers,
-    disabled = false,
-    disableMentions,
-    EmojiIcon = DefaultEmojiIcon,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-    SendButton = DefaultSendButton,
-    SuggestionItem,
-    SuggestionList,
-  } = props;
-
+>() => {
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput<At, Co, Us>();
+  const {
+    closeEmojiPicker,
+    EmojiIcon = DefaultEmojiIcon,
+    emojiPickerIsOpen,
+    handleEmojiKeyDown,
+    handleSubmit,
+    openEmojiPicker,
+    SendButton = DefaultSendButton,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   return (
     <div
@@ -61,32 +50,15 @@ export const MessageInputSimple = <
     >
       <div className='str-chat__input-flat-wrapper'>
         <div className='str-chat__input-flat--textarea-wrapper'>
-          <ChatAutoComplete
-            additionalTextareaProps={additionalTextareaProps}
-            disabled={disabled}
-            disableMentions={disableMentions}
-            grow={grow}
-            maxRows={maxRows}
-            mentionAllAppUsers={mentionAllAppUsers}
-            mentionQueryParams={mentionQueryParams}
-            placeholder={t('Type your message')}
-            rows={1}
-            SuggestionItem={SuggestionItem}
-            SuggestionList={SuggestionList}
-            triggers={autocompleteTriggers}
-          />
+          <ChatAutoComplete />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
-              {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+              {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
             </Tooltip>
             <span
               className='str-chat__input-flat-emojiselect'
-              onClick={
-                messageInput.emojiPickerIsOpen
-                  ? messageInput.closeEmojiPicker
-                  : messageInput.openEmojiPicker
-              }
-              onKeyDown={messageInput.handleEmojiKeyDown}
+              onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+              onKeyDown={handleEmojiKeyDown}
               role='button'
               tabIndex={0}
             >
@@ -95,7 +67,7 @@ export const MessageInputSimple = <
           </div>
           <EmojiPicker />
         </div>
-        {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
+        {SendButton && <SendButton sendMessage={handleSubmit} />}
       </div>
     </div>
   );

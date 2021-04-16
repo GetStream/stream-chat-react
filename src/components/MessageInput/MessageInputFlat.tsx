@@ -14,12 +14,9 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useMessageInput } from '../../context/MessageInputContext';
-
-import type { MessageInputProps } from './MessageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
-  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -36,31 +33,24 @@ export const MessageInputFlat = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    autocompleteTriggers,
-    disabled = false,
-    disableMentions,
-    EmojiIcon = DefaultEmojiIcon,
-    FileUploadIcon = DefaultFileUploadIcon,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-    SendButton = DefaultSendButton,
-    SuggestionItem,
-    SuggestionList,
-  } = props;
-
+  Us extends DefaultUserType<Us> = DefaultUserType
+>() => {
   const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput<At, Co, Us>();
+  const {
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+    SendButton = DefaultSendButton,
+    isUploadEnabled,
+    maxFilesLeft,
+    uploadNewFiles,
+    emojiPickerIsOpen,
+    closeEmojiPicker,
+    openEmojiPicker,
+    handleEmojiKeyDown,
+    handleSubmit,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
     <div
@@ -70,26 +60,22 @@ export const MessageInputFlat = <
     >
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
-        handleFiles={messageInput.uploadNewFiles}
-        maxNumberOfFiles={messageInput.maxFilesLeft}
+        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        handleFiles={uploadNewFiles}
+        maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview />}
+            {isUploadEnabled && <UploadsPreview />}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
-                {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+                {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
               <span
                 className='str-chat__input-flat-emojiselect'
-                onClick={
-                  messageInput.emojiPickerIsOpen
-                    ? messageInput.closeEmojiPicker
-                    : messageInput.openEmojiPicker
-                }
-                onKeyDown={messageInput.handleEmojiKeyDown}
+                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+                onKeyDown={handleEmojiKeyDown}
                 role='button'
                 tabIndex={0}
               >
@@ -97,31 +83,18 @@ export const MessageInputFlat = <
               </span>
             </div>
             <EmojiPicker />
-            <ChatAutoComplete
-              additionalTextareaProps={additionalTextareaProps}
-              disabled={disabled}
-              disableMentions={disableMentions}
-              grow={grow}
-              maxRows={maxRows}
-              mentionAllAppUsers={mentionAllAppUsers}
-              mentionQueryParams={mentionQueryParams}
-              placeholder={t('Type your message')}
-              rows={1}
-              SuggestionItem={SuggestionItem}
-              SuggestionList={SuggestionList}
-              triggers={autocompleteTriggers}
-            />
-            {messageInput.isUploadEnabled && (
+            <ChatAutoComplete />
+            {isUploadEnabled && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
-                  {messageInput.maxFilesLeft
+                  {maxFilesLeft
                     ? t('Attach files')
                     : t("You've reached the maximum number of files")}
                 </Tooltip>
                 <FileUploadButton
                   accepts={acceptedFiles}
-                  disabled={messageInput.maxFilesLeft === 0}
-                  handleFiles={messageInput.uploadNewFiles}
+                  disabled={maxFilesLeft === 0}
+                  handleFiles={uploadNewFiles}
                   multiple={multipleUploads}
                 >
                   <span className='str-chat__input-flat-fileupload'>
@@ -131,7 +104,7 @@ export const MessageInputFlat = <
               </div>
             )}
           </div>
-          {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
+          {SendButton && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

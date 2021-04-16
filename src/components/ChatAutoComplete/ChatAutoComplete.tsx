@@ -4,13 +4,14 @@ import debounce from 'lodash.debounce';
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { CommandItem, CommandItemProps } from '../CommandItem/CommandItem';
 import { EmoticonItem, EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
-import { LoadingIndicator, LoadingIndicatorProps } from '../Loading/LoadingIndicator';
+import { LoadingIndicator } from '../Loading/LoadingIndicator';
 import { UserItem, UserItemProps } from '../UserItem/UserItem';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { useMessageInput } from '../../context/MessageInputContext';
+import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type {
@@ -137,47 +138,13 @@ export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType>
   sort?: UserSort<Us>;
 };
 
-export type ChatAutoCompleteProps<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
-> = {
-  /** Any additional attributes that you may want to add for underlying HTML textarea element */
-  additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Make the textarea disabled */
-  disabled?: boolean;
-  /** Disable mentions */
-  disableMentions?: boolean;
-  /** Grow the number of rows of the textarea while you're typing */
-  grow?: boolean;
-  /** What loading component to use for the auto complete when loading results. */
-  LoadingIndicator?: React.ElementType<LoadingIndicatorProps>;
-  /** Maximum number of rows */
-  maxRows?: number;
-  /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
-  mentionAllAppUsers?: boolean;
-  /** Object containing filters/sort/options overrides for mentions user query */
-  mentionQueryParams?: MentionQueryParams<Us>;
-  /** Minimum number of characters */
-  minChar?: number;
+export type ChatAutoCompleteProps = {
   /** Listener for onfocus event on textarea */
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
   /** Placeholder for the textarea */
   placeholder?: string;
   /** The number of rows you want the textarea to have */
   rows?: number;
-  /**
-   * Optional UI component prop to override the default suggestion Item component.
-   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
-   */
-  SuggestionItem?: React.ForwardRefExoticComponent<SuggestionItemProps<Co, Us>>;
-  /**
-   * Optional UI component prop to override the default List component that displays suggestions.
-   * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
-   */
-  SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
-  /** The triggers for the textarea */
-  triggers?: TriggerSettings<Co, Us, V>;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -190,27 +157,27 @@ const UnMemoizedChatAutoComplete = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: ChatAutoCompleteProps<Co, Us, V>,
+  props: ChatAutoCompleteProps,
 ) => {
+  const { t } = useTranslationContext();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const commands = messageInput.getCommands();
   const {
     additionalTextareaProps,
+    onSelectItem,
+    textareaRef: innerRef,
     disabled,
     disableMentions,
     grow,
     maxRows,
     mentionAllAppUsers = false,
     mentionQueryParams = {},
-    onFocus,
-    placeholder,
-    rows = 3,
     SuggestionItem,
     SuggestionList,
-    triggers,
-  } = props;
+    autocompleteTriggers: triggers,
+  } = messageInput;
 
-  const messageInput = useMessageInput<At, Co, Us>();
-  const commands = messageInput.getCommands();
-  const { onSelectItem, textareaRef: innerRef } = messageInput;
+  const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
 
   const { channel, emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
