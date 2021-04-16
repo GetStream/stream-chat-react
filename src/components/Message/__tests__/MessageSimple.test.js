@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 
+import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
@@ -63,14 +64,19 @@ async function renderMessageSimple(
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
-            <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
-              <MessageSimple
-                client={client}
+            <ComponentProvider
+              value={{
+                Attachment: AttachmentMock,
+                // eslint-disable-next-line react/display-name
+                Message: () => <MessageSimple {...props} />,
+                ...components,
+              }}
+            >
+              <Message
                 getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
                 isMyMessage={() => true}
                 message={message}
                 threadList={false}
-                typing={false}
                 {...props}
               />
             </ComponentProvider>
@@ -130,6 +136,35 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
+  it('should render message with custom timestamp component when one is given', async () => {
+    const message = generateAliceMessage();
+    const CustomMessageTimestamp = () => (
+      <div data-testid='custom-message-timestamp'>Timestamp</div>
+    );
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageTimestamp: CustomMessageTimestamp,
+    });
+    expect(getByTestId('custom-message-timestamp')).toBeInTheDocument();
+  });
+
+  it('should render message with custom replies count button when one is given', async () => {
+    const message = generateAliceMessage({ reply_count: 1 });
+    const CustomRepliesCount = () => <div data-testid='custom-message-replies-count'>Replies</div>;
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageRepliesCountButton: CustomRepliesCount,
+    });
+    expect(getByTestId('custom-message-replies-count')).toBeInTheDocument();
+  });
+
+  it('should render message with custom options component when one is given', async () => {
+    const message = generateAliceMessage({ text: '' });
+    const CustomOptions = () => <div data-testid='custom-message-options'>Options</div>;
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageOptions: CustomOptions,
+    });
+    expect(getByTestId('custom-message-options')).toBeInTheDocument();
+  });
+
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
@@ -150,7 +185,7 @@ describe('<MessageSimple />', () => {
     );
   });
 
-  it('should not render reaction list if reaction is disbaled in channel config', async () => {
+  it('should not render reaction list if reaction is disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
@@ -290,16 +325,8 @@ describe('<MessageSimple />', () => {
     await renderMessageSimple(message, {
       handleOpenThread: jest.fn(),
     });
-    expect(MessageOptionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        handleOpenThread: expect.any(Function),
-        message,
-        messageWrapperRef: expect.any(Object),
-        onReactionListClick: expect.any(Function),
-        threadList: false,
-      }),
-      {},
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageOptionsMock).toHaveBeenCalled();
   });
 
   it('should render MML', async () => {
@@ -342,16 +369,8 @@ describe('<MessageSimple />', () => {
       messageListRect,
       unsafeHTML,
     });
-    expect(MessageTextMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        actionsEnabled,
-        message,
-        messageListRect,
-        reactionSelectorRef: expect.any(Object),
-        unsafeHTML,
-      }),
-      {},
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageTextMock).toHaveBeenCalled();
   });
 
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {

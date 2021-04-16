@@ -745,7 +745,7 @@ const ChannelInner = <
       EmojiPicker,
       Message,
     }),
-    [Attachment, Emoji, EmojiIndex, EmojiPicker, Message],
+    [],
   );
 
   const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {

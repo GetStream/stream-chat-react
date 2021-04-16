@@ -1,11 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageOptions } from './MessageOptions';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
-import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
+import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -57,17 +56,14 @@ const MessageCommerceWithContext = <
   props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    formatDate,
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     isMyMessage,
     isReactionEnabled,
     message,
-    onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     showDetailedReactions,
     threadList,
@@ -77,14 +73,12 @@ const MessageCommerceWithContext = <
     Attachment,
     Avatar = DefaultAvatar,
     MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageOptions = DefaultMessageOptions,
+    MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -123,25 +117,21 @@ const MessageCommerceWithContext = <
           name={message.user?.name || message.user?.id}
           onClick={onUserClick}
           onMouseOver={onUserHover}
-          size={32}
         />
       )}
       <div className='str-chat__message-commerce-inner'>
-        {message && !message.text && (
+        {!message.text && (
           <>
             {
               <MessageOptions
-                {...props}
                 displayActions={false}
                 displayLeft={false}
                 displayReplies={false}
-                onReactionListClick={onReactionListClick}
                 theme='commerce'
               />
             }
             {hasReactions && !showDetailedReactions && isReactionEnabled && (
               <ReactionsList
-                onClick={onReactionListClick}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -150,7 +140,6 @@ const MessageCommerceWithContext = <
             {showDetailedReactions && isReactionEnabled && (
               <ReactionSelector
                 detailedView
-                handleReaction={handleReaction}
                 latest_reactions={message.latest_reactions}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
@@ -172,7 +161,6 @@ const MessageCommerceWithContext = <
         )}
         {message.text && (
           <MessageText
-            {...props}
             customInnerClass='str-chat__message-commerce-text-inner'
             customOptionProps={{
               displayActions: false,
@@ -198,12 +186,7 @@ const MessageCommerceWithContext = <
               {message.user?.name || message.user?.id}
             </span>
           ) : null}
-          <MessageTimestamp
-            customClass='str-chat__message-commerce-timestamp'
-            format='LT'
-            formatDate={formatDate}
-            message={message}
-          />
+          <MessageTimestamp customClass='str-chat__message-commerce-timestamp' format='LT' />
         </div>
       </div>
     </div>
@@ -231,23 +214,5 @@ export const MessageCommerce = <
 ) => {
   const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const message = props.message || messageContext.message;
-
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
-
-  return (
-    <MemoizedMessageCommerce
-      {...messageContext}
-      isReactionEnabled={isReactionEnabled}
-      onReactionListClick={onReactionListClick}
-      reactionSelectorRef={reactionSelectorRef}
-      showDetailedReactions={showDetailedReactions}
-      {...props}
-    />
-  );
+  return <MemoizedMessageCommerce {...messageContext} {...props} />;
 };

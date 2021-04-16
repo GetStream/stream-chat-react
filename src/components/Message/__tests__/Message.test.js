@@ -17,15 +17,10 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { ComponentProvider } from '../../../context/ComponentContext';
 
 const alice = generateUser({ id: 'alice', image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
-
-const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
-  const messageContext = useMessageContext();
-  contextCallback(messageContext);
-  return <div>Message</div>;
-});
 
 const sendAction = jest.fn();
 const sendReaction = jest.fn();
@@ -34,11 +29,18 @@ const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
+const CustomMessageUIComponent = jest.fn(({ contextCallback }) => {
+  const messageContext = useMessageContext();
+  contextCallback(messageContext);
+  return <div>Message</div>;
+});
+
 async function renderComponent({
   channelActionOpts,
   channelConfig = { replies: true },
   channelStateOpts,
   clientOpts,
+  components,
   contextCallback = () => {},
   message,
   props = {},
@@ -64,14 +66,17 @@ async function renderComponent({
             ...channelActionOpts,
           }}
         >
-          <TranslationProvider value={{ t: (key) => key }}>
-            <Message
-              message={message}
-              Message={() => <CustomMessageUIComponent contextCallback={contextCallback} />}
-              typing={false}
-              {...props}
-            />
-          </TranslationProvider>
+          <ComponentProvider
+            value={{
+              // eslint-disable-next-line react/display-name
+              Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+              ...components,
+            }}
+          >
+            <TranslationProvider value={{ t: (key) => key }}>
+              <Message message={message} {...props} />
+            </TranslationProvider>
+          </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>,
@@ -887,12 +892,12 @@ describe('<Message /> component', () => {
   });
 
   it('should rerender if message changes', async () => {
-    const message = generateMessage({ text: 'Helo!', user: alice });
+    const message = generateMessage({ text: 'Hello!', user: alice });
     const UIMock = jest.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { Message: UIMock },
     });
 
     const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
@@ -900,8 +905,8 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
+      components: { Message: UIMock },
       message: updatedMessage,
-      props: { Message: UIMock },
       render: rerender,
     });
 
@@ -913,16 +918,17 @@ describe('<Message /> component', () => {
     const UIMock = jest.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { Message: UIMock },
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
 
     await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { Message: UIMock, readBy: [bob] },
+      props: { readBy: [bob] },
       render: rerender,
     });
 
@@ -934,16 +940,18 @@ describe('<Message /> component', () => {
     const UIMock = jest.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { groupStyles: ['bottom'], Message: UIMock },
+      props: { groupStyles: ['bottom'] },
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
 
     await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { groupStyles: ['bottom', 'left'], Message: UIMock },
+      props: { groupStyles: ['bottom', 'left'] },
       render: rerender,
     });
 
@@ -955,16 +963,18 @@ describe('<Message /> component', () => {
     const UIMock = jest.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { lastReceivedId: 'last-received-id-1', Message: UIMock },
+      props: { lastReceivedId: 'last-received-id-1' },
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
     UIMock.mockClear();
 
     await renderComponent({
+      components: { Message: UIMock },
       message,
-      props: { lastReceivedId: 'last-received-id-2', Message: UIMock },
+      props: { lastReceivedId: 'last-received-id-2' },
       render: rerender,
     });
 
@@ -976,9 +986,9 @@ describe('<Message /> component', () => {
     const UIMock = jest.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
+      components: { Message: UIMock },
       message,
       props: {
-        Message: UIMock,
         messageListRect: {
           height: 100,
           width: 100,
@@ -992,9 +1002,9 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
+      components: { Message: UIMock },
       message,
       props: {
-        Message: UIMock,
         messageListRect: {
           height: 200,
           width: 200,

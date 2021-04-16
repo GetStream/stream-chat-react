@@ -1,4 +1,4 @@
-import { validateAndGetMessage } from '../utils';
+import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
@@ -62,8 +62,8 @@ export const usePinHandler = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  permissions?: PinPermissions,
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  permissions: PinPermissions = defaultPinPermissions,
   notifications: PinMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;

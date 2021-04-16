@@ -2,9 +2,8 @@ import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { MessageActionsProps } from './MessageActions';
 
 import type {
   DefaultAttachmentType,
@@ -22,9 +21,7 @@ type PropsDrilledToMessageActionsBox =
   | 'handleEdit'
   | 'handleFlag'
   | 'handleMute'
-  | 'handlePin'
-  | 'message'
-  | 'messageListRect';
+  | 'handlePin';
 
 export type MessageActionsBoxProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -34,7 +31,7 @@ export type MessageActionsBoxProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageActionsBox> & {
+> = Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageActionsBox> & {
   isUserMuted: () => boolean;
   mine: boolean;
   open: boolean;
@@ -59,12 +56,11 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
-    message,
-    messageListRect,
     mine,
     open = false,
   } = props;
 
+  const { message, messageListRect } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const [reverse, setReverse] = useState(false);
@@ -102,10 +98,10 @@ const UnMemoizedMessageActionsBox = <
       ref={checkIfReverse}
     >
       <ul className='str-chat__message-actions-list'>
-        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message?.parent_id && (
+        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
           <button onClick={handlePin}>
             <li className='str-chat__message-actions-list-item'>
-              {!message?.pinned ? t('Pin') : t('Unpin')}
+              {!message.pinned ? t('Pin') : t('Unpin')}
             </li>
           </button>
         )}
@@ -117,7 +113,7 @@ const UnMemoizedMessageActionsBox = <
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
           <button onClick={handleMute}>
             <li className='str-chat__message-actions-list-item'>
-              {isUserMuted && isUserMuted() ? t('Unmute') : t('Mute')}
+              {isUserMuted() ? t('Unmute') : t('Mute')}
             </li>
           </button>
         )}

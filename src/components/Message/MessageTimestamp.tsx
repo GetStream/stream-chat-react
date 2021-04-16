@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import {
   isDate,
   isDayOrMoment,
@@ -31,7 +32,7 @@ export const noParsingFunctionWarning =
 
 function getDateString(
   messageCreatedAt?: string,
-  formatDate?: MessageTimestampProps['formatDate'],
+  formatDate?: MessageContextValue['formatDate'],
   calendar?: boolean,
   tDateTimeParser?: TDateTimeParser,
   format?: string,
@@ -83,8 +84,6 @@ export type MessageTimestampProps<
   calendar?: boolean;
   customClass?: string;
   format?: string;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. Returns a string or Node  */
-  formatDate?: (date: Date) => string;
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
@@ -103,13 +102,15 @@ const UnMemoizedMessageTimestamp = <
     calendar = false,
     customClass = '',
     format = defaultTimestampFormat,
-    formatDate,
-    message,
+    message: propMessage,
   } = props;
 
+  const { formatDate, message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { tDateTimeParser } = useTranslationContext();
 
-  const createdAt = message?.created_at as string;
+  const message = propMessage || contextMessage;
+
+  const createdAt = message.created_at as string;
 
   const when = useMemo(
     () => getDateString(createdAt, formatDate, calendar, tDateTimeParser, format),

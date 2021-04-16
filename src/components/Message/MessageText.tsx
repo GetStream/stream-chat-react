@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { useMobilePress, useReactionClick, useReactionHandler } from './hooks';
-import { MessageOptions, MessageOptionsProps } from './MessageOptions';
+import { useMobilePress } from './hooks';
+import { MessageOptions as DefaultMessageOptions, MessageOptionsProps } from './MessageOptions';
 import { messageHasAttachments, messageHasReactions } from './utils';
 
 import {
@@ -10,14 +10,11 @@ import {
 } from '../Reactions';
 
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
-
-import type { ReactEventHandler } from './types';
-
-import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -37,14 +34,10 @@ export type MessageTextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+> = {
   customInnerClass?: string;
   customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   customWrapperClass?: string;
-  messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  onReactionListClick?: ReactEventHandler;
-  reactionSelectorRef?: React.RefObject<HTMLDivElement>;
-  showDetailedReactions?: boolean;
   theme?: string;
 };
 
@@ -59,20 +52,23 @@ const UnMemoizedMessageTextComponent = <
 >(
   props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
+  const { customInnerClass, customOptionProps, customWrapperClass = '', theme = 'simple' } = props;
+
   const {
-    customInnerClass,
-    customOptionProps,
-    customWrapperClass,
+    isReactionEnabled,
+    handleReaction,
     message,
     onMentionsClickMessage,
     onMentionsHoverMessage,
+    onReactionListClick,
     reactionSelectorRef,
     renderText = defaultRenderText,
-    theme = 'simple',
+    showDetailedReactions,
     unsafeHTML,
-  } = props;
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
+    MessageOptions = DefaultMessageOptions,
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -80,14 +76,8 @@ const UnMemoizedMessageTextComponent = <
 
   const { handleMobilePress } = useMobilePress();
 
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
-
   const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
-  const handleReaction = useReactionHandler(message);
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -150,7 +140,7 @@ const UnMemoizedMessageTextComponent = <
           />
         )}
       </div>
-      <MessageOptions {...props} {...customOptionProps} onReactionListClick={onReactionListClick} />
+      <MessageOptions {...customOptionProps} />
     </div>
   );
 };

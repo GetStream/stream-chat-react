@@ -6,13 +6,11 @@ import { useChatContext } from '../../context/ChatContext';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 export type MMLProps = {
-  /** mml source string */
+  /** MML source string */
   source: string;
-  /** submit handler for mml actions */
+  /** Handler function for MML actions */
   actionHandler?: ActionHandlerReturnType;
-  /** align mml components to left/right
-   * @default right
-   */
+  /** Align MML components to left/right, defaults to right */
   align?: 'left' | 'right';
 };
 

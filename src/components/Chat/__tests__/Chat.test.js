@@ -2,14 +2,15 @@ import React, { useContext } from 'react';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { Chat } from '..';
+
+import { ChatContext, TranslationContext } from '../../../context';
+import { Streami18n } from '../../../i18n';
 import {
   dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
-} from 'mock-builders';
-import { Chat } from '..';
-import { ChatContext, TranslationContext } from '../../../context';
-import { Streami18n } from '../../../i18n';
+} from '../../../mock-builders';
 
 import { version } from '../../../../package.json';
 

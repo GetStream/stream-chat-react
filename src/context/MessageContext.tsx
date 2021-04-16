@@ -64,45 +64,32 @@ export type MessageContextValue<
   handleRetry: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
+  /** Whether or not reactions are enabled for the active channel */
+  isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
   onMentionsHoverMessage: ReactEventHandler;
+  /** Handler function for a click event on the reaction list */
+  onReactionListClick: ReactEventHandler;
   /** Handler function for a click event on the user that posted the Message */
   onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
   onUserHover: ReactEventHandler;
+  /** Ref to be placed on the reaction selector component */
+  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
   /** Function to toggle the edit state on a Message */
   setEditingState: ReactEventHandler;
+  /** Whether or not to show reaction list details */
+  showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-   */
-  getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
-   */
-  getFlagMessageSuccessNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user runs into error */
-  getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user is successful */
-  getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
-  /**
-   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
-   */
-  getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */

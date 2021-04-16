@@ -27,8 +27,8 @@ import {
   LoadingIndicatorProps,
 } from '../Loading/LoadingIndicator';
 import {
-  FixedHeightMessage as DefaultMessage,
   MessageDeleted as DefaultMessageDeleted,
+  FixedHeightMessage,
   FixedHeightMessageProps,
   MessageDeletedProps,
 } from '../Message';
@@ -94,7 +94,7 @@ const VirtualizedMessageListWithContext = <
     LoadingIndicator = DefaultLoadingIndicator,
     loadMore,
     loadingMore,
-    Message = DefaultMessage,
+    Message: MessageUIComponent = FixedHeightMessage,
     MessageDeleted = DefaultMessageDeleted,
     messageLimit = 100,
     messages,
@@ -172,7 +172,7 @@ const VirtualizedMessageListWithContext = <
       }
 
       return (
-        <Message
+        <MessageUIComponent
           groupedByUser={
             shouldGroupByUser &&
             streamMessageIndex > 0 &&
@@ -284,10 +284,7 @@ export type VirtualizedMessageListProps<
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
   ) => React.ReactElement;
-  /**
-   * Date separator UI component to render
-   * Defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx)
-   */
+  /** Optional date separator UI component, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx) */
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Disables the injection of date separator components, defaults to `true` */
   disableDateSeparator?: boolean;
@@ -301,13 +298,13 @@ export type VirtualizedMessageListProps<
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Custom UI component to display messages */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Custom UI component to display deleted messages */
+  /** Custom UI component to display deleted messages, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /** Custom UI component to display system messages */
+  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) */
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
   overscan?: number;
