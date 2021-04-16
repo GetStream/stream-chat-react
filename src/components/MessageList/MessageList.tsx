@@ -187,6 +187,7 @@ const MessageListWithContext = <
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       channel,
+      customMessageActions: props.customMessageActions,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
@@ -247,6 +248,7 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
+  | 'customMessageActions'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
   | 'getMuteUserErrorNotification'

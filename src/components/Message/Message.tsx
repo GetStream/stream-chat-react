@@ -258,6 +258,7 @@ export const Message = <
       additionalMessageInputProps={props.additionalMessageInputProps}
       canPin={canPin}
       channelConfig={channelConfig}
+      customMessageActions={props.customMessageActions}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
