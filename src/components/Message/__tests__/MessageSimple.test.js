@@ -136,6 +136,17 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
   });
 
+  it('should render message with custom timestamp component when one is given', async () => {
+    const message = generateAliceMessage();
+    const CustomMessageTimestamp = () => (
+      <div data-testid='custom-message-timestamp'>Timestamp</div>
+    );
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageTimestamp: CustomMessageTimestamp,
+    });
+    expect(getByTestId('custom-message-timestamp')).toBeInTheDocument();
+  });
+
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
@@ -156,7 +167,7 @@ describe('<MessageSimple />', () => {
     );
   });
 
-  it('should not render reaction list if reaction is disbaled in channel config', async () => {
+  it('should not render reaction list if reaction is disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],

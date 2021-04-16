@@ -9,6 +9,7 @@ import type { EventComponentProps } from '../components/EventComponent/EventComp
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
 
@@ -43,6 +44,7 @@ export type ComponentContextValue<
   HeaderComponent?: React.ComponentType;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageTimestamp?: React.ComponentType<MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
@@ -80,6 +82,7 @@ export const ComponentProvider = <
   const Message = value.Message || existingValue.Message;
   const MessageDeleted = value.MessageDeleted || existingValue.MessageDeleted;
   const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
+  const MessageTimestamp = value.MessageTimestamp || existingValue.MessageTimestamp;
   const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
   const ReactionSelector = value.ReactionSelector || existingValue.ReactionSelector;
   const ReactionsList = value.ReactionsList || existingValue.ReactionsList;
@@ -97,6 +100,7 @@ export const ComponentProvider = <
       Message,
       MessageDeleted,
       MessageSystem,
+      MessageTimestamp,
       PinIndicator,
       ReactionSelector,
       ReactionsList,
@@ -113,6 +117,7 @@ export const ComponentProvider = <
       Message,
       MessageDeleted,
       MessageSystem,
+      MessageTimestamp,
       PinIndicator,
       ReactionSelector,
       ReactionsList,

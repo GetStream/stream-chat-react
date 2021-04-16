@@ -4,7 +4,7 @@ import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
-import { MessageTimestamp } from './MessageTimestamp';
+import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { DeliveredCheckIcon } from './icons';
 import {
   areMessageUIPropsEqual,
@@ -86,6 +86,7 @@ const MessageSimpleWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();

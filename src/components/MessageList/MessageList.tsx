@@ -311,6 +311,8 @@ export type MessageListProps<
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
   MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
+  /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
+  MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
@@ -356,6 +358,7 @@ export const MessageList = <
     Message,
     MessageDeleted,
     MessageSystem,
+    MessageTimestamp,
     PinIndicator,
     ReactionSelector,
     ReactionsList,
@@ -381,6 +384,7 @@ export const MessageList = <
       Message,
       MessageDeleted,
       MessageSystem,
+      MessageTimestamp,
       PinIndicator,
       ReactionSelector,
       ReactionsList,
