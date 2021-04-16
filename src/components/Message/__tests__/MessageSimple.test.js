@@ -147,6 +147,15 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-message-timestamp')).toBeInTheDocument();
   });
 
+  it('should render message with custom replies count button when one is given', async () => {
+    const message = generateAliceMessage({ reply_count: 1 });
+    const CustomRepliesCount = () => <div data-testid='custom-message-replies-count'>Replies</div>;
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageRepliesCountButton: CustomRepliesCount,
+    });
+    expect(getByTestId('custom-message-replies-count')).toBeInTheDocument();
+  });
+
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();

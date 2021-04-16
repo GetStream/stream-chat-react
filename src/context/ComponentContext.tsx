@@ -9,6 +9,7 @@ import type { EventComponentProps } from '../components/EventComponent/EventComp
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
@@ -43,6 +44,7 @@ export type ComponentContextValue<
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   HeaderComponent?: React.ComponentType;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -81,6 +83,8 @@ export const ComponentProvider = <
   const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
   const Message = value.Message || existingValue.Message;
   const MessageDeleted = value.MessageDeleted || existingValue.MessageDeleted;
+  const MessageRepliesCountButton =
+    value.MessageRepliesCountButton || existingValue.MessageRepliesCountButton;
   const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
   const MessageTimestamp = value.MessageTimestamp || existingValue.MessageTimestamp;
   const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
@@ -99,6 +103,7 @@ export const ComponentProvider = <
       HeaderComponent,
       Message,
       MessageDeleted,
+      MessageRepliesCountButton,
       MessageSystem,
       MessageTimestamp,
       PinIndicator,
@@ -116,6 +121,7 @@ export const ComponentProvider = <
       HeaderComponent,
       Message,
       MessageDeleted,
+      MessageRepliesCountButton,
       MessageSystem,
       MessageTimestamp,
       PinIndicator,

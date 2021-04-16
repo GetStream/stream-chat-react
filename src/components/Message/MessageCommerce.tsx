@@ -2,9 +2,9 @@ import React from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions } from './MessageOptions';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
-import { MessageTimestamp } from './MessageTimestamp';
+import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -73,6 +73,8 @@ const MessageCommerceWithContext = <
     Attachment,
     Avatar = DefaultAvatar,
     MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();

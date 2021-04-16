@@ -307,6 +307,16 @@ export type MessageListProps<
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
   /** The limit to use when paginating messages */
   messageLimit?: number;
+  /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
+  MessageRepliesCountButton?: ComponentContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >['MessageRepliesCountButton'];
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
@@ -357,6 +367,7 @@ export const MessageList = <
     HeaderComponent,
     Message,
     MessageDeleted,
+    MessageRepliesCountButton,
     MessageSystem,
     MessageTimestamp,
     PinIndicator,
@@ -383,6 +394,7 @@ export const MessageList = <
       HeaderComponent,
       Message,
       MessageDeleted,
+      MessageRepliesCountButton,
       MessageSystem,
       MessageTimestamp,
       PinIndicator,

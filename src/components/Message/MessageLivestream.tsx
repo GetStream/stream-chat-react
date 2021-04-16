@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageTimestamp } from './MessageTimestamp';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
@@ -88,6 +88,7 @@ const MessageLivestreamWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
@@ -267,6 +268,8 @@ const MessageLivestreamActions = <
   props: MessageLivestreamActionsProps,
 ) => {
   const { messageWrapperRef, onReactionListClick } = props;
+
+  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
     channelConfig,

@@ -1,8 +1,8 @@
 import React, { useMemo, useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageTimestamp } from './MessageTimestamp';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import {
   PinIndicator as DefaultPinIndicator,
@@ -105,6 +105,8 @@ const MessageTeamWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageTimestamp = DefaultTimestamp,
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
