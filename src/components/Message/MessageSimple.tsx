@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageOptions } from './MessageOptions';
+import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
@@ -86,6 +86,7 @@ const MessageSimpleWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { useMobilePress } from './hooks';
-import { MessageOptions, MessageOptionsProps } from './MessageOptions';
+import { MessageOptions as DefaultMessageOptions, MessageOptionsProps } from './MessageOptions';
 import { messageHasAttachments, messageHasReactions } from './utils';
 
 import {
@@ -68,6 +68,7 @@ const UnMemoizedMessageTextComponent = <
   } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
+    MessageOptions = DefaultMessageOptions,
     ReactionsList = DefaultReactionList,
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();

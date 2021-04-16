@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageOptions } from './MessageOptions';
+import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
@@ -74,6 +74,7 @@ const MessageCommerceWithContext = <
     Avatar = DefaultAvatar,
     MessageDeleted = DefaultMessageDeleted,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageOptions = DefaultMessageOptions,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
@@ -116,7 +117,6 @@ const MessageCommerceWithContext = <
           name={message.user?.name || message.user?.id}
           onClick={onUserClick}
           onMouseOver={onUserHover}
-          size={32}
         />
       )}
       <div className='str-chat__message-commerce-inner'>

@@ -156,6 +156,15 @@ describe('<MessageSimple />', () => {
     expect(getByTestId('custom-message-replies-count')).toBeInTheDocument();
   });
 
+  it('should render message with custom options component when one is given', async () => {
+    const message = generateAliceMessage({ text: '' });
+    const CustomOptions = () => <div data-testid='custom-message-options'>Options</div>;
+    const { getByTestId } = await renderMessageSimple(message, null, null, {
+      MessageOptions: CustomOptions,
+    });
+    expect(getByTestId('custom-message-options')).toBeInTheDocument();
+  });
+
   it('should render custom edit message input component when one is given', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
