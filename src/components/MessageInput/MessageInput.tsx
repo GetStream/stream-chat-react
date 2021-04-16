@@ -1,8 +1,15 @@
 import React from 'react';
+import type { NimbleEmojiIndex } from 'emoji-mart';
 
 import { MessageInputLarge } from './MessageInputLarge';
 
-import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Channel,
+  CommandResponse,
+  SendFileAPIResponse,
+  UserResponse,
+} from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/messageInput';
 import type { SendButtonProps } from './icons';
@@ -99,6 +106,13 @@ export type MessageInputProps<
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, file uploads are disabled. Default: false */
   noFiles?: boolean;
+  overrideAutocompleteTriggers?: (
+    defaultTriggers: TriggerSettings<Co, Us, V>,
+    triggerUtilities: {
+      commands: CommandResponse<Co>[];
+      emojiIndex: NimbleEmojiIndex | null;
+    },
+  ) => TriggerSettings<Co, Us, V>;
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?: (
     message: {
