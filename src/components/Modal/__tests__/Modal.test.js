@@ -37,7 +37,7 @@ describe('Modal', () => {
 
     fireEvent(
       document,
-      new KeyboardEvent('keyPress', {
+      new KeyboardEvent('keypress', {
         key: 'Escape',
       }),
     );
@@ -52,7 +52,7 @@ describe('Modal', () => {
     unmount();
     fireEvent(
       document,
-      new KeyboardEvent('keyPress', {
+      new KeyboardEvent('keypress', {
         key: 'Escape',
       }),
     );
