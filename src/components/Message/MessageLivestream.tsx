@@ -111,7 +111,7 @@ const MessageLivestreamWithContext = <
     messageTextToRender,
   ]);
 
-  const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+  const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
   if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
