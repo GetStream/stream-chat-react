@@ -1,24 +1,26 @@
 import React from 'react';
 
+import { Avatar } from '../Avatar/Avatar';
+
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType } from '../../../types/types';
-import { Avatar } from '../Avatar';
 
 export type SearchResultProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   index: number;
   result: UserResponse<Us>;
+  selectResult: (user: UserResponse<Us>) => Promise<void>;
 };
 
 const SearchResult = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: SearchResultProps<Us>,
 ) => {
-  const { result } = props;
+  const { result, selectResult } = props;
 
   return (
-    <div className='str-chat__channel-search-result'>
+    <div className='str-chat__channel-search-result' onClick={() => selectResult(result)}>
       <Avatar image={result.image} />
       {result.name || result.id}
     </div>
@@ -28,13 +30,14 @@ const SearchResult = <Us extends DefaultUserType<Us> = DefaultUserType>(
 export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   results: UserResponse<Us>[];
   searching: boolean;
+  selectResult: (user: UserResponse<Us>) => Promise<void>;
   popupResults?: boolean;
 };
 
 export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: SearchResultsProps<Us>,
 ) => {
-  const { popupResults, results, searching } = props;
+  const { popupResults, results, searching, selectResult } = props;
 
   const { t } = useTranslationContext();
 
@@ -55,7 +58,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   return (
     <ResultsContainer>
       {results.map((result, index) => (
-        <SearchResult index={index} key={result.id} result={result} />
+        <SearchResult index={index} key={result.id} result={result} selectResult={selectResult} />
       ))}
     </ResultsContainer>
   );

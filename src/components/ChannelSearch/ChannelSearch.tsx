@@ -25,6 +25,8 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
 };
 
 export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  /** The type of channel to create on user result select, defaults to `messaging` */
+  channelType?: string;
   /** Displays search results as an absolutely positioned popup, defaults to true */
   popupResults?: boolean;
   /** Custom search function to override default */
@@ -44,14 +46,33 @@ const UnMemoizedChannelSearch = <
 >(
   props: ChannelSearchProps<Us>,
 ) => {
-  const { popupResults = true, searchFunction, searchQueryParams } = props;
+  const {
+    channelType = 'messaging',
+    popupResults = true,
+    searchFunction,
+    searchQueryParams,
+  } = props;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<UserResponse<Us>>>([]);
   const [searching, setSearching] = useState(false);
+
+  const selectResult = async (user: UserResponse<Us>) => {
+    if (!client.userID) return;
+
+    // @ts-expect-error
+    const newChannel = client.channel(channelType, { members: [client.userID, user.id] });
+
+    await newChannel.watch();
+    setActiveChannel(newChannel);
+
+    setQuery('');
+    setResults([]);
+    setSearching(false);
+  };
 
   const getChannels = async (text: string) => {
     if (!text || searching) return;
@@ -95,7 +116,12 @@ const UnMemoizedChannelSearch = <
         value={query}
       />
       {query && (
-        <SearchResults popupResults={popupResults} results={results} searching={searching} />
+        <SearchResults
+          popupResults={popupResults}
+          results={results}
+          searching={searching}
+          selectResult={selectResult}
+        />
       )}
     </div>
   );
