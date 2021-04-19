@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import { SearchResults } from './SearchResults';
+
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -23,6 +25,8 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
 };
 
 export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  /** Displays search results as an absolutely positioned popup, defaults to true */
+  popupResults?: boolean;
   /** Custom search function to override default */
   searchFunction?: (event: React.BaseSyntheticEvent) => Promise<void> | void;
   /** Object containing filters/sort/options overrides for user search */
@@ -40,7 +44,7 @@ const UnMemoizedChannelSearch = <
 >(
   props: ChannelSearchProps<Us>,
 ) => {
-  const { searchFunction, searchQueryParams } = props;
+  const { popupResults = true, searchFunction, searchQueryParams } = props;
 
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
@@ -48,8 +52,6 @@ const UnMemoizedChannelSearch = <
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<UserResponse<Us>>>([]);
   const [searching, setSearching] = useState(false);
-
-  console.log(results);
 
   const getChannels = async (text: string) => {
     if (!text || searching) return;
@@ -67,7 +69,7 @@ const UnMemoizedChannelSearch = <
         { limit: 8, ...searchQueryParams?.options },
       );
 
-      if (users.length) setResults(users);
+      setResults(users);
     } catch (error) {
       setQuery('');
       console.error(error);
@@ -80,7 +82,6 @@ const UnMemoizedChannelSearch = <
 
   const onSearch = (event: React.BaseSyntheticEvent) => {
     event.preventDefault();
-
     setQuery(event.target.value);
     getChannelsThrottled(event.target.value);
   };
@@ -93,6 +94,9 @@ const UnMemoizedChannelSearch = <
         type='text'
         value={query}
       />
+      {query && (
+        <SearchResults popupResults={popupResults} results={results} searching={searching} />
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@
   padding: 20px 10px 0;
   display: flex;
   align-items: center;
+  position: relative;
 
   input {
     flex: 1;
@@ -24,6 +25,33 @@
       background: white;
       border: 1px solid $secondary-color;
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+    }
+  }
+
+  &-container.popup {
+    position: absolute;
+    border-radius: 10px;
+    background: white;
+    width: 300px;
+    left: 300px;
+    top: 20px;
+    z-index: 2;
+    padding: 10px;
+    box-shadow: 0 7px 9px 0 rgb(0 0 0 / 3%), 0 1px 0 0 rgb(0 0 0 / 3%);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  &-result {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    height: 40px;
+    padding: 10px;
+
+    &:hover {
+      background: #f1f1f3;
+      font-weight: bold;
+      cursor: pointer;
     }
   }
 }
