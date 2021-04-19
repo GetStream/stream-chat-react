@@ -2,7 +2,6 @@ import React, { Reducer, useCallback, useEffect, useMemo, useReducer, useRef } f
 import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
 import {
   Attachment,
-  CommandResponse,
   logChatPromiseExecution,
   MessageResponse,
   SendFileAPIResponse,
@@ -125,13 +124,9 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | ReduceNumberOfUploadsAction
   | AddMentionedUserAction<Us>;
 
-export type MessageInputHookProps<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   closeEmojiPicker: React.MouseEventHandler<HTMLButtonElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
-  getCommands: () => CommandResponse<Co>[] | undefined;
   getUsers: () => (UserResponse<Us> | undefined)[];
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
@@ -356,7 +351,7 @@ export const useMessageInput = <
   V extends CustomTrigger = CustomTrigger
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-): MessageInputState<At, Us> & MessageInputHookProps<Co, Us> => {
+): MessageInputState<At, Us> & MessageInputHookProps<Us> => {
   const {
     additionalTextareaProps,
     clearEditingState,
@@ -538,8 +533,6 @@ export const useMessageInput = <
   ]);
 
   // Commands / mentions
-
-  const getCommands = useCallback(() => channel?.getConfig?.()?.commands, [channel]);
 
   const getUsers = useCallback(() => {
     if (!channel) return [];
@@ -901,7 +894,6 @@ export const useMessageInput = <
      */
     closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
     emojiPickerRef,
-    getCommands,
     getUsers,
     handleChange,
     handleEmojiKeyDown,

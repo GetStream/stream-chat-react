@@ -1,4 +1,4 @@
-import { useMessageInputContext } from '../../../context/MessageInputContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { CommandItem } from '../../CommandItem/CommandItem';
 
 import type { CommandTriggerSetting } from '../ChatAutoComplete';
@@ -6,24 +6,15 @@ import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
 } from '../../../../types/types';
 
 const useCommandTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Co extends DefaultCommandType = DefaultCommandType
 >(): CommandTriggerSetting<Co> => {
-  const { getCommands } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const commands = getCommands();
+  const { channel } = useChatContext<At, Ch, Co>();
+  const commands = channel?.getConfig?.()?.commands;
 
   return {
     component: CommandItem,

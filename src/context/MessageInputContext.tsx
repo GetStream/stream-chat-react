@@ -25,7 +25,7 @@ export type MessageInputContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = MessageInputState<At, Us> &
-  MessageInputHookProps<Co, Us> &
+  MessageInputHookProps<Us> &
   MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
 
 export const MessageInputContext = createContext<
