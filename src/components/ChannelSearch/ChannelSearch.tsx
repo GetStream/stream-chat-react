@@ -1,14 +1,100 @@
-import React from 'react';
+import React, { useState } from 'react';
+import throttle from 'lodash.throttle';
 
-const UnMemoizedChannelSearch: React.FC = () => (
-  <div className='str-chat__channel-search'>
-    <input placeholder='Search' type='text' />
-    <button type='submit'>
-      <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
-        <path d='M0 17.015l17.333-8.508L0 0v6.617l12.417 1.89L0 10.397z' fillRule='evenodd' />
-      </svg>
-    </button>
-  </div>
-);
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { UserFilters, UserOptions, UserResponse, UserSort } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../types/types';
+
+export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  filters?: UserFilters<Us>;
+  options?: UserOptions;
+  sort?: UserSort<Us>;
+};
+
+export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  /** Custom search function to override default */
+  searchFunction?: (event: React.BaseSyntheticEvent) => Promise<void> | void;
+  /** Object containing filters/sort/options overrides for user search */
+  searchQueryParams?: SearchQueryParams<Us>;
+};
+
+const UnMemoizedChannelSearch = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: ChannelSearchProps<Us>,
+) => {
+  const { searchFunction, searchQueryParams } = props;
+
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
+
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Array<UserResponse<Us>>>([]);
+  const [searching, setSearching] = useState(false);
+
+  console.log(results);
+
+  const getChannels = async (text: string) => {
+    if (!text || searching) return;
+    setSearching(true);
+
+    try {
+      const { users } = await client.queryUsers(
+        // @ts-expect-error
+        {
+          $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
+          id: { $ne: client.userID },
+          ...searchQueryParams?.filters,
+        },
+        { id: 1, ...searchQueryParams?.sort },
+        { limit: 8, ...searchQueryParams?.options },
+      );
+
+      if (users.length) setResults(users);
+    } catch (error) {
+      setQuery('');
+      console.error(error);
+    }
+
+    setSearching(false);
+  };
+
+  const getChannelsThrottled = throttle(getChannels, 200);
+
+  const onSearch = (event: React.BaseSyntheticEvent) => {
+    event.preventDefault();
+
+    setQuery(event.target.value);
+    getChannelsThrottled(event.target.value);
+  };
+
+  return (
+    <div className='str-chat__channel-search'>
+      <input
+        onChange={searchFunction || onSearch}
+        placeholder={t('Search')}
+        type='text'
+        value={query}
+      />
+    </div>
+  );
+};
 
 export const ChannelSearch = React.memo(UnMemoizedChannelSearch) as typeof UnMemoizedChannelSearch;

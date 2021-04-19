@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
 import { CommandItem, CommandItemProps } from '../CommandItem/CommandItem';
@@ -12,13 +13,9 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
-import type {
-  CommandResponse,
-  UserFilters,
-  UserOptions,
-  UserResponse,
-  UserSort,
-} from 'stream-chat';
+import type { CommandResponse, UserResponse } from 'stream-chat';
+
+import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
 
 import type {
   CustomTrigger,
@@ -130,12 +127,6 @@ export type TriggerSettings<
   '@': UserTriggerSetting<Us>;
 };
 
-export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  filters?: UserFilters<Us>;
-  options?: UserOptions;
-  sort?: UserSort<Us>;
-};
-
 export type ChatAutoCompleteProps<
   Co extends DefaultCommandType = DefaultCommandType,
   Us extends DefaultUserType<Us> = DefaultUserType,
@@ -161,7 +152,7 @@ export type ChatAutoCompleteProps<
   /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
   mentionAllAppUsers?: boolean;
   /** Object containing filters/sort/options overrides for mentions user query */
-  mentionQueryParams?: MentionQueryParams<Us>;
+  mentionQueryParams?: SearchQueryParams<Us>;
   /** Minimum number of characters */
   minChar?: number;
   /** Function that runs on change */
@@ -322,7 +313,7 @@ const UnMemoizedChatAutoComplete = <
     setSearching(false);
   };
 
-  const queryUsersDebounced = debounce(queryUsers, 200);
+  const queryUsersThrottled = throttle(queryUsers, 200);
 
   /**
    * dataProvider accepts `onReady` function, which will executed once the data is ready.
@@ -405,7 +396,7 @@ const UnMemoizedChatAutoComplete = <
           component: UserItem,
           dataProvider: (query, _, onReady) => {
             if (mentionAllAppUsers) {
-              return queryUsersDebounced(query, (data: (UserResponse<Us> | undefined)[]) => {
+              return queryUsersThrottled(query, (data: (UserResponse<Us> | undefined)[]) => {
                 if (onReady) onReady(data, query);
               });
             }

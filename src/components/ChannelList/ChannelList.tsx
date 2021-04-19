@@ -19,6 +19,10 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import { ChannelPreviewLastMessage } from '../ChannelPreview/ChannelPreviewLastMessage';
+import {
+  ChannelSearchProps,
+  ChannelSearch as DefaultChannelSearch,
+} from '../ChannelSearch/ChannelSearch';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
@@ -72,6 +76,8 @@ export type ChannelListProps<
   channelRenderFilterFn?: (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<Us>>;
   /** Set a Channel (of this id) to be active and move it to the top of the list of Channels by ID */
   customActiveChannel?: string;
   /** Indicator for Empty State */
@@ -134,6 +140,8 @@ export type ChannelListProps<
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
+  /** Whether or not to load the list with a search component, defaults to false */
+  showChannelSearch?: boolean;
   /** Boolean to show sidebar */
   showSidebar?: boolean;
   /** Object containing sort parameters */
@@ -157,6 +165,7 @@ const UnMemoizedChannelList = <
     Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
+    ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
@@ -176,6 +185,7 @@ const UnMemoizedChannelList = <
     Paginator = LoadMorePaginator,
     Preview = ChannelPreviewLastMessage,
     setActiveChannelOnMount = true,
+    showChannelSearch = false,
     showSidebar,
     sort = DEFAULT_SORT,
     watchers = {},
@@ -228,11 +238,10 @@ const UnMemoizedChannelList = <
     }
   };
 
-  // When channel list (channels array) is updated without any shallow changes (or with only deep changes), then we want
-  // to force the channel preview to re-render.
-  // This happens in case of event channel.updated, channel.truncated etc. Inner properties of channel is updated but
-  // react renderer will only make shallow comparison and choose to not to re-render the UI.
-  // By updating the dummy prop - channelUpdateCount, we can force this re-render.
+  /**
+   * For some events, inner properties on the channel will update but the shallow comparison will not
+   * force a re-render. Incrementing this dummy variable ensures the channel previews update.
+   */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
   const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
@@ -327,6 +336,7 @@ const UnMemoizedChannelList = <
         }`}
         ref={channelListRef}
       >
+        {showChannelSearch && <ChannelSearch />}
         {renderList()}
       </div>
     </>
