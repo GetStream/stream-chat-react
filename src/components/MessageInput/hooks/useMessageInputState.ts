@@ -13,7 +13,9 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
 
-import type { BaseEmoji, EmojiData } from 'emoji-mart';
+import useEmojiIndex from './useEmojiIndex';
+
+import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -144,6 +146,7 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles(files: FileList | File[]): void;
+  emojiIndex?: NimbleEmojiIndex;
 };
 
 /**
@@ -340,7 +343,7 @@ const messageInputReducer = <
 /**
  * hook for MessageInput state
  */
-export const useMessageInput = <
+export const useMessageInputState = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -893,6 +896,7 @@ export const useMessageInput = <
      * and just forced to not have warnings currently with the unknown casting
      */
     closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
+    emojiIndex: useEmojiIndex(),
     emojiPickerRef,
     getUsers,
     handleChange,

@@ -2,7 +2,7 @@ import React, { createContext, PropsWithChildren, useContext } from 'react';
 import type {
   MessageInputHookProps,
   MessageInputState,
-} from '../components/MessageInput/hooks/messageInput';
+} from '../components/MessageInput/hooks/useMessageInputState';
 import type {
   CustomTrigger,
   DefaultAttachmentType,

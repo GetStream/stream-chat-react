@@ -1,7 +1,7 @@
 import { useChatContext } from '../../../context/ChatContext';
 import { CommandItem } from '../../CommandItem/CommandItem';
 
-import type { CommandTriggerSetting } from '../ChatAutoComplete';
+import type { CommandTriggerSetting } from '../../ChatAutoComplete';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,

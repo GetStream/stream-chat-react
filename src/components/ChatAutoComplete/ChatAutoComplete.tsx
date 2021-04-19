@@ -6,11 +6,6 @@ import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import { LoadingIndicator } from '../Loading/LoadingIndicator';
 import type { UserItemProps } from '../UserItem/UserItem';
 
-import useEmojiIndex from './hooks/useEmojiIndex';
-import useCommandTrigger from './hooks/useCommandTrigger';
-import useEmojiTrigger from './hooks/useEmojiTrigger';
-import useUserTrigger from './hooks/useUserTrigger';
-
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -96,7 +91,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
   dataProvider: (
     query: string,
     text: string,
-    onReady: (data: (U | undefined)[], token: string) => void,
+    onReady: (data: U[], token: string) => void,
   ) => U[] | Promise<void> | undefined;
   output: (
     entity: U,
@@ -126,13 +121,15 @@ export type TriggerSettings<
   Co extends DefaultCommandType = DefaultCommandType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
-> = {
-  [key in keyof V]: TriggerSetting<V[key]['componentProps'], V[key]['data']>;
-} & {
-  '/': CommandTriggerSetting<Co>;
-  ':': EmojiTriggerSetting;
-  '@': UserTriggerSetting<Us>;
-};
+> =
+  | {
+      [key in keyof V]: TriggerSetting<V[key]['componentProps'], V[key]['data']>;
+    }
+  | {
+      '/': CommandTriggerSetting<Co>;
+      ':': EmojiTriggerSetting;
+      '@': UserTriggerSetting<Us>;
+    };
 
 export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   filters?: UserFilters<Us>;
@@ -168,23 +165,13 @@ const UnMemoizedChatAutoComplete = <
     autocompleteTriggers,
     disabled,
     disableMentions,
+    emojiIndex,
     grow,
     maxRows,
     SuggestionItem,
     SuggestionList,
     textareaRef: innerRef,
   } = messageInput;
-
-  const emojiIndex = useEmojiIndex();
-  const commandTrigger = useCommandTrigger();
-  const emojiTrigger = useEmojiTrigger(emojiIndex);
-  const userTrigger = useUserTrigger();
-
-  const triggers = autocompleteTriggers || {
-    '/': commandTrigger,
-    ':': emojiTrigger,
-    '@': userTrigger,
-  };
 
   const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
 
@@ -234,7 +221,7 @@ const UnMemoizedChatAutoComplete = <
       rows={rows}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
-      trigger={triggers}
+      trigger={autocompleteTriggers || {}}
       value={messageInput.text}
     />
   );

@@ -1,1 +1,1 @@
-export * from './messageInput';
+export * from './useMessageInputState';

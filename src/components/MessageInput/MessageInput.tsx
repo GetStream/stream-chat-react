@@ -1,19 +1,15 @@
 import React from 'react';
-import type { NimbleEmojiIndex } from 'emoji-mart';
 
 import { MessageInputLarge } from './MessageInputLarge';
 
-import type {
-  Attachment,
-  Channel,
-  CommandResponse,
-  SendFileAPIResponse,
-  UserResponse,
-} from 'stream-chat';
+import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
 
-import type { FileUpload, ImageUpload } from './hooks/messageInput';
+import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SendButtonProps } from './icons';
-import { useMessageInput } from './hooks/messageInput';
+import { useMessageInputState } from './hooks/useMessageInputState';
+import useCommandTrigger from './hooks/useCommandTrigger';
+import useEmojiTrigger from './hooks/useEmojiTrigger';
+import useUserTrigger from './hooks/useUserTrigger';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
 import type {
@@ -60,7 +56,7 @@ export type MessageInputProps<
   /**
    * Override the default triggers of the [ChatAutoComplete](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatAutoComplete/Avatar.tsx) component
    */
-  autocompleteTriggers?: TriggerSettings<Co, Us, V>;
+  autocompleteTriggers?: TriggerSettings<Co, Us>;
   /** Callback to clear editing state in parent component */
   clearEditingState?: () => void;
   /** Disable input */
@@ -106,13 +102,6 @@ export type MessageInputProps<
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, file uploads are disabled. Default: false */
   noFiles?: boolean;
-  overrideAutocompleteTriggers?: (
-    defaultTriggers: TriggerSettings<Co, Us, V>,
-    triggerUtilities: {
-      commands: CommandResponse<Co>[];
-      emojiIndex: NimbleEmojiIndex | null;
-    },
-  ) => TriggerSettings<Co, Us, V>;
   /** Completely override the submit handler (advanced usage only) */
   overrideSubmitHandler?: (
     message: {
@@ -158,7 +147,7 @@ const UnMemoizedMessageInput = <
 ) => {
   const { Input = MessageInputLarge } = props;
 
-  const messageInputState = useMessageInput<At, Ch, Co, Ev, Me, Re, Us, V>({
+  const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,
     additionalTextareaProps: props.additionalTextareaProps || {},
     disabled: props.disabled || false,
@@ -168,13 +157,24 @@ const UnMemoizedMessageInput = <
     publishTypingEvent: props.publishTypingEvent || true,
   });
 
+  const defaultAutocompleteTriggers: TriggerSettings<Co, Us> = {
+    '/': useCommandTrigger<At, Ch, Co>(),
+    ':': useEmojiTrigger(messageInputState.emojiIndex),
+    '@': useUserTrigger<At, Ch, Co, Ev, Me, Re, Us>(
+      props.mentionQueryParams,
+      messageInputState.onSelectItem,
+      props.mentionAllAppUsers,
+    ),
+  };
+
   const messageInputContextValue = {
     ...messageInputState,
     ...props,
+    autocompleteTriggers: props.autocompleteTriggers || defaultAutocompleteTriggers,
   };
 
   return (
-    <MessageInputContextProvider value={messageInputContextValue}>
+    <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
       <Input />
     </MessageInputContextProvider>
   );

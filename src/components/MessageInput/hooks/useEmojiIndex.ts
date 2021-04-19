@@ -9,12 +9,11 @@ const useEmojiIndex = () => {
   const { EmojiIndex } = useComponentContext();
   const { emojiData } = emojiConfig || {};
 
-  const emojiIndex: NimbleEmojiIndex | null = useMemo(() => {
+  const emojiIndex: NimbleEmojiIndex | undefined = useMemo(() => {
     if (EmojiIndex) {
       // @ts-expect-error type here isn't registering the constructor type
       return new EmojiIndex(emojiData);
     }
-    return null;
   }, [emojiData, EmojiIndex]);
 
   return emojiIndex;

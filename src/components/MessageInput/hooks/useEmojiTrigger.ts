@@ -1,9 +1,9 @@
 import type { NimbleEmojiIndex } from 'emoji-mart';
 
 import { EmoticonItem } from '../../EmoticonItem/EmoticonItem';
-import type { EmojiTriggerSetting } from '../ChatAutoComplete';
+import type { EmojiTriggerSetting } from '../../ChatAutoComplete';
 
-const useEmojiTrigger = (emojiIndex: NimbleEmojiIndex | null): EmojiTriggerSetting => ({
+const useEmojiTrigger = (emojiIndex?: NimbleEmojiIndex): EmojiTriggerSetting => ({
   component: EmoticonItem,
   dataProvider: (query, _, onReady) => {
     if (query.length === 0 || query.charAt(0).match(/[^a-zA-Z0-9+-]/)) {

@@ -2,11 +2,10 @@ import { useCallback, useState } from 'react';
 import debounce from 'lodash.debounce';
 
 import { useChatContext } from '../../../context/ChatContext';
-import { useMessageInputContext } from '../../../context/MessageInputContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { UserItem } from '../../UserItem/UserItem';
 
-import type { UserTriggerSetting } from '../ChatAutoComplete';
+import type { MentionQueryParams, UserTriggerSetting } from '../../ChatAutoComplete';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -26,17 +25,12 @@ const useUserTrigger = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(): UserTriggerSetting<Us> => {
+>(
+  mentionQueryParams: MentionQueryParams<Us> = {},
+  onSelectItem: (item: UserResponse<Us>) => void,
+  mentionAllAppUsers?: boolean,
+): UserTriggerSetting<Us> => {
   const [searching, setSearching] = useState(false);
-  const { mentionAllAppUsers, mentionQueryParams = {}, onSelectItem } = useMessageInputContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
 
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -117,7 +111,7 @@ const useUserTrigger = <
     component: UserItem,
     dataProvider: (query, _, onReady) => {
       if (mentionAllAppUsers) {
-        return queryUsersDebounced(query, (data: (UserResponse<Us> | undefined)[]) => {
+        return queryUsersDebounced(query, (data: UserResponse<Us>[]) => {
           if (onReady) onReady(data, query);
         });
       }
@@ -149,7 +143,7 @@ const useUserTrigger = <
         return data;
       }
 
-      return queryMembersDebounced(query, (data: (UserResponse<Us> | undefined)[]) => {
+      return queryMembersDebounced(query, (data: UserResponse<Us>[]) => {
         if (onReady) onReady(data, query);
       });
     },
