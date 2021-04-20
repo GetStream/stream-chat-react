@@ -35,8 +35,8 @@ export const Modal: React.FC<ModalProps> = (props) => {
       }
     };
 
-    document.addEventListener('keyPress', handleEscKey);
-    return () => document.removeEventListener('keyPress', handleEscKey);
+    document.addEventListener('keypress', handleEscKey);
+    return () => document.removeEventListener('keypress', handleEscKey);
   }, [onClose, open]);
 
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';

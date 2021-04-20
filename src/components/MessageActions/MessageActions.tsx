@@ -94,7 +94,7 @@ export const MessageActions = <
 
   useEffect(() => {
     if (messageWrapperRef?.current) {
-      messageWrapperRef.current.addEventListener('onMouseLeave', hideOptions);
+      messageWrapperRef.current.addEventListener('mouseleave', hideOptions);
     }
   }, [hideOptions, messageWrapperRef]);
 
