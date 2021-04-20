@@ -18,7 +18,7 @@ const wrapperMock = document.createElement('div');
 jest.spyOn(wrapperMock, 'addEventListener');
 
 const defaultProps = {
-  getMessageActions: () => ['flag', 'mute', 'pin'],
+  getMessageActions: () => ['flag', 'mute'],
   handleDelete: () => {},
   handleFlag: () => {},
   handleMute: () => {},
