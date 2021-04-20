@@ -142,14 +142,7 @@ describe('Thread', () => {
       autoFocus: true,
     });
 
-    expect(MessageInputSmallMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        focus: true,
-        parent: threadStart,
-        ...additionalMessageInputProps,
-      }),
-      {},
-    );
+    expect(MessageInputSmallMock).toHaveBeenCalledWith({}, {});
   });
 
   it('should render a custom MessageInput if it is passed as a prop', () => {
