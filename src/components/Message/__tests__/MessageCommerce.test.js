@@ -237,7 +237,6 @@ describe('<MessageCommerce />', () => {
           name: alice.name,
           onClick: expect.any(Function),
           onMouseOver: expect.any(Function),
-          size: 32,
         },
         {},
       );
