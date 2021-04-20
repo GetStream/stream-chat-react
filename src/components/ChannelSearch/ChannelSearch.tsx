@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { SearchResultProps, SearchResults } from './SearchResults';
+import { SearchResultItemProps, SearchResults } from './SearchResults';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -27,6 +27,8 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
 export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
+  /** Custom handler function to run on search result item selection */
+  onSelectResult?: (user: UserResponse<Us>) => Promise<void> | void;
   /** Displays search results as an absolutely positioned popup, defaults to true */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
@@ -37,8 +39,8 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
   searchQueryParams?: SearchQueryParams<Us>;
-  /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResult](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
-  SearchResult?: React.ComponentType<SearchResultProps<Us>>;
+  /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
+  SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
 };
 
 const UnMemoizedChannelSearch = <
@@ -54,12 +56,13 @@ const UnMemoizedChannelSearch = <
 ) => {
   const {
     channelType = 'messaging',
+    onSelectResult,
     popupResults = true,
     SearchEmpty,
     searchFunction,
     SearchLoading,
     searchQueryParams,
-    SearchResult,
+    SearchResultItem,
   } = props;
 
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -67,20 +70,41 @@ const UnMemoizedChannelSearch = <
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<UserResponse<Us>>>([]);
+  const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const clearState = () => {
+    setQuery('');
+    setResults([]);
+    setResultsOpen(false);
+    setSearching(false);
+  };
+
+  useEffect(() => {
+    const clickListener = (event: MouseEvent) => {
+      if (resultsOpen && event.target instanceof HTMLElement) {
+        const isInputClick = inputRef.current?.contains(event.target);
+        if (!isInputClick) {
+          clearState();
+        }
+      }
+    };
+
+    document.addEventListener('click', clickListener);
+    return () => document.removeEventListener('click', clickListener);
+  }, [resultsOpen]);
 
   const selectResult = async (user: UserResponse<Us>) => {
     if (!client.userID) return;
 
     // @ts-expect-error
     const newChannel = client.channel(channelType, { members: [client.userID, user.id] });
-
     await newChannel.watch();
-    setActiveChannel(newChannel);
 
-    setQuery('');
-    setResults([]);
-    setSearching(false);
+    setActiveChannel(newChannel);
+    clearState();
   };
 
   const getChannels = async (text: string) => {
@@ -100,8 +124,9 @@ const UnMemoizedChannelSearch = <
       );
 
       setResults(users);
+      setResultsOpen(true);
     } catch (error) {
-      setQuery('');
+      clearState();
       console.error(error);
     }
 
@@ -121,6 +146,7 @@ const UnMemoizedChannelSearch = <
       <input
         onChange={searchFunction || onSearch}
         placeholder={t('Search')}
+        ref={inputRef}
         type='text'
         value={query}
       />
@@ -131,8 +157,8 @@ const UnMemoizedChannelSearch = <
           SearchEmpty={SearchEmpty}
           searching={searching}
           SearchLoading={SearchLoading}
-          SearchResult={SearchResult}
-          selectResult={selectResult}
+          SearchResultItem={SearchResultItem}
+          selectResult={onSelectResult || selectResult}
         />
       )}
     </div>
