@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { SearchResults } from './SearchResults';
+import { SearchResultProps, SearchResults } from './SearchResults';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -29,10 +29,16 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   channelType?: string;
   /** Displays search results as an absolutely positioned popup, defaults to true */
   popupResults?: boolean;
+  /** Custom UI component to display empty search results */
+  SearchEmpty?: React.ComponentType;
   /** Custom search function to override default */
   searchFunction?: (event: React.BaseSyntheticEvent) => Promise<void> | void;
+  /** Custom UI component to display the search loading state */
+  SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
   searchQueryParams?: SearchQueryParams<Us>;
+  /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResult](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
+  SearchResult?: React.ComponentType<SearchResultProps<Us>>;
 };
 
 const UnMemoizedChannelSearch = <
@@ -49,8 +55,11 @@ const UnMemoizedChannelSearch = <
   const {
     channelType = 'messaging',
     popupResults = true,
+    SearchEmpty,
     searchFunction,
+    SearchLoading,
     searchQueryParams,
+    SearchResult,
   } = props;
 
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -119,7 +128,10 @@ const UnMemoizedChannelSearch = <
         <SearchResults
           popupResults={popupResults}
           results={results}
+          SearchEmpty={SearchEmpty}
           searching={searching}
+          SearchLoading={SearchLoading}
+          SearchResult={SearchResult}
           selectResult={selectResult}
         />
       )}

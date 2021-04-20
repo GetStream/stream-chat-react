@@ -14,7 +14,7 @@ export type SearchResultProps<Us extends DefaultUserType<Us> = DefaultUserType> 
   selectResult: (user: UserResponse<Us>) => Promise<void>;
 };
 
-const SearchResult = <Us extends DefaultUserType<Us> = DefaultUserType>(
+const DefaultSearchResult = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: SearchResultProps<Us>,
 ) => {
   const { result, selectResult } = props;
@@ -32,27 +32,44 @@ export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType>
   searching: boolean;
   selectResult: (user: UserResponse<Us>) => Promise<void>;
   popupResults?: boolean;
+  SearchEmpty?: React.ComponentType;
+  SearchLoading?: React.ComponentType;
+  SearchResult?: React.ComponentType<SearchResultProps<Us>>;
 };
 
 export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: SearchResultsProps<Us>,
 ) => {
-  const { popupResults, results, searching, selectResult } = props;
+  const {
+    popupResults,
+    results,
+    searching,
+    SearchEmpty,
+    SearchLoading,
+    SearchResult = DefaultSearchResult,
+    selectResult,
+  } = props;
 
   const { t } = useTranslationContext();
 
+  const containerStyle = popupResults ? 'popup' : 'inline';
+
   const ResultsContainer: React.FC = ({ children }) => (
-    <div className={`str-chat__channel-search-container ${popupResults ? 'popup' : ''}`}>
-      {children}
-    </div>
+    <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
   );
 
   if (searching) {
-    return <ResultsContainer>{t('Results loading...')}</ResultsContainer>;
+    return (
+      <ResultsContainer>
+        {SearchLoading ? <SearchLoading /> : t('Results loading...')}
+      </ResultsContainer>
+    );
   }
 
   if (!results.length) {
-    return <ResultsContainer>{t('No results found')}</ResultsContainer>;
+    return (
+      <ResultsContainer>{SearchEmpty ? <SearchEmpty /> : t('No results found')}</ResultsContainer>
+    );
   }
 
   return (
