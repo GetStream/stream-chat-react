@@ -147,11 +147,11 @@ export type Capabilities = {
 };
 
 export const getMessageActions = (
-  actions: string[] | boolean,
+  actions: MessageActionsArray | boolean,
   { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply }: Capabilities,
 ): MessageActionsArray => {
-  const messageActionsAfterPermission = [];
-  let messageActions = [];
+  const messageActionsAfterPermission: MessageActionsArray = [];
+  let messageActions: MessageActionsArray = [];
 
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values

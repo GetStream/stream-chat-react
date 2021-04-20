@@ -2,8 +2,14 @@ import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import {
+  CustomMessageActions,
+  MessageContextValue,
+  useMessageContext,
+} from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -14,6 +20,48 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
+
+export type CustomMessageActionsType<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  customMessageActions: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+};
+
+const CustomMessageActionsList = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: CustomMessageActionsType<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { customMessageActions, message } = props;
+  const customActionsArray = Object.keys(customMessageActions);
+
+  return (
+    <>
+      {customActionsArray.map((customAction) => {
+        const customHandler = customMessageActions[customAction];
+
+        return (
+          <button key={customAction} onClick={(event) => customHandler(message, event)}>
+            <li className='str-chat__message-actions-list-item'>{customAction}</li>
+          </button>
+        );
+      })}
+    </>
+  );
+};
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -60,7 +108,16 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
-  const { message, messageListRect } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { customMessageActions, message, messageListRect } = useMessageContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+
   const { t } = useTranslationContext();
 
   const [reverse, setReverse] = useState(false);
@@ -98,6 +155,9 @@ const UnMemoizedMessageActionsBox = <
       ref={checkIfReverse}
     >
       <ul className='str-chat__message-actions-list'>
+        {customMessageActions && (
+          <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
+        )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
           <button onClick={handlePin}>
             <li className='str-chat__message-actions-list-item'>

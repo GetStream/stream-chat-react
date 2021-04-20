@@ -24,6 +24,21 @@ import type {
   UnknownType,
 } from '../../types/types';
 
+export type CustomMessageActions<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  [key: string]: (
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    event: React.BaseSyntheticEvent,
+  ) => Promise<void> | void;
+};
+
 export type MessageContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -88,6 +103,8 @@ export type MessageContextValue<
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
+  /** Object containing custom message actions and function handlers */
+  customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
