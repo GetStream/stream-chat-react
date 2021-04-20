@@ -99,25 +99,6 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should close message actions box when mouse leaves wrapper', () => {
-    let onMouseLeave;
-    wrapperMock.addEventListener.mockImplementationOnce((_, fn) => {
-      onMouseLeave = fn;
-    });
-    const { getByTestId } = renderMessageActions();
-    fireEvent.click(getByTestId(messageActionsTestId));
-    expect(wrapperMock.addEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function));
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: true }),
-      {},
-    );
-    act(() => onMouseLeave());
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
-  });
-
   it('should close message actions box when user clicks outside the action after it is opened', () => {
     let hideOptions;
     const addEventListenerSpy = jest
