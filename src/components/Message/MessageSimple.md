@@ -1,6 +1,7 @@
 ```js
 import { Message } from './Message';
 import { MessageSimple } from './MessageSimple';
+import { Chat, Channel }from '../../components'
 
 const data = require('../../docs/data');
 
@@ -14,15 +15,18 @@ const readBy = [
   },
 ];
 <div className="str-chat" style={{ height: 'unset' }}>
-  <Message
-    message={data.message}
-    Message={MessageSimple}
-    readBy={readBy}
-    groupStyles={['bottom']}
-    editing={false}
-    mutes={[]}
-    {...data.channelContext}
-    {...data.translationContext}
-  />
-</div>;
+<Chat client={data.client}>
+  <Channel channel={data.channel} Message={MessageSimple}>
+    <Message
+      message={data.message}
+      readBy={readBy}
+      groupStyles={['bottom']}
+      editing={false}
+      mutes={[]}
+      {...data.channelContext}
+      {...data.translationContext}
+    />
+  </Channel>
+</Chat>  
+</div>
 ```
