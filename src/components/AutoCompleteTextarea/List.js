@@ -138,8 +138,6 @@ const List = (props) => {
 
     const itemNameParts = { match: editedPropValue, parts };
 
-    console.log({ ...item, itemNameParts });
-
     return { ...item, itemNameParts };
   };
 
