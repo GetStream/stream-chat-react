@@ -86,7 +86,7 @@ const MessageTeamWithContext = <
     getMessageActions,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
-    groupStyles = ['single'],
+    groupStyles,
     handleAction,
     handleEdit,
     handleFlag,
@@ -142,7 +142,7 @@ const MessageTeamWithContext = <
     messageTextToRender,
   ]);
 
-  const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+  const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
   if (message.type === 'message.read') {
     return null;
