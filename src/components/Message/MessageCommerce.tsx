@@ -83,7 +83,7 @@ const MessageCommerceWithContext = <
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
 
-  const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+  const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
   const messageClasses = `str-chat__message-commerce str-chat__message-commerce--${
     isMyMessage() ? 'right' : 'left'

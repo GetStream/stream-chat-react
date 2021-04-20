@@ -76,7 +76,7 @@ const MessageTeamWithContext = <
     clearEditingState,
     editing,
     getMessageActions,
-    groupStyles = ['single'],
+    groupStyles,
     handleAction,
     handleOpenThread,
     handleReaction,
@@ -125,7 +125,7 @@ const MessageTeamWithContext = <
     messageTextToRender,
   ]);
 
-  const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+  const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
   if (message.type === 'message.read') {
     return null;
