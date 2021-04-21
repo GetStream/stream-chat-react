@@ -125,6 +125,7 @@ const UnMemoizedFixedHeightMessage = <
               customWrapperClass='str-chat__virtual-message__actions'
               getMessageActions={messageActionsHandler}
               message={message}
+              mine={() => role.isMyMessage}
             />
             <span className='str-chat__virtual-message__date'>
               <MessageTimestamp
