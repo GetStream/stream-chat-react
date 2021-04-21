@@ -30,7 +30,9 @@ const List = (props) => {
 
   const itemsRef = [];
 
-  const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
+  const isSelected = (item) =>
+    selectedItem ===
+    values.findIndex((value) => (value.id ? value.id === item.id : value.name === item.name));
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -58,7 +60,10 @@ const List = (props) => {
   };
 
   const selectItem = (item) => {
-    setSelectedItem(values.findIndex((value) => value.id === item.id));
+    const index = values.findIndex((value) =>
+      value.id ? value.id === item.id : value.name === item.name,
+    );
+    setSelectedItem(index);
   };
 
   const handleKeyDown = useCallback(
