@@ -103,9 +103,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   if (searching) {
     return (
-      <ResultsContainer>
-        {SearchLoading ? <SearchLoading /> : t('Results loading...')}
-      </ResultsContainer>
+      <ResultsContainer>{SearchLoading ? <SearchLoading /> : t('Searching...')}</ResultsContainer>
     );
   }
 
