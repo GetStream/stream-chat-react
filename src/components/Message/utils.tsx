@@ -87,7 +87,7 @@ export const defaultPinPermissions: PinPermissions = {
     guest: false,
     member: false,
     moderator: true,
-    owner: false,
+    owner: true,
     user: false,
   },
   gaming: {
