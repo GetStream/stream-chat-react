@@ -60,6 +60,8 @@ export type ChannelListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** Additional props for underlying ChannelSearch component, [Available props](https://getstream.github.io/stream-chat-react/#channelsearch) */
+  additionalChannelSearchProps?: ChannelSearchProps<Us>;
   /**
    * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
    * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
@@ -162,6 +164,7 @@ const UnMemoizedChannelList = <
   props: ChannelListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    additionalChannelSearchProps,
     Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
@@ -336,7 +339,7 @@ const UnMemoizedChannelList = <
         }`}
         ref={channelListRef}
       >
-        {showChannelSearch && <ChannelSearch />}
+        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         {renderList()}
       </div>
     </>
