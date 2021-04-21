@@ -165,4 +165,9 @@ const UnMemoizedChannelSearch = <
   );
 };
 
+/**
+ * The ChannelSearch component makes a query users call and displays the results in a list.
+ * Clicking on a list item will navigate you into a channel with the selected user. It can be used
+ * on its own or added to the ChannelList component by setting the `showChannelSearch` prop to true.
+ */
 export const ChannelSearch = React.memo(UnMemoizedChannelSearch) as typeof UnMemoizedChannelSearch;
