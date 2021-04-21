@@ -798,7 +798,10 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, watchers: {} }, type: 'messaging' },
+      channelStateOpts: {
+        state: { members: {}, membership: { role: 'user' }, watchers: {} },
+        type: 'messaging',
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -814,7 +817,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, watchers: {} }, type: 'messaging' },
+      channelStateOpts: { state: { members: {}, membership: {}, watchers: {} }, type: 'messaging' },
       contextCallback: (ctx) => {
         context = ctx;
       },
