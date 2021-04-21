@@ -1,6 +1,58 @@
 # Changelog
 
 
+## [5.1.8](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.8) 2021-04-21
+
+### Chore
+
+- Update message group styling defaults in message UI components [#860](https://github.com/GetStream/stream-chat-react/pull/860)
+- Refine pin message permission checking [#866](https://github.com/GetStream/stream-chat-react/pull/866)
+
+### Bug
+
+- Update `MessageActions` event listener types [#855](https://github.com/GetStream/stream-chat-react/pull/855)
+- Fix suggestion list command conditional check [#865](https://github.com/GetStream/stream-chat-react/pull/865)
+
+## [5.1.7](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.7) 2021-04-13
+
+### Feature
+
+- Remove channel creator's ability to edit/delete other users' messages [#853](https://github.com/GetStream/stream-chat-react/pull/853)
+
+### Chore
+
+- Generalize event types to allow for greater action handler flexibility [#850](https://github.com/GetStream/stream-chat-react/pull/850)
+
+## [5.1.6](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.6) 2021-04-10
+
+### Feature
+
+- Adjust message memoization for custom UI components [#849](https://github.com/GetStream/stream-chat-react/pull/849)
+
+### Bug
+
+- Fix CSS display issue for messages with reactions [#849](https://github.com/GetStream/stream-chat-react/pull/849)
+
+## [5.1.5](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.5) 2021-04-09
+
+### Chore
+
+- Adjust submit handler types [#847](https://github.com/GetStream/stream-chat-react/pull/847)
+
+### Bug
+
+- Remove old CSS leading to Gatsby error [#846](https://github.com/GetStream/stream-chat-react/pull/846)
+
+## [5.1.4](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.4) 2021-04-07
+
+### Bug
+
+- Filter falsey emoji search results [#843](https://github.com/GetStream/stream-chat-react/pull/843)
+
+### Chore
+
+- Adjust submit handler types [#844](https://github.com/GetStream/stream-chat-react/pull/844)
+
 ## [5.1.3](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.3) 2021-04-06
 
 ### Feature
