@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { Avatar } from '../Avatar/Avatar';
+import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -60,7 +61,9 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   const [focusedUser, setFocusedUser] = useState<number>();
 
-  const containerStyle = popupResults ? 'popup' : 'inline';
+  const { device } = useBreakpoint();
+
+  const containerStyle = popupResults && device === 'full' ? 'popup' : 'inline';
 
   const ResultsContainer: React.FC = ({ children }) => (
     <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
