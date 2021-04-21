@@ -641,7 +641,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: true } },
       },
-      { state: { members: {}, watchers: {} }, type: 'messaging' },
+      { state: { members: {}, membership: { role: 'user' }, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
@@ -654,7 +654,7 @@ describe('<Message /> component', () => {
       {
         pinPermissions: { messaging: { user: false } },
       },
-      { state: { members: {}, watchers: {} }, type: 'messaging' },
+      { state: { members: {}, membership: {}, watchers: {} }, type: 'messaging' },
     );
     const { getMessageActions } = getRenderedProps();
     expect(getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
