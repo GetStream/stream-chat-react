@@ -1,7 +1,8 @@
 ```js
 import { Message } from './Message';
 import { MessageLivestream } from './MessageLivestream';
-import { Chat, Channel }from '../../components'
+import { Channel } from '../../components/Channel/Channel'
+import { Chat } from '../../components/Chat/Chat'
 
 const data = require('../../docs/data');
 
