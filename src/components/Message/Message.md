@@ -1,19 +1,25 @@
 ```js
 import { Message } from './Message';
 import { MessageSimple } from './MessageSimple';
+import { Channel } from '../../components/Channel/Channel'
+import { Chat } from '../../components/Chat/Chat'
+import { MessageContextValue, MessageProvider } from '../../context/MessageContext';
 
 const data = require('../../docs/data');
 <div className="str-chat" style={{ height: 'unset' }}>
-  <Message
-    message={data.message}
-    Message={MessageSimple}
-    readBy={[]}
-    groupStyles={['top']}
-    editing={false}
-    mutes={[]}
-    {...data.channelContext}
-    {...data.translationContext}
-  />
+<Chat client={data.client}>
+  <Channel channel={data.channel} Message={MessageSimple}>
+    <Message
+      message={data.message}  
+      readBy={[]}
+      groupStyles={['top']}
+      editing={false}
+      mutes={[]}
+      {...data.channelContext}
+      {...data.translationContext}
+    />
+  </Channel>
+</Chat>
 </div>;
 ```
 
@@ -22,6 +28,8 @@ Use the team messaging render component and set readBy
 ```js
 import { Message } from './Message';
 import { MessageTeam } from './MessageTeam';
+import { Channel }from '../../components/Channel'
+import { Chat }from '../../components/Chat'
 
 const data = require('../../docs/data');
 
@@ -37,15 +45,17 @@ const readBy = [
     updated_at: '2019-04-02T11:11:09.36867Z',
   },
 ];
-
-<Message
-  message={data.message}
-  Message={MessageTeam}
-  readBy={readBy}
-  groupStyles={['single']}
-  editing={false}
-  mutes={[]}
-  {...data.channelContext}
-  {...data.translationContext}
-/>;
+<Chat client={data.client}>
+  <Channel channel={data.channel} Message={MessageTeam}>
+    <Message
+      message={data.message}    
+      readBy={readBy}
+      groupStyles={['single']}
+      editing={false}
+      mutes={[]}
+      {...data.channelContext}
+      {...data.translationContext}
+    />
+  </Channel>
+</Chat>    
 ```

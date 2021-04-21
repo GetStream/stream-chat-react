@@ -37,6 +37,7 @@ export type MessageActionsProps<
   customWrapperClass?: string;
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  mine?: () => boolean;
 };
 
 export const MessageActions = <
@@ -60,6 +61,7 @@ export const MessageActions = <
     inline,
     message: propMessage,
     messageWrapperRef,
+    mine,
   } = props;
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -128,7 +130,7 @@ export const MessageActions = <
         handleMute={handleMute}
         handlePin={handlePin}
         isUserMuted={isMuted}
-        mine={isMyMessage()}
+        mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
       <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
