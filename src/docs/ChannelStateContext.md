@@ -1,6 +1,6 @@
 The ChannelStateContext provides the following properties:
 
-- **acceptedFiles** An array of strings with accepted files for the Channel
+- **acceptedFiles** An string array of accepted files for the Channel
 
 - **channel** The currently active channel
 
@@ -20,7 +20,7 @@ The ChannelStateContext provides the following properties:
 
 -  **messages** Part of ChannelState - List of [message objects](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
 
--  **multipleUploads** Boolean for if there are multiple uploads
+-  **multipleUploads** Boolean showing whether there are multiple uploads
 
 -  **mutes** Muted users
 
@@ -28,9 +28,9 @@ The ChannelStateContext provides the following properties:
 
 -  **read** Part of ChannelState - the read state for each user
 
--  **thread** Part of ChannelState - a message if it's a Thread, if there is one otherwise null
+-  **thread** Part of ChannelState - a message if it's a Thread, if there is one, otherwise null
 
--  **threadHasMore** Part of ChannelState - boolean for if there are more messages available in current active thread, set to false when the end of pagination is reached
+-  **threadHasMore** Part of ChannelState - boolean showing if there are more messages available in current active thread, set to false when the end of pagination is reached
 
 -  **threadLoadingMore** Part of ChannelState - if the thread is currently loading more messages
 

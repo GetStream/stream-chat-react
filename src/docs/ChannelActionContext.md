@@ -1,12 +1,12 @@
 The ChannelActionContext provides the following properties:
 
-- **closeThread** The function to close the currently open Thread. This function should be attached to close button on Thread UI
+- **closeThread** The function to close the currently open Thread
 
-- **dispatch** 
+- **dispatch** The dispatch function for the ChannelStateReducer
 
-- **editMessage** A Function that takes a Message to be edited
+- **editMessage** A function that takes a message to be edited
 
--  **loadMore** The function to load next page/batch of messages (used for pagination) and the next batch of results will be available in `messages` object in ChannelContext
+-  **loadMore** The function to load next page/batch of messages (used for pagination)
 
 -  **loadMoreThread** The function to load next page/batch of messages in a currently active/open Thread (used for pagination)
 
