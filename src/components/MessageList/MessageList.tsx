@@ -412,7 +412,7 @@ export const MessageList = <
 
   return (
     <ComponentProvider value={updatedComponentContext}>
-      <MessageListWithContext
+      <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
         client={client}
         loadMore={loadMore}
         {...restChannelStateContext}

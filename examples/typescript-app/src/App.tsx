@@ -12,7 +12,6 @@ import {
   MessageInputFlat,
   Thread,
   Window,
-  MessageLivestream,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -51,7 +50,7 @@ const App = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <MessageList Message={MessageLivestream} />
+        <MessageList />
         <MessageInput Input={MessageInputFlat} focus />
       </Window>
       <Thread />
