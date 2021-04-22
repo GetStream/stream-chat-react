@@ -86,12 +86,17 @@ export type SuggestionCommand<
 
 export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
 
+export type AutocompleteMinimalData = {
+  id?: string;
+  name?: string;
+} & ({ id: string } | { name: string });
+
 export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
   component: string | React.ComponentType<T>;
   dataProvider: (
     query: string,
     text: string,
-    onReady: (data: U[], token: string) => void,
+    onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
   ) => U[] | Promise<void> | undefined;
   output: (
     entity: U,
@@ -103,7 +108,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
       }
     | string
     | null;
-  callback?: (item: U) => void;
+  callback?: (item: U & { id: string; name?: string }) => void;
 };
 
 export type CommandTriggerSetting<

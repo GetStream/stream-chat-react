@@ -56,7 +56,7 @@ export type MessageInputProps<
   /**
    * Override the default triggers of the [ChatAutoComplete](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatAutoComplete/Avatar.tsx) component
    */
-  autocompleteTriggers?: TriggerSettings<Co, Us>;
+  autocompleteTriggers?: TriggerSettings<Co, Us, V>;
   /** Callback to clear editing state in parent component */
   clearEditingState?: () => void;
   /** Disable input */

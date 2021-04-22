@@ -1,5 +1,6 @@
 import { useChatContext } from '../../../context/ChatContext';
 import { CommandItem } from '../../CommandItem/CommandItem';
+import type { CommandResponse } from 'stream-chat';
 
 import type { CommandTriggerSetting } from '../../ChatAutoComplete';
 import type {
@@ -48,7 +49,13 @@ const useCommandTrigger = <
       });
 
       const result = selectedCommands.slice(0, 10);
-      if (onReady) onReady(result, query);
+      if (onReady)
+        onReady(
+          result.filter(
+            (result): result is CommandResponse<Co> & { name: string } => result.name !== undefined,
+          ),
+          query,
+        );
 
       return result;
     },
