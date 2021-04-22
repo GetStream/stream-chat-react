@@ -1,0 +1,153 @@
+/* ------------------------  Message li ------------------------  */
+
+.str-chat__li {
+  margin: 0px;
+  padding: 15px;
+  position: relative;
+}
+
+.str-chat__li:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* ------------------------  Outer Most Wrapper ------------------------  */
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  margin: 15px;
+}
+
+/* ------------------------  Wrapping everything to right of Avatar ------------------------  */
+
+.message_wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* ------------------------  Message Actions ------------------------  */
+
+.str-chat__li:hover .str-chat__message-simple__actions__action--reactions {
+  display: flex;
+}
+.str-chat__li:hover .str-chat__message-simple__actions__action--options {
+  display: flex;
+}
+.str-chat__li:hover .str-chat__message-simple__actions__action--thread {
+  display: flex;
+}
+.str-chat__li:hover .str-chat__message-simple__actions {
+  position: absolute;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  width: 75px;
+  border-radius: 100px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+  z-index: 10;
+  padding: 0 4px 0;
+}
+
+.str-chat__message-simple__actions {
+  margin-top: 0;
+}
+
+/* .user_name {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 120%;
+  color: #858688;
+} */
+
+/* ------------------------ Message Text ------------------------  */
+
+.str-chat__message-text {
+  display: flex;
+  width: 100%;
+}
+
+.str-chat__message-text-inner {
+  position: relative;
+  flex: 1;
+  display: block;
+  min-height: 32px;
+  /* padding: 5px 10px; */
+  font-size: 15px; /* variables */
+  color: black; /* variables */
+  border-radius: 0;
+  border: 0px;
+  margin-left: 0; /* set spacing when unfocused */
+}
+
+.str-chat__li:hover .str-chat__message-text-inner {
+  background: rgba(0, 0, 0, 0);
+}
+
+.str-chat__message-simple-text-inner p {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 18px;
+  /* identical to box height */
+  color: #000000;
+}
+
+/* ------------------------  Replies Count Button ------------------------  */
+
+.str-chat__message-replies-count-button {
+  font-family: Helvetica Neue;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 100%;
+  /* identical to box height, or 13px */
+  text-align: right;
+  color: #4e1d9d;
+}
+
+/* ------------------------  Reactions List ------------------------  */
+
+.str-chat__reaction-list {
+  z-index: 1;
+  height: 33px;
+  width: initial;
+}
+.str-chat__reaction-list ul {
+  position: relative;
+  list-style-type: none;
+  padding: 0;
+  font-size: 15px;
+  line-height: 26px;
+  display: flex;
+  justify-content: center;
+  margin: -1px -15px 0 0;
+  z-index: 888;
+}
+
+.emoji-mart-emoji:hover {
+  transition: transform 0.2s ease-in-out;
+  transform: scale(1.2);
+}
+
+.str-chat__reaction-list--counter {
+  display: none;
+}
+
+/* ------------------------  Reactions Selector ------------------------  */
+
+.str-chat__reaction-selector {
+  max-height: 40px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid #bed5e4;
+}
