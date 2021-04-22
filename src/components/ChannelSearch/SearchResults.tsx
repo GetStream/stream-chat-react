@@ -105,13 +105,25 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   if (searching) {
     return (
-      <ResultsContainer>{SearchLoading ? <SearchLoading /> : t('Searching...')}</ResultsContainer>
+      <ResultsContainer>
+        {SearchLoading ? (
+          <SearchLoading />
+        ) : (
+          <div className='str-chat__channel-search-container-searching'>{t('Searching...')}</div>
+        )}
+      </ResultsContainer>
     );
   }
 
   if (!results.length) {
     return (
-      <ResultsContainer>{SearchEmpty ? <SearchEmpty /> : t('No results found')}</ResultsContainer>
+      <ResultsContainer>
+        {SearchEmpty ? (
+          <SearchEmpty />
+        ) : (
+          <div className='str-chat__channel-search-container-empty'>{t('No results found')}</div>
+        )}
+      </ResultsContainer>
     );
   }
 

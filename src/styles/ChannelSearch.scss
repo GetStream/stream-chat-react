@@ -35,6 +35,14 @@
     z-index: 2;
     padding: 10px;
 
+    &-searching {
+      padding-left: 10px;
+    }
+
+    &-empty {
+      padding-left: 10px;
+    }
+
     .str-chat__channel-search-result {
       display: flex;
       align-items: center;
