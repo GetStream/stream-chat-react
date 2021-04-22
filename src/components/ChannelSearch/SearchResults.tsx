@@ -42,6 +42,7 @@ export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType>
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
   SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
+  SearchResultsHeader?: React.ComponentType;
 };
 
 export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
@@ -52,6 +53,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
     results,
     searching,
     SearchEmpty,
+    SearchResultsHeader,
     SearchLoading,
     SearchResultItem = DefaultSearchResultItem,
     selectResult,
@@ -115,6 +117,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
   return (
     <ResultsContainer>
+      {SearchResultsHeader && <SearchResultsHeader />}
       {results.map((result, index) => (
         <SearchResultItem
           focusedUser={focusedUser}

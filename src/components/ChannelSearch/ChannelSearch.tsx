@@ -29,7 +29,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   channelType?: string;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (user: UserResponse<Us>) => Promise<void> | void;
-  /** Displays search results as an absolutely positioned popup, defaults to true */
+  /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
   SearchEmpty?: React.ComponentType;
@@ -41,6 +41,8 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   searchQueryParams?: SearchQueryParams<Us>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
   SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
+  /** Custom UI component to display the search results header */
+  SearchResultsHeader?: React.ComponentType;
 };
 
 const UnMemoizedChannelSearch = <
@@ -57,12 +59,13 @@ const UnMemoizedChannelSearch = <
   const {
     channelType = 'messaging',
     onSelectResult,
-    popupResults = true,
+    popupResults = false,
     SearchEmpty,
     searchFunction,
     SearchLoading,
     searchQueryParams,
     SearchResultItem,
+    SearchResultsHeader,
   } = props;
 
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -158,6 +161,7 @@ const UnMemoizedChannelSearch = <
           searching={searching}
           SearchLoading={SearchLoading}
           SearchResultItem={SearchResultItem}
+          SearchResultsHeader={SearchResultsHeader}
           selectResult={onSelectResult || selectResult}
         />
       )}
