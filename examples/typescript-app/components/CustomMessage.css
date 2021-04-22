@@ -92,7 +92,7 @@
 }
 
 .str-chat__message-simple-text-inner p {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 15px;
@@ -104,7 +104,7 @@
 /* ------------------------  Replies Count Button ------------------------  */
 
 .str-chat__message-replies-count-button {
-  font-family: Helvetica Neue;
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: bold;
   font-size: 13px;

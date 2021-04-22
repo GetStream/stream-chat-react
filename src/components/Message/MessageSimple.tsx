@@ -11,7 +11,6 @@ import {
   getReadByTooltipText,
   messageHasAttachments,
   messageHasReactions,
-  showMessageActionsBox,
 } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
@@ -67,7 +66,6 @@ const MessageSimpleWithContext = <
     additionalMessageInputProps,
     clearEditingState,
     editing,
-    getMessageActions,
     handleAction,
     handleOpenThread,
     handleRetry,
@@ -101,8 +99,6 @@ const MessageSimpleWithContext = <
   const messageClasses = isMyMessage()
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
-
-  const showActionsBox = showMessageActionsBox(getMessageActions());
 
   if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
@@ -184,14 +180,7 @@ const MessageSimpleWithContext = <
             {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
-            {message.text && (
-              <MessageText
-                customOptionProps={{
-                  displayActions: showActionsBox,
-                  messageWrapperRef,
-                }}
-              />
-            )}
+            {message.text && <MessageText />}
             {message.mml && (
               <MML
                 actionHandler={handleAction}

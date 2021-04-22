@@ -162,12 +162,12 @@ const MessageCommerceWithContext = <
         {message.text && (
           <MessageText
             customInnerClass='str-chat__message-commerce-text-inner'
-            customOptionProps={{
-              displayActions: false,
-              displayLeft: false,
-              displayReplies: false,
-              theme: 'commerce',
-            }}
+            // customOptionProps={{
+            //   displayActions: false,
+            //   displayLeft: false,
+            //   displayReplies: false,
+            //   theme: 'commerce',
+            // }}
             customWrapperClass='str-chat__message-commerce-text'
             theme='commerce'
           />
