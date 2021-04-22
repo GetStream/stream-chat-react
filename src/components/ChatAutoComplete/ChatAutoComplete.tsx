@@ -108,7 +108,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
       }
     | string
     | null;
-  callback?: (item: U & { id: string; name?: string }) => void;
+  callback?: (item: U) => void;
 };
 
 export type CommandTriggerSetting<
