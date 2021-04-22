@@ -23,11 +23,7 @@ const theme = 'light';
 
 const filters = { type: 'messaging' };
 const options = { state: true, presence: true, limit: 10 };
-const sort: ChannelSort = {
-  cid: 1,
-  last_message_at: -1,
-  updated_at: -1,
-};
+const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 const chatClient = StreamChat.getInstance(apiKey);
 
