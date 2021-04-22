@@ -30,7 +30,8 @@ const List = (props) => {
 
   const itemsRef = [];
 
-  const isSelected = (item) => selectedItem === values.findIndex((value) => value.id === item.id);
+  const isSelected = (item) =>
+    selectedItem === values.findIndex((value) => getId(value) === getId(item));
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
