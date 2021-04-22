@@ -487,8 +487,9 @@ class ReactTextareaAutocomplete extends React.Component {
       currentTrigger = '/';
       lastToken = value;
     } else {
-      const tokenMatch = value.slice(0, selectionEnd).match(/(?!^|\W)?[:@][^\s]*\s?[^\s]*$/g);
-
+      const triggerCharacters = Object.keys(trigger).join();
+      const triggerRegExp = new RegExp(`(?!^|W)?[${triggerCharacters}][^s]*s?[^s]*$`, 'g');
+      const tokenMatch = value.slice(0, selectionEnd).match(triggerRegExp);
       lastToken = tokenMatch && tokenMatch[tokenMatch.length - 1].trim();
 
       currentTrigger = (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) || null;
@@ -522,7 +523,6 @@ class ReactTextareaAutocomplete extends React.Component {
         top: newTop - this.textareaRef.scrollTop || 0,
       });
     }
-
     this.setState(
       {
         actualToken,
