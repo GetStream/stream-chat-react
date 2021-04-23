@@ -109,20 +109,26 @@ const List = (props) => {
 
   const renderHeader = (value) => {
     if (value[0] === '/') {
-      const html = `<strong>${value.replace('/', '')}</strong>`;
-      return `${t('Commands matching')} ${html}`;
+      return (
+        <>
+          {t('Commands matching')} <strong>{value.replace('/', '')}</strong>
+        </>
+      );
     }
-
     if (value[0] === ':') {
-      const html = `<strong>${value.replace(':', '')}</strong>`;
-      return `${t('Emoji matching')} ${html}`;
+      return (
+        <>
+          {t('Emoji matching')} <strong>{value.replace(':', '')}</strong>
+        </>
+      );
     }
-
     if (value[0] === '@') {
-      const html = `<strong>${value.replace('@', '')}</strong>`;
-      return `${t('People matching')} ${html}`;
+      return (
+        <>
+          {t('People matching')} <strong>{value.replace('@', '')}</strong>
+        </>
+      );
     }
-
     return null;
   };
 
@@ -142,12 +148,7 @@ const List = (props) => {
 
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
-      <li
-        className='rta__list-header'
-        dangerouslySetInnerHTML={{
-          __html: renderHeader(propValue),
-        }}
-      />
+      <li className='rta__list-header'>{renderHeader(propValue)}</li>
       {values.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
