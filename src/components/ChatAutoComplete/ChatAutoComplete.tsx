@@ -9,6 +9,7 @@ import type { UserItemProps } from '../UserItem/UserItem';
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EmojiData } from 'emoji-mart';
 import type {
@@ -173,10 +174,13 @@ const UnMemoizedChatAutoComplete = <
     emojiIndex,
     grow,
     maxRows,
-    SuggestionItem,
-    SuggestionList,
     textareaRef: innerRef,
   } = messageInput;
+
+  const {
+    AutocompleteSuggestionItem: SuggestionItem,
+    AutocompleteSuggestionList: SuggestionList,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
 

@@ -15,6 +15,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   CustomTrigger,
@@ -42,14 +43,17 @@ export const EditMessageForm = <
 
   const {
     clearEditingState,
-    EmojiIcon = DefaultEmojiIcon,
-    FileUploadIcon = DefaultFileUploadIcon,
-    isUploadEnabled,
     handleSubmit,
+    isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const {
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

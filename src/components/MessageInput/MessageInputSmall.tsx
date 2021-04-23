@@ -15,6 +15,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   CustomTrigger,
@@ -42,17 +43,20 @@ export const MessageInputSmall = <
 
   const {
     closeEmojiPicker,
-    EmojiIcon = DefaultEmojiIcon,
     emojiPickerIsOpen,
-    FileUploadIcon = DefaultFileUploadIcon,
-    isUploadEnabled,
     handleEmojiKeyDown,
     handleSubmit,
+    isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
-    SendButton = DefaultSendButton,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const {
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+    SendButton = DefaultSendButton,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
     <div className='str-chat__small-message-input__wrapper'>

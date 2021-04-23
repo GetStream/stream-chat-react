@@ -26,7 +26,10 @@ export type MessageInputContextValue<
   V extends CustomTrigger = CustomTrigger
 > = MessageInputState<At, Us> &
   MessageInputHookProps<Us> &
-  MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  Omit<
+    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
+    'Input' | 'SuggestionList' | 'SuggestionItem' | 'SendButton' | 'EmojiIcon' | 'FileUploadIcon'
+  >;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined

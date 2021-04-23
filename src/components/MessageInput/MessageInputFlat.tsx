@@ -15,6 +15,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   DefaultAttachmentType,
@@ -39,18 +40,21 @@ export const MessageInputFlat = <
   const { t } = useTranslationContext();
 
   const {
+    closeEmojiPicker,
+    emojiPickerIsOpen,
+    handleEmojiKeyDown,
+    handleSubmit,
+    isUploadEnabled,
+    maxFilesLeft,
+    openEmojiPicker,
+    uploadNewFiles,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const {
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
-    isUploadEnabled,
-    maxFilesLeft,
-    uploadNewFiles,
-    emojiPickerIsOpen,
-    closeEmojiPicker,
-    openEmojiPicker,
-    handleEmojiKeyDown,
-    handleSubmit,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
     <div

@@ -14,8 +14,14 @@ import type { MessageRepliesCountButtonProps } from '../components/Message/Messa
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
+import type {
+  SuggestionItemProps,
+  SuggestionListProps,
+} from '../components/ChatAutoComplete/ChatAutoComplete';
+import type { SendButtonProps } from '../components/MessageInput/icons';
 
 import type {
+  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -33,18 +39,24 @@ export type ComponentContextValue<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = {
   Attachment: React.ComponentType<AttachmentProps<At>>;
   Emoji: React.ComponentType<NimbleEmojiProps>;
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
+  AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   Avatar?: React.ComponentType<AvatarProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  EmojiIcon?: React.ComponentType;
+  FileUploadIcon?: React.ComponentType;
   HeaderComponent?: React.ComponentType;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageInput?: React.ComponentType;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -52,6 +64,8 @@ export type ComponentContextValue<
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  SendButton?: React.ComponentType<SendButtonProps>;
+  ThreadMessageInput?: React.ComponentType;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -65,75 +79,22 @@ export const ComponentProvider = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>;
 }>) => {
-  const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
-  // prevent undefined values from replaced defined ones
-  const Attachment = value.Attachment || existingValue.Attachment;
-  const Avatar = value.Avatar || existingValue.Avatar;
-  const DateSeparator = value.DateSeparator || existingValue.DateSeparator;
-  const EditMessageInput = value.EditMessageInput || existingValue.EditMessageInput;
-  const Emoji = value.Emoji || existingValue.Emoji;
-  const EmojiIndex = value.EmojiIndex || existingValue.EmojiIndex;
-  const EmojiPicker = value.EmojiPicker || existingValue.EmojiPicker;
-  const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
-  const Message = value.Message || existingValue.Message;
-  const MessageDeleted = value.MessageDeleted || existingValue.MessageDeleted;
-  const MessageOptions = value.MessageOptions || existingValue.MessageOptions;
-  const MessageRepliesCountButton =
-    value.MessageRepliesCountButton || existingValue.MessageRepliesCountButton;
-  const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
-  const MessageTimestamp = value.MessageTimestamp || existingValue.MessageTimestamp;
-  const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
-  const ReactionSelector = value.ReactionSelector || existingValue.ReactionSelector;
-  const ReactionsList = value.ReactionsList || existingValue.ReactionsList;
+  const newValue = {
+    ...value,
+    ...existingValue,
+  };
 
-  const memoizedValue = useMemo(
-    () => ({
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      Emoji,
-      EmojiIndex,
-      EmojiPicker,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageOptions,
-      MessageRepliesCountButton,
-      MessageSystem,
-      MessageTimestamp,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    }),
-    [
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      Emoji,
-      EmojiIndex,
-      EmojiPicker,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageOptions,
-      MessageRepliesCountButton,
-      MessageSystem,
-      MessageTimestamp,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    ],
-  );
+  const memoizedValue = useMemo(() => newValue, Object.values(newValue));
 
   return (
     <ComponentContext.Provider value={(memoizedValue as unknown) as ComponentContextValue}>
@@ -149,9 +110,10 @@ export const useComponentContext = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >() =>
-  (useContext(ComponentContext) as unknown) as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  (useContext(ComponentContext) as unknown) as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext
@@ -166,14 +128,15 @@ export const withComponentContext = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
+): React.FC<Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>> => {
   const WithComponentContextComponent = (
-    props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
+    props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>,
   ) => {
-    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
     return <Component {...(props as P)} {...componentContext} />;
   };

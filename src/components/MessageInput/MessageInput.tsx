@@ -11,6 +11,7 @@ import useCommandTrigger from './hooks/useCommandTrigger';
 import useEmojiTrigger from './hooks/useEmojiTrigger';
 import useUserTrigger from './hooks/useUserTrigger';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
+import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
 
 import type {
   MentionQueryParams,
@@ -145,7 +146,18 @@ const UnMemoizedMessageInput = <
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const { Input = MessageInputLarge } = props;
+  const {
+    EmojiIcon,
+    FileUploadIcon,
+    Input: PropInput,
+    SendButton,
+    SuggestionItem,
+    SuggestionList,
+  } = props;
+
+  const { MessageInput: ContextInput } = useComponentContext();
+
+  const Input = PropInput || ContextInput || MessageInputLarge;
 
   const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,
@@ -173,10 +185,21 @@ const UnMemoizedMessageInput = <
     autocompleteTriggers: props.autocompleteTriggers || defaultAutocompleteTriggers,
   };
 
+  const componentContextValue = {
+    AutocompleteSuggestionItem: SuggestionItem,
+    AutocompleteSuggestionList: SuggestionList,
+    EmojiIcon,
+    FileUploadIcon,
+    MessageInput: Input,
+    SendButton,
+  };
+
   return (
-    <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
-      <Input />
-    </MessageInputContextProvider>
+    <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={componentContextValue}>
+      <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
+        <Input />
+      </MessageInputContextProvider>
+    </ComponentProvider>
   );
 };
 

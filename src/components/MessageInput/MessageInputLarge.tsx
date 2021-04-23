@@ -17,6 +17,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { Event } from 'stream-chat';
 
@@ -56,18 +57,21 @@ export const MessageInputLarge = <
 
   const {
     closeEmojiPicker,
-    EmojiIcon = DefaultEmojiIcon,
     emojiPickerIsOpen,
     emojiPickerRef,
-    FileUploadIcon = DefaultFileUploadIcon,
     handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
-    SendButton = DefaultSendButton,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const {
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+    SendButton = DefaultSendButton,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const constructTypingString = (
     typingUsers: Record<string, Event<At, Ch, Co, Ev, Me, Re, Us>>,

@@ -8,6 +8,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   CustomTrigger,
@@ -34,13 +35,21 @@ export const MessageInputSimple = <
 
   const {
     closeEmojiPicker,
-    EmojiIcon = DefaultEmojiIcon,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     openEmojiPicker,
-    SendButton = DefaultSendButton,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const { EmojiIcon = DefaultEmojiIcon, SendButton = DefaultSendButton } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   return (
     <div
