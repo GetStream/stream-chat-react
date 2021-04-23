@@ -68,6 +68,14 @@
   color: #858688;
 }
 
+/* ------------------------  Message Actions Box ------------------------  */
+
+.str-chat__message-actions-box {
+  border-radius: 10px;
+  top: initial;
+  left: -85px;
+}
+
 /* ------------------------ Message Text ------------------------  */
 
 .str-chat__message-text {
