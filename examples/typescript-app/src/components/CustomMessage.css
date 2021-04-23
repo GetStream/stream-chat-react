@@ -159,8 +159,9 @@
 
 .str-chat__reaction-selector {
   max-height: 40px;
-  top: -12px;
-  border-radius: 10px;
+  top: -58px;
+  right: 20px;
+  border-radius: 99999px;
   background: white;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid #bed5e4;
