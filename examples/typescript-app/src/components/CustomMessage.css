@@ -71,9 +71,9 @@
 /* ------------------------  Message Actions Box ------------------------  */
 
 .str-chat__message-actions-box {
-  border-radius: 10px;
   top: initial;
-  left: -85px;
+  left: -100px;
+  border-radius: 16px 16px 0 16px;
 }
 
 /* ------------------------ Message Text ------------------------  */
