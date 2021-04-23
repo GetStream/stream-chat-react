@@ -66,6 +66,7 @@ export type ComponentContextValue<
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   SendButton?: React.ComponentType<SendButtonProps>;
   ThreadMessageInput?: React.ComponentType;
+  TriggerProvider?: React.ComponentType;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(

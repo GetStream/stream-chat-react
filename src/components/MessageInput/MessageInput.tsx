@@ -7,9 +7,6 @@ import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'str
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SendButtonProps } from './icons';
 import { useMessageInputState } from './hooks/useMessageInputState';
-import useCommandTrigger from './hooks/useCommandTrigger';
-import useEmojiTrigger from './hooks/useEmojiTrigger';
-import useUserTrigger from './hooks/useUserTrigger';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
 
@@ -32,6 +29,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
+import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 
 export type MessageInputProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -132,6 +130,11 @@ export type MessageInputProps<
    * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
    */
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
+  /**
+   * Optional component that lets you override the default autocomplete triggers.
+   * Defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
+   */
+  TriggerProvider?: React.ComponentType<Record<string, unknown>>;
 };
 
 const UnMemoizedMessageInput = <
@@ -153,11 +156,16 @@ const UnMemoizedMessageInput = <
     SendButton,
     SuggestionItem,
     SuggestionList,
+    TriggerProvider: PropTriggerProvider,
   } = props;
 
-  const { MessageInput: ContextInput } = useComponentContext();
+  const {
+    MessageInput: ContextInput,
+    TriggerProvider: ContextTriggerProvider,
+  } = useComponentContext();
 
   const Input = PropInput || ContextInput || MessageInputLarge;
+  const TriggerProvider = PropTriggerProvider || ContextTriggerProvider || DefaultTriggerProvider;
 
   const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,
@@ -169,20 +177,9 @@ const UnMemoizedMessageInput = <
     publishTypingEvent: props.publishTypingEvent || true,
   });
 
-  const defaultAutocompleteTriggers: TriggerSettings<Co, Us> = {
-    '/': useCommandTrigger<At, Ch, Co>(),
-    ':': useEmojiTrigger(messageInputState.emojiIndex),
-    '@': useUserTrigger<At, Ch, Co, Ev, Me, Re, Us>(
-      props.mentionQueryParams,
-      messageInputState.onSelectItem,
-      props.mentionAllAppUsers,
-    ),
-  };
-
   const messageInputContextValue = {
     ...messageInputState,
     ...props,
-    autocompleteTriggers: props.autocompleteTriggers || defaultAutocompleteTriggers,
   };
 
   const componentContextValue = {
@@ -197,7 +194,9 @@ const UnMemoizedMessageInput = <
   return (
     <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={componentContextValue}>
       <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
-        <Input />
+        <TriggerProvider>
+          <Input />
+        </TriggerProvider>
       </MessageInputContextProvider>
     </ComponentProvider>
   );
