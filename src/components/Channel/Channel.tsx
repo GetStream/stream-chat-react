@@ -758,7 +758,7 @@ const ChannelInner = <
     >
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          <ComponentProvider value={componentContextValue}>
+          <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us> value={componentContextValue}>
             <TypingProvider value={typingContextValue}>
               <div className='str-chat__container'>{children}</div>
             </TypingProvider>
