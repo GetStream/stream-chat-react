@@ -4,55 +4,56 @@
   margin: 0px;
   padding: 15px;
   position: relative;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+    .str-chat__message-text-inner {
+      background: rgba(0, 0, 0, 0);
+    }
+  }
 }
 
-.str-chat__li:hover {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-/* ------------------------  Outer Most Wrapper ------------------------  */
-
-.wrapper {
-  display: flex;
-  flex-direction: row;
-}
-
-/* ------------------------  Wrapping everything to right of Avatar ------------------------  */
+/* ------------------------  Outer Most Message Wrapper ------------------------  */
 
 .message_wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+  flex-direction: row;
+
+  &-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
 }
 
 /* ------------------------  Name and timestamp ------------------------  */
 
 .message-header {
   display: flex;
-}
 
-.timestamp {
-  font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 11px;
-  line-height: 120%;
-  color: #858688;
-  margin-left: 6px;
+  &-user_name {
+    font-family: Helvetica Neue, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 120%;
+    color: #858688;
+  }
+
+  &-timestamp {
+    font-family: Helvetica Neue, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 11px;
+    line-height: 120%;
+    color: #858688;
+    margin-left: 6px;
+  }
 }
 
 /* ------------------------  Message Actions ------------------------  */
 
-.str-chat__li:hover .str-chat__message-simple__actions__action--reactions {
-  display: flex;
-}
-.str-chat__li:hover .str-chat__message-simple__actions__action--options {
-  display: flex;
-}
-.str-chat__li:hover .str-chat__message-simple__actions__action--thread {
-  display: flex;
-}
 .str-chat__li:hover .str-chat__message-simple__actions {
   position: absolute;
   top: -14px;
@@ -68,19 +69,22 @@
   box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
   z-index: 10;
   padding: 0 4px 0;
+
+  &__action--reactions {
+    display: flex;
+  }
+
+  &__action--options {
+    display: flex;
+  }
+
+  &__action--thread {
+    display: flex;
+  }
 }
 
 .str-chat__message-simple__actions {
   margin-top: 0;
-}
-
-.user_name {
-  font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 11px;
-  line-height: 120%;
-  color: #858688;
 }
 
 /* ------------------------  Message Actions Box ------------------------  */
@@ -109,20 +113,15 @@
   border-radius: 0;
   border: 0px;
   margin-left: 0; /* set spacing when unfocused */
-}
 
-.str-chat__li:hover .str-chat__message-text-inner {
-  background: rgba(0, 0, 0, 0);
-}
-
-.str-chat__message-simple-text-inner p {
-  font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 15px;
-  line-height: 18px;
-  /* identical to box height */
-  color: #000000;
+  p {
+    font-family: Helvetica Neue, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 15px;
+    line-height: 18px;
+    color: #000000;
+  }
 }
 
 /* ------------------------  Replies Count Button ------------------------  */
@@ -133,38 +132,11 @@
   font-weight: bold;
   font-size: 13px;
   line-height: 100%;
-  /* identical to box height, or 13px */
   text-align: right;
   color: #4e1d9d;
 }
 
 /* ------------------------  Reactions List ------------------------  */
-
-.str-chat__reaction-list {
-  z-index: 1;
-  height: 33px;
-  width: initial;
-}
-.str-chat__reaction-list ul {
-  position: relative;
-  list-style-type: none;
-  padding: 0;
-  font-size: 15px;
-  line-height: 26px;
-  display: flex;
-  justify-content: center;
-  margin: -1px -15px 0 0;
-  z-index: 888;
-}
-
-.emoji-mart-emoji:hover {
-  transition: transform 0.2s ease-in-out;
-  transform: scale(1.2);
-}
-
-.str-chat__reaction-list--counter {
-  display: none;
-}
 
 .str-chat__simple-reactions-list {
   border-radius: 10px;

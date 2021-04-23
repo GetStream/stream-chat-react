@@ -12,7 +12,7 @@ import {
   useMessageContext,
 } from 'stream-chat-react';
 
-import './CustomMessage.css';
+import './CustomMessage.scss';
 
 export const CustomMessage = () => {
   const {
@@ -30,17 +30,17 @@ export const CustomMessage = () => {
   const name = message.user?.name;
 
   return (
-    <div className='wrapper'>
+    <div className='message_wrapper'>
       <Avatar image={message.user?.image} />
-      <div className='message_wrapper'>
+      <div className='message_wrapper-inner'>
         <MessageOptions
           displayLeft={false}
           handleOpenThread={handleOpenThread}
           messageWrapperRef={messageWrapperRef}
         />
         <div className='message-header'>
-          <div className='user_name'>{name}</div>
-          <div className='timestamp'>
+          <div className='message-header-user_name'>{name}</div>
+          <div className='message-header-timestamp'>
             <MessageTimestamp />
           </div>
         </div>
