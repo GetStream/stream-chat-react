@@ -98,7 +98,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
     query: string,
     text: string,
     onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
-  ) => U[] | Promise<void> | undefined;
+  ) => U[] | Promise<void> | void;
   output: (
     entity: U,
   ) =>
