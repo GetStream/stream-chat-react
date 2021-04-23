@@ -7,7 +7,7 @@ import {
   MessageRepliesCountButton,
   MessageText,
   ReactionSelector,
-  ReactionsList,
+  SimpleReactionsList,
   // MessageTimestamp,
   useMessageContext,
 } from 'stream-chat-react';
@@ -35,6 +35,7 @@ export const CustomMessage = () => {
         <Avatar image={message.user?.image} />
         <div className='message_wrapper'>
           <MessageOptions
+            displayLeft={false}
             handleOpenThread={handleOpenThread}
             messageWrapperRef={messageWrapperRef}
           />
@@ -51,11 +52,9 @@ export const CustomMessage = () => {
           <MessageText />
           {message.attachments && <Attachment attachments={message.attachments} />}
           {hasReactions && !showDetailedReactions && isReactionEnabled && (
-            <ReactionsList
-              own_reactions={message.own_reactions}
+            <SimpleReactionsList
               reaction_counts={message.reaction_counts || undefined}
               reactions={message.latest_reactions}
-              reverse
             />
           )}
           <MessageRepliesCountButton reply_count={message.reply_count} onClick={handleOpenThread} />

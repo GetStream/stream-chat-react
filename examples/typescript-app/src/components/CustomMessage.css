@@ -40,6 +40,7 @@
 }
 .str-chat__li:hover .str-chat__message-simple__actions {
   position: absolute;
+  top: -14px;
   right: 20px;
   display: flex;
   align-items: center;
@@ -58,14 +59,14 @@
   margin-top: 0;
 }
 
-/* .user_name {
-  font-family: Helvetica Neue;
+.user_name {
+  font-family: Helvetica Neue, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 11px;
   line-height: 120%;
   color: #858688;
-} */
+}
 
 /* ------------------------ Message Text ------------------------  */
 
@@ -142,10 +143,15 @@
   display: none;
 }
 
+.str-chat__simple-reactions-list {
+  border-radius: 10px;
+}
+
 /* ------------------------  Reactions Selector ------------------------  */
 
 .str-chat__reaction-selector {
   max-height: 40px;
+  top: -12px;
   border-radius: 10px;
   background: white;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
