@@ -9,6 +9,7 @@ import type { EventComponentProps } from '../components/EventComponent/EventComp
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
+import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
@@ -50,6 +51,7 @@ export type ComponentContextValue<
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   Avatar?: React.ComponentType<AvatarProps>;
+  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   EmojiIcon?: React.ComponentType;

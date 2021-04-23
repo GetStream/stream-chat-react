@@ -2,6 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
+import { CooldownTimer as DefaultCooldownTimer, useCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconLarge as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -51,10 +52,21 @@ export const MessageInputFlat = <
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
+    CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { cooldownInterval, cooldownRemaining, setCooldownRemaining } = useCooldownTimer<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   return (
     <div
@@ -64,7 +76,7 @@ export const MessageInputFlat = <
     >
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
         handleFiles={uploadNewFiles}
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
@@ -83,12 +95,21 @@ export const MessageInputFlat = <
                 role='button'
                 tabIndex={0}
               >
-                <EmojiIcon />
+                {cooldownRemaining ? (
+                  <div className='str-chat__input-flat-cooldown'>
+                    <CooldownTimer
+                      cooldownInterval={cooldownInterval}
+                      setCooldownRemaining={setCooldownRemaining}
+                    />
+                  </div>
+                ) : (
+                  <EmojiIcon />
+                )}
               </span>
             </div>
             <EmojiPicker />
-            <ChatAutoComplete />
-            {isUploadEnabled && (
+            <ChatAutoComplete slowModeDisabled={!!cooldownRemaining} />
+            {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
                   {maxFilesLeft
@@ -108,7 +129,7 @@ export const MessageInputFlat = <
               </div>
             )}
           </div>
-          {SendButton && <SendButton sendMessage={handleSubmit} />}
+          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

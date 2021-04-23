@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { EmojiPicker } from './EmojiPicker';
+import { CooldownTimer as DefaultCooldownTimer, useCooldownTimer } from './hooks/useCooldownTimer';
 import { EmojiIconLarge as DefaultEmojiIcon, SendButton as DefaultSendButton } from './icons';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -41,7 +42,13 @@ export const MessageInputSimple = <
     openEmojiPicker,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
-  const { EmojiIcon = DefaultEmojiIcon, SendButton = DefaultSendButton } = useComponentContext<
+  const {
+    CooldownTimer = DefaultCooldownTimer,
+    EmojiIcon = DefaultEmojiIcon,
+    SendButton = DefaultSendButton,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { cooldownInterval, cooldownRemaining, setCooldownRemaining } = useCooldownTimer<
     At,
     Ch,
     Co,
@@ -59,7 +66,7 @@ export const MessageInputSimple = <
     >
       <div className='str-chat__input-flat-wrapper'>
         <div className='str-chat__input-flat--textarea-wrapper'>
-          <ChatAutoComplete />
+          <ChatAutoComplete slowModeDisabled={!!cooldownRemaining} />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
               {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
@@ -71,12 +78,21 @@ export const MessageInputSimple = <
               role='button'
               tabIndex={0}
             >
-              <EmojiIcon />
+              {cooldownRemaining ? (
+                <div className='str-chat__input-flat-cooldown'>
+                  <CooldownTimer
+                    cooldownInterval={cooldownInterval}
+                    setCooldownRemaining={setCooldownRemaining}
+                  />
+                </div>
+              ) : (
+                <EmojiIcon />
+              )}
             </span>
           </div>
           <EmojiPicker />
         </div>
-        {SendButton && <SendButton sendMessage={handleSubmit} />}
+        {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
       </div>
     </div>
   );

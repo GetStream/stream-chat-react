@@ -1,14 +1,17 @@
 import React from 'react';
 
+import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputLarge } from './MessageInputLarge';
 
-import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
-
-import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
-import type { SendButtonProps } from './icons';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
+
+import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
+
+import type { CooldownTimerProps } from './hooks/useCooldownTimer';
+import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
+import type { SendButtonProps } from './icons';
 
 import type {
   MentionQueryParams,
@@ -29,7 +32,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
-import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 
 export type MessageInputProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -58,6 +60,8 @@ export type MessageInputProps<
   autocompleteTriggers?: TriggerSettings<Co, Us, V>;
   /** Callback to clear editing state in parent component */
   clearEditingState?: () => void;
+  /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) */
+  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Disable input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete mentions. Default: false. */
@@ -150,6 +154,7 @@ const UnMemoizedMessageInput = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
   const {
+    CooldownTimer,
     EmojiIcon,
     FileUploadIcon,
     Input: PropInput,
@@ -185,6 +190,7 @@ const UnMemoizedMessageInput = <
   const componentContextValue = {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
+    CooldownTimer,
     EmojiIcon,
     FileUploadIcon,
     MessageInput: Input,
