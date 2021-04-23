@@ -17,7 +17,6 @@
 
 .message_wrapper {
   display: flex;
-  flex-direction: row;
 
   &-inner {
     display: flex;
@@ -34,7 +33,6 @@
 
   &-user_name {
     font-family: Helvetica Neue, sans-serif;
-    font-style: normal;
     font-weight: 500;
     font-size: 11px;
     line-height: 120%;
@@ -43,8 +41,6 @@
 
   &-timestamp {
     font-family: Helvetica Neue, sans-serif;
-    font-style: normal;
-    font-weight: normal;
     font-size: 11px;
     line-height: 120%;
     color: #858688;
@@ -66,7 +62,7 @@
   background: white;
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-  z-index: 10;
+  z-index: 1;
   padding: 0 4px 0;
 
   &__action--reactions {
@@ -107,16 +103,14 @@
   display: block;
   min-height: 32px;
   padding: 0;
-  font-size: 15px; /* variables */
-  color: black; /* variables */
+  font-size: 15px;
+  color: black;
   border-radius: 0;
   border: 0px;
-  margin-left: 0; /* set spacing when unfocused */
+  margin-left: 0;
 
   p {
     font-family: Helvetica Neue, sans-serif;
-    font-style: normal;
-    font-weight: normal;
     font-size: 15px;
     line-height: 18px;
     color: #000000;
@@ -127,10 +121,8 @@
 
 .str-chat__message-replies-count-button {
   font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
   font-weight: bold;
   font-size: 13px;
-  line-height: 100%;
   text-align: right;
   color: #4e1d9d;
 }
@@ -147,7 +139,7 @@
   max-height: 40px;
   top: -58px;
   right: 20px;
-  border-radius: 99999px;
+  border-radius: 20px;
   background: white;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid #bed5e4;
