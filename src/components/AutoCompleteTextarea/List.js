@@ -1,9 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { TranslationContext } from '../../context/TranslationContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { escapeRegExp } from '../../utils';
 
 import Item from './Item';
+import { DefaultSuggestionListHeader } from './Header';
 import { KEY_CODES } from './listener';
 
 const List = (props) => {
@@ -14,17 +15,21 @@ const List = (props) => {
     dropdownScroll,
     getSelectedItem,
     getTextToReplace,
+    Header: PropHeader,
     itemClassName,
     itemStyle,
     onSelect,
-    style,
     selectionEnd,
-    SuggestionItem = Item,
+    style,
+    SuggestionItem: PropSuggestionItem,
     value: propValue,
     values,
   } = props;
 
-  const { t } = useContext(TranslationContext);
+  const { AutocompleteSuggestionHeader, AutocompleteSuggestionItem } = useComponentContext();
+  const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
+  const SuggestionHeader =
+    PropHeader || AutocompleteSuggestionHeader || DefaultSuggestionListHeader;
 
   const [selectedItem, setSelectedItem] = useState(undefined);
 
@@ -107,31 +112,6 @@ const List = (props) => {
     if (values?.length) selectItem(values[0]);
   }, [values]); // eslint-disable-line
 
-  const renderHeader = (value) => {
-    if (value[0] === '/') {
-      return (
-        <>
-          {t('Commands matching')} <strong>{value.replace('/', '')}</strong>
-        </>
-      );
-    }
-    if (value[0] === ':') {
-      return (
-        <>
-          {t('Emoji matching')} <strong>{value.replace(':', '')}</strong>
-        </>
-      );
-    }
-    if (value[0] === '@') {
-      return (
-        <>
-          {t('People matching')} <strong>{value.replace('@', '')}</strong>
-        </>
-      );
-    }
-    return null;
-  };
-
   const restructureItem = (item) => {
     const matched = item.name || item.id;
 
@@ -148,7 +128,9 @@ const List = (props) => {
 
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
-      <li className='rta__list-header'>{renderHeader(propValue)}</li>
+      <li className='rta__list-header'>
+        <SuggestionHeader value={propValue} />
+      </li>
       {values.map((item, i) => (
         <SuggestionItem
           className={itemClassName}

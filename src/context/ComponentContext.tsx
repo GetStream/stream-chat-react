@@ -18,6 +18,7 @@ import type {
   SuggestionItemProps,
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
+import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
 
 import type {
@@ -47,6 +48,7 @@ export type ComponentContextValue<
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   Avatar?: React.ComponentType<AvatarProps>;
