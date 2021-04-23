@@ -15,7 +15,6 @@
 .wrapper {
   display: flex;
   flex-direction: row;
-  margin: 15px;
 }
 
 /* ------------------------  Wrapping everything to right of Avatar ------------------------  */
@@ -25,6 +24,22 @@
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+}
+
+/* ------------------------  Name and timestamp ------------------------  */
+
+.message-header {
+  display: flex;
+}
+
+.timestamp {
+  font-family: Helvetica Neue, sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 11px;
+  line-height: 120%;
+  color: #858688;
+  margin-left: 6px;
 }
 
 /* ------------------------  Message Actions ------------------------  */
@@ -88,7 +103,7 @@
   flex: 1;
   display: block;
   min-height: 32px;
-  /* padding: 5px 10px; */
+  padding: 0;
   font-size: 15px; /* variables */
   color: black; /* variables */
   border-radius: 0;

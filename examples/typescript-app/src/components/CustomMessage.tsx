@@ -8,7 +8,7 @@ import {
   MessageText,
   ReactionSelector,
   SimpleReactionsList,
-  // MessageTimestamp,
+  MessageTimestamp,
   useMessageContext,
 } from 'stream-chat-react';
 
@@ -30,37 +30,39 @@ export const CustomMessage = () => {
   const name = message.user?.name;
 
   return (
-    <>
-      <div className='wrapper'>
-        <Avatar image={message.user?.image} />
-        <div className='message_wrapper'>
-          <MessageOptions
-            displayLeft={false}
-            handleOpenThread={handleOpenThread}
-            messageWrapperRef={messageWrapperRef}
-          />
+    <div className='wrapper'>
+      <Avatar image={message.user?.image} />
+      <div className='message_wrapper'>
+        <MessageOptions
+          displayLeft={false}
+          handleOpenThread={handleOpenThread}
+          messageWrapperRef={messageWrapperRef}
+        />
+        <div className='message-header'>
           <div className='user_name'>{name}</div>
-          {showDetailedReactions && isReactionEnabled && (
-            <ReactionSelector
-              detailedView
-              latest_reactions={message.latest_reactions}
-              own_reactions={message.own_reactions}
-              reaction_counts={message.reaction_counts || undefined}
-              ref={reactionSelectorRef}
-            />
-          )}
-          <MessageText />
-          {message.attachments && <Attachment attachments={message.attachments} />}
-          {hasReactions && !showDetailedReactions && isReactionEnabled && (
-            <SimpleReactionsList
-              reaction_counts={message.reaction_counts || undefined}
-              reactions={message.latest_reactions}
-            />
-          )}
-          <MessageRepliesCountButton reply_count={message.reply_count} onClick={handleOpenThread} />
-          {/* <MessageTimestamp /> */}
+          <div className='timestamp'>
+            <MessageTimestamp />
+          </div>
         </div>
+        {showDetailedReactions && isReactionEnabled && (
+          <ReactionSelector
+            detailedView
+            latest_reactions={message.latest_reactions}
+            own_reactions={message.own_reactions}
+            reaction_counts={message.reaction_counts || undefined}
+            ref={reactionSelectorRef}
+          />
+        )}
+        <MessageText />
+        {message.attachments && <Attachment attachments={message.attachments} />}
+        {hasReactions && !showDetailedReactions && isReactionEnabled && (
+          <SimpleReactionsList
+            reaction_counts={message.reaction_counts || undefined}
+            reactions={message.latest_reactions}
+          />
+        )}
+        <MessageRepliesCountButton reply_count={message.reply_count} onClick={handleOpenThread} />
       </div>
-    </>
+    </div>
   );
 };
