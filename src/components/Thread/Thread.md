@@ -1,4 +1,4 @@
-The threadHasMore={false} disables pagination for this example.
+<!-- The threadHasMore={false} disables pagination for this example.
 
 ```js
 import { Thread } from './Thread';
@@ -18,4 +18,4 @@ const data = require('../../docs/data');
     </ChannelContext.Provider>
   </Channel>
 </Chat>;
-```
+``` -->

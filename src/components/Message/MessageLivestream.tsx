@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
+import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
@@ -62,15 +62,11 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channelConfig,
     clearEditingState,
     editing,
-    formatDate,
-    getMessageActions,
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     initialMessage,
     isReactionEnabled,
@@ -79,12 +75,10 @@ const MessageLivestreamWithContext = <
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     renderText = defaultRenderText,
-    threadList,
-    setEditingState,
     showDetailedReactions,
     unsafeHTML,
   } = props;
@@ -94,16 +88,12 @@ const MessageLivestreamWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     PinIndicator = DefaultPinIndicator,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -113,7 +103,7 @@ const MessageLivestreamWithContext = <
     messageTextToRender,
   ]);
 
-  const firstGroupStyle = groupStyles ? groupStyles[0] : '';
+  const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
   if (message.type === 'message.read' || message.type === 'message.date') {
     return null;
@@ -168,7 +158,6 @@ const MessageLivestreamWithContext = <
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             detailedView
-            handleReaction={handleReaction}
             latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}
             reaction_counts={message.reaction_counts || undefined}
@@ -177,16 +166,8 @@ const MessageLivestreamWithContext = <
           />
         )}
         <MessageLivestreamActions
-          channelConfig={channelConfig}
-          formatDate={formatDate}
-          getMessageActions={getMessageActions}
-          handleOpenThread={handleOpenThread}
-          initialMessage={initialMessage}
-          message={message}
           messageWrapperRef={messageWrapperRef}
           onReactionListClick={onReactionListClick}
-          setEditingState={setEditingState}
-          threadList={threadList}
         />
         <div className='str-chat__message-livestream-left'>
           <Avatar
@@ -252,7 +233,6 @@ const MessageLivestreamWithContext = <
             )}
             {isReactionEnabled && (
               <ReactionsList
-                handleReaction={handleReaction}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -271,28 +251,7 @@ const MessageLivestreamWithContext = <
   );
 };
 
-type PropsDrilledToMessageLivestreamActions =
-  | 'channelConfig'
-  | 'formatDate'
-  | 'getMessageActions'
-  | 'handleOpenThread'
-  | 'initialMessage'
-  | 'message'
-  | 'setEditingState'
-  | 'threadList';
-
-export type MessageLivestreamActionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<
-  MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>,
-  PropsDrilledToMessageLivestreamActions
-> & {
+export type MessageLivestreamActionsProps = {
   messageWrapperRef: React.RefObject<HTMLDivElement>;
   onReactionListClick: ReactEventHandler;
 };
@@ -306,19 +265,20 @@ const MessageLivestreamActions = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageLivestreamActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageLivestreamActionsProps,
 ) => {
+  const { messageWrapperRef, onReactionListClick } = props;
+
+  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const {
     channelConfig,
-    formatDate,
     getMessageActions,
     handleOpenThread,
     initialMessage,
     message,
-    messageWrapperRef,
-    onReactionListClick,
     threadList,
-  } = props;
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -374,11 +334,7 @@ const MessageLivestreamActions = <
       className={`str-chat__message-livestream-actions`}
       data-testid={'message-livestream-actions'}
     >
-      <MessageTimestamp
-        customClass='str-chat__message-livestream-time'
-        formatDate={formatDate}
-        message={message}
-      />
+      <MessageTimestamp customClass='str-chat__message-livestream-time' />
       {channelConfig?.reactions && (
         <span data-testid='message-livestream-reactions-action' onClick={onReactionListClick}>
           <span>
@@ -391,14 +347,7 @@ const MessageLivestreamActions = <
           <ThreadIcon />
         </span>
       )}
-      {showActionsBox && (
-        <MessageActions
-          {...props}
-          customWrapperClass={''}
-          getMessageActions={getMessageActions}
-          inline
-        />
-      )}
+      {showActionsBox && <MessageActions inline />}
     </div>
   );
 };

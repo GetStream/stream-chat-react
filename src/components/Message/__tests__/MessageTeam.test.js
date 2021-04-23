@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 
+import { Message } from '../Message';
 import { MessageTeam } from '../MessageTeam';
 
 import { Attachment as AttachmentMock } from '../../Attachment';
@@ -53,8 +54,15 @@ async function renderMessageTeam(
             userLanguage: 'en',
           }}
         >
-          <ComponentProvider value={{ Attachment: AttachmentMock, ...components }}>
-            <MessageTeam
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageTeam {...props} />,
+              ...components,
+            }}
+          >
+            <Message
               getMessageActions={() => []}
               isMyMessage={() => true}
               message={message}

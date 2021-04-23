@@ -59,7 +59,10 @@ const List = (props) => {
   };
 
   const selectItem = (item) => {
-    setSelectedItem(values.findIndex((value) => value.id === item.id));
+    const index = values.findIndex((value) =>
+      value.id ? value.id === item.id : value.name === item.name,
+    );
+    setSelectedItem(index);
   };
 
   const handleKeyDown = useCallback(

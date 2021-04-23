@@ -1,4 +1,4 @@
-import { validateAndGetMessage } from '../utils';
+import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
@@ -62,8 +62,8 @@ export const usePinHandler = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  permissions?: PinPermissions,
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  permissions: PinPermissions = defaultPinPermissions,
   notifications: PinMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
@@ -73,37 +73,14 @@ export const usePinHandler = <
   const { t } = useTranslationContext();
 
   const canPin = () => {
-    if (!client?.userID || !channel?.state || !permissions || !permissions[channel.type]) {
+    if (!channel || !permissions || !permissions[channel.type]) {
       return false;
     }
 
     const currentChannelPermissions = permissions[channel.type];
-    const currentChannelMember = channel.state.members[client.userID];
-    const currentChannelWatcher = channel.state.watchers[client.userID];
+    const currentRole = channel.state.membership.role;
 
-    if (
-      currentChannelPermissions &&
-      typeof client.user?.role === 'string' &&
-      currentChannelPermissions[client.user.role]
-    ) {
-      return true;
-    }
-
-    if (
-      currentChannelMember &&
-      typeof currentChannelMember.role === 'string' &&
-      currentChannelPermissions &&
-      currentChannelPermissions[currentChannelMember.role]
-    ) {
-      return true;
-    }
-
-    if (
-      currentChannelWatcher &&
-      typeof currentChannelWatcher.role === 'string' &&
-      currentChannelPermissions &&
-      currentChannelPermissions[currentChannelWatcher.role]
-    ) {
+    if (currentChannelPermissions && currentRole && currentChannelPermissions[currentRole]) {
       return true;
     }
 

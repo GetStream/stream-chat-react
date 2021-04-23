@@ -54,7 +54,7 @@ type MessageListNotificationsProps = {
   hasNewMessages: boolean;
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
-  t: (key: string) => string;
+  t: TranslationContextValue['t'];
 };
 
 const MessageListNotifications = ({
@@ -182,11 +182,12 @@ const MessageListWithContext = <
     threadList,
   });
 
-  const elements = useMessageListElements<At, Ch, Co, Ev, Me, Re, Us>({
+  const elements = useMessageListElements({
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       channel,
+      customMessageActions: props.customMessageActions,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
@@ -247,6 +248,7 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
+  | 'customMessageActions'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
   | 'getMuteUserErrorNotification'
@@ -307,10 +309,24 @@ export type MessageListProps<
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
   /** The limit to use when paginating messages */
   messageLimit?: number;
+  /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
+  MessageOptions?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageOptions'];
+  /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
+  MessageRepliesCountButton?: ComponentContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >['MessageRepliesCountButton'];
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
   MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
+  /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
+  MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];
   /** Set to `true` to turn off grouping of messages by user */
   noGroupByUser?: boolean;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
@@ -355,7 +371,10 @@ export const MessageList = <
     HeaderComponent,
     Message,
     MessageDeleted,
+    MessageOptions,
+    MessageRepliesCountButton,
     MessageSystem,
+    MessageTimestamp,
     PinIndicator,
     ReactionSelector,
     ReactionsList,
@@ -380,24 +399,15 @@ export const MessageList = <
       HeaderComponent,
       Message,
       MessageDeleted,
+      MessageOptions,
+      MessageRepliesCountButton,
       MessageSystem,
+      MessageTimestamp,
       PinIndicator,
       ReactionSelector,
       ReactionsList,
     }),
-    [
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageSystem,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    ],
+    [Message],
   );
 
   return (

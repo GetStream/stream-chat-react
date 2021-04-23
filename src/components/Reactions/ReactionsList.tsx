@@ -8,6 +8,7 @@ import {
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -59,6 +60,7 @@ const UnMemoizedReactionsList = <
 
   const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
@@ -82,7 +84,7 @@ const UnMemoizedReactionsList = <
     <div
       className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
       data-testid='reaction-list'
-      onClick={onClick}
+      onClick={onClick || onReactionListClick}
     >
       <ul>
         {getReactionTypes().map((reactionType) => {

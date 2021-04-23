@@ -2,21 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
-import {
-  useDeleteHandler,
-  useFlagHandler,
-  useMuteHandler,
-  usePinHandler,
-  useUserRole,
-} from '../Message/hooks';
-import { defaultPinPermissions, isUserMuted, MessageActionsArray } from '../Message/utils';
+import { isUserMuted } from '../Message/utils';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChatContext } from '../../context/ChatContext';
-
-import type { MessageUIComponentProps } from '../Message/types';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -28,6 +17,14 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+type MessageContextPropsToPick =
+  | 'getMessageActions'
+  | 'handleDelete'
+  | 'handleFlag'
+  | 'handleMute'
+  | 'handlePin'
+  | 'message';
+
 export type MessageActionsProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -36,12 +33,11 @@ export type MessageActionsProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>> & {
-  getMessageActions: () => MessageActionsArray;
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
   customWrapperClass?: string;
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  mine?: () => boolean;
 };
 
 export const MessageActions = <
@@ -56,50 +52,38 @@ export const MessageActions = <
   props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    customWrapperClass,
-    getMessageActions,
-    getFlagMessageErrorNotification,
-    getFlagMessageSuccessNotification,
-    getMuteUserErrorNotification,
-    getMuteUserSuccessNotification,
-    getPinMessageErrorNotification,
+    customWrapperClass = '',
+    getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
     inline,
-    message,
-    messageListRect,
+    message: propMessage,
     messageWrapperRef,
-    pinPermissions = defaultPinPermissions,
-    setEditingState,
+    mine,
   } = props;
 
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const {
+    getMessageActions: contextGetMessageActions,
+    handleDelete: contextHandleDelete,
+    handleFlag: contextHandleFlag,
+    handleMute: contextHandleMute,
+    handlePin: contextHandlePin,
+    isMyMessage,
+    message: contextMessage,
+    setEditingState,
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const getMessageActions = propGetMessageActions || contextGetMessageActions;
+  const handleDelete = propHandleDelete || contextHandleDelete;
+  const handleFlag = propHandleFlag || contextHandleFlag;
+  const handleMute = propHandleMute || contextHandleMute;
+  const handlePin = propHandlePin || contextHandlePin;
+  const message = propMessage || contextMessage;
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
-
-  const { isMyMessage } = useUserRole(message);
-
-  const handleDelete = useDeleteHandler(message);
-
-  const handleFlag = useFlagHandler(message, {
-    getErrorNotification: getFlagMessageSuccessNotification,
-    getSuccessNotification: getFlagMessageErrorNotification,
-    notify: addNotification,
-  });
-
-  const handleMute = useMuteHandler(message, {
-    getErrorNotification: getMuteUserSuccessNotification,
-    getSuccessNotification: getMuteUserErrorNotification,
-    notify: addNotification,
-  });
-
-  const { handlePin } = usePinHandler(message, pinPermissions, {
-    getErrorNotification: getPinMessageErrorNotification,
-    notify: addNotification,
-  });
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
@@ -110,7 +94,7 @@ export const MessageActions = <
 
   useEffect(() => {
     if (messageWrapperRef?.current) {
-      messageWrapperRef.current.addEventListener('onMouseLeave', hideOptions);
+      messageWrapperRef.current.addEventListener('mouseleave', hideOptions);
     }
   }, [hideOptions, messageWrapperRef]);
 
@@ -138,17 +122,15 @@ export const MessageActions = <
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
-      <MessageActionsBox<At, Ch, Co, Ev, Me, Re, Us>
+      <MessageActionsBox
         getMessageActions={getMessageActions}
-        handleDelete={propHandleDelete || handleDelete}
+        handleDelete={handleDelete}
         handleEdit={setEditingState}
-        handleFlag={propHandleFlag || handleFlag}
-        handleMute={propHandleMute || handleMute}
-        handlePin={propHandlePin || handlePin}
+        handleFlag={handleFlag}
+        handleMute={handleMute}
+        handlePin={handlePin}
         isUserMuted={isMuted}
-        message={message}
-        messageListRect={messageListRect}
-        mine={isMyMessage}
+        mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
       <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
@@ -173,8 +155,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const defaultWrapperClass =
     'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
 
-  const wrapperClass =
-    typeof customWrapperClass === 'string' ? customWrapperClass : defaultWrapperClass;
+  const wrapperClass = customWrapperClass || defaultWrapperClass;
 
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();

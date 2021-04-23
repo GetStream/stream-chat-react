@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import {
-  ActionHandlerReturnType,
   useActionHandler,
   useDeleteHandler,
   useEditHandler,
@@ -10,26 +9,20 @@ import {
   useMuteHandler,
   useOpenThreadHandler,
   usePinHandler,
+  useReactionClick,
   useReactionHandler,
   useRetryHandler,
   useUserHandler,
   useUserRole,
 } from './hooks';
-import {
-  areMessagePropsEqual,
-  defaultPinPermissions,
-  getMessageActions,
-  MESSAGE_ACTIONS,
-} from './utils';
+import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
-import { RetrySendMessage, useChannelActionContext } from '../../context/ChannelActionContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { MessageProvider } from '../../context/MessageContext';
+import { MessageContextValue, MessageProvider } from '../../context/MessageContext';
 
-import type { ChannelConfigWithInfo } from 'stream-chat';
-
-import type { MessageProps, ReactEventHandler } from './types';
+import type { MessageProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -48,6 +41,23 @@ type MessagePropsToOmit =
   | 'openThread'
   | 'retrySendMessage';
 
+type MessageContextPropsToPick =
+  | 'channelConfig'
+  | 'handleAction'
+  | 'handleDelete'
+  | 'handleFlag'
+  | 'handleMute'
+  | 'handleOpenThread'
+  | 'handlePin'
+  | 'handleReaction'
+  | 'handleRetry'
+  | 'isReactionEnabled'
+  | 'onMentionsClickMessage'
+  | 'onMentionsHoverMessage'
+  | 'onReactionListClick'
+  | 'reactionSelectorRef'
+  | 'showDetailedReactions';
+
 type MessageWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -56,28 +66,18 @@ type MessageWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> & {
-  canPin: boolean;
-  handleAction: ActionHandlerReturnType;
-  handleDelete: ReactEventHandler;
-  handleFlag: ReactEventHandler;
-  handleMute: ReactEventHandler;
-  handleOpenThread: ReactEventHandler;
-  handlePin: ReactEventHandler;
-  handleReaction: ReturnType<typeof useReactionHandler>;
-  handleRetry: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  onMentionsClickMessage: ReactEventHandler;
-  onMentionsHoverMessage: ReactEventHandler;
-  userRoles: {
-    canDeleteMessage: boolean;
-    canEditMessage: boolean;
-    isAdmin: boolean;
-    isModerator: boolean;
-    isMyMessage: boolean;
-    isOwner: boolean;
+> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> &
+  Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick> & {
+    canPin: boolean;
+    userRoles: {
+      canDeleteMessage: boolean;
+      canEditMessage: boolean;
+      isAdmin: boolean;
+      isModerator: boolean;
+      isMyMessage: boolean;
+      isOwner: boolean;
+    };
   };
-  channelConfig?: ChannelConfigWithInfo<Co>;
-};
 
 const MessageWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -155,7 +155,7 @@ const MessageWithContext = <
     ...rest
   } = props;
 
-  const messageContextValue = {
+  const messageContextValue: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
     ...rest,
     actionsEnabled,
     clearEditingState: clearEdit,
@@ -207,12 +207,14 @@ export const Message = <
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
-    pinPermissions = defaultPinPermissions,
+    pinPermissions,
     retrySendMessage: propRetrySendMessage,
   } = props;
 
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel: contextChannel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const channel = propChannel || contextChannel;
   const channelConfig = channel.getConfig();
@@ -246,20 +248,18 @@ export const Message = <
     notify: addNotification,
   });
 
-  const {
-    channel: channelPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onMentionsClick: onMentionsClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onMentionsHover: onMentionsHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    openThread: openThreadPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    retrySendMessage: retryPropPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    ...rest
-  } = props;
+  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
+    message,
+    reactionSelectorRef,
+  );
 
   return (
     <MemoizedMessage
-      {...rest}
+      additionalMessageInputProps={props.additionalMessageInputProps}
       canPin={canPin}
       channelConfig={channelConfig}
+      customMessageActions={props.customMessageActions}
+      groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
       handleFlag={handleFlag}
@@ -268,8 +268,25 @@ export const Message = <
       handlePin={handlePin}
       handleReaction={handleReaction}
       handleRetry={handleRetry}
+      initialMessage={props.initialMessage}
+      isReactionEnabled={isReactionEnabled}
+      lastReceivedId={props.lastReceivedId}
+      message={message}
+      Message={props.Message}
+      messageActions={props.messageActions}
+      messageListRect={props.messageListRect}
+      mutes={props.mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
+      onReactionListClick={onReactionListClick}
+      onUserClick={props.onUserClick}
+      onUserHover={props.onUserHover}
+      pinPermissions={props.pinPermissions}
+      reactionSelectorRef={reactionSelectorRef}
+      readBy={props.readBy}
+      showDetailedReactions={showDetailedReactions}
+      threadList={props.threadList}
+      unsafeHTML={props.unsafeHTML}
       userRoles={userRoles}
     />
   );

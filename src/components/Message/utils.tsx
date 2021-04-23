@@ -87,7 +87,7 @@ export const defaultPinPermissions: PinPermissions = {
     guest: false,
     member: false,
     moderator: true,
-    owner: false,
+    owner: true,
     user: false,
   },
   gaming: {
@@ -147,11 +147,11 @@ export type Capabilities = {
 };
 
 export const getMessageActions = (
-  actions: string[] | boolean,
+  actions: MessageActionsArray | boolean,
   { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply }: Capabilities,
 ): MessageActionsArray => {
-  const messageActionsAfterPermission = [];
-  let messageActions = [];
+  const messageActionsAfterPermission: MessageActionsArray = [];
+  let messageActions: MessageActionsArray = [];
 
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values
@@ -218,13 +218,21 @@ export const areMessagePropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
+  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
 ) => {
   const { message: prevMessage, Message: prevMessageUI } = prevProps;
   const { message: nextMessage, Message: nextMessageUI } = nextProps;
 
   if (prevMessageUI !== nextMessageUI) return false;
+
+  if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
+    return false;
+  }
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&

@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageOptions } from './MessageOptions';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageText } from './MessageText';
-import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick } from './hooks';
+import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { DeliveredCheckIcon } from './icons';
 import {
   areMessageUIPropsEqual,
@@ -31,7 +30,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { MessageUIComponentProps, ReactEventHandler } from './types';
+import type { MessageUIComponentProps } from './types';
 
 import type {
   DefaultAttachmentType,
@@ -51,12 +50,7 @@ type MessageSimpleWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
-  isReactionEnabled: boolean;
-  onReactionListClick: ReactEventHandler;
-  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
-  showDetailedReactions: boolean;
-};
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
 
 const MessageSimpleWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -73,16 +67,13 @@ const MessageSimpleWithContext = <
     additionalMessageInputProps,
     clearEditingState,
     editing,
-    formatDate,
     getMessageActions,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     isMyMessage,
     isReactionEnabled,
     message,
-    onReactionListClick,
     onUserClick,
     onUserHover,
     reactionSelectorRef,
@@ -95,6 +86,9 @@ const MessageSimpleWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageOptions = DefaultMessageOptions,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -144,7 +138,7 @@ const MessageSimpleWithContext = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus {...props} Avatar={Avatar} />
+          <MessageSimpleStatus Avatar={Avatar} />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -164,27 +158,21 @@ const MessageSimpleWithContext = <
           >
             {!message.text && (
               <>
-                {
-                  <MessageOptions
-                    {...props}
-                    handleOpenThread={handleOpenThread}
-                    messageWrapperRef={messageWrapperRef}
-                    onReactionListClick={onReactionListClick}
-                  />
-                }
+                <MessageOptions
+                  handleOpenThread={handleOpenThread}
+                  messageWrapperRef={messageWrapperRef}
+                />
                 {hasReactions && !showDetailedReactions && isReactionEnabled && (
                   <ReactionsList
-                    onClick={onReactionListClick}
                     own_reactions={message.own_reactions}
                     reaction_counts={message.reaction_counts || undefined}
                     reactions={message.latest_reactions}
-                    reverse={true}
+                    reverse
                   />
                 )}
                 {showDetailedReactions && isReactionEnabled && (
                   <ReactionSelector
                     detailedView
-                    handleReaction={handleReaction}
                     latest_reactions={message.latest_reactions}
                     own_reactions={message.own_reactions}
                     reaction_counts={message.reaction_counts || undefined}
@@ -198,10 +186,8 @@ const MessageSimpleWithContext = <
             )}
             {message.text && (
               <MessageText
-                {...props}
                 customOptionProps={{
                   displayActions: showActionsBox,
-                  handleOpenThread,
                   messageWrapperRef,
                 }}
               />
@@ -227,12 +213,7 @@ const MessageSimpleWithContext = <
                   {message.user.name || message.user.id}
                 </span>
               ) : null}
-              <MessageTimestamp
-                calendar
-                customClass='str-chat__message-simple-timestamp'
-                formatDate={formatDate}
-                message={message}
-              />
+              <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
             </div>
           </div>
         </div>
@@ -249,14 +230,21 @@ const MessageSimpleStatus = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: MessageSimpleWithContextProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    Avatar: React.ComponentType<AvatarProps>;
-  },
-) => {
-  const { Avatar, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
-
+>({
+  Avatar,
+}: {
+  Avatar: React.ComponentType<AvatarProps>;
+}) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { isMyMessage, lastReceivedId, message, readBy, threadList } = useMessageContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   if (!isMyMessage() || message.type === 'error') {
@@ -327,23 +315,5 @@ export const MessageSimple = <
 ) => {
   const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const message = props.message || messageContext.message;
-
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-  );
-
-  return (
-    <MemoizedMessageSimple
-      {...messageContext}
-      isReactionEnabled={isReactionEnabled}
-      onReactionListClick={onReactionListClick}
-      reactionSelectorRef={reactionSelectorRef}
-      showDetailedReactions={showDetailedReactions}
-      {...props}
-    />
-  );
+  return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

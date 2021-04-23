@@ -42,6 +42,8 @@ export type MessageProps<
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /** The currently active channel */
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Object containing custom message actions and function handlers */
+  customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /**
