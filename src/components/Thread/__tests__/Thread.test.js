@@ -8,6 +8,7 @@ import { Thread } from '../Thread';
 import { Message as MessageMock } from '../../Message';
 import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
 import { MessageList as MessageListMock } from '../../MessageList';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 
 import {
   generateChannel,
@@ -147,20 +148,24 @@ describe('Thread', () => {
 
   it('should render a custom MessageInput if it is passed as a prop', () => {
     const additionalMessageInputProps = { propName: 'value' };
-    const CustomMessageInputMock = jest.fn(() => <div />);
+    const messageInputContextConsumerFn = jest.fn();
+    const CustomMessageInputMock = jest.fn(() => {
+      messageInputContextConsumerFn(useMessageInputContext());
+      return <div />;
+    });
 
     renderComponent(chatClient, {
       additionalMessageInputProps,
       autoFocus: true,
       MessageInput: CustomMessageInputMock,
     });
-    expect(CustomMessageInputMock).toHaveBeenCalledWith(
+    expect(CustomMessageInputMock).toHaveBeenCalledWith({}, {});
+    expect(messageInputContextConsumerFn).toHaveBeenCalledWith(
       expect.objectContaining({
         focus: true,
         parent: threadStart,
         ...additionalMessageInputProps,
       }),
-      {},
     );
   });
 
