@@ -15,10 +15,12 @@ import type { UnknownType } from '../../types/types';
 
 import {
   enTranslations,
+  esTranslations,
   frTranslations,
   hiTranslations,
   itTranslations,
   nlTranslations,
+  ptTranslations,
   ruTranslations,
   trTranslations,
 } from './translations';
@@ -27,6 +29,8 @@ const defaultNS = 'translation';
 const defaultLng = 'en';
 
 import 'dayjs/locale/nl';
+import 'dayjs/locale/pt';
+import 'dayjs/locale/es';
 import 'dayjs/locale/ru';
 import 'dayjs/locale/tr';
 import 'dayjs/locale/fr';
@@ -57,6 +61,28 @@ Dayjs.updateLocale('it', {
     nextDay: '[Domani alle] LT',
     nextWeek: 'dddd [alle] LT',
     sameDay: '[Oggi alle] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('pt', {
+  calendar: {
+    lastDay: '[ontem às] LT',
+    lastWeek: '[passado] dddd [para] LT',
+    nextDay: '[amanhã às] LT',
+    nextWeek: 'dddd [para] LT',
+    sameDay: '[hoje às] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('es', {
+  calendar: {
+    lastDay: '[ayer a las] LT',
+    lastWeek: '[pasado] dddd [a] LT',
+    nextDay: '[mañana a] LT',
+    nextWeek: 'dddd [a] LT',
+    sameDay: '[hoy a las] LT',
     sameElse: 'L',
   },
 });
@@ -338,10 +364,12 @@ export class Streami18n {
     };
   } = {
     en: { [defaultNS]: enTranslations },
+    es: { [defaultNS]: esTranslations },
     fr: { [defaultNS]: frTranslations },
     hi: { [defaultNS]: hiTranslations },
     it: { [defaultNS]: itTranslations },
     nl: { [defaultNS]: nlTranslations },
+    pt: { [defaultNS]: ptTranslations },
     ru: { [defaultNS]: ruTranslations },
     tr: { [defaultNS]: trTranslations },
   };
