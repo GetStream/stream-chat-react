@@ -1,15 +1,8 @@
 import React, { useMemo } from 'react';
 
 import { useMobilePress } from './hooks';
-import { MessageOptions as DefaultMessageOptions, MessageOptionsProps } from './MessageOptions';
-import { messageHasAttachments, messageHasReactions } from './utils';
+import { messageHasAttachments } from './utils';
 
-import {
-  ReactionsList as DefaultReactionList,
-  ReactionSelector as DefaultReactionSelector,
-} from '../Reactions';
-
-import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
@@ -26,57 +19,37 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type MessageTextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+export type MessageTextProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   customInnerClass?: string;
-  customOptionProps?: Partial<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   customWrapperClass?: string;
   theme?: string;
 };
 
-const UnMemoizedMessageTextComponent = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
+const UnMemoizedMessageTextComponent = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: MessageTextProps<Us>,
 ) => {
-  const { customInnerClass, customOptionProps, customWrapperClass = '', theme = 'simple' } = props;
+  const { customInnerClass, customWrapperClass = '', theme = 'simple' } = props;
 
   const {
-    isReactionEnabled,
-    handleReaction,
     message,
     onMentionsClickMessage,
     onMentionsHoverMessage,
-    onReactionListClick,
-    reactionSelectorRef,
     renderText = defaultRenderText,
-    showDetailedReactions,
     unsafeHTML,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageContext<
+    DefaultAttachmentType,
+    DefaultChannelType,
+    DefaultCommandType,
+    DefaultEventType,
+    DefaultMessageType,
+    DefaultReactionType,
+    Us
+  >();
 
-  const {
-    MessageOptions = DefaultMessageOptions,
-    ReactionsList = DefaultReactionList,
-    ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t, userLanguage } = useTranslationContext();
 
   const { handleMobilePress } = useMobilePress();
 
-  const hasReactions = messageHasReactions(message);
   const hasAttachment = messageHasAttachments(message);
 
   const messageTextToRender =
@@ -120,27 +93,7 @@ const UnMemoizedMessageTextComponent = <
         ) : (
           <div onClick={handleMobilePress}>{messageText}</div>
         )}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && (
-          <ReactionsList
-            onClick={onReactionListClick}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            reactions={message.latest_reactions}
-            reverse={true}
-          />
-        )}
-        {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector
-            detailedView
-            handleReaction={handleReaction}
-            latest_reactions={message.latest_reactions}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            ref={reactionSelectorRef}
-          />
-        )}
       </div>
-      <MessageOptions {...customOptionProps} />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ReactionIcon, ThreadIcon } from './icons';
-import { MESSAGE_ACTIONS } from './utils';
+import { MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
@@ -45,7 +45,6 @@ const UnMemoizedMessageOptions = <
   props: MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    displayActions = true,
     displayLeft = true,
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
@@ -67,6 +66,8 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
+
+  const showActionsBox = showMessageActionsBox(getMessageActions());
 
   const shouldShowReactions =
     messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 && channelConfig?.reactions;
@@ -93,7 +94,7 @@ const UnMemoizedMessageOptions = <
   if (isMyMessage() && displayLeft) {
     return (
       <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {displayActions && <MessageActions messageWrapperRef={messageWrapperRef} />}
+        {showActionsBox && <MessageActions messageWrapperRef={messageWrapperRef} />}
         {shouldShowReplies && (
           <div
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
@@ -136,7 +137,7 @@ const UnMemoizedMessageOptions = <
           <ThreadIcon />
         </div>
       )}
-      {displayActions && <MessageActions messageWrapperRef={messageWrapperRef} />}
+      {showActionsBox && <MessageActions messageWrapperRef={messageWrapperRef} />}
     </div>
   );
 };

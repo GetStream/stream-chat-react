@@ -120,35 +120,33 @@ const MessageCommerceWithContext = <
         />
       )}
       <div className='str-chat__message-commerce-inner'>
-        {!message.text && (
-          <>
-            {
-              <MessageOptions
-                displayActions={false}
-                displayLeft={false}
-                displayReplies={false}
-                theme='commerce'
-              />
-            }
-            {hasReactions && !showDetailedReactions && isReactionEnabled && (
-              <ReactionsList
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
-            {showDetailedReactions && isReactionEnabled && (
-              <ReactionSelector
-                detailedView
-                latest_reactions={message.latest_reactions}
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                ref={reactionSelectorRef}
-                reverse={false}
-              />
-            )}
-          </>
-        )}
+        <>
+          {
+            <MessageOptions
+              displayActions={false}
+              displayLeft={false}
+              displayReplies={false}
+              theme='commerce'
+            />
+          }
+          {hasReactions && !showDetailedReactions && isReactionEnabled && (
+            <ReactionsList
+              own_reactions={message.own_reactions}
+              reaction_counts={message.reaction_counts || undefined}
+              reactions={message.latest_reactions}
+            />
+          )}
+          {showDetailedReactions && isReactionEnabled && (
+            <ReactionSelector
+              detailedView
+              latest_reactions={message.latest_reactions}
+              own_reactions={message.own_reactions}
+              reaction_counts={message.reaction_counts || undefined}
+              ref={reactionSelectorRef}
+              reverse={false}
+            />
+          )}
+        </>
         {message.attachments && (
           <Attachment actionHandler={handleAction} attachments={message.attachments} />
         )}
@@ -162,12 +160,6 @@ const MessageCommerceWithContext = <
         {message.text && (
           <MessageText
             customInnerClass='str-chat__message-commerce-text-inner'
-            customOptionProps={{
-              displayActions: false,
-              displayLeft: false,
-              displayReplies: false,
-              theme: 'commerce',
-            }}
             customWrapperClass='str-chat__message-commerce-text'
             theme='commerce'
           />
