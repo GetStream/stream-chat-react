@@ -27,8 +27,6 @@ export const CustomMessage = () => {
 
   const hasReactions = messageHasReactions(message);
 
-  const name = message.user?.name;
-
   return (
     <div className='message_wrapper'>
       <Avatar image={message.user?.image} />
@@ -39,7 +37,7 @@ export const CustomMessage = () => {
           messageWrapperRef={messageWrapperRef}
         />
         <div className='message-header'>
-          <div className='message-header-user_name'>{name}</div>
+          <div className='message-header-user_name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>
             <MessageTimestamp />
           </div>
