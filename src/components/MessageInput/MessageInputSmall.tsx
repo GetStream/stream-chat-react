@@ -2,6 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -43,16 +44,20 @@ export const MessageInputSmall = <
 
   const {
     closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
+    setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   const {
+    CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
@@ -62,7 +67,7 @@ export const MessageInputSmall = <
     <div className='str-chat__small-message-input__wrapper'>
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
         handleFiles={uploadNewFiles}
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
@@ -75,42 +80,53 @@ export const MessageInputSmall = <
           <div className='str-chat__small-message-input--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete />
-            {isUploadEnabled && (
-              <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
-                <Tooltip>
-                  {maxFilesLeft
-                    ? t('Attach files')
-                    : t("You've reached the maximum number of files")}
-                </Tooltip>
-                <FileUploadButton
-                  accepts={acceptedFiles}
-                  disabled={maxFilesLeft === 0}
-                  handleFiles={uploadNewFiles}
-                  multiple={multipleUploads}
-                >
-                  <span className='str-chat__small-message-input-fileupload'>
-                    <FileUploadIcon />
-                  </span>
-                </FileUploadButton>
+            {cooldownRemaining ? (
+              <div className='str-chat__input-small-cooldown'>
+                <CooldownTimer
+                  cooldownInterval={cooldownInterval}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
               </div>
+            ) : (
+              <>
+                {isUploadEnabled && (
+                  <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
+                    <Tooltip>
+                      {maxFilesLeft
+                        ? t('Attach files')
+                        : t("You've reached the maximum number of files")}
+                    </Tooltip>
+                    <FileUploadButton
+                      accepts={acceptedFiles}
+                      disabled={maxFilesLeft === 0}
+                      handleFiles={uploadNewFiles}
+                      multiple={multipleUploads}
+                    >
+                      <span className='str-chat__small-message-input-fileupload'>
+                        <FileUploadIcon />
+                      </span>
+                    </FileUploadButton>
+                  </div>
+                )}
+                <div className='str-chat__emojiselect-wrapper'>
+                  <Tooltip>
+                    {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+                  </Tooltip>
+                  <span
+                    className='str-chat__small-message-input-emojiselect'
+                    onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+                    onKeyDown={handleEmojiKeyDown}
+                    role='button'
+                    tabIndex={0}
+                  >
+                    <EmojiIcon />
+                  </span>
+                </div>
+              </>
             )}
-            <div className='str-chat__emojiselect-wrapper'>
-              <Tooltip>
-                {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
-              </Tooltip>
-              <span
-                className='str-chat__small-message-input-emojiselect'
-                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                onKeyDown={handleEmojiKeyDown}
-                role='button'
-                tabIndex={0}
-              >
-                <EmojiIcon />
-              </span>
-            </div>
             <EmojiPicker small />
           </div>
-          {SendButton && <SendButton sendMessage={handleSubmit} />}
+          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

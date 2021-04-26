@@ -169,6 +169,7 @@ const UnMemoizedChatAutoComplete = <
   const {
     additionalTextareaProps,
     autocompleteTriggers,
+    cooldownRemaining,
     disabled,
     disableMentions,
     emojiIndex,
@@ -210,7 +211,7 @@ const UnMemoizedChatAutoComplete = <
       additionalTextareaProps={additionalTextareaProps}
       className='str-chat__textarea__textarea'
       containerClassName='str-chat__textarea'
-      disabled={disabled}
+      disabled={disabled || !!cooldownRemaining}
       disableMentions={disableMentions}
       dropdownClassName='str-chat__emojisearch'
       grow={grow}
@@ -225,7 +226,7 @@ const UnMemoizedChatAutoComplete = <
       onChange={messageInput.handleChange}
       onFocus={onFocus}
       onPaste={messageInput.onPaste}
-      placeholder={placeholder}
+      placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={rows}
       SuggestionItem={SuggestionItem}

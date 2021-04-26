@@ -2,6 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconLarge as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -41,16 +42,20 @@ export const MessageInputFlat = <
 
   const {
     closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
+    setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
+    CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
@@ -64,7 +69,7 @@ export const MessageInputFlat = <
     >
       <ImageDropzone
         accept={acceptedFiles}
-        disabled={!isUploadEnabled || maxFilesLeft === 0}
+        disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
         handleFiles={uploadNewFiles}
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
@@ -83,12 +88,21 @@ export const MessageInputFlat = <
                 role='button'
                 tabIndex={0}
               >
-                <EmojiIcon />
+                {cooldownRemaining ? (
+                  <div className='str-chat__input-flat-cooldown'>
+                    <CooldownTimer
+                      cooldownInterval={cooldownInterval}
+                      setCooldownRemaining={setCooldownRemaining}
+                    />
+                  </div>
+                ) : (
+                  <EmojiIcon />
+                )}
               </span>
             </div>
             <EmojiPicker />
             <ChatAutoComplete />
-            {isUploadEnabled && (
+            {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>
                   {maxFilesLeft
@@ -108,7 +122,7 @@ export const MessageInputFlat = <
               </div>
             )}
           </div>
-          {SendButton && <SendButton sendMessage={handleSubmit} />}
+          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>
