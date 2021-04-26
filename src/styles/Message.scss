@@ -574,7 +574,6 @@
       margin-top: 5px;
       align-items: flex-start;
       justify-content: flex-start;
-      min-width: 90px;
 
       &__action {
         margin: 5px;
@@ -619,6 +618,7 @@
     }
 
     &-text-inner {
+      flex: initial;
       text-align: left;
       max-width: 460px;
 

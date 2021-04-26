@@ -334,12 +334,6 @@ describe('<MessageCommerce />', () => {
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        customOptionProps: expect.objectContaining({
-          displayActions: false,
-          displayLeft: false,
-          displayReplies: false,
-          theme: 'commerce',
-        }),
         customWrapperClass: 'str-chat__message-commerce-text',
         theme: 'commerce',
       }),

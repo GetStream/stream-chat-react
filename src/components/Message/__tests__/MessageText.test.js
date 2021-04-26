@@ -244,6 +244,7 @@ describe('<MessageText />', () => {
           className="str-chat__message-inner"
           data-testid="message-inner"
         >
+          <div />
           <div
             className="str-chat__message-text"
           >
@@ -261,7 +262,6 @@ describe('<MessageText />', () => {
                 </p>
               </div>
             </div>
-            <div />
           </div>
           <div
             className="str-chat__message-data str-chat__message-simple-data"
@@ -286,6 +286,7 @@ describe('<MessageText />', () => {
           className="str-chat__message-inner"
           data-testid="message-inner"
         >
+          <div />
           <div
             className="str-chat__message-text"
           >
@@ -303,7 +304,6 @@ describe('<MessageText />', () => {
                 </p>
               </div>
             </div>
-            <div />
           </div>
           <div
             className="str-chat__message-data str-chat__message-simple-data"
@@ -327,6 +327,7 @@ describe('<MessageText />', () => {
           className="str-chat__message-inner"
           data-testid="message-inner"
         >
+          <div />
           <div
             className="str-chat__message-text"
           >
@@ -344,7 +345,6 @@ describe('<MessageText />', () => {
                 </p>
               </div>
             </div>
-            <div />
           </div>
           <div
             className="str-chat__message-data str-chat__message-simple-data"
