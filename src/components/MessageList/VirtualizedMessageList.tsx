@@ -180,7 +180,7 @@ const VirtualizedMessageListWithContext = <
     if (typeof messages === 'undefined') {
       return undefined;
     }
-    return disableDateSeparator
+    return disableDateSeparator && hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : insertDates(
           messages,
