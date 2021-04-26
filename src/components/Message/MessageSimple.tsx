@@ -6,11 +6,7 @@ import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from '.
 import { MessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
-import {
-  areMessageUIPropsEqual,
-  messageHasAttachments,
-  messageHasReactions,
-} from './utils';
+import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
