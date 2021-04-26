@@ -3,18 +3,12 @@ import React, { useRef } from 'react';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
-import { DeliveredCheckIcon } from './icons';
-import {
-  areMessageUIPropsEqual,
-  getReadByTooltipText,
-  messageHasAttachments,
-  messageHasReactions,
-} from './utils';
+import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { LoadingIndicator } from '../Loading';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
@@ -22,12 +16,9 @@ import {
   ReactionsList as DefaultReactionList,
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
-import { Tooltip } from '../Tooltip';
 
-import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
-import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -134,7 +125,7 @@ const MessageSimpleWithContext = <
           key={message.id || ''}
           ref={messageWrapperRef}
         >
-          <MessageSimpleStatus Avatar={Avatar} />
+          <MessageStatus />
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -207,77 +198,6 @@ const MessageSimpleWithContext = <
       }
     </>
   );
-};
-
-const MessageSimpleStatus = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->({
-  Avatar,
-}: {
-  Avatar: React.ComponentType<AvatarProps>;
-}) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { isMyMessage, lastReceivedId, message, readBy, threadList } = useMessageContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
-  const { t } = useTranslationContext();
-
-  if (!isMyMessage() || message.type === 'error') {
-    return null;
-  }
-
-  const justReadByMe = readBy?.length === 1 && readBy[0].id === client.user?.id;
-
-  if (message.status === 'sending') {
-    return (
-      <span className='str-chat__message-simple-status' data-testid='message-status-sending'>
-        <Tooltip>{t('Sending...')}</Tooltip>
-        <LoadingIndicator />
-      </span>
-    );
-  }
-
-  if (readBy?.length && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter((item) => item.id !== client.user?.id)[0];
-
-    return (
-      <span className='str-chat__message-simple-status' data-testid='message-status-read-by'>
-        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
-        {readBy.length > 2 && (
-          <span
-            className='str-chat__message-simple-status-number'
-            data-testid='message-status-read-by-many'
-          >
-            {readBy.length - 1}
-          </span>
-        )}
-      </span>
-    );
-  }
-
-  if (message.status === 'received' && message.id === lastReceivedId && !threadList) {
-    return (
-      <span className='str-chat__message-simple-status' data-testid='message-status-received'>
-        <Tooltip>{t('Delivered')}</Tooltip>
-        <DeliveredCheckIcon />
-      </span>
-    );
-  }
-
-  return null;
 };
 
 const MemoizedMessageSimple = React.memo(
