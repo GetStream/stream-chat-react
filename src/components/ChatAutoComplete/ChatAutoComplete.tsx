@@ -150,8 +150,6 @@ export type ChatAutoCompleteProps = {
   placeholder?: string;
   /** The number of rows you want the textarea to have */
   rows?: number;
-  /** Disables the message input during the slow mode cooldown period */
-  slowModeDisabled?: boolean;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -171,6 +169,7 @@ const UnMemoizedChatAutoComplete = <
   const {
     additionalTextareaProps,
     autocompleteTriggers,
+    cooldownRemaining,
     disabled,
     disableMentions,
     emojiIndex,
@@ -184,7 +183,7 @@ const UnMemoizedChatAutoComplete = <
     AutocompleteSuggestionList: SuggestionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
-  const { onFocus, placeholder = t('Type your message'), rows = 1, slowModeDisabled } = props;
+  const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -212,7 +211,7 @@ const UnMemoizedChatAutoComplete = <
       additionalTextareaProps={additionalTextareaProps}
       className='str-chat__textarea__textarea'
       containerClassName='str-chat__textarea'
-      disabled={disabled || slowModeDisabled}
+      disabled={disabled || !!cooldownRemaining}
       disableMentions={disableMentions}
       dropdownClassName='str-chat__emojisearch'
       grow={grow}
@@ -227,7 +226,7 @@ const UnMemoizedChatAutoComplete = <
       onChange={messageInput.handleChange}
       onFocus={onFocus}
       onPaste={messageInput.onPaste}
-      placeholder={slowModeDisabled ? t('Slow Mode ON') : placeholder}
+      placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={rows}
       SuggestionItem={SuggestionItem}

@@ -13,7 +13,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import type { MessageInputProps } from '../components/MessageInput';
+import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 
 export type MessageInputContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -29,7 +29,8 @@ export type MessageInputContextValue<
   Omit<
     MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
     'Input' | 'SuggestionList' | 'SuggestionItem' | 'SendButton' | 'EmojiIcon' | 'FileUploadIcon'
-  >;
+  > &
+  CooldownTimerState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined

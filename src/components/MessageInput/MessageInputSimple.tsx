@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { EmojiPicker } from './EmojiPicker';
-import { CooldownTimer as DefaultCooldownTimer, useCooldownTimer } from './hooks/useCooldownTimer';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import { EmojiIconLarge as DefaultEmojiIcon, SendButton as DefaultSendButton } from './icons';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -36,10 +36,13 @@ export const MessageInputSimple = <
 
   const {
     closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     openEmojiPicker,
+    setCooldownRemaining,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   const {
@@ -47,16 +50,6 @@ export const MessageInputSimple = <
     EmojiIcon = DefaultEmojiIcon,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { cooldownInterval, cooldownRemaining, setCooldownRemaining } = useCooldownTimer<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
 
   return (
     <div
@@ -66,7 +59,7 @@ export const MessageInputSimple = <
     >
       <div className='str-chat__input-flat-wrapper'>
         <div className='str-chat__input-flat--textarea-wrapper'>
-          <ChatAutoComplete slowModeDisabled={!!cooldownRemaining} />
+          <ChatAutoComplete />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
               {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}

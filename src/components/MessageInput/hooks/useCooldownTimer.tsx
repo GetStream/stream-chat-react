@@ -40,6 +40,12 @@ export const CooldownTimer: React.FC<CooldownTimerProps> = (props) => {
   return <div>{seconds === 0 ? null : seconds}</div>;
 };
 
+export type CooldownTimerState = {
+  cooldownInterval: number;
+  setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
+  cooldownRemaining?: number;
+};
+
 export const useCooldownTimer = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -48,12 +54,12 @@ export const useCooldownTimer = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(): CooldownTimerState => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   // @ts-expect-error type needs to be added to JS client
-  const { cooldown: cooldownInterval } = channel.data;
+  const { cooldown: cooldownInterval } = channel.data || {};
 
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
@@ -68,5 +74,5 @@ export const useCooldownTimer = <
     return () => channel.off('message.new', handleEvent);
   }, [channel.id, cooldownInterval]);
 
-  return { cooldownInterval, cooldownRemaining, setCooldownRemaining };
+  return { cooldownInterval: cooldownInterval || 0, cooldownRemaining, setCooldownRemaining };
 };

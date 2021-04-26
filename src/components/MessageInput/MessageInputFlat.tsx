@@ -2,7 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { CooldownTimer as DefaultCooldownTimer, useCooldownTimer } from './hooks/useCooldownTimer';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconLarge as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -42,12 +42,15 @@ export const MessageInputFlat = <
 
   const {
     closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
+    setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -57,16 +60,6 @@ export const MessageInputFlat = <
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { cooldownInterval, cooldownRemaining, setCooldownRemaining } = useCooldownTimer<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
 
   return (
     <div
@@ -108,7 +101,7 @@ export const MessageInputFlat = <
               </span>
             </div>
             <EmojiPicker />
-            <ChatAutoComplete slowModeDisabled={!!cooldownRemaining} />
+            <ChatAutoComplete />
             {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                 <Tooltip>

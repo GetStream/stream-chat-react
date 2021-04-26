@@ -3,13 +3,13 @@ import React from 'react';
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputLarge } from './MessageInputLarge';
 
+import { CooldownTimerProps, useCooldownTimer } from './hooks/useCooldownTimer';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
 
 import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
 
-import type { CooldownTimerProps } from './hooks/useCooldownTimer';
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SendButtonProps } from './icons';
 
@@ -182,7 +182,10 @@ const UnMemoizedMessageInput = <
     publishTypingEvent: props.publishTypingEvent || true,
   });
 
+  const cooldownTimerState = useCooldownTimer<At, Ch, Co, Ev, Me, Re, Us>();
+
   const messageInputContextValue = {
+    ...cooldownTimerState,
     ...messageInputState,
     ...props,
   };

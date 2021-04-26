@@ -2,7 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { CooldownTimer as DefaultCooldownTimer, useCooldownTimer } from './hooks/useCooldownTimer';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -44,12 +44,15 @@ export const MessageInputSmall = <
 
   const {
     closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerIsOpen,
     handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
     openEmojiPicker,
+    setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
@@ -59,16 +62,6 @@ export const MessageInputSmall = <
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  const { cooldownInterval, cooldownRemaining, setCooldownRemaining } = useCooldownTimer<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
 
   return (
     <div className='str-chat__small-message-input__wrapper'>
@@ -86,7 +79,7 @@ export const MessageInputSmall = <
         >
           <div className='str-chat__small-message-input--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
-            <ChatAutoComplete slowModeDisabled={!!cooldownRemaining} />
+            <ChatAutoComplete />
             {cooldownRemaining ? (
               <div className='str-chat__input-small-cooldown'>
                 <CooldownTimer
