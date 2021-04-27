@@ -7,6 +7,7 @@ import {
   MessageRepliesCountButton,
   MessageText,
   ReactionSelector,
+  MessageStatus,
   SimpleReactionsList,
   MessageTimestamp,
   useMessageContext,
@@ -52,6 +53,7 @@ export const CustomMessage = () => {
           />
         )}
         <MessageText />
+        <MessageStatus />
         {message.attachments && <Attachment attachments={message.attachments} />}
         {hasReactions && !showDetailedReactions && isReactionEnabled && (
           <SimpleReactionsList
