@@ -2,7 +2,7 @@
 import React, { RefObject, useMemo } from 'react';
 import isEqual from 'lodash.isequal';
 
-import { insertDates } from './utils';
+import { processMessages } from './utils';
 
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { Message } from '../Message';
@@ -296,16 +296,17 @@ const UnMemoizedMessageListInner = <
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   const enrichMessages = () => {
-    const messageWithDates = threadList
-      ? messages
-      : insertDates(
-          messages,
-          lastRead,
-          client.userID,
-          hideDeletedMessages,
-          disableDateSeparator,
-          hideNewMessageSeparator,
-        );
+    const messageWithDates =
+      threadList || (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator)
+        ? messages
+        : processMessages(
+            messages,
+            lastRead,
+            client.userID,
+            hideDeletedMessages,
+            disableDateSeparator,
+            hideNewMessageSeparator,
+          );
 
     if (HeaderComponent) {
       return insertIntro(messageWithDates, headerPosition);
