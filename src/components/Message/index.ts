@@ -8,6 +8,7 @@ export * from './MessageLivestream';
 export * from './MessageOptions';
 export * from './MessageRepliesCountButton';
 export * from './MessageSimple';
+export * from './MessageStatus';
 export * from './MessageTeam';
 export * from './MessageText';
 export * from './MessageTimestamp';
