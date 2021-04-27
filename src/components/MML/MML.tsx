@@ -1,18 +1,30 @@
-import React from 'react';
-import { MML as MMLReact } from 'mml-react';
+import React, { useEffect, useState } from 'react';
 
 import { useChatContext } from '../../context/ChatContext';
 
+import type { MMLProps as MMLReactProps } from 'mml-react';
+
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
+declare global {
+  interface Window {
+    mmlReact: typeof import('mml-react').MML;
+  }
+}
+
+const getDynamicImport = async () => {
+  if (typeof window.mmlReact === 'undefined') {
+    window.mmlReact = (await import('mml-react')).MML;
+  }
+  return window.mmlReact;
+};
+
 export type MMLProps = {
-  /** mml source string */
+  /** MML source string */
   source: string;
-  /** submit handler for mml actions */
+  /** Submit handler for mml actions */
   actionHandler?: ActionHandlerReturnType;
-  /** align mml components to left/right
-   * @default right
-   */
+  /** Align MML components to left/right, defaults to right */
   align?: 'left' | 'right';
 };
 
@@ -24,7 +36,20 @@ export const MML: React.FC<MMLProps> = (props) => {
 
   const { theme } = useChatContext();
 
-  if (!source) return null;
+  const [MMLState, setMMLState] = useState<{ MMLReact: React.FC<MMLReactProps> }>();
+
+  useEffect(() => {
+    const getMMLReact = async () => {
+      const MMLReact = await getDynamicImport();
+      setMMLState({ MMLReact });
+    };
+
+    if (source) getMMLReact();
+  }, []);
+
+  if (!MMLState || !source) return null;
+
+  const { MMLReact } = MMLState;
 
   return (
     <MMLReact
