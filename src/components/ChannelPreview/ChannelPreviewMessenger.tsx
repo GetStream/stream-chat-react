@@ -78,6 +78,8 @@ const UnMemoizedChannelPreviewMessenger = <
 };
 
 /**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
  * Used as preview component for channel item in [ChannelList](#channellist) component.
  * Its best suited for messenger type chat.
  * @example ./ChannelPreviewMessenger.md

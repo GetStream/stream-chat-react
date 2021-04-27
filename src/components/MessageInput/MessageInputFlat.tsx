@@ -29,6 +29,9 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ */
 export const MessageInputFlat = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
