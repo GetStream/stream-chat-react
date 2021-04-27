@@ -11,7 +11,7 @@ import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification } from './MessageNotification';
-import { insertDates } from './utils';
+import { processMessages } from './utils';
 
 import {
   DateSeparatorProps,
@@ -178,18 +178,21 @@ const VirtualizedMessageListWithContext = <
 
   const processedMessages = useMemo(() => {
     if (typeof messages === 'undefined') {
-      return undefined;
+      return [];
     }
-    return disableDateSeparator && hideDeletedMessages && hideNewMessageSeparator
-      ? messages
-      : insertDates(
-          messages,
-          lastRead,
-          userID,
-          hideDeletedMessages,
-          disableDateSeparator,
-          hideNewMessageSeparator,
-        );
+
+    if (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator) {
+      return messages;
+    }
+
+    return processMessages(
+      messages,
+      lastRead,
+      userID,
+      hideDeletedMessages,
+      disableDateSeparator,
+      hideNewMessageSeparator,
+    );
   }, [
     disableDateSeparator,
     hideDeletedMessages,
