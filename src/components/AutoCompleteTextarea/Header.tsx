@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
-import { TranslationContext } from '../../context/TranslationContext';
+import React from 'react';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export type SuggestionListHeaderProps = {
   value: string;
 };
 
 export const DefaultSuggestionListHeader: React.FC<SuggestionListHeaderProps> = ({ value }) => {
-  const { t } = useContext(TranslationContext);
+  const { t } = useTranslationContext();
 
   if (value[0] === '/') {
     return (
