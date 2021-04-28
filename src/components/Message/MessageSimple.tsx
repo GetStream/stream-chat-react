@@ -95,7 +95,7 @@ const MessageSimpleWithContext = <
     return null;
   }
 
-  if (message.deleted_at) {
+  if (message.deleted_at || message.type === 'deleted') {
     return <MessageDeleted message={message} />;
   }
 

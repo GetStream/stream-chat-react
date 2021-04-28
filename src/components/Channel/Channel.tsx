@@ -344,6 +344,8 @@ const ChannelInner = <
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
+        client.on('user.updated', handleEvent);
+        client.on('user.deleted', handleEvent);
         channel.on(handleEvent);
       }
     })();
@@ -354,6 +356,8 @@ const ChannelInner = <
       if (channel) channel.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
+      client.off('user.updated', handleEvent);
+      client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
   }, [channel, client, handleEvent, markRead]);
