@@ -5,6 +5,7 @@ import { useLastReadData } from './useLastReadData';
 import { getLastReceived, GroupStyle } from '../utils';
 
 import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
+import { EventComponent } from '../../EventComponent/EventComponent';
 import { Message } from '../../Message';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -13,7 +14,6 @@ import { isDate } from '../../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import { EventComponent } from '../../EventComponent/EventComponent';
 import type { MessageProps } from '../../Message/types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
@@ -28,7 +28,16 @@ import type {
   DefaultUserType,
 } from '../../../../types/types';
 
-export function useMessageListElements<
+type MessagePropsToOmit =
+  | 'channel'
+  | 'groupStyles'
+  | 'initialMessage'
+  | 'lastReceivedId'
+  | 'message'
+  | 'readBy'
+  | 'threadList';
+
+type UseMessageListElementsProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -36,14 +45,26 @@ export function useMessageListElements<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(args: {
+> = {
   enrichedMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   threadList: boolean;
-  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'message' | 'Message'>;
+  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
-}) {
+};
+
+export const useMessageListElements = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: UseMessageListElementsProps<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
   const {
     enrichedMessages,
     internalMessageProps,
@@ -51,7 +72,7 @@ export function useMessageListElements<
     onMessageLoadCaptured,
     read,
     threadList,
-  } = args;
+  } = props;
 
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
@@ -126,10 +147,9 @@ export function useMessageListElements<
       internalMessageProps,
       lastReceivedId,
       messageGroupStyles,
-      MessageSystem,
       onMessageLoadCaptured,
       readData,
       threadList,
     ],
   );
-}
+};

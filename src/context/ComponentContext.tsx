@@ -1,11 +1,14 @@
-import React, { PropsWithChildren, useContext, useMemo } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 
 import type { NimbleEmojiIndex, NimbleEmojiProps, NimblePickerProps } from 'emoji-mart';
 
 import type { AttachmentProps } from '../components/Attachment/Attachment';
 import type { AvatarProps } from '../components/Avatar/Avatar';
 import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
+import type { EmptyStateIndicatorProps } from '../components/EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
+import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
+import type { FixedHeightMessageProps } from '../components/Message/FixedHeightMessage';
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
@@ -14,6 +17,7 @@ import type { MessageRepliesCountButtonProps } from '../components/Message/Messa
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
+import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type {
   DefaultAttachmentType,
@@ -43,7 +47,9 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   HeaderComponent?: React.ComponentType;
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
@@ -52,6 +58,8 @@ export type ComponentContextValue<
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -71,76 +79,11 @@ export const ComponentProvider = <
   value,
 }: PropsWithChildren<{
   value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
-}>) => {
-  const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  // prevent undefined values from replaced defined ones
-  const Attachment = value.Attachment || existingValue.Attachment;
-  const Avatar = value.Avatar || existingValue.Avatar;
-  const DateSeparator = value.DateSeparator || existingValue.DateSeparator;
-  const EditMessageInput = value.EditMessageInput || existingValue.EditMessageInput;
-  const Emoji = value.Emoji || existingValue.Emoji;
-  const EmojiIndex = value.EmojiIndex || existingValue.EmojiIndex;
-  const EmojiPicker = value.EmojiPicker || existingValue.EmojiPicker;
-  const HeaderComponent = value.HeaderComponent || existingValue.HeaderComponent;
-  const Message = value.Message || existingValue.Message;
-  const MessageDeleted = value.MessageDeleted || existingValue.MessageDeleted;
-  const MessageOptions = value.MessageOptions || existingValue.MessageOptions;
-  const MessageRepliesCountButton =
-    value.MessageRepliesCountButton || existingValue.MessageRepliesCountButton;
-  const MessageSystem = value.MessageSystem || existingValue.MessageSystem;
-  const MessageTimestamp = value.MessageTimestamp || existingValue.MessageTimestamp;
-  const PinIndicator = value.PinIndicator || existingValue.PinIndicator;
-  const ReactionSelector = value.ReactionSelector || existingValue.ReactionSelector;
-  const ReactionsList = value.ReactionsList || existingValue.ReactionsList;
-
-  const memoizedValue = useMemo(
-    () => ({
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      Emoji,
-      EmojiIndex,
-      EmojiPicker,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageOptions,
-      MessageRepliesCountButton,
-      MessageSystem,
-      MessageTimestamp,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    }),
-    [
-      Attachment,
-      Avatar,
-      DateSeparator,
-      EditMessageInput,
-      Emoji,
-      EmojiIndex,
-      EmojiPicker,
-      HeaderComponent,
-      Message,
-      MessageDeleted,
-      MessageOptions,
-      MessageRepliesCountButton,
-      MessageSystem,
-      MessageTimestamp,
-      PinIndicator,
-      ReactionSelector,
-      ReactionsList,
-    ],
-  );
-
-  return (
-    <ComponentContext.Provider value={(memoizedValue as unknown) as ComponentContextValue}>
-      {children}
-    </ComponentContext.Provider>
-  );
-};
+}>) => (
+  <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
+    {children}
+  </ComponentContext.Provider>
+);
 
 export const useComponentContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

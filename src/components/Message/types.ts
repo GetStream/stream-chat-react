@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { Channel, Mute, UserResponse } from 'stream-chat';
+import type { Mute, UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
@@ -40,8 +40,6 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /** The currently active channel */
-  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */

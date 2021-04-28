@@ -18,32 +18,15 @@ import type {
 } from '../../../types/types';
 
 export type ChannelListTeamProps = {
-  /**
-   * Custom UI component to display user avatar.
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   * */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
-  /**
-   * If channel list ran into error.
-   * When true, error indicator is shown - [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
-   */
+  /** Whether or not the channel query request returned an errored response */
   error?: boolean;
-  /**
-   * If channel list is in loading state.
-   * When true, loading indicator is shown - [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx)
-   */
+  /** Whether or not channels are currently loading */
   loading?: boolean;
-  /**
-   * Error indicator UI Component. It will be displayed if `error` prop is true.
-   * Defaults to and accepts same props as:
-   * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
-   */
+  /** Custom UI component to display a loading error, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
-  /**
-   * Loading indicator UI Component. It will be displayed if `loading` prop is true.
-   * Defaults to and accepts same props as:
-   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx)
-   */
+  /** Custom UI component to display a loading indicator, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
   /** When true, sidebar containing logo of the team is visible */
   showSidebar?: boolean;
@@ -85,9 +68,11 @@ export const ChannelListTeam = <
   if (error) {
     return <LoadingErrorIndicator type='Connection Error' />;
   }
+
   if (loading) {
     return <LoadingIndicator />;
   }
+
   return (
     <div className='str-chat__channel-list-team'>
       {showSidebar && (
