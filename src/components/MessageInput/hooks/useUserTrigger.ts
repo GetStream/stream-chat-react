@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
@@ -54,8 +54,8 @@ export const useUserTrigger = <
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
-  const queryMembersDebounced = useCallback(
-    debounce(async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
+  const queryMembersThrottled = useCallback(
+    throttle(async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
       try {
         // @ts-expect-error
         const response = await channel.queryMembers({
@@ -104,7 +104,7 @@ export const useUserTrigger = <
     setSearching(false);
   };
 
-  const queryUsersDebounced = debounce(queryUsers, 200);
+  const queryUsersThrottled = throttle(queryUsers, 200);
 
   return {
     callback: (item) => onSelectItem && onSelectItem(item),
@@ -116,7 +116,7 @@ export const useUserTrigger = <
       };
 
       if (mentionAllAppUsers) {
-        return queryUsersDebounced(query, (data: UserResponse<Us>[]) => {
+        return queryUsersThrottled(query, (data: UserResponse<Us>[]) => {
           if (onReady) onReady(filterMutes(data), query);
         });
       }
@@ -148,7 +148,7 @@ export const useUserTrigger = <
         return data;
       }
 
-      return queryMembersDebounced(query, (data: UserResponse<Us>[]) => {
+      return queryMembersThrottled(query, (data: UserResponse<Us>[]) => {
         if (onReady) onReady(filterMutes(data), query);
       });
     },
