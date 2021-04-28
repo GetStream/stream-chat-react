@@ -13,7 +13,7 @@ import type {
 
 import type { StreamMessage } from '../../context/ChannelContext';
 
-export const insertDates = <
+export const processMessages = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,

@@ -169,11 +169,12 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn bundle",
+    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn --silent copy-translations && yarn bundle",
     "build-styles": "sass src/styles/index.scss dist/css/index.css --style compressed",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
     "build-translations": "rm -rf .tmpi18ncache || true && mkdir .tmpi18ncache && yarn run babel --config-file ./babel.i18next-extract.js --extensions '.ts','.tsx','.js','.jsx' 'src/**/*.{js,jsx,ts,tsx}' --out-dir '.tmpi18ncache/' && rm -rf .tmpi18ncache && prettier --write 'src/i18n/*.{js,jsx,ts,tsx,json}'",
+    "copy-translations": "echo '\u001b[34mℹ\u001b[0m Copying translation files to \u001b[34mbuilt/types/src/i18n\u001b[0m' && cp -R -f ./src/i18n/*.json ./built/types/src/i18n && echo '\u001b[32m✓\u001b[0m Done Copying Translations'",
     "coverage": "yarn test --collectCoverage && codecov",
     "docs": "styleguidist build",
     "docs-server": "styleguidist server",
