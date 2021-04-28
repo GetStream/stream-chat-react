@@ -6,7 +6,6 @@ import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import { LoadingIndicator } from '../Loading/LoadingIndicator';
 import type { UserItemProps } from '../UserItem/UserItem';
 
-import { useChatContext } from '../../context/ChatContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -185,8 +184,6 @@ const UnMemoizedChatAutoComplete = <
 
   const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
 
-  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-
   const emojiReplace = (word: string) => {
     const found = emojiIndex?.search(word) || [];
     const emoji = found
@@ -222,7 +219,6 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={maxRows}
       minChar={0}
-      mutes={mutes}
       onChange={messageInput.handleChange}
       onFocus={onFocus}
       onPaste={messageInput.onPaste}

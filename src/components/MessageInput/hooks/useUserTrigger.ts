@@ -32,7 +32,7 @@ const useUserTrigger = <
 ): UserTriggerSetting<Us> => {
   const [searching, setSearching] = useState(false);
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
@@ -110,9 +110,14 @@ const useUserTrigger = <
     callback: (item) => onSelectItem && onSelectItem(item),
     component: UserItem,
     dataProvider: (query, _, onReady) => {
+      const filterMutes = (data: UserResponse<Us>[]) => {
+        if (!mutes.length) return data;
+        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+      };
+
       if (mentionAllAppUsers) {
         return queryUsersDebounced(query, (data: UserResponse<Us>[]) => {
-          if (onReady) onReady(data, query);
+          if (onReady) onReady(filterMutes(data), query);
         });
       }
 
@@ -138,13 +143,13 @@ const useUserTrigger = <
 
         const data = matchingUsers.slice(0, 10);
 
-        if (onReady) onReady(data, query);
+        if (onReady) onReady(filterMutes(data), query);
 
         return data;
       }
 
       return queryMembersDebounced(query, (data: UserResponse<Us>[]) => {
-        if (onReady) onReady(data, query);
+        if (onReady) onReady(filterMutes(data), query);
       });
     },
     output: (entity) => ({
