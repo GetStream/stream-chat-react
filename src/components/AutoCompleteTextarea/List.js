@@ -7,7 +7,7 @@ import Item from './Item';
 import { DefaultSuggestionListHeader } from './Header';
 import { KEY_CODES } from './listener';
 
-const List = (props) => {
+export const List = (props) => {
   const {
     className,
     component,
@@ -149,5 +149,3 @@ const List = (props) => {
     </ul>
   );
 };
-
-export default List;

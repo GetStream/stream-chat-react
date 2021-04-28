@@ -14,7 +14,7 @@ import {
   triggerPropsCheck,
 } from './utils';
 
-class ReactTextareaAutocomplete extends React.Component {
+export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
     closeOnClickOutside: true,
     maxRows: 10,
@@ -709,5 +709,3 @@ ReactTextareaAutocomplete.propTypes = {
   trigger: triggerPropsCheck,
   value: PropTypes.string,
 };
-
-export default ReactTextareaAutocomplete;
