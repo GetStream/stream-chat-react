@@ -6,7 +6,7 @@ import CustomEvent from 'custom-event';
 import { isValidElementType } from 'react-is';
 
 import Listeners, { KEY_CODES } from './listener';
-import DefaultSuggestionList from './List';
+import { List as DefaultSuggestionList } from './List';
 import {
   DEFAULT_CARET_POSITION,
   defaultScrollToItem,
