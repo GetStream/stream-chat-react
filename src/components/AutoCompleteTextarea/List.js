@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useComponentContext } from '../../context/ComponentContext';
 import { escapeRegExp } from '../../utils';
 
-import Item from './Item';
+import { Item } from './Item';
 import { DefaultSuggestionListHeader } from './Header';
 import { KEY_CODES } from './listener';
 
