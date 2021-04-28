@@ -1,4 +1,4 @@
-import { useChatContext } from '../../../context/ChatContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { CommandItem } from '../../CommandItem/CommandItem';
 import type { CommandResponse } from 'stream-chat';
 
@@ -14,7 +14,7 @@ export const useCommandTrigger = <
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType
 >(): CommandTriggerSetting<Co> => {
-  const { channel } = useChatContext<At, Ch, Co>();
+  const { channel } = useChannelStateContext<At, Ch, Co>();
   const commands = channel?.getConfig?.()?.commands;
 
   return {
