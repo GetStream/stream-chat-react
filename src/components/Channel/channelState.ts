@@ -68,11 +68,11 @@ export type ChannelStateReducerAction<
       type: 'setThread';
     }
   | {
-      type: 'startLoadingThread';
+      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      type: 'setTyping';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      type: 'typingStartAndStop';
+      type: 'startLoadingThread';
     }
   | {
       channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
@@ -198,18 +198,18 @@ export const channelReducer = <
       return { ...state, thread: message };
     }
 
-    case 'startLoadingThread': {
-      return {
-        ...state,
-        threadLoadingMore: true,
-      };
-    }
-
-    case 'typingStartAndStop': {
+    case 'setTyping': {
       const { channel } = action;
       return {
         ...state,
         typing: { ...channel.state.typing },
+      };
+    }
+
+    case 'startLoadingThread': {
+      return {
+        ...state,
+        threadLoadingMore: true,
       };
     }
 

@@ -282,7 +282,7 @@ const ChannelInner = <
       if (event.type === 'typing.start' || event.type === 'typing.stop') {
         dispatch({
           channel,
-          type: 'typingStartAndStop',
+          type: 'setTyping',
         });
         return;
       }
