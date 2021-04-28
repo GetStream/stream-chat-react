@@ -17,7 +17,7 @@ import type {
 } from '../../../../types/types';
 import type { UserResponse } from 'stream-chat';
 
-const useUserTrigger = <
+export const useUserTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -159,5 +159,3 @@ const useUserTrigger = <
     }),
   };
 };
-
-export default useUserTrigger;

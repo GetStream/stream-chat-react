@@ -9,7 +9,7 @@ import type {
   DefaultCommandType,
 } from '../../../../types/types';
 
-const useCommandTrigger = <
+export const useCommandTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType
@@ -66,5 +66,3 @@ const useCommandTrigger = <
     }),
   };
 };
-
-export default useCommandTrigger;

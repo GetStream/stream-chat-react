@@ -3,9 +3,9 @@ import {
   MessageInputContextProvider,
   useMessageInputContext,
 } from '../../context/MessageInputContext';
-import useCommandTrigger from './hooks/useCommandTrigger';
-import useEmojiTrigger from './hooks/useEmojiTrigger';
-import useUserTrigger from './hooks/useUserTrigger';
+import { useCommandTrigger } from './hooks/useCommandTrigger';
+import { useEmojiTrigger } from './hooks/useEmojiTrigger';
+import { useUserTrigger } from './hooks/useUserTrigger';
 
 import type { TriggerSettings } from '../ChatAutoComplete/ChatAutoComplete';
 import type {

@@ -13,7 +13,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
 
-import useEmojiIndex from './useEmojiIndex';
+import { useEmojiIndex } from './useEmojiIndex';
 
 import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 

@@ -4,7 +4,7 @@ import type { NimbleEmojiIndex } from 'emoji-mart';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 
-const useEmojiIndex = () => {
+export const useEmojiIndex = () => {
   const { emojiConfig } = useChannelStateContext();
   const { EmojiIndex } = useComponentContext();
   const { emojiData } = emojiConfig || {};
@@ -18,5 +18,3 @@ const useEmojiIndex = () => {
 
   return emojiIndex;
 };
-
-export default useEmojiIndex;
