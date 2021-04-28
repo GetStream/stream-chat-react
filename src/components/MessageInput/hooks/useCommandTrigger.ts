@@ -7,14 +7,22 @@ import type {
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
 } from '../../../../types/types';
 
 export const useCommandTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
 >(): CommandTriggerSetting<Co> => {
-  const { channel } = useChannelStateContext<At, Ch, Co>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const commands = channel?.getConfig?.()?.commands;
 
   return {
