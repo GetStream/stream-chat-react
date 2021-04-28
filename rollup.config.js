@@ -43,6 +43,7 @@ const styleBundle = ({ min } = { min: false }) => ({
 
 const baseConfig = {
   cache: false,
+  inlineDynamicImports: true,
   input: 'src/index.ts',
   watch: {
     chokidar: false,
