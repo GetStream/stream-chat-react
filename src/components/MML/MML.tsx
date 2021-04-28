@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense } from 'react';
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type { MMLProps as MMLReactProps } from 'mml-react';
-
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
-declare global {
-  interface Window {
-    mmlReact: typeof import('mml-react').MML;
-  }
-}
-
-const getDynamicImport = async () => {
-  if (typeof window.mmlReact === 'undefined') {
-    window.mmlReact = (await import('mml-react')).MML;
-  }
-  return window.mmlReact;
-};
+const MMLReact = React.lazy(async () => {
+  const mml = await import('mml-react');
+  return { default: mml.MML };
+});
 
 export type MMLProps = {
   /** MML source string */
@@ -36,29 +26,16 @@ export const MML: React.FC<MMLProps> = (props) => {
 
   const { theme } = useChatContext();
 
-  const [MMLState, setMMLState] = useState<{ MMLReact: React.FC<MMLReactProps> }>();
-
-  useEffect(() => {
-    const getMMLReact = async () => {
-      const MMLReact = await getDynamicImport();
-      setMMLState({ MMLReact });
-    };
-
-    if (source) getMMLReact();
-  }, []);
-
-  if (!MMLState || !source) return null;
-
-  const { MMLReact } = MMLState;
-
   return (
-    <MMLReact
-      className={`mml-align-${align}`}
-      Loading={null}
-      onSubmit={actionHandler}
-      source={source}
-      Success={null}
-      theme={(theme || '').replace(' ', '-')}
-    />
+    <Suspense fallback={null}>
+      <MMLReact
+        className={`mml-align-${align}`}
+        Loading={null}
+        onSubmit={actionHandler}
+        source={source}
+        Success={null}
+        theme={(theme || '').replace(' ', '-')}
+      />
+    </Suspense>
   );
 };
