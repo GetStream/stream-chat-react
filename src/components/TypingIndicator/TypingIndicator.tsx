@@ -50,6 +50,8 @@ const UnMemoizedTypingIndicator = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  console.log('typing in indicator', typing);
+
   if (!typing || !client || channel?.getConfig()?.typing_events === false) {
     return null;
   }

@@ -213,6 +213,8 @@ const MessageListWithContext = <
 
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
+  console.log('in the message LIST');
+
   return (
     <>
       <div
@@ -409,6 +411,8 @@ export const MessageList = <
     }),
     [Message],
   );
+
+  console.log('restChannelStateContext IS:', restChannelStateContext);
 
   return (
     <ComponentProvider value={updatedComponentContext}>

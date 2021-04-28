@@ -14,6 +14,7 @@ import {
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
+
 import './App.css';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
