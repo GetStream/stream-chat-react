@@ -36,20 +36,6 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           <div />
           <div />
         </div>
-        <div
-          style={
-            Object {
-              "marginTop": "0px",
-              "position": "-webkit-sticky",
-              "top": 0,
-              "width": "100%",
-            }
-          }
-        >
-          <div
-            style={Object {}}
-          />
-        </div>
       </div>
       <div
         className="str-chat__list-notifications"

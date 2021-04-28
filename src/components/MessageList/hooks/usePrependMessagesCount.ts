@@ -20,7 +20,7 @@ export function usePrependedMessagesCount<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[]) {
+>(messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[]) {
   const currentFirstMessageId = messages?.[0]?.id;
   const firstMessageId = useRef(currentFirstMessageId);
   const earliestMessageId = useRef(currentFirstMessageId);
