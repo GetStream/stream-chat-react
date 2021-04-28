@@ -279,6 +279,14 @@ const ChannelInner = <
         });
       }
 
+      if (event.type === 'typing.start' || event.type === 'typing.stop') {
+        dispatch({
+          channel,
+          type: 'typingStartAndStop',
+        });
+        return;
+      }
+
       if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
         online.current = event.online;
       }
