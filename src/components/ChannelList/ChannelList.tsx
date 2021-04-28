@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { ChannelListTeam, ChannelListTeamProps } from './ChannelListTeam';
+import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
 import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
@@ -87,7 +87,7 @@ export type ChannelListProps<
   /** Object containing query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
   /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) */
-  List?: React.ComponentType<ChannelListTeamProps>;
+  List?: React.ComponentType<ChannelListMessengerProps>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
@@ -144,8 +144,6 @@ export type ChannelListProps<
   setActiveChannelOnMount?: boolean;
   /** Whether or not to load the list with a search component, defaults to false */
   showChannelSearch?: boolean;
-  /** Boolean to show sidebar */
-  showSidebar?: boolean;
   /** Object containing sort parameters */
   sort?: ChannelSort<Ch>;
   /** Object containing watcher parameters */
@@ -174,7 +172,7 @@ const UnMemoizedChannelList = <
     filters,
     LoadingErrorIndicator = ChatDown,
     LoadingIndicator = LoadingChannels,
-    List = ChannelListTeam,
+    List = ChannelListMessenger,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -189,7 +187,6 @@ const UnMemoizedChannelList = <
     Preview = ChannelPreviewLastMessage,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
-    showSidebar,
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
@@ -306,12 +303,10 @@ const UnMemoizedChannelList = <
 
   const renderList = () => (
     <List
-      Avatar={Avatar}
       error={status.error}
       loading={status.loadingChannels}
       LoadingErrorIndicator={LoadingErrorIndicator}
       LoadingIndicator={LoadingIndicator}
-      showSidebar={showSidebar}
     >
       {!loadedChannels || loadedChannels.length === 0 ? (
         <EmptyStateIndicator listType='channel' />

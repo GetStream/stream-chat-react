@@ -33,7 +33,6 @@
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
     "mdast-util-find-and-replace": "1.1.1",
-    "mml-react": "^0.4.0",
     "pretty-bytes": "^5.4.1",
     "prop-types": "^15.7.2",
     "react-fast-compare": "^3.2.0",
@@ -43,9 +42,12 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "1.5.9",
+    "react-virtuoso": "1.8.6",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
+  },
+  "optionalDependencies": {
+    "mml-react": "^0.4.0"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",

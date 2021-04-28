@@ -191,6 +191,8 @@ const MemoizedMessageCommerce = React.memo(
 ) as typeof MessageCommerceWithContext;
 
 /**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
  * MessageCommerce - UI component that renders a message and receives functionality from the Message/MessageList components
  */
 export const MessageCommerce = <
