@@ -1,4 +1,4 @@
-import React, { Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, { Reducer, useCallback, useEffect, useReducer, useRef } from 'react';
 import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
 import {
   Attachment,
@@ -678,10 +678,7 @@ export const useMessageInputState = <
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
-  const maxFilesAllowed = useMemo(
-    () => (!multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles),
-    [maxNumberOfFiles, multipleUploads],
-  );
+  const maxFilesAllowed = !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
 
   // return !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
