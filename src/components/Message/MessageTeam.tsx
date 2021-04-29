@@ -17,7 +17,7 @@ import {
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 
-import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
@@ -181,21 +181,20 @@ const MessageTeamWithContext = <
           <MessageTimestamp />
         </div>
         <div className='str-chat__message-team-group'>
-          {message &&
-            (firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage) && (
-              <div
-                className='str-chat__message-team-author'
-                data-testid='message-team-author'
-                onClick={onUserClick}
-              >
-                <strong>{message.user?.name || message.user?.id}</strong>
-                {message.type === 'error' && (
-                  <div className='str-chat__message-team-error-header'>
-                    {t('Only visible to you')}
-                  </div>
-                )}
-              </div>
-            )}
+          {(firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage) && (
+            <div
+              className='str-chat__message-team-author'
+              data-testid='message-team-author'
+              onClick={onUserClick}
+            >
+              <strong>{message.user?.name || message.user?.id}</strong>
+              {message.type === 'error' && (
+                <div className='str-chat__message-team-error-header'>
+                  {t('Only visible to you')}
+                </div>
+              )}
+            </div>
+          )}
           <div
             className={`str-chat__message-team-content str-chat__message-team-content--${firstGroupStyle} str-chat__message-team-content--${
               message.text === '' ? 'image' : 'text'
@@ -203,7 +202,6 @@ const MessageTeamWithContext = <
             data-testid='message-team-content'
           >
             {!initialMessage &&
-              message &&
               message.status !== 'sending' &&
               message.status !== 'failed' &&
               message.type !== 'system' &&
@@ -213,7 +211,7 @@ const MessageTeamWithContext = <
                   className={`str-chat__message-team-actions`}
                   data-testid='message-team-actions'
                 >
-                  {message && showDetailedReactions && (
+                  {showDetailedReactions && (
                     <ReactionSelector
                       detailedView={true}
                       handleReaction={handleReaction}
@@ -246,7 +244,7 @@ const MessageTeamWithContext = <
                   )}
                 </div>
               )}
-            {message && (
+            {
               <span
                 className={
                   isOnlyEmojis(message.text) ? 'str-chat__message-team-text--is-emoji' : ''
@@ -261,14 +259,10 @@ const MessageTeamWithContext = <
                   messageText
                 )}
               </span>
-            )}
+            }
             {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
-            {message.text === '' && (
-              <MessageTeamAttachments
-                Attachment={Attachment}
-                handleAction={handleAction}
-                message={message}
-              />
+            {!message.text && message.attachments && (
+              <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
               <ReactionsList
@@ -293,12 +287,8 @@ const MessageTeamWithContext = <
             )}
           </div>
           <MessageStatus messageType='team' />
-          {message.text !== '' && message.attachments && (
-            <MessageTeamAttachments
-              Attachment={Attachment}
-              handleAction={handleAction}
-              message={message}
-            />
+          {message.text && message.attachments && (
+            <Attachment actionHandler={handleAction} attachments={message.attachments} />
           )}
           {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
@@ -322,28 +312,6 @@ const MessageTeamWithContext = <
       </div>
     </>
   );
-};
-
-const MessageTeamAttachments = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleAction' | 'message'> & {
-    Attachment: ComponentContextValue<At>['Attachment'];
-  },
-) => {
-  const { Attachment, handleAction, message } = props;
-
-  if (message.attachments) {
-    return <Attachment actionHandler={handleAction} attachments={message.attachments} />;
-  }
-
-  return null;
 };
 
 const MemoizedMessageTeam = React.memo(
