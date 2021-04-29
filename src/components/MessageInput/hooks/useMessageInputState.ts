@@ -6,8 +6,7 @@ import { StreamMessage, useChannelStateContext } from '../../../context/ChannelS
 import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
-import { useImageUploads } from './useImageUploads';
-import { useFileUploads } from './useFileUploads';
+import { useAttachments } from './useAttachments';
 import { useMessageInputText } from './useMessageInputText';
 import { useEmojiPicker } from './useEmojiPicker';
 import { useSubmitHandler } from './useSubmitHandler';
@@ -144,8 +143,6 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   uploadNewFiles(files: FileList | File[]): void;
   emojiIndex?: NimbleEmojiIndex;
 };
-
-const apiMaxNumberOfFiles = 10;
 const emptyFileUploads: Record<string, FileUpload> = {};
 const emptyImageUploads: Record<string, ImageUpload> = {};
 
@@ -342,25 +339,15 @@ export const useMessageInputState = <
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ): MessageInputState<At, Us> & MessageInputHookProps<Us> => {
-  const { message, noFiles } = props;
+  const { message } = props;
 
-  const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,
     message,
     initState,
   );
-
-  const { numberOfUploads } = state;
 
   const { handleChange, insertText, textareaRef } = useMessageInputText(props, state, dispatch);
 
@@ -372,51 +359,20 @@ export const useMessageInputState = <
     openEmojiPicker,
   } = useEmojiPicker(state, dispatch, insertText);
 
-  // Commands / mentions
-
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 
-  // Submitting
-
   const { handleSubmit } = useSubmitHandler(props, state, dispatch);
 
-  // Attachments
-
-  // Files
-
-  const { removeFile, uploadFile } = useFileUploads(props, state, dispatch);
-
-  // Images
-
-  const { removeImage, uploadImage } = useImageUploads(props, state, dispatch);
-
-  // Number of files that the user can still add. Should never be more than the amount allowed by the API.
-  // If multipleUploads is false, we only want to allow a single upload.
-  const maxFilesAllowed = !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
-
-  // return !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
-  const maxFilesLeft = maxFilesAllowed - numberOfUploads;
-
-  const uploadNewFiles = useCallback(
-    (files: FileList | File[] | FileLike[]) => {
-      Array.from(files)
-        .slice(0, maxFilesLeft)
-        .forEach((file) => {
-          const id = generateRandomId();
-          if (
-            file.type.startsWith('image/') &&
-            !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
-          ) {
-            dispatch({ file, id, state: 'uploading', type: 'setImageUpload' });
-          } else if (file instanceof File && !noFiles) {
-            dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
-          }
-        });
-    },
-    [maxFilesLeft, noFiles],
-  );
+  const {
+    maxFilesLeft,
+    removeFile,
+    removeImage,
+    uploadFile,
+    uploadImage,
+    uploadNewFiles,
+  } = useAttachments(props, state, dispatch);
 
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
