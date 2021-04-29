@@ -10,8 +10,6 @@ import { StreamMessage, useChannelStateContext } from '../../context/ChannelStat
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { TFunction } from 'i18next';
-
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
 import type {
@@ -35,36 +33,20 @@ export type ThreadProps<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = {
-  /**
-   * Additional props for underlying MessageInput component.
-   * [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
-   */
+  /** Additional props for `MessageInput` component: [available props](https://getstream.github.io/stream-chat-react/#messageinput) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /**
-   * Additional props for underlying MessageList component.
-   * [Available props](https://getstream.github.io/stream-chat-react/#messagelist)
-   * */
+  /** Additional props for `MessageList` component: [available props](https://getstream.github.io/stream-chat-react/#messagelist) */
   additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   * Additional props for underlying Message component of parent message at the top.
-   * [Available props](https://getstream.github.io/stream-chat-react/#message)
-   * */
+  /** Additional props for `Message` component of the parent message: [available props](https://getstream.github.io/stream-chat-react/#message) */
   additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Make input focus on mounting thread */
   autoFocus?: boolean;
   /** Display the thread on 100% width of it's container. Useful for mobile style view */
   fullWidth?: boolean;
-  /** UI component to override the default Message stored in ComponentContext */
+  /** Custom UI component to override the default Message stored in ComponentContext */
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Customized MessageInput component to used within Thread instead of default MessageInput
-     Useable as follows:
-     ```
-     <Thread MessageInput={(props) => <MessageInput parent={props.parent} Input={MessageInputSmall} /> }/>
-     ```
- */
+  /** Custom UI component to replace the `MessageInput`, defaults to and accepts same props as: [MessageInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInput.tsx) */
   MessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
-  /** UI component used to override the default header of the Thread */
-  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 /**
@@ -105,7 +87,6 @@ export type ThreadHeaderProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  t: TFunction;
   closeThread?: (event: React.BaseSyntheticEvent) => void;
   thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
@@ -121,7 +102,9 @@ const DefaultThreadHeader = <
 >(
   props: ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { closeThread, t, thread } = props;
+  const { closeThread, thread } = props;
+
+  const { t } = useTranslationContext();
 
   const getReplyCount = () => {
     if (!thread?.reply_count || !t) return '';
@@ -134,7 +117,7 @@ const DefaultThreadHeader = <
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header-details'>
-        <strong>{t && t('Thread')}</strong>
+        <strong>{t('Thread')}</strong>
         <small>{getReplyCount()}</small>
       </div>
       <button
@@ -151,6 +134,12 @@ const DefaultThreadHeader = <
       </button>
     </div>
   );
+};
+
+const DefaultThreadStart: React.FC = () => {
+  const { t } = useTranslationContext();
+
+  return <div className='str-chat__thread-start'>{t('Start of a new thread')}</div>;
 };
 
 const ThreadInner = <
@@ -173,7 +162,6 @@ const ThreadInner = <
     fullWidth = false,
     Message: PropMessage,
     MessageInput: ThreadMessageInput = MessageInput,
-    ThreadHeader = DefaultThreadHeader,
   } = props;
 
   const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
@@ -186,8 +174,11 @@ const ThreadInner = <
     Us
   >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { Message: ContextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const {
+    Message: ContextMessage,
+    ThreadHeader = DefaultThreadHeader,
+    ThreadStart = DefaultThreadStart,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageList = useRef<HTMLDivElement | null>(null);
 
@@ -215,7 +206,7 @@ const ThreadInner = <
 
   return (
     <div className={`str-chat__thread ${fullWidth ? 'str-chat__thread--full' : ''}`}>
-      <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
+      <ThreadHeader closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           initialMessage
@@ -224,7 +215,7 @@ const ThreadInner = <
           threadList
           {...additionalParentMessageProps}
         />
-        <div className='str-chat__thread-start'>{t('Start of a new thread')}</div>
+        <ThreadStart />
         <MessageList
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}

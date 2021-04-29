@@ -17,6 +17,7 @@ import type { MessageRepliesCountButtonProps } from '../components/Message/Messa
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
+import type { ThreadHeaderProps } from '../components/Thread/Thread';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type {
@@ -58,6 +59,8 @@ export type ComponentContextValue<
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  ThreadStart?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };

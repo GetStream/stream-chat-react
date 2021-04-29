@@ -22,6 +22,7 @@ import {
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 
 jest.mock('../../Message/Message', () => ({
@@ -60,14 +61,17 @@ const renderComponent = (
   props = {},
   channelStateOverrides = {},
   channelActionOverrides = {},
+  componentOverrides = {},
 ) =>
   render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ ...channelStateContextMock, ...channelStateOverrides }}>
         <ChannelActionProvider value={{ ...channelActionContextMock, ...channelActionOverrides }}>
-          <TranslationProvider value={{ t: i18nMock }}>
-            <Thread {...props} />
-          </TranslationProvider>
+          <ComponentProvider value={{ ...componentOverrides }}>
+            <TranslationProvider value={{ t: i18nMock }}>
+              <Thread {...props} />
+            </TranslationProvider>
+          </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>,
@@ -174,16 +178,19 @@ describe('Thread', () => {
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {
     const CustomThreadHeader = jest.fn(() => <div data-testid='custom-thread-header' />);
 
-    const { getByTestId } = renderComponent(chatClient, {
-      ThreadHeader: CustomThreadHeader,
-    });
+    const { getByTestId } = renderComponent(
+      chatClient,
+      {},
+      {},
+      {},
+      { ThreadHeader: CustomThreadHeader },
+    );
 
     await waitFor(() => {
       expect(getByTestId('custom-thread-header')).toBeInTheDocument();
       expect(CustomThreadHeader).toHaveBeenCalledWith(
         expect.objectContaining({
           closeThread: channelActionContextMock.closeThread,
-          t: i18nMock,
           thread: threadStart,
         }),
         {},

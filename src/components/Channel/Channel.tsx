@@ -169,6 +169,10 @@ export type ChannelProps<
   ReactionSelector?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionSelector'];
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
+  /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
+  ThreadHeader?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadHeader'];
+  /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
+  ThreadStart?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadStart'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TypingIndicator'];
   /** Custom UI component to display a message in the `VirtualizedMessageList`, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
@@ -774,6 +778,8 @@ const ChannelInner = <
       PinIndicator: props.PinIndicator,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
+      ThreadHeader: props.ThreadHeader,
+      ThreadStart: props.ThreadStart,
       TypingIndicator: props.TypingIndicator,
       VirtualMessage: props.VirtualMessage,
     }),
