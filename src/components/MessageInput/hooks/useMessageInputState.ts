@@ -132,7 +132,6 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
 export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   closeEmojiPicker: React.MouseEventHandler<HTMLButtonElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
-  getUsers: () => (UserResponse<Us> | undefined)[];
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: (event: React.BaseSyntheticEvent) => void;
@@ -141,7 +140,7 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   maxFilesLeft: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectEmoji: (emoji: EmojiData) => void;
-  onSelectItem: (item: UserResponse<Us>) => void;
+  onSelectUser: (item: UserResponse<Us>) => void;
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
@@ -407,17 +406,7 @@ export const useMessageInputState = <
 
   // Commands / mentions
 
-  const getUsers = useCallback(() => {
-    if (!channel) return [];
-    return [
-      ...Object.values(channel.state.members).map(({ user }) => user),
-      ...Object.values(channel.state.watchers),
-    ].filter(
-      (_user, index, self) => self.findIndex((user) => user?.id === _user?.id) === index, // filter out non-unique ids
-    );
-  }, [channel]);
-
-  const onSelectItem = useCallback((item: UserResponse<Us>) => {
+  const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 
@@ -625,7 +614,6 @@ export const useMessageInputState = <
     closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
     emojiIndex: useEmojiIndex(),
     emojiPickerRef,
-    getUsers,
     handleChange,
     handleEmojiKeyDown,
     handleSubmit,
@@ -634,7 +622,7 @@ export const useMessageInputState = <
     maxFilesLeft,
     onPaste,
     onSelectEmoji,
-    onSelectItem,
+    onSelectUser,
     openEmojiPicker,
     removeFile,
     removeImage,

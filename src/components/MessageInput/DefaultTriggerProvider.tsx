@@ -38,7 +38,7 @@ export const DefaultTriggerProvider = <
     ':': useEmojiTrigger(currentValue.emojiIndex),
     '@': useUserTrigger<At, Ch, Co, Ev, Me, Re, Us>(
       currentValue.mentionQueryParams,
-      currentValue.onSelectItem,
+      currentValue.onSelectUser,
       currentValue.mentionAllAppUsers,
     ),
   };

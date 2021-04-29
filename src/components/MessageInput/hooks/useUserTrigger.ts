@@ -27,7 +27,7 @@ export const useUserTrigger = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   mentionQueryParams: MentionQueryParams<Us> = {},
-  onSelectItem: (item: UserResponse<Us>) => void,
+  onSelectUser: (item: UserResponse<Us>) => void,
   mentionAllAppUsers?: boolean,
 ): UserTriggerSetting<Us> => {
   const [searching, setSearching] = useState(false);
@@ -107,7 +107,7 @@ export const useUserTrigger = <
   const queryUsersThrottled = throttle(queryUsers, 200);
 
   return {
-    callback: (item) => onSelectItem && onSelectItem(item),
+    callback: (item) => onSelectUser && onSelectUser(item),
     component: UserItem,
     dataProvider: (query, _, onReady) => {
       const filterMutes = (data: UserResponse<Us>[]) => {
