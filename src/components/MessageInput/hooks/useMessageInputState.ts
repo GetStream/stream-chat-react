@@ -14,6 +14,7 @@ import { StreamMessage, useChannelStateContext } from '../../../context/ChannelS
 import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
+import { useImageUploads } from './useImageUploads';
 
 import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
@@ -359,7 +360,6 @@ export const useMessageInputState = <
     additionalTextareaProps,
     clearEditingState,
     doFileUploadRequest,
-    doImageUploadRequest,
     errorHandler,
     focus,
     message,
@@ -733,90 +733,7 @@ export const useMessageInputState = <
 
   // Images
 
-  const removeImage = useCallback((id) => {
-    dispatch({ id, type: 'removeImageUpload' });
-    // TODO: cancel upload if still uploading
-  }, []);
-
-  const uploadImage = useCallback(
-    async (id) => {
-      const img = imageUploads[id];
-      if (!img || !channel) return;
-      const { file } = img;
-      if (img.state !== 'uploading') {
-        dispatch({ id, state: 'uploading', type: 'setImageUpload' });
-      }
-      let response: SendFileAPIResponse;
-      try {
-        if (doImageUploadRequest) {
-          response = await doImageUploadRequest(file, channel);
-        } else {
-          response = await channel.sendImage(file as File);
-        }
-      } catch (error) {
-        console.warn(error);
-        let alreadyRemoved = false;
-        dispatch({ type: 'reduceNumberOfUploads' });
-        if (!imageUploads[id]) {
-          alreadyRemoved = true;
-        } else {
-          dispatch({ id, state: 'failed', type: 'setImageUpload' });
-        }
-        if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(error, 'upload-image', {
-            ...file,
-            id,
-          });
-        }
-        return;
-      }
-
-      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
-      // This is for the case if someone wants to handle failure on app level.
-      if (!response) {
-        removeImage(id);
-        return;
-      }
-
-      dispatch({
-        id,
-        state: 'finished',
-        type: 'setImageUpload',
-        url: response.file,
-      });
-    },
-    [imageUploads, channel, doImageUploadRequest, errorHandler, removeImage],
-  );
-
-  useEffect(() => {
-    if (FileReader) {
-      const upload = Object.values(imageUploads).find(
-        (imageUpload) =>
-          imageUpload.state === 'uploading' && !!imageUpload.file && !imageUpload.previewUri,
-      );
-      if (upload) {
-        const { file, id } = upload;
-        // TODO: Possibly use URL.createObjectURL instead. However, then we need
-        // to release the previews when not used anymore though.
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (typeof event.target?.result !== 'string') return;
-          dispatch({
-            id,
-            previewUri: event.target.result,
-            type: 'setImageUpload',
-          });
-        };
-        reader.readAsDataURL(file as Blob);
-        uploadImage(id);
-        return () => {
-          reader.onload = null;
-        };
-      }
-    }
-    return;
-  }, [imageUploads, uploadImage]);
+  const { removeImage, uploadImage } = useImageUploads(props, state, dispatch);
 
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
