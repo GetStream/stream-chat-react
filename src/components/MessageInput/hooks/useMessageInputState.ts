@@ -15,6 +15,7 @@ import { generateRandomId } from '../../../utils';
 import { useEmojiIndex } from './useEmojiIndex';
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
+import { useMessageInputText } from './useMessageInputText';
 
 import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
@@ -395,8 +396,7 @@ export const useMessageInputState = <
     text,
   } = state;
 
-  const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const { handleChange, insertText, textareaRef } = useMessageInputText(props, state, dispatch);
 
   // Focus
   useEffect(() => {
