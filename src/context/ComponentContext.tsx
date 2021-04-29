@@ -92,12 +92,13 @@ export const ComponentProvider = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>;
 }>) => (
   <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
     {children}
