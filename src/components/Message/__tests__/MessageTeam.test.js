@@ -565,7 +565,7 @@ describe('<MessageTeam />', () => {
   it('should display loading status when message is being sent', async () => {
     const message = generateAliceMessage({ status: 'sending' });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId('message-team-sending')).toBeInTheDocument();
+    expect(getByTestId('message-status-sending')).toBeInTheDocument();
   });
 
   it('should show users that read the message when it was read by another user that not the message owner', async () => {
@@ -588,7 +588,7 @@ describe('<MessageTeam />', () => {
     const readBy = [alice, bob, carol];
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageTeam(message, { readBy });
-    expect(getByTestId('message-team-read-by-count')).toHaveTextContent('2');
+    expect(getByTestId('message-status-read-by-many')).toHaveTextContent('2');
   });
 
   it('should display message delivered status when message is delivered', async () => {
@@ -597,7 +597,7 @@ describe('<MessageTeam />', () => {
     const { getByTestId } = await renderMessageTeam(message, {
       lastReceivedId: messageId,
     });
-    expect(getByTestId('message-team-received')).toHaveTextContent('Delivered');
+    expect(getByTestId('message-status-received')).toHaveTextContent('Delivered');
   });
 
   it('should render attachments when message has text', async () => {

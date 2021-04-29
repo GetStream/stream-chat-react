@@ -176,13 +176,15 @@ const ThreadInner = <
     ThreadHeader = DefaultThreadHeader,
   } = props;
 
-  const {
-    channel,
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages,
-  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Message: ContextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
@@ -216,7 +218,6 @@ const ThreadInner = <
       <ThreadHeader closeThread={closeThread} t={t} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
-          channel={channel}
           initialMessage
           message={thread}
           Message={ThreadMessage}

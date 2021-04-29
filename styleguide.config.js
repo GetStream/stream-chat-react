@@ -147,6 +147,7 @@ module.exports = {
     {
       name: 'Utilities',
       components: [
+        'src/components/ChannelSearch/ChannelSearch.tsx',
         'src/components/Attachment/Card.tsx',
         'src/components/ChatDown/ChatDown.tsx',
         'src/components/Loading/LoadingChannels.tsx',

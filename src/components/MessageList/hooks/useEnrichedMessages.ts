@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { getGroupStyles, GroupStyle, insertDates, insertIntro } from '../utils';
+import { getGroupStyles, GroupStyle, insertIntro, processMessages } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
@@ -53,16 +53,17 @@ export const useEnrichedMessages = <
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  let messagesWithDates = threadList
-    ? messages
-    : insertDates(
-        messages,
-        lastRead,
-        client.userID,
-        hideDeletedMessages,
-        disableDateSeparator,
-        hideNewMessageSeparator,
-      );
+  let messagesWithDates =
+    threadList || (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator)
+      ? messages
+      : processMessages(
+          messages,
+          lastRead,
+          client.userID,
+          hideDeletedMessages,
+          disableDateSeparator,
+          hideNewMessageSeparator,
+        );
 
   if (HeaderComponent) {
     messagesWithDates = insertIntro(messagesWithDates, headerPosition);

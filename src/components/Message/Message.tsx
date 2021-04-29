@@ -34,12 +34,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-type MessagePropsToOmit =
-  | 'channel'
-  | 'onMentionsClick'
-  | 'onMentionsHover'
-  | 'openThread'
-  | 'retrySendMessage';
+type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
 
 type MessageContextPropsToPick =
   | 'channelConfig'
@@ -197,7 +192,6 @@ export const Message = <
   props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channel: propChannel,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
@@ -212,11 +206,10 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel: contextChannel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
-  const channel = propChannel || contextChannel;
   const channelConfig = channel.getConfig();
 
   const handleAction = useActionHandler(message);
@@ -259,6 +252,7 @@ export const Message = <
       canPin={canPin}
       channelConfig={channelConfig}
       customMessageActions={props.customMessageActions}
+      formatDate={props.formatDate}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
@@ -284,6 +278,7 @@ export const Message = <
       pinPermissions={props.pinPermissions}
       reactionSelectorRef={reactionSelectorRef}
       readBy={props.readBy}
+      renderText={props.renderText}
       showDetailedReactions={showDetailedReactions}
       threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}

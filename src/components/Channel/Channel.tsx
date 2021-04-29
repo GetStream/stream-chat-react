@@ -37,14 +37,13 @@ import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import { AttachmentProps, Attachment as DefaultAttachment } from '../Attachment';
+import { Attachment as DefaultAttachment } from '../Attachment/Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicatorProps,
-  LoadingIndicatorProps,
 } from '../Loading';
-import { MessageSimple, MessageUIComponentProps } from '../Message';
+import { MessageSimple } from '../Message/MessageSimple';
 
 import {
   ChannelActionContextValue,
@@ -65,12 +64,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
-import type {
-  Data as EmojiMartData,
-  NimbleEmojiIndex,
-  NimbleEmojiProps,
-  NimblePickerProps,
-} from 'emoji-mart';
+import type { Data as EmojiMartData } from 'emoji-mart';
 
 import type {
   DefaultAttachmentType,
@@ -94,9 +88,13 @@ export type ChannelProps<
   /** List of accepted file types */
   acceptedFiles?: string[];
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.tsx) */
-  Attachment?: React.ComponentType<AttachmentProps<At>>;
+  Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
+  /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
+  Avatar?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Avatar'];
   /** The connected and active channel */
   channel?: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
+  DateSeparator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['DateSeparator'];
   /** Override mark channel read request (Advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>,
@@ -111,36 +109,70 @@ export type ChannelProps<
     cid: string,
     updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
-  /** Optional component to override default NimbleEmoji from emoji-mart */
-  Emoji?: React.ComponentType<NimbleEmojiProps>;
+  /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
+  EditMessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EditMessageInput'];
+  /** Optional component to override default `NimbleEmoji` from emoji-mart */
+  Emoji?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Emoji'];
   /** Optional prop to override default facebook.json emoji data set from emoji-mart */
   emojiData?: EmojiMartData;
-  /** Optional component to override default NimbleEmojiIndex from emoji-mart */
-  EmojiIndex?: NimbleEmojiIndex;
-  /** Optional component to override default NimblePicker from emoji-mart */
-  EmojiPicker?: React.ComponentType<NimblePickerProps>;
+  /** Optional component to override default `NimbleEmojiIndex` from emoji-mart */
+  EmojiIndex?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIndex'];
+  /** Optional component to override default `NimblePicker` from emoji-mart */
+  EmojiPicker?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiPicker'];
   /** Empty channel UI component to be shown if no active channel is set, defaults to null which skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
+  /** Custom UI component to be displayed when `MessageList` is empty  */
+  EmptyStateIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmptyStateIndicator'];
+  /** Custom UI component to render at the top of the `MessageList` */
+  HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-  /** Custom UI component to be shown while channels are being queried and loading, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx) */
-  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx) */
+  LoadingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['LoadingIndicator'];
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /**
-   * Message UI component to display a message in message list, available built-in components (also accepts the same props as):
+   * Custom UI component to display a message in the standard `MessageList`, available built-in components (also accepts the same props as):
    * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
-   * 2. [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
-   * 3. [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
-   * 3. [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
+   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
+   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
+   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
    */
-  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
+  /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
+  MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
+  /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
+  MessageOptions?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageOptions'];
+  /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
+  MessageRepliesCountButton?: ComponentContextValue<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >['MessageRepliesCountButton'];
+  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
+  MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
+  /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
+  MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /** Handler function for click on an @mention in a message */
   onMentionsClick?: OnMentionAction<Us>;
   /** Handler function for hover on an @mention in a message */
   onMentionsHover?: OnMentionAction<Us>;
+  /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
+  PinIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['PinIndicator'];
+  /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
+  ReactionSelector?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionSelector'];
+  /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
+  ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
+  /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
+  TypingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TypingIndicator'];
+  /** Custom UI component to display a message in the `VirtualizedMessageList`, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
+  VirtualMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['VirtualMessage'];
 };
 
 const UnMemoizedChannel = <
@@ -279,6 +311,14 @@ const ChannelInner = <
         });
       }
 
+      if (event.type === 'typing.start' || event.type === 'typing.stop') {
+        dispatch({
+          channel,
+          type: 'setTyping',
+        });
+        return;
+      }
+
       if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
         online.current = event.online;
       }
@@ -336,6 +376,8 @@ const ChannelInner = <
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
+        client.on('user.updated', handleEvent);
+        client.on('user.deleted', handleEvent);
         channel.on(handleEvent);
       }
     })();
@@ -346,6 +388,8 @@ const ChannelInner = <
       if (channel) channel.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
+      client.off('user.updated', handleEvent);
+      client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
   }, [channel, client, handleEvent, markRead]);
@@ -712,10 +756,26 @@ const ChannelInner = <
   const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
       Attachment,
+      Avatar: props.Avatar,
+      DateSeparator: props.DateSeparator,
+      EditMessageInput: props.EditMessageInput,
       Emoji,
       EmojiIndex,
       EmojiPicker,
+      EmptyStateIndicator: props.EmptyStateIndicator,
+      HeaderComponent: props.HeaderComponent,
+      LoadingIndicator: props.LoadingIndicator,
       Message,
+      MessageDeleted: props.MessageDeleted,
+      MessageOptions: props.MessageOptions,
+      MessageRepliesCountButton: props.MessageRepliesCountButton,
+      MessageSystem: props.MessageSystem,
+      MessageTimestamp: props.MessageTimestamp,
+      PinIndicator: props.PinIndicator,
+      ReactionSelector: props.ReactionSelector,
+      ReactionsList: props.ReactionsList,
+      TypingIndicator: props.TypingIndicator,
+      VirtualMessage: props.VirtualMessage,
     }),
     [],
   );

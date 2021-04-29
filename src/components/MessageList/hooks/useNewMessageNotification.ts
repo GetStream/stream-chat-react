@@ -20,7 +20,7 @@ export function useNewMessageNotification<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], currentUserId?: string) {
+>(messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], currentUserId?: string) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
 
   const lastMessageId = useRef('');

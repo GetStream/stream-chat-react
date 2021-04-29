@@ -2,19 +2,13 @@ import React, { useMemo, useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageStatus } from './MessageStatus';
 import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
-import {
-  PinIndicator as DefaultPinIndicator,
-  DeliveredCheckIcon,
-  ErrorIcon,
-  ReactionIcon,
-  ThreadIcon,
-} from './icons';
-import { areMessageUIPropsEqual, getReadByTooltipText, showMessageActionsBox } from './utils';
+import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
+import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { LoadingIndicator } from '../Loading';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
@@ -22,9 +16,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
-import { Tooltip } from '../Tooltip';
 
-import { useChatContext } from '../../context/ChatContext';
 import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -82,9 +74,7 @@ const MessageTeamWithContext = <
     handleReaction,
     handleRetry,
     initialMessage,
-    isMyMessage,
     isReactionEnabled,
-    lastReceivedId,
     message,
     messageWrapperRef,
     onMentionsClickMessage,
@@ -93,7 +83,6 @@ const MessageTeamWithContext = <
     onUserClick,
     onUserHover,
     reactionSelectorRef,
-    readBy,
     renderText = defaultRenderText,
     showDetailedReactions,
     threadList,
@@ -303,14 +292,7 @@ const MessageTeamWithContext = <
               </button>
             )}
           </div>
-          <MessageTeamStatus
-            Avatar={Avatar}
-            isMyMessage={isMyMessage}
-            lastReceivedId={lastReceivedId}
-            message={message}
-            readBy={readBy}
-            threadList={threadList}
-          />
+          <MessageStatus messageType='team' />
           {message.text !== '' && message.attachments && (
             <MessageTeamAttachments
               Attachment={Attachment}
@@ -342,73 +324,6 @@ const MessageTeamWithContext = <
   );
 };
 
-const MessageTeamStatus = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: Pick<
-    MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>,
-    'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
-  > & { Avatar: React.ComponentType<AvatarProps> },
-) => {
-  const { Avatar, isMyMessage, lastReceivedId, message, readBy, threadList } = props;
-
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
-
-  if (!isMyMessage() || message.type === 'error') {
-    return null;
-  }
-
-  const justReadByMe =
-    readBy && client?.user && readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
-
-  if (message && message.status === 'sending') {
-    return (
-      <span className='str-chat__message-team-status' data-testid='message-team-sending'>
-        <Tooltip>{t('Sending...')}</Tooltip>
-        <LoadingIndicator />
-      </span>
-    );
-  }
-
-  if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter(
-      (item) => item && client?.user && item.id !== client.user.id,
-    )[0];
-    return (
-      <span className='str-chat__message-team-status'>
-        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
-        {readBy.length - 1 > 1 && (
-          <span
-            className='str-chat__message-team-status-number'
-            data-testid='message-team-read-by-count'
-          >
-            {readBy.length - 1}
-          </span>
-        )}
-      </span>
-    );
-  }
-
-  if (message && message.status === 'received' && message.id === lastReceivedId && !threadList) {
-    return (
-      <span className='str-chat__message-team-status' data-testid='message-team-received'>
-        <Tooltip>{t('Delivered')}</Tooltip>
-        <DeliveredCheckIcon />
-      </span>
-    );
-  }
-
-  return null;
-};
-
 const MessageTeamAttachments = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -437,6 +352,8 @@ const MemoizedMessageTeam = React.memo(
 ) as typeof MessageTeamWithContext;
 
 /**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
  * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
  * @example ./MessageTeam.md

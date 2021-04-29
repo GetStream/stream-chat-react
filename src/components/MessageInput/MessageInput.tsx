@@ -13,8 +13,8 @@ import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'str
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SendButtonProps } from './icons';
 
+import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
 import type {
-  MentionQueryParams,
   SuggestionItemProps,
   SuggestionListProps,
   TriggerSettings,
@@ -100,7 +100,7 @@ export type MessageInputProps<
   /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
   mentionAllAppUsers?: boolean;
   /** Object containing filters/sort/options overrides for mentions user query */
-  mentionQueryParams?: MentionQueryParams<Us>;
+  mentionQueryParams?: SearchQueryParams<Us>;
   /** Message object. If defined, the message passed will be edited, instead of a new message being created */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, file uploads are disabled. Default: false */

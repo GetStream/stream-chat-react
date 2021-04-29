@@ -1,11 +1,14 @@
-import React, { PropsWithChildren, useContext, useMemo } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 
 import type { NimbleEmojiIndex, NimbleEmojiProps, NimblePickerProps } from 'emoji-mart';
 
 import type { AttachmentProps } from '../components/Attachment/Attachment';
 import type { AvatarProps } from '../components/Avatar/Avatar';
 import type { DateSeparatorProps } from '../components/DateSeparator/DateSeparator';
+import type { EmptyStateIndicatorProps } from '../components/EmptyStateIndicator/EmptyStateIndicator';
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
+import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
+import type { FixedHeightMessageProps } from '../components/Message/FixedHeightMessage';
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
@@ -21,6 +24,7 @@ import type {
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
+import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type {
   CustomTrigger,
@@ -57,8 +61,10 @@ export type ComponentContextValue<
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   EmojiIcon?: React.ComponentType;
+  EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   HeaderComponent?: React.ComponentType;
+  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageInput?: React.ComponentType;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -71,6 +77,8 @@ export type ComponentContextValue<
   SendButton?: React.ComponentType<SendButtonProps>;
   ThreadMessageInput?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
+  TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>(
@@ -84,29 +92,17 @@ export const ComponentProvider = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
+  Us extends DefaultUserType<Us> = DefaultUserType
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>;
-}>) => {
-  const existingValue = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
-
-  const newValue = {
-    ...value,
-    ...existingValue,
-  };
-
-  const memoizedValue = useMemo(() => newValue, Object.values(newValue));
-
-  return (
-    <ComponentContext.Provider value={(memoizedValue as unknown) as ComponentContextValue}>
-      {children}
-    </ComponentContext.Provider>
-  );
-};
+  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+}>) => (
+  <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
+    {children}
+  </ComponentContext.Provider>
+);
 
 export const useComponentContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

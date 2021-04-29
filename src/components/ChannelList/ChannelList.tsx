@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { ChannelListTeam, ChannelListTeamProps } from './ChannelListTeam';
+import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
 import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
@@ -19,6 +19,10 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import { ChannelPreviewLastMessage } from '../ChannelPreview/ChannelPreviewLastMessage';
+import {
+  ChannelSearchProps,
+  ChannelSearch as DefaultChannelSearch,
+} from '../ChannelSearch/ChannelSearch';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
@@ -56,6 +60,8 @@ export type ChannelListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** Additional props for underlying ChannelSearch component, [Available props](https://getstream.github.io/stream-chat-react/#channelsearch) */
+  additionalChannelSearchProps?: ChannelSearchProps<Us>;
   /**
    * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
    * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
@@ -72,6 +78,8 @@ export type ChannelListProps<
   channelRenderFilterFn?: (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<Us>>;
   /** Set a Channel (of this id) to be active and move it to the top of the list of Channels by ID */
   customActiveChannel?: string;
   /** Indicator for Empty State */
@@ -79,7 +87,7 @@ export type ChannelListProps<
   /** Object containing query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
   /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) */
-  List?: React.ComponentType<ChannelListTeamProps>;
+  List?: React.ComponentType<ChannelListMessengerProps>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
@@ -134,8 +142,8 @@ export type ChannelListProps<
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
-  /** Boolean to show sidebar */
-  showSidebar?: boolean;
+  /** Whether or not to load the list with a search component, defaults to false */
+  showChannelSearch?: boolean;
   /** Object containing sort parameters */
   sort?: ChannelSort<Ch>;
   /** Object containing watcher parameters */
@@ -154,15 +162,17 @@ const UnMemoizedChannelList = <
   props: ChannelListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    additionalChannelSearchProps,
     Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
+    ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
     LoadingErrorIndicator = ChatDown,
     LoadingIndicator = LoadingChannels,
-    List = ChannelListTeam,
+    List = ChannelListMessenger,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -176,7 +186,7 @@ const UnMemoizedChannelList = <
     Paginator = LoadMorePaginator,
     Preview = ChannelPreviewLastMessage,
     setActiveChannelOnMount = true,
-    showSidebar,
+    showChannelSearch = false,
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
@@ -228,11 +238,10 @@ const UnMemoizedChannelList = <
     }
   };
 
-  // When channel list (channels array) is updated without any shallow changes (or with only deep changes), then we want
-  // to force the channel preview to re-render.
-  // This happens in case of event channel.updated, channel.truncated etc. Inner properties of channel is updated but
-  // react renderer will only make shallow comparison and choose to not to re-render the UI.
-  // By updating the dummy prop - channelUpdateCount, we can force this re-render.
+  /**
+   * For some events, inner properties on the channel will update but the shallow comparison will not
+   * force a re-render. Incrementing this dummy variable ensures the channel previews update.
+   */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
   const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
@@ -294,12 +303,10 @@ const UnMemoizedChannelList = <
 
   const renderList = () => (
     <List
-      Avatar={Avatar}
       error={status.error}
       loading={status.loadingChannels}
       LoadingErrorIndicator={LoadingErrorIndicator}
       LoadingIndicator={LoadingIndicator}
-      showSidebar={showSidebar}
     >
       {!loadedChannels || loadedChannels.length === 0 ? (
         <EmptyStateIndicator listType='channel' />
@@ -327,6 +334,7 @@ const UnMemoizedChannelList = <
         }`}
         ref={channelListRef}
       >
+        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         {renderList()}
       </div>
     </>

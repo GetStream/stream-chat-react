@@ -42,6 +42,7 @@ const App = () => (
       filters={filters}
       sort={sort}
       options={options}
+      showChannelSearch
     />
     <Channel>
       <Window>

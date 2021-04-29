@@ -42,9 +42,8 @@ const UnMemoizedChannelPreviewMessenger = <
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
-  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
-
   const activeClass = active ? 'str-chat__channel-preview-messenger--active' : '';
+  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
 
   const onSelectChannel = () => {
     if (setActiveChannel) {
@@ -63,7 +62,7 @@ const UnMemoizedChannelPreviewMessenger = <
       ref={channelPreviewButton}
     >
       <div className='str-chat__channel-preview-messenger--left'>
-        {<Avatar image={displayImage} name={displayTitle} size={40} />}
+        <Avatar image={displayImage} name={displayTitle} size={40} />
       </div>
       <div className='str-chat__channel-preview-messenger--right'>
         <div className='str-chat__channel-preview-messenger--name'>

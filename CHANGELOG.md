@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [5.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.2.0) 2021-04-26
+
+### Feature
+
+- Add Spanish and Portuguese auto translation support [#874](https://github.com/GetStream/stream-chat-react/pull/874)
+
+### Chore
+
+- Adjust processed messages conditional logic for `VirtualizedMessageList` [#875](https://github.com/GetStream/stream-chat-react/pull/875)
+
 ## [5.1.8](https://github.com/GetStream/stream-chat-react/releases/tag/v5.1.8) 2021-04-21
 
 ### Chore
