@@ -270,9 +270,10 @@ export const areMessageUIPropsEqual = <
   const { lastReceivedId: prevLastReceivedId, message: prevMessage } = prevProps;
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
-  if (nextProps.editing !== prevProps.editing) return false;
+  if (prevProps.editing !== nextProps.editing) return false;
+  if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
 
-  if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
+  if (prevProps.showDetailedReactions !== nextProps.showDetailedReactions) {
     return false;
   }
 
