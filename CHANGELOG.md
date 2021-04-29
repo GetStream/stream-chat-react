@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.0) 2021-04-29
+
+### Feature
+
+- Added support for `user.deleted` and `user.updated` event handling
+  - Requires `stream-chat >= 3.8.0`
+  - In case of `user.deleted` event, messages from corresponding user will be marked as deleted
+  - In case of `user.updated` event, user property on messages from corresponding user will be updated.
 
 ## [5.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.2.0) 2021-04-26
 
