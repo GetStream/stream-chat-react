@@ -4,7 +4,6 @@ import {
   Attachment,
   logChatPromiseExecution,
   MessageResponse,
-  SendFileAPIResponse,
   UpdatedMessage,
   UserResponse,
 } from 'stream-chat';
@@ -15,6 +14,7 @@ import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
 import { useImageUploads } from './useImageUploads';
+import { useFileUploads } from './useFileUploads';
 
 import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
@@ -359,8 +359,6 @@ export const useMessageInputState = <
   const {
     additionalTextareaProps,
     clearEditingState,
-    doFileUploadRequest,
-    errorHandler,
     focus,
     message,
     noFiles,
@@ -672,64 +670,7 @@ export const useMessageInputState = <
 
   // Files
 
-  const uploadFile = useCallback((id) => {
-    dispatch({ id, state: 'uploading', type: 'setFileUpload' });
-  }, []);
-
-  const removeFile = useCallback((id) => {
-    // TODO: cancel upload if still uploading
-    dispatch({ id, type: 'removeFileUpload' });
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (!channel) return;
-      const upload = Object.values(fileUploads).find(
-        (fileUpload) => fileUpload.state === 'uploading' && fileUpload.file,
-      );
-      if (!upload) return;
-
-      const { file, id } = upload;
-      /** @type FileUploadAPIResponse */
-      let response;
-      try {
-        if (doFileUploadRequest) {
-          response = await doFileUploadRequest(file, channel);
-        } else {
-          response = await channel.sendFile(file as File);
-        }
-      } catch (error) {
-        console.warn(error);
-        let alreadyRemoved = false;
-
-        dispatch({ type: 'reduceNumberOfUploads' });
-        if (!fileUploads[id]) {
-          alreadyRemoved = true;
-        } else {
-          dispatch({ id, state: 'failed', type: 'setFileUpload' });
-        }
-        if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(error, 'upload-file', file);
-        }
-        return;
-      }
-
-      // If doImageUploadRequest returns any falsy value, then don't create the upload preview.
-      // This is for the case if someone wants to handle failure on app level.
-      if (!response) {
-        removeFile(id);
-        return;
-      }
-
-      dispatch({
-        id,
-        state: 'finished',
-        type: 'setFileUpload',
-        url: response.file,
-      });
-    })();
-  }, [fileUploads, channel, doFileUploadRequest, errorHandler, removeFile]);
+  const { removeFile, uploadFile } = useFileUploads(props, state, dispatch);
 
   // Images
 
