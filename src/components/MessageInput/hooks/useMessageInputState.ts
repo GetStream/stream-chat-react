@@ -1,4 +1,4 @@
-import React, { Reducer, useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { Reducer, useCallback, useReducer } from 'react';
 import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
 import {
   Attachment,
@@ -16,8 +16,9 @@ import { useEmojiIndex } from './useEmojiIndex';
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 import { useMessageInputText } from './useMessageInputText';
+import { useEmojiPicker } from './useEmojiPicker';
 
-import type { BaseEmoji, EmojiData, NimbleEmojiIndex } from 'emoji-mart';
+import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -358,9 +359,7 @@ export const useMessageInputState = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ): MessageInputState<At, Us> & MessageInputHookProps<Us> => {
   const {
-    additionalTextareaProps,
     clearEditingState,
-    focus,
     message,
     noFiles,
     overrideSubmitHandler,
@@ -398,140 +397,13 @@ export const useMessageInputState = <
 
   const { handleChange, insertText, textareaRef } = useMessageInputText(props, state, dispatch);
 
-  // Focus
-  useEffect(() => {
-    if (focus && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [focus]);
-
-  // Text + cursor position
-  const newCursorPosition = useRef<number>();
-
-  const insertText = useCallback(
-    (textToInsert: string) => {
-      const { maxLength } = additionalTextareaProps || {};
-
-      if (!textareaRef.current) {
-        dispatch({
-          getNewText: (text) => {
-            const updatedText = text + textToInsert;
-            if (maxLength && updatedText.length > maxLength) {
-              return updatedText.slice(0, maxLength);
-            }
-            return updatedText;
-          },
-          type: 'setText',
-        });
-        return;
-      }
-
-      const { selectionEnd, selectionStart } = textareaRef.current;
-      newCursorPosition.current = selectionStart + textToInsert.length;
-
-      dispatch({
-        getNewText: (prevText) => {
-          const updatedText =
-            prevText.slice(0, selectionStart) + textToInsert + prevText.slice(selectionEnd);
-
-          if (maxLength && updatedText.length > maxLength) {
-            return updatedText.slice(0, maxLength);
-          }
-
-          return updatedText;
-        },
-        type: 'setText',
-      });
-    },
-    [additionalTextareaProps, newCursorPosition, textareaRef],
-  );
-
-  useEffect(() => {
-    const textareaElement = textareaRef.current;
-    if (textareaElement && newCursorPosition.current !== undefined) {
-      textareaElement.selectionStart = newCursorPosition.current;
-      textareaElement.selectionEnd = newCursorPosition.current;
-      newCursorPosition.current = undefined;
-    }
-  }, [text, newCursorPosition]);
-
-  const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
-    (event) => {
-      event.preventDefault();
-      if (!event || !event.target) {
-        return;
-      }
-
-      const newText = event.target.value;
-      dispatch({
-        getNewText: () => newText,
-        type: 'setText',
-      });
-      if (publishTypingEvent && newText && channel) {
-        logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
-      }
-    },
-    [channel, parent, publishTypingEvent],
-  );
-
-  // Emoji
-
-  const closeEmojiPicker = useCallback(
-    (event: MouseEvent) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
-        dispatch({
-          type: 'setEmojiPickerIsOpen',
-          value: false,
-        });
-      }
-    },
-    [emojiPickerRef],
-  );
-
-  const openEmojiPicker: React.MouseEventHandler<HTMLSpanElement> = useCallback((event) => {
-    dispatch({
-      type: 'setEmojiPickerIsOpen',
-      value: true,
-    });
-
-    // Prevent event from bubbling to document, so the close handler is never called for this event
-    event.stopPropagation();
-  }, []);
-
-  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement> = (event) => {
-    if (event.key === ' ' || event.key === 'Enter' || event.key === 'Spacebar') {
-      event.preventDefault();
-      /**
-       * TODO: fix the below at some point because this type casting is wrong
-       * and just forced to not have warnings currently with the unknown casting
-       */
-      openEmojiPicker((event as unknown) as React.MouseEvent<HTMLSpanElement, MouseEvent>);
-    }
-  };
-
-  const handleEmojiEscape = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      dispatch({
-        type: 'setEmojiPickerIsOpen',
-        value: false,
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (state.emojiPickerIsOpen) {
-      document.addEventListener('click', closeEmojiPicker, false);
-      document.addEventListener('keydown', handleEmojiEscape);
-    }
-    return () => {
-      document.removeEventListener('click', closeEmojiPicker, false);
-      document.removeEventListener('keydown', handleEmojiEscape);
-    };
-  }, [closeEmojiPicker, state.emojiPickerIsOpen]);
-
-  const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
-    insertText,
-  ]);
+  const {
+    closeEmojiPicker,
+    emojiPickerRef,
+    handleEmojiKeyDown,
+    onSelectEmoji,
+    openEmojiPicker,
+  } = useEmojiPicker(state, dispatch, insertText);
 
   // Commands / mentions
 
