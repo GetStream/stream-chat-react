@@ -335,7 +335,16 @@ export const useMessageInputState = <
     initState,
   );
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText(props, state, dispatch);
+  const { handleChange, insertText, textareaRef } = useMessageInputText<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us,
+    V
+  >(props, state, dispatch);
 
   const {
     closeEmojiPicker,
@@ -343,7 +352,7 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,
-  } = useEmojiPicker(state, dispatch, insertText);
+  } = useEmojiPicker<At, Us>(state, dispatch, insertText);
 
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
@@ -357,9 +366,14 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = useAttachments(props, state, dispatch);
+  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch);
 
-  const { handleSubmit } = useSubmitHandler(props, state, dispatch, numberOfUploads);
+  const { handleSubmit } = useSubmitHandler<At, Ch, Co, Ev, Me, Re, Us, V>(
+    props,
+    state,
+    dispatch,
+    numberOfUploads,
+  );
 
   const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
 
