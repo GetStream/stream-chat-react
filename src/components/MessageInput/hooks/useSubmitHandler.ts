@@ -36,6 +36,7 @@ export const useSubmitHandler = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  numberOfUploads: number,
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
   const {
@@ -45,7 +46,6 @@ export const useSubmitHandler = <
     imageOrder,
     imageUploads,
     mentioned_users,
-    numberOfUploads,
     text,
   } = state;
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();

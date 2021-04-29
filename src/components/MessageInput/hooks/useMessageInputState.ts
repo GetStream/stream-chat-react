@@ -66,7 +66,6 @@ export type MessageInputState<
   };
   // ids of users mentioned in message
   mentioned_users: UserResponse<Us>[];
-  numberOfUploads: number;
   text: string;
 };
 
@@ -104,9 +103,6 @@ type RemoveFileUploadAction = {
   id: string;
   type: 'removeFileUpload';
 };
-type ReduceNumberOfUploadsAction = {
-  type: 'reduceNumberOfUploads';
-};
 type AddMentionedUserAction<Us extends DefaultUserType<Us> = DefaultUserType> = {
   type: 'addMentionedUser';
   user: UserResponse<Us>;
@@ -120,7 +116,6 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | SetFileUploadAction
   | RemoveImageUploadAction
   | RemoveFileUploadAction
-  | ReduceNumberOfUploadsAction
   | AddMentionedUserAction<Us>;
 
 export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
@@ -132,6 +127,7 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
+  numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectEmoji: (emoji: EmojiData) => void;
   onSelectUser: (item: UserResponse<Us>) => void;
@@ -170,7 +166,6 @@ const initState = <
       imageOrder: [],
       imageUploads: { ...emptyImageUploads },
       mentioned_users: [],
-      numberOfUploads: 0,
       text: '',
     };
   }
@@ -212,8 +207,6 @@ const initState = <
       }, {} as Record<string, FileUpload>) || {};
   const fileOrder = Object.keys(fileUploads);
 
-  const numberOfUploads = fileOrder.length + imageOrder.length;
-
   const attachments =
     message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
 
@@ -227,7 +220,6 @@ const initState = <
     imageOrder,
     imageUploads,
     mentioned_users,
-    numberOfUploads,
     text: message.text || '',
   };
 };
@@ -256,7 +248,6 @@ const messageInputReducer = <
         imageOrder: [],
         imageUploads: { ...emptyImageUploads },
         mentioned_users: [],
-        numberOfUploads: 0,
         text: '',
       };
     case 'setImageUpload': {
@@ -272,7 +263,6 @@ const messageInputReducer = <
           ...state.imageUploads,
           [action.id]: { ...state.imageUploads[action.id], ...newUploadFields },
         },
-        numberOfUploads: imageAlreadyExists ? state.numberOfUploads : state.numberOfUploads + 1,
       };
     }
     case 'setFileUpload': {
@@ -288,7 +278,6 @@ const messageInputReducer = <
           ...state.fileUploads,
           [action.id]: { ...state.fileUploads[action.id], ...newUploadFields },
         },
-        numberOfUploads: fileAlreadyExists ? state.numberOfUploads : state.numberOfUploads + 1,
       };
     }
     case 'removeImageUpload': {
@@ -299,7 +288,6 @@ const messageInputReducer = <
         ...state,
         imageOrder: state.imageOrder.filter((_id) => _id !== action.id),
         imageUploads: newImageUploads,
-        numberOfUploads: state.numberOfUploads - 1,
       };
     }
     case 'removeFileUpload': {
@@ -310,11 +298,8 @@ const messageInputReducer = <
         ...state,
         fileOrder: state.fileOrder.filter((_id) => _id !== action.id),
         fileUploads: newFileUploads,
-        numberOfUploads: state.numberOfUploads - 1,
       };
     }
-    case 'reduceNumberOfUploads': // TODO: figure out if we can just use uploadOrder instead
-      return { ...state, numberOfUploads: state.numberOfUploads - 1 };
     case 'addMentionedUser':
       return {
         ...state,
@@ -364,16 +349,17 @@ export const useMessageInputState = <
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 
-  const { handleSubmit } = useSubmitHandler(props, state, dispatch);
-
   const {
     maxFilesLeft,
+    numberOfUploads,
     removeFile,
     removeImage,
     uploadFile,
     uploadImage,
     uploadNewFiles,
   } = useAttachments(props, state, dispatch);
+
+  const { handleSubmit } = useSubmitHandler(props, state, dispatch, numberOfUploads);
 
   const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
 
@@ -394,6 +380,7 @@ export const useMessageInputState = <
     insertText,
     isUploadEnabled,
     maxFilesLeft,
+    numberOfUploads,
     onPaste,
     onSelectEmoji,
     onSelectUser,

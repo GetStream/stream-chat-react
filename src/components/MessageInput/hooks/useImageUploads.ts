@@ -57,7 +57,6 @@ export const useImageUploads = <
       } catch (error) {
         console.warn(error);
         let alreadyRemoved = false;
-        dispatch({ type: 'reduceNumberOfUploads' });
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {

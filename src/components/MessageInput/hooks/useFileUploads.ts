@@ -63,7 +63,6 @@ export const useFileUploads = <
         console.warn(error);
         let alreadyRemoved = false;
 
-        dispatch({ type: 'reduceNumberOfUploads' });
         if (!fileUploads[id]) {
           alreadyRemoved = true;
         } else {

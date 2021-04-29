@@ -35,7 +35,7 @@ export const useAttachments = <
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
 ) => {
   const { noFiles } = props;
-  const { numberOfUploads } = state;
+  const { fileUploads, imageUploads } = state;
   const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
     At,
     Ch,
@@ -59,6 +59,11 @@ export const useAttachments = <
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
   const maxFilesAllowed = !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
+
+  const numberOfImages = Object.values(imageUploads).filter(({ state }) => state !== 'failed')
+    .length;
+  const numberOfFiles = Object.values(fileUploads).filter(({ state }) => state !== 'failed').length;
+  const numberOfUploads = numberOfImages + numberOfFiles;
 
   // return !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
@@ -84,6 +89,7 @@ export const useAttachments = <
 
   return {
     maxFilesLeft,
+    numberOfUploads,
     removeFile,
     removeImage,
     uploadFile,
