@@ -1,14 +1,7 @@
 import React, { Reducer, useCallback, useReducer } from 'react';
 import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
-import {
-  Attachment,
-  logChatPromiseExecution,
-  MessageResponse,
-  UpdatedMessage,
-  UserResponse,
-} from 'stream-chat';
+import type { Attachment, UserResponse } from 'stream-chat';
 
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
 
@@ -17,6 +10,7 @@ import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 import { useMessageInputText } from './useMessageInputText';
 import { useEmojiPicker } from './useEmojiPicker';
+import { useSubmitHandler } from './useSubmitHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 
@@ -149,15 +143,6 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   uploadImage: (id: string) => void;
   uploadNewFiles(files: FileList | File[]): void;
   emojiIndex?: NimbleEmojiIndex;
-};
-
-/**
- * Get attachment type from MIME type
- */
-const getAttachmentTypeFromMime = (mime: string) => {
-  if (mime.includes('video/')) return 'media';
-  if (mime.includes('audio/')) return 'audio';
-  return 'file';
 };
 
 const apiMaxNumberOfFiles = 10;
@@ -357,16 +342,8 @@ export const useMessageInputState = <
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ): MessageInputState<At, Us> & MessageInputHookProps<Us> => {
-  const {
-    clearEditingState,
-    message,
-    noFiles,
-    overrideSubmitHandler,
-    parent,
-    publishTypingEvent,
-  } = props;
+  const { message, noFiles } = props;
 
-  const { editMessage, sendMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<
     At,
     Ch,
@@ -383,16 +360,7 @@ export const useMessageInputState = <
     initState,
   );
 
-  const {
-    attachments,
-    fileOrder,
-    fileUploads,
-    imageOrder,
-    imageUploads,
-    mentioned_users,
-    numberOfUploads,
-    text,
-  } = state;
+  const { numberOfUploads } = state;
 
   const { handleChange, insertText, textareaRef } = useMessageInputText(props, state, dispatch);
 
@@ -412,120 +380,7 @@ export const useMessageInputState = <
 
   // Submitting
 
-  const getAttachmentsFromUploads = useCallback(() => {
-    const imageAttachments = imageOrder
-      .map((id) => imageUploads[id])
-      .filter((upload) => upload.state !== 'failed')
-      .filter((
-        { id, url },
-        _,
-        self, // filter out duplicates based on url
-      ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .map(
-        (upload) =>
-          ({
-            fallback: upload.file.name,
-            image_url: upload.url,
-            type: 'image',
-          } as Attachment<At>),
-      );
-
-    const fileAttachments = fileOrder
-      .map((id) => fileUploads[id])
-      .filter((upload) => upload.state !== 'failed')
-      .map(
-        (upload) =>
-          ({
-            asset_url: upload.url,
-            file_size: upload.file.size,
-            mime_type: upload.file.type,
-            title: upload.file.name,
-            type: getAttachmentTypeFromMime(upload.file.type || ''),
-          } as Attachment<At>),
-      );
-
-    return [
-      ...attachments, // from state
-      ...imageAttachments,
-      ...fileAttachments,
-    ];
-  }, [imageOrder, imageUploads, fileOrder, fileUploads, attachments]);
-
-  const handleSubmit = (event: React.BaseSyntheticEvent) => {
-    event.preventDefault();
-    const trimmedMessage = text.trim();
-    const isEmptyMessage =
-      trimmedMessage === '' ||
-      trimmedMessage === '>' ||
-      trimmedMessage === '``````' ||
-      trimmedMessage === '``' ||
-      trimmedMessage === '**' ||
-      trimmedMessage === '____' ||
-      trimmedMessage === '__' ||
-      trimmedMessage === '****';
-    if (isEmptyMessage && numberOfUploads === 0) {
-      return;
-    }
-    // the channel component handles the actual sending of the message
-    const someAttachmentsUploading =
-      Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
-      Object.values(fileUploads).some((upload) => upload.state === 'uploading');
-    if (someAttachmentsUploading) {
-      // TODO: show error to user that they should wait until image is uploaded
-      return;
-    }
-
-    const newAttachments = getAttachmentsFromUploads();
-
-    // Instead of checking if a user is still mentioned every time the text changes,
-    // just filter out non-mentioned users before submit, which is cheaper
-    // and allows users to easily undo any accidental deletion
-    const actualMentionedUsers = Array.from(
-      new Set(
-        mentioned_users.filter(
-          ({ id, name }) => text.includes(`@${id}`) || text.includes(`@${name}`),
-        ),
-      ),
-    );
-
-    const updatedMessage = {
-      attachments: newAttachments,
-      mentioned_users: actualMentionedUsers,
-      text,
-    };
-
-    if (!!message && editMessage) {
-      // TODO: Remove this line and show an error when submit fails
-      if (clearEditingState) {
-        clearEditingState();
-      }
-
-      const updateMessagePromise = editMessage(({
-        ...updatedMessage,
-        id: message.id,
-      } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>).then(clearEditingState);
-
-      logChatPromiseExecution(updateMessagePromise, 'update message');
-      dispatch({ type: 'clear' });
-    } else if (overrideSubmitHandler && channel) {
-      overrideSubmitHandler(
-        {
-          ...updatedMessage,
-          parent,
-        },
-        channel.cid,
-      );
-      dispatch({ type: 'clear' });
-    } else if (sendMessage) {
-      const sendMessagePromise = sendMessage({
-        ...updatedMessage,
-        parent: parent as MessageResponse<At, Ch, Co, Me, Re, Us>,
-      });
-      logChatPromiseExecution(sendMessagePromise, 'send message');
-      dispatch({ type: 'clear' });
-    }
-    if (channel && publishTypingEvent) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
-  };
+  const { handleSubmit } = useSubmitHandler(props, state, dispatch);
 
   // Attachments
 
