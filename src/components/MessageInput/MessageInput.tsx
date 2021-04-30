@@ -167,7 +167,8 @@ const UnMemoizedMessageInput = <
   const {
     MessageInput: ContextInput,
     TriggerProvider: ContextTriggerProvider,
-  } = useComponentContext();
+    ...currentComponentContext
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
   const Input = PropInput || ContextInput || MessageInputLarge;
   const TriggerProvider = PropTriggerProvider || ContextTriggerProvider || DefaultTriggerProvider;
@@ -191,6 +192,7 @@ const UnMemoizedMessageInput = <
   };
 
   const componentContextValue = {
+    ...currentComponentContext,
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
     CooldownTimer,

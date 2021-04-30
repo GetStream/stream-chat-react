@@ -43,7 +43,7 @@ export const EmojiPicker = <
   const { small } = props;
 
   const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { EmojiPicker } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { EmojiPicker: EmojiPickerComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -57,8 +57,8 @@ export const EmojiPicker = <
 
     return (
       <div className={className} ref={messageInput.emojiPickerRef}>
-        {EmojiPicker && (
-          <EmojiPicker
+        {EmojiPickerComponent && (
+          <EmojiPickerComponent
             color='#006CFF'
             data={emojiData}
             emoji='point_up'
