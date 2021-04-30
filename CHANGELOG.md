@@ -1,13 +1,32 @@
 # Changelog
 
+## [5.3.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.1) 2021-04-30
+
+### Bug
+
+- Add message memoization case for read states [#888](https://github.com/GetStream/stream-chat-react/pull/888)
+- Fix regex trigger for multiple mentions [#889](https://github.com/GetStream/stream-chat-react/pull/889)
+- Add message memoization case for muted user array [#891](https://github.com/GetStream/stream-chat-react/pull/891)
+
 ## [5.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.0) 2021-04-29
 
 ### Feature
 
-- Added support for `user.deleted` and `user.updated` event handling
+- Added support for `user.deleted` and `user.updated` event handling [#884](https://github.com/GetStream/stream-chat-react/pull/884)
   - Requires `stream-chat >= 3.8.0`
   - In case of `user.deleted` event, messages from corresponding user will be marked as deleted
   - In case of `user.updated` event, user property on messages from corresponding user will be updated.
+
+## [5.2.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.2.1) 2021-04-28
+
+### Chore
+
+- Adjust processed messages logic [#876](https://github.com/GetStream/stream-chat-react/pull/876)
+- Make `mml-react` an optional dependency and lazy load [#881](https://github.com/GetStream/stream-chat-react/pull/881)
+
+### Bug
+
+- Copy missing translations from built types [#879](https://github.com/GetStream/stream-chat-react/pull/879)
 
 ## [5.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.2.0) 2021-04-26
 
