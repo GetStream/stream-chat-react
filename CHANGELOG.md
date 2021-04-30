@@ -6,6 +6,7 @@
 
 - Add message memoization case for read states [#888](https://github.com/GetStream/stream-chat-react/pull/888)
 - Fix regex trigger for multiple mentions [#889](https://github.com/GetStream/stream-chat-react/pull/889)
+- Add message memoization case for muted user array [#891](https://github.com/GetStream/stream-chat-react/pull/891)
 
 ## [5.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.0) 2021-04-29
 
