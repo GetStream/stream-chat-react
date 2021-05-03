@@ -65,7 +65,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (this.props.keycodeSubmitKeys) {
       const newSubmitKeys = this.props.keycodeSubmitKeys;
 
-      // If the submitted keycodes are [91, 13] (right cmd+Enter), we also want to include [93, 13] (left cmd_enter) in the listeners
+      // If the submitted keycodes are [91, 13] (right cmd+Enter), we also want to include [93, 13] (left cmd+Enter) in the listeners
       if (this.props.keycodeSubmitKeys.every((code) => [91, 13].includes(code))) {
         listenerIndex = Listeners.add([93, 13], (e) => this._onEnter(e));
       }
