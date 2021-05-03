@@ -158,6 +158,13 @@ const UnMemoizedMessageActionsBox = <
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
+          !message.parent_id &&
+          !message.quoted_message && (
+            <button onClick={() => console.log('quote message')}>
+              <li className='str-chat__message-actions-list-item'>{t('Quote')}</li>
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
           <button onClick={handlePin}>
             <li className='str-chat__message-actions-list-item'>
