@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Components,
   ScrollSeekConfiguration,
@@ -120,6 +120,10 @@ export type VirtualizedMessageListProps<
     placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
   };
   /**
+   * If set to `true`, the list will scroll to the latest message when the window regains focus
+   */
+  scrollToLatestMessageOnFocus?: boolean;
+  /**
    * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
    * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
    */
@@ -170,6 +174,7 @@ const VirtualizedMessageListWithContext = <
     scrollSeekPlaceHolder,
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
+    scrollToLatestMessageOnFocus = false,
     TypingIndicator = null,
   } = props;
 
@@ -212,6 +217,31 @@ const VirtualizedMessageListWithContext = <
     newMessagesNotification,
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID);
+
+  const scrollToBottom = useCallback(() => {
+    if (virtuoso.current) {
+      virtuoso.current.scrollToIndex(processedMessages.length - 1);
+    }
+    setNewMessagesNotification(false);
+  }, [virtuoso, processedMessages, setNewMessagesNotification, processedMessages.length]);
+
+  const scrollToBottomIfConfigured = useCallback(
+    (e: Event) => {
+      if (scrollToLatestMessageOnFocus && e.target === window) {
+        setTimeout(scrollToBottom, 100);
+      }
+    },
+    [scrollToLatestMessageOnFocus, scrollToBottom],
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', scrollToBottomIfConfigured);
+    }
+    return () => {
+      window.removeEventListener('focus', scrollToBottomIfConfigured);
+    };
+  }, [scrollToBottomIfConfigured]);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
@@ -325,15 +355,7 @@ const VirtualizedMessageListWithContext = <
       />
 
       <div className='str-chat__list-notifications'>
-        <MessageNotification
-          onClick={() => {
-            if (virtuoso.current) {
-              virtuoso.current.scrollToIndex(processedMessages.length - 1);
-            }
-            setNewMessagesNotification(false);
-          }}
-          showNotification={newMessagesNotification}
-        >
+        <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
           {t('New Messages!')}
         </MessageNotification>
       </div>
