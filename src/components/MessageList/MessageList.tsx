@@ -4,7 +4,10 @@ import { Center } from './Center';
 import { ConnectionStatus } from './ConnectionStatus';
 import { CustomNotification } from './CustomNotification';
 import { MessageListInner, MessageListInnerProps } from './MessageListInner';
-import { MessageNotification } from './MessageNotification';
+import {
+  MessageNotification as DefaultMessageNotification,
+  MessageNotificationProps,
+} from './MessageNotification';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -265,6 +268,7 @@ class MessageListWithContext<
       Message = MessageSimple,
       messageActions = Object.keys(MESSAGE_ACTIONS),
       messages = [],
+      MessageNotification = DefaultMessageNotification,
       MessageSystem = EventComponent,
       notifications,
       noGroupByUser = false,
@@ -418,6 +422,8 @@ export type MessageListProps<
     loadMore?: ((limit: number) => Promise<number>) | (() => Promise<void>);
     /** The limit to use when paginating messages. */
     messageLimit?: number;
+    /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
+    MessageNotification?: React.ComponentType<MessageNotificationProps>;
     /** The pixel threshold to determine whether or not the user is scrolled up in the list.
      * @default 200px
      */
