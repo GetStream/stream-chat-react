@@ -253,6 +253,7 @@ const ChannelInner = <
   >();
   const { t } = useTranslationContext();
 
+  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
@@ -742,6 +743,7 @@ const ChannelInner = <
     multipleUploads,
     mutes,
     notifications,
+    quotedMessage,
     watcher_count: state.watcherCount,
   };
 
@@ -758,6 +760,7 @@ const ChannelInner = <
     removeMessage,
     retrySendMessage,
     sendMessage,
+    setQuotedMessage,
     updateMessage,
   };
 
