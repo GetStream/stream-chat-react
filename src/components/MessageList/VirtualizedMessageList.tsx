@@ -10,7 +10,10 @@ import {
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
-import { MessageNotification } from './MessageNotification';
+import {
+  MessageNotification as DefaultMessageNotification,
+  MessageNotificationProps,
+} from './MessageNotification';
 import { processMessages } from './utils';
 
 import {
@@ -98,6 +101,8 @@ export type VirtualizedMessageListProps<
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */
   messageLimit?: number;
+  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
+  MessageNotification?: React.ComponentType<MessageNotificationProps>;
   /** Available from [ChannelContext](https://getstream.github.io/stream-chat-react/#section-channelcontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Custom UI component to display system messages */
@@ -167,6 +172,7 @@ const VirtualizedMessageListWithContext = <
     Message = DefaultMessage,
     MessageDeleted = DefaultMessageDeleted,
     messageLimit = 100,
+    MessageNotification = DefaultMessageNotification,
     messages,
     MessageSystem = EventComponent,
     overscan = 0,
