@@ -5,6 +5,7 @@ import * as linkify from 'linkifyjs';
 import findAndReplace from 'mdast-util-find-and-replace';
 import RootReactMarkdown, { NodeType } from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
+import uniqBy from 'lodash.uniqby';
 
 import type { UserResponse } from 'stream-chat';
 
@@ -178,7 +179,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   const detectHttp = /(http(s?):\/\/)?(www\.)?/;
 
   // extract all valid links/emails within text and replace it with proper markup
-  linkify.find(newText).forEach(({ href, type, value }) => {
+  uniqBy(linkify.find(newText), 'value').forEach(({ href, type, value }) => {
     const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
 
     // check if message is already  markdown
@@ -197,7 +198,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
     const displayLink = type === 'email' ? value : value.replace(detectHttp, '');
 
-    newText = newText.replace(value, `[${displayLink}](${encodeURI(href)})`);
+    newText = newText.replaceAll(value, `[${displayLink}](${encodeURI(href)})`);
   });
 
   const plugins = [emojiMarkdownPlugin];

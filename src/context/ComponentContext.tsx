@@ -11,6 +11,7 @@ import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicat
 import type { FixedHeightMessageProps } from '../components/Message/FixedHeightMessage';
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
+import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
@@ -52,6 +53,7 @@ export type ComponentContextValue<
   HeaderComponent?: React.ComponentType;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
