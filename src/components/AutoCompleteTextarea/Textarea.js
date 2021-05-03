@@ -61,15 +61,16 @@ export class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
     let listenerIndex = 0;
+    const newSubmitKeys = this.props.keycodeSubmitKeys;
+    const areValidKeycodes = Listeners.checkKeycodeSubmitValues(newSubmitKeys);
 
-    if (this.props.keycodeSubmitKeys) {
-      const newSubmitKeys = this.props.keycodeSubmitKeys;
+    if (newSubmitKeys && areValidKeycodes) {
+      listenerIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
 
       // If the submitted keycodes are [91, 13] (right cmd+Enter), we also want to include [93, 13] (left cmd+Enter) in the listeners
-      if (this.props.keycodeSubmitKeys.every((code) => [91, 13].includes(code))) {
+      if (newSubmitKeys.every((code) => [91, 13].includes(code))) {
         listenerIndex = Listeners.add([93, 13], (e) => this._onEnter(e));
       }
-      listenerIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
     } else {
       listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
     }
@@ -127,10 +128,11 @@ export class ReactTextareaAutocomplete extends React.Component {
     const trigger = this.state.currentTrigger;
     const hasFocus = this.textareaRef.matches(':focus');
 
-    // don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
+    // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
     if (
       !hasFocus ||
-      (event.shiftKey === true && !this.props.keycodeSubmitKeys?.includes(event.shiftKey && 13)) ||
+      (event.shiftKey === true &&
+        !this.props.keycodeSubmitKeys.every((code) => [16, 13].includes(code))) ||
       (event.shiftKey === true && !this.props.keycodeSubmitKeys)
     ) {
       return;

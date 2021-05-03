@@ -681,6 +681,24 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
+      it('should not submit if invalid keycodeSubmitKeys are provided even when keycode events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [76, 77],
+        });
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.keyDown(input, {
+          keyCode: 76,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 77,
+        });
+
+        await submit();
+
+        expect(submitMock).not.toHaveBeenCalledWith();
+      });
     });
 
     it('Should edit a message if it is passed through the message prop', async () => {

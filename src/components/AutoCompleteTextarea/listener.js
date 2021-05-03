@@ -21,7 +21,10 @@ class Listener {
       const code = e.keyCode || e.which;
 
       keycodeMap[code] = e.type === 'keydown';
-      if (e.type !== 'keydown') return;
+      if (e.type !== 'keydown') {
+        keycodeMap[13] = false;
+        return;
+      }
 
       Object.values(this.listeners).forEach(({ keyCode, fn }) => {
         if (keyCode.length > 1) {
@@ -51,6 +54,21 @@ class Listener {
       document.removeEventListener('keydown', this.f);
       document.removeEventListener('keyup', this.f);
     }
+  };
+
+  checkKeycodeSubmitValues = (keycodes) => {
+    if (!keycodes) return false;
+
+    // array of numbers
+    const shiftE = [16, 13]; // shift+Enter
+    const ctrlE = [17, 13]; // ctrl+Enter
+    const cmdE = [91, 13]; // cmd+Enter
+
+    return (
+      keycodes.every((code) => shiftE.includes(code)) ||
+      keycodes.every((code) => ctrlE.includes(code)) ||
+      keycodes.every((code) => cmdE.includes(code))
+    );
   };
 
   add = (keyCodes, fn) => {
