@@ -254,7 +254,7 @@
     > .str-chat__message-simple__actions {
       position: absolute;
       top: 5px;
-      left: 100%;
+      left: calc(100% + 8px);
     }
   }
   &-attachment-container {
@@ -264,9 +264,9 @@
   &-text {
     display: inline-flex;
     justify-content: flex-start;
+    align-items: center;
     padding: 0 0 0 0;
     position: relative;
-    width: 100%;
 
     &-inner {
       position: relative;
@@ -336,6 +336,8 @@
     width: 100%;
     font-size: 11px;
     color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    white-space: nowrap;
   }
 
   &-name {
@@ -381,7 +383,7 @@
           position: absolute;
           top: 5px;
           left: unset;
-          right: 100%;
+          right: calc(100% + 8px);
         }
       }
 
@@ -429,6 +431,8 @@
 
       &-data {
         text-align: right;
+        right: 0;
+        width: fit-content;
       }
     }
   }
@@ -571,9 +575,6 @@
     font-family: $second-font;
     &__actions {
       display: flex;
-      margin-top: 5px;
-      align-items: flex-start;
-      justify-content: flex-start;
 
       &__action {
         margin: 5px;

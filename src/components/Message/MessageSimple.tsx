@@ -122,7 +122,7 @@ const MessageSimpleWithContext = <
             ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
             ${message.pinned ? 'pinned-message' : ''}
 					`.trim()}
-          key={message.id || ''}
+          key={message.id}
           ref={messageWrapperRef}
         >
           <MessageStatus />
