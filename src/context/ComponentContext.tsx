@@ -24,6 +24,7 @@ import type {
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
+import type { ThreadHeaderProps } from '../components/Thread/Thread';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type {
@@ -75,7 +76,9 @@ export type ComponentContextValue<
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   SendButton?: React.ComponentType<SendButtonProps>;
+  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ThreadMessageInput?: React.ComponentType;
+  ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;

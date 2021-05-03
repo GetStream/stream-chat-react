@@ -477,9 +477,14 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger = '/';
       lastToken = value;
     } else {
-      const triggerCharacters = Object.keys(trigger).join();
-      const triggerRegExp = new RegExp(`(?!^|W)?[${triggerCharacters}][^s]*s?[^s]*$`, 'g');
-      const tokenMatch = value.slice(0, selectionEnd).match(triggerRegExp);
+      const triggerTokens = Object.keys(trigger).join().replace('/', '');
+      const triggerNorWhitespace = `[^\\s${triggerTokens}]*`;
+      const regex = new RegExp(
+        `(?!^|\\W)?[${triggerTokens}]${triggerNorWhitespace}\\s?${triggerNorWhitespace}$`,
+        'g',
+      );
+      const tokenMatch = value.slice(0, selectionEnd).match(regex);
+
       lastToken = tokenMatch && tokenMatch[tokenMatch.length - 1].trim();
 
       currentTrigger = (lastToken && Object.keys(trigger).find((a) => a === lastToken[0])) || null;

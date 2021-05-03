@@ -224,6 +224,10 @@ export type ChannelProps<
    * Defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
    */
   SendButton?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['SendButton'];
+  /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
+  ThreadHeader?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadHeader'];
+  /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
+  ThreadStart?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadStart'];
   /**
    * Optional component that lets you override the default autocomplete triggers.
    * Defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
@@ -841,6 +845,8 @@ const ChannelInner = <
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
+      ThreadHeader: props.ThreadHeader,
+      ThreadStart: props.ThreadStart,
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       VirtualMessage: props.VirtualMessage,
