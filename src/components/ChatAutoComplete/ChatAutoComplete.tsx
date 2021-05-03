@@ -173,6 +173,7 @@ const UnMemoizedChatAutoComplete = <
     disableMentions,
     emojiIndex,
     grow,
+    keycodeSubmitKeys,
     maxRows,
     textareaRef: innerRef,
   } = messageInput;
@@ -215,6 +216,7 @@ const UnMemoizedChatAutoComplete = <
       handleSubmit={messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
+      keycodeSubmitKeys={keycodeSubmitKeys}
       listClassName='str-chat__emojisearch__list'
       loadingComponent={LoadingIndicator}
       maxRows={maxRows}

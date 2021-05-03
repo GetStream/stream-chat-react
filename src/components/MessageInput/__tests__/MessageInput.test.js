@@ -605,6 +605,82 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
+      it('should not submit if valid keycodeSubmitKeys are provided and keydown events do not match', async () => {
+        const { findByPlaceholderText } = renderComponent({
+          keycodeSubmitKeys: [17, 13],
+        });
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.keyDown(input, {
+          keyCode: 19,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
+
+        expect(submitMock).not.toHaveBeenCalled();
+      });
+      it('should submit if valid keycodeSubmitKeys are provided and keydown events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [17, 13],
+        });
+        const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 17,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
+
+        await submit();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            text: messageText,
+          }),
+        );
+      });
+      it('should submit if [91,13] keycodeSubmitKeys are provided and keydown events match [93,13]', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [91, 13],
+        });
+        const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 93,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
+
+        await submit();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            text: messageText,
+          }),
+        );
+      });
     });
 
     it('Should edit a message if it is passed through the message prop', async () => {

@@ -95,6 +95,12 @@ export type MessageInputProps<
   grow?: boolean;
   /** The component handling how the input is rendered */
   Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
+  /** Optional Array of keycode values
+   * Keycodes in this array will override Enter ([13]), which is the default submit key. Shift+Enter is the default for new line.
+   * Options include Shift+Enter: [16, 13], ctrl+Enter: [17, 13], cmd+Enter: [91, 13] (and [93, 13] is accounted for behind the scenes since 93 is the right cmd key).
+   * If Shift+Enter is submitted, the default for new line is overridden.
+   * */
+  keycodeSubmitKeys?: [16, 13] | [17, 13] | [91, 13];
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
   /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
