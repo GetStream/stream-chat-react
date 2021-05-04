@@ -86,8 +86,12 @@ class Listener {
     return this.index;
   };
 
-  remove = (id) => {
-    delete this.listeners[id];
+  remove = (ids) => {
+    if (typeof ids === 'object' && ids !== null) {
+      for (const value of Object.entries(ids)) {
+        delete this.listeners[value];
+      }
+    }
   };
 
   removeAll = () => {

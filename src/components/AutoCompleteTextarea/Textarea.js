@@ -48,7 +48,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       data: null,
       dataLoading: false,
       left: null,
-      listenerIndex: 0,
+      listenerIndex: {},
       selectionEnd: 0,
       selectionStart: 0,
       top: null,
@@ -60,19 +60,22 @@ export class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
-    let listenerIndex = 0;
+    const listenerIndex = {};
     const newSubmitKeys = this.props.keycodeSubmitKeys;
     const areValidKeycodes = Listeners.checkKeycodeSubmitValues(newSubmitKeys);
 
     if (newSubmitKeys && areValidKeycodes) {
-      listenerIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
+      const keycodeIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
+      listenerIndex[keycodeIndex] = keycodeIndex;
 
       // If the submitted keycodes are [91, 13] (right cmd+Enter), we also want to include [93, 13] (left cmd+Enter) in the listeners
       if (newSubmitKeys.every((code) => [91, 13].includes(code))) {
-        listenerIndex = Listeners.add([93, 13], (e) => this._onEnter(e));
+        const cmdEnterIndex = Listeners.add([93, 13], (e) => this._onEnter(e));
+        listenerIndex[cmdEnterIndex] = cmdEnterIndex;
       }
     } else {
-      listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+      const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+      listenerIndex[enterIndex] = enterIndex;
     }
 
     this.setState({
@@ -132,7 +135,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (
       !hasFocus ||
       (event.shiftKey === true &&
-        !this.props.keycodeSubmitKeys.every((code) => [16, 13].includes(code))) ||
+        !this.props.keycodeSubmitKeys?.every((code) => [16, 13].includes(code))) ||
       (event.shiftKey === true && !this.props.keycodeSubmitKeys)
     ) {
       return;
