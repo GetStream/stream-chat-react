@@ -126,7 +126,6 @@ module.exports = {
             'src/components/MessageInput/MessageInputFlat.tsx',
             'src/components/MessageInput/EditMessageForm.tsx',
             'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
-            'src/components/MessageInput/DefaultTriggerProvider.tsx',
           ],
           exampleMode: 'collapse',
           usageMode: 'expand',
