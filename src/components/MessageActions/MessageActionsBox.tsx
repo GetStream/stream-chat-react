@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import {
   CustomMessageActions,
   MessageContextValue,
@@ -108,6 +109,7 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
+  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { customMessageActions, message, messageListRect } = useMessageContext<
     At,
     Ch,
@@ -161,8 +163,8 @@ const UnMemoizedMessageActionsBox = <
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
           !message.parent_id &&
           !message.quoted_message && (
-            <button onClick={() => console.log('quote message')}>
-              <li className='str-chat__message-actions-list-item'>{t('Quote')}</li>
+            <button onClick={() => setQuotedMessage(message)}>
+              <li className='str-chat__message-actions-list-item'>{t('Reply')}</li>
             </button>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (

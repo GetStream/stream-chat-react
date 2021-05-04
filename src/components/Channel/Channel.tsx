@@ -253,8 +253,9 @@ const ChannelInner = <
   >();
   const { t } = useTranslationContext();
 
-  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
+  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
+
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
   const [state, dispatch] = useReducer<ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>>(
@@ -538,6 +539,7 @@ const ChannelInner = <
         id,
         mentioned_users: mentions,
         parent_id,
+        quoted_message_id: quotedMessage?.id,
         text,
       } as Message<At, Me, Us>;
 
@@ -557,6 +559,8 @@ const ChannelInner = <
             status: 'received',
           });
         }
+
+        if (quotedMessage) setQuotedMessage(undefined);
       } catch (error) {
         // error response isn't usable so needs to be stringified then parsed
         const stringError = JSON.stringify(error);
@@ -569,7 +573,7 @@ const ChannelInner = <
         });
       }
     },
-    [channel, doSendMessageRequest, updateMessage],
+    [channel, doSendMessageRequest, quotedMessage, updateMessage],
   );
 
   const createMessagePreview = useCallback(
