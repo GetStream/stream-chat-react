@@ -24,6 +24,8 @@ The ChannelStateContext provides the following properties:
 
 -  **mutes** Muted users
 
+- **notifications** Channel notifications 
+
 -  **pinnedMessages** Part of ChannelState - the messages that are pinned in the Channel
 
 -  **read** Part of ChannelState - the read state for each user
