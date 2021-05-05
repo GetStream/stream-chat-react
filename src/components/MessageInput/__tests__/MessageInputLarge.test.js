@@ -5,9 +5,11 @@ import '@testing-library/jest-dom';
 import { MessageInput } from '../MessageInput';
 import { MessageInputLarge } from '../MessageInputLarge';
 
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationContext } from '../../../context/TranslationContext';
 import { TypingProvider } from '../../../context/TypingContext';
+import { generateChannel } from '../../../mock-builders';
 
 const i18nMock = jest.fn((key) => key);
 
@@ -31,14 +33,18 @@ const getTypingContextMock = ({ typingUsers }) => ({
   ),
 });
 
+const mockChannel = generateChannel({ data: {} });
+
 const renderComponent = (ChatContextMock, TypingContextMock) =>
   render(
     <ChatProvider value={ChatContextMock}>
-      <TranslationContext.Provider value={{ t: i18nMock }}>
-        <TypingProvider value={TypingContextMock}>
-          <MessageInput Input={MessageInputLarge} />
-        </TypingProvider>
-      </TranslationContext.Provider>
+      <ChannelStateProvider value={{ channel: mockChannel }}>
+        <TranslationContext.Provider value={{ t: i18nMock }}>
+          <TypingProvider value={TypingContextMock}>
+            <MessageInput Input={MessageInputLarge} />
+          </TypingProvider>
+        </TranslationContext.Provider>
+      </ChannelStateProvider>
     </ChatProvider>,
   );
 

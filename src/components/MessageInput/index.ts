@@ -1,3 +1,4 @@
+export * from './DefaultTriggerProvider';
 export * from './EditMessageForm';
 export * from './EmojiPicker';
 export * from './hooks';
