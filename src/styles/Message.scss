@@ -16,18 +16,21 @@
       max-width: 408px;
       padding: 5px 10px;
 
-      .str-chat__message-attachment--image:first-of-type {
-        max-width: 48px;
+      .str-chat__message-attachment {
+        &--image:first-of-type {
+          max-width: 48px;
+        }
 
-        .str-chat__message-attachment--img {
+        &--img {
           border-radius: 8px;
         }
-      }
 
-      .str-chat__message-attachment--file:first-of-type {
-        background: $white;
-        border-radius: 8px;
-        border-bottom: 1px solid #ebebeb;
+        &--file:first-of-type {
+          background: $white;
+          border-radius: 8px;
+          border-bottom: 1px solid #ebebeb;
+          min-width: 33%;
+        }
       }
 
       :nth-child(2) {
