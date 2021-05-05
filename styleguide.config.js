@@ -83,10 +83,6 @@ module.exports = {
               content: 'src/docs/useMentionsHandler.md',
             },
             {
-              name: 'useMessageInput',
-              content: 'src/docs/useMessageInput.md',
-            },
-            {
               name: 'useMuteHandler',
               content: 'src/docs/useMuteHandler.md',
             },
@@ -120,16 +116,32 @@ module.exports = {
     },
     {
       name: 'Message Input',
-      components: [
-        'src/components/MessageInput/MessageInput.tsx',
-        'src/components/MessageInput/MessageInputSmall.tsx',
-        'src/components/MessageInput/MessageInputLarge.tsx',
-        'src/components/MessageInput/MessageInputFlat.tsx',
-        'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
-        'src/components/EditMessageForm/EditMessageForm.tsx',
+      sections: [
+        {
+          name: 'Components',
+          components: [
+            'src/components/MessageInput/MessageInput.tsx',
+            'src/components/MessageInput/MessageInputSmall.tsx',
+            'src/components/MessageInput/MessageInputLarge.tsx',
+            'src/components/MessageInput/MessageInputFlat.tsx',
+            'src/components/MessageInput/EditMessageForm.tsx',
+            'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
+          ],
+          exampleMode: 'collapse',
+          usageMode: 'expand',
+        },
+        {
+          name: 'Hooks',
+          sections: [
+            {
+              name: 'useMessageInputContext',
+              content: 'src/docs/useMessageInputContext.md',
+            },
+          ],
+          exampleMode: 'collapse',
+          usageMode: 'expand',
+        }
       ],
-      exampleMode: 'collapse',
-      usageMode: 'expand',
     },
     {
       name: 'Utilities',

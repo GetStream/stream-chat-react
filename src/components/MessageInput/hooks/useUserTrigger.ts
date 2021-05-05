@@ -1,0 +1,161 @@
+import { useCallback, useState } from 'react';
+import throttle from 'lodash.throttle';
+
+import { useChatContext } from '../../../context/ChatContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { UserItem } from '../../UserItem/UserItem';
+
+import type { MentionQueryParams, UserTriggerSetting } from '../../ChatAutoComplete';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../../types/types';
+import type { UserResponse } from 'stream-chat';
+
+export const useUserTrigger = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  mentionQueryParams: MentionQueryParams<Us> = {},
+  onSelectUser: (item: UserResponse<Us>) => void,
+  mentionAllAppUsers?: boolean,
+): UserTriggerSetting<Us> => {
+  const [searching, setSearching] = useState(false);
+
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const members = channel?.state?.members;
+  const watchers = channel?.state?.watchers;
+
+  const getMembersAndWatchers = useCallback(() => {
+    const memberUsers = members ? Object.values(members).map(({ user }) => user) : [];
+    const watcherUsers = watchers ? Object.values(watchers) : [];
+    const users = [...memberUsers, ...watcherUsers];
+
+    // make sure we don't list users twice
+    const uniqueUsers = {} as Record<string, UserResponse<Us>>;
+
+    users.forEach((user) => {
+      if (user && !uniqueUsers[user.id]) {
+        uniqueUsers[user.id] = user;
+      }
+    });
+
+    return Object.values(uniqueUsers);
+  }, [members, watchers]);
+
+  const queryMembersThrottled = useCallback(
+    throttle(async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
+      try {
+        // @ts-expect-error
+        const response = await channel.queryMembers({
+          name: { $autocomplete: query },
+        });
+
+        const users = response.members.map((member) => member.user) as UserResponse<Us>[];
+
+        if (onReady && users.length) {
+          onReady(users);
+        } else {
+          onReady([]);
+        }
+      } catch (error) {
+        console.log({ error });
+      }
+    }, 200),
+    [channel],
+  );
+
+  const queryUsers = async (query: string, onReady: (users: UserResponse<Us>[]) => void) => {
+    if (!query || searching) return;
+    setSearching(true);
+
+    try {
+      const { users } = await client.queryUsers(
+        // @ts-expect-error
+        {
+          $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
+          id: { $ne: client.userID },
+          ...mentionQueryParams.filters,
+        },
+        { id: 1, ...mentionQueryParams.sort },
+        { limit: 10, ...mentionQueryParams.options },
+      );
+
+      if (onReady && users.length) {
+        onReady(users);
+      } else {
+        onReady([]);
+      }
+    } catch (error) {
+      console.log({ error });
+    }
+
+    setSearching(false);
+  };
+
+  const queryUsersThrottled = throttle(queryUsers, 200);
+
+  return {
+    callback: (item) => onSelectUser && onSelectUser(item),
+    component: UserItem,
+    dataProvider: (query, _, onReady) => {
+      const filterMutes = (data: UserResponse<Us>[]) => {
+        if (!mutes.length) return data;
+        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+      };
+
+      if (mentionAllAppUsers) {
+        return queryUsersThrottled(query, (data: UserResponse<Us>[]) => {
+          if (onReady) onReady(filterMutes(data), query);
+        });
+      }
+
+      /**
+       * By default, we return maximum 100 members via queryChannels api call.
+       * Thus it is safe to assume, that if number of members in channel.state is < 100,
+       * then all the members are already available on client side and we don't need to
+       * make any api call to queryMembers endpoint.
+       */
+      if (!query || Object.values(members || {}).length < 100) {
+        const users = getMembersAndWatchers();
+
+        const matchingUsers = users.filter((user) => {
+          if (user.id === client.userID) return false;
+          if (!query) return true;
+
+          if (user.name !== undefined && user.name.toLowerCase().includes(query.toLowerCase())) {
+            return true;
+          }
+
+          return user.id.toLowerCase().includes(query.toLowerCase());
+        });
+
+        const data = matchingUsers.slice(0, 10);
+
+        if (onReady) onReady(filterMutes(data), query);
+
+        return data;
+      }
+
+      return queryMembersThrottled(query, (data: UserResponse<Us>[]) => {
+        if (onReady) onReady(filterMutes(data), query);
+      });
+    },
+    output: (entity) => ({
+      caretPosition: 'next',
+      key: entity.id,
+      text: `@${entity.name || entity.id}`,
+    }),
+  };
+};

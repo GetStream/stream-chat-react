@@ -47,6 +47,7 @@ export type ThreadProps<
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to replace the `MessageInput`, defaults to and accepts same props as: [MessageInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInput.tsx) */
   MessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
+  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 /**
@@ -161,7 +162,8 @@ const ThreadInner = <
     autoFocus = true,
     fullWidth = false,
     Message: PropMessage,
-    MessageInput: ThreadMessageInput = MessageInput,
+    MessageInput: ThreadMessageInput = MessageInputSmall,
+    ThreadHeader: PropThreadHeader,
   } = props;
 
   const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
@@ -176,13 +178,14 @@ const ThreadInner = <
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     Message: ContextMessage,
-    ThreadHeader = DefaultThreadHeader,
+    ThreadHeader: ContextThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageList = useRef<HTMLDivElement | null>(null);
 
   const parentID = thread?.id;
+  const ThreadHeader = PropThreadHeader || ContextThreadHeader;
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message || ContextMessage;
 
   useEffect(() => {
@@ -226,9 +229,9 @@ const ThreadInner = <
           {...additionalMessageListProps}
         />
       </div>
-      <ThreadMessageInput
+      <MessageInput<At, Ch, Co, Ev, Me, Re, Us, V>
         focus={autoFocus}
-        Input={MessageInputSmall}
+        Input={ThreadMessageInput}
         parent={thread}
         publishTypingEvent={false}
         {...additionalMessageInputProps}

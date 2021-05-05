@@ -1,10 +1,16 @@
 import React from 'react';
 
+import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputLarge } from './MessageInputLarge';
+
+import { CooldownTimerProps, useCooldownTimer } from './hooks/useCooldownTimer';
+import { useMessageInputState } from './hooks/useMessageInputState';
+import { MessageInputContextProvider } from '../../context/MessageInputContext';
+import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
 
 import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
 
-import type { FileUpload, ImageUpload } from './hooks/messageInput';
+import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SendButtonProps } from './icons';
 
 import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
@@ -54,6 +60,8 @@ export type MessageInputProps<
   autocompleteTriggers?: TriggerSettings<Co, Us, V>;
   /** Callback to clear editing state in parent component */
   clearEditingState?: () => void;
+  /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) */
+  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Disable input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete mentions. Default: false. */
@@ -126,6 +134,11 @@ export type MessageInputProps<
    * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
    */
   SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
+  /**
+   * Optional component that lets you override the default autocomplete triggers.
+   * Defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
+   */
+  TriggerProvider?: React.ComponentType<Record<string, unknown>>;
 };
 
 const UnMemoizedMessageInput = <
@@ -141,25 +154,62 @@ const UnMemoizedMessageInput = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
   const {
-    additionalTextareaProps = {},
-    disabled = false,
-    focus = false,
-    grow = true,
-    Input = MessageInputLarge,
-    maxRows = 10,
-    publishTypingEvent = true,
+    CooldownTimer,
+    EmojiIcon,
+    FileUploadIcon,
+    Input: PropInput,
+    SendButton,
+    SuggestionItem,
+    SuggestionList,
+    TriggerProvider: PropTriggerProvider,
   } = props;
 
+  const {
+    MessageInput: ContextInput,
+    TriggerProvider: ContextTriggerProvider,
+    ...currentComponentContext
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const Input = PropInput || ContextInput || MessageInputLarge;
+  const TriggerProvider = PropTriggerProvider || ContextTriggerProvider || DefaultTriggerProvider;
+
+  const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
+    ...props,
+    additionalTextareaProps: props.additionalTextareaProps || {},
+    disabled: props.disabled || false,
+    focus: props.focus || false,
+    grow: props.grow || true,
+    maxRows: props.maxRows || 10,
+    publishTypingEvent: props.publishTypingEvent || true,
+  });
+
+  const cooldownTimerState = useCooldownTimer<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const messageInputContextValue = {
+    ...cooldownTimerState,
+    ...messageInputState,
+    ...props,
+  };
+
+  const componentContextValue = {
+    ...currentComponentContext,
+    AutocompleteSuggestionItem: SuggestionItem,
+    AutocompleteSuggestionList: SuggestionList,
+    CooldownTimer,
+    EmojiIcon,
+    FileUploadIcon,
+    MessageInput: Input,
+    SendButton,
+  };
+
   return (
-    <Input
-      {...props}
-      additionalTextareaProps={additionalTextareaProps}
-      disabled={disabled}
-      focus={focus}
-      grow={grow}
-      maxRows={maxRows}
-      publishTypingEvent={publishTypingEvent}
-    />
+    <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={componentContextValue}>
+      <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
+        <TriggerProvider>
+          <Input />
+        </TriggerProvider>
+      </MessageInputContextProvider>
+    </ComponentProvider>
   );
 };
 
