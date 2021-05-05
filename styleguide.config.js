@@ -134,8 +134,8 @@ module.exports = {
           name: 'Hooks',
           sections: [
             {
-              name: 'useMessageInput',
-              content: 'src/docs/useMessageInput.md',
+              name: 'useMessageInputContext',
+              content: 'src/docs/useMessageInputContext.md',
             },
           ],
           exampleMode: 'collapse',

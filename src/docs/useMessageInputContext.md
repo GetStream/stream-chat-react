@@ -1,16 +1,17 @@
-A custom hook that provides all functionality to the Input it renders. Returns all functions needed to customize and build your custom Input components.
+A custom hook that consumes the MessageInputContext that is provided by the `MessageInput` component. Its return values are comprised of the props passed into the `MessageInput` component, the values returned by the `useMessageInputState` hook and the values returned by the `useCooldownTimer` hook. Returns all functions needed to customize and build your custom Input components.
 
-Accepts the [MessageInputProps](https://getstream.github.io/stream-chat-react/#messageinput).
+The table below describes most of the hook's return values, but be aware that the hook also returns the [MessageInputProps](https://getstream.github.io/stream-chat-react/#messageinput) that were passed into the `MessageInputContextProvider` by the `MessageInput` component.
 
 | Returns   | Type | Description                                           |
 | --------- | ---- | ----------------------------------------------------- |
 |  `attachments` | array | Part of MessageInputState, array of attachments.
 |  `closeEmojiPicker`| func | Handler for the input event to close the emoji picker, receives a mouse event as a parameter.
+|  `cooldownInterval`| number | The length of the cooldown timer that is started after a user posts a message with slow mode turned on.
+|  `cooldownRemaining`| number | Amount of time remaining for the current cooldown.
 |  `emojiPickerIsOpen` | boolean | Part of MessageInputState, whether the message input emoji picker is opened or 
 |  `emojiPickerRef` | object | A reference to the DOM element containing the emoji picker when it is opened.
 |  `fileOrder` | array | Part of MessageInputState, an array containing the keys of the non-image attachments attached to the message input.
 |  `fileUploads` | array | Part of MessageInputState, an array containing the attachment objects of the attachments attached to the message input
-|  `getCommands` | func | Handler to get commands from the currently active `channel`, returns an array of commands.
 |  `handleChange` | func | Handles the message input change event, receiving it as its argument.
 |  `handleEmojiKeyDown` | func | Handles the input handle keydown event, receiving KeyboardEventHandler as argument.
 |  `handleSubmit` | func | Handles the message input form submit event, receiving it as its argument.
