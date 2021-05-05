@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
 import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from './utils';
 
+import { useIsChannelMuted } from './hooks/useIsChannelMuted';
+
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -117,7 +119,7 @@ export const ChannelPreview = <
   const [unread, setUnread] = useState(0);
 
   const isActive = activeChannel?.cid === channel.cid;
-  const { muted } = channel.muteStatus();
+  const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
     if (isActive || muted) {
