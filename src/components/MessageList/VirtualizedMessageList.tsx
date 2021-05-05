@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Components,
   ScrollSeekConfiguration,
@@ -10,7 +10,7 @@ import {
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
-import { MessageNotification } from './MessageNotification';
+import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { processMessages } from './utils';
 
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
@@ -86,6 +86,7 @@ const VirtualizedMessageListWithContext = <
     overscan = 0,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     scrollSeekPlaceHolder,
+    scrollToLatestMessageOnFocus = false,
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
   } = props;
@@ -95,6 +96,7 @@ const VirtualizedMessageListWithContext = <
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     MessageDeleted = DefaultMessageDeleted,
+    MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
     TypingIndicator = null,
     VirtualMessage: contextMessage = FixedHeightMessage,
@@ -140,6 +142,31 @@ const VirtualizedMessageListWithContext = <
     newMessagesNotification,
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID);
+
+  const scrollToBottom = useCallback(() => {
+    if (virtuoso.current) {
+      virtuoso.current.scrollToIndex(processedMessages.length - 1);
+    }
+
+    setNewMessagesNotification(false);
+  }, [virtuoso, processedMessages, setNewMessagesNotification, processedMessages.length]);
+
+  const scrollToBottomIfConfigured = useCallback(
+    (event: Event) => {
+      if (scrollToLatestMessageOnFocus && event.target === window) {
+        setTimeout(scrollToBottom, 100);
+      }
+    },
+    [scrollToLatestMessageOnFocus, scrollToBottom],
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', scrollToBottomIfConfigured);
+    }
+
+    return () => window.removeEventListener('focus', scrollToBottomIfConfigured);
+  }, [scrollToBottomIfConfigured]);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
@@ -249,15 +276,7 @@ const VirtualizedMessageListWithContext = <
         {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
       />
       <div className='str-chat__list-notifications'>
-        <MessageNotification
-          onClick={() => {
-            if (virtuoso.current) {
-              virtuoso.current.scrollToIndex(processedMessages.length - 1);
-            }
-            setNewMessagesNotification(false);
-          }}
-          showNotification={newMessagesNotification}
-        >
+        <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
           {t('New Messages!')}
         </MessageNotification>
       </div>
@@ -308,6 +327,8 @@ export type VirtualizedMessageListProps<
   scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
     placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
   };
+  /** When `true`, the list will scroll to the latest message when the window regains focus */
+  scrollToLatestMessageOnFocus?: boolean;
   /**
    * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
    * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
@@ -358,8 +379,6 @@ export function VirtualizedMessageList<
       hasMore={!!hasMore}
       loadingMore={!!loadingMore}
       loadMore={loadMore}
-      // there's a mismatch in the created_at field - stream-chat MessageResponse says it's a string,
-      // 'formatMessage' converts it to Date, which seems to be the correct type
       messages={messages}
       {...props}
     />

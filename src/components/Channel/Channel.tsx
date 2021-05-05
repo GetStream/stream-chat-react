@@ -66,6 +66,8 @@ import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageNotificationProps } from '../MessageList/MessageNotification';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -191,6 +193,8 @@ export type ChannelProps<
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
   /** The component handling how the message input is rendered */
   MessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageInput'];
+  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
+  MessageNotification?: React.ComponentType<MessageNotificationProps>;
   /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
   MessageOptions?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageOptions'];
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
@@ -837,6 +841,7 @@ const ChannelInner = <
       LoadingIndicator: props.LoadingIndicator,
       Message,
       MessageDeleted: props.MessageDeleted,
+      MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageSystem: props.MessageSystem,

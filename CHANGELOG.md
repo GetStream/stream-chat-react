@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.2) 2021-05-3
+
+### Feature
+
+- Add `scrollToLatestMessageOnFocus` prop to `VirtualizedMessageList` to handle focus changes on browser tab switching [#892](https://github.com/GetStream/stream-chat-react/pull/892)
+- Add `MessageNotification` prop to `MessageList` components to allow customization of the new messages notification popup [#894](https://github.com/GetStream/stream-chat-react/pull/894)
+
+### Bug
+
+- Adjust URL parsing for duplicate entries [#893](https://github.com/GetStream/stream-chat-react/pull/893)
+
 ## [5.3.1](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.1) 2021-04-30
 
 ### Bug
