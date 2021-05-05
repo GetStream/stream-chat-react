@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { useMobilePress } from './hooks';
+import { QuotedMessage } from './QuotedMessage';
 import { messageHasAttachments } from './utils';
 
 import { useMessageContext } from '../../context/MessageContext';
@@ -78,6 +79,7 @@ const UnMemoizedMessageTextComponent = <Us extends DefaultUserType<Us> = Default
         onClick={onMentionsClickMessage}
         onMouseOver={onMentionsHoverMessage}
       >
+        {message.quoted_message && <QuotedMessage />}
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}

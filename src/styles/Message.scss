@@ -2,6 +2,46 @@
   display: block;
   position: relative;
 
+  .quoted-message {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 5px;
+
+    &-inner {
+      display: flex;
+      text-align: start;
+      align-items: flex-end;
+      background: #ebebeb;
+      border-radius: 8px 8px 8px 0;
+      max-width: 408px;
+      padding: 5px 10px;
+
+      .str-chat__message-attachment--image:first-of-type {
+        max-width: 48px;
+
+        .str-chat__message-attachment--img {
+          border-radius: 8px;
+        }
+      }
+
+      .str-chat__message-attachment--file:first-of-type {
+        background: $white;
+        border-radius: 8px;
+        border-bottom: 1px solid #ebebeb;
+      }
+
+      :nth-child(2) {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .quoted-message.mine {
+    .quoted-message-inner {
+      background: $white;
+    }
+  }
+
   /* group styling */
   &--top,
   &--single {
@@ -791,7 +831,7 @@
     background: white;
     border-color: transparent;
     border: 1px solid #ebebeb;
-    border-radius: 0;
+    border-radius: 8px;
     .str-chat__message-attachment-file--item {
       border-color: transparent;
       padding: 0 10px;
