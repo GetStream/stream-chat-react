@@ -8,7 +8,7 @@ import {
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
 } from './icons';
-import { QuotedMessagePreview } from './QuotedMessagePreview';
+import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -67,6 +67,7 @@ export const MessageInputFlat = <
     CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
+    QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 

@@ -20,20 +20,6 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type QuotedMessagePreviewHeaderProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
-  setQuotedMessage: React.Dispatch<
-    React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
-  >;
-};
-
 const QuotedMessagePreviewHeader = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -42,11 +28,8 @@ const QuotedMessagePreviewHeader = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: QuotedMessagePreviewHeaderProps<At, Ch, Co, Ev, Me, Re, Us>,
-) => {
-  const { setQuotedMessage } = props;
-
+>() => {
+  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   return (
@@ -89,7 +72,6 @@ export const QuotedMessagePreview = <
 ) => {
   const { quotedMessage } = props;
 
-  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { userLanguage } = useTranslationContext();
 
@@ -107,7 +89,7 @@ export const QuotedMessagePreview = <
 
   return (
     <div className='quoted-message-preview'>
-      <QuotedMessagePreviewHeader setQuotedMessage={setQuotedMessage} />
+      <QuotedMessagePreviewHeader />
       <div className='quoted-message-preview-content'>
         <Avatar image={quotedMessage?.user?.image} size={20} />
         <div className='quoted-message-preview-content-inner'>
