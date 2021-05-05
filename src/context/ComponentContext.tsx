@@ -13,15 +13,23 @@ import type { MessageUIComponentProps, PinIndicatorProps } from '../components/M
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
+import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
+import type {
+  SuggestionItemProps,
+  SuggestionListProps,
+} from '../components/ChatAutoComplete/ChatAutoComplete';
+import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
+import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/Thread';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type {
+  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -39,20 +47,28 @@ export type ComponentContextValue<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = {
   Attachment: React.ComponentType<AttachmentProps<At>>;
   Emoji: React.ComponentType<NimbleEmojiProps>;
   EmojiIndex: NimbleEmojiIndex;
   EmojiPicker: React.ComponentType<NimblePickerProps>;
   Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
+  AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
+  AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
   Avatar?: React.ComponentType<AvatarProps>;
+  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  EmojiIcon?: React.ComponentType;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
+  FileUploadIcon?: React.ComponentType;
   HeaderComponent?: React.ComponentType;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageInput?: React.ComponentType;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
@@ -61,8 +77,11 @@ export type ComponentContextValue<
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
+  SendButton?: React.ComponentType<SendButtonProps>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  ThreadMessageInput?: React.ComponentType;
   ThreadStart?: React.ComponentType;
+  TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
@@ -78,12 +97,13 @@ export const ComponentProvider = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>;
 }>) => (
   <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
     {children}
@@ -97,9 +117,10 @@ export const useComponentContext = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >() =>
-  (useContext(ComponentContext) as unknown) as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  (useContext(ComponentContext) as unknown) as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext
@@ -114,14 +135,15 @@ export const withComponentContext = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
+): React.FC<Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>> => {
   const WithComponentContextComponent = (
-    props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
+    props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>,
   ) => {
-    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
     return <Component {...(props as P)} {...componentContext} />;
   };

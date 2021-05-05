@@ -13,6 +13,14 @@
     position: relative;
     z-index: 1;
     width: 100%;
+
+    &-cooldown {
+      position: absolute;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      top: 8px;
+    }
   }
 
   &--emojipicker {
@@ -372,10 +380,19 @@
       right: 32px;
     }
   }
+
   .str-chat__emojiselect-wrapper {
     .str-chat__tooltip {
       bottom: 32px;
       right: 10px;
     }
+  }
+
+  .str-chat__input-small-cooldown {
+    position: absolute;
+    right: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    top: 6px;
   }
 }

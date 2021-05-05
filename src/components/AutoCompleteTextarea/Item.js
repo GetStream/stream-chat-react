@@ -1,7 +1,6 @@
 import React from 'react';
 
-// eslint-disable-next-line react/display-name
-const Item = React.forwardRef((props, innerRef) => {
+export const Item = React.forwardRef(function Item(props, innerRef) {
   const {
     className,
     component: Component,
@@ -30,5 +29,3 @@ const Item = React.forwardRef((props, innerRef) => {
     </li>
   );
 });
-
-export default Item;
