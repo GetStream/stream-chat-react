@@ -36,7 +36,7 @@ The MessageContext provides the following properties:
 
 - **onMentionsHoverMessage** Handler function for a hover event on an @mention in Message
 
-- **onReactionListClick** 
+- **onReactionListClick** Handler function for a click event on the Reactions List.
 
 - **onUserClick** Handler function for a click event on the user that posted the Message
 
