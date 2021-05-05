@@ -1,5 +1,7 @@
 The ChannelActionContext provides the following properties:
 
+- **addNotification** Function to add a temporary notification to message list, will be removed after 5 seconds. Takes a string for the text of the notification and a type.
+
 - **closeThread** The function to close the currently open Thread
 
 - **dispatch** The dispatch function for the ChannelStateReducer
