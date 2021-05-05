@@ -20,6 +20,8 @@ import type {
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
+export const useFlagHandlerBannedUser = 'useFlagHandler was called but user is banned.';
+
 export type FlagMessageNotifications<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -57,6 +59,10 @@ export const useFlagHandler = <
     if (!client || !t || !notify || !message?.id) {
       console.warn(missingUseFlagHandlerParameterWarning);
       return;
+    }
+
+    if (client.user?.banned) {
+      return notify(useFlagHandlerBannedUser, 'error');
     }
 
     try {
