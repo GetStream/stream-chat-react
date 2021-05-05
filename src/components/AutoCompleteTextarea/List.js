@@ -1,12 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { TranslationContext } from '../../context/TranslationContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { escapeRegExp } from '../../utils';
 
-import Item from './Item';
+import { Item } from './Item';
+import { DefaultSuggestionListHeader } from './Header';
 import { KEY_CODES } from './listener';
 
-const List = (props) => {
+export const List = (props) => {
   const {
     className,
     component,
@@ -14,25 +15,28 @@ const List = (props) => {
     dropdownScroll,
     getSelectedItem,
     getTextToReplace,
+    Header: PropHeader,
     itemClassName,
     itemStyle,
     onSelect,
-    style,
     selectionEnd,
-    SuggestionItem = Item,
+    style,
+    SuggestionItem: PropSuggestionItem,
     value: propValue,
     values,
   } = props;
 
-  const { t } = useContext(TranslationContext);
+  const { AutocompleteSuggestionHeader, AutocompleteSuggestionItem } = useComponentContext();
+  const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
+  const SuggestionHeader =
+    PropHeader || AutocompleteSuggestionHeader || DefaultSuggestionListHeader;
 
   const [selectedItem, setSelectedItem] = useState(undefined);
 
   const itemsRef = [];
 
   const isSelected = (item) =>
-    selectedItem ===
-    values.findIndex((value) => (value.id ? value.id === item.id : value.name === item.name));
+    selectedItem === values.findIndex((value) => getId(value) === getId(item));
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -108,25 +112,6 @@ const List = (props) => {
     if (values?.length) selectItem(values[0]);
   }, [values]); // eslint-disable-line
 
-  const renderHeader = (value) => {
-    if (value[0] === '/') {
-      const html = `<strong>${value.replace('/', '')}</strong>`;
-      return `${t('Commands matching')} ${html}`;
-    }
-
-    if (value[0] === ':') {
-      const html = `<strong>${value.replace(':', '')}</strong>`;
-      return `${t('Emoji matching')} ${html}`;
-    }
-
-    if (value[0] === '@') {
-      const html = `<strong>${value.replace('@', '')}</strong>`;
-      return `${t('People matching')} ${html}`;
-    }
-
-    return null;
-  };
-
   const restructureItem = (item) => {
     const matched = item.name || item.id;
 
@@ -143,12 +128,9 @@ const List = (props) => {
 
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
-      <li
-        className='rta__list-header'
-        dangerouslySetInnerHTML={{
-          __html: renderHeader(propValue),
-        }}
-      />
+      <li className='rta__list-header'>
+        <SuggestionHeader value={propValue} />
+      </li>
       {values.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
@@ -167,5 +149,3 @@ const List = (props) => {
     </ul>
   );
 };
-
-export default List;

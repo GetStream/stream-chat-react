@@ -16,6 +16,11 @@ import {
 import { Chat } from '../../Chat/Chat';
 import { Channel } from '../../Channel/Channel';
 import { ChatContext } from '../../../context/ChatContext';
+import { MessageInput } from '../../MessageInput';
+import {
+  MessageInputContextProvider,
+  useMessageInputContext,
+} from '../../../context/MessageInputContext';
 
 let chatClient;
 let channel;
@@ -30,13 +35,35 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
-const renderComponent = async (props = {}, activeChannel = channel) => {
+const renderComponent = async (
+  props = {},
+  messageInputContextOverrides = {},
+  activeChannel = channel,
+) => {
   const placeholderText = props.placeholder || 'placeholder';
+
+  const OverrideMessageInputContext = ({ children }) => {
+    const currentContext = useMessageInputContext();
+    const withOverrides = {
+      ...currentContext,
+      ...messageInputContextOverrides,
+    };
+    return (
+      <MessageInputContextProvider value={withOverrides}>{children}</MessageInputContextProvider>
+    );
+  };
+
+  const AutoComplete = () => (
+    <OverrideMessageInputContext>
+      <ChatAutoComplete {...props} placeholder={placeholderText} />
+    </OverrideMessageInputContext>
+  );
+
   const renderResult = render(
     <Chat client={chatClient}>
       <ActiveChannelSetter activeChannel={activeChannel} />
       <Channel>
-        <ChatAutoComplete {...props} placeholder={placeholderText} />
+        <MessageInput Input={AutoComplete} />
       </Channel>
     </Chat>,
   );
@@ -69,7 +96,7 @@ describe('ChatAutoComplete', () => {
 
   it('should call onChange with the change event when you type in the input', async () => {
     const onChange = jest.fn();
-    const { typeText } = await renderComponent({ onChange });
+    const { typeText } = await renderComponent({}, { handleChange: onChange });
     typeText('something');
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -88,7 +115,7 @@ describe('ChatAutoComplete', () => {
   });
 
   it('should pass the disabled prop to the textarea', async () => {
-    const { textarea } = await renderComponent({ disabled: true });
+    const { textarea } = await renderComponent({}, { disabled: true });
 
     expect(textarea).toBeDisabled();
   });
@@ -109,7 +136,7 @@ describe('ChatAutoComplete', () => {
   it('should let you select users when you type @<username>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${mentionUser.name}`;
-    const { getAllByText, typeText } = await renderComponent({
+    const { getAllByText, textarea, typeText } = await renderComponent({
       onSelectItem,
     });
     typeText(userAutocompleteText);
@@ -119,17 +146,13 @@ describe('ChatAutoComplete', () => {
 
     fireEvent.click(userText[1]);
 
-    expect(onSelectItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mentionUser.id,
-      }),
-    );
+    expect(textarea.value).toContain(mentionUser.name);
   });
 
   it('should let you select users when you type @<userid>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${mentionUser.id}`;
-    const { findByText, typeText } = await renderComponent({ onSelectItem });
+    const { findByText, textarea, typeText } = await renderComponent({ onSelectItem });
     typeText(userAutocompleteText);
     const userText = await findByText(mentionUser.name);
 
@@ -137,11 +160,7 @@ describe('ChatAutoComplete', () => {
 
     fireEvent.click(userText);
 
-    expect(onSelectItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mentionUser.id,
-      }),
-    );
+    expect(textarea.value).toContain(mentionUser.name);
   });
 
   it('should let you select commands when you type /<command>', async () => {
@@ -169,10 +188,13 @@ describe('ChatAutoComplete', () => {
   it('should disable mention popup list', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${user.name}`;
-    const { queryAllByText, typeText } = await renderComponent({
-      disableMentions: true,
-      onSelectItem,
-    });
+    const { queryAllByText, typeText } = await renderComponent(
+      {},
+      {
+        disableMentions: true,
+        onSelectItem,
+      },
+    );
     typeText(userAutocompleteText);
     const userText = await queryAllByText(user.name);
 
@@ -189,15 +211,10 @@ describe('ChatAutoComplete', () => {
       messages,
     });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const activeChannel = chatClient.channel('messaging', mockedChannel.id);
     const searchMember = members[0];
     useMockedApis(chatClient, [queryMembersApi([searchMember])]);
 
-    const onSelectItem = jest.fn();
-    const { findByText, typeText } = await renderComponent({
-      activeChannel,
-      onSelectItem,
-    });
+    const { findByText, textarea, typeText } = await renderComponent();
     const mentionedUser = searchMember.user;
 
     typeText(`@${mentionedUser.id}`);
@@ -206,11 +223,8 @@ describe('ChatAutoComplete', () => {
     expect(userText).toBeInTheDocument();
 
     fireEvent.click(userText);
-
-    expect(onSelectItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mentionedUser.id,
-      }),
-    );
+    await waitFor(() => {
+      expect(textarea.value).toContain(mentionedUser.name);
+    });
   });
 });
