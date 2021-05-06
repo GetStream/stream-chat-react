@@ -147,9 +147,9 @@
     }
   }
 
-  &--emojipicker {
-    position: absolute;
-    bottom: calc(100%);
+  .str-chat__input--emojipicker {
+    left: 0;
+    right: auto;
   }
 
   .rfu-file-previewer {
