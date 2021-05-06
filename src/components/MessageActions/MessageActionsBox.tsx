@@ -146,6 +146,17 @@ const UnMemoizedMessageActionsBox = <
     [messageListRect, mine, open],
   );
 
+  const handleQuote = () => {
+    setQuotedMessage(message);
+
+    const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+    const textarea = elements.item(0);
+
+    if (textarea instanceof HTMLTextAreaElement) {
+      textarea.focus();
+    }
+  };
+
   return (
     <div
       className={`str-chat__message-actions-box
@@ -163,7 +174,7 @@ const UnMemoizedMessageActionsBox = <
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
           !message.parent_id &&
           !message.quoted_message && (
-            <button onClick={() => setQuotedMessage(message)}>
+            <button onClick={handleQuote}>
               <li className='str-chat__message-actions-list-item'>{t('Reply')}</li>
             </button>
           )}
