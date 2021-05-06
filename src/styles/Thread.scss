@@ -57,6 +57,56 @@
     .str-chat__list {
       padding: 0;
     }
+
+    .str-chat__message:first-of-type .str-chat__message-inner {
+      margin-left: unset;
+      margin-right: unset;
+    }
+
+    .str-chat__message-attachment.str-chat__message-attachment--file {
+      border-radius: 8px;
+      border-bottom: 1px solid #ebebeb;
+    }
+
+    .quoted-message {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 5px;
+
+      &-inner {
+        display: flex;
+        text-align: start;
+        align-items: flex-end;
+        background: #ebebeb;
+        border-radius: 8px 8px 8px 0;
+        max-width: 408px;
+        padding: 5px 10px;
+
+        .str-chat__message-attachment.str-chat__message-attachment--file {
+          display: none;
+        }
+
+        .str-chat__message-attachment {
+          &--image:first-of-type {
+            max-width: 48px;
+          }
+
+          img {
+            border-radius: 8px;
+          }
+        }
+
+        :nth-child(2) {
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .quoted-message.mine {
+      .quoted-message-inner {
+        background: $white;
+      }
+    }
   }
 }
 
@@ -126,8 +176,7 @@
         background: rgba(white, 0.04);
         &-header {
           background: rgba(46, 48, 51, 0.98);
-          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03),
-            0 1px 0 0 rgba(0, 0, 0, 0.03);
+          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
           color: white;
         }
         &-start {
