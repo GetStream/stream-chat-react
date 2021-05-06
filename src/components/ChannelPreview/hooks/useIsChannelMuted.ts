@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { Channel, Event } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -30,17 +30,11 @@ export const useIsChannelMuted = <
   const [muted, setMuted] = useState(channel.muteStatus());
 
   useEffect(() => {
-    const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (event.type === 'notification.channel_mutes_updated') setMuted(channel.muteStatus());
-    };
+    const handleEvent = () => setMuted(channel.muteStatus());
 
-    if (client) client.on(handleEvent);
-    return () => {
-      if (client) {
-        client.off(handleEvent);
-      }
-    };
-  }, [client, muted]);
+    client.on('notification.channel_mutes_updated', handleEvent);
+    return () => client.off('notification.channel_mutes_updated', handleEvent);
+  }, [muted]);
 
   return muted;
 };

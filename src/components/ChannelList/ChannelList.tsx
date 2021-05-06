@@ -18,7 +18,7 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import { ChannelPreviewLastMessage } from '../ChannelPreview/ChannelPreviewLastMessage';
+import { ChannelPreviewMessenger } from '../ChannelPreview/ChannelPreviewMessenger';
 import {
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
@@ -138,7 +138,7 @@ export type ChannelListProps<
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
-  /** Custom UI component to display the channel preview in the ChannelList, defaults to and accepts same props as: [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage) */
+  /** Custom UI component to display the channel preview in the ChannelList, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
@@ -184,7 +184,7 @@ const UnMemoizedChannelList = <
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
-    Preview = ChannelPreviewLastMessage,
+    Preview = ChannelPreviewMessenger,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
     sort = DEFAULT_SORT,
