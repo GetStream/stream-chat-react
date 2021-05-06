@@ -88,6 +88,7 @@ const MessageWithContext = <
   const {
     canPin,
     channelConfig,
+    disableQuotedMessages,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -112,6 +113,7 @@ const MessageWithContext = <
 
   const canEdit = isMyMessage || isModerator || isAdmin;
   const canDelete = canEdit;
+  const canQuote = !disableQuotedMessages;
   const canReact = true;
   const canReply = true;
 
@@ -126,6 +128,7 @@ const MessageWithContext = <
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
       canPin,
+      canQuote,
       canReact,
       canReply,
     });
@@ -133,12 +136,13 @@ const MessageWithContext = <
     canDelete,
     canEdit,
     canPin,
+    canQuote,
     canReply,
     canReact,
     channelConfig?.mutes,
     isMyMessage,
     message,
-    messageActions,
+    messageActions.length,
   ]);
 
   const {

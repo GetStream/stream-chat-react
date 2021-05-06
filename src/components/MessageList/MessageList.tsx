@@ -171,6 +171,7 @@ const MessageListWithContext = <
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       customMessageActions: props.customMessageActions,
+      disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
@@ -235,6 +236,7 @@ const MessageListWithContext = <
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'customMessageActions'
+  | 'disableQuotedMessages'
   | 'formatDate'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'

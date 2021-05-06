@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
-import { MessageInputLarge } from './MessageInputLarge';
+import { MessageInputFlat } from './MessageInputFlat';
 
 import { CooldownTimerProps, useCooldownTimer } from './hooks/useCooldownTimer';
 import { useMessageInputState } from './hooks/useMessageInputState';
@@ -170,7 +170,7 @@ const UnMemoizedMessageInput = <
     ...currentComponentContext
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
 
-  const Input = PropInput || ContextInput || MessageInputLarge;
+  const Input = PropInput || ContextInput || MessageInputFlat;
   const TriggerProvider = PropTriggerProvider || ContextTriggerProvider || DefaultTriggerProvider;
 
   const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
