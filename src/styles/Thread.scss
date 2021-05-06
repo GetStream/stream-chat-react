@@ -86,8 +86,18 @@
           display: none;
         }
 
+        .str-chat__message-attachment-card.str-chat__message-attachment-card--image {
+          border-radius: unset;
+        }
+
+        .str-chat__message-attachment.str-chat__message-attachment--card {
+          border: none;
+          border-radius: 8px;
+        }
+
         .str-chat__message-attachment {
           &--image:first-of-type {
+            max-height: 48px;
             max-width: 48px;
           }
 

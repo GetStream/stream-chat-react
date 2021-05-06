@@ -45,12 +45,12 @@
           .str-chat__message-attachment {
             margin: 0;
 
-            &--img {
+            &--img,
+            &--card {
               border-radius: 8px;
-            }
-
-            &--image:first-of-type {
+              max-height: 48px;
               max-width: 48px;
+              width: 100%;
             }
 
             &--file {
@@ -64,6 +64,11 @@
                 border-left: none;
                 padding: 0 10px;
               }
+            }
+
+            &-card--image {
+              border: none;
+              border-radius: 8px;
             }
           }
 

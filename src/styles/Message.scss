@@ -16,9 +16,16 @@
       max-width: 408px;
       padding: 5px 10px;
 
+      .str-chat__message-attachment-card.str-chat__message-attachment-card--image {
+        border: none;
+        border-radius: 8px;
+      }
+
       .str-chat__message-attachment {
         &--image:first-of-type {
+          max-height: 48px;
           max-width: 48px;
+          border-radius: 8px;
         }
 
         img {
@@ -495,7 +502,6 @@
   }
 
   &-url-link {
-    display: inline-block;
     max-width: 150px;
     text-overflow: ellipsis;
     overflow: hidden;
