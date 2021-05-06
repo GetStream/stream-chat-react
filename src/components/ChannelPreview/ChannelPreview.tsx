@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { ChannelPreviewCountOnly } from './ChannelPreviewCountOnly';
+import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
+import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
@@ -60,10 +61,7 @@ export type ChannelPreviewProps<
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   /** Current selected channel object */
   activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   * Custom UI component to display user avatar
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
@@ -98,7 +96,7 @@ export const ChannelPreview = <
 >(
   props: ChannelPreviewProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { channel, Preview = ChannelPreviewCountOnly } = props;
+  const { channel, Preview = ChannelPreviewMessenger } = props;
 
   const { channel: activeChannel, client, setActiveChannel } = useChatContext<
     At,
@@ -117,7 +115,7 @@ export const ChannelPreview = <
   const [unread, setUnread] = useState(0);
 
   const isActive = activeChannel?.cid === channel.cid;
-  const { muted } = channel.muteStatus();
+  const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
     if (isActive || muted) {
