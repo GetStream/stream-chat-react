@@ -40,7 +40,7 @@ The ComponentContext provides the following properties:
 
 - **MessageDeleted** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
 
-- **MessageINput** The component handling how the message input is rendered
+- **MessageInput** The component handling how the message input is rendered
 
 - **MessageNotification** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx)
 

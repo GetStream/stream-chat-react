@@ -4,6 +4,8 @@ Values from the `useMessageInputState` hook.
 
 - **attachments** Part of MessageInputState, array of attachments.
 
+- **autocompleteTriggers** Default triggers for the ChatAutoComplete component.
+
 - **emojiPickerIsOpen** Part of MessageInputState, whether the message input emoji picker is opened or not.
 
 - **fileOrder** Part of MessageInputState, an array containing the keys of the non-image attachments attached to the message input.

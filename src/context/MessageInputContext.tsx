@@ -1,8 +1,12 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
+
+import type { TriggerSettings } from '../components/ChatAutoComplete/ChatAutoComplete';
+import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 import type {
   MessageInputHookProps,
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
+
 import type {
   CustomTrigger,
   DefaultAttachmentType,
@@ -13,7 +17,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 
 export type MessageInputContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -26,11 +29,8 @@ export type MessageInputContextValue<
   V extends CustomTrigger = CustomTrigger
 > = MessageInputState<At, Us> &
   MessageInputHookProps<Us> &
-  Omit<
-    MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-    'Input' | 'SuggestionList' | 'SuggestionItem' | 'SendButton' | 'EmojiIcon' | 'FileUploadIcon'
-  > &
-  CooldownTimerState;
+  Omit<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>, 'Input'> &
+  CooldownTimerState & { autocompleteTriggers?: TriggerSettings<Co, Us, V> };
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined

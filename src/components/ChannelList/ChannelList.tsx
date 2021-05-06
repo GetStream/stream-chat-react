@@ -18,7 +18,6 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import { ChannelPreviewMessenger } from '../ChannelPreview/ChannelPreviewMessenger';
 import {
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
@@ -184,7 +183,7 @@ const UnMemoizedChannelList = <
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
-    Preview = ChannelPreviewMessenger,
+    Preview,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
     sort = DEFAULT_SORT,
