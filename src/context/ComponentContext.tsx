@@ -67,9 +67,9 @@ export type ComponentContextValue<
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   HeaderComponent?: React.ComponentType;
+  Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  MessageInput?: React.ComponentType;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
@@ -82,7 +82,7 @@ export type ComponentContextValue<
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
   SendButton?: React.ComponentType<SendButtonProps>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  ThreadMessageInput?: React.ComponentType;
+  ThreadInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;

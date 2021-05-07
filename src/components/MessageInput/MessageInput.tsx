@@ -114,10 +114,16 @@ const UnMemoizedMessageInput = <
 ) => {
   const { Input: PropInput } = props;
 
-  const {
-    MessageInput: ContextInput,
-    TriggerProvider = DefaultTriggerProvider,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us,
+    V
+  >();
 
   const Input = PropInput || ContextInput || MessageInputFlat;
 

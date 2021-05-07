@@ -1,6 +1,6 @@
 The ComponentContext provides the following properties:
 
-- **Attachment** Custom UI component to display attachment in an individual message, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.tsx)
+- **Attachment** Custom UI component to display attachment in an individual message, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx)
 
 - **Avatar** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
 
@@ -28,19 +28,19 @@ The ComponentContext provides the following properties:
 
 - **FileUploadIcon** Custom UI Component to be displayed in the FileUploadButton.
 
-- **LoadingIndicator** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx)
+- **Input** The component handling how the message input is rendered.
+
+- **LoadingIndicator** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components//Loading/LoadingIndicator.tsx)
 
 - **Message** Custom UI component to display a message in message list. Available built-in components (also accepts the same props as):
-  * [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
-  * [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
-  * [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
-  * [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
+  * [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) (default)
+  * [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTeam.tsx)
+  * [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageLivestream.tsx)
+  * [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageCommerce.tsx)
 
 - **HeaderComponent** Component to render at the top of the MessageList
 
 - **MessageDeleted** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx)
-
-- **MessageInput** The component handling how the message input is rendered
 
 - **MessageNotification** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx)
 
@@ -48,7 +48,7 @@ The ComponentContext provides the following properties:
 
 - **MessageRepliesCountButton** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx)
 
-- **MessageSystem** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx)
+- **MessageSystem** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx)
 
 - **MessageTimestamp** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx)
 
@@ -66,7 +66,7 @@ The ComponentContext provides the following properties:
 
 - **ThreadHeader** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx)
 
-- **ThreadMessageInput** Custom UI component to replace the `MessageInput`of a `Thread`, defaults to and accepts same props as: [MessageInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInput.tsx)
+- **ThreadInput** Custom UI component to replace the `MessageInput`of a `Thread`, defaults to and accepts same props as: [MessageInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInput.tsx)
 
 - **ThreadStart** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx)
 

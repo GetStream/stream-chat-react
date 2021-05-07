@@ -89,7 +89,7 @@ export type ChannelProps<
 > = {
   /** List of accepted file types */
   acceptedFiles?: string[];
-  /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.tsx) */
+  /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
   AutocompleteSuggestionHeader?: ComponentContextValue<
@@ -163,24 +163,26 @@ export type ChannelProps<
   FileUploadIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['FileUploadIcon'];
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
-  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingErrorIndicator.tsx) */
+  /**
+   * Custom UI component handling how the message input is rendered, defaults to and accepst the same props as [MessageInputFlat]https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx
+   */
+  Input?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Input'];
+  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-  /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx) */
+  /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['LoadingIndicator'];
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /**
    * Custom UI component to display a message in the standard `MessageList`, available built-in components (also accepts the same props as):
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
-   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
-   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
-   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) (default)
+   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTeam.tsx)
+   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageLivestream.tsx)
+   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageCommerce.tsx)
    */
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
-  /** The component handling how the message input is rendered */
-  MessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageInput'];
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
@@ -195,7 +197,7 @@ export type ChannelProps<
     Re,
     Us
   >['MessageRepliesCountButton'];
-  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
+  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) */
   MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
   /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
   MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];

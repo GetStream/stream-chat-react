@@ -6,7 +6,7 @@ The MessageContext provides the following properties:
 
 - **editing** If the Message is in edit state
 
-- **getMessageActions** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply']. Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
+- **getMessageActions** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply']. Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) component for default implementation.
 
 - **handleAction** Function to send an action in a Channel
 
