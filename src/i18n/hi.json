@@ -12,7 +12,7 @@
   "Edit Message": "मैसेज में बदलाव करे",
   "Emoji matching": "इमोजी मिलान",
   "Empty message...": "खाली संदेश ...",
-  "Error adding flag: Either the flag already exist or there is issue with network connection ...": "फ़ैल: या तो यह मैसेज के ऊपर पहले से फ्लैग है या तो आपके इंटरनेट कनेक्शन में कुछ परेशानी है",
+  "Error adding flag": "ध्वज जोड़ने में त्रुटि",
   "Error connecting to chat, refresh the page to try again.": "चैट से कनेक्ट करने में त्रुटि, पेज को रिफ्रेश करें",
   "Error muting a user ...": "यूजर को म्यूट करने का प्रयास फेल हुआ",
   "Error pinning message": "संदेश को पिन करने में त्रुटि",

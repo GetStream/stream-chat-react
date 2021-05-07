@@ -20,8 +20,6 @@ import type {
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
-export const useFlagHandlerBannedUser = 'useFlagHandler was called but user is banned.';
-
 export type FlagMessageNotifications<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -62,7 +60,7 @@ export const useFlagHandler = <
     }
 
     if (client.user?.banned) {
-      return notify(useFlagHandlerBannedUser, 'error');
+      return notify(t('Error adding flag'), 'error');
     }
 
     try {
@@ -76,13 +74,7 @@ export const useFlagHandler = <
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      notify(
-        errorMessage ||
-          t(
-            'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-          ),
-        'error',
-      );
+      notify(errorMessage || t('Error adding flag'), 'error');
     }
   };
 };

@@ -102,8 +102,7 @@ describe('useHandleFlag custom hook', () => {
     const message = generateMessage();
     const notify = jest.fn();
     flagMessage.mockImplementationOnce(() => Promise.reject());
-    const defaultFlagMessageFailedNotification =
-      'Error adding flag: Either the flag already exist or there is issue with network connection ...';
+    const defaultFlagMessageFailedNotification = 'Error adding flag';
     const handleFlag = await renderUseHandleFlagHook(message, {
       notify,
     });

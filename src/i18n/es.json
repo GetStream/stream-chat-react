@@ -12,7 +12,7 @@
   "Edit Message": "Editar mensaje",
   "Emoji matching": "Coincidencia de emoji",
   "Empty message...": "Mensaje vacío ...",
-  "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Error al agregar la bandera: la bandera ya existe o hay un problema con la conexión de red ...",
+  "Error adding flag": "Error al agregar la bandera",
   "Error connecting to chat, refresh the page to try again.": "Error al conectarse al chat, actualice la página para volver a intentarlo.",
   "Error muting a user ...": "Error al silenciar a un usuario ...",
   "Error pinning message": "Mensaje de error al fijar",

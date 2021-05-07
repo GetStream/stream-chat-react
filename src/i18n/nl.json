@@ -12,7 +12,7 @@
   "Edit Message": "Pas bericht aan",
   "Emoji matching": "Emoji-overeenkomsten",
   "Empty message...": "Leeg bericht...",
-  "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Fout bij het markeren: of het bericht is al gemarkeerd of er is een probleem met de netwerk verbinding",
+  "Error adding flag": "Fout bij toevoegen van vlag",
   "Error connecting to chat, refresh the page to try again.": "Fout bij het verbinden, ververs de pagina om nogmaals te proberen",
   "Error muting a user ...": "Fout bij het muten van de gebruiker",
   "Error pinning message": "Fout bij vastzetten van bericht",
