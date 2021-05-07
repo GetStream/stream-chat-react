@@ -24,4 +24,6 @@ The ChannelActionContext provides the following properties:
 
 -  **sendMessage** The function to send a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
 
+- **setQuoteMessage** The function to send a quoted message on a channel, take a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+
 -  **updateMessage** The function to update a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
