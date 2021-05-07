@@ -163,9 +163,7 @@ export type ChannelProps<
   FileUploadIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['FileUploadIcon'];
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
-  /**
-   * Custom UI component handling how the message input is rendered, defaults to and accepst the same props as [MessageInputFlat]https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx
-   */
+  /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat]https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx */
   Input?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Input'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;

@@ -55,7 +55,7 @@ export type MessageContextValue<
   /** If the Message is in edit state */
   editing: boolean;
   /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
+   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'].
    * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
    */
   getMessageActions: () => MessageActionsArray<string>;
