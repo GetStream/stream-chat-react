@@ -70,12 +70,13 @@ export const MESSAGE_ACTIONS = {
   flag: 'flag',
   mute: 'mute',
   pin: 'pin',
+  quote: 'quote',
   react: 'react',
   reply: 'reply',
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
-  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'react' | 'reply' | T
+  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'quote' | 'react' | 'reply' | T
 >;
 
 export const defaultPinPermissions: PinPermissions = {
@@ -142,13 +143,14 @@ export type Capabilities = {
   canFlag?: boolean;
   canMute?: boolean;
   canPin?: boolean;
+  canQuote?: boolean;
   canReact?: boolean;
   canReply?: boolean;
 };
 
 export const getMessageActions = (
   actions: MessageActionsArray | boolean,
-  { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply }: Capabilities,
+  { canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply }: Capabilities,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -180,6 +182,10 @@ export const getMessageActions = (
 
   if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
+  }
+
+  if (canQuote && messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.quote);
   }
 
   if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {

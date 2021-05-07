@@ -8,7 +8,8 @@ The table below describes most of the hook's return values, but be aware that th
 |  `closeEmojiPicker`| func | Handler for the input event to close the emoji picker, receives a mouse event as a parameter.
 |  `cooldownInterval`| number | The length of the cooldown timer that is started after a user posts a message with slow mode turned on.
 |  `cooldownRemaining`| number | Amount of time remaining for the current cooldown.
-|  `emojiPickerIsOpen` | boolean | Part of MessageInputState, whether the message input emoji picker is opened or 
+|  `emojiIndex` | object | NimbleEmojiIndex from emoji-mart.
+|  `emojiPickerIsOpen` | boolean | Part of MessageInputState, whether the message input emoji picker is opened or not.
 |  `emojiPickerRef` | object | A reference to the DOM element containing the emoji picker when it is opened.
 |  `fileOrder` | array | Part of MessageInputState, an array containing the keys of the non-image attachments attached to the message input.
 |  `fileUploads` | array | Part of MessageInputState, an array containing the attachment objects of the attachments attached to the message input
@@ -17,6 +18,7 @@ The table below describes most of the hook's return values, but be aware that th
 |  `handleSubmit` | func | Handles the message input form submit event, receiving it as its argument.
 |  `imageOrder` | array | Part of MessageInputState, an array containing the keys of the images attached to the message input.
 |  `imageUploads` | array | Part of MessageInputState, an array containing the image objects of the images attached to the message input.
+|  `insertText` | func | Function that handles the text to insert.
 |  `isUploadEnabled` | boolean | For if uploads are enabled for the input.
 |  `maxFilesLeft` | number | A number representing the difference between the max number of files and the amount currently updated
 |  `mentioned_users` | array | Part of MessageInputState, ids of users mentioned in message.
@@ -27,7 +29,7 @@ The table below describes most of the hook's return values, but be aware that th
 |  `openEmojiPicker` | func | Opens the emoji picker. It also handle the setting of event listeners to close the emoji picker on selection or clicking outside of it.
 |  `removeFile` | func | A function for removing a file from the current message input. Receives the `file ID` as its argument.
 |  `removeImage` | func | A function for removing an image from the current message input. Receives the `image ID` as its argument.
-|  `text` | string | art of MessageInputState, the current message input text.
+|  `text` | string | Part of MessageInputState, the current message input text.
 |  `textareaRef` | object | A reference to the message input textarea DOM.
 |  `uploadFile` | func | Handles the upload of a file. Receives the `file ID` as its argument.
 |  `uploadImage` | func | Handles the upload of an image. Receives the `image ID` as its argument.

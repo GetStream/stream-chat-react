@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import {
   CustomMessageActions,
   MessageContextValue,
@@ -108,6 +109,7 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
+  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { customMessageActions, message, messageListRect } = useMessageContext<
     At,
     Ch,
@@ -144,6 +146,17 @@ const UnMemoizedMessageActionsBox = <
     [messageListRect, mine, open],
   );
 
+  const handleQuote = () => {
+    setQuotedMessage(message);
+
+    const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+    const textarea = elements.item(0);
+
+    if (textarea instanceof HTMLTextAreaElement) {
+      textarea.focus();
+    }
+  };
+
   return (
     <div
       className={`str-chat__message-actions-box
@@ -158,6 +171,13 @@ const UnMemoizedMessageActionsBox = <
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
+          !message.parent_id &&
+          !message.quoted_message && (
+            <button onClick={handleQuote}>
+              <li className='str-chat__message-actions-list-item'>{t('Reply')}</li>
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
           <button onClick={handlePin}>
             <li className='str-chat__message-actions-list-item'>

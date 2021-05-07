@@ -76,6 +76,7 @@ describe('Message utils', () => {
       canFlag: true,
       canMute: true,
       canPin: true,
+      canQuote: true,
       canReact: true,
       canReply: true,
     };
@@ -104,6 +105,10 @@ describe('Message utils', () => {
       ['not allow', 'flag', 'canFlag', false],
       ['allow', 'mute', 'canMute', true],
       ['not allow', 'mute', 'canMute', false],
+      ['allow', 'pin', 'canPin', true],
+      ['not allow', 'pin', 'canPin', false],
+      ['allow', 'quote', 'canQuote', true],
+      ['not allow', 'quote', 'canQuote', false],
     ])('it should %s %s when %s is %s', (_, action, capabilityKey, capabilityValue) => {
       const capabilities = {
         [capabilityKey]: capabilityValue,

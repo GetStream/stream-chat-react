@@ -190,6 +190,10 @@ module.exports = {
           content: 'src/docs/MessageContext.md',
         },
         {
+          name: 'MessageInputContext',
+          content: 'src/docs/MessageInputContext.md',
+        },
+        {
           name: 'ComponentContext',
           content: 'src/docs/ComponentContext.md',
         },

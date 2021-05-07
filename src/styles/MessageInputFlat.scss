@@ -5,6 +5,81 @@
   z-index: 1;
   width: 100%;
 
+  &-quoted {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    .quoted-message-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+
+      &-header {
+        font-size: 14px;
+        margin-bottom: 10px;
+
+        .str-chat__square-button {
+          position: absolute;
+          right: 0;
+          top: 0;
+          margin: unset;
+          padding: 8px;
+          border-radius: 16px;
+          cursor: pointer;
+        }
+      }
+
+      &-content {
+        display: flex;
+        align-items: flex-end;
+        background: #ebebeb;
+        border-radius: 8px 8px 8px 0;
+        max-width: 60%;
+        padding: 8px 10px;
+
+        &-inner {
+          display: flex;
+          text-align: start;
+          align-items: flex-end;
+
+          .str-chat__message-attachment {
+            margin: 0;
+
+            &--img,
+            &--card {
+              border-radius: 8px;
+              max-height: 48px;
+              max-width: 48px;
+              width: 100%;
+            }
+
+            &--file {
+              min-width: 33%;
+            }
+
+            &-file {
+              &--item {
+                background: $white;
+                border-radius: 8px;
+                border-left: none;
+                padding: 0 10px;
+              }
+            }
+
+            &-card--image {
+              border: none;
+              border-radius: 8px;
+            }
+          }
+
+          :nth-child(2) {
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+  }
+
   &-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -77,9 +152,9 @@
     }
   }
 
-  &--emojipicker {
-    position: absolute;
-    bottom: calc(100%);
+  .str-chat__input--emojipicker {
+    left: 0;
+    right: auto;
   }
 
   .rfu-file-previewer {

@@ -82,6 +82,9 @@ export type ChannelActionContextValue<
   removeMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
   sendMessage: (message: MessageToSend<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+  setQuotedMessage: React.Dispatch<
+    React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
+  >;
   updateMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
 };
 

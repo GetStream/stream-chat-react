@@ -167,7 +167,6 @@ const UnMemoizedChatAutoComplete = <
   const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
   const {
     additionalTextareaProps,
-    autocompleteTriggers,
     cooldownRemaining,
     disabled,
     disableMentions,
@@ -227,7 +226,7 @@ const UnMemoizedChatAutoComplete = <
       rows={rows}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
-      trigger={autocompleteTriggers || {}}
+      trigger={messageInput.autocompleteTriggers || {}}
       value={messageInput.text}
     />
   );

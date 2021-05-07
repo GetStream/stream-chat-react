@@ -8,6 +8,7 @@ import {
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
 } from './icons';
+import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -37,7 +38,15 @@ export const MessageInputFlat = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { acceptedFiles, multipleUploads, quotedMessage } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { t } = useTranslationContext();
 
   const {
@@ -58,6 +67,7 @@ export const MessageInputFlat = <
     CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
+    QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -65,7 +75,7 @@ export const MessageInputFlat = <
     <div
       className={`str-chat__input-flat ${
         SendButton ? 'str-chat__input-flat--send-button-active' : null
-      }`}
+      } ${quotedMessage ? 'str-chat__input-flat-quoted' : null}`}
     >
       <ImageDropzone
         accept={acceptedFiles}
@@ -74,6 +84,7 @@ export const MessageInputFlat = <
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
+        {quotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
