@@ -147,7 +147,7 @@ const UnMemoizedMessageInput = <
 
   return (
     <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
-      <TriggerProvider>
+      <TriggerProvider<At, Ch, Co, Ev, Me, Re, Us, V>>
         <Input />
       </TriggerProvider>
     </MessageInputContextProvider>
