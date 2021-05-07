@@ -59,6 +59,10 @@ export const useFlagHandler = <
       return;
     }
 
+    if (client.user?.banned) {
+      return notify(t('Error adding flag'), 'error');
+    }
+
     try {
       await client.flagMessage(message.id);
 
@@ -70,13 +74,7 @@ export const useFlagHandler = <
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      notify(
-        errorMessage ||
-          t(
-            'Error adding flag: Either the flag already exist or there is issue with network connection ...',
-          ),
-        'error',
-      );
+      notify(errorMessage || t('Error adding flag'), 'error');
     }
   };
 };

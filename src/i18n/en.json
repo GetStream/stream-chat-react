@@ -12,7 +12,7 @@
   "Edit Message": "Edit Message",
   "Emoji matching": "Emoji matching",
   "Empty message...": "Empty message...",
-  "Error adding flag: Either the flag already exist or there is issue with network connection ...": "Error adding flag: Either the flag already exist or there is issue with network connection ...",
+  "Error adding flag": "Error adding flag",
   "Error connecting to chat, refresh the page to try again.": "Error connecting to chat, refresh the page to try again.",
   "Error muting a user ...": "Error muting a user ...",
   "Error pinning message": "Error pinning message",
