@@ -32,9 +32,8 @@
     "checkJs": false,
     "outDir": "./built",
     "declaration": true,
-    "declarationDir": "./built/types",
-    "declarationMap": true,
-    "emitDeclarationOnly": true
+    "declarationDir": "./built",
+    "declarationMap": true
   },
   "include": ["./src/**/*"],
   "exclude": [

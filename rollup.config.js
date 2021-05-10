@@ -110,17 +110,10 @@ const basePlugins = [
   }),
   // import files as data-uris or es modules
   url(),
-  copy(
-    [
-      { dest: 'dist/scss', files: 'src/styles/**/*' },
-      { dest: 'dist/assets', files: 'src/assets/*' },
-      { dest: 'dist/i18n', files: 'src/i18n/*.json' },
-    ],
-    {
-      verbose: process.env.VERBOSE,
-      watch: process.env.ROLLUP_WATCH,
-    },
-  ),
+  copy([{ dest: 'dist/assets', files: 'src/assets/*' }], {
+    verbose: process.env.VERBOSE,
+    watch: process.env.ROLLUP_WATCH,
+  }),
   // Json to ES modules conversion
   json({ compact: true }),
   process.env.BUNDLE_SIZE ? visualizer() : null,
@@ -133,11 +126,6 @@ const normalBundle = {
     {
       file: pkg.main,
       format: 'cjs',
-      sourcemap: true,
-    },
-    {
-      file: pkg.module,
-      format: 'es',
       sourcemap: true,
     },
   ],
