@@ -75,13 +75,13 @@ As of version `5.0.0` `stream-chat-react` has been converted to TypeScript. Plea
 
 ##  Component Reusability
 
-If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageSimple to see how this approach works.
+If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageTeam to see how this approach works.
 
 ```jsx
 <Channel>
   <Window>
     <ChannelHeader />
-    <MessageList Message={MessageSimple}/>
+    <MessageList Message={MessageTeam}/>
     <MessageInput />
   </Window>
   <Thread />
