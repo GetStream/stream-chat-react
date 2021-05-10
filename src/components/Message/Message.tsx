@@ -256,6 +256,7 @@ export const Message = <
       canPin={canPin}
       channelConfig={channelConfig}
       customMessageActions={props.customMessageActions}
+      disableQuotedMessages={props.disableQuotedMessages}
       formatDate={props.formatDate}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
