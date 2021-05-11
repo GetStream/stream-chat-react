@@ -5,6 +5,7 @@ import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from '.
 import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -82,6 +83,16 @@ const MessageLivestreamWithContext = <
     showDetailedReactions,
     unsafeHTML,
   } = props;
+
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const {
     Attachment,
@@ -196,6 +207,11 @@ const MessageLivestreamWithContext = <
               onClick={onMentionsClickMessage}
               onMouseOver={onMentionsHoverMessage}
             >
+              {message.quoted_message && (
+                <div className='livestream-quoted-message'>
+                  <QuotedMessage />
+                </div>
+              )}
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
                 !unsafeHTML &&
