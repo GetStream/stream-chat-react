@@ -22,7 +22,8 @@ class Listener {
 
       keycodeMap[code] = e.type === 'keydown';
       if (e.type !== 'keydown') {
-        keycodeMap[13] = false;
+        // keycodeMap[13] = false;
+        keycodeMap[code] = false;
         return;
       }
 
@@ -56,21 +57,6 @@ class Listener {
     }
   };
 
-  checkKeycodeSubmitValues = (keycodes) => {
-    if (!keycodes) return false;
-
-    // array of numbers
-    const shiftE = [16, 13]; // shift+Enter
-    const ctrlE = [17, 13]; // ctrl+Enter
-    const cmdE = [91, 13]; // cmd+Enter
-
-    return (
-      keycodes.every((code) => shiftE.includes(code)) ||
-      keycodes.every((code) => ctrlE.includes(code)) ||
-      keycodes.every((code) => cmdE.includes(code))
-    );
-  };
-
   add = (keyCodes, fn) => {
     let keyCode = keyCodes;
 
@@ -87,10 +73,8 @@ class Listener {
   };
 
   remove = (ids) => {
-    if (typeof ids === 'object' && ids !== null) {
-      for (const value of Object.entries(ids)) {
-        delete this.listeners[value];
-      }
+    for (const key of Object.entries(ids)) {
+      delete this.listeners[key];
     }
   };
 

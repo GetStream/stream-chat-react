@@ -47,6 +47,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
+      keycodeSubmitShiftE: false,
       left: null,
       listenerIndex: {},
       selectionEnd: 0,
@@ -62,17 +63,18 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     const listenerIndex = {};
     const newSubmitKeys = this.props.keycodeSubmitKeys;
-    const areValidKeycodes = Listeners.checkKeycodeSubmitValues(newSubmitKeys);
 
-    if (newSubmitKeys && areValidKeycodes) {
-      const keycodeIndex = Listeners.add(newSubmitKeys, (e) => this._onEnter(e));
-      listenerIndex[keycodeIndex] = keycodeIndex;
+    if (newSubmitKeys) {
+      newSubmitKeys.forEach((arrayOfCodes) => {
+        const keycodeIndex = Listeners.add(arrayOfCodes, (e) => this._onEnter(e));
+        listenerIndex[keycodeIndex] = keycodeIndex;
 
-      // If the submitted keycodes are [91, 13] (right cmd+Enter), we also want to include [93, 13] (left cmd+Enter) in the listeners
-      if (newSubmitKeys.every((code) => [91, 13].includes(code))) {
-        const cmdEnterIndex = Listeners.add([93, 13], (e) => this._onEnter(e));
-        listenerIndex[cmdEnterIndex] = cmdEnterIndex;
-      }
+        // does submitted keycodes include shift+Enter?
+        if (Array.isArray(arrayOfCodes)) {
+          const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
+          if (shiftE) this.keycodeSubmitShiftE = true;
+        }
+      });
     } else {
       const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
       listenerIndex[enterIndex] = enterIndex;
@@ -134,8 +136,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
     if (
       !hasFocus ||
-      (event.shiftKey === true &&
-        !this.props.keycodeSubmitKeys?.every((code) => [16, 13].includes(code))) ||
+      (event.shiftKey === true && !this.keycodeSubmitShiftE) ||
       (event.shiftKey === true && !this.props.keycodeSubmitKeys)
     ) {
       return;
