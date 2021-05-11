@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { useActionHandler, useDeleteHandler, useUserRole } from './hooks';
-import { MessageDeleted } from './MessageDeleted';
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 import { getMessageActions } from './utils';
 
@@ -11,6 +11,7 @@ import { MessageActions } from '../MessageActions';
 import { MML } from '../MML';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from '../../utils';
 
@@ -75,6 +76,16 @@ const UnMemoizedFixedHeightMessage = <
   const { groupedByUser, message } = props;
 
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { userLanguage } = useTranslationContext();
 
   const handleAction = useActionHandler(message);
