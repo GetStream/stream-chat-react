@@ -773,8 +773,7 @@ describe('<Message /> component', () => {
     const addNotification = jest.fn();
     const flagMessage = jest.fn(() => Promise.reject());
     client.flagMessage = flagMessage;
-    const defaultFlagMessageFailedNotification =
-      'Error adding flag: Either the flag already exist or there is issue with network connection ...';
+    const defaultFlagMessageFailedNotification = 'Error adding flag';
     let context;
 
     await renderComponent({

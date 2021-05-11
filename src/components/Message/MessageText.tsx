@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 
 import { useMobilePress } from './hooks';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { messageHasAttachments } from './utils';
 
+import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
@@ -19,16 +21,34 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export type MessageTextProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type MessageTextProps = {
   customInnerClass?: string;
   customWrapperClass?: string;
   theme?: string;
 };
 
-const UnMemoizedMessageTextComponent = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: MessageTextProps<Us>,
+const UnMemoizedMessageTextComponent = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: MessageTextProps,
 ) => {
   const { customInnerClass, customWrapperClass = '', theme = 'simple' } = props;
+
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const {
     message,
@@ -36,15 +56,7 @@ const UnMemoizedMessageTextComponent = <Us extends DefaultUserType<Us> = Default
     onMentionsHoverMessage,
     renderText = defaultRenderText,
     unsafeHTML,
-  } = useMessageContext<
-    DefaultAttachmentType,
-    DefaultChannelType,
-    DefaultCommandType,
-    DefaultEventType,
-    DefaultMessageType,
-    DefaultReactionType,
-    Us
-  >();
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { t, userLanguage } = useTranslationContext();
 
@@ -78,6 +90,7 @@ const UnMemoizedMessageTextComponent = <Us extends DefaultUserType<Us> = Default
         onClick={onMentionsClickMessage}
         onMouseOver={onMentionsHoverMessage}
       >
+        {message.quoted_message && <QuotedMessage />}
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}

@@ -162,7 +162,7 @@ const ThreadInner = <
     autoFocus = true,
     fullWidth = false,
     Message: PropMessage,
-    MessageInput: ThreadMessageInput = MessageInputSmall,
+    MessageInput: ThreadInput = MessageInputSmall,
     ThreadHeader: PropThreadHeader,
   } = props;
 
@@ -231,7 +231,7 @@ const ThreadInner = <
       </div>
       <MessageInput<At, Ch, Co, Ev, Me, Re, Us, V>
         focus={autoFocus}
-        Input={ThreadMessageInput}
+        Input={ThreadInput}
         parent={thread}
         publishTypingEvent={false}
         {...additionalMessageInputProps}

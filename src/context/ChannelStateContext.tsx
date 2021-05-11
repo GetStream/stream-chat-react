@@ -83,6 +83,7 @@ export type ChannelState<
   members?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   pinnedMessages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  quotedMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
   thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | null;
   threadHasMore?: boolean;

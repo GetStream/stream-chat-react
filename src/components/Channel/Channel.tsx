@@ -66,6 +66,8 @@ import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageNotificationProps } from '../MessageList/MessageNotification';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -87,12 +89,9 @@ export type ChannelProps<
 > = {
   /** List of accepted file types */
   acceptedFiles?: string[];
-  /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment.tsx) */
+  /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
-  /**
-   * Optional UI component prop to override the default suggestion Item component.
-   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
-   */
+  /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
   AutocompleteSuggestionHeader?: ComponentContextValue<
     At,
     Ch,
@@ -102,10 +101,7 @@ export type ChannelProps<
     Re,
     Us
   >['AutocompleteSuggestionHeader'];
-  /**
-   * Optional UI component prop to override the default suggestion Item component.
-   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
-   */
+  /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
   AutocompleteSuggestionItem?: ComponentContextValue<
     At,
     Ch,
@@ -115,10 +111,7 @@ export type ChannelProps<
     Re,
     Us
   >['AutocompleteSuggestionItem'];
-  /**
-   * Optional UI component prop to override the default List component that displays suggestions.
-   * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
-   */
+  /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
   AutocompleteSuggestionList?: ComponentContextValue<
     At,
     Ch,
@@ -156,10 +149,7 @@ export type ChannelProps<
   Emoji?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Emoji'];
   /** Optional prop to override default facebook.json emoji data set from emoji-mart */
   emojiData?: EmojiMartData;
-  /**
-   * Custom UI component for emoji button in input.
-   * Defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
-   */
+  /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   EmojiIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIcon'];
   /** Optional component to override default `NimbleEmojiIndex` from emoji-mart */
   EmojiIndex?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIndex'];
@@ -173,24 +163,26 @@ export type ChannelProps<
   FileUploadIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['FileUploadIcon'];
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
-  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingErrorIndicator.tsx) */
+  /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat]https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx */
+  Input?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Input'];
+  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
-  /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadingIndicator.tsx) */
+  /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['LoadingIndicator'];
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /**
    * Custom UI component to display a message in the standard `MessageList`, available built-in components (also accepts the same props as):
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageSimple.tsx) (default)
-   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageTeam.tsx)
-   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageLivestream.tsx)
-   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageCommerce.tsx)
+   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) (default)
+   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTeam.tsx)
+   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageLivestream.tsx)
+   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageCommerce.tsx)
    */
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
-  /** The component handling how the message input is rendered */
-  MessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageInput'];
+  /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
+  MessageNotification?: React.ComponentType<MessageNotificationProps>;
   /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
   MessageOptions?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageOptions'];
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
@@ -203,7 +195,7 @@ export type ChannelProps<
     Re,
     Us
   >['MessageRepliesCountButton'];
-  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent.tsx) */
+  /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) */
   MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
   /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
   MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];
@@ -215,23 +207,21 @@ export type ChannelProps<
   onMentionsHover?: OnMentionAction<Us>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['PinIndicator'];
+  /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
+  QuotedMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['QuotedMessage'];
+  /** Custom UI component to override message input quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
+  QuotedMessagePreview?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['QuotedMessagePreview'];
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
   ReactionSelector?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionSelector'];
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
   ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
-  /**
-   * Custom UI component for send button.
-   * Defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
-   */
+  /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['SendButton'];
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadHeader'];
   /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadStart?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadStart'];
-  /**
-   * Optional component that lets you override the default autocomplete triggers.
-   * Defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
-   */
+  /** Optional context provider that lets you override the default autocomplete triggers, defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) */
   TriggerProvider?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TypingIndicator'];
@@ -279,20 +269,15 @@ const ChannelInner = <
 ) => {
   const {
     acceptedFiles,
-    Attachment = DefaultAttachment,
     channel,
     children,
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
-    Emoji = DefaultEmoji,
     emojiData = defaultEmojiData,
-    EmojiIndex = DefaultEmojiIndex,
-    EmojiPicker = DefaultEmojiPicker,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
-    Message = MessageSimple,
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
@@ -310,6 +295,8 @@ const ChannelInner = <
   const { t } = useTranslationContext();
 
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
+  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
+
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
   const [state, dispatch] = useReducer<ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>>(
@@ -593,6 +580,7 @@ const ChannelInner = <
         id,
         mentioned_users: mentions,
         parent_id,
+        quoted_message_id: quotedMessage?.id,
         text,
       } as Message<At, Me, Us>;
 
@@ -612,6 +600,8 @@ const ChannelInner = <
             status: 'received',
           });
         }
+
+        if (quotedMessage) setQuotedMessage(undefined);
       } catch (error) {
         // error response isn't usable so needs to be stringified then parsed
         const stringError = JSON.stringify(error);
@@ -624,7 +614,7 @@ const ChannelInner = <
         });
       }
     },
-    [channel, doSendMessageRequest, updateMessage],
+    [channel, doSendMessageRequest, quotedMessage, updateMessage],
   );
 
   const createMessagePreview = useCallback(
@@ -798,6 +788,7 @@ const ChannelInner = <
     multipleUploads,
     mutes,
     notifications,
+    quotedMessage,
     watcher_count: state.watcherCount,
   };
 
@@ -814,12 +805,13 @@ const ChannelInner = <
     removeMessage,
     retrySendMessage,
     sendMessage,
+    setQuotedMessage,
     updateMessage,
   };
 
   const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
-      Attachment,
+      Attachment: props.Attachment || DefaultAttachment,
       AutocompleteSuggestionHeader: props.AutocompleteSuggestionHeader,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -827,21 +819,24 @@ const ChannelInner = <
       CooldownTimer: props.CooldownTimer,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
-      Emoji,
+      Emoji: props.Emoji || DefaultEmoji,
       EmojiIcon: props.EmojiIcon,
-      EmojiIndex,
-      EmojiPicker,
+      EmojiIndex: props.EmojiIndex || DefaultEmojiIndex,
+      EmojiPicker: props.EmojiPicker || DefaultEmojiPicker,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       HeaderComponent: props.HeaderComponent,
       LoadingIndicator: props.LoadingIndicator,
-      Message,
+      Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,
+      MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageSystem: props.MessageSystem,
       MessageTimestamp: props.MessageTimestamp,
       PinIndicator: props.PinIndicator,
+      QuotedMessage: props.QuotedMessage,
+      QuotedMessagePreview: props.QuotedMessagePreview,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,

@@ -6,7 +6,7 @@ The MessageContext provides the following properties:
 
 - **editing** If the Message is in edit state
 
-- **getMessageActions** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply']. Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
+- **getMessageActions** Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply']. Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) component for default implementation.
 
 - **handleAction** Function to send an action in a Channel
 
@@ -28,17 +28,25 @@ The MessageContext provides the following properties:
 
 - **isMyMessage** Function that returns whether or not the Message belongs to the current user
 
+- **isReactionsEnabled** Whether or not reactions are enabled for the active channel
+
 - **message** The message object
 
 - **onMentionsClickMessage** Handler function for a click event on an @mention in Message
 
 - **onMentionsHoverMessage** Handler function for a hover event on an @mention in Message
 
+- **onReactionListClick** Handler function for a click event on the Reactions List.
+
 - **onUserClick** Handler function for a click event on the user that posted the Message
 
 - **onUserHover** Handler function for a hover event on the user that posted the Message
 
+- **reactionsSelectorRef** Handler function for a click event on the reaction list
+
 - **setEditingState** Function to toggle the edit state on a Message
+
+- **showDetailedReactions** Whether or not to show reaction list details
 
 - **additionalMessageInputProps** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput)
 

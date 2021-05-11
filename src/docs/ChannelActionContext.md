@@ -1,5 +1,7 @@
 The ChannelActionContext provides the following properties:
 
+- **addNotification** Function to add a temporary notification to message list, will be removed after 5 seconds. Takes a string for the text of the notification and a type.
+
 - **closeThread** The function to close the currently open Thread
 
 - **dispatch** The dispatch function for the ChannelStateReducer
@@ -21,5 +23,7 @@ The ChannelActionContext provides the following properties:
 -  **retrySendMessage** The function to resend a message, handled by the Channel component. Takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
 
 -  **sendMessage** The function to send a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+
+- **setQuoteMessage** The function to send a quoted message on a channel, take a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
 
 -  **updateMessage** The function to update a message on channel, takes a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)

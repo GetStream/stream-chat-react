@@ -102,7 +102,6 @@
   flex: 1;
   display: block;
   min-height: 32px;
-  padding: 0;
   font-size: 15px;
   color: black;
   border-radius: 0;
@@ -114,6 +113,7 @@
     font-size: 15px;
     line-height: 18px;
     color: #000000;
+    margin-bottom: 0;
   }
 }
 
@@ -149,4 +149,15 @@
 
 .str-chat__message-simple-status {
   right: 22px;
+}
+
+/* ------------------------  Quoted Message ------------------------  */
+
+.quoted-message-inner {
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.str-chat__li .quoted-message.mine .quoted-message-inner {
+  background: #ebebeb;
 }

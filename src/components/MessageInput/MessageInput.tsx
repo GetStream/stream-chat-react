@@ -1,25 +1,17 @@
 import React from 'react';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
-import { MessageInputLarge } from './MessageInputLarge';
+import { MessageInputFlat } from './MessageInputFlat';
 
-import { CooldownTimerProps, useCooldownTimer } from './hooks/useCooldownTimer';
+import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
-import { ComponentProvider, useComponentContext } from '../../context/ComponentContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
-import type { SendButtonProps } from './icons';
-
 import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
-import type {
-  SuggestionItemProps,
-  SuggestionListProps,
-  TriggerSettings,
-} from '../ChatAutoComplete/ChatAutoComplete';
-
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
@@ -54,14 +46,8 @@ export type MessageInputProps<
    * ```
    */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /**
-   * Override the default triggers of the [ChatAutoComplete](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatAutoComplete/Avatar.tsx) component
-   */
-  autocompleteTriggers?: TriggerSettings<Co, Us, V>;
   /** Callback to clear editing state in parent component */
   clearEditingState?: () => void;
-  /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) */
-  CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   /** Disable input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete mentions. Default: false. */
@@ -76,19 +62,12 @@ export type MessageInputProps<
     file: ImageUpload['file'],
     channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<SendFileAPIResponse>;
-  /**
-   * Custom UI component for emoji button in input.
-   * Defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
-   */
-  EmojiIcon?: React.ComponentType;
   /** Custom error handler, called when file/image uploads fail */
   errorHandler?: (
     error: Error,
     type: string,
     file: (FileUpload | ImageUpload)['file'] & { id?: string },
   ) => void;
-  /** Change the FileUploadIcon component */
-  FileUploadIcon?: React.ComponentType;
   /** Set focus to the text input if this is enabled */
   focus?: boolean;
   /** Grow the textarea while you're typing */
@@ -125,26 +104,6 @@ export type MessageInputProps<
   parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Enable/disable firing the typing event */
   publishTypingEvent?: boolean;
-  /**
-   * Custom UI component for send button.
-   * Defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
-   */
-  SendButton?: React.ComponentType<SendButtonProps>;
-  /**
-   * Optional UI component prop to override the default suggestion Item component.
-   * Defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js)
-   */
-  SuggestionItem?: React.ForwardRefExoticComponent<SuggestionItemProps<Co, Us>>;
-  /**
-   * Optional UI component prop to override the default List component that displays suggestions.
-   * Defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js)
-   */
-  SuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
-  /**
-   * Optional component that lets you override the default autocomplete triggers.
-   * Defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
-   */
-  TriggerProvider?: React.ComponentType<Record<string, unknown>>;
 };
 
 const UnMemoizedMessageInput = <
@@ -159,25 +118,20 @@ const UnMemoizedMessageInput = <
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const {
-    CooldownTimer,
-    EmojiIcon,
-    FileUploadIcon,
-    Input: PropInput,
-    SendButton,
-    SuggestionItem,
-    SuggestionList,
-    TriggerProvider: PropTriggerProvider,
-  } = props;
+  const { Input: PropInput } = props;
 
-  const {
-    MessageInput: ContextInput,
-    TriggerProvider: ContextTriggerProvider,
-    ...currentComponentContext
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { Input: ContextInput, TriggerProvider = DefaultTriggerProvider } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us,
+    V
+  >();
 
-  const Input = PropInput || ContextInput || MessageInputLarge;
-  const TriggerProvider = PropTriggerProvider || ContextTriggerProvider || DefaultTriggerProvider;
+  const Input = PropInput || ContextInput || MessageInputFlat;
 
   const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...props,
@@ -197,25 +151,12 @@ const UnMemoizedMessageInput = <
     ...props,
   };
 
-  const componentContextValue = {
-    ...currentComponentContext,
-    AutocompleteSuggestionItem: SuggestionItem,
-    AutocompleteSuggestionList: SuggestionList,
-    CooldownTimer,
-    EmojiIcon,
-    FileUploadIcon,
-    MessageInput: Input,
-    SendButton,
-  };
-
   return (
-    <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={componentContextValue}>
-      <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
-        <TriggerProvider>
-          <Input />
-        </TriggerProvider>
-      </MessageInputContextProvider>
-    </ComponentProvider>
+    <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>
+      <TriggerProvider<At, Ch, Co, Ev, Me, Re, Us, V>>
+        <Input />
+      </TriggerProvider>
+    </MessageInputContextProvider>
   );
 };
 

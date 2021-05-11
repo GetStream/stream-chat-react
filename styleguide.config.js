@@ -126,7 +126,6 @@ module.exports = {
             'src/components/MessageInput/MessageInputFlat.tsx',
             'src/components/MessageInput/EditMessageForm.tsx',
             'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
-            'src/components/MessageInput/DefaultTriggerProvider.tsx',
           ],
           exampleMode: 'collapse',
           usageMode: 'expand',
@@ -135,8 +134,8 @@ module.exports = {
           name: 'Hooks',
           sections: [
             {
-              name: 'useMessageInput',
-              content: 'src/docs/useMessageInput.md',
+              name: 'useMessageInputContext',
+              content: 'src/docs/useMessageInputContext.md',
             },
           ],
           exampleMode: 'collapse',
@@ -189,6 +188,10 @@ module.exports = {
         {
           name: 'MessageContext',
           content: 'src/docs/MessageContext.md',
+        },
+        {
+          name: 'MessageInputContext',
+          content: 'src/docs/MessageInputContext.md',
         },
         {
           name: 'ComponentContext',

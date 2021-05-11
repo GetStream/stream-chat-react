@@ -8,7 +8,10 @@ import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
 import { Center } from './Center';
 import { ConnectionStatus } from './ConnectionStatus';
 import { CustomNotification } from './CustomNotification';
-import { MessageNotification } from './MessageNotification';
+import {
+  MessageNotification as DefaultMessageNotification,
+  MessageNotificationProps,
+} from './MessageNotification';
 
 import {
   ChannelActionContextValue,
@@ -46,15 +49,14 @@ import type {
 
 type MessageListNotificationsProps = {
   hasNewMessages: boolean;
+  MessageNotification: React.ComponentType<MessageNotificationProps>;
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
 };
 
-const MessageListNotifications = ({
-  hasNewMessages,
-  notifications,
-  scrollToBottom,
-}: MessageListNotificationsProps) => {
+const MessageListNotifications = (props: MessageListNotificationsProps) => {
+  const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
+
   const { t } = useTranslationContext();
 
   return (
@@ -136,6 +138,7 @@ const MessageListWithContext = <
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
+    MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -168,6 +171,7 @@ const MessageListWithContext = <
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       customMessageActions: props.customMessageActions,
+      disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
@@ -221,6 +225,7 @@ const MessageListWithContext = <
       </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
+        MessageNotification={MessageNotification}
         notifications={notifications}
         scrollToBottom={scrollToBottom}
       />
@@ -231,6 +236,7 @@ const MessageListWithContext = <
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'customMessageActions'
+  | 'disableQuotedMessages'
   | 'formatDate'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'

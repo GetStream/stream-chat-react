@@ -148,9 +148,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({
-        EmojiIcon,
-      });
+      const { findByTitle } = renderComponent({}, { EmojiIcon });
 
       const emojiIcon = await findByTitle('NotEmoji');
 
@@ -175,9 +173,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({
-        FileUploadIcon,
-      });
+      const { findByTitle } = renderComponent({}, { FileUploadIcon });
 
       const fileUploadIcon = await findByTitle('NotFileUploadIcon');
 
@@ -793,11 +789,14 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('should override the default List component when SuggestionList is provided as a prop', async () => {
-      const SuggestionList = () => <div data-testid='suggestion-list'>Suggestion List</div>;
+      const AutocompleteSuggestionList = () => (
+        <div data-testid='suggestion-list'>Suggestion List</div>
+      );
 
-      const { findByPlaceholderText, getByTestId, queryByText } = renderComponent({
-        SuggestionList,
-      });
+      const { findByPlaceholderText, getByTestId, queryByText } = renderComponent(
+        {},
+        { AutocompleteSuggestionList },
+      );
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
 

@@ -22,9 +22,13 @@ The ChannelStateContext provides the following properties:
 
 -  **multipleUploads** Boolean showing whether there are multiple uploads
 
--  **mutes** Muted users
+-  **mutes** Muted users for a channel
+
+- **notifications** Temporary notifications added to the message list on specific user/message actions
 
 -  **pinnedMessages** Part of ChannelState - the messages that are pinned in the Channel
+
+- **quotedMessage** An inline message reply to another message.
 
 -  **read** Part of ChannelState - the read state for each user
 
