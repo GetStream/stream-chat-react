@@ -17,11 +17,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import {
-  MessageDeleted as DefaultMessageDeleted,
-  FixedHeightMessage,
-  FixedHeightMessageProps,
-} from '../Message';
+import { FixedHeightMessage, FixedHeightMessageProps } from '../Message';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
@@ -95,7 +91,6 @@ const VirtualizedMessageListWithContext = <
     DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
-    MessageDeleted = DefaultMessageDeleted,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
     TypingIndicator = null,
@@ -190,10 +185,6 @@ const VirtualizedMessageListWithContext = <
 
       if (message.type === 'channel.event' || message.type === 'system') {
         return <MessageSystem message={message} />;
-      }
-
-      if (message.deleted_at || message.type === 'deleted') {
-        return <MessageDeleted message={message} />;
       }
 
       return (
