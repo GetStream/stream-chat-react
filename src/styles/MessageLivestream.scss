@@ -24,7 +24,7 @@
 
   &-content {
     position: relative;
-    padding: 5px 10px;
+    padding: 5px 100px;
     border: 1px solid transparent;
 
     > * {
@@ -90,6 +90,14 @@
     code {
       width: inherit;
       word-break: break-all;
+    }
+
+    .livestream-quoted-message {
+      background: #ebebeb;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
     }
   }
   &:hover {
