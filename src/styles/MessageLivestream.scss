@@ -91,6 +91,14 @@
       width: inherit;
       word-break: break-all;
     }
+
+    .livestream-quoted-message {
+      background: #ebebeb;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
   }
   &:hover {
     .str-chat__message-livestream-actions {
