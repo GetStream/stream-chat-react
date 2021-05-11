@@ -414,6 +414,23 @@
         position: static;
         top: initial;
       }
+      .quoted-message {
+        align-items: center;
+        padding-left: 5px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        width: fit-content;
+        background: white;
+
+        &-inner {
+          background: white;
+
+          .str-chat__message-attachment img {
+            padding-left: 0;
+            border-left: 0;
+          }
+        }
+      }
     } /* .str-chat__message-team */
   } /* .str-chat__message */
 } /* .str-chat */
@@ -588,8 +605,8 @@
     &--editing {
       padding: 10px;
       background: rgba(0, 0, 0, 0.1);
-      box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06),
-        inset 0 1px 0 0 rgba(#006cff, 0.1), inset 0 -1px 0 0 rgba(#006cff, 0.1);
+      box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(#006cff, 0.1),
+        inset 0 -1px 0 0 rgba(#006cff, 0.1);
       z-index: 1;
     }
   }
