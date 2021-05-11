@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { useActionHandler, useUserRole } from './hooks';
+import { useActionHandler, useDeleteHandler, useUserRole } from './hooks';
+import { MessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 import { getMessageActions } from './utils';
 
@@ -77,6 +78,7 @@ const UnMemoizedFixedHeightMessage = <
   const { userLanguage } = useTranslationContext();
 
   const handleAction = useActionHandler(message);
+  const handleDelete = useDeleteHandler(message);
   const role = useUserRole(message);
 
   const messageTextToRender =
@@ -116,25 +118,34 @@ const UnMemoizedFixedHeightMessage = <
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-        {images && <Gallery images={images} />}
-        <div className='str-chat__virtual-message__text' data-testid='msg-text'>
-          {renderedText}
-          {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
-          <div className='str-chat__virtual-message__data'>
-            <MessageActions
-              customWrapperClass='str-chat__virtual-message__actions'
-              getMessageActions={messageActionsHandler}
-              message={message}
-              mine={() => role.isMyMessage}
-            />
-            <span className='str-chat__virtual-message__date'>
-              <MessageTimestamp
-                customClass='str-chat__message-simple-timestamp'
-                message={message}
-              />
-            </span>
-          </div>
-        </div>
+        {message.deleted_at || message.type === 'deleted' ? (
+          <MessageDeleted message={message} />
+        ) : (
+          <>
+            {images && <Gallery images={images} />}
+            <div className='str-chat__virtual-message__text' data-testid='msg-text'>
+              {renderedText}
+              {message.mml && (
+                <MML actionHandler={handleAction} align='left' source={message.mml} />
+              )}
+              <div className='str-chat__virtual-message__data'>
+                <MessageActions
+                  customWrapperClass='str-chat__virtual-message__actions'
+                  getMessageActions={messageActionsHandler}
+                  handleDelete={handleDelete}
+                  message={message}
+                  mine={() => role.isMyMessage}
+                />
+                <span className='str-chat__virtual-message__date'>
+                  <MessageTimestamp
+                    customClass='str-chat__message-simple-timestamp'
+                    message={message}
+                  />
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
