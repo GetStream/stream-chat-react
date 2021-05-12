@@ -1,4 +1,4 @@
-# Official React SDK for [Stream Chat](https://getstream.io/chat/)
+# Official React SDK for [Stream Chat](https://getstream.io/chat/sdk/react/)
 
 <p align="center">
   <a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" width="60%" /></a>
