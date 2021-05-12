@@ -22,7 +22,6 @@ import {
   ChannelStateContextValue,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -30,8 +29,6 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator'
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
-
-import type { StreamChat } from 'stream-chat';
 
 import type { MessageProps } from '../Message/types';
 
@@ -104,9 +101,7 @@ type MessageListWithContextProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'members' | 'watchers'> &
-  MessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  };
+  MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
 
 const MessageListWithContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -121,7 +116,6 @@ const MessageListWithContext = <
 ) => {
   const {
     channel,
-    client,
     disableDateSeparator = false,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
@@ -144,13 +138,12 @@ const MessageListWithContext = <
 
   const {
     hasNewMessages,
+    listRef,
     onMessageLoadCaptured,
     onScroll,
-    ref,
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
-    currentUserId: client.userID,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
   });
@@ -205,7 +198,7 @@ const MessageListWithContext = <
       <div
         className={`str-chat__list ${props.threadList ? 'str-chat__list--thread' : ''}`}
         onScroll={onScroll}
-        ref={ref}
+        ref={listRef}
       >
         {!elements.length ? (
           <EmptyStateIndicator listType='message' />
@@ -313,7 +306,6 @@ export const MessageList = <
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -323,7 +315,6 @@ export const MessageList = <
 
   return (
     <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
-      client={client}
       loadMore={loadMore}
       {...restChannelStateContext}
       {...props}
