@@ -165,16 +165,7 @@ const UnMemoizedChatAutoComplete = <
 ) => {
   const { t } = useTranslationContext();
   const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
-  const {
-    additionalTextareaProps,
-    cooldownRemaining,
-    disabled,
-    disableMentions,
-    emojiIndex,
-    grow,
-    maxRows,
-    textareaRef: innerRef,
-  } = messageInput;
+  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
 
   const {
     AutocompleteSuggestionItem: SuggestionItem,
@@ -204,19 +195,20 @@ const UnMemoizedChatAutoComplete = <
 
   return (
     <AutoCompleteTextarea
-      additionalTextareaProps={additionalTextareaProps}
+      additionalTextareaProps={messageInput.additionalTextareaProps}
       className='str-chat__textarea__textarea'
       containerClassName='str-chat__textarea'
       disabled={disabled || !!cooldownRemaining}
-      disableMentions={disableMentions}
+      disableMentions={messageInput.disableMentions}
       dropdownClassName='str-chat__emojisearch'
-      grow={grow}
+      grow={messageInput.grow}
       handleSubmit={messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
+      keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
       listClassName='str-chat__emojisearch__list'
       loadingComponent={LoadingIndicator}
-      maxRows={maxRows}
+      maxRows={messageInput.maxRows}
       minChar={0}
       onChange={messageInput.handleChange}
       onFocus={onFocus}

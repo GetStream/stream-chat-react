@@ -47,8 +47,9 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
+      keycodeSubmitShiftE: false,
       left: null,
-      listenerIndex: 0,
+      listenerIndex: {},
       selectionEnd: 0,
       selectionStart: 0,
       top: null,
@@ -60,7 +61,16 @@ export class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
-    const listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+    const listenerIndex = {};
+    const newSubmitKeys = this.props.keycodeSubmitKeys;
+
+    if (newSubmitKeys) {
+      const keycodeIndex = this.addKeycodeSubmitListeners(newSubmitKeys);
+      listenerIndex[keycodeIndex] = keycodeIndex;
+    } else {
+      const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+      listenerIndex[enterIndex] = enterIndex;
+    }
 
     this.setState({
       listenerIndex,
@@ -109,14 +119,35 @@ export class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
+  addKeycodeSubmitListeners = (keyCodes) => {
+    keyCodes.forEach((arrayOfCodes) => {
+      let submitValue = arrayOfCodes;
+      if (submitValue.length === 1) {
+        submitValue = submitValue[0];
+      }
+
+      // does submitted keycodes include shift+Enter?
+      const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
+      if (shiftE) this.keycodeSubmitShiftE = true;
+
+      return Listeners.add(submitValue, (e) => this._onEnter(e));
+    });
+  };
+
   _onEnter = (event) => {
     if (!this.textareaRef) return;
 
     const trigger = this.state.currentTrigger;
     const hasFocus = this.textareaRef.matches(':focus');
 
-    // don't submit if the element has focus or the shift key is pressed
-    if (!hasFocus || event.shiftKey === true) return;
+    // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
+    if (
+      !hasFocus ||
+      (event.shiftKey === true && !this.keycodeSubmitShiftE) ||
+      (event.shiftKey === true && !this.props.keycodeSubmitKeys)
+    ) {
+      return;
+    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit
@@ -418,6 +449,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'innerRef',
       'itemClassName',
       'itemStyle',
+      'keycodeSubmitKeys',
       'listClassName',
       'listStyle',
       'loaderClassName',
@@ -689,6 +721,7 @@ ReactTextareaAutocomplete.propTypes = {
   dropdownStyle: PropTypes.object,
   itemClassName: PropTypes.string,
   itemStyle: PropTypes.object,
+  keycodeSubmitKeys: PropTypes.array,
   listClassName: PropTypes.string,
   listStyle: PropTypes.object,
   loaderClassName: PropTypes.string,
