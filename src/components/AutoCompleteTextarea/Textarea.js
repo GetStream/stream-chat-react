@@ -65,18 +65,8 @@ export class ReactTextareaAutocomplete extends React.Component {
     const newSubmitKeys = this.props.keycodeSubmitKeys;
 
     if (newSubmitKeys) {
-      newSubmitKeys.forEach((arrayOfCodes) => {
-        let submitValue = arrayOfCodes;
-        if (submitValue.length === 1) {
-          submitValue = submitValue[0];
-        }
-        const keycodeIndex = Listeners.add(submitValue, (e) => this._onEnter(e));
-        listenerIndex[keycodeIndex] = keycodeIndex;
-
-        // does submitted keycodes include shift+Enter?
-        const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
-        if (shiftE) this.keycodeSubmitShiftE = true;
-      });
+      const keycodeIndex = this.addKeycodeSubmitListeners(newSubmitKeys);
+      listenerIndex[keycodeIndex] = keycodeIndex;
     } else {
       const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
       listenerIndex[enterIndex] = enterIndex;
@@ -127,6 +117,21 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (!this.textareaRef) return 0;
 
     return this.textareaRef.selectionEnd;
+  };
+
+  addKeycodeSubmitListeners = (keyCodes) => {
+    keyCodes.forEach((arrayOfCodes) => {
+      let submitValue = arrayOfCodes;
+      if (submitValue.length === 1) {
+        submitValue = submitValue[0];
+      }
+
+      // does submitted keycodes include shift+Enter?
+      const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
+      if (shiftE) this.keycodeSubmitShiftE = true;
+
+      return Listeners.add(submitValue, (e) => this._onEnter(e));
+    });
   };
 
   _onEnter = (event) => {

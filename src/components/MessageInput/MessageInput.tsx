@@ -79,7 +79,7 @@ export type MessageInputProps<
    * Shift + Enter will still always create a new line, unless Shift+Enter [16, 13] are included in the override.
    * e.g.: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0.
    * */
-  keycodeSubmitKeys?: number[][];
+  keycodeSubmitKeys?: Array<number[]>;
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
   /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
