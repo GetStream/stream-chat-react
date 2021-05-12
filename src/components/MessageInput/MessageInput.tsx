@@ -75,11 +75,11 @@ export type MessageInputProps<
   /** The component handling how the input is rendered */
   Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   /** Currently, Enter is the default submission key and Shift+Enter is the default for new line.
-   * If provided, this array of keycode numbers or tuple of keycode numbers will override the default Enter for submission, and Enter will then only create a new line.
-   * Shift + Enter will still create a new line as well, unless Shift+Enter [16, 13] are included in the override.
-   * e.g.: [[16,13], 57, 48] - submission keys would then be Shift+Enter, 9, and 0.
+   * If provided, this array of keycode numbers will override the default Enter for submission, and Enter will then only create a new line.
+   * Shift + Enter will still always create a new line, unless Shift+Enter [16, 13] are included in the override.
+   * e.g.: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0.
    * */
-  keycodeSubmitKeys?: ([number, number] | number)[];
+  keycodeSubmitKeys?: number[][];
   /** Max number of rows the textarea is allowed to grow */
   maxRows?: number;
   /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */

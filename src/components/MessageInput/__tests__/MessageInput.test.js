@@ -603,7 +603,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
       it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
         const { findByPlaceholderText } = renderComponent({
-          keycodeSubmitKeys: [17],
+          keycodeSubmitKeys: [[17]],
         });
         const input = await findByPlaceholderText(inputPlaceholder);
 
@@ -643,9 +643,9 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
-      it('should submit if [[16,13], 57, 48] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
+      it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
         const { findByPlaceholderText, submit } = renderComponent({
-          keycodeSubmitKeys: [[16, 13], 57, 48],
+          keycodeSubmitKeys: [[16, 13], [57], [48]],
         });
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);

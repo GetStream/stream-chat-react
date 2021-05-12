@@ -22,7 +22,6 @@ class Listener {
 
       keycodeMap[code] = e.type === 'keydown';
       if (e.type !== 'keydown') {
-        // keycodeMap[13] = false;
         keycodeMap[code] = false;
         return;
       }

@@ -66,14 +66,16 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     if (newSubmitKeys) {
       newSubmitKeys.forEach((arrayOfCodes) => {
-        const keycodeIndex = Listeners.add(arrayOfCodes, (e) => this._onEnter(e));
+        let submitValue = arrayOfCodes;
+        if (submitValue.length === 1) {
+          submitValue = submitValue[0];
+        }
+        const keycodeIndex = Listeners.add(submitValue, (e) => this._onEnter(e));
         listenerIndex[keycodeIndex] = keycodeIndex;
 
         // does submitted keycodes include shift+Enter?
-        if (Array.isArray(arrayOfCodes)) {
-          const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
-          if (shiftE) this.keycodeSubmitShiftE = true;
-        }
+        const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
+        if (shiftE) this.keycodeSubmitShiftE = true;
       });
     } else {
       const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
