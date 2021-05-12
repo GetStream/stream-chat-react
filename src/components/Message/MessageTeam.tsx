@@ -6,6 +6,7 @@ import { MessageStatus } from './MessageStatus';
 import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -97,9 +98,11 @@ const MessageTeamWithContext = <
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageTimestamp = DefaultTimestamp,
     PinIndicator = DefaultPinIndicator,
+    QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const { t, userLanguage } = useTranslationContext();
 
   const showActionsBox = showMessageActionsBox(getMessageActions());
@@ -201,6 +204,7 @@ const MessageTeamWithContext = <
             }`}
             data-testid='message-team-content'
           >
+            {message.quoted_message && <QuotedMessage />}
             {!initialMessage &&
               message.status !== 'sending' &&
               message.status !== 'failed' &&
