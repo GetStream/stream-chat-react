@@ -142,12 +142,16 @@ class MessageListWithContext<
     }
 
     const hasNewMessage = currentLastMessage.id !== previousLastMessage.id;
+    const lastHasNewReaction =
+      currentLastMessage.latest_reactions?.length !== previousLastMessage.latest_reactions?.length;
+    const lastHasNewReply = currentLastMessage.reply_count !== previousLastMessage.reply_count;
     const isOwner = currentLastMessage?.user?.id === this.props.client.userID;
 
     const list = this.messageList.current;
 
     // always scroll down when it's your own message that you added...
-    const scrollToBottom = hasNewMessage && (isOwner || !userScrolledUp);
+    const scrollToBottom =
+      (hasNewMessage || lastHasNewReaction || lastHasNewReply) && (isOwner || !userScrolledUp);
 
     if (scrollToBottom) {
       this.scrollToBottom();
