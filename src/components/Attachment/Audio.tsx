@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../types/types';
 
 const progressUpdateInterval = 500;
 /**

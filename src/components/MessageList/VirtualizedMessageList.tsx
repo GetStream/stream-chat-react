@@ -35,7 +35,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 

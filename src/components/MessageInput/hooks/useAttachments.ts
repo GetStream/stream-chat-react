@@ -16,7 +16,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
 

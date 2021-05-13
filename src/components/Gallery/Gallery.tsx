@@ -6,7 +6,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../types/types';
 
 export type GalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   images: Attachment<At>[];

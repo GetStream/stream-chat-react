@@ -7,7 +7,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType } from '../../../types/types';
+import type { DefaultUserType } from '../../types/types';
 
 export type SearchResultItemProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   index: number;

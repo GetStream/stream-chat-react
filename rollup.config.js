@@ -87,13 +87,6 @@ const basePlugins = [
     preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
-  // Replace our alias for a relative path so the jsdoc resolution still
-  // works after bundling.
-  replace({
-    delimiters: ['', ''],
-    "import('types')": "import('../types')",
-    preventAssignment: true,
-  }),
   // Remove peer-dependencies from final bundle
   external(),
   typescript(),
@@ -114,7 +107,6 @@ const basePlugins = [
     [
       { dest: 'dist/scss', files: 'src/styles/**/*' },
       { dest: 'dist/assets', files: 'src/assets/*' },
-      { dest: 'dist/i18n', files: 'src/i18n/*.json' },
     ],
     {
       verbose: process.env.VERBOSE,
@@ -133,11 +125,6 @@ const normalBundle = {
     {
       file: pkg.main,
       format: 'cjs',
-      sourcemap: true,
-    },
-    {
-      file: pkg.module,
-      format: 'es',
       sourcemap: true,
     },
   ],

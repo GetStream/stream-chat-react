@@ -76,7 +76,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export type ChannelProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,

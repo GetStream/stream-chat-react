@@ -20,7 +20,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 /**
  * @deprecated - This UI component will be removed in the next major release.

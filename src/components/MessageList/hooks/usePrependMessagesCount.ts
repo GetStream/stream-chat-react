@@ -10,7 +10,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export function usePrependedMessagesCount<
   At extends DefaultAttachmentType = DefaultAttachmentType,

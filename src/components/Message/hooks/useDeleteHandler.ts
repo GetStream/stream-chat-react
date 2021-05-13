@@ -13,7 +13,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export const useDeleteHandler = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

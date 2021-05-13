@@ -13,7 +13,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export type CooldownTimerProps = {
   cooldownInterval: number;

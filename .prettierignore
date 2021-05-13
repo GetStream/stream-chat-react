@@ -9,6 +9,5 @@ src/stream-emoji.json
 /include/
 /build/
 build
-/built
 *.md
 src/components/docs/
