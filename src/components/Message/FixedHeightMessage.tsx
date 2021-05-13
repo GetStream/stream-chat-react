@@ -58,10 +58,6 @@ export type FixedHeightMessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
-/**
- * FixedHeightMessage - This component renders a single message.
- * It uses fixed height elements to make sure it works well in VirtualizedMessageList
- */
 const UnMemoizedFixedHeightMessage = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -162,6 +158,12 @@ const UnMemoizedFixedHeightMessage = <
   );
 };
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
+ * FixedHeightMessage - This component renders a single message.
+ * It uses fixed height elements to make sure it works well in VirtualizedMessageList
+ */
 export const FixedHeightMessage = React.memo(
   UnMemoizedFixedHeightMessage,
 ) as typeof UnMemoizedFixedHeightMessage;
