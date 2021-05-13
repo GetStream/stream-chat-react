@@ -87,13 +87,6 @@ const basePlugins = [
     preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
   }),
-  // Replace our alias for a relative path so the jsdoc resolution still
-  // works after bundling.
-  replace({
-    delimiters: ['', ''],
-    "import('types')": "import('../types')",
-    preventAssignment: true,
-  }),
   // Remove peer-dependencies from final bundle
   external(),
   typescript(),

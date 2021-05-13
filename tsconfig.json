@@ -2,8 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "*": ["src/@types/*"],
-      "types": ["types/index.d.ts"]
+      "*": ["src/@types/*"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

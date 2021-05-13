@@ -6,8 +6,8 @@
   "homepage": "https://getstream.io/chat/",
   "typings": "built/src/index.d.ts",
   "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
-  "jsnext:main": "dist/index.js",
+  "module": "built/src/index.js",
+  "jsnext:main": "built/src/index.js",
   "style": "dist/css/index.css",
   "sideEffects": false,
   "jsdelivr": "./dist/browser.full-bundle.min.js",
@@ -170,7 +170,7 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn bundle",
+    "build": "rm -rf dist && mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn bundle",
     "build-styles": "sass src/styles/index.scss dist/css/index.css --style compressed",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
@@ -189,7 +189,7 @@
     "prepare": "yarn run build",
     "preversion": "yarn install && yarn lint && yarn test",
     "test": "rm -rf built && jest",
-    "types": "tsc --strict",
+    "types": "rm -rf built && tsc --strict",
     "validate-translations": "node scripts/validate-translations.js",
     "version": "yarn docs && git add docs",
     "watch-styles": "sass --watch src/styles/index.scss dist/css/index.css"
