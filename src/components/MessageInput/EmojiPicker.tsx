@@ -15,7 +15,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const filterEmoji = (emoji: EmojiData) => {
   if (emoji.name === 'White Smiling Face' || emoji.name === 'White Frowning Face') {

@@ -15,7 +15,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';

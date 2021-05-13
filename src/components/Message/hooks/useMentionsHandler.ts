@@ -13,7 +13,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: React.BaseSyntheticEvent,

@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
-      "*": ["src/@types/*"],
-      "types": ["types/index.d.ts"]
+      "*": ["src/@types/*"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -30,11 +29,10 @@
     "noImplicitAny": true,
     "allowJs": true,
     "checkJs": false,
-    "outDir": "./built",
+    "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./built/types",
-    "declarationMap": true,
-    "emitDeclarationOnly": true
+    "declarationDir": "./dist",
+    "declarationMap": true
   },
   "include": ["./src/**/*"],
   "exclude": [

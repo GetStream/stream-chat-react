@@ -32,7 +32,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 

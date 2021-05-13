@@ -25,7 +25,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation

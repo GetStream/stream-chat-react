@@ -20,7 +20,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export const MessageInputSimple = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

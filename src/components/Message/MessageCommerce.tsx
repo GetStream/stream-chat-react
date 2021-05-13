@@ -26,7 +26,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 type MessageCommerceWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
