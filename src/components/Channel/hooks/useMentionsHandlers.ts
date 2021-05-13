@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType } from '../../../../types/types';
+import type { DefaultUserType } from '../../../types/types';
 
 export type OnMentionAction<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: React.BaseSyntheticEvent,

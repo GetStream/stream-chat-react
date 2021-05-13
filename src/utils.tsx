@@ -9,7 +9,7 @@ import uniqBy from 'lodash.uniqby';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType, UnknownType } from '../types/types';
+import type { DefaultUserType, UnknownType } from './types/types';
 
 export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;

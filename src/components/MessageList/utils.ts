@@ -9,7 +9,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 import type { StreamMessage } from '../../context/ChannelContext';
 

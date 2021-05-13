@@ -33,7 +33,7 @@ import type { Attachment as StreamAttachment } from 'stream-chat';
 
 import type { ActionHandlerReturnType } from '../Message';
 
-import type { DefaultAttachmentType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../types/types';
 
 export type AttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   /**

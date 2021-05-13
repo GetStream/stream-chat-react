@@ -12,7 +12,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export type UserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: React.BaseSyntheticEvent,

@@ -39,7 +39,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 type Snapshot = { offsetBottom: number; offsetTop: number } | null;
 

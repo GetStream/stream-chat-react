@@ -29,7 +29,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export const MessageInputLarge = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

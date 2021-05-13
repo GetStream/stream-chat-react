@@ -12,7 +12,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const UnMemoizedChannelPreviewCompact = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

@@ -9,7 +9,7 @@ import type { TFunction } from 'i18next';
 import type { Moment } from 'moment';
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { UnknownType } from '../../types/types';
+import type { UnknownType } from '../types/types';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);

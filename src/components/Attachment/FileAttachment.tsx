@@ -6,7 +6,7 @@ import { SafeAnchor } from '../SafeAnchor';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../../types/types';
+import type { DefaultAttachmentType } from '../../types/types';
 
 export type FileAttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   attachment: Attachment<At>;

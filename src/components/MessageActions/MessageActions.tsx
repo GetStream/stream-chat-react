@@ -25,7 +25,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export type MessageActionsProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
