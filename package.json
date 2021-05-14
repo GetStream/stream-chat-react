@@ -184,7 +184,7 @@
     "lint-fix": "prettier --write 'src/**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js && eslint --fix 'src/**/*.{js,ts,tsx,md}' --max-warnings 0 && yarn stylelint --fix",
     "prettier": "prettier --list-different '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
     "prettier-fix": "prettier --write '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
-    "start": "mkdir -p dist/assets assets && yarn build-translations && tsc --watch && yarn bundle -w",
+    "start": "mkdir -p dist/assets assets && yarn build-translations && yarn bundle && tsc --watch",
     "stylelint": "stylelint '**/*.{css,scss}'",
     "postversion": "git push && git push --tags && npm publish",
     "prepare": "yarn run build",
