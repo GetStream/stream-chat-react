@@ -196,7 +196,7 @@ const MessageListWithContext = <
   return (
     <>
       <div
-        className={`str-chat__list ${props.threadList ? 'str-chat__list--thread' : ''}`}
+        className={`str-chat__list ${threadList ? 'str-chat__list--thread' : ''}`}
         onScroll={onScroll}
         ref={listRef}
       >

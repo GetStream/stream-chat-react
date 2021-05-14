@@ -63,28 +63,7 @@ describe('TypingIndicator', () => {
       )
       .toJSON();
 
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__typing-indicator "
-      >
-        <div
-          className="str-chat__typing-indicator__avatars"
-        />
-        <div
-          className="str-chat__typing-indicator__dots"
-        >
-          <span
-            className="str-chat__typing-indicator__dot"
-          />
-          <span
-            className="str-chat__typing-indicator__dot"
-          />
-          <span
-            className="str-chat__typing-indicator__dot"
-          />
-        </div>
-      </div>
-    `);
+    expect(tree).toMatchInlineSnapshot(`null`);
   });
 
   it("should not render TypingIndicator when it's just you typing", async () => {

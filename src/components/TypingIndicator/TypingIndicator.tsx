@@ -48,26 +48,28 @@ const UnMemoizedTypingIndicator = <
 
   const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  if (!typing || !client || channel?.getConfig()?.typing_events === false) {
+  if (!Object.keys(typing).length || channel?.getConfig()?.typing_events === false) {
     return null;
   }
 
-  const typingInChannel = Object.values(typing).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id == null,
-  );
+  const typingInChannel = !threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+      )
+    : [];
 
-  const typingInThread = Object.values(typing).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
-  );
+  const typingInThread = threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+      )
+    : [];
 
   return (
     <div
       className={`str-chat__typing-indicator ${
-        (threadList && typingInThread.length) || (!threadList && typingInChannel.length)
-          ? 'str-chat__typing-indicator--typing'
-          : ''
+        typingInThread.length || typingInChannel.length ? 'str-chat__typing-indicator--typing' : ''
       }`}
     >
       <div className='str-chat__typing-indicator__avatars'>
