@@ -58,18 +58,20 @@ const UnMemoizedTypingIndicator = <
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id == null,
   );
 
-  const typingInThread = Object.values(typing).some((event) => event?.parent_id === thread?.id);
+  const typingInThread = Object.values(typing).filter(
+    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+  );
 
   return (
     <div
       className={`str-chat__typing-indicator ${
-        (threadList && typingInThread) || (!threadList && typingInChannel.length)
+        (threadList && typingInThread.length) || (!threadList && typingInChannel.length)
           ? 'str-chat__typing-indicator--typing'
           : ''
       }`}
     >
       <div className='str-chat__typing-indicator__avatars'>
-        {typingInChannel.map(({ user }, i) => (
+        {(threadList ? typingInThread : typingInChannel).map(({ user }, i) => (
           <Avatar
             image={user?.image}
             key={`${user?.id}-${i}`}
