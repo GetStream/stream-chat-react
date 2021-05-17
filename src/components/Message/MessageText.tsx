@@ -84,7 +84,11 @@ const UnMemoizedMessageTextComponent = <
         className={`
           ${innerClass}
           ${hasAttachment ? ` str-chat__message-${theme}-text-inner--has-attachment` : ''}
-          ${isOnlyEmojis(message.text) ? ` str-chat__message-${theme}-text-inner--is-emoji` : ''}
+          ${
+            isOnlyEmojis(message.text) && !message.quoted_message
+              ? ` str-chat__message-${theme}-text-inner--is-emoji`
+              : ''
+          }
         `.trim()}
         data-testid='message-text-inner-wrapper'
         onClick={onMentionsClickMessage}
