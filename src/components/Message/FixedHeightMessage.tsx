@@ -70,11 +70,11 @@ const UnMemoizedFixedHeightMessage = <
 >(
   props: FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { groupedByUser } = props;
+  const { groupedByUser, message: propsMessage } = props;
 
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
     At,
@@ -87,7 +87,7 @@ const UnMemoizedFixedHeightMessage = <
   >();
   const { userLanguage } = useTranslationContext();
 
-  const message = props.message || messageContext.message;
+  const message = propsMessage || contextMessage;
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
