@@ -17,7 +17,8 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { FixedHeightMessage, FixedHeightMessageProps } from '../Message';
+import { FixedHeightMessage, FixedHeightMessageProps } from '../Message/FixedHeightMessage';
+import { Message } from '../Message/Message';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
@@ -188,13 +189,17 @@ const VirtualizedMessageListWithContext = <
       }
 
       return (
-        <MessageUIComponent
-          groupedByUser={
-            shouldGroupByUser &&
-            streamMessageIndex > 0 &&
-            message.user?.id === messageList[streamMessageIndex - 1].user?.id
-          }
+        <Message
           message={message}
+          Message={() => (
+            <MessageUIComponent
+              groupedByUser={
+                shouldGroupByUser &&
+                streamMessageIndex > 0 &&
+                message.user?.id === messageList[streamMessageIndex - 1].user?.id
+              }
+            />
+          )}
         />
       );
     },

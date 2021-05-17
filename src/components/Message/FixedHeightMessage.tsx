@@ -12,6 +12,7 @@ import { MML } from '../MML';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from '../../utils';
 
@@ -55,7 +56,7 @@ export type FixedHeightMessageProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   groupedByUser: boolean;
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const UnMemoizedFixedHeightMessage = <
@@ -69,9 +70,11 @@ const UnMemoizedFixedHeightMessage = <
 >(
   props: FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { groupedByUser, message } = props;
+  const { groupedByUser, message: propMessage } = props;
 
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
     At,
@@ -83,6 +86,8 @@ const UnMemoizedFixedHeightMessage = <
     Us
   >();
   const { userLanguage } = useTranslationContext();
+
+  const message = propMessage || contextMessage;
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
