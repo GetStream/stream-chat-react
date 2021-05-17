@@ -1,13 +1,12 @@
 .str-chat__channel-search {
-  margin: 10px;
-  margin-bottom: 30px;
+  padding: 20px 10px 0;
   display: flex;
   align-items: center;
+  position: relative;
 
   input {
     flex: 1;
     background: rgba(0, 0, 0, 0.05);
-    margin-right: 20px;
     border: 1px solid transparent;
     outline: none;
     $height: 30;
@@ -26,33 +25,76 @@
       background: white;
       border: 1px solid $secondary-color;
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+      transition: all 0.2s ease-in-out;
     }
   }
 
-  button {
-    margin: 0;
-    padding: 0 0 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 100%;
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
-    cursor: pointer;
-    outline: 0;
+  &-container {
+    position: absolute;
+    width: 300px;
+    z-index: 2;
+    padding: 10px;
 
-    &:focus {
-      background: white;
-      border: 1px solid $secondary-color;
-      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+    &-searching {
+      padding-left: 10px;
     }
 
-    svg {
-      fill: $secondary-color;
-      transform: translateX(2px);
+    &-empty {
+      padding-left: 10px;
+    }
+
+    .str-chat__channel-search-result {
+      display: flex;
+      align-items: center;
+      border-radius: 10px;
+      height: 40px;
+      cursor: pointer;
+      padding-left: 10px;
+
+      &:hover {
+        font-weight: bold;
+        transition: all 0.2s ease-in-out;
+      }
+    }
+  }
+
+  &-result.focused {
+    font-weight: bold;
+  }
+
+  &-container.popup {
+    border-radius: 10px;
+    background: white;
+    left: 300px;
+    top: 20px;
+    box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+
+    .str-chat__channel-search-result {
+      &:hover {
+        background: #f1f1f3;
+      }
+    }
+
+    .str-chat__channel-search-result.focused {
+      background: #f1f1f3;
+    }
+  }
+
+  &-container.inline {
+    top: 60px;
+    right: 0px;
+    background: #f1f1f3;
+    height: calc(100vh - 60px);
+
+    .str-chat__channel-search-result {
+      &:hover {
+        background: white;
+      }
+    }
+
+    .str-chat__channel-search-result.focused {
+      background: white;
     }
   }
 }
@@ -62,12 +104,6 @@
     input {
       background: rgba(255, 255, 255, 0.04);
       color: white;
-    }
-    button {
-      background: $secondary-color;
-      svg {
-        fill: white;
-      }
     }
   }
 }

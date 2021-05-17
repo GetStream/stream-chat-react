@@ -1,19 +1,23 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { FixedHeightMessage } from '../FixedHeightMessage';
+
+import { Avatar as AvatarMock } from '../../Avatar';
+import { Gallery as GalleryMock } from '../../Gallery';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MML as MMLMock } from '../../MML';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-
-import { FixedHeightMessage } from '../FixedHeightMessage';
-import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { Gallery as GalleryMock } from '../../Gallery';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
+} from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
@@ -32,9 +36,9 @@ async function renderMsg(message) {
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
-    <ChatContext.Provider value={{ theme: 'dark' }}>
-      <ChannelContext.Provider value={{ channel, client }}>
-        <TranslationContext.Provider
+    <ChatProvider value={{ client, theme: 'dark' }}>
+      <ChannelStateProvider value={{ channel }}>
+        <TranslationProvider
           value={{
             t: (key) => key,
             tDateTimeParser: customDateTimeParser,
@@ -42,9 +46,9 @@ async function renderMsg(message) {
           }}
         >
           <FixedHeightMessage message={message} />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </ChatContext.Provider>,
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 

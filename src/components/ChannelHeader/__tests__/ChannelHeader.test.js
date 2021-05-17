@@ -1,9 +1,13 @@
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateChannel, generateUser, getTestClientWithUser } from 'mock-builders';
+
 import { ChannelHeader } from '../ChannelHeader';
-import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import { generateChannel, generateUser, getTestClientWithUser } from '../../../mock-builders';
 
 const alice = generateUser();
 let testChannel1;
@@ -12,14 +16,15 @@ async function renderComponent(props, channelData) {
   testChannel1 = generateChannel(channelData);
   const t = jest.fn((key) => key);
   const client = await getTestClientWithUser(alice);
+
   return render(
-    <ChatContext.Provider value={{ channel: testChannel1, client }}>
-      <ChannelContext.Provider value={{ channel: testChannel1, client }}>
-        <TranslationContext.Provider value={{ t }}>
+    <ChatProvider value={{ channel: testChannel1, client }}>
+      <ChannelStateProvider value={{ channel: testChannel1 }}>
+        <TranslationProvider value={{ t }}>
           <ChannelHeader {...props} />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </ChatContext.Provider>,
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 

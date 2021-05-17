@@ -1,13 +1,17 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
 import { MessageInput } from '../MessageInput';
+import { MessageInputFlat } from '../MessageInputFlat';
 import { MessageInputLarge } from '../MessageInputLarge';
 import { MessageInputSmall } from '../MessageInputSmall';
-import { MessageInputFlat } from '../MessageInputFlat';
 import { EditMessageForm } from '../EditMessageForm';
+
 import { Chat } from '../../Chat/Chat';
 import { Channel } from '../../Channel/Channel';
+
+import { useChatContext } from '../../../context/ChatContext';
 import {
   generateChannel,
   generateMember,
@@ -17,7 +21,6 @@ import {
   getTestClientWithUser,
   useMockedApis,
 } from '../../../mock-builders';
-import { ChatContext } from '../../../context/ChatContext';
 
 // mock image loader fn used by ImagePreview
 jest.mock('blueimp-load-image/js/load-image-fetch', () =>
@@ -31,7 +34,7 @@ const submitMock = jest.fn();
 const editMock = jest.fn();
 
 const ActiveChannelSetter = ({ activeChannel }) => {
-  const { setActiveChannel } = useContext(ChatContext);
+  const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
   });
@@ -45,9 +48,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
 ].forEach(({ InputComponent, name: componentName }) => {
   const renderComponent = (props = {}, channelProps = {}) => {
-    // MessageInput components rely on ChannelContext.
-    // ChannelContext is created by Channel component,
-    // Which relies on ChatContext, created by Chat component.
     const renderResult = render(
       <Chat client={chatClient}>
         <ActiveChannelSetter activeChannel={channel} />
@@ -148,9 +148,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({
-        EmojiIcon,
-      });
+      const { findByTitle } = renderComponent({}, { EmojiIcon });
 
       const emojiIcon = await findByTitle('NotEmoji');
 
@@ -175,9 +173,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({
-        FileUploadIcon,
-      });
+      const { findByTitle } = renderComponent({}, { FileUploadIcon });
 
       const fileUploadIcon = await findByTitle('NotFileUploadIcon');
 
@@ -605,6 +601,102 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         );
       });
+      it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
+        const { findByPlaceholderText } = renderComponent({
+          keycodeSubmitKeys: [[17]],
+        });
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.keyDown(input, {
+          keyCode: 19,
+        });
+
+        expect(submitMock).not.toHaveBeenCalled();
+      });
+      it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [[17, 13]],
+        });
+        const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 17,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 13,
+        });
+
+        await submit();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            text: messageText,
+          }),
+        );
+      });
+      it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [[16, 13], [57], [48]],
+        });
+        const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 57,
+        });
+
+        await submit();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            text: messageText,
+          }),
+        );
+      });
+      it('should submit if just a tuple is provided and keycode events do match', async () => {
+        const { findByPlaceholderText, submit } = renderComponent({
+          keycodeSubmitKeys: [[76, 77]],
+        });
+        const messageText = 'Submission text.';
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        fireEvent.change(input, {
+          target: {
+            value: messageText,
+          },
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 76,
+        });
+
+        fireEvent.keyDown(input, {
+          keyCode: 77,
+        });
+
+        await submit();
+
+        expect(submitMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({ text: messageText }),
+        );
+      });
     });
 
     it('Should edit a message if it is passed through the message prop', async () => {
@@ -699,11 +791,14 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('should override the default List component when SuggestionList is provided as a prop', async () => {
-      const SuggestionList = () => <div data-testid='suggestion-list'>Suggestion List</div>;
+      const AutocompleteSuggestionList = () => (
+        <div data-testid='suggestion-list'>Suggestion List</div>
+      );
 
-      const { findByPlaceholderText, getByTestId, queryByText } = renderComponent({
-        SuggestionList,
-      });
+      const { findByPlaceholderText, getByTestId, queryByText } = renderComponent(
+        {},
+        { AutocompleteSuggestionList },
+      );
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
 

@@ -4,17 +4,18 @@ import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { TypingIndicator } from '../TypingIndicator';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { TypingProvider } from '../../../context/TypingContext';
 import {
   generateChannel,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
   useMockedApis,
-} from 'mock-builders';
-
-import { ChannelContext } from '../../../context';
-import { ChatContext } from '../../../context';
-import { TypingIndicator } from '../TypingIndicator';
+} from '../../../mock-builders';
 
 afterEach(cleanup); // eslint-disable-line
 
@@ -24,11 +25,13 @@ async function renderComponent(typing = {}, threadList, value = {}) {
   const client = await getTestClientWithUser(alice);
 
   return render(
-    <ChannelContext.Provider value={{ typing, ...value }}>
-      <ChatContext.Provider value={{ client }}>
-        <TypingIndicator threadList={threadList} />
-      </ChatContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ ...value }}>
+        <TypingProvider value={{ typing }}>
+          <TypingIndicator threadList={threadList} />
+        </TypingProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
@@ -36,25 +39,48 @@ describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{}}>
-          <ChatContext.Provider value={{}}>
+        <ChatProvider value={{}}>
+          <ChannelStateProvider value={{}}>
             <TypingIndicator />
-          </ChatContext.Provider>
-        </ChannelContext.Provider>,
+          </ChannelStateProvider>
+        </ChatProvider>,
       )
       .toJSON();
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(tree).toMatchInlineSnapshot(`
+      <div
+        className="str-chat__typing-indicator "
+      >
+        <div
+          className="str-chat__typing-indicator__avatars"
+        />
+        <div
+          className="str-chat__typing-indicator__dots"
+        >
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+        </div>
+      </div>
+    `);
   });
 
   it('should render hidden indicator with empty typing', async () => {
     const client = await getTestClientWithUser(alice);
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{ client, typing: {} }}>
-          <ChatContext.Provider value={{ client }}>
-            <TypingIndicator />
-          </ChatContext.Provider>
-        </ChannelContext.Provider>,
+        <ChatProvider value={{ client }}>
+          <ChannelStateProvider value={{}}>
+            <TypingProvider value={{ typing: {} }}>
+              <TypingIndicator />
+            </TypingProvider>
+          </ChannelStateProvider>
+        </ChatProvider>,
       )
       .toJSON();
 
@@ -133,11 +159,13 @@ describe('TypingIndicator', () => {
 
     const tree = renderer
       .create(
-        <ChannelContext.Provider value={{ channel, typing: {} }}>
-          <ChatContext.Provider value={{ client }}>
-            <TypingIndicator />
-          </ChatContext.Provider>
-        </ChannelContext.Provider>,
+        <ChatProvider value={{ client }}>
+          <ChannelStateProvider value={{ channel }}>
+            <TypingProvider value={{ typing: {} }}>
+              <TypingIndicator />
+            </TypingProvider>
+          </ChannelStateProvider>
+        </ChatProvider>,
       )
       .toJSON();
 

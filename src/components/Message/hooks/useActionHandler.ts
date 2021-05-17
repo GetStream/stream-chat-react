@@ -1,4 +1,5 @@
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type React from 'react';
 
@@ -20,8 +21,8 @@ export type ActionHandlerReturnType = (
   event?: React.BaseSyntheticEvent,
 ) => Promise<void>;
 
-export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.
-      Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
+export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments. 
+Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export function useActionHandler<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -32,7 +33,8 @@ export function useActionHandler<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>): ActionHandlerReturnType {
-  const { channel, removeMessage, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { removeMessage, updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();

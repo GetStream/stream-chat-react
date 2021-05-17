@@ -1,34 +1,33 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
+import Dayjs from 'dayjs';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { Message } from '../Message';
+import { MessageLivestream } from '../MessageLivestream';
+
+import { Attachment as AttachmentMock } from '../../Attachment';
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MessageInput as MessageInputMock } from '../../MessageInput';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
+} from '../../../mock-builders';
 
-import { MessageLivestream } from '../MessageLivestream';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { ChannelContext, TranslationContext } from '../../../context';
-import Dayjs from 'dayjs';
-
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn(() => <div />),
-}));
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MessageInput', () => ({ MessageInput: jest.fn(() => <div />) }));
+jest.mock('../../MessageActions', () => ({ MessageActions: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
@@ -37,28 +36,40 @@ async function renderMessageLivestream(
   message,
   props = {},
   channelConfig = { reactions: true, replies: true },
+  components = {},
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChannelContext.Provider value={{ channel, client, emojiConfig: emojiMockConfig }}>
-      <TranslationContext.Provider
-        value={{
-          t: (key) => key,
-          tDateTimeParser: customDateTimeParser,
-          userLanguage: 'en',
-        }}
-      >
-        <MessageLivestream
-          getMessageActions={() => []}
-          message={message}
-          typing={false}
-          {...props}
-        />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <TranslationProvider
+          value={{
+            t: (key) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          }}
+        >
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageLivestream {...props} />,
+              ...components,
+            }}
+          >
+            <Message
+              channelConfig={channelConfig}
+              getMessageActions={() => []}
+              message={message}
+              openThread={props.openThread}
+            />
+          </ComponentProvider>
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
@@ -82,7 +93,7 @@ const imageAttachment = {
 const messageLivestreamWrapperTestId = 'message-livestream';
 const messageLiveStreamReactionsTestId = 'message-livestream-reactions-action';
 const reactionSelectorTestId = 'reaction-selector';
-const messageLivestreamthreadTestId = 'message-livestream-thread-action';
+const messageLivestreamThreadTestId = 'message-livestream-thread-action';
 const messageLivestreamTextTestId = 'message-livestream-text';
 const messageLivestreamErrorTestId = 'message-livestream-error';
 const messageLivestreamCommandErrorTestId = 'message-livestream-command-error';
@@ -108,7 +119,7 @@ describe('<MessageLivestream />', () => {
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageLivestream(deletedMessage, {
+    const { getByTestId } = await renderMessageLivestream(deletedMessage, {}, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -129,10 +140,14 @@ describe('<MessageLivestream />', () => {
         </li>
       </ul>
     );
-    const { getByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { reactions: true },
-      ReactionSelector: React.forwardRef(CustomReactionSelector),
-    });
+
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      { reactions: true },
+      { ReactionSelector: React.forwardRef(CustomReactionSelector) },
+    );
+
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
   });
@@ -155,10 +170,9 @@ describe('<MessageLivestream />', () => {
     );
     const { getByTestId } = await renderMessageLivestream(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      {},
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
@@ -166,7 +180,7 @@ describe('<MessageLivestream />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageLivestream(message, {
+    const { getByTestId } = await renderMessageLivestream(message, {}, null, {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
@@ -176,7 +190,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { getByTestId } = await renderMessageLivestream(message, {
+    const { getByTestId } = await renderMessageLivestream(message, {}, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -189,7 +203,7 @@ describe('<MessageLivestream />', () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { queryAllByTestId } = await renderMessageLivestream(message, {
+    const { queryAllByTestId } = await renderMessageLivestream(message, {}, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -205,9 +219,7 @@ describe('<MessageLivestream />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageLivestream(message, {
-      clearEditingState,
-      editing: true,
+    await renderMessageLivestream(message, { clearEditingState, editing: true }, null, {
       EditMessageInput: CustomEditMessageInput,
     });
 
@@ -360,7 +372,7 @@ describe('<MessageLivestream />', () => {
     const { getByTestId } = await renderMessageLivestream(message, {
       channelConfig: { replies: true },
     });
-    expect(getByTestId(messageLivestreamthreadTestId)).toBeInTheDocument();
+    expect(getByTestId(messageLivestreamThreadTestId)).toBeInTheDocument();
   });
 
   it('should display text in users set language', async () => {
@@ -377,16 +389,15 @@ describe('<MessageLivestream />', () => {
 
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
-    const handleOpenThread = jest.fn();
+    const openThread = jest.fn();
     const { getByTestId } = await renderMessageLivestream(message, {
       channelConfig: { replies: true },
-      handleOpenThread,
+      openThread,
     });
-    expect(handleOpenThread).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(messageLivestreamthreadTestId));
-    expect(handleOpenThread).toHaveBeenCalledWith(
-      expect.any(Object), // THe click event
-    );
+    expect(openThread).not.toHaveBeenCalled();
+    fireEvent.click(getByTestId(messageLivestreamThreadTestId));
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(openThread).toHaveBeenCalled();
   });
 
   it('should render action options', async () => {

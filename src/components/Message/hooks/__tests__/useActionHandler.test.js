@@ -1,13 +1,17 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { handleActionWarning, useActionHandler } from '../useActionHandler';
+
+import { ChatProvider } from '../../../../context/ChatContext';
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext } from '../../../../context';
-import { handleActionWarning, useActionHandler } from '../useActionHandler';
+} from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const sendAction = jest.fn();
@@ -23,16 +27,13 @@ async function renderUseHandleActionHook(message = generateMessage()) {
     sendAction,
   });
   const wrapper = ({ children }) => (
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        removeMessage,
-        updateMessage,
-      }}
-    >
-      {children}
-    </ChannelContext.Provider>
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel }}>
+        <ChannelActionProvider value={{ removeMessage, updateMessage }}>
+          {children}
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>
   );
   const { result } = renderHook(() => useActionHandler(message), { wrapper });
   return result.current;

@@ -1,35 +1,33 @@
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Dayjs from 'dayjs';
+
+import { Message } from '../Message';
+import { MessageTeam } from '../MessageTeam';
+
+import { Attachment as AttachmentMock } from '../../Attachment';
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+import { MessageInput as MessageInputMock } from '../../MessageInput';
+import { MML as MMLMock } from '../../MML';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
+} from '../../../mock-builders';
 
-import { ChannelContext, ChatContext, TranslationContext } from '../../../context';
-import { MessageTeam } from '../MessageTeam';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { MessageInput as MessageInputMock } from '../../MessageInput';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import Dayjs from 'dayjs';
-
-jest.mock('../../Avatar', () => ({
-  Avatar: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageInput', () => ({
-  MessageInput: jest.fn(() => <div />),
-}));
-
-jest.mock('../../MessageActions', () => ({
-  MessageActions: jest.fn(() => <div />),
-}));
-
+jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
+jest.mock('../../MessageInput', () => ({ MessageInput: jest.fn(() => <div />) }));
+jest.mock('../../MessageActions', () => ({ MessageActions: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 
 const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
@@ -40,38 +38,41 @@ async function renderMessageTeam(
   message,
   props = {},
   channelConfig = { reactions: true, replies: true },
+  components = {},
 ) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
-        value={{
-          channel,
-          client,
-          emojiConfig: emojiMockConfig,
-          t: (key) => key,
-        }}
-      >
-        <TranslationContext.Provider
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <TranslationProvider
           value={{
             t: (key) => key,
             tDateTimeParser: customDateTimeParser,
             userLanguage: 'en',
           }}
         >
-          <MessageTeam
-            getMessageActions={() => []}
-            isMyMessage={() => true}
-            message={message}
-            typing={false}
-            {...props}
-          />
-        </TranslationContext.Provider>
-      </ChannelContext.Provider>
-    </ChatContext.Provider>,
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageTeam {...props} />,
+              ...components,
+            }}
+          >
+            <Message
+              getMessageActions={() => []}
+              isMyMessage={() => true}
+              message={message}
+              typing={false}
+              {...props}
+            />
+          </ComponentProvider>
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
@@ -113,7 +114,7 @@ describe('<MessageTeam />', () => {
       deleted_at: new Date('2019-08-27T00:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageTeam(deletedMessage, {
+    const { getByTestId } = await renderMessageTeam(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -136,10 +137,9 @@ describe('<MessageTeam />', () => {
     );
     const { getByTestId } = await renderMessageTeam(
       message,
-      {
-        ReactionSelector: React.forwardRef(CustomReactionSelector),
-      },
+      null,
       { reactions: true },
+      { ReactionSelector: React.forwardRef(CustomReactionSelector) },
     );
     fireEvent.click(getByTestId(messageTeamReactionIcon));
     expect(getByTestId(customSelectorTestId)).toBeInTheDocument();
@@ -163,10 +163,9 @@ describe('<MessageTeam />', () => {
     );
     const { getByTestId } = await renderMessageTeam(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      null,
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
@@ -174,7 +173,7 @@ describe('<MessageTeam />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageTeam(message, {
+    const { getByTestId } = await renderMessageTeam(message, null, null, {
       Avatar: CustomAvatar,
     });
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
@@ -184,7 +183,7 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage({ pinned: true });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { getByTestId } = await renderMessageTeam(message, {
+    const { getByTestId } = await renderMessageTeam(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -197,7 +196,7 @@ describe('<MessageTeam />', () => {
     const message = generateAliceMessage({ pinned: false });
     const CustomPinIndicator = () => <div data-testid='pin-indicator'>Pin Indicator</div>;
 
-    const { queryByTestId } = await renderMessageTeam(message, {
+    const { queryByTestId } = await renderMessageTeam(message, null, null, {
       PinIndicator: CustomPinIndicator,
     });
 
@@ -212,9 +211,7 @@ describe('<MessageTeam />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageTeam(message, {
-      clearEditingState,
-      editing: true,
+    await renderMessageTeam(message, { clearEditingState, editing: true }, null, {
       EditMessageInput: CustomEditMessageInput,
     });
 
@@ -568,7 +565,7 @@ describe('<MessageTeam />', () => {
   it('should display loading status when message is being sent', async () => {
     const message = generateAliceMessage({ status: 'sending' });
     const { getByTestId } = await renderMessageTeam(message);
-    expect(getByTestId('message-team-sending')).toBeInTheDocument();
+    expect(getByTestId('message-status-sending')).toBeInTheDocument();
   });
 
   it('should show users that read the message when it was read by another user that not the message owner', async () => {
@@ -591,7 +588,7 @@ describe('<MessageTeam />', () => {
     const readBy = [alice, bob, carol];
     const message = generateAliceMessage();
     const { getByTestId } = await renderMessageTeam(message, { readBy });
-    expect(getByTestId('message-team-read-by-count')).toHaveTextContent('2');
+    expect(getByTestId('message-status-read-by-many')).toHaveTextContent('2');
   });
 
   it('should display message delivered status when message is delivered', async () => {
@@ -600,7 +597,7 @@ describe('<MessageTeam />', () => {
     const { getByTestId } = await renderMessageTeam(message, {
       lastReceivedId: messageId,
     });
-    expect(getByTestId('message-team-received')).toHaveTextContent('Delivered');
+    expect(getByTestId('message-status-received')).toHaveTextContent('Delivered');
   });
 
   it('should render attachments when message has text', async () => {

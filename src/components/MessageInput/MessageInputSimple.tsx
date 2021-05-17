@@ -1,15 +1,15 @@
 import React from 'react';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import { EmojiIconLarge as DefaultEmojiIcon, SendButton as DefaultSendButton } from './icons';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { MessageInputProps } from './MessageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   CustomTrigger,
@@ -22,6 +22,9 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ */
 export const MessageInputSimple = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -31,37 +34,25 @@ export const MessageInputSimple = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    autocompleteTriggers,
-    disabled = false,
-    disableMentions,
-    EmojiIcon = DefaultEmojiIcon,
-    focus = false,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-    publishTypingEvent = true,
-    SendButton = DefaultSendButton,
-    SuggestionItem,
-    SuggestionList,
-  } = props;
-
+>() => {
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput({
-    ...props,
-    additionalTextareaProps,
-    disabled,
-    focus,
-    grow,
-    maxRows,
-    publishTypingEvent,
-  });
+  const {
+    closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
+    emojiPickerIsOpen,
+    handleEmojiKeyDown,
+    handleSubmit,
+    openEmojiPicker,
+    setCooldownRemaining,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const {
+    CooldownTimer = DefaultCooldownTimer,
+    EmojiIcon = DefaultEmojiIcon,
+    SendButton = DefaultSendButton,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
     <div
@@ -71,48 +62,33 @@ export const MessageInputSimple = <
     >
       <div className='str-chat__input-flat-wrapper'>
         <div className='str-chat__input-flat--textarea-wrapper'>
-          <ChatAutoComplete
-            additionalTextareaProps={additionalTextareaProps}
-            commands={messageInput.getCommands()}
-            disabled={disabled}
-            disableMentions={disableMentions}
-            grow={grow}
-            handleSubmit={messageInput.handleSubmit}
-            innerRef={messageInput.textareaRef}
-            maxRows={maxRows}
-            mentionAllAppUsers={mentionAllAppUsers}
-            mentionQueryParams={mentionQueryParams}
-            onChange={messageInput.handleChange}
-            onPaste={messageInput.onPaste}
-            onSelectItem={messageInput.onSelectItem}
-            placeholder={t('Type your message')}
-            rows={1}
-            SuggestionItem={SuggestionItem}
-            SuggestionList={SuggestionList}
-            triggers={autocompleteTriggers}
-            value={messageInput.text}
-          />
+          <ChatAutoComplete />
           <div className='str-chat__emojiselect-wrapper'>
             <Tooltip>
-              {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+              {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
             </Tooltip>
             <span
               className='str-chat__input-flat-emojiselect'
-              onClick={
-                messageInput.emojiPickerIsOpen
-                  ? messageInput.closeEmojiPicker
-                  : messageInput.openEmojiPicker
-              }
-              onKeyDown={messageInput.handleEmojiKeyDown}
+              onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+              onKeyDown={handleEmojiKeyDown}
               role='button'
               tabIndex={0}
             >
-              <EmojiIcon />
+              {cooldownRemaining ? (
+                <div className='str-chat__input-flat-cooldown'>
+                  <CooldownTimer
+                    cooldownInterval={cooldownInterval}
+                    setCooldownRemaining={setCooldownRemaining}
+                  />
+                </div>
+              ) : (
+                <EmojiIcon />
+              )}
             </span>
           </div>
-          <EmojiPicker {...messageInput} />
+          <EmojiPicker />
         </div>
-        {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
+        {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
       </div>
     </div>
   );

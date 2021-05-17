@@ -1,9 +1,11 @@
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type React from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -17,7 +19,7 @@ import type {
 
 export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
   event: React.BaseSyntheticEvent,
-  user: UserResponse<Us>[],
+  mentioned_users: UserResponse<Us>[],
 ) => void;
 
 export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
@@ -34,11 +36,11 @@ function createEventHandler<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  fn?: MentionedUserEventHandler<Us>,
+  fn?: CustomMentionHandler<Us>,
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): ReactEventHandler {
   return (event) => {
-    if (typeof fn !== 'function' || !message?.mentioned_users) {
+    if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
       return;
     }
     fn(event, message.mentioned_users);
@@ -61,41 +63,18 @@ export const useMentionsHandler = <
   },
 ) => {
   const {
-    onMentionsClick: channelOnMentionsClick,
-    onMentionsHover: channelOnMentionsHover,
-  } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+    onMentionsClick: contextOnMentionsClick,
+    onMentionsHover: contextOnMentionsHover,
+  } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const onMentionsClick =
-    customMentionHandler?.onMentionsClick || channelOnMentionsClick || (() => null);
+    customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);
 
   const onMentionsHover =
-    customMentionHandler?.onMentionsHover || channelOnMentionsHover || (() => null);
+    customMentionHandler?.onMentionsHover || contextOnMentionsHover || (() => null);
 
   return {
     onMentionsClick: createEventHandler(onMentionsClick, message),
     onMentionsHover: createEventHandler(onMentionsHover, message),
-  };
-};
-
-export const useMentionsUIHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  eventHandlers?: {
-    onMentionsClick?: ReactEventHandler;
-    onMentionsHover?: ReactEventHandler;
-  },
-) => {
-  const { onMentionsClick, onMentionsHover } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
-
-  return {
-    onMentionsClick: eventHandlers?.onMentionsClick || createEventHandler(onMentionsClick, message),
-    onMentionsHover: eventHandlers?.onMentionsHover || createEventHandler(onMentionsHover, message),
   };
 };

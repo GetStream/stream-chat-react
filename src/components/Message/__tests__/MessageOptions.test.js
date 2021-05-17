@@ -2,29 +2,39 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { Message } from '../Message';
+import { MessageOptions } from '../MessageOptions';
+import { MessageSimple } from '../MessageSimple';
+import { MESSAGE_ACTIONS } from '../utils';
+
+import { Attachment } from '../../Attachment';
+import { MessageActions as MessageActionsMock } from '../../MessageActions';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext } from '../../../context';
-import { MessageActions as MessageActionsMock } from '../../MessageActions';
-import { MESSAGE_ACTIONS } from '../utils';
-import { MessageOptions } from '../MessageOptions';
+} from '../../../mock-builders';
 
 jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),
 }));
 
 const alice = generateUser({ name: 'alice' });
-const defaultProps = {
-  getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
+const defaultMessageProps = {
   initialMessage: false,
   message: generateMessage(),
-  messageWrapperRef: { current: document.createElement('div') },
+  messageActions: Object.keys(MESSAGE_ACTIONS),
   onReactionListClick: () => {},
   threadList: false,
+};
+const defaultOptionsProps = {
+  messageWrapperRef: { current: document.createElement('div') },
 };
 
 function generateAliceMessage(messageOptions) {
@@ -34,23 +44,46 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageOptions(customProps, channelConfig) {
+async function renderMessageOptions(
+  customMessageProps = {},
+  channelConfig,
+  customOptionsProps = {},
+) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({ getConfig: () => channelConfig });
+
   return render(
-    <ChannelContext.Provider value={{ channel, client }}>
-      <MessageOptions {...defaultProps} {...customProps} />
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel }}>
+        <ComponentProvider
+          value={{
+            Attachment,
+            // eslint-disable-next-line react/display-name
+            Message: () => (
+              <MessageSimple
+                channelConfig={channelConfig}
+                onReactionListClick={customMessageProps?.onReactionListClick}
+              />
+            ),
+          }}
+        >
+          <Message {...defaultMessageProps} {...customMessageProps}>
+            <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
+          </Message>
+        </ComponentProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
+
 const threadActionTestId = 'thread-action';
 const reactionActionTestId = 'message-reaction-action';
-const messageOptionsTestId = 'message-options';
+
 describe('<MessageOptions />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render message options when there is no message set', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      message: undefined,
+      message: {},
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
@@ -78,7 +111,7 @@ describe('<MessageOptions />', () => {
   });
 
   it('should display thread actions when message is not displayed on a thread list and channel has replies configured', async () => {
-    const { getByTestId } = await renderMessageOptions(defaultProps, {
+    const { getByTestId } = await renderMessageOptions(defaultMessageProps, {
       replies: true,
     });
     expect(getByTestId(threadActionTestId)).toBeInTheDocument();
@@ -98,12 +131,13 @@ describe('<MessageOptions />', () => {
     const handleOpenThread = jest.fn(() => {});
     const message = generateMessage();
     const { getByTestId } = await renderMessageOptions(
-      { handleOpenThread, message, threadList: false },
+      { message, openThread: handleOpenThread, threadList: false },
       { replies: true },
     );
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
-    expect(handleOpenThread).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(handleOpenThread).toHaveBeenCalled();
   });
 
   it('should display reactions action when channel has reactions enabled', async () => {
@@ -116,50 +150,9 @@ describe('<MessageOptions />', () => {
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 
-  it('should trigger reaction list click when reaction action is clicked', async () => {
-    const opentReationList = jest.fn();
-    const { getByTestId } = await renderMessageOptions(
-      { onReactionListClick: opentReationList },
-      { reactions: true },
-    );
-    expect(opentReationList).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(reactionActionTestId));
-    expect(opentReationList).toHaveBeenCalledTimes(1);
-  });
-
   it('should render message actions', async () => {
     await renderMessageOptions();
-    expect(MessageActionsMock).toHaveBeenCalledWith(expect.objectContaining(defaultProps), {});
-  });
-
-  it('should not render message with "left-to-the-bubble" style if displayLeft is false', async () => {
-    const message = generateAliceMessage();
-    const { queryByTestId } = await renderMessageOptions({
-      displayLeft: false,
-      message,
-    });
-    expect(queryByTestId('message-options-left')).not.toBeInTheDocument();
-  });
-
-  it('should not render message thread actinos if displayReplies is false', async () => {
-    const { queryByTestId } = await renderMessageOptions(
-      {
-        displayReplies: false,
-      },
-      {
-        replies: true,
-      },
-    );
-    expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
-  });
-
-  it('should render css classes with corresonding theme when it is set', async () => {
-    const { queryByTestId } = await renderMessageOptions({ theme: 'custom' }, { reactions: true });
-    expect(queryByTestId(messageOptionsTestId).className).toContain(
-      'str-chat__message-custom__actions',
-    );
-    expect(queryByTestId(reactionActionTestId).className).toContain(
-      'str-chat__message-custom__actions__action',
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
   });
 });

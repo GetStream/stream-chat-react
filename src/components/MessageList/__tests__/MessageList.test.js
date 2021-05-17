@@ -69,8 +69,8 @@ describe('MessageList', () => {
 
     const { getByTestId } = render(
       <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <MessageList Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} />
+        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
+          <MessageList />
         </Channel>
       </Chat>,
     );

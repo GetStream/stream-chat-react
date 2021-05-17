@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "node-sass": "4.14.1",
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
     "react-scripts": "3.4.1",
-    "stream-chat": "3.7.0",
+    "stream-chat": "3.9.0",
     "stream-chat-react": "link:../../",
     "typescript": "4.2.3"
   },

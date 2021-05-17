@@ -1,18 +1,22 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+
+import {
+  reactionHandlerWarning,
+  useReactionClick,
+  useReactionHandler,
+} from '../useReactionHandler';
+
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext, ChatContext } from '../../../../context';
-import {
-  reactionHandlerWarning,
-  useReactionClick,
-  useReactionHandler,
-} from '../useReactionHandler';
+} from '../../../../mock-builders';
 
 const getConfig = jest.fn();
 const sendAction = jest.fn();
@@ -31,18 +35,15 @@ async function renderUseReactionHandlerHook(message = generateMessage(), channel
     sendReaction,
     ...channelContextProps,
   });
+
   const wrapper = ({ children }) => (
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
-        value={{
-          channel,
-          updateMessage,
-        }}
-      >
-        {children}
-      </ChannelContext.Provider>
-    </ChatContext.Provider>
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel }}>
+        <ChannelActionProvider value={{ updateMessage }}>{children}</ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>
   );
+
   const { result } = renderHook(() => useReactionHandler(message), { wrapper });
   return result.current;
 }
@@ -130,7 +131,7 @@ describe('useReactionClick custom hook', () => {
     expect(result.current.showDetailedReactions).toBe(true);
   });
 
-  it('should retrun correct value for isReactionEnabled', () => {
+  it('should return correct value for isReactionEnabled', () => {
     const channel = generateChannel({
       getConfig: () => ({ reactions: false }),
     });
@@ -140,7 +141,7 @@ describe('useReactionClick custom hook', () => {
       {
         // eslint-disable-next-line react/display-name
         wrapper: ({ children }) => (
-          <ChannelContext.Provider value={{ channel }}>{children}</ChannelContext.Provider>
+          <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
         ),
       },
     );

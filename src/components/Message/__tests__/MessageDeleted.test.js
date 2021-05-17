@@ -2,23 +2,29 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateMessage, generateUser, getTestClientWithUser } from 'mock-builders';
+
 import { MessageDeleted } from '../MessageDeleted';
-import { ChannelContext, TranslationContext } from '../../../context';
+
+import { ChatProvider } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import { generateMessage, generateUser, getTestClientWithUser } from '../../../mock-builders';
 
 const alice = generateUser();
 const bob = generateUser();
+
 async function renderComponent(message = generateMessage()) {
   const t = jest.fn((key) => key);
   const client = await getTestClientWithUser(alice);
+
   return render(
-    <ChannelContext.Provider value={{ client }}>
-      <TranslationContext.Provider value={{ t }}>
+    <ChatProvider value={{ client }}>
+      <TranslationProvider value={{ t }}>
         <MessageDeleted message={message} />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+      </TranslationProvider>
+    </ChatProvider>,
   );
 }
+
 const messageDeletedTestId = 'message-deleted-component';
 const ownMessageCssClass = 'str-chat__message--me';
 describe('MessageDeleted component', () => {

@@ -4,7 +4,7 @@ import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { isDayOrMoment, useTranslationContext } from '../../context/TranslationContext';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

@@ -1,5 +1,6 @@
 import { isUserMuted, validateAndGetMessage } from '../utils';
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
@@ -38,7 +39,7 @@ export const useMuteHandler = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
 ): ReactEventHandler => {
-  const { mutes } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

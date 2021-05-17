@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { useActionHandler, useUserRole } from './hooks';
+import { useActionHandler, useDeleteHandler, useUserRole } from './hooks';
+import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageTimestamp } from './MessageTimestamp';
 import { getMessageActions } from './utils';
 
@@ -10,12 +11,13 @@ import { MessageActions } from '../MessageActions';
 import { MML } from '../MML';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -56,10 +58,6 @@ export type FixedHeightMessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
-/**
- * FixedHeightMessage - This component renders a single message.
- * It uses fixed height elements to make sure it works well in VirtualizedMessageList
- */
 const UnMemoizedFixedHeightMessage = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -74,9 +72,20 @@ const UnMemoizedFixedHeightMessage = <
   const { groupedByUser, message } = props;
 
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
   const { userLanguage } = useTranslationContext();
 
   const handleAction = useActionHandler(message);
+  const handleDelete = useDeleteHandler(message);
   const role = useUserRole(message);
 
   const messageTextToRender =
@@ -116,29 +125,45 @@ const UnMemoizedFixedHeightMessage = <
             <strong>{message.user?.name || 'unknown'}</strong>
           </div>
         </div>
-        {images && <Gallery images={images} />}
-        <div className='str-chat__virtual-message__text' data-testid='msg-text'>
-          {renderedText}
-          {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
-          <div className='str-chat__virtual-message__data'>
-            <MessageActions<At, Ch, Co, Ev, Me, Re, Us>
-              customWrapperClass='str-chat__virtual-message__actions'
-              getMessageActions={messageActionsHandler}
-              message={message}
-            />
-            <span className='str-chat__virtual-message__date'>
-              <MessageTimestamp
-                customClass='str-chat__message-simple-timestamp'
-                message={message}
-              />
-            </span>
-          </div>
-        </div>
+        {message.deleted_at || message.type === 'deleted' ? (
+          <MessageDeleted message={message} />
+        ) : (
+          <>
+            {images && <Gallery images={images} />}
+            <div className='str-chat__virtual-message__text' data-testid='msg-text'>
+              {renderedText}
+              {message.mml && (
+                <MML actionHandler={handleAction} align='left' source={message.mml} />
+              )}
+              <div className='str-chat__virtual-message__data'>
+                <MessageActions
+                  customWrapperClass='str-chat__virtual-message__actions'
+                  getMessageActions={messageActionsHandler}
+                  handleDelete={handleDelete}
+                  message={message}
+                  mine={() => role.isMyMessage}
+                />
+                <span className='str-chat__virtual-message__date'>
+                  <MessageTimestamp
+                    customClass='str-chat__message-simple-timestamp'
+                    message={message}
+                  />
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
+ * FixedHeightMessage - This component renders a single message.
+ * It uses fixed height elements to make sure it works well in VirtualizedMessageList
+ */
 export const FixedHeightMessage = React.memo(
   UnMemoizedFixedHeightMessage,
 ) as typeof UnMemoizedFixedHeightMessage;

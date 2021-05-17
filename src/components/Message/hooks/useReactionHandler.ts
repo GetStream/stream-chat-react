@@ -1,6 +1,7 @@
 import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { ReactEventHandler } from '../types';
@@ -17,8 +18,8 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
-      Make sure the ChannelContext was properly set and that this hook was initialized with a valid message.`;
+export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments. 
+Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -31,7 +32,8 @@ export const useReactionHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { channel, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
@@ -104,7 +106,7 @@ export const useReactionClick = <
   reactionSelectorRef?: RefObject<HTMLDivElement | null>,
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
 ) => {
-  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 

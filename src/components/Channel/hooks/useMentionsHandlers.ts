@@ -24,7 +24,7 @@ export const useMentionsHandlers = <Us extends DefaultUserType<Us> = DefaultUser
 
       if (textContent[0] === '@') {
         const userName = textContent.replace('@', '');
-        const user = mentioned_users.find(({ id, name }) => name === userName || id === userName);
+        const user = mentioned_users?.find(({ id, name }) => name === userName || id === userName);
 
         if (
           onMentionsHover &&

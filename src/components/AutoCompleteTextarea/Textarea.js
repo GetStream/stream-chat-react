@@ -6,7 +6,7 @@ import CustomEvent from 'custom-event';
 import { isValidElementType } from 'react-is';
 
 import Listeners, { KEY_CODES } from './listener';
-import DefaultSuggestionList from './List';
+import { List as DefaultSuggestionList } from './List';
 import {
   DEFAULT_CARET_POSITION,
   defaultScrollToItem,
@@ -14,7 +14,7 @@ import {
   triggerPropsCheck,
 } from './utils';
 
-class ReactTextareaAutocomplete extends React.Component {
+export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
     closeOnClickOutside: true,
     maxRows: 10,
@@ -47,8 +47,9 @@ class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
+      keycodeSubmitShiftE: false,
       left: null,
-      listenerIndex: 0,
+      listenerIndex: {},
       selectionEnd: 0,
       selectionStart: 0,
       top: null,
@@ -60,7 +61,16 @@ class ReactTextareaAutocomplete extends React.Component {
     Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
     Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
 
-    const listenerIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+    const listenerIndex = {};
+    const newSubmitKeys = this.props.keycodeSubmitKeys;
+
+    if (newSubmitKeys) {
+      const keycodeIndex = this.addKeycodeSubmitListeners(newSubmitKeys);
+      listenerIndex[keycodeIndex] = keycodeIndex;
+    } else {
+      const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
+      listenerIndex[enterIndex] = enterIndex;
+    }
 
     this.setState({
       listenerIndex,
@@ -109,14 +119,35 @@ class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
+  addKeycodeSubmitListeners = (keyCodes) => {
+    keyCodes.forEach((arrayOfCodes) => {
+      let submitValue = arrayOfCodes;
+      if (submitValue.length === 1) {
+        submitValue = submitValue[0];
+      }
+
+      // does submitted keycodes include shift+Enter?
+      const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
+      if (shiftE) this.keycodeSubmitShiftE = true;
+
+      return Listeners.add(submitValue, (e) => this._onEnter(e));
+    });
+  };
+
   _onEnter = (event) => {
     if (!this.textareaRef) return;
 
     const trigger = this.state.currentTrigger;
     const hasFocus = this.textareaRef.matches(':focus');
 
-    // don't submit if the element has focus or the shift key is pressed
-    if (!hasFocus || event.shiftKey === true) return;
+    // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
+    if (
+      !hasFocus ||
+      (event.shiftKey === true && !this.keycodeSubmitShiftE) ||
+      (event.shiftKey === true && !this.props.keycodeSubmitKeys)
+    ) {
+      return;
+    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit
@@ -316,7 +347,6 @@ class ReactTextareaAutocomplete extends React.Component {
   };
 
   _getValuesFromProvider = () => {
-    const { mutes } = this.props;
     const { actualToken, currentTrigger } = this.state;
     const triggerSettings = this._getCurrentTriggerSettings();
 
@@ -350,15 +380,6 @@ class ReactTextareaAutocomplete extends React.Component {
       if (!data.length) {
         this._closeAutocomplete();
         return;
-      }
-
-      if (currentTrigger === '@' && mutes.length) {
-        data = data.filter((suggestion) => {
-          const mutedUser = mutes.some((mute) => mute.target.id === suggestion.id);
-
-          if (mutedUser) return false;
-          return true;
-        });
       }
 
       this.setState({
@@ -428,6 +449,7 @@ class ReactTextareaAutocomplete extends React.Component {
       'innerRef',
       'itemClassName',
       'itemStyle',
+      'keycodeSubmitKeys',
       'listClassName',
       'listStyle',
       'loaderClassName',
@@ -487,7 +509,7 @@ class ReactTextareaAutocomplete extends React.Component {
       currentTrigger = '/';
       lastToken = value;
     } else {
-      const triggerTokens = ':@';
+      const triggerTokens = Object.keys(trigger).join().replace('/', '');
       const triggerNorWhitespace = `[^\\s${triggerTokens}]*`;
       const regex = new RegExp(
         `(?!^|\\W)?[${triggerTokens}]${triggerNorWhitespace}\\s?${triggerNorWhitespace}$`,
@@ -528,7 +550,6 @@ class ReactTextareaAutocomplete extends React.Component {
         top: newTop - this.textareaRef.scrollTop || 0,
       });
     }
-
     this.setState(
       {
         actualToken,
@@ -700,6 +721,7 @@ ReactTextareaAutocomplete.propTypes = {
   dropdownStyle: PropTypes.object,
   itemClassName: PropTypes.string,
   itemStyle: PropTypes.object,
+  keycodeSubmitKeys: PropTypes.array,
   listClassName: PropTypes.string,
   listStyle: PropTypes.object,
   loaderClassName: PropTypes.string,
@@ -715,5 +737,3 @@ ReactTextareaAutocomplete.propTypes = {
   trigger: triggerPropsCheck,
   value: PropTypes.string,
 };
-
-export default ReactTextareaAutocomplete;

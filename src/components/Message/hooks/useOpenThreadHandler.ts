@@ -1,6 +1,8 @@
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 import type { ReactEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -27,7 +29,7 @@ export const useOpenThreadHandler = <
     event: React.BaseSyntheticEvent,
   ) => void,
 ): ReactEventHandler => {
-  const { openThread: channelOpenThread } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const openThread = customOpenThread || channelOpenThread;
 

@@ -1,21 +1,15 @@
 import React, { useMemo, useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageTimestamp } from './MessageTimestamp';
-import { useReactionClick, useUserHandler } from './hooks';
-import {
-  PinIndicator as DefaultPinIndicator,
-  DeliveredCheckIcon,
-  ErrorIcon,
-  ReactionIcon,
-  ThreadIcon,
-} from './icons';
-import { areMessageUIPropsEqual, getReadByTooltipText, showMessageActionsBox } from './utils';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageStatus } from './MessageStatus';
+import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
+import { useReactionClick } from './hooks';
+import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
+import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { LoadingIndicator } from '../Loading';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
@@ -23,10 +17,9 @@ import {
   ReactionSelector as DefaultReactionSelector,
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
-import { Tooltip } from '../Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
-import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -52,7 +45,7 @@ type MessageTeamWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -72,58 +65,45 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
-    Avatar = DefaultAvatar,
-    Attachment,
-    channel,
-    channelConfig: propChannelConfig,
+    channelConfig,
     clearEditingState,
     editing,
-    EditMessageInput = DefaultEditMessageForm,
-    formatDate,
-    getFlagMessageErrorNotification,
-    getFlagMessageSuccessNotification,
     getMessageActions,
-    getMuteUserErrorNotification,
-    getMuteUserSuccessNotification,
     groupStyles,
     handleAction,
-    handleEdit,
-    handleFlag,
-    handleDelete,
     handleOpenThread,
-    handleMute,
-    handlePin,
     handleReaction,
     handleRetry,
     initialMessage,
-    isMyMessage,
     isReactionEnabled,
-    lastReceivedId,
     message,
-    MessageDeleted = DefaultMessageDeleted,
-    messageListRect,
     messageWrapperRef,
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
-    PinIndicator = DefaultPinIndicator,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
-    readBy,
     renderText = defaultRenderText,
     showDetailedReactions,
-    setEditingState,
     threadList,
     unsafeHTML,
   } = props;
 
-  const { t, userLanguage } = useTranslationContext();
+  const {
+    Attachment,
+    Avatar = DefaultAvatar,
+    EditMessageInput = DefaultEditMessageForm,
+    MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageTimestamp = DefaultTimestamp,
+    PinIndicator = DefaultPinIndicator,
+    QuotedMessage = DefaultQuotedMessage,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const channelConfig = propChannelConfig || channel?.getConfig();
+  const { t, userLanguage } = useTranslationContext();
 
   const showActionsBox = showMessageActionsBox(getMessageActions());
 
@@ -131,11 +111,6 @@ const MessageTeamWithContext = <
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
   const messageMentionedUsersItem = message.mentioned_users;
-
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
 
   const messageText = useMemo(() => renderText(messageTextToRender, messageMentionedUsersItem), [
     messageMentionedUsersItem,
@@ -206,32 +181,31 @@ const MessageTeamWithContext = <
           ) : (
             <div data-testid='team-meta-spacer' style={{ marginRight: 0, width: 40 }} />
           )}
-          <MessageTimestamp formatDate={formatDate} message={message} />
+          <MessageTimestamp />
         </div>
         <div className='str-chat__message-team-group'>
-          {message &&
-            (firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage) && (
-              <div
-                className='str-chat__message-team-author'
-                data-testid='message-team-author'
-                onClick={onUserClick}
-              >
-                <strong>{message.user?.name || message.user?.id}</strong>
-                {message.type === 'error' && (
-                  <div className='str-chat__message-team-error-header'>
-                    {t('Only visible to you')}
-                  </div>
-                )}
-              </div>
-            )}
+          {(firstGroupStyle === 'top' || firstGroupStyle === 'single' || initialMessage) && (
+            <div
+              className='str-chat__message-team-author'
+              data-testid='message-team-author'
+              onClick={onUserClick}
+            >
+              <strong>{message.user?.name || message.user?.id}</strong>
+              {message.type === 'error' && (
+                <div className='str-chat__message-team-error-header'>
+                  {t('Only visible to you')}
+                </div>
+              )}
+            </div>
+          )}
           <div
             className={`str-chat__message-team-content str-chat__message-team-content--${firstGroupStyle} str-chat__message-team-content--${
               message.text === '' ? 'image' : 'text'
             }`}
             data-testid='message-team-content'
           >
+            {message.quoted_message && <QuotedMessage />}
             {!initialMessage &&
-              message &&
               message.status !== 'sending' &&
               message.status !== 'failed' &&
               message.type !== 'system' &&
@@ -241,7 +215,7 @@ const MessageTeamWithContext = <
                   className={`str-chat__message-team-actions`}
                   data-testid='message-team-actions'
                 >
-                  {message && showDetailedReactions && (
+                  {showDetailedReactions && (
                     <ReactionSelector
                       detailedView={true}
                       handleReaction={handleReaction}
@@ -270,29 +244,11 @@ const MessageTeamWithContext = <
                     </span>
                   )}
                   {showActionsBox && (
-                    <MessageActions
-                      addNotification={addNotification}
-                      customWrapperClass={''}
-                      getFlagMessageErrorNotification={getFlagMessageErrorNotification}
-                      getFlagMessageSuccessNotification={getFlagMessageSuccessNotification}
-                      getMessageActions={getMessageActions}
-                      getMuteUserErrorNotification={getMuteUserErrorNotification}
-                      getMuteUserSuccessNotification={getMuteUserSuccessNotification}
-                      handleDelete={handleDelete}
-                      handleEdit={handleEdit}
-                      handleFlag={handleFlag}
-                      handleMute={handleMute}
-                      handlePin={handlePin}
-                      inline
-                      message={message}
-                      messageListRect={messageListRect}
-                      messageWrapperRef={messageWrapperRef}
-                      setEditingState={setEditingState}
-                    />
+                    <MessageActions inline messageWrapperRef={messageWrapperRef} />
                   )}
                 </div>
               )}
-            {message && (
+            {
               <span
                 className={
                   isOnlyEmojis(message.text) ? 'str-chat__message-team-text--is-emoji' : ''
@@ -307,14 +263,10 @@ const MessageTeamWithContext = <
                   messageText
                 )}
               </span>
-            )}
+            }
             {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
-            {message.text === '' && (
-              <MessageTeamAttachments
-                Attachment={Attachment}
-                handleAction={handleAction}
-                message={message}
-              />
+            {!message.text && message.attachments && (
+              <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
               <ReactionsList
@@ -338,20 +290,9 @@ const MessageTeamWithContext = <
               </button>
             )}
           </div>
-          <MessageTeamStatus
-            Avatar={Avatar}
-            isMyMessage={isMyMessage}
-            lastReceivedId={lastReceivedId}
-            message={message}
-            readBy={readBy}
-            threadList={threadList}
-          />
-          {message.text !== '' && message.attachments && (
-            <MessageTeamAttachments
-              Attachment={Attachment}
-              handleAction={handleAction}
-              message={message}
-            />
+          <MessageStatus messageType='team' />
+          {message.text && message.attachments && (
+            <Attachment actionHandler={handleAction} attachments={message.attachments} />
           )}
           {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
@@ -377,109 +318,14 @@ const MessageTeamWithContext = <
   );
 };
 
-const MessageTeamStatus = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: Pick<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'Avatar' | 'isMyMessage' | 'lastReceivedId' | 'message' | 'readBy' | 'threadList'
-  >,
-) => {
-  const {
-    Avatar = DefaultAvatar,
-    isMyMessage,
-    lastReceivedId,
-    message,
-    readBy,
-    threadList,
-  } = props;
-
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
-
-  if (!isMyMessage() || message.type === 'error') {
-    return null;
-  }
-
-  const justReadByMe =
-    readBy && client?.user && readBy.length === 1 && readBy[0] && readBy[0].id === client.user.id;
-
-  if (message && message.status === 'sending') {
-    return (
-      <span className='str-chat__message-team-status' data-testid='message-team-sending'>
-        <Tooltip>{t('Sending...')}</Tooltip>
-        <LoadingIndicator />
-      </span>
-    );
-  }
-
-  if (readBy && readBy.length !== 0 && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter(
-      (item) => item && client?.user && item.id !== client.user.id,
-    )[0];
-    return (
-      <span className='str-chat__message-team-status'>
-        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
-        {readBy.length - 1 > 1 && (
-          <span
-            className='str-chat__message-team-status-number'
-            data-testid='message-team-read-by-count'
-          >
-            {readBy.length - 1}
-          </span>
-        )}
-      </span>
-    );
-  }
-
-  if (message && message.status === 'received' && message.id === lastReceivedId && !threadList) {
-    return (
-      <span className='str-chat__message-team-status' data-testid='message-team-received'>
-        <Tooltip>{t('Delivered')}</Tooltip>
-        <DeliveredCheckIcon />
-      </span>
-    );
-  }
-
-  return null;
-};
-
-const MessageTeamAttachments = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: Pick<
-    MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-    'Attachment' | 'handleAction' | 'message'
-  >,
-) => {
-  const { Attachment = DefaultAttachment, handleAction, message } = props;
-
-  if (message.attachments) {
-    return <Attachment actionHandler={handleAction} attachments={message.attachments} />;
-  }
-
-  return null;
-};
-
 const MemoizedMessageTeam = React.memo(
   MessageTeamWithContext,
   areMessageUIPropsEqual,
 ) as typeof MessageTeamWithContext;
 
 /**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
  * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
  * @example ./MessageTeam.md
@@ -495,12 +341,12 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { message } = props;
-
-  const { channel } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const message = props.message || messageContext.message;
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
@@ -510,13 +356,13 @@ export const MessageTeam = <
 
   return (
     <MemoizedMessageTeam
-      {...props}
-      channel={channel}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };

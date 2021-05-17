@@ -1,9 +1,8 @@
 import React from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
-import { useChannelContext } from '../../context/ChannelContext';
-
-import type { MessageInputState } from './hooks/messageInput';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -15,17 +14,6 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type MessageInputUploadsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageInputState<At, Us> & {
-  removeFile?: (id: string) => void;
-  removeImage?: (id: string) => void;
-  uploadFile?: (id: string) => void;
-  uploadImage?: (id: string) => void;
-  uploadNewFiles?: (files: FileList | File[]) => void;
-};
-
 export const UploadsPreview = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -34,9 +22,17 @@ export const UploadsPreview = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  props: MessageInputUploadsProps<At, Us>,
-) => {
+>() => {
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     fileOrder,
     fileUploads,
@@ -48,9 +44,7 @@ export const UploadsPreview = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = props;
-
-  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = messageInput;
 
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
@@ -59,15 +53,12 @@ export const UploadsPreview = <
     <>
       {imageOrder.length > 0 && (
         <ImagePreviewer
-          disabled={
-            channelContext.maxNumberOfFiles !== undefined &&
-            numberOfUploads >= channelContext.maxNumberOfFiles
-          }
+          disabled={maxNumberOfFiles !== undefined && numberOfUploads >= maxNumberOfFiles}
           handleFiles={uploadNewFiles}
           handleRemove={removeImage}
           handleRetry={uploadImage}
           imageUploads={imagesToPreview}
-          multiple={channelContext.multipleUploads}
+          multiple={multipleUploads}
         />
       )}
       {fileOrder.length > 0 && (

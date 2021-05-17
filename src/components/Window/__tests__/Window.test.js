@@ -1,15 +1,17 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { generateMessage } from 'mock-builders';
 import '@testing-library/jest-dom';
-import { ChannelContext } from '../../../context';
+
 import { Window } from '../Window';
 
-const renderComponent = ({ channelContextMock, children, props }) =>
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { generateMessage } from '../../../mock-builders';
+
+const renderComponent = ({ channelStateContextMock, children, props }) =>
   render(
-    <ChannelContext.Provider value={channelContextMock}>
+    <ChannelStateProvider value={channelStateContextMock}>
       <Window {...props}>{children}</Window>
-    </ChannelContext.Provider>,
+    </ChannelStateProvider>,
   );
 
 const thread = generateMessage();
@@ -17,11 +19,11 @@ const thread = generateMessage();
 describe('Window', () => {
   it('should render its children if hideOnThread is false and thread is truthy', () => {
     const { getByText } = renderComponent({
-      channelContextMock: {
-        hideOnThread: false,
+      channelStateContextMock: {
         thread,
       },
       children: [<div key='bla'>bla</div>],
+      props: { hideOnThread: false },
     });
 
     expect(getByText('bla')).toBeInTheDocument();
@@ -29,7 +31,7 @@ describe('Window', () => {
 
   it('should not render its children if hideOnThread is true and thread is truthy', () => {
     const { queryByText } = renderComponent({
-      channelContextMock: {
+      channelStateContextMock: {
         thread,
       },
       children: [<div key='bla'>bla</div>],
@@ -41,11 +43,11 @@ describe('Window', () => {
 
   it('should render its children if hideOnThread is true and thread is falsy', () => {
     const { getByText } = renderComponent({
-      channelContextMock: {
-        hideOnThread: true,
+      channelStateContextMock: {
         thread: undefined,
       },
       children: [<div key='bla'>bla</div>],
+      props: { hideOnThread: true },
     });
 
     expect(getByText('bla')).toBeInTheDocument();

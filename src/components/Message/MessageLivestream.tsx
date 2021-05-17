@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
-import { MessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageTimestamp } from './MessageTimestamp';
-import { useMentionsUIHandler, useReactionClick, useUserHandler } from './hooks';
+import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
+import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
+import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
+import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
 
-import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
@@ -16,6 +16,8 @@ import {
   SimpleReactionsList as DefaultReactionsList,
 } from '../Reactions';
 
+import { useComponentContext } from '../../context/ComponentContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
@@ -41,7 +43,7 @@ type MessageLivestreamWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -61,47 +63,48 @@ const MessageLivestreamWithContext = <
   props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    addNotification,
-    Attachment = DefaultAttachment,
-    Avatar = DefaultAvatar,
-    channelConfig,
     clearEditingState,
-    EditMessageInput = DefaultEditMessageForm,
     editing,
-    formatDate,
-    getMessageActions,
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     initialMessage,
     isReactionEnabled,
     message,
-    MessageDeleted = DefaultMessageDeleted,
     messageWrapperRef,
     onMentionsClickMessage,
     onMentionsHoverMessage,
     onReactionListClick,
-    onUserClick: propOnUserClick,
-    onUserHover: propOnUserHover,
-    PinIndicator = DefaultPinIndicator,
-    ReactionsList = DefaultReactionsList,
-    ReactionSelector = DefaultReactionSelector,
+    onUserClick,
+    onUserHover,
     reactionSelectorRef,
     renderText = defaultRenderText,
-    threadList,
-    setEditingState,
     showDetailedReactions,
     unsafeHTML,
   } = props;
 
-  const { t, userLanguage } = useTranslationContext();
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
-  const { onUserClick, onUserHover } = useUserHandler(message, {
-    onUserClickHandler: propOnUserClick,
-    onUserHoverHandler: propOnUserHover,
-  });
+  const {
+    Attachment,
+    Avatar = DefaultAvatar,
+    EditMessageInput = DefaultEditMessageForm,
+    MessageDeleted = DefaultMessageDeleted,
+    MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    PinIndicator = DefaultPinIndicator,
+    ReactionsList = DefaultReactionsList,
+    ReactionSelector = DefaultReactionSelector,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t, userLanguage } = useTranslationContext();
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -166,7 +169,6 @@ const MessageLivestreamWithContext = <
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector
             detailedView
-            handleReaction={handleReaction}
             latest_reactions={message.latest_reactions}
             own_reactions={message.own_reactions}
             reaction_counts={message.reaction_counts || undefined}
@@ -175,17 +177,8 @@ const MessageLivestreamWithContext = <
           />
         )}
         <MessageLivestreamActions
-          addNotification={addNotification}
-          channelConfig={channelConfig}
-          formatDate={formatDate}
-          getMessageActions={getMessageActions}
-          handleOpenThread={handleOpenThread}
-          initialMessage={initialMessage}
-          message={message}
           messageWrapperRef={messageWrapperRef}
           onReactionListClick={onReactionListClick}
-          setEditingState={setEditingState}
-          threadList={threadList}
         />
         <div className='str-chat__message-livestream-left'>
           <Avatar
@@ -214,6 +207,11 @@ const MessageLivestreamWithContext = <
               onClick={onMentionsClickMessage}
               onMouseOver={onMentionsHoverMessage}
             >
+              {message.quoted_message && (
+                <div className='livestream-quoted-message'>
+                  <QuotedMessage />
+                </div>
+              )}
               {message.type !== 'error' &&
                 message.status !== 'failed' &&
                 !unsafeHTML &&
@@ -246,12 +244,11 @@ const MessageLivestreamWithContext = <
                 </p>
               )}
             </div>
-            {message.attachments && Attachment && (
+            {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {isReactionEnabled && (
               <ReactionsList
-                handleReaction={handleReaction}
                 own_reactions={message.own_reactions}
                 reaction_counts={message.reaction_counts || undefined}
                 reactions={message.latest_reactions}
@@ -270,29 +267,7 @@ const MessageLivestreamWithContext = <
   );
 };
 
-type PropsDrilledToMessageLivestreamActions =
-  | 'addNotification'
-  | 'channelConfig'
-  | 'formatDate'
-  | 'getMessageActions'
-  | 'handleOpenThread'
-  | 'initialMessage'
-  | 'message'
-  | 'setEditingState'
-  | 'threadList';
-
-export type MessageLivestreamActionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<
-  MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
-  PropsDrilledToMessageLivestreamActions
-> & {
+export type MessageLivestreamActionsProps = {
   messageWrapperRef: React.RefObject<HTMLDivElement>;
   onReactionListClick: ReactEventHandler;
 };
@@ -306,19 +281,20 @@ const MessageLivestreamActions = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageLivestreamActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageLivestreamActionsProps,
 ) => {
+  const { messageWrapperRef, onReactionListClick } = props;
+
+  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const {
     channelConfig,
-    formatDate,
     getMessageActions,
     handleOpenThread,
     initialMessage,
     message,
-    messageWrapperRef,
-    onReactionListClick,
     threadList,
-  } = props;
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -374,11 +350,7 @@ const MessageLivestreamActions = <
       className={`str-chat__message-livestream-actions`}
       data-testid={'message-livestream-actions'}
     >
-      <MessageTimestamp
-        customClass='str-chat__message-livestream-time'
-        formatDate={formatDate}
-        message={message}
-      />
+      <MessageTimestamp customClass='str-chat__message-livestream-time' />
       {channelConfig?.reactions && (
         <span data-testid='message-livestream-reactions-action' onClick={onReactionListClick}>
           <span>
@@ -391,14 +363,7 @@ const MessageLivestreamActions = <
           <ThreadIcon />
         </span>
       )}
-      {showActionsBox && (
-        <MessageActions
-          {...props}
-          customWrapperClass={''}
-          getMessageActions={getMessageActions}
-          inline
-        />
-      )}
+      {showActionsBox && <MessageActions inline />}
     </div>
   );
 };
@@ -409,6 +374,8 @@ const MemoizedMessageLivestream = React.memo(
 ) as typeof MessageLivestreamWithContext;
 
 /**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
  * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
  * @example ./MessageLivestream.md
@@ -424,19 +391,12 @@ export const MessageLivestream = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const {
-    message,
-    onMentionsClickMessage: propOnMentionsClick,
-    onMentionsHoverMessage: propOnMentionsHover,
-  } = props;
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
-  const { onMentionsClick, onMentionsHover } = useMentionsUIHandler(message, {
-    onMentionsClick: propOnMentionsClick,
-    onMentionsHover: propOnMentionsHover,
-  });
+  const message = props.message || messageContext.message;
 
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
@@ -446,14 +406,13 @@ export const MessageLivestream = <
 
   return (
     <MemoizedMessageLivestream
-      {...props}
+      {...messageContext}
       isReactionEnabled={isReactionEnabled}
       messageWrapperRef={messageWrapperRef}
-      onMentionsClickMessage={onMentionsClick}
-      onMentionsHoverMessage={onMentionsHover}
       onReactionListClick={onReactionListClick}
       reactionSelectorRef={reactionSelectorRef}
       showDetailedReactions={showDetailedReactions}
+      {...props}
     />
   );
 };

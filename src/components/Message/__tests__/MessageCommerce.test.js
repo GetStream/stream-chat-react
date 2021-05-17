@@ -2,20 +2,27 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { Message } from '../Message';
+import { MessageCommerce } from '../MessageCommerce';
+
+import { Attachment as AttachmentMock } from '../../Attachment';
+import { Avatar as AvatarMock } from '../../Avatar';
+import { MessageText as MessageTextMock } from '../MessageText';
+import { MML as MMLMock } from '../../MML';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-
-import { ChannelContext } from '../../../context';
-import { MessageCommerce } from '../MessageCommerce';
-import { Avatar as AvatarMock } from '../../Avatar';
-import { MML as MMLMock } from '../../MML';
-import { MessageText as MessageTextMock } from '../MessageText';
+} from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
@@ -25,25 +32,36 @@ const alice = generateUser({ image: 'alice-avatar.jpg', name: 'alice' });
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const openThreadMock = jest.fn();
 
-async function renderMessageCommerce(message, props = {}, channelConfig = { replies: true }) {
+async function renderMessageCommerce(
+  message,
+  props = {},
+  channelConfig = { replies: true },
+  components = {},
+) {
   const channel = generateChannel({ getConfig: () => channelConfig });
   const client = await getTestClientWithUser(alice);
+
   return render(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        emojiConfig: emojiMockConfig,
-        openThread: openThreadMock,
-      }}
-    >
-      <MessageCommerce
-        getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
-        isMyMessage={() => true}
-        message={message}
-        {...props}
-      />
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <ChannelActionProvider value={{ openThread: openThreadMock }}>
+          <ComponentProvider
+            value={{
+              Attachment: AttachmentMock,
+              // eslint-disable-next-line react/display-name
+              Message: () => <MessageCommerce {...props} />,
+              ...components,
+            }}
+          >
+            <Message
+              getMessageActions={() => ['flag', 'mute', 'react', 'reply']}
+              isMyMessage={() => true}
+              message={message}
+            />
+          </ComponentProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
@@ -96,7 +114,7 @@ describe('<MessageCommerce />', () => {
       deleted_at: new Date('2019-12-10T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageCommerce(deletedMessage, {
+    const { getByTestId } = await renderMessageCommerce(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
@@ -120,10 +138,9 @@ describe('<MessageCommerce />', () => {
     );
     const { getByTestId } = await renderMessageCommerce(
       message,
-      {
-        ReactionsList: CustomReactionsList,
-      },
+      null,
       { reactions: true },
+      { ReactionsList: CustomReactionsList },
     );
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
   });
@@ -131,10 +148,12 @@ describe('<MessageCommerce />', () => {
   it('should render custom avatar component when one is given', async () => {
     const message = generateAliceMessage();
     const CustomAvatar = () => <div data-testid='custom-avatar'>Avatar</div>;
-    const { getByTestId } = await renderMessageCommerce(message, {
-      Avatar: CustomAvatar,
-      groupStyles: ['bottom'],
-    });
+    const { getByTestId } = await renderMessageCommerce(
+      message,
+      { groupStyles: ['bottom'] },
+      null,
+      { Avatar: CustomAvatar },
+    );
     expect(getByTestId('custom-avatar')).toBeInTheDocument();
   });
 
@@ -218,7 +237,6 @@ describe('<MessageCommerce />', () => {
           name: alice.name,
           onClick: expect.any(Function),
           onMouseOver: expect.any(Function),
-          size: 32,
         },
         {},
       );
@@ -316,14 +334,7 @@ describe('<MessageCommerce />', () => {
     await renderMessageCommerce(message);
     expect(MessageTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        customOptionProps: expect.objectContaining({
-          displayActions: false,
-          displayLeft: false,
-          displayReplies: false,
-          theme: 'commerce',
-        }),
         customWrapperClass: 'str-chat__message-commerce-text',
-        message,
         theme: 'commerce',
       }),
       {},
@@ -347,9 +358,8 @@ describe('<MessageCommerce />', () => {
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
-    expect(openThreadMock).toHaveBeenCalledWith(
-      expect.any(Object), // The Event object
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(openThreadMock).toHaveBeenCalled();
   });
 
   it('should display user name when message is not from current user', async () => {

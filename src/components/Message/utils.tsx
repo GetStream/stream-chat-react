@@ -4,9 +4,10 @@ import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
 
 import type { PinPermissions } from './hooks';
-import type { MessageProps, MessageUIComponentProps } from './types';
+import type { MessageProps } from './types';
 
-import type { StreamMessage } from '../../context/ChannelContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { MessageContextValue } from '../../context/MessageContext';
 
 import type {
   DefaultAttachmentType,
@@ -69,12 +70,13 @@ export const MESSAGE_ACTIONS = {
   flag: 'flag',
   mute: 'mute',
   pin: 'pin',
+  quote: 'quote',
   react: 'react',
   reply: 'reply',
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
-  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'react' | 'reply' | T
+  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'quote' | 'react' | 'reply' | T
 >;
 
 export const defaultPinPermissions: PinPermissions = {
@@ -141,16 +143,17 @@ export type Capabilities = {
   canFlag?: boolean;
   canMute?: boolean;
   canPin?: boolean;
+  canQuote?: boolean;
   canReact?: boolean;
   canReply?: boolean;
 };
 
 export const getMessageActions = (
-  actions: string[] | boolean,
-  { canDelete, canEdit, canFlag, canMute, canPin, canReact, canReply }: Capabilities,
+  actions: MessageActionsArray | boolean,
+  { canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply }: Capabilities,
 ): MessageActionsArray => {
-  const messageActionsAfterPermission = [];
-  let messageActions = [];
+  const messageActionsAfterPermission: MessageActionsArray = [];
+  let messageActions: MessageActionsArray = [];
 
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values
@@ -179,6 +182,10 @@ export const getMessageActions = (
 
   if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
+  }
+
+  if (canQuote && messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.quote);
   }
 
   if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {
@@ -217,13 +224,21 @@ export const areMessagePropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
-  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
+  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    showDetailedReactions?: boolean;
+  },
 ) => {
   const { message: prevMessage, Message: prevMessageUI } = prevProps;
   const { message: nextMessage, Message: nextMessageUI } = nextProps;
 
   if (prevMessageUI !== nextMessageUI) return false;
+
+  if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
+    return false;
+  }
 
   const messagesAreEqual =
     prevMessage.deleted_at === nextMessage.deleted_at &&
@@ -260,10 +275,10 @@ export const areMessageUIPropsEqual = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  prevProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  prevProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  nextProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
     showDetailedReactions?: boolean;
   },
 ) => {

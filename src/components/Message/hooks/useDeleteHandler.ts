@@ -1,6 +1,9 @@
-import { StreamMessage, useChannelContext } from '../../../context/ChannelContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChatContext } from '../../../context/ChatContext';
 
 import type { ReactEventHandler } from '../types';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -23,7 +26,8 @@ export const useDeleteHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ): ReactEventHandler => {
-  const { client, updateMessage } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return async (event) => {
     event.preventDefault();

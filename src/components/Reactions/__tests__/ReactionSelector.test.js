@@ -2,11 +2,20 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import { emojiMockConfig, generateReaction, generateUser } from 'mock-builders';
-import { ChannelContext } from '../../../context';
-import { defaultMinimalEmojis } from '../../Channel/emojiData';
+
 import { ReactionSelector } from '../ReactionSelector';
+
 import { Avatar as AvatarMock } from '../../Avatar';
+import { defaultMinimalEmojis } from '../../Channel/emojiData';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
+import {
+  emojiComponentMock,
+  emojiDataMock,
+  generateReaction,
+  generateUser,
+} from '../../../mock-builders';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
   jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
@@ -31,9 +40,17 @@ const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
   render(
-    <ChannelContext.Provider value={{ emojiConfig: emojiMockConfig }}>
-      <ReactionSelector handleReaction={handleReactionMock} {...props} />
-    </ChannelContext.Provider>,
+    <ChannelStateProvider value={{ emojiConfig: emojiDataMock }}>
+      <ComponentProvider
+        value={{
+          Emoji: emojiComponentMock.Emoji,
+          EmojiIndex: emojiComponentMock.EmojiIndex,
+          EmojiPicker: emojiComponentMock.EmojiPicker,
+        }}
+      >
+        <ReactionSelector handleReaction={handleReactionMock} {...props} />
+      </ComponentProvider>
+    </ChannelStateProvider>,
   );
 
 describe('ReactionSelector', () => {

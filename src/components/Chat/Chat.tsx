@@ -108,6 +108,7 @@ export type ChatProps<
  * - openMobileNav - function to open mobile navigation
  * - setActiveChannel - a function to set currently active channel
  * - theme - current theme
+ * - useImageFlagEmojisOnWindows - replaces flag emojis with images on Windows
  *
  * It also exposes the [withChatContext](https://getstream.github.io/stream-chat-react/#section-withchatcontext) HOC which you can use to consume the [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext).
  * @example ./Chat.md

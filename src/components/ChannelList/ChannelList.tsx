@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { ChannelListTeam, ChannelListTeamProps } from './ChannelListTeam';
+import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
 import { useChannelHiddenListener } from './hooks/useChannelHiddenListener';
 import { useChannelTruncatedListener } from './hooks/useChannelTruncatedListener';
@@ -18,7 +18,10 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
-import { ChannelPreviewLastMessage } from '../ChannelPreview/ChannelPreviewLastMessage';
+import {
+  ChannelSearchProps,
+  ChannelSearch as DefaultChannelSearch,
+} from '../ChannelSearch/ChannelSearch';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
@@ -56,157 +59,90 @@ export type ChannelListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** Additional props for underlying ChannelSearch component, [Available props](https://getstream.github.io/stream-chat-react/#channelsearch) */
+  additionalChannelSearchProps?: ChannelSearchProps<Us>;
   /**
-   * When client receives an event `message.new`, we push that Channel to top of the list.
-   *
-   * But If the Channel doesn't exist in the list, then we get the Channel from Client
-   * (client maintains list of watched Channels as `client.activeChannels`) and push
-   * that Channel to top of the list by default. You can disallow this behavior by setting following
-   * prop to false. This is quite useful where you have multiple tab structure and you don't want
-   * ChannelList in Tab1 to react to new Message on some Channel in Tab2. Default value is true.
+   * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
+   * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
+   * and push it to the top of the list by default. You can disable this behavior by setting this props
+   * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
-  /**
-   * Custom UI component to display user avatar.
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
   /**
-   * Optional function to filter Channels prior to loading in the DOM. Do not use any complex or async logic here that would significantly delay the loading of the ChannelList.
+   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList.
    * We recommend using a pure function with array methods like filter/sort/reduce.
    */
   channelRenderFilterFn?: (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
-  /**
-   * Set a Channel (of this id) to be active and move it to the top of the list of Channels by ID
-   */
+  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<Us>>;
+  /** Set a Channel (of this id) to be active and move it to the top of the list of Channels by ID */
   customActiveChannel?: string;
   /** Indicator for Empty State */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** Object containing query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
-  /**
-   * Custom UI Component for container of list of Channels. Note that, list (UI component) of Channels is passed
-   * to this component as children. This component is for the purpose of adding header to ChannelList or styling container
-   * for list of Channels.
-   *
-   * Available built-in options (also accepts the same props as):
-   *
-   * 1. [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) (default)
-   * 2. [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
-   *
-   * It has access to some additional props:
-   *
-   * - `setActiveChannel` Check [ChatContext](https://getstream.github.io/stream-chat-react/#section-chatcontext)
-   * - `activeChannel` Currently active Channel object
-   * - `channels` List of Channels in channel list
-   */
-  List?: React.ComponentType<ChannelListTeamProps>;
-  /**
-   * Error indicator UI Component. It will be displayed if there is any error if loading the Channels.
-   * This error could be related to network or failing API.
-   *
-   * Defaults to and accepts same props as:
-   * [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx)
-   *
-   */
+  /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) */
+  List?: React.ComponentType<ChannelListMessengerProps>;
+  /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
-  /**
-   * Loading indicator UI Component. It will be displayed until the Channels are
-   * being queried from API. Once the Channels are loaded/queried, loading indicator is removed
-   * and replaced with children of the Channel component.
-   *
-   * Defaults to and accepts same props as:
-   * [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx)
-   *
-   */
+  /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
-  /**
-   * If true, Channels won't be dynamically sorted by most recent message
-   */
+  /** When set to true, channels won't dynamically sort by most recent message */
   lockChannelOrder?: boolean;
-  /** Function that overrides default behavior when users gets added to a Channel.
-   * Corresponding to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default behavior when a user is added to a channel, corresponds to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onAddedToChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when Channel gets deleted. In absence of this prop, Channel will be removed from the list.
-   * Corresponding to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default behavior when a channel is deleted, corresponds to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelDeleted?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when Channel gets hidden */
+  /** Function to override default behavior when a channel is hidden, corresponds to [channel.hidden](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelHidden?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to customize behavior when Channel gets truncated.
-   * Corresponding to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default channel truncated behavior, corresponds to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelTruncated?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when Channel gets updated.
-   * Corresponding to [notification.channel_updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default channel updated behavior, corresponds to [channel.updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelUpdated?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when Channel becomes visible */
+  /** Function to override default channel visible behavior, corresponds to [channel.visible](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelVisible?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when new Message is received on Channel that is not being watched.
-   * Corresponding to [notification.message_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default behavior when a message is received on a channel not being watched, corresponds to [notification.message\_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onMessageNew?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function that overrides default behavior when users gets removed from a Channel.
-   * Corresponding to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript)
-   */
+  /** Function to override default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
   /** Object containing query options */
   options?: ChannelOptions;
-  /**
-   * Paginator component for Channels. It contains all the pagination logic such as
-   * - fetching next page of results when needed e.g., when scroll reaches the end of list
-   * - UI to display loading indicator when next page is being loaded
-   * - call to action button to trigger loading of next page.
-   *
-   * Available built-in options (also accepts the same props as):
-   *
-   * 1. [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx)
-   * 2. [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx)
-   */
+  /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
-  /**
-   * Available built-in options (also accepts the same props as):
-   *
-   * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
-   * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
-   * 3. [ChannelPreviewMessenger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
-   *
-   * The Preview to use, defaults to ChannelPreviewLastMessage
-   */
+  /** Custom UI component to display the channel preview in the ChannelList, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
-  /** Boolean to show sidebar */
-  showSidebar?: boolean;
+  /** Whether or not to load the list with a search component, defaults to false */
+  showChannelSearch?: boolean;
   /** Object containing sort parameters */
   sort?: ChannelSort<Ch>;
   /** Object containing watcher parameters */
@@ -225,15 +161,17 @@ const UnMemoizedChannelList = <
   props: ChannelListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    additionalChannelSearchProps,
     Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
+    ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
     LoadingErrorIndicator = ChatDown,
     LoadingIndicator = LoadingChannels,
-    List = ChannelListTeam,
+    List = ChannelListMessenger,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -245,9 +183,9 @@ const UnMemoizedChannelList = <
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
-    Preview = ChannelPreviewLastMessage,
+    Preview,
     setActiveChannelOnMount = true,
-    showSidebar,
+    showChannelSearch = false,
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
@@ -299,11 +237,10 @@ const UnMemoizedChannelList = <
     }
   };
 
-  // When channel list (channels array) is updated without any shallow changes (or with only deep changes), then we want
-  // to force the channel preview to re-render.
-  // This happens in case of event channel.updated, channel.truncated etc. Inner properties of channel is updated but
-  // react renderer will only make shallow comparison and choose to not to re-render the UI.
-  // By updating the dummy prop - channelUpdateCount, we can force this re-render.
+  /**
+   * For some events, inner properties on the channel will update but the shallow comparison will not
+   * force a re-render. Incrementing this dummy variable ensures the channel previews update.
+   */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
   const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
@@ -365,12 +302,10 @@ const UnMemoizedChannelList = <
 
   const renderList = () => (
     <List
-      Avatar={Avatar}
       error={status.error}
       loading={status.loadingChannels}
       LoadingErrorIndicator={LoadingErrorIndicator}
       LoadingIndicator={LoadingIndicator}
-      showSidebar={showSidebar}
     >
       {!loadedChannels || loadedChannels.length === 0 ? (
         <EmptyStateIndicator listType='channel' />
@@ -398,6 +333,7 @@ const UnMemoizedChannelList = <
         }`}
         ref={channelListRef}
       >
+        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         {renderList()}
       </div>
     </>

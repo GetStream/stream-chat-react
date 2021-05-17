@@ -3,17 +3,27 @@ import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { Message } from '../Message';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageSimple } from '../MessageSimple';
+import { MessageText } from '../MessageText';
+
+import { Attachment } from '../../Attachment/Attachment';
+
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  emojiMockConfig,
+  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
-import { MessageText } from '../MessageText';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+} from '../../../mock-builders';
 
 jest.mock('../MessageOptions', () => ({
   MessageOptions: jest.fn(() => <div />),
@@ -46,25 +56,33 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return renderer(
-    <ChannelContext.Provider
-      value={{
-        channel,
-        client,
-        emojiConfig: emojiMockConfig,
-        onMentionsClick: onMentionsClickMock,
-        onMentionsHover: onMentionsHoverMock,
-      }}
-    >
-      <TranslationContext.Provider
-        value={{
-          t: (key) => key,
-          tDateTimeParser: customDateTimeParser,
-          userLanguage: 'en',
-        }}
-      >
-        <MessageText {...defaultProps} {...customProps} />{' '}
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+        <ChannelActionProvider
+          value={{ onMentionsClick: onMentionsClickMock, onMentionsHover: onMentionsHoverMock }}
+        >
+          <TranslationProvider
+            value={{
+              t: (key) => key,
+              tDateTimeParser: customDateTimeParser,
+              userLanguage: 'en',
+            }}
+          >
+            <ComponentProvider
+              value={{
+                Attachment,
+                // eslint-disable-next-line react/display-name
+                Message: () => <MessageSimple channelConfig={channelConfig} />,
+              }}
+            >
+              <Message {...defaultProps} {...customProps}>
+                <MessageText {...defaultProps} {...customProps} />
+              </Message>
+            </ComponentProvider>
+          </TranslationProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 
@@ -103,42 +121,24 @@ describe('<MessageText />', () => {
 
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({ message });
+    const { getByTestId } = await renderMessageText({
+      message,
+      onMentionsHoverMessage: onMentionsHoverMock,
+    });
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTextTestId));
     expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should handle custom message mention mouse hover event', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const customMentionsHover = jest.fn();
-    const { getByTestId } = await renderMessageText({
-      message,
-      onMentionsHoverMessage: customMentionsHover,
-    });
-    expect(customMentionsHover).not.toHaveBeenCalled();
-    fireEvent.mouseOver(getByTestId(messageTextTestId));
-    expect(customMentionsHover).toHaveBeenCalledTimes(1);
-  });
-
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({ message });
+    const { getByTestId } = await renderMessageText({
+      message,
+      onMentionsClickMessage: onMentionsClickMock,
+    });
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
     expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle custom message mention mouse click event', async () => {
-    const message = generateAliceMessage({ mentioned_users: [bob] });
-    const customMentionClick = jest.fn();
-    const { getByTestId } = await renderMessageText({
-      message,
-      onMentionsClickMessage: customMentionClick,
-    });
-    expect(customMentionClick).not.toHaveBeenCalled();
-    fireEvent.click(getByTestId(messageTextTestId));
-    expect(customMentionClick).toHaveBeenCalledTimes(1);
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {
@@ -225,12 +225,8 @@ describe('<MessageText />', () => {
         displayLeft,
       },
     });
-    expect(MessageOptionsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        displayLeft,
-      }),
-      {},
-    );
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageOptionsMock).toHaveBeenCalled();
   });
 
   it('should render with a custom wrapper class when one is set', async () => {
@@ -238,28 +234,40 @@ describe('<MessageText />', () => {
     const message = generateMessage({ text: 'hello world' });
     const tree = await renderMessageText({ customWrapperClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      <div
+        className="str-chat__message str-chat__message-simple
+      						str-chat__message--regular
+      						str-chat__message--received
+      						str-chat__message--has-text"
+      >
         <div
-          className="custom-wrapper"
+          className="str-chat__message-inner"
+          data-testid="message-inner"
         >
+          <div />
           <div
-            className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-            data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
+            className="str-chat__message-text"
           >
             <div
+              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+              data-testid="message-text-inner-wrapper"
               onClick={[Function]}
+              onMouseOver={[Function]}
             >
-              <p>
-                hello world
-              </p>
+              <div
+                onClick={[Function]}
+              >
+                <p>
+                  hello world
+                </p>
+              </div>
             </div>
           </div>
-          <div />
-        </div>,
-        " ",
-      ]
+          <div
+            className="str-chat__message-data str-chat__message-simple-data"
+          />
+        </div>
+      </div>
     `);
   });
 
@@ -268,28 +276,40 @@ describe('<MessageText />', () => {
     const message = generateMessage({ text: 'hi mate' });
     const tree = await renderMessageText({ customInnerClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      <div
+        className="str-chat__message str-chat__message-simple
+      						str-chat__message--regular
+      						str-chat__message--received
+      						str-chat__message--has-text"
+      >
         <div
-          className="str-chat__message-text"
+          className="str-chat__message-inner"
+          data-testid="message-inner"
         >
+          <div />
           <div
-            className="custom-inner"
-            data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
+            className="str-chat__message-text"
           >
             <div
+              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+              data-testid="message-text-inner-wrapper"
               onClick={[Function]}
+              onMouseOver={[Function]}
             >
-              <p>
-                hi mate
-              </p>
+              <div
+                onClick={[Function]}
+              >
+                <p>
+                  hi mate
+                </p>
+              </div>
             </div>
           </div>
-          <div />
-        </div>,
-        " ",
-      ]
+          <div
+            className="str-chat__message-data str-chat__message-simple-data"
+          />
+        </div>
+      </div>
     `);
   });
 
@@ -297,28 +317,40 @@ describe('<MessageText />', () => {
     const message = generateMessage({ text: 'whatup?!' });
     const tree = await renderMessageText({ message, theme: 'custom' }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      <div
+        className="str-chat__message str-chat__message-simple
+      						str-chat__message--regular
+      						str-chat__message--received
+      						str-chat__message--has-text"
+      >
         <div
-          className="str-chat__message-text"
+          className="str-chat__message-inner"
+          data-testid="message-inner"
         >
+          <div />
           <div
-            className="str-chat__message-text-inner str-chat__message-custom-text-inner"
-            data-testid="message-text-inner-wrapper"
-            onClick={[Function]}
-            onMouseOver={[Function]}
+            className="str-chat__message-text"
           >
             <div
+              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+              data-testid="message-text-inner-wrapper"
               onClick={[Function]}
+              onMouseOver={[Function]}
             >
-              <p>
-                whatup?!
-              </p>
+              <div
+                onClick={[Function]}
+              >
+                <p>
+                  whatup?!
+                </p>
+              </div>
             </div>
           </div>
-          <div />
-        </div>,
-        " ",
-      ]
+          <div
+            className="str-chat__message-data str-chat__message-simple-data"
+          />
+        </div>
+      </div>
     `);
   });
 });

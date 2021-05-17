@@ -2,7 +2,13 @@ import React, { useMemo } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { EmojiSetDef, MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
+import {
+  EmojiSetDef,
+  MinimalEmoji,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -52,9 +58,11 @@ const UnMemoizedReactionsList = <
     reverse = false,
   } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
+  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
   const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [fullEmojiData]);
 
@@ -76,7 +84,7 @@ const UnMemoizedReactionsList = <
     <div
       className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
       data-testid='reaction-list'
-      onClick={onClick}
+      onClick={onClick || onReactionListClick}
     >
       <ul>
         {getReactionTypes().map((reactionType) => {

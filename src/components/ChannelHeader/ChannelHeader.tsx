@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -44,7 +44,7 @@ const UnMemoizedChannelHeader = <
 ) => {
   const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
 
-  const { channel, watcher_count } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, watcher_count } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

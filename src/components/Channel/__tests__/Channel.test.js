@@ -1,9 +1,15 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
 import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
-import { ChannelContext, ChatContext } from '../../../context';
+import { LoadingErrorIndicator } from '../../Loading';
+
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
+import { useComponentContext } from '../../../context/ComponentContext';
 import {
   generateChannel,
   generateMember,
@@ -15,7 +21,6 @@ import {
   threadRepliesApi,
   useMockedApis,
 } from '../../../mock-builders';
-import { LoadingErrorIndicator } from '../../Loading';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -25,11 +30,16 @@ jest.mock('../../Loading', () => ({
 let chatClient;
 let channel;
 
-// This component is used for performing effects in a component that consumes ChannelContext,
+// This component is used for performing effects in a component that consumes the contexts from Channel,
 // i.e. making use of the callbacks & values provided by the Channel component.
 // the effect is called every time channelContext changes
-const CallbackEffectWithChannelContext = ({ callback }) => {
-  const channelContext = useContext(ChannelContext);
+const CallbackEffectWithChannelContexts = ({ callback }) => {
+  const channelStateContext = useChannelStateContext();
+  const channelActionContext = useChannelActionContext();
+  const componentContext = useComponentContext();
+
+  const channelContext = { ...channelStateContext, ...channelActionContext, ...componentContext };
+
   useEffect(() => {
     callback(channelContext);
   }, [callback, channelContext]);
@@ -39,7 +49,7 @@ const CallbackEffectWithChannelContext = ({ callback }) => {
 
 // In order for ChannelInner to be rendered, we need to set the active channel first.
 const ActiveChannelSetter = ({ activeChannel }) => {
-  const { setActiveChannel } = useContext(ChatContext);
+  const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
   }, [activeChannel]); // eslint-disable-line
@@ -62,15 +72,14 @@ const renderComponent = (props = {}, callback = () => {}) =>
       <ActiveChannelSetter activeChannel={channel} />
       <Channel {...props}>
         {props.children}
-        <CallbackEffectWithChannelContext callback={callback} />
+        <CallbackEffectWithChannelContexts callback={callback} />
       </Channel>
     </Chat>,
   );
 
 describe('Channel', () => {
-  // A simple component that consumes ChannelContext and renders text for non-failed messages
   const MockMessageList = () => {
-    const { messages: channelMessages } = useContext(ChannelContext);
+    const { messages: channelMessages } = useChannelStateContext();
 
     return channelMessages.map(
       ({ status, text }, i) => status !== 'failed' && <div key={i}>{text}</div>,
@@ -210,7 +219,7 @@ describe('Channel', () => {
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
   });
 
-  describe('Children that consume ChannelContext', () => {
+  describe('Children that consume the contexts set in Channel', () => {
     it('should expose the emoji config', async () => {
       let context;
       const emojiData = {
@@ -229,8 +238,8 @@ describe('Channel', () => {
       await waitFor(() => {
         expect(context).toBeInstanceOf(Object);
         expect(context.emojiConfig.emojiData).toBe(emojiData);
-        expect(context.emojiConfig.EmojiPicker).toBe(CustomEmojiPicker);
-        expect(context.emojiConfig.Emoji).toBe(CustomEmoji);
+        expect(context.EmojiPicker).toBe(CustomEmojiPicker);
+        expect(context.Emoji).toBe(CustomEmoji);
       });
     });
 
@@ -316,7 +325,7 @@ describe('Channel', () => {
       };
 
       const MentionedUserComponent = () => {
-        const { onMentionsHover } = useContext(ChannelContext);
+        const { onMentionsHover } = useChannelActionContext();
         return (
           <span
             onClick={(e) => onMentionsHover(e, [mentionedUserMock])}
@@ -504,7 +513,7 @@ describe('Channel', () => {
         );
       });
 
-      it('should eventually pass the result of the sendMessage API as part of ChannelContext', async () => {
+      it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
         const sentMessage = { text: 'message' };
         const messageResponse = { text: 'different message' };
         let hasSent = false;

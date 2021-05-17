@@ -5,7 +5,9 @@ import { isMutableRef } from './utils/utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
+import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -79,21 +81,32 @@ const UnMemoizedReactionSelector = React.forwardRef(
     ref: React.ForwardedRef<HTMLDivElement | null>,
   ) => {
     const {
-      Avatar = DefaultAvatar,
+      Avatar: propAvatar,
       detailedView = true,
-      handleReaction,
+      handleReaction: propHandleReaction,
       latest_reactions,
       reaction_counts,
       reactionOptions: reactionOptionsProp,
       reverse = false,
     } = props;
 
-    const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { Avatar: contextAvatar, Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { handleReaction: contextHandleReaction } = useMessageContext<
+      At,
+      Ch,
+      Co,
+      Ev,
+      Me,
+      Re,
+      Us
+    >();
 
-    const { defaultMinimalEmojis, Emoji, emojiData: fullEmojiData, emojiSetDef } =
-      emojiConfig || {};
+    const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
+    const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const emojiData = getStrippedEmojiData(fullEmojiData);
+    const handleReaction = propHandleReaction || contextHandleReaction;
     const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
@@ -187,7 +200,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                 className='str-chat__message-reactions-list-item'
                 data-text={reactionOption.id}
                 key={`item-${reactionOption.id}`}
-                onClick={(event) => handleReaction && handleReaction(reactionOption.id, event)}
+                onClick={(event) => handleReaction(reactionOption.id, event)}
               >
                 {!!count && detailedView && (
                   <>

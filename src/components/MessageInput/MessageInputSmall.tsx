@@ -2,7 +2,7 @@ import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
-import { useMessageInput } from './hooks/messageInput';
+import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -13,10 +13,10 @@ import { UploadsPreview } from './UploadsPreview';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { MessageInputProps } from './MessageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type {
   CustomTrigger,
@@ -38,48 +38,39 @@ export const MessageInputSmall = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-) => {
-  const {
-    additionalTextareaProps = {},
-    autocompleteTriggers,
-    disabled = false,
-    disableMentions,
-    EmojiIcon = DefaultEmojiIcon,
-    FileUploadIcon = DefaultFileUploadIcon,
-    focus = false,
-    grow = true,
-    maxRows = 10,
-    mentionAllAppUsers,
-    mentionQueryParams,
-    publishTypingEvent = true,
-    SendButton = DefaultSendButton,
-    SuggestionItem,
-    SuggestionList,
-  } = props;
-
-  const channelContext = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+>() => {
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const messageInput = useMessageInput({
-    ...props,
-    additionalTextareaProps,
-    disabled,
-    focus,
-    grow,
-    maxRows,
-    publishTypingEvent,
-  });
+  const {
+    closeEmojiPicker,
+    cooldownInterval,
+    cooldownRemaining,
+    emojiPickerIsOpen,
+    handleEmojiKeyDown,
+    handleSubmit,
+    isUploadEnabled,
+    maxFilesLeft,
+    openEmojiPicker,
+    setCooldownRemaining,
+    uploadNewFiles,
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+
+  const {
+    CooldownTimer = DefaultCooldownTimer,
+    EmojiIcon = DefaultEmojiIcon,
+    FileUploadIcon = DefaultFileUploadIcon,
+    SendButton = DefaultSendButton,
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   return (
     <div className='str-chat__small-message-input__wrapper'>
       <ImageDropzone
-        accept={channelContext.acceptedFiles}
-        disabled={!messageInput.isUploadEnabled || messageInput.maxFilesLeft === 0}
-        handleFiles={messageInput.uploadNewFiles}
-        maxNumberOfFiles={messageInput.maxFilesLeft}
-        multiple={channelContext.multipleUploads}
+        accept={acceptedFiles}
+        disabled={!isUploadEnabled || maxFilesLeft === 0 || !!cooldownRemaining}
+        handleFiles={uploadNewFiles}
+        maxNumberOfFiles={maxFilesLeft}
+        multiple={multipleUploads}
       >
         <div
           className={`str-chat__small-message-input ${
@@ -87,68 +78,55 @@ export const MessageInputSmall = <
           }`}
         >
           <div className='str-chat__small-message-input--textarea-wrapper'>
-            {messageInput.isUploadEnabled && <UploadsPreview {...messageInput} />}
-            <ChatAutoComplete
-              additionalTextareaProps={additionalTextareaProps}
-              commands={messageInput.getCommands()}
-              disabled={disabled}
-              disableMentions={disableMentions}
-              grow={grow}
-              handleSubmit={messageInput.handleSubmit}
-              innerRef={messageInput.textareaRef}
-              maxRows={maxRows}
-              mentionAllAppUsers={mentionAllAppUsers}
-              mentionQueryParams={mentionQueryParams}
-              onChange={messageInput.handleChange}
-              onPaste={messageInput.onPaste}
-              onSelectItem={messageInput.onSelectItem}
-              placeholder={t('Type your message')}
-              rows={1}
-              SuggestionItem={SuggestionItem}
-              SuggestionList={SuggestionList}
-              triggers={autocompleteTriggers}
-              value={messageInput.text}
-            />
-            {messageInput.isUploadEnabled && (
-              <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
-                <Tooltip>
-                  {messageInput.maxFilesLeft
-                    ? t('Attach files')
-                    : t("You've reached the maximum number of files")}
-                </Tooltip>
-                <FileUploadButton
-                  accepts={channelContext.acceptedFiles}
-                  disabled={messageInput.maxFilesLeft === 0}
-                  handleFiles={messageInput.uploadNewFiles}
-                  multiple={channelContext.multipleUploads}
-                >
-                  <span className='str-chat__small-message-input-fileupload'>
-                    <FileUploadIcon />
-                  </span>
-                </FileUploadButton>
+            {isUploadEnabled && <UploadsPreview />}
+            <ChatAutoComplete />
+            {cooldownRemaining ? (
+              <div className='str-chat__input-small-cooldown'>
+                <CooldownTimer
+                  cooldownInterval={cooldownInterval}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
               </div>
+            ) : (
+              <>
+                {isUploadEnabled && (
+                  <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
+                    <Tooltip>
+                      {maxFilesLeft
+                        ? t('Attach files')
+                        : t("You've reached the maximum number of files")}
+                    </Tooltip>
+                    <FileUploadButton
+                      accepts={acceptedFiles}
+                      disabled={maxFilesLeft === 0}
+                      handleFiles={uploadNewFiles}
+                      multiple={multipleUploads}
+                    >
+                      <span className='str-chat__small-message-input-fileupload'>
+                        <FileUploadIcon />
+                      </span>
+                    </FileUploadButton>
+                  </div>
+                )}
+                <div className='str-chat__emojiselect-wrapper'>
+                  <Tooltip>
+                    {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+                  </Tooltip>
+                  <span
+                    className='str-chat__small-message-input-emojiselect'
+                    onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+                    onKeyDown={handleEmojiKeyDown}
+                    role='button'
+                    tabIndex={0}
+                  >
+                    <EmojiIcon />
+                  </span>
+                </div>
+              </>
             )}
-            <div className='str-chat__emojiselect-wrapper'>
-              <Tooltip>
-                {messageInput.emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
-              </Tooltip>
-              <span
-                className='str-chat__small-message-input-emojiselect'
-                onClick={
-                  messageInput.emojiPickerIsOpen
-                    ? messageInput.closeEmojiPicker
-                    : messageInput.openEmojiPicker
-                }
-                onKeyDown={messageInput.handleEmojiKeyDown}
-                role='button'
-                tabIndex={0}
-              >
-                <EmojiIcon />
-              </span>
-            </div>
-            <EmojiPicker {...messageInput} small />
+            <EmojiPicker small />
           </div>
-          {SendButton && <SendButton sendMessage={messageInput.handleSubmit} />}
+          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

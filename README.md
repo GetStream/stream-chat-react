@@ -18,39 +18,39 @@
 
 - [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
 - [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
-- [Chat UI Kit](https://getstream.io/chat/ui-kit/)
-- [Example Apps](#example-apps)
+- [Demo Apps](https://getstream.io/chat/demos/)
 - [Component Docs](https://getstream.github.io/stream-chat-react/)
-- [Internationalisation](#internationalisation)
+- [Chat UI Kit](https://getstream.io/chat/ui-kit/)
+- [Internationalization](#internationalization)
 
-With these chat components, you can support any chat use case:
+With our component library, you can build a variety of chat use cases, including:
 
-- Livestreams like Twitch or Youtube
-- In-Game chat like Overwatch or Fortnite
-- Team style chat like Slack
-- Messaging style chat like Whatsapp or Facebook's messenger
-- Commerce chat like Drift or Intercom
+- Livestream like Twitch or YouTube
+- In-game chat like Overwatch or Fortnite
+- Team-style chat like Slack
+- Messaging-style chat like WhatsApp or Facebook's Messenger
+- Customer support chat like Drift or Intercom
 
 ## React Chat Tutorial
 
-The best place to start is the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It teaches you how to use this SDK and also shows how to make frequently required changes.
+The best way to get started is to follow the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It shows you how to use this SDK to build a fully functional chat application and includes common customizations.
 
 ## Free for Makers
 
-Stream is free for most side and hobby projects. To qualify your project/company needs to have < 5 team members and < $10k in monthly revenue.
-For complete pricing details visit our [Chat Pricing Page](https://getstream.io/chat/pricing/)
+Stream is free for most side and hobby projects. To qualify, your project/company must have no more than 5 team members and earn less than $10k in monthly revenue.
+For complete pricing and details visit our [Chat Pricing Page](https://getstream.io/chat/pricing/).
 
 ## Installation
 
 ### Install with NPM
 
-`npm install --save react react-dom stream-chat stream-chat-react`
+`npm install react react-dom stream-chat stream-chat-react`
 
 ### Install with Yarn
 
 `yarn add react react-dom stream-chat stream-chat-react`
 
-### Using JS deliver
+### Install via CDN
 
 ```
 <script src="https://cdn.jsdelivr.net/npm/react@16.13.1/umd/react.production.min.js"></script>
@@ -61,43 +61,26 @@ For complete pricing details visit our [Chat Pricing Page](https://getstream.io/
 
 ## Example Apps
 
-This repo includes 4 example apps. You can try them out like this:
-
-```
-git clone git@github.com:GetStream/stream-chat-react.git
-cd examples/messaging
-yarn
-yarn start
-```
-
-The four examples are `messaging`, `team`, `commerce` and `livestream`. You can also preview these demos online in the [Chat Demos](https://getstream.io/chat/demos/)
+We have built five demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual event. You can preview these [demos](https://getstream.io/chat/demos/) on our website. Also, the code is [open source](https://github.com/GetStream/website-react-examples/).
 
 ## Docs
 
-The [styleguidist docs for stream-chat-react](https://getstream.github.io/stream-chat-react/) document how all the components work.
+We use a doc generator to build our [component documentation](https://getstream.github.io/stream-chat-react/). We provide a brief description of each chat component and define all of the props it accepts.
 
-The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's important to learn how the Chat Server API works. You'll want to review our [JS chat API docs](https://getstream.io/chat/docs/js/).
+The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's likely you'll need to make additional calls to our Chat API using our JavaScript client, which has [documentation](https://getstream.io/chat/docs/js/) on our website.
 
-## Typescript
+##  TypeScript Support
 
-**Note:** The [stream-chat-js](https://github.com/getstream/stream-chat-js) library allows for fully typed responses using generics, currently the React SDK does not allow for user defined types via generics, so custom fields will be returned with type `unknown` and need to be ignored using `@ts-ignore` when using custom components in typescript.
+As of version `5.0.0`, the component library has been converted to TypeScript. Please read the [TypeScript guide](https://github.com/GetStream/stream-chat-react/wiki/Typescript-support) for details and implementation assistance.
 
-## Commands
+##  Component Reusability
 
-- yarn docs-server
-- yarn lint-fix
-- yarn lint
-
-## Component Reusability
-
-1. If a component implements a ton of logic, it's helpful if you split it out into two parts: The top-level component, which handles all the logic, and a lower level component, which handles rendering. That makes it easy to change the rendering without having to touch the other stuff. Have a look at Message and MessageTeam to see how this approach works.
-
-2. Make things configurable via the props where possible. Sometimes an even better approach is to use the props.children. Have a look at how flexible the channel layout is due to this approach:
+For components that implement significant logic, it's helpful to split the component into two parts: a top-level component which handles functionality and a lower level component which renders the UI. This way you can swap UI without altering the logic that gives the component its functionality. We use this provider/consumer pattern frequently in the library, and the below example shows how to swap out the `Message` UI component with `MessageTeam`, without affecting any logic in the app.
 
 ```jsx
-<Channel>
+<Channel Message={MessageTeam}>
   <Window>
-    <ChannelHeader type="Team" />
+    <ChannelHeader />
     <MessageList />
     <MessageInput />
   </Window>
@@ -105,139 +88,25 @@ The React components are created using the [stream-chat-js](https://github.com/g
 </Channel>
 ```
 
-### Customizing styles
+### Customizing Styles
 
-The preferred method for overriding styles from `stream-chat-react` is to import the CSS file into your project in App.js from the dist directory. Then, locate any Stream selectors you want to override using either the browser or by viewing the library code, and then add these to your local CSS file with your styles. For example:
+The preferred method for overriding the pre-defined styles in the library is to two step process. First, import our bundled CSS into the file where you instantiate your chat application. Second, locate any Stream styles you want to override using either the browser inspector or by viewing the library code. You can then add selectors to your local CSS file to override our defaults. For example:
 
 ```js
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 ```
 
-Alternatively, there may be times when you want to make simple changes to our stylesheets and don't want to override classes and styles manually. To make these customizations, you can do the following:
+## Internationalization
 
-- Clone this repository
-- Make the changes you want in the SCSS files
-- Run `yarn build-styles` or `yarn watch-styles`
-
-As another alternative option if you're also using SCSS for styling, you can import component styles directly in your .scss files. For example:
-
-```scss
-// customChatDownComponent.scss
-@import 'node_modules/stream-chat-react/dist/scss/ChatDown.scss';
-
-.myCustomChatDown {
-  background: rgba(blue, 0.7);
-}
-```
-
-Depending on your build system configuration, you might have issues importing SCSS files that require images from our provided assets. For example, if you're using `create-react-app` and you try to introduce one of those SCSS files, you'll see an error telling you that `Relative imports outside of src/ are not supported.`
-
-You can work around this kind of issue by overwriting the `$assetsPath` variable and making sure you provide the necessary assets accordingly:
-
-```scss
-@import 'node_modules/stream-chat-react/dist/scss/_variables.scss';
-$assetsPath: '/img'; // This will make url(..) calls compiles to url('/img/<asset-name>.png').
-@import 'node_modules/stream-chat-react/dist/scss/index.scss';
-```
-
-## Performance
-
-Since chat can get pretty active, it's essential to pay attention to performance.
-For every component either:
-
-- Implement shouldComponentUpdate
-- Extend PureComponent
-
-You can verify if the update behavior is correct by sticking this code in your component:
-
-```js
-import React from 'react';
-import diff from 'shallow-diff';
-
-export default class MyComponent extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    console.log(diff(this.props, nextProps));
-  }
-}
-```
-
-Note that the PureComponent uses a shallow diff to determine if a component should rerender upon state change.
-The regular component simply always rerenders when there is a state change.
-
-You can read more about PureComponents and common gotchas here:
-<https://codeburst.io/when-to-use-component-or-purecomponent-a60cfad01a81>
-
-You want the shallow diff only to be true if something changed.
-Common mistakes that hurt performance are:
-
-- Mistake: Passing anonymous functions (those are different every time)
-- Solution: Use a regular function
-- Mistake: Passing an object {} or an array [] that's not using seamless-immutable
-- Solution: Use an immutable type (i.e., a number or a string) or use a seamless immutable version of an object or an array
-
-## Internationalisation
-
-Instance of class `Streami18n` should be provided to the Chat component to handle translations.
-Stream provides the following list of in-built translations for components:
-
-1. English (en)
-2. Dutch (nl)
-3. Russian (ru)
-4. Turkish (tr)
-5. French (fr)
-6. Italian (it)
-7. Hindi (hi)
-
-The default language is English. The simplest way to start using chat components in one of the in-built languages would be the following:
-
-Simplest way to start using chat components in one of the in-built languages would be following:
-
-```js static
-const i18n = new Streami18n({ language: 'nl' });
-<Chat client={chatClient} i18nInstance={i18n}>
-  ...
-</Chat>;
-```
-
-If you would like to override certain keys in in-built translation:
-
-```js static
-const i18n = new Streami18n({
-  language: 'nl',
-  translationsForLanguage: {
-    'Nothing yet...': 'Nog Niet ...',
-    '{{ firstUser }} and {{ secondUser }} are typing...':
-      '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
-  },
-});
-```
-
-You can find all the available keys here: <https://github.com/GetStream/stream-chat-react/tree/master/src/i18n>
-
-They are also exported as a JSON object from the library.
-
-```js static
-import {
-  enTranslations,
-  nlTranslations,
-  ruTranslations,
-  trTranslations,
-  frTranslations,
-  hiTranslations,
-  itTranslations,
-  esTranslations,
-} from 'stream-chat-react';
-```
-
-Please read this docs on i18n for more details and further customizations - <https://getstream.github.io/stream-chat-react/#section-streami18n>
+Our library supports auto-translation for various user languages. Please read our internationalization [documentation](https://github.com/GetStream/stream-chat-react/wiki/Internationalization-(i18n)) for further details and setup guidance.
 
 ## Contributing
 
-We welcome code changes that improve this library or fix a problem. Please make sure to follow all best practices and add tests if applicable before submitting a Pull Request on Github. We are pleased to merge your code into the official repository. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
+We welcome code changes that improve this library or fix a problem. Please make sure to follow all best practices and add tests, if applicable, before submitting a pull request on GitHub. We are pleased to merge your code into the official repository if it meets a need. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
 
 ## We are hiring!
-We've recently closed a [$38 million Series B funding round](https://techcrunch.com/2021/03/04/stream-raises-38m-as-its-chat-and-activity-feed-apis-power-communications-for-1b-users/) and we keep actively growing.
-Our APIs are used by more than a billion end-users, and you'll have a chance to make a huge impact on the product within a team of the strongest engineers all over the world.
+We recently closed a [$38 million Series B funding round](https://techcrunch.com/2021/03/04/stream-raises-38m-as-its-chat-and-activity-feed-apis-power-communications-for-1b-users/) and are actively growing.
+Our APIs are used by more than a billion end-users, and by working at Stream, you have the chance to make a huge impact on a team of very strong engineers.
 
 Check out our current openings and apply via [Stream's website](https://getstream.io/team/#jobs).

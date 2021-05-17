@@ -1,19 +1,33 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { generateMessage } from 'mock-builders';
+
 import { MessageActionsBox } from '../MessageActionsBox';
+
+import { MessageProvider } from '../../../context/MessageContext';
+
+import { generateMessage } from '../../../mock-builders';
 
 const getMessageActionsMock = jest.fn(() => []);
 
-const renderComponent = (props) =>
-  render(<MessageActionsBox {...props} getMessageActions={getMessageActionsMock} />);
+const messageContextValue = {
+  message: generateMessage(),
+  messageListRect: {},
+};
+
+function renderComponent(boxProps) {
+  return render(
+    <MessageProvider value={{ ...messageContextValue, message: boxProps.message }}>
+      <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
+    </MessageProvider>,
+  );
+}
 
 describe('MessageActionsBox', () => {
   afterEach(jest.clearAllMocks);
 
   it('should not show any of the action buttons if no actions are returned by getMessageActions', () => {
-    const { queryByText } = renderComponent();
+    const { queryByText } = renderComponent({});
     expect(queryByText('Flag')).not.toBeInTheDocument();
     expect(queryByText('Mute')).not.toBeInTheDocument();
     expect(queryByText('Unmute')).not.toBeInTheDocument();

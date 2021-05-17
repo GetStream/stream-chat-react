@@ -1,10 +1,14 @@
 import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { generateMessage } from 'mock-builders';
-import { ChannelContext, TranslationContext } from '../../../context';
-import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
+
 import { MessageActions } from '../MessageActions';
+import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
+
+import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { MessageProvider } from '../../../context/MessageContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import { generateMessage } from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -14,25 +18,34 @@ const wrapperMock = document.createElement('div');
 jest.spyOn(wrapperMock, 'addEventListener');
 
 const defaultProps = {
-  addNotification: () => {},
-  getFlagMessageErrorNotification: () => 'error',
-  getFlagMessageSuccessNotification: () => 'success',
   getMessageActions: () => ['flag', 'mute'],
-  getMuteUserErrorNotification: () => 'error',
-  getMuteUserSuccessNotification: () => 'success',
+  handleDelete: () => {},
+  handleFlag: () => {},
+  handleMute: () => {},
+  handlePin: () => {},
   message: generateMessage(),
-  messageListRect: { height: 100, width: 100, x: 0, y: 0 },
-  messageWrapperRef: { current: wrapperMock },
-  mutes: [],
+};
+
+const messageContextValue = {
+  getMessageActions: () => ['delete', 'edit', 'flag', 'mute', 'pin', 'react', 'reply'],
+  handleDelete: () => {},
+  handleFlag: () => {},
+  handleMute: () => {},
+  handlePin: () => {},
+  isMyMessage: () => false,
+  message: generateMessage(),
   setEditingState: () => {},
 };
+
 function renderMessageActions(customProps, renderer = render) {
   return renderer(
-    <ChannelContext.Provider value={{}}>
-      <TranslationContext.Provider value={{ t: (key) => key }}>
-        <MessageActions {...defaultProps} {...customProps} />
-      </TranslationContext.Provider>
-    </ChannelContext.Provider>,
+    <ChannelStateProvider value={{}}>
+      <TranslationProvider value={{ t: (key) => key }}>
+        <MessageProvider value={{ ...messageContextValue }}>
+          <MessageActions {...defaultProps} {...customProps} />
+        </MessageProvider>
+      </TranslationProvider>
+    </ChannelStateProvider>,
   );
 }
 
@@ -86,25 +99,6 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should close message actions box when mouse leaves wrapper', () => {
-    let onMouseLeave;
-    wrapperMock.addEventListener.mockImplementationOnce((_, fn) => {
-      onMouseLeave = fn;
-    });
-    const { getByTestId } = renderMessageActions();
-    fireEvent.click(getByTestId(messageActionsTestId));
-    expect(wrapperMock.addEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function));
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: true }),
-      {},
-    );
-    act(() => onMouseLeave());
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
-  });
-
   it('should close message actions box when user clicks outside the action after it is opened', () => {
     let hideOptions;
     const addEventListenerSpy = jest
@@ -131,13 +125,12 @@ describe('<MessageActions /> component', () => {
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         getMessageActions: defaultProps.getMessageActions,
-        handleDelete: expect.any(Function),
+        handleDelete: defaultProps.handleDelete,
         handleEdit: expect.any(Function),
-        handleFlag: expect.any(Function),
-        handleMute: expect.any(Function),
-        handlePin: expect.any(Function),
+        handleFlag: defaultProps.handleFlag,
+        handleMute: defaultProps.handleMute,
+        handlePin: defaultProps.handlePin,
         isUserMuted: expect.any(Function),
-        messageListRect: defaultProps.messageListRect,
         mine: false,
         open: false,
       }),

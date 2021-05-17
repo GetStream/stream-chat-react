@@ -2,6 +2,56 @@
   display: block;
   position: relative;
 
+  .quoted-message {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 5px;
+
+    &-inner {
+      display: flex;
+      text-align: start;
+      align-items: flex-end;
+      background: #ebebeb;
+      border-radius: 8px 8px 8px 0;
+      max-width: 408px;
+      padding: 5px 10px;
+
+      .str-chat__message-attachment-card.str-chat__message-attachment-card--image {
+        border: none;
+        border-radius: 8px;
+      }
+
+      .str-chat__message-attachment {
+        &--image:first-of-type {
+          max-height: 48px;
+          max-width: 48px;
+          border-radius: 8px;
+        }
+
+        img {
+          border-radius: 8px;
+        }
+
+        &--file:first-of-type {
+          background: $white;
+          border-radius: 8px;
+          border-bottom: 1px solid #ebebeb;
+          min-width: 33%;
+        }
+      }
+
+      :nth-child(2) {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .quoted-message.mine {
+    .quoted-message-inner {
+      background: $white;
+    }
+  }
+
   /* group styling */
   &--top,
   &--single {
@@ -212,6 +262,8 @@
   padding: 0 0 0 0;
   position: relative;
   margin: 1px 0;
+  width: 100%;
+
   &--system {
     text-align: center;
     align-items: center;
@@ -254,7 +306,7 @@
     > .str-chat__message-simple__actions {
       position: absolute;
       top: 5px;
-      left: 100%;
+      left: calc(100% + 8px);
     }
   }
   &-attachment-container {
@@ -264,9 +316,9 @@
   &-text {
     display: inline-flex;
     justify-content: flex-start;
+    align-items: center;
     padding: 0 0 0 0;
     position: relative;
-    width: 100%;
 
     &-inner {
       position: relative;
@@ -336,6 +388,8 @@
     width: 100%;
     font-size: 11px;
     color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    white-space: nowrap;
   }
 
   &-name {
@@ -381,7 +435,7 @@
           position: absolute;
           top: 5px;
           left: unset;
-          right: 100%;
+          right: calc(100% + 8px);
         }
       }
 
@@ -429,6 +483,8 @@
 
       &-data {
         text-align: right;
+        right: 0;
+        width: fit-content;
       }
     }
   }
@@ -448,7 +504,6 @@
   }
 
   &-url-link {
-    display: inline-block;
     max-width: 150px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -571,10 +626,6 @@
     font-family: $second-font;
     &__actions {
       display: flex;
-      margin-top: 5px;
-      align-items: flex-start;
-      justify-content: flex-start;
-      min-width: 90px;
 
       &__action {
         margin: 5px;
@@ -619,6 +670,7 @@
     }
 
     &-text-inner {
+      flex: initial;
       text-align: left;
       max-width: 460px;
 
@@ -790,7 +842,7 @@
     background: white;
     border-color: transparent;
     border: 1px solid #ebebeb;
-    border-radius: 0;
+    border-radius: 8px;
     .str-chat__message-attachment-file--item {
       border-color: transparent;
       padding: 0 10px;

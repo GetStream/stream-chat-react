@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelContext } from '../../context/ChannelContext';
+import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -25,7 +27,7 @@ export type SimpleReactionsListProps<
    *
    * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
    * */
-  handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
+  handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
@@ -45,21 +47,22 @@ const UnMemoizedSimpleReactionsList = <
   props: SimpleReactionsListProps<Re, Us>,
 ) => {
   const {
-    handleReaction,
+    handleReaction: propHandleReaction,
     reaction_counts,
     reactionOptions: reactionOptionsProp,
     reactions,
   } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { handleReaction: contextHandleReaction } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const { defaultMinimalEmojis, Emoji, emojiData: defaultEmojiData, emojiSetDef } =
-    emojiConfig || {};
+  const { defaultMinimalEmojis, emojiData: defaultEmojiData, emojiSetDef } = emojiConfig || {};
 
   const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
 
   const emojiData = getStrippedEmojiData(defaultEmojiData);
-
+  const handleReaction = propHandleReaction || contextHandleReaction;
   const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
 
   if (!reactions || reactions.length === 0) {
@@ -124,11 +127,11 @@ const UnMemoizedSimpleReactionsList = <
           </li>
         ) : null;
       })}
-      {reactions?.length !== 0 && (
+      {
         <li className='str-chat__simple-reactions-list-item--last-number'>
           {getTotalReactionCount()}
         </li>
-      )}
+      }
     </ul>
   );
 };

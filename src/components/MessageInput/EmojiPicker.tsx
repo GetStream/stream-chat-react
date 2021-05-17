@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { useChannelContext } from '../../context/ChannelContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData } from 'emoji-mart';
 
-import type { MessageInputState } from './hooks/messageInput';
+import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type {
   DefaultAttachmentType,
@@ -24,12 +25,7 @@ const filterEmoji = (emoji: EmojiData) => {
   return true;
 };
 
-export type MessageInputEmojiPickerProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageInputState<At, Us> & {
-  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
-  onSelectEmoji: (emoji: EmojiData) => void;
+export type MessageInputEmojiPickerProps = {
   small?: boolean;
 };
 
@@ -42,30 +38,33 @@ export const EmojiPicker = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageInputEmojiPickerProps<At, Us>,
+  props: MessageInputEmojiPickerProps,
 ) => {
-  const { emojiPickerIsOpen, emojiPickerRef, onSelectEmoji, small } = props;
+  const { small } = props;
 
-  const { emojiConfig } = useChannelContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { EmojiPicker: EmojiPickerComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
-  const { emojiData, EmojiPicker: Picker } = emojiConfig || {};
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  if (emojiPickerIsOpen && emojiData) {
+  const { emojiData } = emojiConfig || {};
+
+  if (messageInput.emojiPickerIsOpen && emojiData) {
     const className = small
       ? 'str-chat__small-message-input-emojipicker'
       : 'str-chat__input--emojipicker';
 
     return (
-      <div className={className} ref={emojiPickerRef}>
-        {Picker && (
-          <Picker
+      <div className={className} ref={messageInput.emojiPickerRef}>
+        {EmojiPickerComponent && (
+          <EmojiPickerComponent
             color='#006CFF'
             data={emojiData}
             emoji='point_up'
             emojisToShowFilter={filterEmoji}
             native
-            onSelect={onSelectEmoji}
+            onSelect={messageInput.onSelectEmoji}
             set='facebook'
             showPreview={false}
             showSkinTones={false}

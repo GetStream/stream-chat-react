@@ -41,6 +41,9 @@ const UnMemoizedChannelPreviewCountOnly = <
   );
 };
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ */
 export const ChannelPreviewCountOnly = React.memo(
   UnMemoizedChannelPreviewCountOnly,
 ) as typeof UnMemoizedChannelPreviewCountOnly;

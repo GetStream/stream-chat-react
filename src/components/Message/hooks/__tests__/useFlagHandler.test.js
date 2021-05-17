@@ -1,13 +1,16 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
+
+import { ChatProvider } from '../../../../context/ChatContext';
+import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import {
   generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-} from 'mock-builders';
-import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
-import { ChannelContext, ChatContext } from '../../../../context';
+} from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const flagMessage = jest.fn();
@@ -18,22 +21,22 @@ const mouseEventMock = {
 async function renderUseHandleFlagHook(
   message = generateMessage(),
   notificationOpts,
-  channelContextValue,
+  channelStateContextValue,
 ) {
   const client = await getTestClientWithUser(alice);
   client.flagMessage = flagMessage;
   const channel = generateChannel();
   const wrapper = ({ children }) => (
-    <ChatContext.Provider value={{ client }}>
-      <ChannelContext.Provider
+    <ChatProvider value={{ client }}>
+      <ChannelStateProvider
         value={{
           channel,
-          ...channelContextValue,
+          ...channelStateContextValue,
         }}
       >
         {children}
-      </ChannelContext.Provider>
-    </ChatContext.Provider>
+      </ChannelStateProvider>
+    </ChatProvider>
   );
   const { result } = renderHook(() => useFlagHandler(message, notificationOpts), { wrapper });
   return result.current;
@@ -99,8 +102,7 @@ describe('useHandleFlag custom hook', () => {
     const message = generateMessage();
     const notify = jest.fn();
     flagMessage.mockImplementationOnce(() => Promise.reject());
-    const defaultFlagMessageFailedNotification =
-      'Error adding flag: Either the flag already exist or there is issue with network connection ...';
+    const defaultFlagMessageFailedNotification = 'Error adding flag';
     const handleFlag = await renderUseHandleFlagHook(message, {
       notify,
     });
