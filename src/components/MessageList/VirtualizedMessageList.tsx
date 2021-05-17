@@ -198,7 +198,6 @@ const VirtualizedMessageListWithContext = <
                 streamMessageIndex > 0 &&
                 message.user?.id === messageList[streamMessageIndex - 1].user?.id
               }
-              message={message}
             />
           )}
         />
