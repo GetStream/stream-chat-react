@@ -1,6 +1,42 @@
 # Changelog
 
-## [5.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.2) 2021-05-3
+## [6.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.0) 2021-05-17
+
+### ⚠️ BREAKING CHANGES ⚠️ - Please review our v6 [implementation guide](https://github.com/GetStream/stream-chat-react/wiki) prior to upgrading.
+
+With this release, we've completely refactored how we share data in the component library. We've segmented our former `ChannelContext` into the following four sub-contexts:
+
+- `ChannelActionContext` - provides the functions needed to operate a `Channel`
+- `ChannelStateContext` - provides the stateful data needed to operate a `Channel`
+- `ComponentContext` - provides the UI component overrides for all child components of a `Channel`
+- `TypingContext` - provides an object of users currently typing in the `Channel`
+
+**NOTE:** The `ChannelContext` no longer exists, so all old references to `useChannelContext()` or `useContext(ChannelContext)` need to be replaced with the relevant context above. A list of all data found within each new context can be found [here](https://github.com/GetStream/stream-chat-react/wiki/Context-Overview-(v6.0.0)).
+
+### Feature
+
+- We've added a handful of new features in this release, check out this [wiki](https://github.com/GetStream/stream-chat-react/wiki/New-Features-(v.6.0.0)) for more details. New features include:
+  - custom message actions
+  - custom triggers
+  - channel search
+  - quoted messages
+  - cooldown timer / slow mode UI
+  - submit key override
+- The `Message` component now provides the `MessageContext` to its children. Reference this [guide](https://github.com/GetStream/stream-chat-react/wiki/How-to-Guide-for-Building-a-Custom-Message-(v.6.0.0)) for instructions on creating a custom message UI component.
+- The `MessageInput` component now provides the `MessageInputContext` to its children. Reference this [guide](https://github.com/GetStream/stream-chat-react/wiki/How-to-Guide-for-Building-a-Custom-MessageInput-and-Customizing-the-Default-MessageInput-(v.6.0.0)) for instructions on creating a custom input UI component.
+
+## [5.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v5.4.0) 2021-05-13
+
+### Feature
+
+- Scroll to bottom of `MessageList` when the last message receives a reaction or reply [#916](https://github.com/GetStream/stream-chat-react/pull/916)
+
+### Chore
+
+- Preserve modules during build to optimize tree shaking potential [#919](https://github.com/GetStream/stream-chat-react/pull/919)
+- Support `'next-images'` dependency in NextJS sample app [#920](https://github.com/GetStream/stream-chat-react/pull/920)
+
+## [5.3.2](https://github.com/GetStream/stream-chat-react/releases/tag/v5.3.2) 2021-05-03
 
 ### Feature
 
