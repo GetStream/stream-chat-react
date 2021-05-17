@@ -1,4 +1,4 @@
-/* ------------------------  Message li ------------------------  */
+/* ------------------------ Message List Item ------------------------  */
 
 .str-chat__li {
   margin: 0px;
@@ -13,12 +13,12 @@
   }
 }
 
-/* ------------------------  Outer Most Message Wrapper ------------------------  */
+/* ------------------------ Wrapper and Content Container ------------------------  */
 
-.message_wrapper {
+.message-wrapper {
   display: flex;
 
-  &-inner {
+  &-content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -26,12 +26,12 @@
   }
 }
 
-/* ------------------------  Name and timestamp ------------------------  */
+/* ------------------------ Name and Timestamp ------------------------  */
 
 .message-header {
   display: flex;
 
-  &-user_name {
+  &-name {
     font-family: Helvetica Neue, sans-serif;
     font-weight: 500;
     font-size: 11px;
@@ -48,7 +48,7 @@
   }
 }
 
-/* ------------------------  Message Actions ------------------------  */
+/* ------------------------ Message Actions ------------------------  */
 
 .str-chat__li:hover .str-chat__message-simple__actions {
   position: absolute;
@@ -82,7 +82,7 @@
   margin-top: 0;
 }
 
-/* ------------------------  Message Actions Box ------------------------  */
+/* ------------------------ Message Actions Box ------------------------  */
 
 .str-chat__message-actions-box {
   top: initial;
@@ -117,7 +117,7 @@
   }
 }
 
-/* ------------------------  Replies Count Button ------------------------  */
+/* ------------------------ Replies Count Button ------------------------  */
 
 .str-chat__message-replies-count-button {
   font-family: Helvetica Neue, sans-serif;
@@ -127,13 +127,13 @@
   color: #4e1d9d;
 }
 
-/* ------------------------  Reactions List ------------------------  */
+/* ------------------------ Reactions List ------------------------  */
 
 .str-chat__simple-reactions-list {
   border-radius: 10px;
 }
 
-/* ------------------------  Reactions Selector ------------------------  */
+/* ------------------------ Reactions Selector ------------------------  */
 
 .str-chat__reaction-selector {
   max-height: 40px;
@@ -145,13 +145,13 @@
   border: 1px solid #bed5e4;
 }
 
-/* ------------------------  Message Status ------------------------  */
+/* ------------------------ Message Status ------------------------  */
 
 .str-chat__message-simple-status {
   right: 22px;
 }
 
-/* ------------------------  Quoted Message ------------------------  */
+/* ------------------------ Quoted Message ------------------------  */
 
 .quoted-message-inner {
   margin-top: 10px;

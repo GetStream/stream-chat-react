@@ -5,11 +5,11 @@ import {
   messageHasReactions,
   MessageOptions,
   MessageRepliesCountButton,
-  MessageText,
-  ReactionSelector,
   MessageStatus,
-  SimpleReactionsList,
+  MessageText,
   MessageTimestamp,
+  ReactionSelector,
+  SimpleReactionsList,
   useMessageContext,
 } from 'stream-chat-react';
 
@@ -24,21 +24,21 @@ export const CustomMessage = () => {
     reactionSelectorRef,
   } = useMessageContext();
 
-  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+  const messageWrapperRef = useRef<HTMLDivElement>(null);
 
   const hasReactions = messageHasReactions(message);
 
   return (
-    <div className='message_wrapper'>
+    <div className='message-wrapper'>
       <Avatar image={message.user?.image} />
-      <div className='message_wrapper-inner'>
+      <div className='message-wrapper-content'>
         <MessageOptions
           displayLeft={false}
           handleOpenThread={handleOpenThread}
           messageWrapperRef={messageWrapperRef}
         />
         <div className='message-header'>
-          <div className='message-header-user_name'>{message.user?.name}</div>
+          <div className='message-header-name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>
             <MessageTimestamp />
           </div>
