@@ -38,8 +38,42 @@ module.exports = {
         'src/components/ChannelList/ChannelList.tsx',
         'src/components/MessageList/MessageList.tsx',
         'src/components/MessageList/VirtualizedMessageList.tsx',
-        'src/components/ChannelHeader/ChannelHeader.tsx',
         'src/components/Thread/Thread.tsx',
+      ],
+      exampleMode: 'collapse',
+      usageMode: 'expand',
+    },
+    {
+      name: 'Contexts',
+      sections: [
+        {
+          name: 'ChatContext',
+          content: 'src/docs/ChatContext.md',
+        },
+        {
+          name: 'ChannelActionContext',
+          content: 'src/docs/ChannelActionContext.md',
+        },
+        {
+          name: 'ChannelStateContext',
+          content: 'src/docs/ChannelStateContext.md',
+        },
+        {
+          name: 'MessageContext',
+          content: 'src/docs/MessageContext.md',
+        },
+        {
+          name: 'MessageInputContext',
+          content: 'src/docs/MessageInputContext.md',
+        },
+        {
+          name: 'ComponentContext',
+          content: 'src/docs/ComponentContext.md',
+        },
+        {
+          name: 'TranslationContext',
+          content: 'src/docs/TranslationContext.md',
+        },
       ],
       exampleMode: 'collapse',
       usageMode: 'expand',
@@ -53,11 +87,10 @@ module.exports = {
           components: [
             'src/components/Message/Message.tsx',
             'src/components/Message/MessageSimple.tsx',
-            'src/components/Message/MessageTeam.tsx',
-            'src/components/Message/MessageLivestream.tsx',
             'src/components/Attachment/Attachment.tsx',
             'src/components/Attachment/AttachmentActions.tsx',
             'src/components/Reactions/ReactionSelector.tsx',
+            'src/components/Reactions/ReactionsList.tsx',
             'src/components/MessageActions/MessageActionsBox.tsx',
           ],
           exampleMode: 'collapse',
@@ -116,22 +149,21 @@ module.exports = {
     },
     {
       name: 'Message Input',
+      usageMode: 'expand',
       sections: [
         {
           name: 'Components',
           components: [
             'src/components/MessageInput/MessageInput.tsx',
             'src/components/MessageInput/MessageInputSmall.tsx',
-            'src/components/MessageInput/MessageInputLarge.tsx',
             'src/components/MessageInput/MessageInputFlat.tsx',
             'src/components/MessageInput/EditMessageForm.tsx',
             'src/components/ChatAutoComplete/ChatAutoComplete.tsx',
           ],
           exampleMode: 'collapse',
-          usageMode: 'expand',
         },
         {
-          name: 'Hooks',
+          name: 'Custom Hooks',
           sections: [
             {
               name: 'useMessageInputContext',
@@ -139,14 +171,14 @@ module.exports = {
             },
           ],
           exampleMode: 'collapse',
-          usageMode: 'expand',
-        }
+        },
       ],
     },
     {
       name: 'Utilities',
       components: [
         'src/components/ChannelSearch/ChannelSearch.tsx',
+        'src/components/ChannelHeader/ChannelHeader.tsx',
         'src/components/Attachment/Card.tsx',
         'src/components/ChatDown/ChatDown.tsx',
         'src/components/Loading/LoadingChannels.tsx',
@@ -156,50 +188,12 @@ module.exports = {
         'src/components/DateSeparator/DateSeparator.tsx',
         'src/components/Window/Window.tsx',
         'src/components/ChannelList/ChannelListMessenger.tsx',
-        'src/components/ChannelList/ChannelListTeam.tsx',
         'src/components/ChannelPreview/ChannelPreviewMessenger.tsx',
-        'src/components/ChannelPreview/ChannelPreviewCompact.tsx',
-        'src/components/ChannelPreview/ChannelPreviewLastMessage.tsx',
       ],
       sections: [
         {
           name: 'Streami18n',
           content: 'src/docs/Streami18n.md',
-        },
-      ],
-      exampleMode: 'collapse',
-      usageMode: 'expand',
-    },
-    {
-      name: 'Contexts',
-      sections: [
-        {
-          name: 'ChatContext',
-          content: 'src/docs/ChatContext.md',
-        },
-        {
-          name: 'ChannelActionContext',
-          content: 'src/docs/ChannelActionContext.md',
-        },
-        {
-          name: 'ChannelStateContext',
-          content: 'src/docs/ChannelStateContext.md',
-        },
-        {
-          name: 'MessageContext',
-          content: 'src/docs/MessageContext.md',
-        },
-        {
-          name: 'MessageInputContext',
-          content: 'src/docs/MessageInputContext.md',
-        },
-        {
-          name: 'ComponentContext',
-          content: 'src/docs/ComponentContext.md',
-        },
-        {
-          name: 'TranslationContext',
-          content: 'src/docs/TranslationContext.md',
         },
       ],
       exampleMode: 'collapse',

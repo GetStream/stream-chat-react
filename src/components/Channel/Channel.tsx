@@ -899,7 +899,7 @@ const ChannelInner = <
 };
 
 /**
- * Wrapper component that provides channel data and renders children.
+ * A wrapper component that provides channel data and renders children.
  * The Channel component provides the following contexts:
  * - [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
  * - [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext)
