@@ -51,9 +51,8 @@ export type ThreadProps<
 };
 
 /**
- * Thread - The Thread renders a parent Message with a list of replies. Use the standard MessageList of the main Channel's Messages.
- * The Thread is only used for the list of replies to a message.
- * Underlying MessageList, MessageInput and Message components can be customized using props:
+ * The Thread component renders a parent Message with a list of replies.
+ * The underlying MessageList, MessageInput and Message components can be customized using props:
  * - additionalParentMessageProps
  * - additionalMessageListProps
  * - additionalMessageInputProps

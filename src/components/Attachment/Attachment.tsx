@@ -114,8 +114,7 @@ export type InnerAttachmentUIComponentProps<
 };
 
 /**
- * Attachment - The message Attachment. A message can contain multiple Attachments.
- * By default, the component supports:
+ * A component used for rendering message attachments. By default, the component supports:
  * - AttachmentActions
  * - Audio
  * - Card
