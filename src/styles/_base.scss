@@ -7,7 +7,7 @@
   *::after,
   *::before {
     box-sizing: inherit;
-    font-family: $second-font;
+    font-family: var(--second-font);
   }
 }
 
@@ -18,7 +18,7 @@
 .messenger-chat {
   &.str-chat {
     height: 100vh;
-    font-family: $second-font;
+    font-family: var(--second-font);
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
@@ -47,7 +47,7 @@
 
 .str-chat {
   height: 100vh;
-  font-family: $second-font;
+  font-family: var(--second-font);
   &.messaging,
   &.commerce {
     background-color: #f1f1f3;
@@ -74,7 +74,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* png based woff for most browsers */
 @font-face {
   font-family: ReplaceFlagEmojiPNG;
-  src: url("../assets/NotoColorEmoji-flags.woff2") format("woff2");
+  src: url('../assets/NotoColorEmoji-flags.woff2') format('woff2');
   /* using the unicode-range attribute to limit the reach of the Flag Emoji web font to only flags */
   unicode-range: $emoji-flag-unicode-range;
 }
@@ -82,7 +82,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 /* svg based for firefox */
 @font-face {
   font-family: ReplaceFlagEmojiSVG;
-  src: url("../assets/EmojiOneColor.woff2") format("woff2");
+  src: url('../assets/EmojiOneColor.woff2') format('woff2');
   unicode-range: $emoji-flag-unicode-range;
 }
 
@@ -91,7 +91,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   .str-chat__message-text-inner *,
   .str-chat__emoji-item--entity,
   .emoji-mart-emoji-native * {
-    font-family: ReplaceFlagEmojiPNG, $second-font, sans-serif;
+    font-family: ReplaceFlagEmojiPNG, var(--second-font), sans-serif;
     font-display: swap;
   }
 }
@@ -102,7 +102,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
     .str-chat__message-text-inner *,
     .str-chat__emoji-item--entity,
     .emoji-mart-emoji-native * {
-      font-family: ReplaceFlagEmojiSVG, $second-font, sans-serif;
+      font-family: ReplaceFlagEmojiSVG, var(--second-font), sans-serif;
       font-display: swap;
     }
   }

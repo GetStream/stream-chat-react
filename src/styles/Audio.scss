@@ -75,7 +75,7 @@
       line-height: 1;
       font-size: 12px;
       opacity: 0.49;
-      // color: rgba($secondary-color, 0.69);
+      // color: rgba(var(--secondary-color), 0.69);
     }
 
     &--progress {
@@ -90,7 +90,7 @@
         height: 4px;
         border-radius: 4px;
         width: 0%;
-        background: $secondary-color;
+        background: var(--secondary-color);
         transition: width 0.5s linear;
       }
     }

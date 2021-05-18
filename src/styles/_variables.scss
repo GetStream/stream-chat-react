@@ -1,26 +1,56 @@
-/* fonts */
-$main-font: 'IBM Plex Sans', sans-serif;
-$second-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$mono-font: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
-  'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
-  'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
+:root {
+  /* fonts */
+  --main-font: 'IBM Plex Sans', sans-serif;
+  --second-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono-font: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter',
+    'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', Monaco,
+    'Courier New', Courier, monospace;
 
-$base-font-weight: 400;
-$heavy-font-weight: 700;
+  --base-font-weight: 400;
+  --heavy-font-weight: 700;
+
+  /* colors */
+  --primary-color: magenta;
+  --secondary-color: #006cff;
+  --secondary-faded: #bcd8ff;
+
+  --dt-bg-team: #1d1f22;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+
+  --black: #0000;
+  --lighten-black: grey;
+  --white: white;
+  --grey: #f0f0f0;
+  --darken-grey: #343434;
+  --lighten-grey: #858585;
+
+  /* miscellaneous */
+  --assetsPath: '../assets';
+  --border-radius: 16px;
+}
+
+/* fonts */
+$main-font: var(--main-font);
+$second-font: var(--second-font);
+$mono-font: var(--mono-font);
+
+$base-font-weight: var(--base-font-weight);
+$heavy-font-weight: var(--heavy-font-weight);
 
 /* colors */
-$primary-color: magenta;
-$secondary-color: #006cff;
-$secondary-faded: #bcd8ff;
+$primary-color: var(--primary-color);
+$secondary-color: var(--secondary-color);
+$secondary-faded: var(--secondary-faded);
 
-$dt-bg-team: #1d1f22;
+$dt-bg-team: var(--dt-bg-team);
 
-$border-color: rgba(0, 0, 0, 0.08);
+$border-color: var(--border-color);
 
-$black: black;
-$white: white;
-$grey: #f0f0f0;
+$black: var(--black);
+$white: var(--white);
+$grey: var(--grey);
 
 /* miscellaneous */
 $assetsPath: '../assets';
-$border-radius: 16px;
+$border-radius: var(--border-radius);

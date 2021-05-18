@@ -99,7 +99,7 @@
     }
 
     &--counter {
-      color: $white;
+      color: var(--white);
       font-size: 12px;
     }
   }

@@ -99,9 +99,9 @@
       padding: 5px 10px;
       font-size: 15px; /* variables */
       color: black; /* variables */
-      border-radius: $border-radius $border-radius $border-radius 0;
+      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
       background: #fff;
-      border: 1px solid $border-color;
+      border: 1px solid var(--border-color);
 
       margin-left: 0;
       max-width: 345px;
@@ -127,7 +127,7 @@
       }
 
       &--has-attachment {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: 2px var(--border-radius) var(--border-radius) 2px;
       }
 
       &--is-emoji {
@@ -161,7 +161,7 @@
   }
 
   &-name {
-    font-weight: $heavy-font-weight;
+    font-weight: var(--heavy-font-weight);
     margin-right: 5px;
   }
 
@@ -178,8 +178,8 @@
   }
 
   &-link {
-    color: $primary-color;
-    font-weight: $heavy-font-weight;
+    color: var(--primary-color);
+    font-weight: var(--heavy-font-weight);
     text-decoration: none;
   }
 
@@ -191,12 +191,12 @@
 
   /* deleted messages */
   &--deleted {
-    background: $grey;
+    background: var(--grey);
     float: left;
     padding: 8px 16px;
-    border-radius: $border-radius;
+    border-radius: var(--border-radius);
     font-size: 12px;
-    color: darken($grey, 30%);
+    color: var(--darken-grey);
     margin: 0 0 0 42px;
   }
 
@@ -259,7 +259,7 @@
       .str-chat__message-attachment {
         margin: 0 auto 0 30px;
         &--img {
-          border-radius: $border-radius $border-radius 2px $border-radius;
+          border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
         }
       }
       .str-chat__message-attachment-card {
@@ -322,7 +322,7 @@
 
 .str-chat {
   &__message-commerce {
-    font-family: $second-font;
+    font-family: var(--second-font);
     &__actions {
       display: flex;
       margin-top: 5px;
@@ -390,7 +390,7 @@
         text-align: left;
       }
       a {
-        color: $secondary-color;
+        color: var(--secondary-color);
         font-weight: 700;
         text-decoration: none;
       }
@@ -489,7 +489,7 @@
   }
   .str-chat__message-attachment-card {
     margin: 0;
-    border-radius: 4px $border-radius 4px 4px;
+    border-radius: 4px var(--border-radius) 4px 4px;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
 
@@ -512,7 +512,7 @@
       .str-chat__message-actions-box {
         right: unset;
         left: 100%;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
       }
     }
   }

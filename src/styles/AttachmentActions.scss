@@ -16,17 +16,17 @@
     outline: none;
 
     &:focus {
-      border: 1px solid $secondary-color;
+      border: 1px solid var(--secondary-color);
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
     }
 
     &--primary {
-      background-color: $secondary-color;
-      color: $white;
+      background-color: var(--secondary-color);
+      color: var(--white);
     }
 
     &--default {
-      border: 2px solid $border-color;
+      border: 2px solid var(--border-color);
     }
   }
 }

@@ -5,7 +5,7 @@
       $fontSize: 15px;
       $borderColor: rgba(0, 0, 0, 0.1);
 
-      font-family: $second-font;
+      font-family: var(--second-font);
       position: relative;
       display: flex;
       padding: 5px 40px;
@@ -32,7 +32,7 @@
         width: 75px;
         height: $actionsHeight;
         border-radius: 100px;
-        background: $white;
+        background: var(--white);
         border: 1px solid $actionsBorderColor;
         box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
         z-index: 10;
@@ -153,7 +153,7 @@
           hyphens: auto;
 
           a {
-            color: $secondary-color;
+            color: var(--secondary-color);
             font-weight: bold;
             text-decoration: none;
           }
@@ -168,7 +168,7 @@
 
         pre,
         code {
-          font-family: $mono-font;
+          font-family: var(--mono-font);
           line-height: inherit;
           font-size: 12px;
           font-weight: 700;

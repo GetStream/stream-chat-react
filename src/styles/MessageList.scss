@@ -38,7 +38,7 @@
   border-radius: 4px;
   font-size: 12px;
   padding: 8px;
-  font-family: $second-font;
+  font-family: var(--second-font);
   text-align: center;
 
   &.notification-success {
@@ -61,7 +61,7 @@
   border-radius: 4px;
   font-size: 12px;
   padding: 8px;
-  font-family: $second-font;
+  font-family: var(--second-font);
   text-align: center;
 }
 

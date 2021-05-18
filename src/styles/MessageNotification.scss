@@ -2,9 +2,9 @@
   display: block;
   position: absolute;
   align-self: center;
-  background: $secondary-color;
+  background: var(--secondary-color);
   border: none;
-  color: $white;
+  color: var(--white);
   border-radius: 50px;
   padding: 4px 10px;
   font-size: 12px;

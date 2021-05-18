@@ -50,7 +50,7 @@
 }
 
 .str-chat__message-actions-list button:hover {
-  color: $secondary-color;
+  color: var(--secondary-color);
 }
 
 .str-chat__message-actions-list button:not(:last-of-type) {
@@ -92,5 +92,5 @@
 
 .str-chat__message-actions-reactions:hover,
 .str-chat__message-actions-options:hover svg {
-  fill: $primary-color;
+  fill: var(--primary-color);
 }

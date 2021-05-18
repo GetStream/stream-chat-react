@@ -17,8 +17,7 @@
 
     &:focus {
       background: white;
-      box-shadow: inset 0 0 0 1px $secondary-color,
-        inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+      box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
     }
   }
 
@@ -61,7 +60,7 @@
   }
 
   &-last-message {
-    color: lighten($black, 50%);
+    color: var(--lighten-black);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -73,7 +72,7 @@
     color: white;
 
     .str-chat__channel-preview-title {
-      color: $white;
+      color: var(--white);
     }
 
     .str-chat__channel-preview-last-message {
@@ -86,7 +85,7 @@
 
     .str-chat__channel-preview-last-message {
       font-weight: 700;
-      color: $black;
+      color: var(--black);
     }
   }
 
@@ -96,7 +95,7 @@
     position: absolute;
     border-radius: 50%;
     left: 2px;
-    background-color: $primary-color;
+    background-color: var(--primary-color);
   }
 }
 
@@ -120,8 +119,7 @@
 
   &:focus {
     background: white;
-    box-shadow: inset 0 0 0 1px $secondary-color,
-      inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+    box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
   }
 
   &--left {
@@ -202,8 +200,7 @@
     button {
       &:focus {
         background: #132d50;
-        box-shadow: inset 0 0 0 1px $secondary-color,
-          inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+        box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
       }
     }
   }

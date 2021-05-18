@@ -19,7 +19,7 @@
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.08);
     padding: 5px 10px;
-    border-radius: $border-radius $border-radius $border-radius 2px;
+    border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
   }
   &__dot {
     display: inline-block;
@@ -27,7 +27,7 @@
     height: 6px;
     border-radius: 50%;
     margin-right: 3px;
-    background: $secondary-color;
+    background: var(--secondary-color);
     animation: wave 1.1s linear infinite;
 
     &:nth-child(2) {

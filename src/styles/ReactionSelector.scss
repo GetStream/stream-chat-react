@@ -56,11 +56,7 @@
       transform: translate(-50%, 0);
       background: rgba(0, 0, 0, 0.81);
       border-radius: 5px;
-      background-image: linear-gradient(
-        -180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.5) 100%
-      );
+      background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
       max-width: 237px;
       padding: 4px 8px;
       font-size: 13px;
@@ -81,7 +77,7 @@
     &-not-found {
       border: 1.5px solid #fff;
       border-radius: 50%;
-      background-color: $primary-color;
+      background-color: var(--primary-color);
       width: inherit;
       height: inherit;
     }
@@ -108,11 +104,7 @@
   position: absolute;
   width: initial;
   background: rgba(24, 25, 28, 0.98);
-  background-image: linear-gradient(
-    -180deg,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
+  background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.05) 100%);
   border: 1px solid rgba(224, 224, 224, 0.03);
   box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
   border-radius: 30px;
@@ -130,11 +122,7 @@
     bottom: calc(100% + 15px);
     background: rgba(0, 0, 0, 0.81);
     border-radius: 5px;
-    background-image: linear-gradient(
-      -180deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.5) 100%
-    );
+    background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
     min-width: 85px;
     min-height: 24px;
     max-width: 100%;

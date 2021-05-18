@@ -56,13 +56,13 @@
 
       code {
         background-color: rgba(white, 0.2);
-        border: 1px solid rgba($secondary-color, 0.1);
+        border: 1px solid rgba(var(--secondary-color), 0.1);
         border-radius: 3px;
         padding: 2px 4px;
       }
 
       a {
-        color: $secondary-color;
+        color: var(--secondary-color);
         font-weight: bold;
         text-decoration: none;
       }
@@ -71,9 +71,8 @@
     pre,
     code {
       font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console',
-        'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
-        'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier,
-        monospace;
+        'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono',
+        'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
       line-height: inherit;
       padding: 10px;
       font-size: 12px;
@@ -83,8 +82,8 @@
     pre {
       margin: 0 5px 0 0;
       border-radius: 4px;
-      background-color: rgba($secondary-color, 0.1);
-      border: 1px solid rgba($secondary-color, 0.2);
+      background-color: rgba(var(--secondary-color), 0.1);
+      border: 1px solid rgba(var(--secondary-color), 0.2);
     }
 
     code {

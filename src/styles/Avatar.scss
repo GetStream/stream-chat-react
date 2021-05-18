@@ -34,7 +34,7 @@
     background-color: none;
   }
   &-fallback {
-    background-color: $secondary-color;
+    background-color: var(--secondary-color);
   }
 }
 

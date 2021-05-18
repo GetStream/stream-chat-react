@@ -59,7 +59,7 @@
 }
 
 .str-chat__virtual-message__author {
-  color: $secondary-color;
+  color: var(--secondary-color);
   font-size: 1rem;
 }
 
@@ -114,7 +114,7 @@
     padding-right: 16px;
   }
   a {
-    color: $secondary-color;
+    color: var(--secondary-color);
     text-decoration: none;
     font-weight: 700;
   }

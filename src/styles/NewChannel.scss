@@ -39,9 +39,7 @@
 
       &:focus {
         background: white;
-        box-shadow:
-          inset 0 0 0 1px $secondary-color,
-          inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+        box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
       }
     }
   }

@@ -13,17 +13,17 @@
 
     height: $height + px;
     border-radius: $height/2 + px;
-    color: $black;
+    color: var(--black);
     font-size: 14px;
     padding: 0 10px;
 
     &::placeholder {
-      color: lighten($black, 50%);
+      color: var(--lighten-black);
     }
 
     &:focus {
       background: white;
-      border: 1px solid $secondary-color;
+      border: 1px solid var(--secondary-color);
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
       transition: all 0.2s ease-in-out;
     }

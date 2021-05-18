@@ -93,11 +93,11 @@
   }
   .str-chat__message-commerce {
     .str-chat__gallery {
-      border-radius: $border-radius $border-radius $border-radius 2px;
+      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
     }
     &--right {
       .str-chat__gallery {
-        border-radius: $border-radius $border-radius 2px $border-radius;
+        border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
       }
     }
   }

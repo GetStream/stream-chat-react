@@ -28,17 +28,16 @@
     button {
       background: none;
       border: none;
-  
+
       /* font-size: $fontSize; */
       font-weight: 700;
       color: rgba(0, 0, 0, 0.4);
-  
+
       &[type='submit'] {
-        color: $secondary-color;
+        color: var(--secondary-color);
       }
     }
   }
-  
 
   .rfu-dropzone {
     width: 100%;
@@ -80,7 +79,7 @@
       button {
         color: rgba(255, 255, 255, 0.4);
         &[type='submit'] {
-          color: $secondary-color;
+          color: var(--secondary-color);
         }
       }
     }

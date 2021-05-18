@@ -33,7 +33,7 @@
         }
 
         &--file:first-of-type {
-          background: $white;
+          background: var(--white);
           border-radius: 8px;
           border-bottom: 1px solid #ebebeb;
           min-width: 33%;
@@ -48,7 +48,7 @@
 
   .quoted-message.mine {
     .quoted-message-inner {
-      background: $white;
+      background: var(--white);
     }
   }
 
@@ -60,13 +60,13 @@
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
         }
       }
 
@@ -75,21 +75,21 @@
         .str-chat__message {
           &-attachment--img,
           &-attachment-card {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
           .str-chat__message-attachment--img,
           .str-chat__message-attachment-card {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
           }
         }
         .str-chat__gallery {
-          border-radius: $border-radius $border-radius 2px $border-radius;
+          border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
         }
         &.str-chat__message--has-text {
           .str-chat__gallery {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
           }
         }
       }
@@ -103,14 +103,14 @@
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: 2px var(--border-radius) var(--border-radius) 2px;
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card,
         .str-chat__gallery {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: 2px var(--border-radius) var(--border-radius) 2px;
         }
       }
 
@@ -119,7 +119,7 @@
           &-attachment--img,
           &-attachment-card,
           .str-chat__gallery {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) 2px 2px var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
@@ -139,14 +139,14 @@
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: 2px var(--border-radius) var(--border-radius) 2px;
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card,
         .str-chat__gallery {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: 2px var(--border-radius) var(--border-radius) 2px;
         }
       }
 
@@ -155,7 +155,7 @@
           &-attachment--img,
           &-attachment-card,
           .str-chat__gallery {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) 2px 2px var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
@@ -186,14 +186,14 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
         }
       }
 
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
           }
         }
       }
@@ -204,10 +204,10 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
 
           &--has-attachment {
-            border-radius: 2px $border-radius $border-radius 2px;
+            border-radius: 2px var(--border-radius) var(--border-radius) 2px;
           }
         }
       }
@@ -215,10 +215,10 @@
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
 
             &--has-attachment {
-              border-radius: $border-radius 2px 2px $border-radius;
+              border-radius: var(--border-radius) 2px 2px var(--border-radius);
             }
           }
         }
@@ -231,14 +231,14 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: 2px var(--border-radius) var(--border-radius) 2px;
         }
       }
 
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) 2px 2px var(--border-radius);
             &--has-attachment {
               margin: 0;
             }
@@ -247,7 +247,7 @@
         .str-chat__message-attachment-card {
           margin: 0;
           padding: 0;
-          border-radius: $border-radius 2px 2px $border-radius;
+          border-radius: var(--border-radius) 2px 2px var(--border-radius);
         }
       }
     }
@@ -328,9 +328,9 @@
       padding: 5px 10px;
       font-size: 15px; /* variables */
       color: black; /* variables */
-      border-radius: $border-radius $border-radius $border-radius 0;
+      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
       background: #fff;
-      border: 1px solid $border-color;
+      border: 1px solid var(--border-color);
 
       margin-left: 0; /* set spacing when unfocused */
 
@@ -349,14 +349,14 @@
 
       /* if text consists is focused */
       &--focused {
-        background: $secondary-faded;
-        border: 1px solid $secondary-color;
+        background: var(--secondary-faded);
+        border: 1px solid var(--secondary-color);
         margin-right: 0;
         margin-left: 0; /* set spacing when focused */
       }
 
       &--has-attachment {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: 2px var(--border-radius) var(--border-radius) 2px;
       }
 
       /* if text consists of just one emoji */
@@ -393,7 +393,7 @@
   }
 
   &-name {
-    font-weight: $heavy-font-weight;
+    font-weight: var(--heavy-font-weight);
     margin-right: 5px;
   }
 
@@ -444,17 +444,17 @@
         background: #ebebeb;
         border-color: transparent;
         text-align: right;
-        border-radius: $border-radius $border-radius 2px $border-radius;
+        border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
         margin-right: 0; /* set spacing when unfocused */
         &--focused {
-          background: $secondary-faded;
-          border: 1px solid $secondary-color;
+          background: var(--secondary-faded);
+          border: 1px solid var(--secondary-color);
           margin-left: 0;
           margin-right: 0; /* set spacing when focused */
         }
 
         &--has-attachment {
-          border-radius: $border-radius 2px 2px $border-radius;
+          border-radius: var(--border-radius) 2px 2px var(--border-radius);
         }
 
         &--is-emoji {
@@ -494,13 +494,13 @@
   }
 
   &-link {
-    color: $primary-color;
-    font-weight: $heavy-font-weight;
+    color: var(--primary-color);
+    font-weight: var(--heavy-font-weight);
     text-decoration: none;
   }
 
   &-mention {
-    font-weight: $heavy-font-weight;
+    font-weight: var(--heavy-font-weight);
   }
 
   &-url-link {
@@ -524,9 +524,9 @@
     &-inner {
       background: rgba(#fff, 0.1);
       padding: 8px 16px;
-      border-radius: $border-radius;
+      border-radius: var(--border-radius);
       font-size: 12px;
-      color: darken($grey, 30%);
+      color: var(--darken-grey);
     }
   }
 
@@ -537,9 +537,9 @@
       &-inner {
         background: rgba(#fff, 0.1);
         padding: 8px 16px;
-        border-radius: $border-radius;
+        border-radius: var(--border-radius);
         font-size: 12px;
-        color: darken($grey, 30%);
+        color: var(--darken-grey);
       }
     }
   }
@@ -594,7 +594,7 @@
         margin: 1px auto;
         line-height: normal;
         &--title {
-          color: $secondary-color;
+          color: var(--secondary-color);
         }
         &--text {
           display: none;
@@ -623,7 +623,7 @@
 
 .str-chat {
   &__message-simple {
-    font-family: $second-font;
+    font-family: var(--second-font);
     &__actions {
       display: flex;
 
@@ -685,7 +685,7 @@
         text-align: left;
       }
       a {
-        color: $secondary-color;
+        color: var(--secondary-color);
         font-weight: 700;
         text-decoration: none;
       }
@@ -825,7 +825,7 @@
 .str-chat__message-simple {
   .str-chat__message-attachment-card {
     margin: 0;
-    border-radius: 4px $border-radius 4px 4px;
+    border-radius: 4px var(--border-radius) 4px 4px;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
 
@@ -848,16 +848,16 @@
       padding: 0 10px;
     }
     &:first-of-type {
-      border-radius: $border-radius $border-radius 0 0;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
       border-bottom: transparent;
     }
     &:last-of-type {
       border-top-color: transparent;
-      border-radius: 0 0 $border-radius 2px;
+      border-radius: 0 0 var(--border-radius) 2px;
       &:first-of-type {
         border-bottom: 1px solid #ebebeb;
         border-top: 1px solid #ebebeb;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
       }
     }
   }
@@ -866,15 +866,15 @@
   }
   &--me {
     .str-chat__message-attachment-card {
-      border-radius: $border-radius 4px 4px 4px;
+      border-radius: var(--border-radius) 4px 4px 4px;
     }
     .str-chat__message-attachment--file {
       background: #ebebeb;
       &:last-of-type {
-        border-radius: 0 0 2px $border-radius;
+        border-radius: 0 0 2px var(--border-radius);
 
         &:first-of-type {
-          border-radius: $border-radius $border-radius 2px $border-radius;
+          border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
         }
       }
     }
@@ -890,7 +890,7 @@
       .str-chat__message-actions-box {
         right: unset;
         left: 100%;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
       }
     }
   }
@@ -1011,17 +1011,17 @@
       &--reverse {
         right: 100%;
         left: unset;
-        border-radius: $border-radius $border-radius 2px $border-radius;
+        border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
       }
     }
     .str-chat__message-actions-box--mine {
       right: 100%;
       left: unset;
-      border-radius: $border-radius $border-radius 2px $border-radius;
+      border-radius: var(--border-radius) var(--border-radius) 2px var(--border-radius);
       &.str-chat__message-actions-box--reverse {
         left: 100%;
         right: unset;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
       }
     }
   }

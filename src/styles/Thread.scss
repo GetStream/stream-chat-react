@@ -114,7 +114,7 @@
 
     .quoted-message.mine {
       .quoted-message-inner {
-        background: $white;
+        background: var(--white);
       }
     }
   }
@@ -227,7 +227,7 @@
     }
     &.dark {
       .str-chat__thread {
-        background: $dt-bg-team;
+        background: var(--dt-bg-team);
       }
     }
   }
