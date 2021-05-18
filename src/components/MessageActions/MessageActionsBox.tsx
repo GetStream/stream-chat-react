@@ -213,7 +213,7 @@ const UnMemoizedMessageActionsBox = <
 };
 
 /**
- * MessageActionsBox - Allows a user to edit, flag or delete a message.
+ * A popup box that displays the available actions on a message, such edit, delete, pin, etc.
  * @example ./MessageActionsBox.md
  */
 export const MessageActionsBox = React.memo(

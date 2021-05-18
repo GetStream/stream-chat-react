@@ -341,7 +341,7 @@ const UnMemoizedChannelList = <
 };
 
 /**
- * ChannelList - A preview list of Channels, allowing you to select the Channel you want to open.
+ * ChannelList renders a preview list of Channels, allowing you to select the Channel you want to open.
  * @example ./ChannelList.md
  */
 export const ChannelList = React.memo(UnMemoizedChannelList) as typeof UnMemoizedChannelList;
