@@ -1,33 +1,41 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
 import { useMessageListScrollManager } from '../useMessageListScrollManager';
+
+import { ChatProvider } from '../../../../context/ChatContext';
+import { generateUser, getTestClientWithUser } from '../../../../mock-builders';
 
 const generateMessages = (length) =>
   Array.from({ length }, (_, index) => ({ id: index.toString(), userId: '0' }));
 
 const defaultInputs = {
-  currentUserId: () => '2',
-  messageId: (message) => message.id,
   messages: [],
-  messageUserId: (message) => message.userId,
-  onNewMessages: () => {},
-  onScrollToBottom: () => {},
   scrollContainerMeasures: () => ({
     offsetHeight: 200,
     scrollHeight: 2000,
   }),
-  toleranceThreshold: 200,
+  scrolledUpThreshold: 200,
+  scrollToBottom: () => {},
+  showNewMessages: () => {},
 };
 
+const alice = generateUser({ id: 'alice' });
+let client;
+
 describe('useMessageListScrollManager', () => {
+  beforeEach(async () => {
+    client = await getTestClientWithUser(alice);
+  });
   afterEach(cleanup);
+
   it('emits scroll to bottom on mount', () => {
-    const onScrollToBottom = jest.fn();
+    const scrollToBottom = jest.fn();
     const Comp = () => {
       useMessageListScrollManager({
         ...defaultInputs,
-        onScrollToBottom,
+        scrollToBottom,
       });
 
       return <div></div>;
@@ -36,7 +44,7 @@ describe('useMessageListScrollManager', () => {
     const { rerender } = render(<Comp />);
     rerender(<Comp />);
 
-    expect(onScrollToBottom).toHaveBeenCalledTimes(1);
+    expect(scrollToBottom).toHaveBeenCalledTimes(1);
   });
 
   it('emits scrollTop delta when messages are prepended', () => {
@@ -46,10 +54,10 @@ describe('useMessageListScrollManager', () => {
         ...defaultInputs,
         messages: props.messages,
         onScrollBy,
-        onScrollToBottom: () => {},
         scrollContainerMeasures: () => ({
           scrollHeight: props.scrollHeight,
         }),
+        scrollToBottom: () => {},
       });
 
       return <div></div>;
@@ -64,16 +72,16 @@ describe('useMessageListScrollManager', () => {
   });
 
   it('emits scroll to bottom when new messages arrive', () => {
-    const onScrollToBottom = jest.fn();
+    const scrollToBottom = jest.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
-        onScrollToBottom,
         scrollContainerMeasures: () => ({
           offsetHeight: 100,
           scrollHeight: props.scrollHeight,
         }),
+        scrollToBottom,
       });
 
       updateScrollTop(300);
@@ -82,23 +90,27 @@ describe('useMessageListScrollManager', () => {
     };
 
     const messages = generateMessages(20);
-    const { rerender } = render(<Comp messages={messages} scrollHeight={400} />);
+    const { rerender } = render(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} scrollHeight={400} />
+      </ChatProvider>,
+    );
 
     rerender(<Comp messages={messages.concat(generateMessages(10))} scrollHeight={600} />);
 
-    expect(onScrollToBottom).toHaveBeenCalledTimes(2);
+    expect(scrollToBottom).toHaveBeenCalledTimes(2);
   });
 
   it('does not emit scroll to bottom when new messages arrive and user has scrolled up', () => {
-    const onNewMessages = jest.fn();
+    const showNewMessages = jest.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
         messages: props.messages,
-        onNewMessages,
         scrollContainerMeasures: () => ({
           scrollHeight: props.scrollHeight,
         }),
+        showNewMessages,
       });
 
       updateScrollTop(props.scrollTop);
@@ -108,37 +120,43 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />,
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />
+      </ChatProvider>,
     );
 
     // simulate scrolled up
-    rerender(<Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />);
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
+      </ChatProvider>,
+    );
 
     // add new messages
     rerender(
-      <Comp
-        messages={messages.concat(generateMessages(10))}
-        offsetHeight={100}
-        scrollHeight={600}
-        scrollTop={200}
-      />,
+      <ChatProvider value={{ client }}>
+        <Comp
+          messages={messages.concat(generateMessages(10))}
+          offsetHeight={100}
+          scrollHeight={600}
+          scrollTop={200}
+        />
+      </ChatProvider>,
     );
 
-    expect(onNewMessages).toHaveBeenCalledTimes(1);
+    expect(showNewMessages).toHaveBeenCalledTimes(1);
   });
 
   it('emits scroll to bottom when new own message is posted, regardless of scroll position', () => {
-    const onScrollToBottom = jest.fn();
-    const MY_ID = '2';
+    const scrollToBottom = jest.fn();
     const Comp = (props) => {
       const updateScrollTop = useMessageListScrollManager({
         ...defaultInputs,
-        currentUserId: () => MY_ID,
         messages: props.messages,
-        onScrollToBottom,
         scrollContainerMeasures: () => ({
           scrollHeight: props.scrollHeight,
         }),
+        scrollToBottom,
       });
 
       updateScrollTop(props.scrollTop);
@@ -148,22 +166,30 @@ describe('useMessageListScrollManager', () => {
 
     const messages = generateMessages(20);
     const { rerender } = render(
-      <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />,
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={300} />,
+      </ChatProvider>,
     );
 
     // simulate scrolled up
-    rerender(<Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />);
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
+      </ChatProvider>,
+    );
 
     // add new messages
     rerender(
-      <Comp
-        messages={messages.concat([{ id: 100, userId: MY_ID }])}
-        offsetHeight={100}
-        scrollHeight={600}
-        scrollTop={200}
-      />,
+      <ChatProvider value={{ client }}>
+        <Comp
+          messages={messages.concat([{ id: 100, userId: client.userID }])}
+          offsetHeight={100}
+          scrollHeight={600}
+          scrollTop={200}
+        />
+      </ChatProvider>,
     );
 
-    expect(onScrollToBottom).toHaveBeenCalledTimes(2);
+    expect(scrollToBottom).toHaveBeenCalledTimes(1);
   });
 });

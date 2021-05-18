@@ -10,7 +10,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export const ReplyIcon = () => (
   <svg height='15' width='18' xmlns='http://www.w3.org/2000/svg'>

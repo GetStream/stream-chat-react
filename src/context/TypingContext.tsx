@@ -11,7 +11,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
-} from '../../types/types';
+} from '../types/types';
 
 export type TypingContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,

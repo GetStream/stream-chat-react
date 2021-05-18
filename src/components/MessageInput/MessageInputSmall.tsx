@@ -27,7 +27,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export const MessageInputSmall = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

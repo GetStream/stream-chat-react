@@ -13,7 +13,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
-} from '../../types/types';
+} from '../types/types';
 
 export type ChatContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,

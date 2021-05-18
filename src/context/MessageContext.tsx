@@ -22,7 +22,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
-} from '../../types/types';
+} from '../types/types';
 
 export type CustomMessageActions<
   At extends DefaultAttachmentType = DefaultAttachmentType,

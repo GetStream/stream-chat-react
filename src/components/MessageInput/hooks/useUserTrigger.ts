@@ -14,7 +14,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 import type { UserResponse } from 'stream-chat';
 
 export const useUserTrigger = <

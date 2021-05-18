@@ -11,7 +11,7 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { TDateTimeParser } from '../context/TranslationContext';
 
-import type { UnknownType } from '../../types/types';
+import type { UnknownType } from '../types/types';
 
 import {
   enTranslations,

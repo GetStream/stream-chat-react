@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
 
-import type { DefaultAttachmentType, DefaultUserType } from '../../../../types/types';
+import type { DefaultAttachmentType, DefaultUserType } from '../../../types/types';
 
 export const useEmojiPicker = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

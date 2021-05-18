@@ -17,7 +17,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export const DefaultTriggerProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

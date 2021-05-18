@@ -12,6 +12,7 @@ import { MML } from '../MML';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText } from '../../utils';
 
@@ -27,7 +28,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -55,13 +56,9 @@ export type FixedHeightMessageProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   groupedByUser: boolean;
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
-/**
- * FixedHeightMessage - This component renders a single message.
- * It uses fixed height elements to make sure it works well in VirtualizedMessageList
- */
 const UnMemoizedFixedHeightMessage = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -73,9 +70,11 @@ const UnMemoizedFixedHeightMessage = <
 >(
   props: FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { groupedByUser, message } = props;
+  const { groupedByUser, message: propMessage } = props;
 
   const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const { message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
     At,
@@ -87,6 +86,8 @@ const UnMemoizedFixedHeightMessage = <
     Us
   >();
   const { userLanguage } = useTranslationContext();
+
+  const message = propMessage || contextMessage;
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
@@ -162,6 +163,12 @@ const UnMemoizedFixedHeightMessage = <
   );
 };
 
+/**
+ * @deprecated - This UI component will be removed in the next major release.
+ *
+ * FixedHeightMessage - This component renders a single message.
+ * It uses fixed height elements to make sure it works well in VirtualizedMessageList
+ */
 export const FixedHeightMessage = React.memo(
   UnMemoizedFixedHeightMessage,
 ) as typeof UnMemoizedFixedHeightMessage;

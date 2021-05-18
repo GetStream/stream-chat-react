@@ -1,70 +1,98 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 
-export type UseScrollLocationLogicArgs = {
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../types/types';
+
+export type UseScrollLocationLogicParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   currentUserId?: string;
-  messages?: Array<{ id?: string; user?: null | { id?: string } }>;
+  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   scrolledUpThreshold?: number;
 };
 
-export const useScrollLocationLogic = ({
-  currentUserId,
-  messages = [],
-  scrolledUpThreshold = 200,
-}: UseScrollLocationLogicArgs) => {
-  const [wrapperRect, setWrapperRect] = useState<DOMRect>();
+export const useScrollLocationLogic = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  params: UseScrollLocationLogicParams<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { messages = [], scrolledUpThreshold = 200 } = params;
+
   const [hasNewMessages, setHasNewMessages] = useState(false);
-  const closeToTop = useRef(false);
+  const [wrapperRect, setWrapperRect] = useState<DOMRect>();
+
   const closeToBottom = useRef(false);
-  const ref = React.useRef<HTMLDivElement>(null);
+  const closeToTop = useRef(false);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = React.useCallback(() => {
-    if (!ref.current?.scrollTo) return;
+  const scrollToBottom = useCallback(() => {
+    if (!listRef.current?.scrollTo) return;
 
-    ref.current?.scrollTo({
-      top: ref.current.scrollHeight,
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
     });
     setHasNewMessages(false);
 
     // this is hacky and unreliable, but that was the current implementation so not breaking it
     setTimeout(() => {
-      ref.current?.scrollTo({
-        top: ref.current.scrollHeight,
+      listRef.current?.scrollTo({
+        top: listRef.current.scrollHeight,
       });
     }, 200);
-  }, [ref]);
+  }, [listRef]);
 
   useLayoutEffect(() => {
-    if (ref && ref.current) {
-      setWrapperRect(ref.current.getBoundingClientRect());
+    if (listRef?.current) {
+      setWrapperRect(listRef.current.getBoundingClientRect());
       scrollToBottom();
     }
-  }, [ref]);
+  }, [listRef]);
 
-  const updateScrollTop = useMessageListScrollManager<typeof messages[number]>({
-    currentUserId: () => currentUserId,
-    messageId: (message) => message?.id,
+  const updateScrollTop = useMessageListScrollManager({
     messages,
-    messageUserId: (message) => message?.user?.id,
-    onNewMessages: () => setHasNewMessages(true),
-    onScrollBy: (scrollBy) => ref.current?.scrollBy({ top: scrollBy }),
-    onScrollToBottom: scrollToBottom,
+    onScrollBy: (scrollBy) => listRef.current?.scrollBy({ top: scrollBy }),
     scrollContainerMeasures: () => ({
-      offsetHeight: ref.current?.offsetHeight || 0,
-      scrollHeight: ref.current?.scrollHeight || 0,
+      offsetHeight: listRef.current?.offsetHeight || 0,
+      scrollHeight: listRef.current?.scrollHeight || 0,
     }),
-    toleranceThreshold: scrolledUpThreshold,
+    scrolledUpThreshold,
+    scrollToBottom,
+    showNewMessages: () => setHasNewMessages(true),
   });
 
-  const onScroll = React.useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const el = e.target as HTMLDivElement;
-      const scrollTop = el.scrollTop;
+  const onScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      const element = event.target as HTMLDivElement;
+      const scrollTop = element.scrollTop;
+
       updateScrollTop(scrollTop);
 
-      const offsetHeight = el.offsetHeight;
-      const scrollHeight = el.scrollHeight;
+      const offsetHeight = element.offsetHeight;
+      const scrollHeight = element.scrollHeight;
+
       closeToBottom.current = scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
 
@@ -75,9 +103,11 @@ export const useScrollLocationLogic = ({
     [updateScrollTop, closeToTop, closeToBottom, scrolledUpThreshold],
   );
 
-  const onMessageLoadCaptured = React.useCallback(() => {
-    // A load event (emitted by e.g. an <img>) was captured on a message.
-    // In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
+  const onMessageLoadCaptured = useCallback(() => {
+    /**
+     * A load event (emitted by e.g. an <img>) was captured on a message.
+     * In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
+     */
     if (closeToBottom.current && !closeToTop.current) {
       scrollToBottom();
     }
@@ -85,9 +115,9 @@ export const useScrollLocationLogic = ({
 
   return {
     hasNewMessages,
+    listRef,
     onMessageLoadCaptured,
     onScroll,
-    ref,
     scrollToBottom,
     wrapperRect,
   };

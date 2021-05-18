@@ -14,17 +14,12 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 export type TypingIndicatorProps = {
-  /**
-   * Custom UI component to display user avatar.
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   * */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
-  /** Size in pixels
-   * @default 32px
-   */
+  /** Avatar size in pixels, @default 32px */
   avatarSize?: number;
   /** Whether or not the typing indicator is in a thread */
   threadList?: boolean;
@@ -48,28 +43,34 @@ const UnMemoizedTypingIndicator = <
 
   const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { typing } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  if (!typing || !client || channel?.getConfig()?.typing_events === false) {
+  if (channel?.getConfig()?.typing_events === false) {
     return null;
   }
 
-  const typingInChannel = Object.values(typing).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id == null,
-  );
+  const typingInChannel = !threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+      )
+    : [];
 
-  const typingInThread = Object.values(typing).some((event) => event?.parent_id === thread?.id);
+  const typingInThread = threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+      )
+    : [];
 
   return (
     <div
       className={`str-chat__typing-indicator ${
-        (threadList && typingInThread) || (!threadList && typingInChannel.length)
+        (threadList && typingInThread.length) || (!threadList && typingInChannel.length)
           ? 'str-chat__typing-indicator--typing'
           : ''
       }`}
     >
       <div className='str-chat__typing-indicator__avatars'>
-        {typingInChannel.map(({ user }, i) => (
+        {(threadList ? typingInThread : typingInChannel).map(({ user }, i) => (
           <Avatar
             image={user?.image}
             key={`${user?.id}-${i}`}

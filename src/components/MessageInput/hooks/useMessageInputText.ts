@@ -13,7 +13,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export const useMessageInputText = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

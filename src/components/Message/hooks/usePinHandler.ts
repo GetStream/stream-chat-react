@@ -16,7 +16,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export type PinEnabledUserRoles<T extends string = string> = Partial<Record<T, boolean>> & {
   admin?: boolean;

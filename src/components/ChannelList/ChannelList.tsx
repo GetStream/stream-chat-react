@@ -44,7 +44,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../types/types';
+} from '../../types/types';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};

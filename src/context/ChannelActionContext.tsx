@@ -22,7 +22,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
-} from '../../types/types';
+} from '../types/types';
 
 export type MessageAttachments<At extends DefaultAttachmentType = DefaultAttachmentType> = Array<
   Attachment<At> & { file_size?: number; mime_type?: string }

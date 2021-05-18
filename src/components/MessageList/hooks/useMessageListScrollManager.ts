@@ -1,84 +1,117 @@
 import { useEffect, useRef } from 'react';
 
+import { useChatContext } from '../../../context/ChatContext';
+
+import type { StreamMessage } from '../../../context/ChannelStateContext';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../types/types';
+
 export type ContainerMeasures = {
   offsetHeight: number;
   scrollHeight: number;
 };
 
-export type UseMessageListScrollManagerParams<Me> = {
-  currentUserId: () => string | undefined;
-  messageId: (message: Me) => string | undefined;
-  messages: Me[];
-  messageUserId: (message: Me) => string | undefined;
-  onNewMessages: () => void;
+export type UseMessageListScrollManagerParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   onScrollBy: (scrollBy: number) => void;
-  onScrollToBottom: () => void;
   scrollContainerMeasures: () => ContainerMeasures;
-  toleranceThreshold: number;
+  scrolledUpThreshold: number;
+  scrollToBottom: () => void;
+  showNewMessages: () => void;
 };
 
-export function useMessageListScrollManager<Me>(inputs: UseMessageListScrollManagerParams<Me>) {
+export function useMessageListScrollManager<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(params: UseMessageListScrollManagerParams<At, Ch, Co, Ev, Me, Re, Us>) {
+  const {
+    onScrollBy,
+    scrollContainerMeasures,
+    scrolledUpThreshold,
+    scrollToBottom,
+    showNewMessages,
+  } = params;
+
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,
     scrollHeight: 0,
   });
-  const messages = useRef<Me[]>();
+  const messages = useRef<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[]>();
   const scrollTop = useRef(0);
 
-  const {
-    currentUserId,
-    messageId,
-    messageUserId,
-    onNewMessages,
-    onScrollBy,
-    onScrollToBottom,
-    scrollContainerMeasures,
-    toleranceThreshold,
-  } = inputs;
-
   useEffect(() => {
-    onScrollToBottom();
+    scrollToBottom();
   }, []);
 
   useEffect(() => {
-    const prevMessages = messages.current;
     const prevMeasures = measures.current;
-    const newMessages = inputs.messages;
+    const prevMessages = messages.current;
+    const newMessages = params.messages;
     const lastNewMessage = newMessages[newMessages.length - 1];
+    const lastPrevMessage = prevMessages?.[prevMessages.length - 1];
     const newMeasures = scrollContainerMeasures();
+
+    const wasAtBottom =
+      prevMeasures.scrollHeight - prevMeasures.offsetHeight - scrollTop.current <
+      scrolledUpThreshold;
 
     if (typeof prevMessages !== 'undefined') {
       if (prevMessages.length < newMessages.length) {
         // messages added to the top
-        if (messageId(prevMessages[prevMessages.length - 1]) === messageId(lastNewMessage)) {
+        if (lastPrevMessage?.id === lastNewMessage.id) {
           const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
 
           onScrollBy(listHeightDelta);
         }
         // messages added to the bottom
         else {
-          const lastMessageIsFromCurrentUser = messageUserId(lastNewMessage) === currentUserId();
+          const lastMessageIsFromCurrentUser = lastNewMessage.user?.id === client.userID;
 
-          if (lastMessageIsFromCurrentUser) {
-            onScrollToBottom();
+          if (lastMessageIsFromCurrentUser || wasAtBottom) {
+            scrollToBottom();
           } else {
-            const wasAtBottom =
-              prevMeasures.scrollHeight - prevMeasures.offsetHeight - scrollTop.current <
-              toleranceThreshold;
-
-            if (wasAtBottom) {
-              onScrollToBottom();
-            } else {
-              onNewMessages();
-            }
+            showNewMessages();
           }
+        }
+      }
+      // message list length didn't change, but check if last message had reaction/reply update
+      else {
+        const hasNewReactions =
+          lastPrevMessage?.latest_reactions?.length !== lastNewMessage.latest_reactions?.length;
+        const hasNewReplies = lastPrevMessage?.reply_count !== lastNewMessage.reply_count;
+
+        if ((hasNewReactions || hasNewReplies) && wasAtBottom) {
+          scrollToBottom();
         }
       }
     }
 
     messages.current = newMessages;
     measures.current = newMeasures;
-  }, [measures, messages, inputs.messages]);
+  }, [measures, messages, params.messages]);
 
   return (scrollTopValue: number) => {
     scrollTop.current = scrollTopValue;

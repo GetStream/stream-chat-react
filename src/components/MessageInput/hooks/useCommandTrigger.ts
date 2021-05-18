@@ -11,7 +11,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-} from '../../../../types/types';
+} from '../../../types/types';
 
 export const useCommandTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

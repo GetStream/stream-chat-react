@@ -46,7 +46,28 @@ describe('TypingIndicator', () => {
         </ChatProvider>,
       )
       .toJSON();
-    expect(tree).toMatchInlineSnapshot(`null`);
+    expect(tree).toMatchInlineSnapshot(`
+      <div
+        className="str-chat__typing-indicator "
+      >
+        <div
+          className="str-chat__typing-indicator__avatars"
+        />
+        <div
+          className="str-chat__typing-indicator__dots"
+        >
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+          <span
+            className="str-chat__typing-indicator__dot"
+          />
+        </div>
+      </div>
+    `);
   });
 
   it('should render hidden indicator with empty typing', async () => {

@@ -29,7 +29,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
   UnknownType,
-} from '../../../types/types';
+} from '../../types/types';
 
 type ObjectUnion<T> = T[keyof T];
 
