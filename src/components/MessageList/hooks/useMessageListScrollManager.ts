@@ -70,7 +70,7 @@ export function useMessageListScrollManager<
     const prevMeasures = measures.current;
     const prevMessages = messages.current;
     const newMessages = params.messages;
-    const lastNewMessage = newMessages[newMessages.length - 1];
+    const lastNewMessage = newMessages[newMessages.length - 1] || {};
     const lastPrevMessage = prevMessages?.[prevMessages.length - 1];
     const newMeasures = scrollContainerMeasures();
 

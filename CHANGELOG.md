@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.1) 2021-05-19
+
+### Feature
+
+- Expose the `MessageContext` to the `VirtualizedMessageList`'s `Message` UI component [#924](https://github.com/GetStream/stream-chat-react/pull/924)
+
+### Chore
+
+- Reorganize component documentation for v6 [#926](https://github.com/GetStream/stream-chat-react/pull/926)
+
+### Bug
+
+- Prevent crash when navigate away from, and then back to, an empty channel [#931](https://github.com/GetStream/stream-chat-react/pull/931)
+
 ## [6.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.0) 2021-05-17
 
 ### ⚠️ BREAKING CHANGES ⚠️ - Please review our v6 [implementation guide](https://github.com/GetStream/stream-chat-react/wiki) prior to upgrading.
