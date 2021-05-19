@@ -74,6 +74,10 @@ export function useMessageListScrollManager<
     const lastPrevMessage = prevMessages?.[prevMessages.length - 1];
     const newMeasures = scrollContainerMeasures();
 
+    if (!lastNewMessage) {
+      return;
+    }
+
     const wasAtBottom =
       prevMeasures.scrollHeight - prevMeasures.offsetHeight - scrollTop.current <
       scrolledUpThreshold;
