@@ -22,11 +22,6 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-// mock image loader fn used by ImagePreview
-jest.mock('blueimp-load-image/js/load-image-fetch', () =>
-  jest.fn().mockImplementation(() => Promise.resolve()),
-);
-
 let chatClient;
 let channel;
 
