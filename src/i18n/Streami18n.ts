@@ -14,6 +14,7 @@ import type { TDateTimeParser } from '../context/TranslationContext';
 import type { UnknownType } from '../types/types';
 
 import {
+  deTranslations,
   enTranslations,
   esTranslations,
   frTranslations,
@@ -28,14 +29,15 @@ import {
 const defaultNS = 'translation';
 const defaultLng = 'en';
 
-import 'dayjs/locale/nl';
-import 'dayjs/locale/pt';
+import 'dayjs/locale/de';
 import 'dayjs/locale/es';
-import 'dayjs/locale/ru';
-import 'dayjs/locale/tr';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/hi';
 import 'dayjs/locale/it';
+import 'dayjs/locale/nl';
+import 'dayjs/locale/pt';
+import 'dayjs/locale/ru';
+import 'dayjs/locale/tr';
 // These locale imports also set these locale globally.
 // So As a last step I am going to import english locale
 // to make sure I don't mess up language at other places in app.
@@ -43,35 +45,13 @@ import 'dayjs/locale/en';
 
 Dayjs.extend(updateLocale);
 
-Dayjs.updateLocale('nl', {
+Dayjs.updateLocale('de', {
   calendar: {
-    lastDay: '[gisteren om] LT',
-    lastWeek: '[afgelopen] dddd [om] LT',
-    nextDay: '[morgen om] LT',
-    nextWeek: 'dddd [om] LT',
-    sameDay: '[vandaag om] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('it', {
-  calendar: {
-    lastDay: '[Ieri alle] LT',
-    lastWeek: '[lo scorso] dddd [alle] LT',
-    nextDay: '[Domani alle] LT',
-    nextWeek: 'dddd [alle] LT',
-    sameDay: '[Oggi alle] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('pt', {
-  calendar: {
-    lastDay: '[ontem às] LT',
-    lastWeek: '[passado] dddd [para] LT',
-    nextDay: '[amanhã às] LT',
-    nextWeek: 'dddd [para] LT',
-    sameDay: '[hoje às] LT',
+    lastDay: '[gestern um] LT',
+    lastWeek: '[vergangenheit] dddd [beim] LT',
+    nextDay: '[morgen zu] LT',
+    nextWeek: 'dddd [beim] LT',
+    sameDay: '[heute um] LT',
     sameElse: 'L',
   },
 });
@@ -83,6 +63,17 @@ Dayjs.updateLocale('es', {
     nextDay: '[mañana a] LT',
     nextWeek: 'dddd [a] LT',
     sameDay: '[hoy a las] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('fr', {
+  calendar: {
+    lastDay: '[Hier à] LT',
+    lastWeek: 'dddd [dernier à] LT',
+    nextDay: '[Demain à] LT',
+    nextWeek: 'dddd [à] LT',
+    sameDay: '[Aujourd’hui à] LT',
     sameElse: 'L',
   },
 });
@@ -129,14 +120,44 @@ Dayjs.updateLocale('hi', {
   meridiemParse: /रात|सुबह|दोपहर|शाम/,
 });
 
-Dayjs.updateLocale('fr', {
+Dayjs.updateLocale('it', {
   calendar: {
-    lastDay: '[Hier à] LT',
-    lastWeek: 'dddd [dernier à] LT',
-    nextDay: '[Demain à] LT',
-    nextWeek: 'dddd [à] LT',
-    sameDay: '[Aujourd’hui à] LT',
+    lastDay: '[Ieri alle] LT',
+    lastWeek: '[lo scorso] dddd [alle] LT',
+    nextDay: '[Domani alle] LT',
+    nextWeek: 'dddd [alle] LT',
+    sameDay: '[Oggi alle] LT',
     sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('nl', {
+  calendar: {
+    lastDay: '[gisteren om] LT',
+    lastWeek: '[afgelopen] dddd [om] LT',
+    nextDay: '[morgen om] LT',
+    nextWeek: 'dddd [om] LT',
+    sameDay: '[vandaag om] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('pt', {
+  calendar: {
+    lastDay: '[ontem às] LT',
+    lastWeek: '[passado] dddd [para] LT',
+    nextDay: '[amanhã às] LT',
+    nextWeek: 'dddd [para] LT',
+    sameDay: '[hoje às] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('ru', {
+  calendar: {
+    lastDay: '[Вчера, в] LT',
+    nextDay: '[Завтра, в] LT',
+    sameDay: '[Сегодня, в] LT',
   },
 });
 
@@ -148,14 +169,6 @@ Dayjs.updateLocale('tr', {
     nextWeek: '[gelecek] dddd [saat] LT',
     sameDay: '[bugün saat] LT',
     sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('ru', {
-  calendar: {
-    lastDay: '[Вчера, в] LT',
-    nextDay: '[Завтра, в] LT',
-    sameDay: '[Сегодня, в] LT',
   },
 });
 
@@ -204,6 +217,9 @@ type Options = {
  * 5. French (fr)
  * 6. Italian (it)
  * 7. Hindi (hi)
+ * 8. Spanish (es)
+ * 9. Portuguese (pt)
+ * 10. German (de)
  *
  * Simplest way to start using chat components in one of the in-built languages would be following:
  *
@@ -363,6 +379,7 @@ export class Streami18n {
       [key: string]: typeof enTranslations | UnknownType;
     };
   } = {
+    de: { [defaultNS]: deTranslations },
     en: { [defaultNS]: enTranslations },
     es: { [defaultNS]: esTranslations },
     fr: { [defaultNS]: frTranslations },
