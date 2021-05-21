@@ -9,7 +9,9 @@
   "module": "dist/index.js",
   "jsnext:main": "dist/index.js",
   "style": "dist/css/index.css",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "jsdelivr": "./dist/browser.full-bundle.min.js",
   "keywords": [
     "chat",
