@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.2) 2021-05-21
+
+### Feature
+
+- Add German auto translation support [#935](https://github.com/GetStream/stream-chat-react/pull/935)
+
+### Chore
+
+- Upgrade `react-file-utils` dependency for reduced bundle size [#933](https://github.com/GetStream/stream-chat-react/pull/933)
+
+### Bug
+
+- Prevent tree shaking from removing distributed CSS [#936](https://github.com/GetStream/stream-chat-react/pull/936)
+
 ## [6.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.1) 2021-05-19
 
 ### Feature
