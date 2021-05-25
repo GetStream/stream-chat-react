@@ -1,5 +1,18 @@
 # Changelog
 
+## [6.0.4](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.4) 2021-05-25
+
+### Bug
+
+- Add missing `Input` prop to `ComponentContext` value [#941](https://github.com/GetStream/stream-chat-react/pull/941)
+
+## [6.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.3) 2021-05-25
+
+### Chore
+
+- Export browser bundle as `StreamChatReact` namespace [#940](https://github.com/GetStream/stream-chat-react/pull/940)
+- Use asset path scss variable [#939](https://github.com/GetStream/stream-chat-react/pull/939)
+
 ## [6.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.2) 2021-05-21
 
 ### Feature
