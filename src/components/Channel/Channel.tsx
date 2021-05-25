@@ -826,6 +826,7 @@ const ChannelInner = <
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       HeaderComponent: props.HeaderComponent,
+      Input: props.Input,
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,
