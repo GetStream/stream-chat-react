@@ -3,3 +3,108 @@ id: hello_stream_chat_react
 sidebar_position: 2
 title: Hello Stream Chat React
 ---
+
+Here's a high level overview of SDK setup and the core components and how they fit together. It's a great starting point, and you can follow along in your code editor though it's not completely exhaustive in terms setting up a React project or instructions on creating specific files.
+For a step-by-step guide in that sense, see: https://getstream.io/chat/react-chat/tutorial/
+
+## Your first app with Stream Chat React!
+
+Before starting, make sure you have installed `stream-chat-react` (and `stream-chat`) as directed in the 'About' section.
+
+Below is the few lines of JSX code required for a fully functioning chat experience. The `Chat` and `Channel` components are React context providers that pass a variety of values to their children including UI components, channel state data, and messaging functions.
+
+```ts
+const App = () => (
+  <Chat client={chatClient} theme='messaging light'>
+    <Channel channel={channel}>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+Read on for more information on two crucial aspects to SDK setup, the client prop on the `Chat` component and the channel prop on `Channel`.
+
+## Creating a Chat Client
+
+To interact with Stream's chat services, you must get an instance of Stream Chat and for this you will need an api key. To create one you can sign up for a [free 30-day trial](https://getstream.io/chat/trial/). Initialize a chatClient: 
+
+```ts
+import { StreamChat } from 'stream-chat';
+
+const chatClient = StreamChat.getInstance('api_key');
+```
+
+Adding your client via the client prop injects this value into the `ChatContext`, and since `Chat` wraps the entire application, this value is now accessible in all child components via `useChatContext`.
+
+```ts
+const { client } = useChatContext();
+```
+
+## Connecting a User
+
+Tokens are used to authenticate a user. Typically, you send this token from your backend to the client when a user registers or logs in. See the [Tokens & Authentication](https://getstream.io/chat/docs/javascript/tokens_and_authentication/) documentation to
+learn more about creating tokens. For our purposes here, we will assume you have created and retrieved a `userToken`.
+
+To connect a user, the `connectUser` function on your client instance should be called and provided with the user object and `userToken`.
+Connecting a user could be done in the login flow or elsewhere in the application after the client is instantiated.
+
+```ts
+chatClient.connectUser(
+  {
+    id: 'dave-matthews',
+    name: 'Dave Matthews',
+  },
+  userToken,
+);
+```
+
+## Creating a Channel
+
+Channels are at the core of Stream Chat; they are where messages are contained, sent, and interacted with. Let’s initialize a channel to inject into the `Channel` component.
+
+A [channel type](https://getstream.io/chat/docs/react/channel_features/) is required when creating a channel and dictates the features and permissions associated with a given channel.
+There are 5 default types of channels.
+
+- `livestream`
+- `messaging`
+- `team`
+- `gaming`
+- `commerce`
+
+These options provide you with sensible defaults for the named use cases. You can also define custom channel types.
+
+The first two arguments to create a channel via the channel method on our client instance are the channel type and the channel id.
+A channel must be initialized with either an id or a list of members for the channel. If you provide a list of members an id will be auto-generated on backend for the channel.
+
+For the
+
+```ts
+const channel = chatClient.channel('messaging', 'dave-matthews-channel', {
+  // add as many custom fields as you'd like
+  name: 'Creating a Messaging Channel',
+  members: ['dave-matthews'],
+})
+```
+
+## Chat
+
+
+## Channel
+
+## ChannelList
+
+## Window
+
+## ChannelHeader
+
+## MessageList
+
+## Thread
+
+## Summary
