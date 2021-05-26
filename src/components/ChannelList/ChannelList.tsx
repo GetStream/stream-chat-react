@@ -85,7 +85,7 @@ export type ChannelListProps<
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** Object containing query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
-  /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) */
+  /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;

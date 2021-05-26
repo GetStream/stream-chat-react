@@ -1,5 +1,98 @@
 ---
 id: channel_list
-sidebar_position: 3
+sidebar_position: 2
 title: ChannelList
 ---
+
+## Overview
+
+The `ChannelList` component queries an array of `channel` objects from the Stream Chat API and displays as a customizable list
+in the UI. It accepts props for [`filters`](#filters), [`sort`](#sort) and [`options`](#options), which allows you to tailor
+your request to the [Query Channels](https://getstream.io/chat/docs/javascript/query_channels/?language=javascript) API. The
+response array from this API is then rendered in a list and loaded in the DOM.
+
+```jsx
+const channels = await client.queryChannels(filters, sort, options);
+```
+
+The `ChannelList` component also comes pre-built with navigation functionality. The click of a list item sets the active
+`channel` object and loads the [`Channel`](./channel) component.
+
+## Basic Usage
+
+The `ChannelList` does not have any required props, but in order to refine channel query results we recommend providing
+values for [`filters`](#filters), [`sort`](#sort) and [`options`](#options).
+
+```jsx
+const filters = { members: { $in: [ 'jimmy', 'buffet' ] } }
+const sort = { last_message_at: -1 };
+const options = { limit: 10 }
+
+<Chat client={client}>
+  <ChannelList filters={filters} sort={sort} options={options} />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+## UI Customization
+
+`ChannelList` UI is determined by two of its props, `List` and `Preview`. The `List` prop allows you to customize the container
+in which the array of channels is rendered. The `Preview` prop dictates the design and click functionality of an individual
+channel in the list. If not provided via props, these UI components default to
+[`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
+and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
+
+To customize the container and list item UI for your `ChannelList`, provide custom component overrides. Your custom components
+will receive the same props as the defaults.
+
+```jsx
+const CustomListContainer = (props) => {
+  // render custom list container here
+};
+
+const CustomListItem = (props) => {
+  // render custom list item here
+};
+
+<Chat client={client}>
+  <ChannelList List={CustomListContainer} Preview={CustomListItem} />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## Event Listeners
+
+In order to handle the requisite, dynamic nature of the `ChannelList`, the component adds a variety of
+[event listeners](https://getstream.io/chat/docs/javascript/event_listening/?language=javascript) on mount.
+Many of these event listeners accept custom handler functions, allowing you to override the library's default
+event response behavior.
+
+| [Event Type](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) | Default Behavior                                 | Custom Handler                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------- |
+| `channel.deleted`                                                                         | Removes channel from list                        | [onChannelDeleted](#onchanneldeleted)         |
+| `channel.hidden`                                                                          | Removes channel from list                        | [onChannelHidden](#onchannelhidden)           |
+| `channel.truncated`                                                                       | Updates the channel                              | [onChannelTruncated](#onchanneltruncated)     |
+| `channel.updated`                                                                         | Updates the channel                              | [onChannelUpdated](#onchannelupdated)         |
+| `channel.visible`                                                                         | Adds channel to list                             | [onChannelVisible](#onchannelvisible)         |
+| `connection.recovered`                                                                    | Forces a component render                        | N/A                                           |
+| `message.new`                                                                             | Moves channel to top of list                     | N/A                                           |
+| `notification.added_to_channel`                                                           | Moves channel to top of list and starts watching | [onAddedToChannel](#onaddedtochannel)         |
+| `notification.message`                                                                    | Moves channel to top of list and starts watching | [onMessageNew](#onmessagenew)                 |
+| `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](#onremovedfromchannel) |
+| `user.presence.changed`                                                                   | Updates the channel                              | N/A                                           |
+
+## Props
+
+### additionalChannelSearchProps
+
+Additional props to be passed to the underlying [`ChannelSearch`](../utility-components/channel-search.mdx) component.
+
+| Type   |
+| ------ |
+| object |
