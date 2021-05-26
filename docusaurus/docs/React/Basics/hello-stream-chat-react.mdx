@@ -13,9 +13,9 @@ Before starting, make sure you have installed `stream-chat-react` (and `stream-c
 
 Below is the few lines of JSX code required for a fully functioning chat experience. The `Chat` and `Channel` components are React context providers that pass a variety of values to their children including UI components, channel state data, and messaging functions.
 
-```ts
+```jsx
 const App = () => (
-  <Chat client={chatClient} theme='messaging light'>
+  <Chat client={chatClient}>
     <Channel channel={channel}>
       <Window>
         <ChannelHeader />
@@ -28,22 +28,16 @@ const App = () => (
 );
 ```
 
-Read on for more information on two crucial aspects to SDK setup, the client prop on the `Chat` component and the channel prop on `Channel`.
+Read on for more information on two crucial aspects to SDK setup, the required client prop on the `Chat` component and the optional channel prop on `Channel`.
 
 ## Creating a Chat Client
 
 To interact with Stream's chat services, you must get an instance of Stream Chat and for this you will need an api key. To create one you can sign up for a [free 30-day trial](https://getstream.io/chat/trial/). Initialize a chatClient: 
 
-```ts
+```jsx
 import { StreamChat } from 'stream-chat';
 
 const chatClient = StreamChat.getInstance('api_key');
-```
-
-Adding your client via the client prop injects this value into the `ChatContext`, and since `Chat` wraps the entire application, this value is now accessible in all child components via `useChatContext`.
-
-```ts
-const { client } = useChatContext();
 ```
 
 ## Connecting a User
@@ -54,7 +48,7 @@ learn more about creating tokens. For our purposes here, we will assume you have
 To connect a user, the `connectUser` function on your client instance should be called and provided with the user object and `userToken`.
 Connecting a user could be done in the login flow or elsewhere in the application after the client is instantiated.
 
-```ts
+```jsx
 chatClient.connectUser(
   {
     id: 'dave-matthews',
@@ -82,29 +76,79 @@ These options provide you with sensible defaults for the named use cases. You ca
 The first two arguments to create a channel via the channel method on our client instance are the channel type and the channel id.
 A channel must be initialized with either an id or a list of members for the channel. If you provide a list of members an id will be auto-generated on backend for the channel.
 
-For the
-
-```ts
-const channel = chatClient.channel('messaging', 'dave-matthews-channel', {
+```jsx
+const channel = chatClient.channel('messaging', {
   // add as many custom fields as you'd like
   name: 'Creating a Messaging Channel',
   members: ['dave-matthews'],
 })
 ```
 
-## Chat
+or
 
+```jsx
+const channel = chatClient.channel('messaging', 'dave-matthews-channel-id',  {
+  // add as many custom fields as you'd like
+  name: 'Creating a Messaging Channel',
+})
+```
+
+## Chat
+The `Chat` component is a React context provider that wraps the entire application. Its children consume the `ChatContext`, which includes the instance of the Stream Chat client that we initialized above. It's accessible via the provided hook.
+Find more information about the Chat component on the [docs page](../../core-components/chat.mdx).
+
+```ts
+const { client } = useChatContext();
+```
 
 ## Channel
+The Channel component is another React context provider that passes relevant channel data to its children via four separate contexts. Each context must be imported into your project individually.
+
+- `ChannelStateContext`
+- `ChannelActionContext`
+- `ComponentContext`
+- `TypingContext`
+
+Find more information for this component, including a list of props, on the [docs page](../../core-components/channel).
 
 ## ChannelList
+The `ChannelList` component renders a list of channels and provides a preview of each. We've added the `ChannelList` to this core component list here, but you'll notice we didn't actually include it in the initial JSX code snippet at the top of the page.
+The use of this component is optional, and if used then you shouldn't include the channel prop on `Channel` as the `ChannelList` takes care of the necessary functionality. Insert this component into the code like this:
+
+```jsx
+const App = () => (
+    <Chat client={chatClient}>
+        <ChannelList />
+        <Channel>
+            <Window>
+                <ChannelHeader />
+                <MessageList />
+                <MessageInput />
+            </Window>
+            <Thread />
+        </Channel>
+    </Chat>
+);
+```
+
+Find more information for this component, including a list of filtering and sort props (which adjusts the query), on the [docs page](../../core-components/channel-list.mdx).
 
 ## Window
+The `Window' component conditionally displays a `Thread` or `Channel`. It's also possible to display the `Thread` side by side with the `Channel`. See the component [docs page](../../core-components/window.mdx) for more information.
 
 ## ChannelHeader
+The `ChannelHeader` displays pertinent information regarding the currently active channel, including image and title. See the component [docs page](../../utility-components/channel-header.mdx) for more information.
 
 ## MessageList
+The `MessageList` component renders a list of messages and is a consumer of the various contexts from `Channel`. This component accepts a wide variety of optional props for optimal customization.
+See the component [docs page](../../core-components/message-list.mdx) for more information.
 
 ## Thread
+The `Thread` component enables your application to support threaded replies on a parent message. Within this component, you can customize its message list and text input.
+See the component [docs page](../../core-components/thread.mdx) for more information.
+
+## MessageInput
+The `MessageInput` component is an HTML input with additional, built-in functionality like image and video uploads, emoji picker, and command support for giphy and mentioned users.
+See the component [docs page](../../message-components/message-input.mdx) for more information.
 
 ## Summary
