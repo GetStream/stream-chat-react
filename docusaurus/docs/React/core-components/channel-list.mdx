@@ -16,7 +16,7 @@ const channels = await client.queryChannels(filters, sort, options);
 ```
 
 The `ChannelList` component also comes pre-built with navigation functionality. The click of a list item sets the active
-`channel` object and loads the [`Channel`](./channel) component.
+`channel` object and loads the [`Channel`](./channel.mdx) component.
 
 ## Basic Usage
 
@@ -125,9 +125,9 @@ Custom UI component to display the user's avatar.
 Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the
 loading of the `ChannelList`. We recommend using a pure function with array methods like filter/sort/reduce.
 
-| Type     |
-| -------- |
-| function |
+| Type                               |
+| ---------------------------------- |
+| (channels: Channel[]) => Channel[] |
 
 ### ChannelSearch
 

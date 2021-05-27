@@ -277,7 +277,7 @@ export type MessageListProps<
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /** Set to `true` to turn off grouping of messages by user */
+  /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;

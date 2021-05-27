@@ -47,24 +47,30 @@ export type MessageProps<
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
+   * Function that returns the notification text to be displayed when a flag message request fails. This function receives the
+   * flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
    */
   getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /**
-   * Function that returns message/text as string to be shown as notification, when request for flagging a message is successful.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) which is flagged
+   * Function that returns the notification text to be displayed when a flag message request succeeds. This function receives the
+   * flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
    */
   getFlagMessageSuccessNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user runs into error */
+  /**
+   * Function that returns the notification text to be displayed when a mute user request fails. This function receives the
+   * muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+   */
   getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
-  /** Function that returns message/text as string to be shown as notification, when request for muting a user is successful */
+  /**
+   * Function that returns the notification text to be displayed when a mute user request succeeds. This function receives the
+   * muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+   */
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /**
-   * Function that returns message/text as string to be shown as notification, when request for pinning a message runs into error.
-   * This function should accept a [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+   * Function that returns the notification text to be displayed when a pin message request fails. This function receives the
+   * pinned [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
    */
   getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
@@ -75,10 +81,7 @@ export type MessageProps<
   lastReceivedId?: string | null;
   /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
-  /**
-   * Array of allowed actions on message. e.g. ['edit', 'delete', 'flag', 'mute', 'pin', 'react', 'reply'].
-   * If all the actions need to be disabled, empty array or false should be provided as value of prop.
-   * */
+  /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
@@ -94,7 +97,7 @@ export type MessageProps<
   onUserHover?: UserEventHandler<Us>;
   /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
-  /** The user roles allowed to pin Messages in various channel types */
+  /** The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
