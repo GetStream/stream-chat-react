@@ -16,7 +16,8 @@
   }
   &__dots {
     position: relative;
-    background: #ffffff;
+    background: var(--white);
+    //TODO CSS
     border: 1px solid rgba(0, 0, 0, 0.08);
     padding: 5px 10px;
     border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
@@ -46,11 +47,12 @@
   .str-chat__typing-indicator {
     &__avatars {
       .str-chat__avatar {
+        //TODO CSS
         border-color: #282a2d;
       }
     }
     &__dots {
-      background: rgba(white, 0.05);
+      background: rgba(var(--white), 0.05);
     }
   }
 }

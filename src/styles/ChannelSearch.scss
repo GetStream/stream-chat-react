@@ -6,6 +6,7 @@
 
   input {
     flex: 1;
+    //TODO CSS
     background: rgba(0, 0, 0, 0.05);
     border: 1px solid transparent;
     outline: none;
@@ -22,8 +23,9 @@
     }
 
     &:focus {
-      background: white;
+      background: var(--white);
       border: 1px solid var(--secondary-color);
+      //TODO CSS
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
       transition: all 0.2s ease-in-out;
     }
@@ -64,19 +66,23 @@
 
   &-container.popup {
     border-radius: 10px;
-    background: white;
+    background: var(--white);
     left: 300px;
     top: 20px;
+    //TODO CSS
     box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
+    //TODO CSS
     border: 1px solid rgba(0, 0, 0, 0.1);
 
     .str-chat__channel-search-result {
       &:hover {
+        //TODO CSS
         background: #f1f1f3;
       }
     }
 
     .str-chat__channel-search-result.focused {
+      //TODO CSS
       background: #f1f1f3;
     }
   }
@@ -84,17 +90,18 @@
   &-container.inline {
     top: 60px;
     right: 0px;
+    //TODO CSS
     background: #f1f1f3;
     height: calc(100vh - 60px);
 
     .str-chat__channel-search-result {
       &:hover {
-        background: white;
+        background: var(--white);
       }
     }
 
     .str-chat__channel-search-result.focused {
-      background: white;
+      background: var(--white);
     }
   }
 }
@@ -102,8 +109,9 @@
 .dark.str-chat {
   .str-chat__channel-search {
     input {
+      //TODO CSS
       background: rgba(255, 255, 255, 0.04);
-      color: white;
+      color: var(--white);
     }
   }
 }

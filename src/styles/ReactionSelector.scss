@@ -30,7 +30,7 @@
     position: absolute;
     top: 28px;
     font-size: 10px;
-    color: #fff;
+    color: var(--white);
     font-weight: 700;
     left: 6px;
   }
@@ -54,13 +54,14 @@
       bottom: calc(100% + 5px);
       left: 50%;
       transform: translate(-50%, 0);
+      //TODO CSS
       background: rgba(0, 0, 0, 0.81);
       border-radius: 5px;
       background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
       max-width: 237px;
       padding: 4px 8px;
       font-size: 13px;
-      color: white;
+      color: var(--white);
 
       &::after {
         content: '';
@@ -70,12 +71,13 @@
         transform: translate(-50%, 0) rotate(45deg);
         width: 7px;
         height: 7px;
+        //TODO CSS
         background-color: #1a1a1a;
       }
     }
 
     &-not-found {
-      border: 1.5px solid #fff;
+      border: 1.5px solid var(--white);
       border-radius: 50%;
       background-color: var(--primary-color);
       width: inherit;
@@ -83,7 +85,7 @@
     }
 
     img {
-      border: 1.5px solid #fff;
+      border: 1.5px solid var(--white);
       border-radius: 50%;
       object-fit: cover;
       width: inherit;
@@ -103,9 +105,12 @@
   height: 60px;
   position: absolute;
   width: initial;
+  //TODO CSS
   background: rgba(24, 25, 28, 0.98);
   background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.05) 100%);
+  //TODO CSS
   border: 1px solid rgba(224, 224, 224, 0.03);
+  //TODO CSS
   box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
   border-radius: 30px;
   display: flex;
@@ -120,6 +125,7 @@
   &-tooltip {
     position: absolute;
     bottom: calc(100% + 15px);
+    //TODO CSS
     background: rgba(0, 0, 0, 0.81);
     border-radius: 5px;
     background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
@@ -128,7 +134,7 @@
     max-width: 100%;
     padding: 4px 8px;
     font-size: 13px;
-    color: white;
+    color: var(--white);
     text-align: center;
 
     .arrow {
@@ -138,6 +144,7 @@
       transform: translate(-50%, 0) rotate(45deg);
       width: 7px;
       height: 7px;
+      //TODO CSS
       background-color: #1a1a1a;
     }
   }

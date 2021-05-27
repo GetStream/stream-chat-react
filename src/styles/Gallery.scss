@@ -8,7 +8,7 @@
     /* flex: 1; x */
     width: 150px;
     height: 150px;
-    background: white;
+    background: var(--white);
     margin-bottom: 1px;
     margin-right: 1px;
 
@@ -49,7 +49,7 @@
         position: relative;
         width: 150px;
         height: 150px;
-        color: white;
+        color: var(--white);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -70,6 +70,7 @@
           left: 0;
           width: 100%;
           height: 100%;
+          //TODO CSS
           background-color: rgba(0, 0, 0, 0.69);
           z-index: 0;
         }

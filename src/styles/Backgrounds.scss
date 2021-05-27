@@ -1,0 +1,178 @@
+// Background
+// background: none;
+// background: transparent;
+// background: var(--white);
+// background: var(--black);
+// background: var(--secondary-color);
+// background: var(--secondary-faded);
+// background: lightgray;     1
+// background: var(--grey);
+// background: ghostwhite;
+// background: rgba(255, 255, 255, 0.97);
+// background: rgba(255, 255, 255, 0.29);    3
+// background: rgba(var(--black), 0.4);
+// background: rgba(var(--black), 0.1);
+// background: rgba(255, 255, 255, 0.9);      3
+// background: rgba(255, 255, 255, 0.81);
+// background: #f2f3f5;      2
+// background: #f1f1f3;      6
+// background: rgba(0, 0, 0, 0.08);     1
+// background: #004ab3;     1
+// background: rgba(255, 255, 255, 0);
+// background: rgba(0, 0, 0, 0.05);       2
+// background: #ebebeb;      6
+// background: rgba(var(--white), 0.1);      2
+// background: rgba(208, 2, 27, 0.1);      3
+// background: rgba(2, 208, 2, 0.1);
+// background: rgba(var(--white), 0.04);     2
+// background: rgba(0, 0, 0, 0.81);     3
+// background: rgba(24, 25, 28, 0.98);
+// background: rgba(153, 196, 255, 0.1);
+// background-color: #1a1a1a;    2
+// background-color: rgba(0, 0, 0, 0.1);  3
+// background-color: rgba(0, 0, 0, 0.69);
+// background-color: red;
+
+// background-color: lightslategray;
+// background-color: var(--lighten-grey);
+// background-color: var(--primary-color);
+
+// .a {
+//     background: rgba(255, 255, 255, 0.97);
+//   }
+
+//   .b {
+//     background: rgba(255, 255, 255, 0.29);
+//   }
+
+//   .c {
+//     background: rgba(black, 0.4);
+//   }
+
+//   .d {
+//     background: rgba(black, 0.1);
+//   }
+
+//   .e {
+//     background: rgba(255, 255, 255, 0.9);
+//   }
+
+//   .f {
+//     background: rgba(255, 255, 255, 0.81);
+//   }
+
+//   .g {
+//     background: #f2f3f5;
+//   }
+
+//   .h {
+//     background: #f1f1f3;
+//   }
+
+//   .i {
+//     background: rgba(0, 0, 0, 0.08);
+//   }
+
+//   .j {
+//     background: #004ab3;
+//   }
+
+//   .k {
+//     background: rgba(255, 255, 255, 0);
+//   }
+
+//   .l {
+//     background: rgba(0, 0, 0, 0.05);
+//   }
+
+//   .m {
+//     background: #ebebeb;
+//   }
+
+//   .n {
+//     background: rgba(white, 0.1);
+//   }
+
+//   .o {
+//     background: rgba(208, 2, 27, 0.1);
+//   }
+
+//   .p {
+//     background: rgba(2, 208, 2, 0.1);
+//   }
+
+//   .q {
+//     background: rgba(white, 0.04);
+//   }
+
+//   .r {
+//     background: rgba(0, 0, 0, 0.81);
+//   }
+
+//   .s {
+//     background: rgba(24, 25, 28, 0.98);
+//   }
+
+//   .t {
+//     background: rgba(153, 196, 255, 0.1);
+//   }
+//   .u {
+//     background: #1a1a1a;
+//   }
+//   .v {
+//     background: rgba(0, 0, 0, 0.1);
+//   }
+//   .w {
+//     background: rgba(0, 0, 0, 0.69);
+//   }
+//   .x {
+//  //
+//     background: rgba(153, 196, 255, 0.1);
+//   }
+//   .y {
+//  //
+//     background: rgba(153, 196, 255, 0.1);
+//   }
+//   .z {
+//  //
+//     background: rgba(153, 196, 255, 0.1);
+//   }
+
+//  div {
+//     vertical-align:middle;
+//     line-height:200px;
+//     padding:auto;
+//     text-align:center;
+//     height: 200px;
+//     width: 200px;
+//   }
+
+// <div class='container'>
+// <h1>backgrounds</h1>
+//  <div class="a">a</div>
+//  <div class="b">b</div>
+//  <div class="c">c</div>
+//  <div class="d">d</div>
+//  <div class="e">e</div>
+//  <div class="f">f</div>
+//  <div class="k">k</div>
+//  <div class="n">n</div>
+//  <div class="q">q</div>
+//  <div class="t">t</div>
+//  <div class="g">g</div>
+//  <div class="h">h</div>
+//  <div class="i">i</div>
+//  <div class="l">l</div>
+//  <div class="m">m</div>
+//  <div class="o">o</div>
+//  <div class="v">v</div>
+//  <div class="p">p</div>
+//  <div class="j">j</div>
+//  <div class="w">w</div>
+//  <div class="r">r</div>
+//  <div class="s">s</div>
+//  <div class="u">u</div>
+//  <div class="x">x</div>
+//  <div class="y">y</div>
+//  <div class="z">z</div>
+// </div>

@@ -14,12 +14,12 @@
 
 /* border radius for attachments */
 .str-chat__message .str-chat__player-wrapper .react-player {
-  border-radius: 16px 16px 16px 0;
+  border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
   overflow: hidden;
 }
 
 .str-chat__message--me .str-chat__player-wrapper .react-player {
-  border-radius: 16px 16px 0 16px;
+  border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
   overflow: hidden;
 }
 
@@ -27,7 +27,7 @@
   &-attachment {
     width: 100%;
     max-width: 375px;
-    border-radius: 16px;
+    border-radius: var(--border-radius);
     margin: 8px auto 8px 0;
     padding: 0;
   }
@@ -81,7 +81,7 @@
       padding-left: 5px;
 
       &:hover {
-        background: #f7f7f7;
+        background: var(--white);
       }
 
       img,
@@ -97,8 +97,8 @@
       }
 
       a {
-        font-weight: 700;
-        color: rgb(0, 0, 0);
+        font-weight: var(--heavy-font-weight);
+        color: var(--black);
         opacity: 0.8;
 
         text-decoration: none;
@@ -123,7 +123,7 @@
         font-weight: bold;
         text-transform: uppercase;
         display: block;
-        color: rgb(0, 0, 0);
+        color: var(--black);
         opacity: 0.5;
       }
     }
@@ -197,6 +197,7 @@
         max-width: 100%;
         .str-chat__message-attachment-file--item {
           border-left: none;
+          //TODO CSS
           &:hover {
             background: rgba(255, 255, 255, 0.29);
           }
@@ -209,7 +210,7 @@
       &__message-attachment-file--item {
         a,
         span {
-          color: white;
+          color: var(--white);
         }
         &:hover {
           background: transparent;

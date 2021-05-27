@@ -5,6 +5,7 @@
   padding: 4px 4px 2px 4px;
   display: inline-flex;
   margin: 8px 0 0 0;
+  //TODO CSS
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   line-height: 1;
@@ -15,19 +16,16 @@
     bottom: calc(100% + 10px);
     left: 50%;
     transform: translate(-50%, 0);
+    //TODO CSS
     background: rgba(0, 0, 0, 0.81);
     border-radius: 5px;
-    background-image: linear-gradient(
-      -180deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.5) 100%
-    );
+    background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
     min-height: 24px;
     width: auto;
     max-width: 275px;
     padding: 4px 8px;
     font-size: 13px;
-    color: white;
+    color: var(--white);
     text-align: center;
 
     > .arrow {
@@ -39,6 +37,7 @@
       height: 0;
       border-left: 4px solid transparent;
       border-right: 4px solid transparent;
+      //TODO CSS
       border-top: 4px solid rgba(0, 0, 0, 0.81);
     }
   }
@@ -69,11 +68,12 @@
 
 .dark.str-chat {
   .str-chat__simple-reactions-list {
+    //TODO CSS
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     &-item {
       &--last-number {
-        color: #fff;
+        color: var(--white);
       }
     }
   }

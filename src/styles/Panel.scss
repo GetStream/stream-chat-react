@@ -3,8 +3,10 @@
   bottom: calc(100%);
   left: 10px;
   width: calc(100% - 20px);
+  //TODO CSS
   background: var(--grey);
   border-radius: 4px 4px 0 0;
+  //TODO CSS
   box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
   z-index: 11;
 
@@ -16,6 +18,7 @@
     &-item {
       display: flex;
       align-items: center;
+      //TODO CSS
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
       label {
@@ -32,10 +35,12 @@
         &:focus {
           outline: 0;
           border-color: var(--secondary-color);
+          //TODO CSS
           box-shadow: inset 0 0 0 2px rgba(0, 108, 255, 0.36);
         }
 
         &:hover {
+          //TODO CSS
           background-color: var(--lighten-grey);
         }
       }

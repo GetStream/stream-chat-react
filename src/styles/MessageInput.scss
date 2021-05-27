@@ -1,5 +1,6 @@
 .str-chat__input {
-  background: #fff;
+  background: var(--white);
+  //TODO CSS
   box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.05), 0 -1px 0 0 rgba(0, 0, 0, 0.07);
   display: flex;
   flex-wrap: wrap;
@@ -53,9 +54,11 @@
     align-items: center;
     justify-content: center;
     background-size: 44px 44px;
+    //TODO CSS
     fill: rgba(0, 0, 0, 0.6);
 
     &:hover {
+      //TODO CSS
       fill: rgba(0, 0, 0, 1);
     }
   }
@@ -97,7 +100,8 @@
     width: 100%;
     outline: none;
     padding: 11px;
-    background: #fff;
+    background: var(--white);
+    //TODO CSS
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     font-size: 15px;
@@ -106,12 +110,14 @@
     resize: none;
 
     &:focus {
-      background: #fff;
+      background: var(--white);
       border: 1px solid var(--secondary-color);
+      //TODO CSS
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
     }
 
     &:placeholder {
+      //TODO CSS
       color: rgba(0, 0, 0, 0.5);
     }
   }
@@ -122,7 +128,9 @@
   left: 0;
   width: calc(100% - 20px);
   position: absolute;
+  //TODO CSS
   background: rgba(240, 240, 240, 0.95);
+  //TODO CSS
   box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
   z-index: -1;
   border-radius: 4px 4px 0 0;
@@ -140,29 +148,35 @@
 
 .dark.str-chat {
   .str-chat__emojisearch {
+    //TODO CSS
     background: #35373a;
+    //TODO CSS
     box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
+    //TODO CSS
     border-radius: 4px 4px 0 0;
     .rta__list-header {
+      //TODO CSS
       background: #1b1d20;
+      //TODO CSS
       border: 1px solid rgba(224, 224, 224, 0.03);
+      //TODO CSS
       box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-      color: white;
+      color: var(--white);
     }
     .rta__entity {
-      color: white;
+      color: var(--white);
     }
   }
   .rfu-file-previewer__file {
     a {
-      color: white;
+      color: var(--white);
     }
     &:hover {
       background: transparent;
     }
   }
   .rfu-file-previewer__close-button {
-    color: white;
+    color: var(--white);
   }
 }
 
@@ -238,11 +252,12 @@
   }
 
   .rfu-dropzone--accept .rfu-dropzone__notifier {
-    background: rgba(#006cff, 0.7);
+    background: rgba(var(--secondary-color), 0.7);
     display: block;
   }
 
   .rfu-dropzone--reject .rfu-dropzone__notifier {
+    //TODO CSS
     background: rgba(red, 0.7);
     display: block;
   }
@@ -259,7 +274,8 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  color: white;
+  color: var(--white);
+  //TODO CSS
   font-weight: 800;
   font-size: 12px;
   svg {
@@ -290,20 +306,24 @@
       &__input {
         position: relative;
         z-index: 1;
+        //TODO CSS
         background: rgba(255, 255, 255, 0.29);
+        //TODO CSS
         box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.1);
         padding: 10px 20px 5px;
 
         textarea {
           border-radius: 2px;
+          //TODO CSS
           background: rgba(255, 255, 255, 0.26);
+          //TODO CSS
           border: 1px solid rgba(0, 0, 0, 0.2);
           font-size: 13px;
           padding: 12px;
         }
         &-footer {
           padding: 0 20px 10px;
-
+          //TODO CSS
           background: rgba(255, 255, 255, 0.29);
         }
       }
@@ -318,30 +338,36 @@
 }
 
 .rfu-file-upload-button svg {
+  //TODO CSS
   fill: rgba(0, 0, 0, 0.6);
 }
 
 .dark.str-chat {
   .str-chat__input {
+    //TODO CSS
     background: rgba(255, 255, 255, 0.03);
+    //TODO CSS
     box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.34);
     &-footer {
+      //TODO CSS
       background: rgba(255, 255, 255, 0.03);
     }
     textarea {
+      //TODO CSS
       background: rgba(0, 0, 0, 0.1);
+      //TODO CSS
       border: 1px solid rgba(0, 0, 0, 0.4);
       border-radius: 2px;
-      color: white;
+      color: var(--white);
     }
     .str-chat__input-emojiselect {
       svg {
-        fill: white;
+        fill: var(--white);
       }
     }
     .rfu-file-upload-button {
       svg {
-        fill: white;
+        fill: var(--white);
       }
     }
   }

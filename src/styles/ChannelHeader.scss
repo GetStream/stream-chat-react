@@ -1,6 +1,7 @@
 .str-chat__header {
   display: flex;
   padding: 10px;
+  //TODO CSS
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
   &-thread {
@@ -9,7 +10,8 @@
     min-height: 70px;
     align-items: center;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #fff;
+    background: var(--white);
+    //TODO CSS
     box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07);
     font-size: 14px;
 
@@ -27,20 +29,22 @@
     display: flex;
     align-items: center;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #fff;
+    background: var(--white);
 
-    /* box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07); */
+    //TODO CSS
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
 
     &-left {
       font-size: 14px;
 
       &--title {
+        //TODO CSS
         font-weight: 700;
         margin: 0;
       }
 
       &--members {
+        //TODO CSS
         font-weight: 400;
         margin: 0;
       }
@@ -50,6 +54,7 @@
         left: 5px;
         font-size: 13px;
         text-transform: uppercase;
+        //TODO CSS
         color: red;
         display: inline-block;
         animation: pulse 2s infinite;
@@ -63,6 +68,7 @@
           width: 5px;
           height: 5px;
           border-radius: 100%;
+          //TODO CSS
           background-color: red;
         }
 
@@ -99,10 +105,8 @@
   margin: 0 16px 0 0;
 }
 
-.str-chat__image {
-}
-
 .str-chat__title {
+  //TODO CSS
   font-weight: 600;
 }
 
@@ -118,6 +122,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+  //TODO CSS
   color: rgba(0, 0, 0, 0.4);
 }
 
@@ -130,19 +135,24 @@
   align-items: center;
   justify-content: center;
   svg {
+    //TODO CSS
     fill: rgba(0, 0, 0, 0.8);
   }
   &:active {
+    //TODO CSS
     background-color: rgba(0, 0, 0, 0.1);
   }
 }
 
 .dark.str-chat {
   .str-chat__square-button {
+    //TODO CSS
     background: rgba(255, 255, 255, 0.07);
+    //TODO CSS
     box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.69);
     border-radius: 3px;
     svg {
+      //TODO CSS
       fill: rgba(255, 255, 255, 0.7);
     }
   }
@@ -155,8 +165,9 @@
         position: relative;
         z-index: 1;
         border-radius: 10px 10px 0 0;
+        //TODO CSS
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: none;
+        //TODO CSS
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
       }
       @media screen and (max-width: 960px) {
@@ -168,10 +179,12 @@
     }
     &.dark {
       .str-chat__header-livestream {
+        //TODO CSS
         background: rgba(46, 48, 51, 0.98);
+        //TODO CSS
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
         border-radius: 10px 10px 0 0;
-        color: white;
+        color: var(--white);
       }
     }
   }
@@ -183,18 +196,22 @@
       &__header-livestream {
         position: relative;
         z-index: 1;
+        //TODO CSS
         background: rgba(255, 255, 255, 0.29);
+        //TODO CSS
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
       }
     }
     &.dark {
       .str-chat__header-livestream {
+        //TODO CSS
         background: rgba(255, 255, 255, 0.03);
+        //TODO CSS
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
         &-left {
           &--title,
           &--members {
-            color: white;
+            color: var(--white);
           }
           &--title {
             font-size: 15px;
@@ -209,7 +226,9 @@
   &.str-chat {
     .str-chat {
       &__header-livestream {
+        //TODO CSS
         background: rgba(255, 255, 255, 0.81);
+        //TODO CSS
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
         border-radius: 10px 10px 0 0;
         padding: 25px;
@@ -239,10 +258,12 @@
     }
     &.dark {
       .str-chat__header-livestream {
+        //TODO CSS
         background: rgba(44, 47, 51, 0.81);
+        //TODO CSS
         box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
         border-radius: 10px 10px 0 0;
-        color: rgba(#ffffff, 1);
+        color: rgba(var(--white), 1);
       }
     }
   }
@@ -252,10 +273,12 @@
   &.str-chat {
     &.dark {
       .str-chat__header-livestream {
+        //TODO CSS
         background: rgba(38, 40, 43, 0.9);
+        //TODO CSS
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.26);
         &-left {
-          color: white;
+          color: var(--white);
           &--title {
             font-size: 18px;
           }

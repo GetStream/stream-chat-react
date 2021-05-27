@@ -39,7 +39,7 @@
 
   &__main {
     min-width: 230px;
-    background: #f1f1f3;
+    background: var(--white);
   }
 
   &__header {
@@ -47,15 +47,17 @@
     max-height: 70px;
     display: flex;
     align-items: center;
+    //TODO CSS
     background: rgba(255, 255, 255, 0.01);
+    //TODO CSS
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
     font-size: 14px;
-    color: #000;
+    color: var(--black);
     letter-spacing: 0;
     position: relative;
 
     &--title {
-      font-weight: 700;
+      font-weight: var(--heavy-font-weight);
       text-transform: capitalize;
     }
 
@@ -74,14 +76,17 @@
       }
 
       &.watcher_count::before {
+        //TODO CSS
         background: #28ca42;
       }
 
       &.busy::before {
+        //TODO CSS
         background: #28ca42;
       }
 
       &.away::before {
+        //TODO CSS
         background: #28ca42;
       }
     }
@@ -129,11 +134,11 @@
 
     &__header {
       &--title {
-        color: white;
+        color: var(--white);
       }
     }
     &__sidebar {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(var(--black), 0.2);
     }
     &__main {
       background: none;

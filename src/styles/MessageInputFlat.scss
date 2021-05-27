@@ -1,11 +1,12 @@
 .str-chat__input-flat {
-  background: white;
+  background: var(--white);
   padding: 10px 40px;
   position: relative;
   z-index: 1;
   width: 100%;
 
   &-quoted {
+    //TODO CSS
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 
     .quoted-message-preview {
@@ -32,6 +33,7 @@
       &-content {
         display: flex;
         align-items: flex-end;
+        //TODO CSS
         background: #ebebeb;
         border-radius: 8px 8px 8px 0;
         max-width: 60%;
@@ -90,6 +92,7 @@
   }
   .str-chat__textarea > textarea {
     min-height: 56px;
+    //TODO CSS
     background: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 20px 69px;
@@ -100,13 +103,14 @@
     &:focus {
       border: none;
       border-radius: 8px;
+      //TODO CSS
       box-shadow: 0 0 0 3px rgba(0, 108, 255, 1);
     }
   }
 
   &-footer {
     padding: 10px 40px;
-    background: white;
+    background: var(--white);
   }
 
   &-emojiselect {
@@ -114,7 +118,7 @@
     top: calc(100% - 45px);
     left: 25px;
     svg {
-      fill: #000;
+      fill: var(--black);
       opacity: 0.5;
       &:hover {
         opacity: 1;
@@ -167,7 +171,7 @@
     right: 25px;
 
     svg {
-      fill: #000;
+      fill: var(--black);
       opacity: 0.5;
       &:hover {
         opacity: 1;
@@ -212,16 +216,17 @@
 
 .dark.str-chat {
   .str-chat__input-flat {
-    background: rgba(white, 0.04);
+    background: rgba(var(--white), 0.04);
     textarea {
+      //TODO CSS
       background: rgba(255, 255, 255, 0.05);
       border-radius: 10px;
-      color: white;
+      color: var(--white);
     }
     &-emojiselect,
     .rfu-file-upload-button {
       svg {
-        fill: #fff;
+        fill: var(--white);
       }
     }
   }

@@ -3,10 +3,10 @@
   right: 0;
   bottom: calc(100% + 10px);
   display: flex;
-  background: #000;
+  background: var(--black);
   border-radius: 4px;
   padding: 3px 7px;
-  color: white;
+  color: var(--white);
   font-size: 11px;
   max-width: 300px;
 
@@ -14,14 +14,14 @@
     outline: none;
     outline: 0;
     background: none;
-    color: #006cff;
+    color: var(--secondary-color);
     font-size: 11px;
     font-family: var(--second-font);
     border: none;
   }
 
   a {
-    color: #006cff;
+    color: var(--secondary-color);
     text-decoration: none;
   }
 
@@ -32,7 +32,7 @@
     right: 5px;
     width: 5px;
     height: 5px;
-    background: #000;
+    background: var(--black);
     transform: rotate(45deg);
   }
 }

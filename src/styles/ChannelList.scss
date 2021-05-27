@@ -3,7 +3,9 @@
   flex: 1;
   overflow-y: auto;
   max-width: 300px;
+  //TODO CSS
   background: #f2f3f5;
+  //TODO CSS
   box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.07);
   display: flex;
   flex-direction: column;
@@ -14,16 +16,18 @@
 
   .channel_preview {
     padding: 8px 16px;
+    //TODO CSS
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
 }
 
 .str-chat__button {
-  background: #fff;
+  background: var(--white);
+  //TODO CSS
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
   font-size: 14px;
   padding: 14px 70px;
-  color: #006cff;
+  color: var(--secondary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,6 +38,7 @@
   &:active,
   &:focus {
     outline: none;
+    //TODO CSS
     box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09),
       0 0 0 2px rgba(0, 108, 255, 0.36);
     border: 1px solid var(--secondary-color);
@@ -58,9 +63,10 @@
 .str-chat-channel-list-burger {
   width: 10px;
   height: 50px;
-  background: white;
+  background: var(--white);
   border-radius: 0 4px 4px 0;
   padding: 3px;
+  //TODO CSS
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.09);
   position: fixed;
   top: 10px;
@@ -73,6 +79,7 @@
     width: 4px;
     height: 100%;
     border-radius: 3px;
+    //TODO CSS
     background: rgba(0, 0, 0, 0.08);
   }
   // display: none;
@@ -93,6 +100,7 @@
       z-index: 1001;
       min-height: 100vh;
       overflow-y: auto;
+      //TODO CSS
       box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
       transition: left 200ms ease-in-out;
     }

@@ -11,6 +11,7 @@
   cursor: pointer;
 
   svg {
+    //TODO CSS
     fill: rgba(0, 0, 0, 0.1);
     margin-right: 5px;
   }
@@ -19,12 +20,14 @@
 .dark.str-chat {
   .str-chat__message-replies-count-button {
     svg {
+      //TODO CSS
       fill: rgba(255, 255, 255, 0.1);
     }
   }
   &.team {
     .str-chat__message-replies-count-button {
       svg {
+        //TODO CSS
         fill: rgba(0, 0, 0, 0.4);
       }
     }

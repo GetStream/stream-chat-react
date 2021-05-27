@@ -1,5 +1,5 @@
 .str-chat__modal {
-  background: black;
+  background: var(--black);
   position: fixed;
   top: 0;
   left: 0;
@@ -16,7 +16,7 @@
 
   &__inner {
     max-width: 667px;
-    background: white;
+    background: var(--white);
     padding: 20px;
     border-radius: 10px;
   }
@@ -28,7 +28,7 @@
     padding: 20px;
     font-size: 14px;
     line-height: 10px;
-    color: white;
+    color: var(--white);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -36,7 +36,7 @@
       position: relative;
       top: 1px;
       margin-left: 10px;
-      fill: white;
+      fill: var(--white);
     }
     &:hover {
       opacity: 0.79;
@@ -58,8 +58,8 @@
 .str-chat.dark.messaging {
   .str-chat__modal {
     &__inner {
-      border: 2px solid white;
-      background: black;
+      border: 2px solid var(--white);
+      background: var(--black);
     }
   }
 }

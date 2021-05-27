@@ -3,7 +3,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  padding: 0 0 0 0;
+  padding: 0;
 
   .str-chat__reverse-infinite-scroll {
     padding-top: 75px;
@@ -42,21 +42,30 @@
   text-align: center;
 
   &.notification-success {
+    //TODO CSS
     background: rgba(2, 208, 2, 0.1);
+    //TODO CSS
     border: 1px solid rgba(2, 208, 2, 0.1);
+    //TODO CSS
     color: green;
   }
 
   &.notification-error {
+    //TODO CSS
     background: rgba(208, 2, 27, 0.1);
+    //TODO CSS
     border: 1px solid rgba(208, 2, 27, 0.1);
+    //TODO CSS
     color: #f00;
   }
 }
 
 .str-chat__connection-issue {
+  //TODO CSS
   background: rgba(208, 2, 27, 0.1);
+  //TODO CSS
   border: 1px solid rgba(208, 2, 27, 0.1);
+  //TODO CSS
   color: #f00;
   border-radius: 4px;
   font-size: 12px;
@@ -78,12 +87,12 @@
     .str-chat {
       &__list {
         padding: 0 40px 0;
-        background: white;
+        background: var(--white);
         .str-chat__reverse-infinite-scroll {
           padding-top: 55px;
         }
         &-notifications {
-          background: white;
+          background: var(--white);
         }
       }
     }
@@ -102,9 +111,9 @@
     }
     &.dark {
       .str-chat__list {
-        background: rgba(white, 0.04);
+        background: rgba(var(--white), 0.04);
         &-notifications {
-          background: rgba(white, 0.04);
+          background: rgba(var(--white), 0.04);
         }
       }
     }
@@ -147,7 +156,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  background: white;
+  background: var(--white);
   margin: 0;
   width: 100%;
   height: 100%;
@@ -168,5 +177,6 @@
 }
 
 .dark .str-chat__virtual-list {
+  //TODO CSS
   background: rgba(255, 255, 255, 0.04);
 }

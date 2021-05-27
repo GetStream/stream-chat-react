@@ -167,15 +167,15 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   }
   .emoji-mart-category-label span {
     background: lighten(#1a1a1a, 2%);
-    color: white;
+    color: var(--white);
   }
   .emoji-mart-search {
     input {
       background: lighten(#1a1a1a, 2%);
-      color: white;
+      color: var(--white);
     }
     button svg {
-      fill: white;
+      fill: var(--white);
     }
   }
 }

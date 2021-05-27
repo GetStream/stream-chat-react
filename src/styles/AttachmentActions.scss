@@ -17,6 +17,7 @@
 
     &:focus {
       border: 1px solid var(--secondary-color);
+      //TODO CSS
       box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
     }
 
@@ -34,9 +35,9 @@
 .dark.str-chat {
   .str-chat__message-attachment-actions {
     &-button {
-      color: white;
+      color: var(--white);
       &--default {
-        border-color: rgba(white, 0.1);
+        border-color: rgba(var(--white), 0.1);
       }
     }
   }

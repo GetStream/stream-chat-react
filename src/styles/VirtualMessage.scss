@@ -5,6 +5,7 @@
   position: relative;
 
   &:hover {
+    //TODO CSS
     background: ghostwhite;
   }
   & > .str-chat__avatar {
@@ -19,6 +20,7 @@
   }
 
   .str-chat__avatar-fallback {
+    //TODO CSS
     background-color: lightslategray;
   }
 }
@@ -75,7 +77,7 @@
   position: relative;
   cursor: pointer;
   svg {
-    fill: #000;
+    fill: var(--black);
     opacity: 0.5;
   }
   &:hover {
@@ -116,7 +118,7 @@
   a {
     color: var(--secondary-color);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: var(--heavy-font-weight);
   }
 }
 
@@ -143,13 +145,15 @@
 .dark {
   .str-chat__virtual-message__wrapper {
     &:hover {
+      //TODO CSS
       background: rgba(0, 0, 0, 0.15);
     }
   }
   .str-chat__virtual-message__text {
+    //TODO CSS
     color: ghostwhite;
   }
   .str-chat__virtual-message__date {
-    color: white;
+    color: var(--white);
   }
 }

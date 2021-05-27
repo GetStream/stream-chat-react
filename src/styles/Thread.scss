@@ -1,9 +1,11 @@
 .str-chat__thread {
+  //TODO CSS
   background: #f1f1f3;
   flex: 1 0 300px;
   min-width: 300px;
   max-width: 300px;
   overflow-y: hidden;
+  //TODO CSS
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   overflow: hidden;
   max-height: 100%;
@@ -18,7 +20,9 @@
   &-header {
     position: relative;
     width: 100%;
+    //TODO CSS
     background: #f1f1f3;
+    //TODO CSS
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
     height: 70px;
     top: 0;
@@ -41,6 +45,7 @@
     border-radius: 4px;
     margin: 10px 10px 0 10px;
     padding: 8px;
+    //TODO CSS
     background: rgba(153, 196, 255, 0.1);
     text-align: center;
     font-size: 12px;
@@ -65,6 +70,7 @@
 
     .str-chat__message-attachment.str-chat__message-attachment--file {
       border-radius: 8px;
+      //TODO CSS
       border-bottom: 1px solid #ebebeb;
     }
 
@@ -77,6 +83,7 @@
         display: flex;
         text-align: start;
         align-items: flex-end;
+        //TODO CSS
         background: #ebebeb;
         border-radius: 8px 8px 8px 0;
         max-width: 408px;
@@ -129,7 +136,8 @@
         border-radius: 8px 8px 0 0;
 
         overflow: hidden;
-        background: white;
+        //TODO CSS
+        background: var(--white);
         max-height: 100%;
         display: flex;
         flex-direction: column;
@@ -162,7 +170,7 @@
       &__thread-header {
         border: none;
         box-shadow: none;
-        background: white;
+        background: var(--white);
       }
       &__thread-start {
         margin-top: 20px;
@@ -173,7 +181,7 @@
           top: 0;
           right: 0;
           height: 100vh;
-          background: white;
+          background: var(--white);
           z-index: 1000;
           margin: 0;
           width: 100vw;
@@ -183,18 +191,21 @@
     }
     &.dark {
       .str-chat__thread {
-        background: rgba(white, 0.04);
+        background: rgba(var(--white), 0.04);
         &-header {
+          //TODO CSS
           background: rgba(46, 48, 51, 0.98);
+          //TODO CSS
           box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
-          color: white;
+          color: var(--white);
         }
         &-start {
-          color: white;
+          color: var(--white);
         }
       }
       @media screen and (max-width: 960px) {
         .str-chat__thread {
+          //TODO CSS
           background: #282a2d;
         }
       }
@@ -206,7 +217,7 @@
   &.str-chat {
     .str-chat {
       &__thread {
-        background: white;
+        background: var(--white);
       }
       @media screen and (max-width: 960px) {
         &__thread {
@@ -214,7 +225,7 @@
           top: 0;
           right: 0;
           height: 100vh;
-          background: white;
+          background: var(--white);
           z-index: 1000;
           margin: 0;
           width: 100vw;
@@ -238,6 +249,7 @@
   .str-chat__thread {
     background: transparent;
     &-header {
+      //TODO CSS
       background: rgba(255, 255, 255, 0.29);
     }
   }
@@ -246,16 +258,20 @@
   }
   &.dark {
     .str-chat__thread {
+      //TODO CSS
       background: #1a1a1a;
       &-header {
+        //TODO CSS
         background: rgba(255, 255, 255, 0.03);
+        //TODO CSS
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
-        color: white;
+        color: var(--white);
       }
       &-start {
+        //TODO CSS
         background: rgba(153, 196, 255, 0.1);
         border-radius: 4px;
-        color: white;
+        color: var(--white);
       }
     }
   }

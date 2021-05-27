@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
 import { useChat } from './hooks/useChat';
+import { useCustomStyles } from './hooks/useCustomStyles';
 
 import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
@@ -41,6 +42,8 @@ export type ChatProps<
 > = {
   /** The StreamChat client object */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  /** CSS variables object */
+  customStyles?: Record<string, unknown>;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
@@ -127,6 +130,7 @@ export const Chat = <
   const {
     children,
     client,
+    customStyles,
     i18nInstance,
     initialNavOpen = true,
     theme = 'messaging light',
@@ -142,6 +146,8 @@ export const Chat = <
     setActiveChannel,
     translators,
   } = useChat({ client, i18nInstance, initialNavOpen });
+
+  useCustomStyles(customStyles);
 
   if (!translators.t) return null;
 
