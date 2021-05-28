@@ -1,8 +1,10 @@
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { CommandItem } from '../../CommandItem/CommandItem';
+
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import type { CommandResponse } from 'stream-chat';
 
-import type { CommandTriggerSetting } from '../../ChatAutoComplete';
+import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,

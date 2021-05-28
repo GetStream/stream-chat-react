@@ -20,7 +20,10 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingI
 import { FixedHeightMessage, FixedHeightMessageProps } from '../Message/FixedHeightMessage';
 import { Message } from '../Message/Message';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
+import {
+  ChannelActionContextValue,
+  useChannelActionContext,
+} from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -53,7 +56,6 @@ type VirtualizedMessageListWithContextProps<
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   hasMore: boolean;
   loadingMore: boolean;
-  loadMore: (messageLimit: number) => Promise<number>;
 };
 
 const VirtualizedMessageListWithContext = <
@@ -300,6 +302,8 @@ export type VirtualizedMessageListProps<
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
+  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  loadMore?: ChannelActionContextValue['loadMore'];
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set the limit to use when paginating messages */

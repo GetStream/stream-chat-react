@@ -1,7 +1,8 @@
+import { EmoticonItem } from '../../EmoticonItem/EmoticonItem';
+
 import type { NimbleEmojiIndex } from 'emoji-mart';
 
-import { EmoticonItem } from '../../EmoticonItem/EmoticonItem';
-import type { EmojiTriggerSetting } from '../../ChatAutoComplete';
+import type { EmojiTriggerSetting } from '../DefaultTriggerProvider';
 
 export const useEmojiTrigger = (emojiIndex?: NimbleEmojiIndex): EmojiTriggerSetting => ({
   component: EmoticonItem,
