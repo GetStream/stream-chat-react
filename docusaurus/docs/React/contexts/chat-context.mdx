@@ -3,3 +3,93 @@ id: chat_context
 sidebar_position: 1
 title: ChatContext
 ---
+
+## Overview
+
+The `ChatContext` is exposed by the `Chat` component and because this component wraps the entire application, every other component will have access to the values in this context.
+Also provided via `ChatContext` is the custom `useChatContext` hook which can be used after importing it individually from the SDK.
+
+## Basic Usage
+
+Use the exposed hook like the below:
+
+```jsx
+const { client, setActiveChannel } = useChatContext();
+```
+
+## ContextValue
+
+### client 
+
+The client connection that is an instance of Stream Chat.
+
+| Type    |
+| ------- |
+| object  |
+
+### closeMobileNav 
+
+The function to close mobile navigation.
+
+| Type     |
+| -------- |
+| function |
+
+### mutes
+
+An array of muted users.
+
+| Type  |
+| ----- |
+| Mute[] |
+
+### openMobileNav 
+
+The function to open mobile navigation.
+
+| Type     |
+| -------- |
+| function |
+
+
+### setActiveChannel
+
+A function to set the currently active channel. This is used in the `ChannelList` component to navigate between channels, and you can also override the default behavior by pulling it from context and then utilizing the function.
+
+| Type     | Params                                          |
+| -------- | ----------------------------------------------- |
+| function |  newChannel?: Channel                           |
+|          |  watchers?: { limit?: number; offset?: number } |
+|          |  event?: React.BaseSyntheticEvent               |
+
+### theme
+
+The current theme (ex: `commerce dark`, `commerce light`, `livestream dark`, `livestream light`, `messaging dark`, `messaging light`, `team dark`, `team light`).
+
+| Type  | Default            |
+| ----- | ------------------ |
+| Theme | `messaging light`  |
+
+### useImageFlagEmojisOnWindow
+
+Replaces flag emojis with images on Windows as Windows 10 does not support country flags out of the box.
+
+| Type     | Default  |
+| -------- | -------- |
+| boolean  | false    |
+
+### channel
+
+The currently active channel, optional.
+
+| Type     |
+| -------- |
+| Channel  |
+
+
+## navOpen
+A boolean for if initial status of mobile navigation is open.
+
+| Type    | Default  |
+| ------- | -------- |
+| boolean | true     |
