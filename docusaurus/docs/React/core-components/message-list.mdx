@@ -209,7 +209,7 @@ Function called when more messages are to be loaded, provide your own function t
 
 ### Message
 
-Custom UI component to display a message in the standard `MessageList`.
+Custom UI component to display an individual message.
 
 | Type      | Default                                                                                                              |
 | --------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -219,9 +219,9 @@ Custom UI component to display a message in the standard `MessageList`.
 
 Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all actions, provide an empty array.
 
-| Type     | Default                                                              |
-| -------- | -------------------------------------------------------------------- |
-| function | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
+| Type  | Default                                                              |
+| ----- | -------------------------------------------------------------------- |
+| array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
 
 ### messageLimit
 
@@ -235,9 +235,9 @@ The limit to use when paginating new messages.
 
 The messages to render in the list, provide your own array to override the data stored in context.
 
-| Type   | Default                                                                                |
-| ------ | -------------------------------------------------------------------------------------- |
-| number | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
+| Type  | Default                                                                                |
+| ----- | -------------------------------------------------------------------------------------- |
+| array | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
 
 ### noGroupByUser
 
