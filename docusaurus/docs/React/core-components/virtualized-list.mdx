@@ -6,7 +6,8 @@ title: VirtualizedMessageList
 
 ## Overview
 
-The `VirtualizedMessageList` component renders a scrollable list of messages. The UI for each individual message is rendered
+The `VirtualizedMessageList` component renders a scrollable list of messages. It differs from the standard `MessageList`
+component in that it handles message virtualization by default. The UI for each individual message is rendered
 conditionally based on its `message.type` value. The list renders date separators, new message notifications, system
 messages, deleted messages, and standard messages containing text and/or attachments.
 
