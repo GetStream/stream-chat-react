@@ -2,6 +2,10 @@
 
 ## [6.0.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.5) 2021-05-28
 
+### Feature
+
+- Add optional prop to override default `loadMore` function in `VirtualizedMessageList` [#950](https://github.com/GetStream/stream-chat-react/pull/950)
+
 ### Bug
 
 - Prevent unnecessary members query when `disableMentions` is enabled on `MessageInput` [#949](https://github.com/GetStream/stream-chat-react/pull/949)
