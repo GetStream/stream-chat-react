@@ -48,7 +48,7 @@ const App = () => (
       <Window>
         <ChannelHeader />
         <MessageList />
-        <MessageInput disableMentions Input={MessageInputFlat} focus />
+        <MessageInput Input={MessageInputFlat} focus />
       </Window>
       <Thread />
     </Channel>
