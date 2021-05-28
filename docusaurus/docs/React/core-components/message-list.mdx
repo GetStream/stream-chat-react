@@ -155,9 +155,9 @@ pinned [message object](https://getstream.io/chat/docs/javascript/message_format
 
 Whether or not the list has more items to load.
 
-| Type    | Default                                                                             |
-| ------- | ----------------------------------------------------------------------------------- |
-| boolean | [ChannelStateContextValue['hasMore']](../context/channel-state-context.mdx#hasmore) |
+| Type    | Default                                                                              |
+| ------- | ------------------------------------------------------------------------------------ |
+| boolean | [ChannelStateContextValue['hasMore']](../contexts/channel-state-context.mdx#hasmore) |
 
 ### headerPosition
 
@@ -195,17 +195,17 @@ Additional props for the underlying [InfiniteScroll](https://github.com/GetStrea
 
 Whether or not the list is currently loading more items.
 
-| Type    | Default                                                                                     |
-| ------- | ------------------------------------------------------------------------------------------- |
-| boolean | [ChannelStateContextValue['loadingMore']](../context/channel-state-context.mdx#loadingmore) |
+| Type    | Default                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------- |
+| boolean | [ChannelStateContextValue['loadingMore']](../contexts/channel-state-context.mdx#loadingmore) |
 
 ### loadMore
 
 Function called when more messages are to be loaded, provide your own function to override the handler stored in context.
 
-| Type     | Default                                                                                 |
-| -------- | --------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['loadMore']](../context/channel-action-context.mdx#loadmore) |
+| Type     | Default                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
 
 ### Message
 
@@ -235,9 +235,9 @@ The limit to use when paginating new messages.
 
 The messages to render in the list, provide your own array to override the data stored in context.
 
-| Type   | Default                                                                               |
-| ------ | ------------------------------------------------------------------------------------- |
-| number | [ChannelStateContextValue['messages']](../context/channel-state-context.mdx#messages) |
+| Type   | Default                                                                                |
+| ------ | -------------------------------------------------------------------------------------- |
+| number | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
 
 ### noGroupByUser
 
@@ -251,17 +251,17 @@ If true, turns off message UI grouping by user.
 
 Custom action handler function to run on click of an @mention in a message.
 
-| Type     | Default                                                                                               |
-| -------- | ----------------------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['onMentionsClick']](../context/channel-action-context.mdx#onmentionsclick) |
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsClick']](../contexts/channel-action-context.mdx#onmentionsclick) |
 
 ### onMentionsHover
 
 Custom action handler function to run on hover of an @mention in a message.
 
-| Type     | Default                                                                                               |
-| -------- | ----------------------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['onMentionsHover']](../context/channel-action-context.mdx#onmentionshover) |
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsHover']](../contexts/channel-action-context.mdx#onmentionshover) |
 
 ### onUserClick
 
@@ -283,9 +283,9 @@ Custom action handler function to run on hover of user avatar.
 
 Custom action handler to open a [`Thread`](./thread.mdx) component.
 
-| Type     | Default                                                                                     |
-| -------- | ------------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['openThread']](../context/channel-action-context.mdx#openthread) |
+| Type     | Default                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
 
 ### pinPermissions
 
@@ -307,9 +307,9 @@ Custom function to render message text content.
 
 Custom action handler to retry sending a message after a failed request.
 
-| Type     | Default                                                                                                 |
-| -------- | ------------------------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['retrySendMessage']](../context/channel-action-context.mdx#retrysendmessage) |
+| Type     | Default                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
 ### scrolledUpThreshold
 
