@@ -1,6 +1,4 @@
 import React, { Reducer, useCallback, useReducer } from 'react';
-import type { FileLike } from 'react-file-utils';
-import type { Attachment, UserResponse } from 'stream-chat';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
@@ -13,6 +11,8 @@ import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
+import type { FileLike } from 'react-file-utils';
+import type { Attachment, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -354,10 +354,6 @@ export const useMessageInputState = <
     openEmojiPicker,
   } = useEmojiPicker<At, Us>(state, dispatch, insertText);
 
-  const onSelectUser = useCallback((item: UserResponse<Us>) => {
-    dispatch({ type: 'addMentionedUser', user: item });
-  }, []);
-
   const {
     maxFilesLeft,
     numberOfUploads,
@@ -378,6 +374,10 @@ export const useMessageInputState = <
   const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
 
   const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+
+  const onSelectUser = useCallback((item: UserResponse<Us>) => {
+    dispatch({ type: 'addMentionedUser', user: item });
+  }, []);
 
   return {
     ...state,

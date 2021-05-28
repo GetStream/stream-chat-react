@@ -3,7 +3,7 @@ This component is responsible for injecting the default set of triggers into the
 This value is then consumed by the `ChatAutocomplete` component and its children to make sure the default triggers
 (@mentions, /commands and :emojis) work as expected.
 
-By injecting a custom `TriggerProvider` commponent, you can override the behavior of any of these triggers, or add your own custom trigger.
+By injecting a custom `TriggerProvider` component, you can override the behavior of any of these triggers, or add your own custom trigger.
 Here's an example of a customer `TriggerProvider` that only provides a custom trigger bound to the `#` character:
 
 ```typescript

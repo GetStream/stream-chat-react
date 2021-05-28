@@ -1,23 +1,16 @@
 import React, { useCallback } from 'react';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
-import type { CommandItemProps } from '../CommandItem/CommandItem';
-import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import { LoadingIndicator } from '../Loading/LoadingIndicator';
-import type { UserItemProps } from '../UserItem/UserItem';
 
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EmojiData } from 'emoji-mart';
-import type {
-  CommandResponse,
-  UserFilters,
-  UserOptions,
-  UserResponse,
-  UserSort,
-} from 'stream-chat';
+import type { CommandResponse, UserResponse } from 'stream-chat';
+
+import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 
 import type {
   CustomTrigger,
@@ -28,10 +21,15 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../types/types';
 
 type ObjectUnion<T> = T[keyof T];
+
+export type SuggestionCommand<
+  Co extends DefaultCommandType = DefaultCommandType
+> = CommandResponse<Co>;
+
+export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
 
 export type SuggestionItemProps<
   Co extends DefaultCommandType = DefaultCommandType,
@@ -79,68 +77,6 @@ export type SuggestionListProps<
     };
   }
 >;
-
-export type SuggestionCommand<
-  Co extends DefaultCommandType = DefaultCommandType
-> = CommandResponse<Co>;
-
-export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
-
-export type AutocompleteMinimalData = {
-  id?: string;
-  name?: string;
-} & ({ id: string } | { name: string });
-
-export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
-  component: string | React.ComponentType<T>;
-  dataProvider: (
-    query: string,
-    text: string,
-    onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
-  ) => U[] | Promise<void> | void;
-  output: (
-    entity: U,
-  ) =>
-    | {
-        caretPosition: 'start' | 'end' | 'next' | number;
-        text: string;
-        key?: string;
-      }
-    | string
-    | null;
-  callback?: (item: U) => void;
-};
-
-export type CommandTriggerSetting<
-  Co extends DefaultCommandType = DefaultCommandType
-> = TriggerSetting<CommandItemProps, SuggestionCommand<Co>>;
-
-export type EmojiTriggerSetting = TriggerSetting<EmoticonItemProps, EmojiData>;
-
-export type UserTriggerSetting<Us extends DefaultUserType<Us> = DefaultUserType> = TriggerSetting<
-  UserItemProps,
-  SuggestionUser<Us>
->;
-
-export type TriggerSettings<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
-> =
-  | {
-      [key in keyof V]: TriggerSetting<V[key]['componentProps'], V[key]['data']>;
-    }
-  | {
-      '/': CommandTriggerSetting<Co>;
-      ':': EmojiTriggerSetting;
-      '@': UserTriggerSetting<Us>;
-    };
-
-export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  filters?: UserFilters<Us>;
-  options?: UserOptions;
-  sort?: UserSort<Us>;
-};
 
 export type ChatAutoCompleteProps = {
   /** Listener for onfocus event on textarea */

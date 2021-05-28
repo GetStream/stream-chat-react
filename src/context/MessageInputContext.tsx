@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
 
-import type { TriggerSettings } from '../components/ChatAutoComplete/ChatAutoComplete';
+import type { TriggerSettings } from '../components/MessageInput/DefaultTriggerProvider';
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 import type {
   MessageInputHookProps,

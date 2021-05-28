@@ -1,11 +1,18 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { useChatContext } from '../../../context/ChatContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { UserItem } from '../../UserItem/UserItem';
 
-import type { MentionQueryParams, UserTriggerSetting } from '../../ChatAutoComplete';
+import { useChatContext } from '../../../context/ChatContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+
+import type { UserResponse } from 'stream-chat';
+
+import type {
+  MentionQueryParams,
+  UserTriggerSetting,
+} from '../../MessageInput/DefaultTriggerProvider';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -15,7 +22,13 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../../types/types';
-import type { UserResponse } from 'stream-chat';
+
+export type UserTriggerParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  onSelectUser: (item: UserResponse<Us>) => void;
+  disableMentions?: boolean;
+  mentionAllAppUsers?: boolean;
+  mentionQueryParams?: MentionQueryParams<Us>;
+};
 
 export const useUserTrigger = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -26,14 +39,15 @@ export const useUserTrigger = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  mentionQueryParams: MentionQueryParams<Us> = {},
-  onSelectUser: (item: UserResponse<Us>) => void,
-  mentionAllAppUsers?: boolean,
+  params: UserTriggerParams<Us>,
 ): UserTriggerSetting<Us> => {
+  const { disableMentions, mentionAllAppUsers, mentionQueryParams = {}, onSelectUser } = params;
+
   const [searching, setSearching] = useState(false);
 
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const members = channel?.state?.members;
   const watchers = channel?.state?.watchers;
 
@@ -107,9 +121,11 @@ export const useUserTrigger = <
   const queryUsersThrottled = throttle(queryUsers, 200);
 
   return {
-    callback: (item) => onSelectUser && onSelectUser(item),
+    callback: (item) => onSelectUser(item),
     component: UserItem,
     dataProvider: (query, _, onReady) => {
+      if (disableMentions) return;
+
       const filterMutes = (data: UserResponse<Us>[]) => {
         if (!mutes.length) return data;
         return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
