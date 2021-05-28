@@ -306,11 +306,11 @@ export type VirtualizedMessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'];
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Set the limit to use when paginating messages */
+  /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
+  /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
   /**
    * Performance improvement by showing placeholders if user scrolls fast through list.
@@ -329,10 +329,7 @@ export type VirtualizedMessageListProps<
   };
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
-  /**
-   * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
-   */
+  /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
   /**
    * The scrollTo behavior when new messages appear. Use `"smooth"`
