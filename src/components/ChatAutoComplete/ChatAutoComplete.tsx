@@ -79,10 +79,6 @@ export type SuggestionListProps<
 >;
 
 export type ChatAutoCompleteProps = {
-  /** Any additional attributes that you may want to add for underlying HTML textarea element */
-  additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Grow the number of rows of the textarea while you're typing */
-  grow?: boolean;
   /** Function that runs on submit */
   handleSubmit?: (event: React.BaseSyntheticEvent) => void;
   /** Function that runs on change */
@@ -143,15 +139,13 @@ const UnMemoizedChatAutoComplete = <
 
   return (
     <AutoCompleteTextarea
-      additionalTextareaProps={
-        props.additionalTextareaProps || messageInput.additionalTextareaProps
-      }
+      additionalTextareaProps={messageInput.additionalTextareaProps}
       className='str-chat__textarea__textarea'
       containerClassName='str-chat__textarea'
       disabled={disabled || !!cooldownRemaining}
       disableMentions={messageInput.disableMentions}
       dropdownClassName='str-chat__emojisearch'
-      grow={props.grow || messageInput.grow}
+      grow={messageInput.grow}
       handleSubmit={props.handleSubmit || messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
