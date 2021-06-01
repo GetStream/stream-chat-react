@@ -78,13 +78,25 @@ export type SuggestionListProps<
   }
 >;
 
-export type ChatAutoCompleteProps = {
+export type ChatAutoCompleteProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  /** Any additional attributes that you may want to add for underlying HTML textarea element */
+  additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  /** Grow the number of rows of the textarea while you're typing */
+  grow?: boolean;
+  /** Function that runs on submit */
+  handleSubmit?: (event: React.BaseSyntheticEvent) => void;
+  /** Function that runs on change */
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
   /** Listener for onfocus event on textarea */
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
+  /** Function to run on pasting within the textarea */
+  onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   /** Placeholder for the textarea */
   placeholder?: string;
   /** The number of rows you want the textarea to have */
   rows?: number;
+  /** The value of the textarea */
+  value?: string;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -131,14 +143,16 @@ const UnMemoizedChatAutoComplete = <
 
   return (
     <AutoCompleteTextarea
-      additionalTextareaProps={messageInput.additionalTextareaProps}
+      additionalTextareaProps={
+        props.additionalTextareaProps || messageInput.additionalTextareaProps
+      }
       className='str-chat__textarea__textarea'
       containerClassName='str-chat__textarea'
       disabled={disabled || !!cooldownRemaining}
       disableMentions={messageInput.disableMentions}
       dropdownClassName='str-chat__emojisearch'
-      grow={messageInput.grow}
-      handleSubmit={messageInput.handleSubmit}
+      grow={props.grow || messageInput.grow}
+      handleSubmit={props.handleSubmit || messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
       keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
@@ -146,16 +160,16 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={messageInput.maxRows}
       minChar={0}
-      onChange={messageInput.handleChange}
+      onChange={props.onChange || messageInput.handleChange}
       onFocus={onFocus}
-      onPaste={messageInput.onPaste}
+      onPaste={props.onPaste || messageInput.onPaste}
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={rows}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={messageInput.autocompleteTriggers || {}}
-      value={messageInput.text}
+      value={props.value || messageInput.text}
     />
   );
 };
