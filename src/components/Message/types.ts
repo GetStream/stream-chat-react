@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { Mute, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
@@ -85,8 +85,6 @@ export type MessageProps<
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
-  mutes?: Mute<Us>[];
   /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
   onMentionsClick?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsClick'];
   /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */

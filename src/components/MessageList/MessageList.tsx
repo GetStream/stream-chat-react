@@ -100,7 +100,7 @@ type MessageListWithContextProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'members' | 'watchers'> &
+> = Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'members' | 'mutes' | 'watchers'> &
   MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
 
 const MessageListWithContext = <
@@ -174,7 +174,6 @@ const MessageListWithContext = <
       Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
-      mutes: props.mutes,
       onMentionsClick: props.onMentionsClick,
       onMentionsHover: props.onMentionsHover,
       onUserClick: props.onUserClick,
@@ -309,6 +308,7 @@ export const MessageList = <
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...restChannelStateContext
   } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
