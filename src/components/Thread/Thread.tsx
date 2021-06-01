@@ -174,7 +174,7 @@ const ThreadInner = <
   >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
-    Input: ContextInput,
+    ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
