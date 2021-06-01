@@ -1,9 +1,6 @@
 /* fonts */
 $main-font: 'IBM Plex Sans', sans-serif;
 $second-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$mono-font: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter',
-  'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', Monaco,
-  'Courier New', Courier, monospace;
 
 $base-font-weight: 400;
 $heavy-font-weight: 700;
@@ -32,14 +29,15 @@ $border-radius: 16px;
   /* fonts */
   --main-font: #{$main-font};
   --second-font: #{$second-font};
-  --mono-font: #{$mono-font};
 
-  --base-font-weight: #{$base-font-weight};
-  --heavy-font-weight: #{$heavy-font-weight};
+  /* fonts weight */
+  --font-weight-regular: #{$base-font-weight}; //400
+  --font-weight-semi-bold: 600;
+  --font-weight-bold: #{$heavy-font-weight}; //700
 
   /* colors */
-  --primary-color: #{$primary-color};
-  --secondary-color: #{$secondary-color};
+  --magenta: #{$primary-color};
+  --primary-color: #{$secondary-color};
   --secondary-faded: #{$secondary-faded};
 
   --dt-bg-team: #{$dt-bg-team};
