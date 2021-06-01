@@ -153,10 +153,90 @@ DOMRect object linked to the parent `MessageList` component.
 | ------- |
 | DOMRect |
 
-### mutes
+### onMentionsClick
 
-Array of muted users pulled from [`ChannelStateContext`](../contexts/channel-state-context.mdx).
+Custom action handler function to run on click of an @mention in a message.
 
-| Type   |
-| ------ |
-| Mute[] |
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsClick']](../contexts/channel-action-context.mdx#onmentionsclick) |
+
+### onMentionsHover
+
+Custom action handler function to run on hover of an @mention in a message.
+
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsHover']](../contexts/channel-action-context.mdx#onmentionshover) |
+
+### onUserClick
+
+Custom action handler function to run on click of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### onUserHover
+
+Custom action handler function to run on hover of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### openThread
+
+Custom action handler to open a [`Thread`](../core-components/thread.mdx) component.
+
+| Type     | Default                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
+
+### pinPermissions
+
+The user roles allowed to pin messages in various channel types.
+
+| Type   | Default                                                                                                              |
+| ------ | -------------------------------------------------------------------------------------------------------------------- |
+| object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
+
+### readBy
+
+An array of users that have read the current message.
+
+| Type  |
+| ----- |
+| array |
+
+### renderText
+
+Custom function to render message text content.
+
+| Type     | Default                                                                                |
+| -------- | -------------------------------------------------------------------------------------- |
+| function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
+
+### retrySendMessage
+
+Custom action handler to retry sending a message after a failed request.
+
+| Type     | Default                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
+
+### threadList
+
+If true, indicates that the current `MessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### unsafeHTML
+
+If true, renders HTML instead of markdown. Posting HTML is only supported server-side.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
