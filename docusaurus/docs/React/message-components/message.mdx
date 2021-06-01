@@ -6,9 +6,26 @@ title: Message
 
 ## Overview
 
+The `Message` component is a React Context provider that wraps all of the logic, functionality, and UI for the individual messages
+displayed in a message list. It provides the [`MessageContext`](../contexts/message-context.mdx) to its children. All of
+the message UI components consume the `MessageContext` and rely on the stored data for their display and interaction.
+
+:::note
+The majority of Stream Chat use cases will not need to use the `Message` component directly. We've documented it here for reference,
+but it's primarily used internally to build up the `MessageContext`. A custom message UI component, added onto `Channel` or
+`MessageList` via the `Message` prop, will consume this context, so `Message` likely doesn't need to be imported into your app.
+:::
+
 ## Basic Usage
 
-## UI Customizations
+The `Message` component is used internally as part of the logic of the `MessageList`. The `MessageList` renders a list of
+messages and passes each individual `message` object into a `Message` component. Since the component is used internally by
+default, it only needs to be explicitly imported from the library and used in unique use cases.
+
+## UI Customization
+
+The `Message` component does not inject any UI, so all message customization is handled by the [Message UI](./message-ui.mdx)
+component. The Message UI component is passed as the `Message` prop into either the `Channel` or `MessageList` component.
 
 ## Props
 
@@ -131,11 +148,12 @@ The latest message ID in the current channel.
 
 ### Message
 
-Custom UI component to display a message in the standard `MessageList`.
+Custom UI component to display a message.
 
-| Type      | Default                                                                                                              |
-| --------- | -------------------------------------------------------------------------------------------------------------------- |
-| component | [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) |
+| Type      | Default                                                                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| component | [`MessageSimple`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) for `MessageList`                      |
+|           | [`FixedHeightMessage`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) for `VirtualizedMessageList` |
 
 ### messageActions
 
