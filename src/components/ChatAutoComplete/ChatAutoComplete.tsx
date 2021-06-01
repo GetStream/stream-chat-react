@@ -78,7 +78,7 @@ export type SuggestionListProps<
   }
 >;
 
-export type ChatAutoCompleteProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type ChatAutoCompleteProps = {
   /** Any additional attributes that you may want to add for underlying HTML textarea element */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Grow the number of rows of the textarea while you're typing */
