@@ -17,7 +17,7 @@ Use the exposed hook like the below:
 const { client, setActiveChannel } = useChatContext();
 ```
 
-## ContextValue
+## Value
 
 ### client 
 
@@ -56,11 +56,9 @@ The function to open mobile navigation.
 
 A function to set the currently active channel. This is used in the `ChannelList` component to navigate between channels, and you can also override the default behavior by pulling it from context and then utilizing the function.
 
-| Type     | Params                                          |
-| -------- | ----------------------------------------------- |
-| function |  newChannel?: Channel                           |
-|          |  watchers?: { limit?: number; offset?: number } |
-|          |  event?: React.BaseSyntheticEvent               |
+| Type     |
+| -------- |
+| function | 
 
 ### theme
 
