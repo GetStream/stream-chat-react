@@ -45,7 +45,8 @@ export const useReactionHandler = <
         await channel.deleteReaction(id, type);
       }
     } catch (error) {
-      throw new Error('toggle reaction failed');
+      // revert to the original message if the API call fails
+      if (message) updateMessage(message);
     }
   }, 1000);
 
@@ -54,9 +55,8 @@ export const useReactionHandler = <
       event.preventDefault();
     }
 
-    if (!updateMessage || !message || !channel || !client) {
-      console.warn(reactionHandlerWarning);
-      return;
+    if (!message) {
+      return console.warn(reactionHandlerWarning);
     }
 
     let userExistingReaction = (null as unknown) as ReactionResponse<Re, Us>;
@@ -75,18 +75,14 @@ export const useReactionHandler = <
       });
     }
 
-    // Make the API call in the background
-    // If it fails, revert to the old message...
     try {
       if (userExistingReaction) {
         await toggleReaction(message.id, userExistingReaction.type, false);
       } else {
-        // this.props.channel.state.addReaction(tmpReaction, this.props.message);
         await toggleReaction(message.id, reactionType, true);
       }
     } catch (error) {
-      // revert to the original message if the API call fails
-      updateMessage(message);
+      console.log({ error });
     }
   };
 };
