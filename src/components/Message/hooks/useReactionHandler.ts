@@ -1,4 +1,5 @@
 import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import debounce from 'lodash.debounce';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
@@ -6,7 +7,7 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { ReactEventHandler } from '../types';
 
-import type { Reaction, ReactionAPIResponse, ReactionResponse } from 'stream-chat';
+import type { Reaction, ReactionResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -35,6 +36,9 @@ export const useReactionHandler = <
   const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const deletedReaction = debounce((id, type) => channel.deleteReaction(id, type), 200);
+  const addReaction = debounce((id, type) => channel.sendReaction(id, type), 200);
 
   return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
     if (event?.preventDefault) {
@@ -65,30 +69,26 @@ export const useReactionHandler = <
     }
 
     const originalMessage = message;
-    let reactionChangePromise: Promise<ReactionAPIResponse<At, Ch, Co, Me, Re, Us>>;
 
     // Make the API call in the background
     // If it fails, revert to the old message...
-    if (message.id) {
-      if (userExistingReaction) {
-        reactionChangePromise = channel.deleteReaction(message.id, userExistingReaction.type);
-      } else {
-        // add the reaction
-        const messageID = message.id;
+    try {
+      if (message.id) {
+        if (userExistingReaction) {
+          await deletedReaction(message.id, userExistingReaction.type);
+        } else {
+          // add the reaction
+          const messageID = message.id;
 
-        const reaction = { type: reactionType } as Reaction<Re, Us>;
+          const reaction = { type: reactionType } as Reaction<Re, Us>;
 
-        // this.props.channel.state.addReaction(tmpReaction, this.props.message);
-        reactionChangePromise = channel.sendReaction(messageID, reaction);
+          // this.props.channel.state.addReaction(tmpReaction, this.props.message);
+          await addReaction(messageID, reaction);
+        }
       }
-
-      try {
-        // only wait for the API call after the state is updated
-        await reactionChangePromise;
-      } catch (e) {
-        // revert to the original message if the API call fails
-        updateMessage(originalMessage);
-      }
+    } catch (error) {
+      // revert to the original message if the API call fails
+      updateMessage(originalMessage);
     }
   };
 };
