@@ -1,5 +1,5 @@
 import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
@@ -37,8 +37,17 @@ export const useReactionHandler = <
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const deletedReaction = debounce((id, type) => channel.deleteReaction(id, type), 200);
-  const addReaction = debounce((id, type) => channel.sendReaction(id, type), 200);
+  const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
+    try {
+      if (add) {
+        await channel.sendReaction(id, { type } as Reaction<Re, Us>);
+      } else {
+        await channel.deleteReaction(id, type);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, 1500);
 
   return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
     if (event?.preventDefault) {
@@ -52,15 +61,13 @@ export const useReactionHandler = <
 
     let userExistingReaction = (null as unknown) as ReactionResponse<Re, Us>;
 
-    const currentUser = client.userID;
-
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
         // own user should only ever contain the current user id
         // just in case we check to prevent bugs with message updates from breaking reactions
-        if (reaction.user && currentUser === reaction.user.id && reaction.type === reactionType) {
+        if (reaction.user && client.userID === reaction.user.id && reaction.type === reactionType) {
           userExistingReaction = reaction;
-        } else if (reaction.user && currentUser !== reaction.user.id) {
+        } else if (reaction.user && client.userID !== reaction.user.id) {
           console.warn(
             `message.own_reactions contained reactions from a different user, this indicates a bug`,
           );
@@ -68,27 +75,18 @@ export const useReactionHandler = <
       });
     }
 
-    const originalMessage = message;
-
     // Make the API call in the background
     // If it fails, revert to the old message...
     try {
-      if (message.id) {
-        if (userExistingReaction) {
-          await deletedReaction(message.id, userExistingReaction.type);
-        } else {
-          // add the reaction
-          const messageID = message.id;
-
-          const reaction = { type: reactionType } as Reaction<Re, Us>;
-
-          // this.props.channel.state.addReaction(tmpReaction, this.props.message);
-          await addReaction(messageID, reaction);
-        }
+      if (userExistingReaction) {
+        await toggleReaction(message.id, userExistingReaction.type, false);
+      } else {
+        // this.props.channel.state.addReaction(tmpReaction, this.props.message);
+        await toggleReaction(message.id, reactionType, true);
       }
     } catch (error) {
       // revert to the original message if the API call fails
-      updateMessage(originalMessage);
+      updateMessage(message);
     }
   };
 };
