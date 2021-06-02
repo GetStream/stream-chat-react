@@ -5,6 +5,7 @@
 ### Chore
 
 - Throttle send/remove message reaction functions [#953](https://github.com/GetStream/stream-chat-react/pull/953)
+and [#955](https://github.com/GetStream/stream-chat-react/pull/955)
 
 ### Bug
 
