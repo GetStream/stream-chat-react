@@ -85,11 +85,18 @@ For example, if we strip `MessageSimple` down to its core pieces, the component 
 
 We recommend building a Message UI component in a similar way. You can mix and match any of the UI sub-components and arrange
 in a layout that meets your design specifications. All of these UI sub-components are exported by the library and may be used within
-your custom Message UI component.
+your custom Message UI component. Each sub-component consumes the `MessageContext` and requires no/minimal props to run.
 
 For a detailed example, review the [Message UI Customization](../customization/custom-message.mdx) example.
 
 ## Props
+
+:::note
+All Message UI props are optional overrides of the values stored in the [`MessageContext`](../contexts/message-context.mdx). As you
+build your own custom component, we recommend pulling the necessary data from context using the `useMessageContext` custom hook.
+However, if you choose to develop upon our pre-built, default `MessageSimple` component, you may encounter a situation where
+you wish to override a single prop, so all options are detailed below.
+:::
 
 ### actionsEnabled
 

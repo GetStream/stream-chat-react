@@ -10,33 +10,36 @@ The `TranslationContext` value contains the selected user language, as well as f
 
 ## Basic Usage
 
+Pull values from context with our custom hook:
+
 ```jsx
 const { t } = useTranslationContext();
 
-<div className='message'>
-    {t('This message will be translated.')}
-</div>
+<div className='message'>{t('This message will be translated.')}</div>;
 ```
 
 ## Value
 
 ### t
+
 Translation function.
 
-| Type       |
-| ---------- |
-|  function  |
+| Type     |
+| -------- |
+| function |
 
 ### tDateTimeParser
+
 Function that parses time.
 
-| Type       | Default  |
-| ---------- | -------- |
-|  function  | Dayjs    |
+| Type     | Default |
+| -------- | ------- |
+| function | Dayjs   |
 
 ### userLanguage
+
 String to set the user's language; (ex: 'en', 'fr', 'ru', etc).
 
-| Type     | Default  |
-| -------- | -------- |
-|  string  | 'en'     |
+| Type   | Default |
+| ------ | ------- |
+| string | 'en'    |

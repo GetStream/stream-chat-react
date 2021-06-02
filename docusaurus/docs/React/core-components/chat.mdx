@@ -73,9 +73,9 @@ const i18nInstance = new Streami18n({
 
 When the screen width is at a mobile breakpoint, whether or not the mobile navigation menu is open.
 
-| Type    |
-| ------- |
-| boolean |
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
 
 ### theme
 
@@ -89,9 +89,9 @@ const theme = 'messaging dark'
 </Chat>
 ```
 
-| Type   |
-| ------ |
-| string |
+| Type  | Default           |
+| ----- | ----------------- |
+| Theme | `messaging light` |
 
 ### useImageFlagEmojisOnWindows
 
@@ -99,6 +99,6 @@ Windows 10 does not support country flag emojis out of the box. It chooses to re
 Stream Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending
 on the platform). Set this prop to true if you want to use these custom emojis for Windows users.
 
-| Type    |
-| ------- |
-| boolean |
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

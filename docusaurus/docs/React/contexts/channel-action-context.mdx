@@ -5,10 +5,13 @@ title: ChannelActionContext
 ---
 
 ## Overview
+
 The `ChannelActionContext` is a one of the context providers exposed by the `Channel` component and so the value is consumable by all of the children components of `Channel`. The context value provides all of the action properties and handlers for a `channel`.
 The `ChannelActionContext` exposes the hook `useChannelActionContext`.
 
 ## Basic Usage
+
+Pull values from context with our custom hook:
 
 ```jsx
 const { closeThread, loadMoreThread } = useChannelActionContext();
@@ -17,50 +20,56 @@ const { closeThread, loadMoreThread } = useChannelActionContext();
 ## Value
 
 ### addNotification
+
 Function to add a temporary notification to `MessageList`, and it will be removed after 5 seconds.
 
 | Type     |
-| -------- | 
-| function | 
+| -------- |
+| function |
 |          |
 
 ### closeThread
+
 The function to close the currently open `Thread`.
 
-| Type     | 
-| -------- | 
+| Type     |
+| -------- |
 | function |
 
 ### dispatch
+
 The dispatch function for the [`ChannelStateReducer`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/channelState.ts).
 
-| Type                                      |
-| ----------------------------------------- |
+| Type                      |
+| ------------------------- |
 | ChannelStateReducerAction |
 
 ### editMessage
+
 A function that takes a message to be edited, returns a Promise.
 
 | Type     |
 | -------- |
-| function | 
-
+| function |
 
 ### loadMore
+
 The function to load next page/batch of `messages` (used for pagination).
 
 | Type     |
 | -------- |
-| function | 
+| function |
 
 ### loadMoreThread
+
 The function to load next page/batch of `messages` in a currently active/open `Thread` (used for pagination).
 
 | Type     |
 | -------- |
-| function | 
+| function |
 
 ### onMentionsClick
+
 Custom action handler function to execute when @mention is clicked, takes a DOM click event object and an array of mentioned users.
 
 | Type     |
@@ -68,6 +77,7 @@ Custom action handler function to execute when @mention is clicked, takes a DOM 
 | function |
 
 ### onMentionsHover
+
 The function to execute when @mention is hovered in a `message`, takes a DOM click event object and an array of mentioned users.
 
 | Type     |
@@ -75,6 +85,7 @@ The function to execute when @mention is hovered in a `message`, takes a DOM cli
 | function |
 
 ### openThread
+
 The function to execute when replies count button is clicked, takes the parent message of the `Thread` to be opened and a DOM click event.
 
 | Type     |
@@ -82,6 +93,7 @@ The function to execute when replies count button is clicked, takes the parent m
 | function |
 
 ### removeMessage
+
 The function to remove a `message` from `MessageList`, handled by the `Channel` component. Takes a `message` object.
 
 | Type     |
@@ -89,6 +101,7 @@ The function to remove a `message` from `MessageList`, handled by the `Channel` 
 | function |
 
 ### retrySendMessage
+
 The function to resend a `message`, handled by the `Channel` component. Takes a `message` object.
 
 | Type     |
@@ -96,6 +109,7 @@ The function to resend a `message`, handled by the `Channel` component. Takes a 
 | function |
 
 ### sendMessage
+
 The function to send a `message` on `Channel`, takes a `message` object.
 
 | Type     |
@@ -103,6 +117,7 @@ The function to send a `message` on `Channel`, takes a `message` object.
 | function |
 
 ### setQuoteMessage
+
 The function to send a `QuotedMessage` on a `Channel`, take a `message` object.
 
 | Type     |
@@ -110,6 +125,7 @@ The function to send a `QuotedMessage` on a `Channel`, take a `message` object.
 | function |
 
 ### updateMessage
+
 The function to update a `message` on `Channel`, takes a `message` object.
 
 | Type     |

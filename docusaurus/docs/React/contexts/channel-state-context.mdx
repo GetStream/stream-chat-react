@@ -5,54 +5,63 @@ title: ChannelStateContext
 ---
 
 ## Overview
+
 The `ChannelStateContext` is a one of the context providers exposed by the `Channel` component and so the value is consumable by all of the children of `Channel`
 The context value provides all of the state properties and logic for a `channel`.
 The `ChannelStateContext` also exposes the hook `useChannelStateContext`.
 
 ## Basic Usage
 
+Pull values from context with our custom hook:
+
 ```jsx
-const { channel, watcher_count } = useChannelStateContext();
+const { channel, watchers } = useChannelStateContext();
 ```
 
 ## Value
 
- ### acceptedFiles
- A list of accepted file upload types.
+### acceptedFiles
+
+A list of accepted file upload types.
 
 | Type     |
 | -------- |
 | string[] |
 
 ### channel
+
 The currently active `StreamChat` `channel` instance to be loaded into the `Channel` component and referenced by its children.
 
 | Type   |
 | ------ |
 | object |
 
- ### emojiConfig
- The configuration for Emojis.
+### emojiConfig
+
+The configuration for Emojis.
 
 | Type        |
 | ----------- |
 | EmojiConfig |
 
- ### error
- Error object (if any) in loading the `channel`, otherwise null.
+### error
+
+Error object (if any) in loading the `channel`, otherwise null.
 
 | Type   |
 | ------ |
 | object |
 
- ### hasMore
- If the channel has more messages to paginate through.
+### hasMore
+
+If the channel has more messages to paginate through.
 
 | Type    |
 | ------- |
 | boolean |
 
 ### loading
+
 Boolean for the `channel` loading state.
 
 | Type    |
@@ -60,6 +69,7 @@ Boolean for the `channel` loading state.
 | boolean |
 
 ### loadingMore
+
 Boolean for the `channel` loading more messages.
 
 | Type    |
@@ -67,55 +77,63 @@ Boolean for the `channel` loading more messages.
 | boolean |
 
 ### maxNumberOfFiles
+
 The maximum number of attachments allowed per `message`, defaults to the Stream Chat API maximum.
 
 | Type   | Default |
 | ------ | ------- |
 | number | 10      |
 
- ### members
- Members of this `channel` (members are permanent, watchers are users who are online right now).
+### members
+
+Members of this `channel` (members are permanent, watchers are users who are online right now).
 
 | Type     |
 | -------- |
 | object[] |
 
- ### messages
- Array of [message objects](https://getstream.io/chat/docs/javascript/message_format/?language=javascript).
+### messages
+
+Array of [message objects](https://getstream.io/chat/docs/javascript/message_format/?language=javascript).
 
 | Type     |
 | -------- |
 | object[] |
 
- ### multipleUploads
- Whether to allow multiple attachment uploads on a message.
+### multipleUploads
+
+Whether to allow multiple attachment uploads on a message.
 
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
 
- ### mutes
- An array of muted users for a `channel`.
+### mutes
+
+An array of muted users for a `channel`.
 
 | Type     |
 | -------- |
 | object[] |
 
- ### notifications
- Temporary notifications added to the `MessageList` on specific user/message actions.
+### notifications
+
+Temporary notifications added to the `MessageList` on specific user/message actions.
 
 | Type                                                     |
 | -------------------------------------------------------- |
 | {id: string, text: string, type: 'success' \| 'error'}[] |
 
- ### pinnedMessages
- The messages that are pinned in the `channel`.
+### pinnedMessages
+
+The messages that are pinned in the `channel`.
 
 | Type     |
 | -------- |
 | object[] |
 
 ### quotedMessage
+
 An inline message reply to another message.
 
 | Type   |
@@ -123,20 +141,23 @@ An inline message reply to another message.
 | object |
 
 ### read
+
 The read state for each `channel` member.
 
 | Type   |
 | ------ |
 | object |
 
- ### thread
- The parent message for a `thread`, if there is one, otherwise null.
+### thread
+
+The parent message for a `thread`, if there is one, otherwise null.
 
 | Type   |
 | ------ |
 | object |
 
 ### threadHasMore
+
 Boolean showing if there are more messages available in current active `thread`, set to false when the end of pagination is reached.
 
 | Type    |
@@ -144,6 +165,7 @@ Boolean showing if there are more messages available in current active `thread`,
 | boolean |
 
 ### threadLoadingMore
+
 If the thread is currently loading more messages.
 
 | Type    |
@@ -151,6 +173,7 @@ If the thread is currently loading more messages.
 | boolean |
 
 ### threadMessages
+
 Array of messages within a `thread`.
 
 | Type     |
@@ -158,6 +181,7 @@ Array of messages within a `thread`.
 | object[] |
 
 ### watcherCount
+
 The number of watchers on the `channel`.
 
 | Type   |
@@ -165,6 +189,7 @@ The number of watchers on the `channel`.
 | number |
 
 ### watchers
+
 An array of users who are currently watching the `channel`.
 
 | Type     |
@@ -172,6 +197,7 @@ An array of users who are currently watching the `channel`.
 | object[] |
 
 ### watcher_count
+
 The number of watchers on the `channel`.
 
 | Type   |

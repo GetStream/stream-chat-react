@@ -5,19 +5,23 @@ title: ComponentContext
 ---
 
 ## Overview
+
 The `ComponentContext` is a one of the context providers exposed by the `Channel` component and so the value is consumable by all of the children of `Channel`. This context provides UI component override options for maximum customization.
 All UI overrides that target children of the `Channel` component should be placed as `Channel` component props in order to be injected into the `ComponentContext`.
 The `ComponentContext` also exposes the hook `useComponentContext`.
 
 ## Basic Usage
 
+Pull values from context with our custom hook:
+
 ```jsx
-const { Attachment, Avatar, EmojiPicker } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+const { Attachment, Avatar, EmojiPicker } = useComponentContext();
 ```
 
 ## Value
 
 ### Attachment
+
 Custom UI component to display attachment in an individual message.
 
 | Type      | Default                                                                                                           |
@@ -25,6 +29,7 @@ Custom UI component to display attachment in an individual message.
 | component | [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) |
 
 ### Avatar
+
 Custom UI component to display user's avatar.
 
 | Type      | Default                                                                                               |
@@ -32,6 +37,7 @@ Custom UI component to display user's avatar.
 | component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
 
 ### AutocompleteSuggestionHeader
+
 Custom UI component to override the default suggestion header component.
 
 | Type      | Default                                                                                                             |
@@ -39,6 +45,7 @@ Custom UI component to override the default suggestion header component.
 | component | [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) |
 
 ### AutocompleteSuggestionItem
+
 Custom UI component to override the default suggestion Item component.
 
 | Type      | Default                                                                                                        |
@@ -46,6 +53,7 @@ Custom UI component to override the default suggestion Item component.
 | component | [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) |
 
 ### AutocompleteSuggestionList
+
 Custom UI component to override the default List component that displays suggestions.
 
 | Type      | Default                                                                                                        |
@@ -53,6 +61,7 @@ Custom UI component to override the default List component that displays suggest
 | component | [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) |
 
 ### CooldownTimer
+
 Custom UI component to display the slow mode cooldown timer.
 
 | Type      | Default                                                                                                                            |
@@ -60,6 +69,7 @@ Custom UI component to display the slow mode cooldown timer.
 | component | [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) |
 
 ### DateSeparator
+
 Custom UI component for date separators.
 
 | Type      | Default                                                                                                      |
@@ -67,6 +77,7 @@ Custom UI component for date separators.
 | component | [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) |
 
 ### EditMessageInput
+
 Custom UI component to override default edit message input.
 
 | Type      | Default                                                                                                                       |
@@ -74,6 +85,7 @@ Custom UI component to override default edit message input.
 | component | [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) |
 
 ### Emoji
+
 Custom UI component to override default `NimbleEmoji` from `emoji-mart`.
 
 | Type      |
@@ -81,6 +93,7 @@ Custom UI component to override default `NimbleEmoji` from `emoji-mart`.
 | component |
 
 ### EmojiIcon
+
 Custom UI component for emoji button in input.
 
 | Type      | Default                                                                                                            |
@@ -88,6 +101,7 @@ Custom UI component for emoji button in input.
 | component | [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
 
 ### EmojiIndex
+
 Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart`.
 
 | Type      |
@@ -95,6 +109,7 @@ Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart`.
 | component |
 
 ### EmojiPicker
+
 Custom UI component to override default `NimblePicker` from `emoji-mart`.
 
 | Type      |
@@ -102,6 +117,7 @@ Custom UI component to override default `NimblePicker` from `emoji-mart`.
 | component |
 
 ### EmptyStateIndicator
+
 Custom UI component to be displayed when the `MessageList` is empty.
 
 | Type      | Default                                                                                                                                      |
@@ -109,6 +125,7 @@ Custom UI component to be displayed when the `MessageList` is empty.
 | component | [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) |
 
 ### FileUploadIcon
+
 Custom UI component for file upload icon.
 
 | Type      | Default                                                                                                            |
@@ -116,6 +133,7 @@ Custom UI component for file upload icon.
 | component | [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
 
 ### Input
+
 Custom UI component handling how the message input is rendered.
 
 | Type      | Default                                                                                                                         |
@@ -123,14 +141,15 @@ Custom UI component handling how the message input is rendered.
 | component | [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) |
 
 ### LoadingIndicator
+
 Custom UI component to render while the `MessageList` is loading new messages.
 
 | Type      | Default                                                                                                                    |
 | --------- | -------------------------------------------------------------------------------------------------------------------------- |
 | component | [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) |
 
-
 ### Message
+
 Custom UI component to display a message in the standard `MessageList`.
 
 | Type      | Default                                                                                                              |
@@ -138,6 +157,7 @@ Custom UI component to display a message in the standard `MessageList`.
 | component | [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) |
 
 ### HeaderComponent
+
 Custom UI component to render at the top of the `MessageList`.
 
 | Type      | Default |
@@ -145,6 +165,7 @@ Custom UI component to render at the top of the `MessageList`.
 | component | none    |
 
 ### MessageDeleted
+
 Custom UI component for a deleted message.
 
 | Type      | Default                                                                                                                |
@@ -152,6 +173,7 @@ Custom UI component for a deleted message.
 | component | [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) |
 
 ### MessageNotification
+
 Custom UI component to display a notification when scrolled up the list and new messages arrive.
 
 | Type      | Default                                                                                                                              |
@@ -159,6 +181,7 @@ Custom UI component to display a notification when scrolled up the list and new 
 | component | [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) |
 
 ### MessageOptions
+
 Custom UI component for message options popup.
 
 | Type      | Default                                                                                                                |
@@ -166,6 +189,7 @@ Custom UI component for message options popup.
 | component | [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) |
 
 ### MessageRepliesCountButton
+
 Custom UI component to display message replies.
 
 | Type      | Default                                                                                                                                      |
@@ -173,6 +197,7 @@ Custom UI component to display message replies.
 | component | [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) |
 
 ### MessageSystem
+
 Custom UI component to display system messages.
 
 | Type      | Default                                                                                                                       |
@@ -180,6 +205,7 @@ Custom UI component to display system messages.
 | component | [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) |
 
 ### MessageTimestamp
+
 Custom UI component to display a timestamp on a message.
 
 | Type      | Default                                                                                                                    |
@@ -187,6 +213,7 @@ Custom UI component to display a timestamp on a message.
 | component | [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) |
 
 ### PinIndicator
+
 Custom UI component to override default pinned message indicator.
 
 | Type      | Default                                                                                                     |
@@ -194,6 +221,7 @@ Custom UI component to override default pinned message indicator.
 | component | [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) |
 
 ### QuotedMessage
+
 Custom UI component to override quoted message UI on a sent message.
 
 | Type      | Default                                                                                                              |
@@ -201,6 +229,7 @@ Custom UI component to override quoted message UI on a sent message.
 | component | [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) |
 
 ### QuotedMessagePreview
+
 Custom UI component to override the message input's quoted message preview.
 
 | Type      | Default                                                                                                                                 |
@@ -208,6 +237,7 @@ Custom UI component to override the message input's quoted message preview.
 | component | [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) |
 
 ### ReactionSelector
+
 Custom UI component to display the reaction selector.
 
 | Type      | Default                                                                                                                      |
@@ -215,6 +245,7 @@ Custom UI component to display the reaction selector.
 | component | [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) |
 
 ### ReactionsList
+
 Custom UI component to display the list of reactions on a message.
 
 | Type      | Default                                                                                                                |
@@ -222,6 +253,7 @@ Custom UI component to display the list of reactions on a message.
 | component | [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) |
 
 ### SendButton
+
 Custom UI component for send button.
 
 | Type      | Default                                                                                                        |
@@ -229,21 +261,22 @@ Custom UI component for send button.
 | component | [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
 
 ### ThreadHeader
+
 Custom UI component to display the header of a `Thread`.
 
 | Type      | Default                                                                                                            |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
 | component | [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) |
 
-
 ### ThreadInput
+
 Custom UI component to replace the `MessageInput`of a `Thread`.
-| Type      | Default                                                                                                            |
+| Type | Default |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
 | component | [DefaultThreadInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/MessageInputSmall.tsx) |
 
-
 ### ThreadStart
+
 Custom UI component to display the start of a threaded `MessageList`.
 
 | Type      | Default                                                                                                           |
@@ -251,6 +284,7 @@ Custom UI component to display the start of a threaded `MessageList`.
 | component | [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) |
 
 ### TriggerProvider
+
 Optional context provider that lets you override the default autocomplete triggers.
 
 | Type      | Default                                                                                                                                     |
@@ -258,6 +292,7 @@ Optional context provider that lets you override the default autocomplete trigge
 | component | [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) |
 
 ### TypingIndicator
+
 Custom UI component for the typing indicator.
 
 | Type      | Default                                                                                                                          |
@@ -265,6 +300,7 @@ Custom UI component for the typing indicator.
 | component | [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) |
 
 ### VirtualMessage
+
 Custom UI component to display a message in the `VirtualizedMessageList`.
 
 | Type      | Default                                                                                                                        |
