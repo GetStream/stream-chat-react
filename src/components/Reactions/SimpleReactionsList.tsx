@@ -32,6 +32,7 @@ export type SimpleReactionsListProps<
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmoji[];
+  /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse<Re, Us>[];
 };
 

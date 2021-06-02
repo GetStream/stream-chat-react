@@ -32,9 +32,11 @@ const CustomMessage = () => {
   const { message } = useMessageContext();
 
   return (
-    {message.attachments && <Attachment attachments={message.attachments} />}
-    // render remaining custom Message UI
-  )
+    <div>
+      {message.attachments && <Attachment attachments={message.attachments} />}
+      // render remaining custom Message UI
+    </div>
+  );
 };
 
 <Chat client={client}>
@@ -53,18 +55,18 @@ snippet shows how to customize one of the individual attachment UI components.
 ```jsx
 const CustomImage = (props) => {
   // render custom image component here
-}
+};
 
 const CustomMessage = () => {
   // consume `MessageContext`
   const { message } = useMessageContext();
 
   return (
-    {message.attachments && (
-      <Attachment attachments={message.attachments} Image={CustomImage} />
-    )}
-    // render remaining custom Message UI
-  )
+    <div>
+      {message.attachments && <Attachment attachments={message.attachments} Image={CustomImage} />}
+      // render remaining custom Message UI
+    </div>
+  );
 };
 
 <Chat client={client}>
