@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.6) 2021-06-02
+
+### Chore
+
+- Throttle send/remove message reaction functions [#953](https://github.com/GetStream/stream-chat-react/pull/953)
+and [#955](https://github.com/GetStream/stream-chat-react/pull/955)
+
+### Bug
+
+- Restore override props on `ChatAutoComplete` component [#952](https://github.com/GetStream/stream-chat-react/pull/952)
+
 ## [6.0.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.5) 2021-05-28
 
 ### Feature
