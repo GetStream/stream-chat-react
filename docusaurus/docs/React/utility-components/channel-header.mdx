@@ -1,5 +1,59 @@
 ---
 id: channel_header
 sidebar_position: 2
-title: Channel Header
+title: ChannelHeader
 ---
+
+## Overview
+The `ChannelHeader` component displays pertinent information regarding the currently active channel, including image and title.
+
+## Basic Usage
+
+**Example 1**
+```jsx
+<Channel>
+    <ChannelHeader
+        live={true}
+        title={'General'}
+    />
+</Channel>
+```
+
+## Props
+
+### Avatar
+
+A custom UI component to display the user avatar image.
+
+| Type      | Default                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------- |
+| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+  
+### image
+
+The displayed image URL for the header, defaults to the `channel` image if there is one.
+
+| Type   | Default             |
+| ------ | ------------------- |
+| string | the `channel` image |
+
+
+### live
+
+A boolean for showing a little indicator below the title if the `channel` is live right now.
+
+| Type    |
+| ------- |
+| boolean |
+
+### title
+
+A string to set the title manually, defaults to the `channel` name if there is one.
+
+| Type   | Default            |
+| ------ | ------------------ |
+| string | the `channel` name |
+
+
+
+
