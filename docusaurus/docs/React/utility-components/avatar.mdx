@@ -3,3 +3,90 @@ id: avatar
 sidebar_position: 1
 title: Avatar
 ---
+
+## Overview
+A component that displays an avatar image with fallback to the the first letter of the optional name prop.
+
+## Basic Usage
+
+**Example 1** - a rounded `Avatar`:
+
+```js
+import { Avatar } from './Avatar';
+const image =
+  'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
+const name = 'uthred';
+
+<Avatar image={image} name={name} shape='rounded' size={35} />;
+```
+
+**Example 2** - a square variation:
+
+```jsx
+import { Avatar } from './Avatar';
+const image =
+  'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
+const name = 'uthred';
+
+<Avatar image={image} name={name} shape='square' size={35} />;
+```
+
+**Example 3** - how the fallback looks:
+
+```js
+import { Avatar } from './Avatar';
+const name = 'username';
+
+<Avatar name={name} shape='circle' size={35} />;
+```
+
+## Props
+
+### image
+
+The image URL or default is an image of the first initial of the name if there is one.
+
+| Type           | Default                   |
+| -------------- | ------------------------- |
+| string \| null | first initial of the name |
+
+### name
+
+An optional name of the image, used for title tag fallback.
+
+| Type           |
+| -------------- |
+| string \| null |
+
+### onClick
+
+The click event handler.
+
+| Type                                      |
+| ----------------------------------------- |
+| (event: React.BaseSyntheticEvent) => void |
+
+### onMouseOver
+
+The mouseOver event handler.
+
+| Type                                      |
+| ----------------------------------------- |
+| (event: React.BaseSyntheticEvent) => void |
+
+### shape
+
+The shape of the avatar image.
+
+| Type                              | Default  |
+| --------------------------------- | -------- |
+| 'circle' \| 'rounded' \| 'square' | circle   |
+
+### size
+
+The size in pixels of the avatar image.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 32px    |
+
