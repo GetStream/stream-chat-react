@@ -27,9 +27,9 @@ export type ReactionSelectorProps<
 > = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
-  /** Enable the avatar display */
+  /** If true, shows the user's avatar with the reaction */
   detailedView?: boolean;
-  /** Handler to set/unset reaction on message, @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' */
+  /** Handler to set/unset a reaction on message, @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' */
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /**
    * Array of latest reactions.
@@ -47,7 +47,7 @@ export type ReactionSelectorProps<
    * ```
    * */
   latest_reactions?: ReactionResponse<Re, Us>[];
-  /** Array of reactions made by the currently set user */
+  /** An array of the reaction objects on a message made by the connected user */
   own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };

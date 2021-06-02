@@ -37,9 +37,7 @@ import { StreamChat } from 'stream-chat';
 
 const chatClient = StreamChat.getInstance('api_key');
 
-<Chat client={chatClient}>
-    // UI Components
-</Chat>
+<Chat client={chatClient}>// UI Components</Chat>;
 ```
 
 ## Connecting a User
@@ -96,6 +94,7 @@ const channel = chatClient.channel('messaging', 'dave-matthews-channel-id', {
 ```
 
 ## Setting Up the UI Components
+
 Now that we have a client instance, a connected user, and a channel created on the server, it's time to look at the core UI components involved in a fully functioning chat application.
 
 ### Chat
@@ -116,7 +115,7 @@ The Channel component is another React context provider that passes relevant cha
 - `ComponentContext`
 - `TypingContext`
 
-Find more information for this component, including a list of props, on the [docs page](../core-components/channel).
+Find more information for this component, including a list of props, on the [docs page](../core-components/channel.mdx).
 
 ### ChannelList
 
@@ -165,6 +164,7 @@ The `MessageInput` component is an HTML input with additional, built-in function
 See the component [docs page](../message-input-components/message-input.mdx) for more information.
 
 ## Summary
+
 In addition to the above referenced UI components, client instantiation, and user connection, you will need little other code to get a fully functioning chat application up and running. See below for an example of the complete code.
 
 ```ts
@@ -191,49 +191,43 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 const chatClient = StreamChat.getInstance(apiKey);
 
 const App = () => {
-    const [clientReady, setClientReady] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
 
-    useEffect(() => {
-        const setupClient = async () => {
-            try {
-                await chatClient.connectUser(
-                    { 
-                        id: 'dave-matthews', 
-                        name: 'Dave Matthews', 
-                    }, 
-                    'userToken',
-                ); 
-                setClientReady(true);
-            } catch (e) {
-                console.log(e);
-            }
-        };
+  useEffect(() => {
+    const setupClient = async () => {
+      try {
+        await chatClient.connectUser(
+          {
+            id: 'dave-matthews',
+            name: 'Dave Matthews',
+          },
+          'userToken',
+        );
+        setClientReady(true);
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
-        setupClient();
-    }, [chatClient, userToken]);
+    setupClient();
+  }, [chatClient, userToken]);
 
-    if (!clientReady) return null;
+  if (!clientReady) return null;
 
-    return (
-        <Chat client={chatClient}>
-            <ChannelList
-                filters={filters}
-                sort={sort}
-                options={options}
-            />
-            <Channel>
-                <Window>
-                    <ChannelHeader />
-                    <MessageList />
-                    <MessageInput />
-                </Window>
-                <Thread />
-            </Channel>
-        </Chat>
-    );
+  return (
+    <Chat client={chatClient}>
+      <ChannelList filters={filters} sort={sort} options={options} />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  );
 };
 
 export default App;
 ```
-
-

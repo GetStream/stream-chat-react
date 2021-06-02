@@ -2,11 +2,7 @@ import React, { useMemo } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import {
-  EmojiSetDef,
-  MinimalEmoji,
-  useChannelStateContext,
-} from '../../context/ChannelStateContext';
+import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
@@ -28,7 +24,6 @@ export type ReactionsListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  emojiSetDef?: EmojiSetDef;
   /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
   /** Array of reactions made by the currently set user */
