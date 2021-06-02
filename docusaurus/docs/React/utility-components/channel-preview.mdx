@@ -5,9 +5,11 @@ title: ChannelPreview
 ---
 
 ## Overview
+
 The `ChannelPreview` component is a wrapper component that handles the logic and functionality for a provided (or the default) channel preview and ultimately dictates the display via the component's `Preview` prop.
 
 ## Basic Usage
+
 You will not need to use the `ChannelPreview` component directly. If creating a custom preview component, you can take advantage of this component's logic while dictating the design and display by utilizing the `Preview` prop on `ChannelList`.
 This prop from the parent component ultimately sets the `Preview` prop in `ChannelPreview`. If this optional prop is not provided the default UI component is 
 [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
