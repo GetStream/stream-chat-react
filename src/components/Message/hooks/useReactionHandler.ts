@@ -45,10 +45,9 @@ export const useReactionHandler = <
         await channel.deleteReaction(id, type);
       }
     } catch (error) {
-      console.log(error);
       throw new Error('toggle reaction failed');
     }
-  }, 1500);
+  }, 1000);
 
   return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
     if (event?.preventDefault) {
