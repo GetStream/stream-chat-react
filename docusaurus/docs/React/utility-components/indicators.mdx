@@ -3,3 +3,116 @@ id: indicators
 sidebar_position: 6
 title: Indicators
 ---
+
+## Overview
+
+The Stream Chat React component library provides several default components that show the status of various aspects of the SDK as well as the Stream Chat API:
+
+- [`ChatDown`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) - established in the `ChannelList`, the default indicator that shows when chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
+This component also displays the [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) indicator which is a fancy loading indicator for the `ChannelList`.
+
+- [`EmptyStateIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) - this component is established in the `MessageList`, `VirtualizedList`, and `ChannelList`
+components and is rendered when there are no items to display.
+
+- [`TypingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) - a UI component that lists users currently typing and rendered via the `MessageList` and `VirtualizedList` components.
+
+- [`LoadingErrorIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) - the default UI component that displays an error message when the channel query fails in `Channel`.
+
+- [`LoadingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx)
+- [`LoadMoreButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMoreButton.tsx)
+- [`LoadMorePaginator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx)
+- [`TypingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx)
+
+## UI Customization
+
+### ChatDown
+
+You can override this indicator by utilizaing the `LoadingErrorIndicator` prop on `ChannelList`.
+
+### EmptyStateIndicator
+
+You can override this indicator in the `ChannelList` via the `EmptyStateIndicator` prop. Use the `EmptyStateIndicator` prop on `Channel` to override in the list components.
+
+### TypingIndicator
+
+Override this component via the `TypingIndicator` prop on `Channel`, which injects the new value into the `ComponentContext` which is then pulled for use in the list
+
+### LoadingErrorIndicator
+
+Override this component to display an error message in a way that fits your requirements via the `LoadingErrorIndicator` prop on `Channel`.
+
+## ChatDownProps
+
+### type
+
+The type of error.
+
+| Type   |
+| ------ |
+| string |
+
+### image
+
+The image url for this error.
+
+| Type   |
+| ------ |
+| string |
+
+### text
+The error message to show.
+
+| Type   |
+| ------ |
+| string |
+
+## EmptyStateIndicatorProps
+
+## listType
+
+The type of list that will display this indicator, and this type will conditionally render a message.
+
+| Type                  |
+| --------------------- |
+| 'channel' | 'message' |
+
+## TypingIndicatorProps
+
+### Avatar
+
+Custom UI component to display user's avatar.
+
+| Type      | Default                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------- |
+| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+
+
+### avatarSize
+
+The size in pixels of the avatar image.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 32px    |
+
+### threadList
+
+Boolean for whether or not the typing indicator is in a `Thread`.
+
+| Type    |
+| ------- |
+| boolean |
+
+### LoadingErrorIndicator
+
+## error
+
+The error object that is displayed.
+
+| Type  |
+| ----- |
+| Error |
+
+
+
+
