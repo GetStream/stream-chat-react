@@ -11,61 +11,57 @@ A simple date separator UI component for between messages. This component is ren
 
 ## Basic Usage
 
-This component may be overridden via the `DateSeparator` prop on `Channel`, which injects the new value into the `ComponentContext` for use in children components. If you would like to disable the `DateSeparator` from appearing in the UI,
-utilize the `disableDateSeparator` prop on either the `VirtualizedMessageList` or `MessageList` components. You can also hide the component when new messages are received via the `hideNewMessageSeparator` prop on the same two list components.
+Since this component is added to the message lists within those components by default, you typically won't need to import and use this component individually unless it's in a date separator custom component.
+If you would like to disable the `DateSeparator` from appearing in the UI, utilize the 
+`disableDateSeparator` prop on either the `VirtualizedMessageList` or `MessageList` components.
+You can also hide the component when new messages are received via the `hideNewMessageSeparator` prop on the same two list components.
 
-**Example 1** - Here's what it looks like for today:
+**Example 1** - Here's what it looks like for today's date:
 
-```js
+```tsx
 const date = new Date();
 
-<React.Fragment>
-  <DateSeparator date={date} {...data.translationContext} />
-  <DateSeparator date={date} position="center" {...data.translationContext} />
-  <DateSeparator date={date} position="left" {...data.translationContext} />
-</React.Fragment>;
+<DateSeparator date={date}  />
 ```
 
 **Example 2** - A date in the past:
 
-```js
+```tsx
 const date = new Date('December 17, 1995 03:24:00');
 
 <React.Fragment>
-  <DateSeparator date={date} {...data.translationContext} />
-  <DateSeparator date={date} position="center" {...data.translationContext} />
-  <DateSeparator date={date} position="left" {...data.translationContext} />
+  <DateSeparator date={date} />
+  <DateSeparator date={date} position="center" />
+  <DateSeparator date={date} position="left" />
 </React.Fragment>;
 ```
 
-**Example 3** - An example adding custom date formatting:
+## UI Customization
 
-```js
-const date = new Date('December 17, 1995 03:24:00');
+This component may be overridden via the `DateSeparator` prop on `Channel`, which injects the new value into the `ComponentContext`. This value is then pulled for use in the rendering method in the list components.
 
-function formatDate(d) {
-  return <h2>Messages posted after {d.toDateString()}</h2>;
-}
+**Example 1** - An example of a custom date separator:
 
-<React.Fragment>
-  <DateSeparator
-    formatDate={formatDate}
-    date={date}
-    {...data.translationContext}
-  />
-  <DateSeparator
-    formatDate={formatDate}
-    date={date}
-    position="center"
-    {...data.translationContext}
-  />
-  <DateSeparator
-    formatDate={formatDate}
-    date={date}
-    position="left"
-    {...data.translationContext}
-  />
-</React.Fragment>;
+```tsx
+export const YourCustomDateSeparator = (props: DateSeparatorProps) => {
+    const { date } = props
+
+    function formatDate(d: Date) {
+        return `The message date is: ${d.toDateString()}`;
+    }
+
+    return (
+        <DateSeparator
+            formatDate={formatDate}
+            date={date}
+            position={'center'}
+        />
+    )
+};
+
+<Channel DateSeparator={YourCustomDateSeparator}>
+    // the Channel children components
+/>
 ```
 
 ## Props 

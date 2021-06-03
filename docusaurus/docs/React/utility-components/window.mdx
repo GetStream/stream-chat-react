@@ -13,7 +13,7 @@ It's also possible to display the `Thread` side by side with the `Channel`. It's
 
 The `Window` component must wrap the main channel components to enable mount and unmount behavior, and the `Thread` component should also be on the same level. This ensures correct width changes in the main channel when opening and closing a `Thread`.
 
-```jsx
+```tsx
 const App = () => (
   <Chat client={chatClient}>
     <Channel>
