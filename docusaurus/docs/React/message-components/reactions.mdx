@@ -6,9 +6,128 @@ title: Reactions
 
 ## Overview
 
+The Stream Chat API provides built-in support for adding reactions to messages. The component library provides three default
+components to enable reaction selection and display:
+
+- [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows
+  the connected user to select a reaction on a message
+- [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) - displays
+  the reactions added to a message
+- [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
+  a minimal list of the reactions added to a message
+
 ## Basic Usage
 
+By default, the `ReactionSelector` and `ReactionsList` components are included within `MessageSimple`. To render reaction UI within a
+custom [Message UI](./message-ui.mdx) component, import both components (or `SimpleReactionsList` for a lightweight view) and render
+conditionally.
+
+```jsx
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message, showDetailedReactions } = useMessageContext();
+
+  return (
+    <div>
+      {showDetailedReactions && <ReactionSelector />}
+      // render remaining custom Message UI
+      {message.latest_reactions && <ReactionsList reactions={message.latest_reactions} />}
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
 ## UI Customization
+
+Be default, the `ReactionSelector` component provides the following reaction options and corresponding emojis:
+
+- `like`
+- `love`
+- `haha`
+- `wow`
+- `sad`
+- `angry`
+
+The `defaultMinimalEmojis` data set that populates the default reaction options can be found in the
+[emojiData](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/emojiData.ts) file in the
+component library.
+
+To override the default selection set, provide your own array of `MinimalEmoji` type objects and pass into the `reactionOptions`
+prop on the `ReactionSelector` component. You can also override the default [handleReaction](../contexts/message-context.mdx#handlereaction)
+function by adding the `handleReaction` prop.
+
+:::note
+If custom `reactionOptions` are supplied to the `ReactionSelector` component, then the same data set needs to be delivered to the
+`ReactionsList` component so the display of processed reactions has the same emoji objects.
+:::
+
+```jsx
+const customReactions = [
+  // add array of custom `MinimalEmoji` type objects here
+];
+
+const customReactionHandler = (reactionType, event) => {
+  // add custom handler logic here
+};
+
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message, showDetailedReactions } = useMessageContext();
+
+  return (
+    <div>
+      {showDetailedReactions && (
+        <ReactionSelector
+          handleReaction={customReactionHandler}
+          reactionOptions={customReactions}
+        />
+      )}
+      // render remaining custom Message UI
+      {message.latest_reactions && (
+        <ReactionsList reactions={message.latest_reactions} reactionOptions={customReactions} />
+      )}
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+To completely override the `ReactionSelector` and `ReactionsList` components in `MessageSimple`, pass your own custom components as props
+to the [`Channel`](../core-components/channel.mdx).
+
+```jsx
+const CustomReactionSelector = (props) => {
+  // add custom reaction selector component here
+};
+
+const CustomReactionsList = (props) => {
+  // add custom reactions list component here
+};
+
+<Chat client={client}>
+  <Channel
+    channel={channel}
+    ReactionSelector={CustomReactionSelector}
+    ReactionsList={CustomReactionsList}
+  >
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
 
 ## ReactionSelector Props
 
