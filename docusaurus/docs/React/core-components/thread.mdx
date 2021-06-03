@@ -8,7 +8,7 @@ title: Thread
 
 The `Thread` component renders a list of replies tied to a single parent message in a channel's main message list.
 A `Thread` maintains its own state and renders its own `MessageList` and `MessageInput` components. Each piece of
-rendered UI can be overriden with custom components either drawn from the `ComponentContext` or supplied via props.
+rendered UI can be overridden with custom components either drawn from the `ComponentContext` or supplied via props.
 
 The `Thread` component consumes the contexts established in [`Channel`](./channel.mdx) and does not have any required props.
 
@@ -16,7 +16,7 @@ The `Thread` component consumes the contexts established in [`Channel`](./channe
 
 As a context consumer, the `Thread` component must be rendered as a child of the `Channel` component. To enable
 smooth `Thread` mount and unmount behavior, wrap the main channel components in the [`Window`](../utility-components/window.mdx)
-component. `Window` handles width changes in the main channel to ensure a seemless user experience when opening and
+component. `Window` handles width changes in the main channel to ensure a seamless user experience when opening and
 closing a `Thread`.
 
 ```jsx
@@ -36,7 +36,7 @@ closing a `Thread`.
 
 Since a `Thread` contains most of the pieces of a `Channel` component, just in an encapsulated form, many aspects
 and components can be customized in a similar way. The UI components for both [`Message`](../message-components/message.mdx)
-and [`MessageInput`](../message-input-components/message-input.mdx) can be overriden via props if you desire different
+and [`MessageInput`](../message-input-components/message-input.mdx) can be overridden via props if you desire different
 UI from the styles rendered in the main `Channel`. `ThreadHeader` and `ThreadStart` are two overridable UI
 components unique to `Thread` that can be drawn from the `ComponentContext`.
 
