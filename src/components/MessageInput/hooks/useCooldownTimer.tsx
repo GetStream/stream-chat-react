@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { Event } from 'stream-chat';
+import type { ChannelResponse, Event } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -58,8 +58,7 @@ export const useCooldownTimer = <
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  // @ts-expect-error type needs to be added to JS client
-  const { cooldown: cooldownInterval } = channel.data || {};
+  const { cooldown: cooldownInterval } = (channel.data || {}) as ChannelResponse<Ch, Co, Us>;
 
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 

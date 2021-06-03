@@ -180,13 +180,13 @@ const VirtualizedMessageListWithContext = <
 
       const message = messageList[streamMessageIndex];
 
-      if (message.type === 'message.date' && message.date && isDate(message.date)) {
+      if (message.customType === 'message.date' && message.date && isDate(message.date)) {
         return <DateSeparator date={message.date} unread={message.unread} />;
       }
 
       if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
-      if (message.type === 'channel.event' || message.type === 'system') {
+      if (message.type === 'system') {
         return <MessageSystem message={message} />;
       }
 

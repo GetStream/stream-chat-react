@@ -102,14 +102,8 @@ describe('<MessageLivestream />', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
 
-  it('should not render anything if message is of type message.read', async () => {
-    const message = generateAliceMessage({ type: 'message.read' });
-    const { container } = await renderMessageLivestream(message);
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('should not render anything if message is of type message.date', async () => {
-    const message = generateAliceMessage({ type: 'message.date' });
+  it('should not render anything if message is of custom type message.date', async () => {
+    const message = generateAliceMessage({ customType: 'message.date' });
     const { container } = await renderMessageLivestream(message);
     expect(container).toBeEmptyDOMElement();
   });

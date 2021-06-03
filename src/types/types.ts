@@ -25,6 +25,7 @@ export type DefaultCommandType = LiteralStringForUnion;
 export type DefaultEventType = UnknownType;
 
 export type DefaultMessageType = UnknownType & {
+  customType?: 'channel.intro' | 'message.date';
   date?: string | Date;
   errorStatusCode?: number;
   event?: Event<

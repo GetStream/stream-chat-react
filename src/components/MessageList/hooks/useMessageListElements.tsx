@@ -89,7 +89,7 @@ export const useMessageListElements = <
   return useMemo(
     () =>
       enrichedMessages.map((message) => {
-        if (message.type === 'message.date' && message.date && isDate(message.date)) {
+        if (message.customType === 'message.date' && message.date && isDate(message.date)) {
           return (
             <li key={`${message.date.toISOString()}-i`}>
               <DateSeparator date={message.date} unread={message.unread} />
@@ -97,7 +97,7 @@ export const useMessageListElements = <
           );
         }
 
-        if (message.type === 'channel.intro' && HeaderComponent) {
+        if (message.customType === 'channel.intro' && HeaderComponent) {
           return (
             <li key='intro'>
               <HeaderComponent />
@@ -105,7 +105,7 @@ export const useMessageListElements = <
           );
         }
 
-        if (message.type === 'channel.event' || message.type === 'system') {
+        if (message.type === 'system') {
           return (
             <li
               key={
@@ -119,28 +119,24 @@ export const useMessageListElements = <
           );
         }
 
-        if (message.type !== 'message.read') {
-          const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+        const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
 
-          return (
-            <li
-              className={`str-chat__li str-chat__li--${groupStyles}`}
-              key={message.id || (message.created_at as string)}
-              onLoadCapture={onMessageLoadCaptured}
-            >
-              <Message
-                groupStyles={[groupStyles]} /* TODO: convert to simple string */
-                lastReceivedId={lastReceivedId}
-                message={message}
-                readBy={readData[message.id] || []}
-                threadList={threadList}
-                {...internalMessageProps}
-              />
-            </li>
-          );
-        }
-
-        return null;
+        return (
+          <li
+            className={`str-chat__li str-chat__li--${groupStyles}`}
+            key={message.id || (message.created_at as string)}
+            onLoadCapture={onMessageLoadCaptured}
+          >
+            <Message
+              groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              lastReceivedId={lastReceivedId}
+              message={message}
+              readBy={readData[message.id] || []}
+              threadList={threadList}
+              {...internalMessageProps}
+            />
+          </li>
+        );
       }),
     [
       enrichedMessages,

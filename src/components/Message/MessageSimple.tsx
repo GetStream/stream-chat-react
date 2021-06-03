@@ -91,7 +91,7 @@ const MessageSimpleWithContext = <
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
 
-  if (message.type === 'message.read' || message.type === 'message.date') {
+  if (message.customType === 'message.date') {
     return null;
   }
 
