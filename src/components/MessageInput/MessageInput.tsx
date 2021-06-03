@@ -50,7 +50,7 @@ export type MessageInputProps<
   clearEditingState?: () => void;
   /** Disable input */
   disabled?: boolean;
-  /** If true, the suggestion list will not display and autocomplete mentions. Default: false. */
+  /** If true, the suggestion list will not display and autocomplete @mentions. Default: false. */
   disableMentions?: boolean;
   /** Override file upload request */
   doFileUploadRequest?: (

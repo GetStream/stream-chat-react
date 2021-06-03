@@ -3,3 +3,189 @@ id: message_input
 sidebar_position: 1
 title: MessageInput
 ---
+
+## Overview
+
+The `MessageInput` component is a React Context provider that wraps all of the logic, functionality, and UI for the message input
+displayed in a channel. It provides the [`MessageInputContext`](../contexts/message-input-context.mdx) to its children. All of
+the input UI components consume the `MessageInputContext` and rely on the stored data for their display and interaction.
+
+## Basic Usage
+
+As a context consumer, the `MessageInput` component must be rendered as a child of the `Channel` component. `MessageInput` has
+no required props and calls custom hooks to assemble the context values loaded into the `MessageInputContext` and provided
+to its children.
+
+:::note
+If a custom input is not provided via the `Input` prop, [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
+will be used by default.
+:::
+
+```jsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+## UI Customization
+
+The `MessageInput` component does not inject any UI, so all input customization is handled by the [Input UI](./input-ui.mdx)
+component. The Input UI component is passed as the `Input` prop into either the `Channel` or `MessageInput` component.
+
+## Props
+
+### additionalTextareaProps
+
+Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize).
+
+| Type   |
+| ------ |
+| object |
+
+### clearEditingState
+
+Function to clear the editing state while editing a message.
+
+| Type       |
+| ---------- |
+| () => void |
+
+### disabled
+
+If true, disables the message input.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### disableMentions
+
+If true, the suggestion list will not display and autocomplete @mentions.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### doFileUploadRequest
+
+Function to override the default file upload request.
+
+| Type                                                                          |
+| ----------------------------------------------------------------------------- |
+| (file: FileUpload['file'], channel: Channel) => Promise<SendFileAPIResponse\> |
+
+### doImageUploadRequest
+
+Function to override the default image upload request.
+
+| Type                                                                           |
+| ------------------------------------------------------------------------------ |
+| (file: ImageUpload['file'], channel: Channel) => Promise<SendFileAPIResponse\> |
+
+### errorHandler
+
+Custom error handler function to be called with a file/image upload fails.
+
+| Type                                                                                              |
+| ------------------------------------------------------------------------------------------------- |
+| (error: Error, type: string, file: (FileUpload \| ImageUpload)['file'] & { id?: string }) => void |
+
+### focus
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### grow
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### Input
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### keycodeSubmitKeys
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### maxRows
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### mentionAllAppUsers
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### mentionQueryParams
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### message
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### noFiles
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### overrideSubmitHandler
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### parent
+
+.
+
+| Type |
+| ---- |
+|      |
+
+### publishTypingEvent
+
+.
+
+| Type |
+| ---- |
+|      |
