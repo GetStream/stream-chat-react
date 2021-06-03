@@ -3,3 +3,102 @@ id: date_separator
 sidebar_position: 5
 title: DateSeparator
 ---
+
+## Overview
+
+A simple date separator UI component for between messages. This component is rendered via the `VirtualizedMessageList` and `MessageList` components. See the render method 
+[processMessages](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/utils.ts) for more info on when the component is injected into the UI.
+
+## Basic Usage
+
+This component may be overridden via the `DateSeparator` prop on `Channel`, which injects the new value into the `ComponentContext` for use in children components. If you would like to disable the `DateSeparator` from appearing in the UI,
+utilize the `disableDateSeparator` prop on either the `VirtualizedMessageList` or `MessageList` components. You can also hide the component when new messages are received via the `hideNewMessageSeparator` prop on the same two list components.
+
+**Example 1** - Here's what it looks like for today:
+
+```js
+const date = new Date();
+
+<React.Fragment>
+  <DateSeparator date={date} {...data.translationContext} />
+  <DateSeparator date={date} position="center" {...data.translationContext} />
+  <DateSeparator date={date} position="left" {...data.translationContext} />
+</React.Fragment>;
+```
+
+**Example 2** - A date in the past:
+
+```js
+const date = new Date('December 17, 1995 03:24:00');
+
+<React.Fragment>
+  <DateSeparator date={date} {...data.translationContext} />
+  <DateSeparator date={date} position="center" {...data.translationContext} />
+  <DateSeparator date={date} position="left" {...data.translationContext} />
+</React.Fragment>;
+```
+
+**Example 3** - An example adding custom date formatting:
+
+```js
+const date = new Date('December 17, 1995 03:24:00');
+
+function formatDate(d) {
+  return <h2>Messages posted after {d.toDateString()}</h2>;
+}
+
+<React.Fragment>
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    {...data.translationContext}
+  />
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    position="center"
+    {...data.translationContext}
+  />
+  <DateSeparator
+    formatDate={formatDate}
+    date={date}
+    position="left"
+    {...data.translationContext}
+  />
+</React.Fragment>;
+```
+
+## Props 
+
+### date
+
+The date to format, required.
+
+| Type |
+| ---- |
+| Date |
+
+### formatDate
+
+Function to override the default formatting of the date. Has access to the original date object.
+
+| Type                   |
+| ---------------------- |
+| (date: Date) => string |
+
+
+### position 'left' | 'center' | 'right';
+
+Set the position of the date in the separator, options are 'left', 'center', 'right'.
+
+| Type                          | Default |
+| ----------------------------- | ------- |
+| 'left' \| 'center' \| 'right' | 'right' |
+
+## unread
+
+Boolean for if the following messages are not new.
+
+| Type    |
+| ------- |
+| boolean |
