@@ -11,6 +11,27 @@ The input searches for users by default, but the `searchFunction` prop can be us
 
 ## Basic Usage
 
+** Example 1 ** - used via the `showChannelSearch` prop.
+
+```tsx
+  <Chat client={chatClient}>
+    <ChannelList
+      filters={filters}
+      sort={sort}
+      options={options}
+      showChannelSearch
+    />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+```
+
 ## Props
 
 ### channelType
