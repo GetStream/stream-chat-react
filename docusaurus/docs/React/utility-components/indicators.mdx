@@ -9,15 +9,11 @@ title: Indicators
 The Stream Chat React component library provides several default components that show the status of various aspects of the SDK as well as the Stream Chat API:
 
 - [`ChatDown`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) - established in the `ChannelList`, the default indicator that shows when chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
-This component also displays the [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) indicator which is a fancy loading indicator for the `ChannelList`.
-
+  This component also displays the [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) indicator which is a fancy loading indicator for the `ChannelList`.
 - [`EmptyStateIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) - this component is established in the `MessageList`, `VirtualizedList`, and `ChannelList`
-components and is rendered when there are no items to display.
-
+  components and is rendered when there are no items to display.
 - [`TypingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) - a UI component that lists users currently typing and rendered via the `MessageList` and `VirtualizedList` components.
-
 - [`LoadingErrorIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) - the default UI component that displays an error message when the channel query fails in `Channel`.
-
 - [`LoadingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx)
 - [`LoadMoreButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMoreButton.tsx)
 - [`LoadMorePaginator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx)
@@ -27,7 +23,7 @@ components and is rendered when there are no items to display.
 
 ### ChatDown
 
-You can override this indicator by utilizaing the `LoadingErrorIndicator` prop on `ChannelList`.
+You can override this indicator by utilizing the `LoadingErrorIndicator` prop on `ChannelList`.
 
 ### EmptyStateIndicator
 
@@ -60,6 +56,7 @@ The image url for this error.
 | string |
 
 ### text
+
 The error message to show.
 
 | Type   |
@@ -68,13 +65,13 @@ The error message to show.
 
 ## EmptyStateIndicatorProps
 
-## listType
+### listType
 
 The type of list that will display this indicator, and this type will conditionally render a message.
 
-| Type                  |
-| --------------------- |
-| 'channel' | 'message' |
+| Type                   |
+| ---------------------- |
+| 'channel' \| 'message' |
 
 ## TypingIndicatorProps
 
@@ -85,7 +82,6 @@ Custom UI component to display user's avatar.
 | Type      | Default                                                                                               |
 | --------- | ----------------------------------------------------------------------------------------------------- |
 | component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
-
 
 ### avatarSize
 
@@ -103,16 +99,12 @@ Boolean for whether or not the typing indicator is in a `Thread`.
 | ------- |
 | boolean |
 
-### LoadingErrorIndicator
+## LoadingErrorIndicator
 
-## error
+### error
 
 The error object that is displayed.
 
 | Type  |
 | ----- |
 | Error |
-
-
-
-

@@ -35,62 +35,54 @@ export type MessageInputProps<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = {
-  /**
-   * Any additional attributes that you may want to add for underlying HTML textarea element.
-   * ```
-   * <MessageInput
-   *  additionalTextareaProps={{
-   *    maxLength: 10,
-   *  }}
-   * />
-   * ```
-   */
+  /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Callback to clear editing state in parent component */
+  /** Function to clear the editing state while editing a message */
   clearEditingState?: () => void;
-  /** Disable input */
+  /** If true, disables the text input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete @mentions. Default: false. */
   disableMentions?: boolean;
-  /** Override file upload request */
+  /** Function to override the default file upload request */
   doFileUploadRequest?: (
     file: FileUpload['file'],
     channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<SendFileAPIResponse>;
-  /** Override image upload request */
+  /** Function to override the default image upload request */
   doImageUploadRequest?: (
     file: ImageUpload['file'],
     channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   ) => Promise<SendFileAPIResponse>;
-  /** Custom error handler, called when file/image uploads fail */
+  /** Custom error handler function to be called with a file/image upload fails */
   errorHandler?: (
     error: Error,
     type: string,
     file: (FileUpload | ImageUpload)['file'] & { id?: string },
   ) => void;
-  /** Set focus to the text input if this is enabled */
+  /** If true, focuses the text input on component mount */
   focus?: boolean;
-  /** Grow the textarea while you're typing */
+  /** If true, expands the text input vertically for new lines */
   grow?: boolean;
-  /** The component handling how the input is rendered */
+  /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
-  /** Currently, Enter is the default submission key and Shift+Enter is the default for new line.
+  /**
+   * Currently, Enter is the default submission key and Shift+Enter is the default for new line.
    * If provided, this array of keycode numbers will override the default Enter for submission, and Enter will then only create a new line.
-   * Shift + Enter will still always create a new line, unless Shift+Enter [16, 13] are included in the override.
+   * Shift + Enter will still always create a new line, unless Shift+Enter [16, 13] is included in the override.
    * e.g.: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0.
    * */
   keycodeSubmitKeys?: Array<number[]>;
-  /** Max number of rows the textarea is allowed to grow */
+  /** Max number of rows the underlying `textarea` component is allowed to grow */
   maxRows?: number;
-  /** If true, the suggestion list will search all app users, not just current channel members/watchers. Default: false. */
+  /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
   mentionAllAppUsers?: boolean;
-  /** Object containing filters/sort/options overrides for mentions user query */
+  /** Object containing filters/sort/options overrides for an @mention user query */
   mentionQueryParams?: SearchQueryParams<Us>;
-  /** Message object. If defined, the message passed will be edited, instead of a new message being created */
+  /** If provided, the existing message will be edited on submit */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** If true, file uploads are disabled. Default: false */
+  /** If true, disables file uploads. Default: false */
   noFiles?: boolean;
-  /** Completely override the submit handler (advanced usage only) */
+  /** Function to override the default submit handler */
   overrideSubmitHandler?: (
     message: {
       attachments: Attachment<At>[];
@@ -100,9 +92,9 @@ export type MessageInputProps<
     },
     channelCid: string,
   ) => void;
-  /** The parent message object when replying on a thread */
+  /** When replying in a thread, the parent message object */
   parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Enable/disable firing the typing event */
+  /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
 };
 

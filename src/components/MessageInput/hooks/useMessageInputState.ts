@@ -170,7 +170,7 @@ const initState = <
     };
   }
 
-  // if message prop is defined, get image uploads, file uploads, text, etc. from it
+  // if message prop is defined, get image uploads, file uploads, text, etc.
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
@@ -186,6 +186,7 @@ const initState = <
         };
         return acc;
       }, {} as Record<string, ImageUpload>) || {};
+
   const imageOrder = Object.keys(imageUploads);
 
   const fileUploads =
@@ -205,6 +206,7 @@ const initState = <
         };
         return acc;
       }, {} as Record<string, FileUpload>) || {};
+
   const fileOrder = Object.keys(fileUploads);
 
   const attachments =
@@ -237,8 +239,10 @@ const messageInputReducer = <
   switch (action.type) {
     case 'setEmojiPickerIsOpen':
       return { ...state, emojiPickerIsOpen: action.value };
+
     case 'setText':
       return { ...state, text: action.getNewText(state.text) };
+
     case 'clear':
       return {
         attachments: [],
@@ -250,6 +254,7 @@ const messageInputReducer = <
         mentioned_users: [],
         text: '',
       };
+
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
       if (!imageAlreadyExists && !action.file) return state;
@@ -265,6 +270,7 @@ const messageInputReducer = <
         },
       };
     }
+
     case 'setFileUpload': {
       const fileAlreadyExists = state.fileUploads[action.id];
       if (!fileAlreadyExists && !action.file) return state;
@@ -280,6 +286,7 @@ const messageInputReducer = <
         },
       };
     }
+
     case 'removeImageUpload': {
       if (!state.imageUploads[action.id]) return state; // cannot remove anything
       const newImageUploads = { ...state.imageUploads };
@@ -290,6 +297,7 @@ const messageInputReducer = <
         imageUploads: newImageUploads,
       };
     }
+
     case 'removeFileUpload': {
       if (!state.fileUploads[action.id]) return state; // cannot remove anything
       const newFileUploads = { ...state.fileUploads };
@@ -300,11 +308,13 @@ const messageInputReducer = <
         fileUploads: newFileUploads,
       };
     }
+
     case 'addMentionedUser':
       return {
         ...state,
         mentioned_users: state.mentioned_users.concat(action.user),
       };
+
     default:
       return state;
   }
