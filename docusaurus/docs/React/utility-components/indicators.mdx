@@ -6,7 +6,7 @@ title: Indicators
 
 ## Overview
 
-The Stream Chat React component library provides a variety default components that show the status of various aspects of the SDK as well as the Stream Chat API:
+The Stream Chat React component library provides a variety components that show the status of items loading, queries from the API, network issues, and also a typing indicator:
 
 - [`ChatDown`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) - established in the `ChannelList`, the default indicator that shows when chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
   This component also displays the [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) indicator which is a fancy loading indicator for the `ChannelList`.
@@ -139,7 +139,7 @@ If true, the `LoadingIndicator` is displayed instead of button.
 
 ## LoadMorePaginatorProps
 
-### loadNextPage
+### <div class="label required basic">Required</div> loadNextPage
 
 Callback to load the next page, required.
 
