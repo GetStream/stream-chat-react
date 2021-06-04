@@ -30,9 +30,8 @@ You can change/create permission policies applied to a channel type at any time 
 
 ### Watching Channels
 
-The method channel.watch() is intended for client-side use, and creates a channel if it does not already exist. If the channel already exists, it will return a more detailed version of the channel instance (including messages, watchers, and 'read').
+The method channel.watch() is intended for client-side use, and creates a channel if it does not already exist. If the channel already exists, it will return a more detailed version of the channel instance (including messages, watchers, and 'read'). In addition, using this method will 'watch' the channel, that is, the currently connected user will be subscribed to event updates (new message, new member, etc...).
 
-In addition, using this method will 'watch' the channel, that is, the currently connected user will be subscribed to event updates (new message, new member, etc...).
 This is different than the methods channel.create() (creates a channel but does not subscribe to events) and
 channel.query() (returns certain parameters of the channel but does not subscribe to events).
 
