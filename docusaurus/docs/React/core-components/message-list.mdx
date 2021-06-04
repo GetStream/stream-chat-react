@@ -1,0 +1,337 @@
+---
+id: message_list
+sidebar_position: 4
+title: MessageList
+---
+
+## Overview
+
+The `MessageList` component renders a scrollable list of messages. The UI for each individual message is rendered
+conditionally based on its `message.type` value. The list renders date separators, new message notifications, system
+messages, deleted messages, and standard messages containing text and/or attachments.
+
+By default, the `MessageList` loads the most recent 25 messages held in the `channel.state`. More messages are fetched
+from the Stream Chat API and loaded into the DOM on scrolling up the list. The currently loaded messages are held in
+the `ChannelStateContext` and can be referenced with our custom hook.
+
+```jsx
+const { messages } = useChannelStateContext();
+```
+
+The `MessageList` has no required props and by default pulls overridable data from the various contexts established
+in the [`Channel`](./channel.mdx) component. Customization of the messages rendered within the list is handled by
+the [Message UI](../message-components/message-ui.mdx) component.
+
+## Basic Usage
+
+As a context consumer, the `MessageList` component must be rendered as a child of the `Channel` component. It can be
+rendered with or without a provided `messages` prop. Providing your own `messages` value will override the default
+value drawn from the `ChannelStateContext`.
+
+**Example 1** - without `messages` prop
+
+```jsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+**Example 2** - with `messages` prop
+
+```jsx
+const customMessages = [
+  // array of messages
+];
+
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <MessageList messages={customMessages} />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## Props
+
+### additionalMessageInputProps
+
+Additional props to be passed to the underlying `MessageInput` component, [available props](../message-input-components/message-input.mdx/#props).
+
+| Type   |
+| ------ |
+| object |
+
+### customMessageActions
+
+An object containing custom message actions (key) and function handlers (value).
+
+```jsx
+const customAction = {
+  log: (message, event) => console.log(message, event),
+};
+
+<MessageList customMessageActions={customAction} />;
+```
+
+| Type   |
+| ------ |
+| object |
+
+### disableDateSeparator
+
+If true, disables the injection of date separator UI components.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### disableQuotedMessages
+
+If true, disables the ability for users to quote messages.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### formatDate
+
+Overrides the default date formatting logic, has access to the original date object.
+
+| Type                   |
+| ---------------------- |
+| (date: Date) => string |
+
+### getFlagMessageErrorNotification
+
+Function that returns the notification text to be displayed when a flag message request fails. This function receives the
+flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getFlagMessageSuccessNotification
+
+Function that returns the notification text to be displayed when a flag message request succeeds. This function receives the
+flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getMuteUserErrorNotification
+
+Function that returns the notification text to be displayed when a mute user request fails. This function receives the
+muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+
+| Type                           |
+| ------------------------------ |
+| (user: UserResponse) => string |
+
+### getMuteUserSuccessNotification
+
+Function that returns the notification text to be displayed when a mute user request succeeds. This function receives the
+muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+
+| Type                           |
+| ------------------------------ |
+| (user: UserResponse) => string |
+
+### getPinMessageErrorNotification
+
+Function that returns the notification text to be displayed when a pin message request fails. This function receives the
+pinned [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### hasMore
+
+Whether or not the list has more items to load.
+
+| Type    | Default                                                                              |
+| ------- | ------------------------------------------------------------------------------------ |
+| boolean | [ChannelStateContextValue['hasMore']](../contexts/channel-state-context.mdx#hasmore) |
+
+### headerPosition
+
+Position to render the `HeaderComponent` in the list.
+
+| Type   |
+| ------ |
+| number |
+
+### hideDeletedMessages
+
+If true, removes the `MessageDeleted` components from the list.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### hideNewMessageSeparator
+
+If true, hides the `DateSeparator` component that renders when new messages are received in a channel that's watched but not active.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### internalInfiniteScrollProps
+
+Additional props for the underlying [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) component.
+
+| Type   |
+| ------ |
+| object |
+
+### loadingMore
+
+Whether or not the list is currently loading more items.
+
+| Type    | Default                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------- |
+| boolean | [ChannelStateContextValue['loadingMore']](../contexts/channel-state-context.mdx#loadingmore) |
+
+### loadMore
+
+Function called when more messages are to be loaded, provide your own function to override the handler stored in context.
+
+| Type     | Default                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
+
+### Message
+
+Custom UI component to display an individual message.
+
+| Type      | Default                                                                                                              |
+| --------- | -------------------------------------------------------------------------------------------------------------------- |
+| component | [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) |
+
+### messageActions
+
+Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all actions, provide an empty array.
+
+| Type  | Default                                                              |
+| ----- | -------------------------------------------------------------------- |
+| array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
+
+### messageLimit
+
+The limit to use when paginating new messages.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 100     |
+
+### messages
+
+The messages to render in the list, provide your own array to override the data stored in context.
+
+| Type  | Default                                                                                |
+| ----- | -------------------------------------------------------------------------------------- |
+| array | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
+
+### noGroupByUser
+
+If true, turns off message UI grouping by user.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### onMentionsClick
+
+Custom action handler function to run on click of an @mention in a message.
+
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsClick']](../contexts/channel-action-context.mdx#onmentionsclick) |
+
+### onMentionsHover
+
+Custom action handler function to run on hover of an @mention in a message.
+
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsHover']](../contexts/channel-action-context.mdx#onmentionshover) |
+
+### onUserClick
+
+Custom action handler function to run on click of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### onUserHover
+
+Custom action handler function to run on hover of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### openThread
+
+Custom action handler to open a [`Thread`](./thread.mdx) component.
+
+| Type     | Default                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
+
+### pinPermissions
+
+The user roles allowed to pin messages in various channel types.
+
+| Type   | Default                                                                                                              |
+| ------ | -------------------------------------------------------------------------------------------------------------------- |
+| object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
+
+### renderText
+
+Custom function to render message text content.
+
+| Type     | Default                                                                                |
+| -------- | -------------------------------------------------------------------------------------- |
+| function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
+
+### retrySendMessage
+
+Custom action handler to retry sending a message after a failed request.
+
+| Type     | Default                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
+
+### scrolledUpThreshold
+
+The pixel threshold to determine whether or not the user is scrolled up in the list. When scrolled up in the active
+channel, the `MessageNotification` component displays when new messages arrive.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 200     |
+
+### threadList
+
+If true, indicates that the current `MessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### unsafeHTML
+
+If true, renders HTML instead of markdown. Posting HTML is only supported server-side.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

@@ -1,0 +1,152 @@
+---
+id: channel_preview
+sidebar_position: 3
+title: ChannelPreview
+---
+
+## Overview
+
+The `ChannelPreview` component is a wrapper component that handles the logic and functionality for a provided (or the default) channel preview and ultimately dictates the display via the component's `Preview` prop.
+
+## Basic Usage
+
+You will not need to use the `ChannelPreview` component directly. If creating a custom preview component, you can take advantage of this component's logic while dictating the design and display by utilizing the `Preview` prop on `ChannelList`.
+This prop from the parent component ultimately sets the `Preview` prop in `ChannelPreview`. If this optional prop is not provided the default UI component is 
+[`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
+
+**Example 1**
+
+```tsx
+const YourCustomChannelPreview = (props) => {
+  // render custom preview info here
+};
+
+<ChannelList
+    options={options}
+    sort={sort}
+    Preview={(previewProps) => (
+    <YourCustomChannelPreview
+        {...previewProps}
+    />
+    )}
+/>
+```
+
+## Props
+
+### channel
+
+This required prop is the `channel` to be previewed; comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from
+[ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) and does not need to be set manually.
+
+| Type     |
+| -------- |
+| Channel  |
+
+### activeChannel
+
+The currently selected channel object.
+
+| Type     |
+| -------- |
+| Channel  |
+
+### Avatar
+
+The custom UI component to display the an avatar for the `channel`.
+
+| Type      | Default                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------- |
+| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+
+### channelUpdateCount
+
+A number that forces the update of the preview component on channel update.
+
+| Type    |
+| ------- |
+| number  |
+
+### Preview
+
+The UI component to use for display.
+
+| Type      | Default                                                                                                                                         |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| component | [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) |
+
+### setActiveChannel
+
+The setter function for a selected `channel`.
+
+| Type                                 |
+| ------------------------------------ |
+| ChatContextValue['setActiveChannel'] |
+
+### watchers
+The object containing watcher parameters. See the [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
+
+| Type                                |
+| ----------------------------------- |
+| { limit?: number; offset?: number } |
+
+### active
+
+If the component's `channel` is the active (selected) one.
+
+| Type    |
+| ------- |
+| string  |
+
+### displayImage
+
+The image of the `channel` to display.
+
+| Type    |
+| ------- |
+| string  |
+
+### displayTitle
+
+The title of `channel` to display.
+
+| Type    |
+| ------- |
+| string  |
+
+### lastMessage
+
+The last message received in a `channel`.
+StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+
+### latestMessage
+
+The latest message preview text to display.
+
+| Type    |
+| ------- |
+| string  |
+
+### latestMessageLength
+
+Text truncation limit for the latest message.
+
+| Type    |
+| ------- |
+| number  |
+
+### unread
+
+The number of unread `messages`.
+
+| Type    |
+| ------- |
+| number  |
+
+### channelUpdateCount
+
+A number that forces the update of the preview component on channel update.
+
+| Type    |
+| ------- |
+| number  |

@@ -1,0 +1,342 @@
+---
+id: ui-components
+sidebar_position: 5
+title: UI Components
+---
+
+## Overview
+
+As described in the [Message UI](./message-ui.mdx) section, our default [`MessageSimple`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx)
+component is a combination of various UI sub-components. We export all of the building blocks of `MessageSimple`, so a custom Message UI
+component can be built in a similar way. Check out the [Message UI Customization](../customization/message-ui.mdx) section for an example.
+
+The following UI components are available for use:
+
+- [`MessageActions`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/MessageActions.tsx) - displays
+  the available actions on a message (ex: edit, flag, pin)
+
+- [`MessageDeleted`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) - renders when
+  `message.type` is `deleted`
+
+- [`MessageOptions`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) - on hover,
+  shows the available options on a message (i.e., react, reply, actions)
+
+- [`MessageRepliesCountButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) - displays
+  the number of threaded replies on a message
+
+- [`MessageStatus`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) - displays message
+  delivery status and the users who have read the message
+
+- [`MessageText`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageText.tsx) - formats and renders
+  the message text in markdown using [react-markdown](https://www.npmjs.com/package/react-markdown)
+
+- [`MessageTimestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) - shows the
+  sent time of a message
+
+- [`MML`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MML/MML.tsx) - a wrapper component around the
+  [MML React](https://www.npmjs.com/package/mml-react) library
+
+- [`QuotedMessage`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) - shows a quoted
+  message UI wrapper when the sent message quotes a previous message
+
+## MessageActions Props
+
+### getMessageActions
+
+Function that returns an array of the allowed actions on a message by the currently connected user (overrides the value from `MessageContext`).
+
+| Type                      |
+| ------------------------- |
+| () => MessageActionsArray |
+
+### handleDelete
+
+Function that removes a message from the current channel (overrides the value from `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleFlag
+
+Function that flags a message (overrides the value from `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleMute
+
+Function that mutes the sender of a message (overrides the value from `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handlePin
+
+Function that pins a message in the current channel (overrides the value from `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`).
+
+| Type   |
+| ------ |
+| object |
+
+### customWrapperClass
+
+Custom CSS class to be added to the `div` wrapping the component.
+
+| Type   |
+| ------ |
+| string |
+
+### inline
+
+If true, renders the wrapper component as a `span`, not a `div`.
+
+| Type   | Default |
+| ------ | ------- |
+| string | false   |
+
+### messageWrapperRef
+
+React mutable ref placed on the `div` wrapping the `MessageSimple` children.
+
+| Type                             |
+| -------------------------------- |
+| React.RefObject<HTMLDivElement\> |
+
+### mine
+
+Function that returns whether or not the message was sent by the connected user.
+
+| Type          |
+| ------------- |
+| () => boolean |
+
+## MessageDeleted Props
+
+### <div class="label required basic">Required</div> message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components.
+
+| Type   |
+| ------ |
+| object |
+
+## MessageOptions Props
+
+### displayLeft
+
+If true, sets the `MessageOptions` component to the left of the connected user's messages.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### displayReplies
+
+If true, show the `ThreadIcon` and enable navigation into a `Thread` component.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### handleOpenThread
+
+Function that opens a [`Thread`](../core-components/thread.mdx) on a message (overrides the value from `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### messageWrapperRef
+
+React mutable ref placed on the `div` wrapping the `MessageSimple` children.
+
+| Type                             |
+| -------------------------------- |
+| React.RefObject<HTMLDivElement\> |
+
+### theme
+
+Theme string to be added to CSS class names.
+
+```jsx
+<div className={`str-chat__message-${theme}__actions`} />
+```
+
+| Type   | Default  |
+| ------ | -------- |
+| string | 'simple' |
+
+## MessageRepliesCountButton Props
+
+### labelPlural
+
+If supplied, adds custom text to the end of a multiple replies message.
+
+```jsx
+const pluralReplyText = `${reply_count} ${labelPlural}`;
+```
+
+| Type   |
+| ------ |
+| string |
+
+### labelSingle
+
+If supplied, adds custom text to the end of a single reply message.
+
+```jsx
+const singleReplyText = `1 ${labelSingle}`;
+```
+
+| Type   |
+| ------ |
+| string |
+
+### onClick
+
+Function to navigate into an existing thread on a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### reply_count
+
+The amount of replies (i.e., threaded messages) on a message.
+
+| Type   |
+| ------ |
+| number |
+
+## MessageStatus Props
+
+### Avatar
+
+Custom UI component to display a user's avatar (overrides the value from `ComponentContext`).
+
+| Type      | Default                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------- |
+| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+
+### messageType
+
+Message type string to be added to CSS class names.
+
+```jsx
+<span className={`str-chat__message-${messageType}-status`} />
+```
+
+| Type   | Default  |
+| ------ | -------- |
+| string | 'simple' |
+
+## MessageText Props
+
+### customInnerClass
+
+If provided, replaces the CSS class name placed on the component's inner `div` container.
+
+| Type   |
+| ------ |
+| string |
+
+### customWrapperClass
+
+If provided, adds a CSS class name to the component's outer `div` container.
+
+| Type   |
+| ------ |
+| string |
+
+### theme
+
+Theme string to be added to CSS class names.
+
+```jsx
+<div className={`str-chat__message-${theme}-text-inner`} />
+```
+
+| Type   | Default  |
+| ------ | -------- |
+| string | 'simple' |
+
+## MessageTimestamp Props
+
+### calendar
+
+If true, call the `Day.js` calendar function to get the date string to display.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### customClass
+
+If provided, adds a CSS class name to the component's outer `time` container.
+
+```jsx
+<time className={customClass} />
+```
+
+| Type   |
+| ------ |
+| string |
+
+### format
+
+If provided, overrides the default timestamp format.
+
+| Type   | Default |
+| ------ | ------- |
+| string | 'h:mmA' |
+
+### message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`).
+
+| Type   |
+| ------ |
+| object |
+
+## MML Props
+
+### <div class="label required basic">Required</div> source
+
+The MML source string to be rendered by the `mml-react` library.
+
+| Type   |
+| ------ |
+| string |
+
+### actionHandler
+
+The submit handler function for MML actions.
+
+| Type                                       |
+| ------------------------------------------ |
+| (data: Record<string, unknown>) => unknown |
+
+### align
+
+The side of the message list to render MML components.
+
+| Type              | Default |
+| ----------------- | ------- |
+| 'left' \| 'right' | 'right' |
+
+## QuotedMessage Props
+
+:::note
+`QuotedMessage` only consumes context and does not accept any optional props.
+:::

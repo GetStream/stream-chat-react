@@ -51,7 +51,7 @@ export type MessageContextValue<
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
   /** Function to exit edit state */
-  clearEditingState: (event?: React.BaseSyntheticEvent | undefined) => void;
+  clearEditingState: (event?: React.BaseSyntheticEvent) => void;
   /** If the Message is in edit state */
   editing: boolean;
   /**

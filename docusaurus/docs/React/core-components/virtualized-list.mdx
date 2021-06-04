@@ -1,0 +1,170 @@
+---
+id: virtualized_list
+sidebar_position: 5
+title: VirtualizedMessageList
+---
+
+## Overview
+
+The `VirtualizedMessageList` component renders a scrollable list of messages. It differs from the standard `MessageList`
+in that it handles UI virtualization by default. Virtualization is a technique used to emulate large lists of elements by
+rendering as few items as possible to maintain performance and decrease the load on the DOM, while preserving the user
+experience. These qualities make the `VirtualizedMessageList` ideal for livestream use cases, where a single channel may
+have thousands of currently active users.
+
+Similar to the `MessageList`, the UI for each individual message is rendered conditionally based on its `message.type` value.
+The list renders date separators, new message notifications, system messages, deleted messages, and standard messages
+containing text and/or attachments.
+
+By default, the `VirtualizedMessageList` loads the most recent 25 messages held in the `channel.state`. More messages are fetched
+from the Stream Chat API and loaded into the DOM on scrolling up the list. The currently loaded messages are held in
+the `ChannelStateContext` and can be referenced with our custom hook.
+
+```jsx
+const { messages } = useChannelStateContext();
+```
+
+The `VirtualizedMessageList` has no required props and by default pulls overridable data from the various contexts established
+in the [`Channel`](./channel.mdx) component. Customization of the messages rendered within the list is handled by
+the [Message UI](../message-components/message-ui.mdx) component.
+
+## Basic Usage
+
+As a context consumer, the `VirtualizedMessageList` component must be rendered as a child of the `Channel` component. It can be
+rendered with or without a provided `messages` prop. Providing your own `messages` value will override the default
+value drawn from the `ChannelStateContext`.
+
+**Example 1** - without `messages` prop
+
+```jsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <VirtualizedMessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+**Example 2** - with `messages` prop
+
+```jsx
+const customMessages = [
+  // array of messages
+];
+
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <VirtualizedMessageList messages={customMessages} />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## Props
+
+### customMessageRenderer
+
+Custom message render function, overrides the default `messageRenderer` function defined in the component.
+
+| Type                                                               |
+| ------------------------------------------------------------------ |
+| ( messages: StreamMessage[], index: number ) => React.ReactElement |
+
+### disableDateSeparator
+
+If true, disables the injection of date separator UI components.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### hideDeletedMessages
+
+If true, removes the `MessageDeleted` components from the list.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### hideNewMessageSeparator
+
+If true, hides the `DateSeparator` component that renders when new messages are received in a channel that's watched but not active.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### loadMore
+
+Function called when more messages are to be loaded, provide your own function to override the handler stored in context.
+
+| Type     | Default                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
+
+### Message
+
+Custom UI component to display an individual message.
+
+| Type      | Default                                                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| component | [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) |
+
+### messageLimit
+
+The limit to use when paginating messages.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 100     |
+
+### messages
+
+The messages to render in the list, provide your own array to override the data stored in context.
+
+| Type  | Default                                                                                |
+| ----- | -------------------------------------------------------------------------------------- |
+| array | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
+
+### overscan
+
+The amount of extra content the list should render in addition to what's necessary to fill in the viewport.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 0       |
+
+### scrollSeekPlaceHolder
+
+Custom data passed to the list that determines when message placeholders should be shown during fast scrolling.
+
+| Type   |
+| ------ |
+| object |
+
+### scrollToLatestMessageOnFocus
+
+If true, the list will scroll to the latest message when the window regains focus.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### scrollToLatestMessageOnFocus
+
+If true, group messages belonging to the same user, otherwise show each message individually.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### stickToBottomScrollBehavior
+
+The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat channels and `'auto'`
+(which results in instant scroll to bottom) if you expect high throughput.
+
+| Type               | Default  |
+| ------------------ | -------- |
+| 'smooth' \| 'auto' | 'smooth' |

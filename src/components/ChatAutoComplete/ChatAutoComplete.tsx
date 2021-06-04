@@ -79,19 +79,19 @@ export type SuggestionListProps<
 >;
 
 export type ChatAutoCompleteProps = {
-  /** Function that runs on submit */
+  /** Function to override the default submit handler on the underlying `textarea` component */
   handleSubmit?: (event: React.BaseSyntheticEvent) => void;
-  /** Function that runs on change */
+  /** Function to override the default onChange behavior on the underlying `textarea` component */
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-  /** Listener for onfocus event on textarea */
+  /** Function to run on focus of the underlying `textarea` component */
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
-  /** Function to run on pasting within the textarea */
+  /** Function to override the default onPaste behavior on the underlying `textarea` component */
   onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  /** Placeholder for the textarea */
+  /** Placeholder for the the underlying `textarea` component */
   placeholder?: string;
-  /** The number of rows you want the textarea to have */
+  /** The initial number of rows for the underlying `textarea` component */
   rows?: number;
-  /** The value of the textarea */
+  /** The text value of the underlying `textarea` component */
   value?: string;
 };
 
@@ -107,16 +107,16 @@ const UnMemoizedChatAutoComplete = <
 >(
   props: ChatAutoCompleteProps,
 ) => {
-  const { t } = useTranslationContext();
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
-  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
-
   const {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { t } = useTranslationContext();
 
-  const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
+
+  const placeholder = props.placeholder || t('Type your message');
 
   const emojiReplace = (word: string) => {
     const found = emojiIndex?.search(word) || [];
@@ -155,11 +155,11 @@ const UnMemoizedChatAutoComplete = <
       maxRows={messageInput.maxRows}
       minChar={0}
       onChange={props.onChange || messageInput.handleChange}
-      onFocus={onFocus}
+      onFocus={props.onFocus}
       onPaste={props.onPaste || messageInput.onPaste}
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
-      rows={rows}
+      rows={props.rows || 1}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={messageInput.autocompleteTriggers || {}}

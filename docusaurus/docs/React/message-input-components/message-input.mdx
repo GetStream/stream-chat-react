@@ -1,0 +1,194 @@
+---
+id: message_input
+sidebar_position: 1
+title: MessageInput
+---
+
+## Overview
+
+The `MessageInput` component is a React Context provider that wraps all of the logic, functionality, and UI for the message input
+displayed in a channel. It provides the [`MessageInputContext`](../contexts/message-input-context.mdx) to its children. All of
+the input UI components consume the `MessageInputContext` and rely on the stored data for their display and interaction.
+
+## Basic Usage
+
+As a context consumer, the `MessageInput` component must be rendered as a child of the `Channel` component. `MessageInput` has
+no required props and calls custom hooks to assemble the context values loaded into the `MessageInputContext` and provided
+to its children.
+
+:::note
+If a custom input is not provided via the `Input` prop, [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
+will be used by default.
+:::
+
+```jsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+## UI Customization
+
+The `MessageInput` component does not inject any UI, so all input customization is handled by the [Input UI](./input-ui.mdx)
+component. The Input UI component is passed as the `Input` prop into either the `Channel` or `MessageInput` component.
+
+## Props
+
+### additionalTextareaProps
+
+Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize).
+
+| Type   |
+| ------ |
+| object |
+
+### clearEditingState
+
+Function to clear the editing state while editing a message.
+
+| Type       |
+| ---------- |
+| () => void |
+
+### disabled
+
+If true, disables the text input.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### disableMentions
+
+If true, the suggestion list will not display and autocomplete @mentions.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### doFileUploadRequest
+
+Function to override the default file upload request.
+
+| Type                                                                          |
+| ----------------------------------------------------------------------------- |
+| (file: FileUpload['file'], channel: Channel) => Promise<SendFileAPIResponse\> |
+
+### doImageUploadRequest
+
+Function to override the default image upload request.
+
+| Type                                                                           |
+| ------------------------------------------------------------------------------ |
+| (file: ImageUpload['file'], channel: Channel) => Promise<SendFileAPIResponse\> |
+
+### errorHandler
+
+Custom error handler function to be called with a file/image upload fails.
+
+| Type                                                                                              |
+| ------------------------------------------------------------------------------------------------- |
+| (error: Error, type: string, file: (FileUpload \| ImageUpload)['file'] & { id?: string }) => void |
+
+### focus
+
+If true, focuses the text input on component mount.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### grow
+
+If true, expands the text input vertically for new lines.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### Input
+
+Custom UI component handling how the message input is rendered.
+
+| Type      | Default                                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| component | [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) |
+
+### keycodeSubmitKeys
+
+Currently, Enter is the default submission key and Shift+Enter is the default for new line. If provided, this array of keycode
+numbers will override the default Enter for submission, and Enter will then only create a new line. Shift + Enter will still
+always create a new line, unless Shift+Enter [16, 13] is included in the override.
+(ex: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0).
+
+| Type            |
+| --------------- |
+| Array<number[]> |
+
+### maxRows
+
+Max number of rows the underlying `textarea` component is allowed to grow.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 10      |
+
+### mentionAllAppUsers
+
+If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### mentionQueryParams
+
+Object containing filters/sort/options overrides for an @mention user query.
+
+| Type   |
+| ------ |
+| object |
+
+### message
+
+If provided, the existing message will be edited on submit.
+
+| Type   |
+| ------ |
+| object |
+
+### noFiles
+
+If true, disables file uploads.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### overrideSubmitHandler
+
+Function to override the default submit handler.
+
+| Type                                          |
+| --------------------------------------------- |
+| (message: object, channelCid: string) => void |
+
+### parent
+
+When replying in a thread, the parent message object.
+
+| Type   |
+| ------ |
+| object |
+
+### publishTypingEvent
+
+If true, triggers typing events on text input keystroke.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |

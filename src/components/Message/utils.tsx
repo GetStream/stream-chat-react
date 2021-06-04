@@ -225,9 +225,11 @@ export const areMessagePropsEqual = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    mutes?: Mute<Us>[];
     showDetailedReactions?: boolean;
   },
   nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    mutes?: Mute<Us>[];
     showDetailedReactions?: boolean;
   },
 ) => {

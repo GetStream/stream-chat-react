@@ -61,10 +61,7 @@ export type MessageInputState<
   fileOrder: string[];
   fileUploads: { [id: string]: FileUpload };
   imageOrder: string[];
-  imageUploads: {
-    [id: string]: ImageUpload;
-  };
-  // ids of users mentioned in message
+  imageUploads: { [id: string]: ImageUpload };
   mentioned_users: UserResponse<Us>[];
   text: string;
 };
@@ -73,13 +70,16 @@ type SetEmojiPickerIsOpenAction = {
   type: 'setEmojiPickerIsOpen';
   value: boolean;
 };
+
 type SetTextAction = {
   getNewText: (currentStateText: string) => string;
   type: 'setText';
 };
+
 type ClearAction = {
   type: 'clear';
 };
+
 type SetImageUploadAction = {
   id: string;
   type: 'setImageUpload';
@@ -88,6 +88,7 @@ type SetImageUploadAction = {
   state?: string;
   url?: string;
 };
+
 type SetFileUploadAction = {
   id: string;
   type: 'setFileUpload';
@@ -95,14 +96,17 @@ type SetFileUploadAction = {
   state?: string;
   url?: string;
 };
+
 type RemoveImageUploadAction = {
   id: string;
   type: 'removeImageUpload';
 };
+
 type RemoveFileUploadAction = {
   id: string;
   type: 'removeFileUpload';
 };
+
 type AddMentionedUserAction<Us extends DefaultUserType<Us> = DefaultUserType> = {
   type: 'addMentionedUser';
   user: UserResponse<Us>;
@@ -137,7 +141,7 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
-  uploadNewFiles(files: FileList | File[]): void;
+  uploadNewFiles: (files: FileList | File[]) => void;
   emojiIndex?: NimbleEmojiIndex;
 };
 const emptyFileUploads: Record<string, FileUpload> = {};
@@ -170,7 +174,7 @@ const initState = <
     };
   }
 
-  // if message prop is defined, get image uploads, file uploads, text, etc. from it
+  // if message prop is defined, get image uploads, file uploads, text, etc.
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
@@ -186,6 +190,7 @@ const initState = <
         };
         return acc;
       }, {} as Record<string, ImageUpload>) || {};
+
   const imageOrder = Object.keys(imageUploads);
 
   const fileUploads =
@@ -205,6 +210,7 @@ const initState = <
         };
         return acc;
       }, {} as Record<string, FileUpload>) || {};
+
   const fileOrder = Object.keys(fileUploads);
 
   const attachments =
@@ -237,8 +243,10 @@ const messageInputReducer = <
   switch (action.type) {
     case 'setEmojiPickerIsOpen':
       return { ...state, emojiPickerIsOpen: action.value };
+
     case 'setText':
       return { ...state, text: action.getNewText(state.text) };
+
     case 'clear':
       return {
         attachments: [],
@@ -250,6 +258,7 @@ const messageInputReducer = <
         mentioned_users: [],
         text: '',
       };
+
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
       if (!imageAlreadyExists && !action.file) return state;
@@ -265,6 +274,7 @@ const messageInputReducer = <
         },
       };
     }
+
     case 'setFileUpload': {
       const fileAlreadyExists = state.fileUploads[action.id];
       if (!fileAlreadyExists && !action.file) return state;
@@ -280,6 +290,7 @@ const messageInputReducer = <
         },
       };
     }
+
     case 'removeImageUpload': {
       if (!state.imageUploads[action.id]) return state; // cannot remove anything
       const newImageUploads = { ...state.imageUploads };
@@ -290,6 +301,7 @@ const messageInputReducer = <
         imageUploads: newImageUploads,
       };
     }
+
     case 'removeFileUpload': {
       if (!state.fileUploads[action.id]) return state; // cannot remove anything
       const newFileUploads = { ...state.fileUploads };
@@ -300,11 +312,13 @@ const messageInputReducer = <
         fileUploads: newFileUploads,
       };
     }
+
     case 'addMentionedUser':
       return {
         ...state,
         mentioned_users: state.mentioned_users.concat(action.user),
       };
+
     default:
       return state;
   }

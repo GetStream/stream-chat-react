@@ -1,0 +1,27 @@
+---
+id: typing_context
+sidebar_position: 8
+title: TypingContext
+---
+
+## Overview
+
+The `TypingContext` wraps the entire application via the `Channel` component and exposes the hook `useTypingContext`. The value is an object of currently typing users, with key as the user ID and value as the user details object.
+
+## Basic Usage
+
+Pull the value from context with our custom hook:
+
+```jsx
+const { typing } = useTypingContext();
+```
+
+## Value
+
+### typing
+
+An array of users who are typing at any given time.
+
+| Type                         |
+| ---------------------------- |
+| StreamChannelState['typing'] |

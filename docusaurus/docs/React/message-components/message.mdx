@@ -1,0 +1,260 @@
+---
+id: message
+sidebar_position: 1
+title: Message
+---
+
+## Overview
+
+The `Message` component is a React Context provider that wraps all of the logic, functionality, and UI for the individual messages
+displayed in a message list. It provides the [`MessageContext`](../contexts/message-context.mdx) to its children. All of
+the message UI components consume the `MessageContext` and rely on the stored data for their display and interaction.
+
+:::note
+The majority of Stream Chat use cases will not need to use the `Message` component directly. We've documented it here for reference,
+but it's primarily used internally to build up the `MessageContext`. A custom message UI component, added onto `Channel` or
+`MessageList` via the `Message` prop, will consume this context, so `Message` likely doesn't need to be imported into your app.
+:::
+
+## Basic Usage
+
+The `Message` component is used internally as part of the logic of the `MessageList`. The `MessageList` renders a list of
+messages and passes each individual `message` object into a `Message` component. Since the component is used internally by
+default, it only needs to be explicitly imported from the library and used in unique use cases.
+
+## UI Customization
+
+The `Message` component does not inject any UI, so all message customization is handled by the [Message UI](./message-ui.mdx)
+component. The Message UI component is passed as the `Message` prop into either the `Channel` or `MessageList` component.
+
+## Props
+
+### <div class="label required basic">Required</div> message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components.
+
+| Type   |
+| ------ |
+| object |
+
+### additionalMessageInputProps
+
+Additional props to be passed to the underlying `MessageInput` component, [available props](../message-input-components/message-input.mdx/#props).
+
+| Type   |
+| ------ |
+| object |
+
+### customMessageActions
+
+An object containing custom message actions (key) and function handlers (value).
+
+```jsx
+const customAction = {
+  log: (message, event) => console.log(message, event),
+};
+
+<MessageList customMessageActions={customAction} />;
+```
+
+| Type   |
+| ------ |
+| object |
+
+### disableQuotedMessages
+
+If true, disables the ability for users to quote messages.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### formatDate
+
+Overrides the default date formatting logic, has access to the original date object.
+
+| Type                   |
+| ---------------------- |
+| (date: Date) => string |
+
+### getFlagMessageErrorNotification
+
+Function that returns the notification text to be displayed when a flag message request fails. This function receives the
+flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getFlagMessageSuccessNotification
+
+Function that returns the notification text to be displayed when a flag message request succeeds. This function receives the
+flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getMuteUserErrorNotification
+
+Function that returns the notification text to be displayed when a mute user request fails. This function receives the
+muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+
+| Type                           |
+| ------------------------------ |
+| (user: UserResponse) => string |
+
+### getMuteUserSuccessNotification
+
+Function that returns the notification text to be displayed when a mute user request succeeds. This function receives the
+muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
+
+| Type                           |
+| ------------------------------ |
+| (user: UserResponse) => string |
+
+### getPinMessageErrorNotification
+
+Function that returns the notification text to be displayed when a pin message request fails. This function receives the
+pinned [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### groupStyles
+
+An array of potential styles to apply to a grouped message (ex: top, bottom, single).
+
+| Type     | Options                                         |
+| -------- | ----------------------------------------------- |
+| string[] | '' \| 'middle' \| 'top' \| 'bottom' \| 'single' |
+
+### initialMessage
+
+When true, signifies the message is the parent message in a thread list.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### lastReceivedId
+
+The latest message ID in the current channel.
+
+| Type   |
+| ------ |
+| string |
+
+### Message
+
+Custom UI component to display a message.
+
+| Type      | Default                                                                                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| component | [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) for `MessageList`                      |
+|           | [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) for `VirtualizedMessageList` |
+
+### messageActions
+
+Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all actions, provide an empty array.
+
+| Type  | Default                                                              |
+| ----- | -------------------------------------------------------------------- |
+| array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
+
+### messageListRect
+
+DOMRect object linked to the parent `MessageList` component.
+
+| Type    |
+| ------- |
+| DOMRect |
+
+### onMentionsClick
+
+Custom action handler function to run on click of an @mention in a message.
+
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsClick']](../contexts/channel-action-context.mdx#onmentionsclick) |
+
+### onMentionsHover
+
+Custom action handler function to run on hover of an @mention in a message.
+
+| Type     | Default                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| function | [ChannelActionContextValue['onMentionsHover']](../contexts/channel-action-context.mdx#onmentionshover) |
+
+### onUserClick
+
+Custom action handler function to run on click of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### onUserHover
+
+Custom action handler function to run on hover of user avatar.
+
+| Type                                                  |
+| ----------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, user: User) => void |
+
+### openThread
+
+Custom action handler to open a [`Thread`](../core-components/thread.mdx) component.
+
+| Type     | Default                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
+
+### pinPermissions
+
+The user roles allowed to pin messages in various channel types.
+
+| Type   | Default                                                                                                              |
+| ------ | -------------------------------------------------------------------------------------------------------------------- |
+| object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
+
+### readBy
+
+An array of users that have read the current message.
+
+| Type  |
+| ----- |
+| array |
+
+### renderText
+
+Custom function to render message text content.
+
+| Type     | Default                                                                                |
+| -------- | -------------------------------------------------------------------------------------- |
+| function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
+
+### retrySendMessage
+
+Custom action handler to retry sending a message after a failed request.
+
+| Type     | Default                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
+
+### threadList
+
+If true, indicates that the current `MessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### unsafeHTML
+
+If true, renders HTML instead of markdown. Posting HTML is only supported server-side.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

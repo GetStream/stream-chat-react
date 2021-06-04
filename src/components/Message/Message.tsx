@@ -47,6 +47,7 @@ type MessageContextPropsToPick =
   | 'handleReaction'
   | 'handleRetry'
   | 'isReactionEnabled'
+  | 'mutes'
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
   | 'onReactionListClick'
@@ -210,7 +211,7 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
@@ -274,7 +275,7 @@ export const Message = <
       Message={props.Message}
       messageActions={props.messageActions}
       messageListRect={props.messageListRect}
-      mutes={props.mutes}
+      mutes={mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
       onReactionListClick={onReactionListClick}

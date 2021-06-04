@@ -116,7 +116,7 @@ const MessageLivestreamWithContext = <
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
-  if (message.type === 'message.read' || message.type === 'message.date') {
+  if (message.customType === 'message.date') {
     return null;
   }
 

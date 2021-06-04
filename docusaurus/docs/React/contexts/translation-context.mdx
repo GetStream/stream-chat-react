@@ -1,0 +1,45 @@
+---
+id: translation_context
+sidebar_position: 7
+title: TranslationContext
+---
+
+## Overview
+
+The `TranslationContext` value contains the selected user language, as well as functions that allow for text and date translation. Exposes the `useTranslationContext` hook.
+
+## Basic Usage
+
+Pull values from context with our custom hook:
+
+```jsx
+const { t } = useTranslationContext();
+
+<div className='message'>{t('This message will be translated.')}</div>;
+```
+
+## Value
+
+### t
+
+Translation function.
+
+| Type     |
+| -------- |
+| function |
+
+### tDateTimeParser
+
+Function that parses time.
+
+| Type     | Default |
+| -------- | ------- |
+| function | Dayjs   |
+
+### userLanguage
+
+String to set the user's language; (ex: 'en', 'fr', 'ru', etc).
+
+| Type   | Default |
+| ------ | ------- |
+| string | 'en'    |

@@ -39,15 +39,14 @@ export type ThreadProps<
   additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.github.io/stream-chat-react/#message) */
   additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Make input focus on mounting thread */
+  /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
-  /** Display the thread on 100% width of it's container. Useful for mobile style view */
+  /** Display the thread on 100% width of its parent container. Useful for mobile style view */
   fullWidth?: boolean;
-  /** Custom UI component to override the default Message stored in ComponentContext */
+  /** Custom thread input UI component used to override the default `Input` value stored in `ComponentContext` or the [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default */
+  Input?: React.ComponentType;
+  /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Custom UI component to replace the `MessageInput`, defaults to and accepts same props as: [MessageInput](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInput.tsx) */
-  MessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
-  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
 /**
@@ -160,9 +159,8 @@ const ThreadInner = <
     additionalParentMessageProps,
     autoFocus = true,
     fullWidth = false,
+    Input: PropInput,
     Message: PropMessage,
-    MessageInput: ThreadInput = MessageInputSmall,
-    ThreadHeader: PropThreadHeader,
   } = props;
 
   const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
@@ -176,19 +174,20 @@ const ThreadInner = <
   >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
+    ThreadInput: ContextInput,
     Message: ContextMessage,
-    ThreadHeader: ContextThreadHeader = DefaultThreadHeader,
+    ThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageList = useRef<HTMLDivElement | null>(null);
 
-  const parentID = thread?.id;
-  const ThreadHeader = PropThreadHeader || ContextThreadHeader;
+  const ThreadInput =
+    PropInput || additionalMessageInputProps?.Input || ContextInput || MessageInputSmall;
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message || ContextMessage;
 
   useEffect(() => {
-    if (parentID && thread?.reply_count && loadMoreThread) {
+    if (thread?.id && thread?.reply_count) {
       loadMoreThread();
     }
   }, []);

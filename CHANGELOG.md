@@ -25,7 +25,7 @@ and [#955](https://github.com/GetStream/stream-chat-react/pull/955)
 
 ### Bug
 
-- Add missing `Input` prop to `ComponentContext` value [#941](https://github.com/GetStream/stream-chat-react/pull/941)
+- Add missing `Input` prop to `ComponentContext` value [#942](https://github.com/GetStream/stream-chat-react/pull/942)
 
 ## [6.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.3) 2021-05-25
 
