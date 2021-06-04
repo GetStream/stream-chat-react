@@ -24,7 +24,7 @@ will load in their respective lists:
 
 To use your own Message UI component in the standard `MessageList`, utilize the `Message` prop on either the `Channel` or `MessageList`
 component. Adding the prop to `Channel` will inject your component into the `ComponentContext` and adding to `MessageList` will override
-any value stored in context. So if both props are added, the `MessageList` prop will take precedence.
+any value stored in context. So if both props are added, the value delivered to `MessageList` will take precedence.
 
 ```jsx
 const CustomMessage = () => {
@@ -43,8 +43,8 @@ const CustomMessage = () => {
 
 To use your own Message UI component in the `VirtualizedMessageList`, utilize either the `VirtualMessage` prop on `Channel` or the
 `Message` prop on `VirtualizedMessageList`. Adding the prop to `Channel` will inject your component into the `ComponentContext`
-and adding to `VirtualizedMessageList` will override any value stored in context. So if both props are added, the `VirtualizedMessageList`
-prop will take precedence.
+and adding to `VirtualizedMessageList` will override any value stored in context. So if both props are added, the value
+delivered to `VirtualizedMessageList` will take precedence.
 
 ```jsx
 const CustomMessage = () => {

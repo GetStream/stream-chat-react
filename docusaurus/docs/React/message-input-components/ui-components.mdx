@@ -20,6 +20,8 @@ The following UI components are available for use:
   component for selecting an emoji
 - [`QuotedMessagePreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) - displays
   a UI wrapper around the `MessageInput` when an existing message is being quoted
+- [`SendButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) - on click, sends a
+  message to the currently active channel
 - [`UploadsPreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/UploadsPreview.tsx) - displays
   a list of uploaded files prior to sending the message
 
@@ -112,6 +114,16 @@ The existing message to be quoted by the next sent message.
 | Type   |
 | ------ |
 | object |
+
+## SendButton Props
+
+### <div class="label required basic">Required</div> sendMessage
+
+Function to send a message to the currently active channel.
+
+| Type                                      |
+| ----------------------------------------- |
+| (event: React.BaseSyntheticEvent) => void |
 
 ## UploadsPreview
 

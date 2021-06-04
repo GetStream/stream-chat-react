@@ -59,12 +59,13 @@ export const FileUploadIconFlat: React.FC = () => {
 };
 
 export type SendButtonProps = {
-  /** Function that gets triggered on click */
+  /** Function to send a message to the currently active channel */
   sendMessage: (event: React.BaseSyntheticEvent) => void;
 };
 
 export const SendButton: React.FC<SendButtonProps> = ({ sendMessage }) => {
   const { t } = useTranslationContext();
+
   return (
     <button className='str-chat__send-button' onClick={sendMessage}>
       <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
