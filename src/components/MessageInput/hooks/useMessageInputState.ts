@@ -61,10 +61,7 @@ export type MessageInputState<
   fileOrder: string[];
   fileUploads: { [id: string]: FileUpload };
   imageOrder: string[];
-  imageUploads: {
-    [id: string]: ImageUpload;
-  };
-  // ids of users mentioned in message
+  imageUploads: { [id: string]: ImageUpload };
   mentioned_users: UserResponse<Us>[];
   text: string;
 };
@@ -73,13 +70,16 @@ type SetEmojiPickerIsOpenAction = {
   type: 'setEmojiPickerIsOpen';
   value: boolean;
 };
+
 type SetTextAction = {
   getNewText: (currentStateText: string) => string;
   type: 'setText';
 };
+
 type ClearAction = {
   type: 'clear';
 };
+
 type SetImageUploadAction = {
   id: string;
   type: 'setImageUpload';
@@ -88,6 +88,7 @@ type SetImageUploadAction = {
   state?: string;
   url?: string;
 };
+
 type SetFileUploadAction = {
   id: string;
   type: 'setFileUpload';
@@ -95,14 +96,17 @@ type SetFileUploadAction = {
   state?: string;
   url?: string;
 };
+
 type RemoveImageUploadAction = {
   id: string;
   type: 'removeImageUpload';
 };
+
 type RemoveFileUploadAction = {
   id: string;
   type: 'removeFileUpload';
 };
+
 type AddMentionedUserAction<Us extends DefaultUserType<Us> = DefaultUserType> = {
   type: 'addMentionedUser';
   user: UserResponse<Us>;
@@ -137,7 +141,7 @@ export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserTy
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
-  uploadNewFiles(files: FileList | File[]): void;
+  uploadNewFiles: (files: FileList | File[]) => void;
   emojiIndex?: NimbleEmojiIndex;
 };
 const emptyFileUploads: Record<string, FileUpload> = {};
