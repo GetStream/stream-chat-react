@@ -11,8 +11,10 @@ components to enable reaction selection and display:
 
 - [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows
   the connected user to select a reaction on a message
+
 - [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) - displays
   the reactions added to a message
+
 - [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
   a minimal list of the reactions added to a message
 
@@ -63,7 +65,7 @@ To override the default selection set, provide your own array of `MinimalEmoji` 
 prop on the `ReactionSelector` component. You can also override the default [handleReaction](../contexts/message-context.mdx#handlereaction)
 function by adding the `handleReaction` prop.
 
-:::note
+:::caution
 If custom `reactionOptions` are supplied to the `ReactionSelector` component, then the same data set needs to be delivered to the
 `ReactionsList` component so the display of processed reactions has the same emoji objects.
 :::
