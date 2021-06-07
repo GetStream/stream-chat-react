@@ -4,8 +4,6 @@ sidebar_position: 4
 title: ChannelSearch
 ---
 
-## Overview
-
 `ChannelSearch` is a UI component that searches for chat users and displays the results in a list. It can be used standalone or in the `ChannelList` via the `showChannelSearch` prop (default is false).
 The input searches for users by default, but the `searchFunction` prop can be used to override this out of the box behavior. Selection of a search result will set the active channel with the selected user.
 
@@ -14,22 +12,17 @@ The input searches for users by default, but the `searchFunction` prop can be us
 ** Example 1 ** - used via the `showChannelSearch` prop.
 
 ```tsx
-  <Chat client={chatClient}>
-    <ChannelList
-      filters={filters}
-      sort={sort}
-      options={options}
-      showChannelSearch
-    />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
+<Chat client={chatClient}>
+  <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
+  <Channel>
+    <Window>
+      <ChannelHeader />
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </Channel>
+</Chat>
 ```
 
 ## Props
@@ -46,8 +39,8 @@ The type of `channel` to create on user result selection.
 
 Custom handler function to run on search result item selection.
 
-| Type                                              |
-| ------------------------------------------------- |
+| Type                                            |
+| ----------------------------------------------- |
 | (user: UserResponse) => Promise\<void\> \| void |
 
 ### popupResults
@@ -70,8 +63,8 @@ Custom UI component to display empty search results.
 
 Custom search function to override default.
 
-| Type                                                       |
-| ---------------------------------------------------------- |
+| Type                                                         |
+| ------------------------------------------------------------ |
 | (event: React.BaseSyntheticEvent) => Promise\<void\> \| void |
 
 ### SearchLoading
@@ -89,7 +82,6 @@ Object containing filters/sort/options overrides for user search.
 | Type             |
 | ---------------- |
 | SearchQueryParam |
-
 
 ### SearchResultItem
 

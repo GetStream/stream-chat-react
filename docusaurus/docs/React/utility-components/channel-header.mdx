@@ -13,19 +13,18 @@ The `ChannelHeader` component displays pertinent information regarding the curre
 Use this component by adding it as a child of the `Channel` component. If you want to 'override' this component, you simply use your custom component instead.
 
 **Example 1**
+
 ```jsx
 <Channel>
-    <ChannelHeader
-        live={true}
-        title={'General'}
-    />
+  <ChannelHeader live={true} title={'General'} />
 </Channel>
 ```
 
 **Example 2** - using a custom heading component.
+
 ```jsx
 <Channel>
-    <YourCustomChannelHeader />
+  <YourCustomChannelHeader />
 </Channel>
 ```
 
@@ -38,7 +37,7 @@ A custom UI component to display the avatar image.
 | Type      | Default                                                                                               |
 | --------- | ----------------------------------------------------------------------------------------------------- |
 | component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
-  
+
 ### image
 
 The displayed image URL for the header, defaults to the `channel` image if there is one.
@@ -46,7 +45,6 @@ The displayed image URL for the header, defaults to the `channel` image if there
 | Type   | Default             |
 | ------ | ------------------- |
 | string | the `channel` image |
-
 
 ### live
 
@@ -63,7 +61,3 @@ A string to set the title manually, defaults to the `channel` name if there is o
 | Type   | Default            |
 | ------ | ------------------ |
 | string | the `channel` name |
-
-
-
-
