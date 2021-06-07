@@ -4,15 +4,21 @@ sidebar_position: 2
 title: Message Input UI
 ---
 
-The Stream Chat React SDK provides a highly customizable Message Input component. We'll outline the various ways in which you can customize the look and behavior of this component, ranging from simple style changes, all the way to creating a completely new Message Input that includes custom logic.
-​
+## How-to Guide for Building a Custom Message Input
 
-## Styling
+The React Chat component library provides a highly customizable `MessageInput` component. We'll outline the various ways in which you
+can customize the look and behavior of this component, ranging from simple style changes, all the way to creating a completely
+new input which custom logic.
 
-The default Message Input components come with markup that has a set of classes applied to it. The easiest way to override the styling for these components is to write your own CSS that overrides the default styling rules. To get a sense of all the classes that are applied to the Message Inputs and their child components, you can either inspect the DOM inside your browser, or have a look at [MessageInput.scss](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/MessageInput.scss) or [MessageInputFlat.scss](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/MessageInputFlat.scss).
-​
-As an example, here's how you can override the styles for the textarea, to make its background light blue:
-​
+### Styling
+
+The default [Input UI](../message-input-components/input-ui.mdx) component comes with predefined styles and CSS classes. The easiest way
+to customize styling is to write your own CSS and override the default values. To get a sense of all the classes and styles
+applied to the `MessageInput` and its child components, you can either inspect the DOM inside your browser or take a
+look at the [MessageInput.scss](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/MessageInput.scss) and
+[MessageInputFlat.scss](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/MessageInputFlat.scss) source files.
+
+For example, here's how you can override the styles for the underlying `textarea` and make its background light blue:
 
 ```css
 .str-chat .str-chat__textarea > textarea {
@@ -20,21 +26,28 @@ As an example, here's how you can override the styles for the textarea, to make 
 }
 ```
 
+### Customize Functionality
+
+The `MessageInput` component supports a variety of props that let you customize its behavior in various ways.
+You can utilize props to change basic behaviors of the underlying `textarea` element (ex: the `grow` prop lets you specify
+whether the input field should automatically increase in height when the message wraps the input), as well as override
+functions and more complex and logic-based parts of the component (ex: the `doImageUploadRequest` prop lets you supply a custom
+function that handles the uploading of image attachments).
+
+:::note
+For a complete overview of props, take a look at the [MessageInput props](../message-input-components/message-input.mdx#props) section.
+:::
 ​
 
-## Props
+### Override UI Components
 
-The MessageInput component provides a lot of props out of the box that let you customize its behavior in various ways. To get a complete overview of all these props, take a look at [the component docs](https://getstream.github.io/stream-chat-react/#section-message-input). Roughly speaking, you can use these props to do anything from changing basic behaviors (e.g. the `grow` prop lets you specify whether the input field should automatically increase in height when the message becomes too long) to overriding more complex parts (e.g. the `doImageUploadRequest` prop lets you supply a custom function that handles the uploading of image attachments).
-​
+Component props let you override the UI components rendered inside the `MessageInput`. These props are available
+on `Channel`, which injects these components into the `ComponentContext`, and in turn are consumed by the
+`MessageInput`.
 
-### UI component overrides
+Here's an example of overriding the default `EmojiIcon` component:​
 
-There are also various props that let you override the UI components used inside the `MessageInput`. These props are available on the `Channel` component, which injects these component props into the ComponentContext, which is in turn consumed by the `MessageInput`.
-​
-Here's what it would look like to override the default EmojiIcon:
-​
-
-```javascript
+```jsx
 const CustomEmojiIcon = () => {
  const { t } = useTranslationContext();
 ​
@@ -44,21 +57,31 @@ const CustomEmojiIcon = () => {
    </div>
  );
 };
-​
-...
-​
-// Override the EmojiIcon prop on `Channel` with our custom component:
- <Channel EmojiIcon={CustomEmojiIcon}>
+
+<Chat client={client}>
+  <Channel channel={channel} EmojiIcon={CustomEmojiIcon}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
 ```
 
-​
+### Custom Triggers
 
-### Triggers
+The `MessageInput` component supports autocomplete triggers. When you type a special character (by default: `@` for mentions,
+`:` for emoji, `/` for commands), a suggestion list pops up and auto-completes results based on the input text. The default
+behavior of these triggers can be extended and/or overridden. Meaning, you can add your own custom trigger, or modify the
+behavior of the default triggers.
 
-The Message Input has support for triggers, i.e. when you type a special character (by default: `@` for mentions, `:` for emoji, `/` for commands), a suggestion list pops up, and when the user types a few character, the list of suggestions is filtered using that query. The default behavior of these triggers can be extended and/or overridden. This means that you can add your own custom trigger, or modify the behavior of the default triggers. The `Channel` component exposes a `TriggerProvider` prop, which defaults to the `DefaultTriggerProvider` component. This component is responsible for injecting the default set of triggers into the `autocompleteTriggers` value of the `MessageInputContext`. This value is then consumed by the `ChatAutoComplete` component and its children to make sure the default triggers work as expected. By injecting a custom `TriggerProvider` component, you can override the behavior of any of these triggers, or add your own custom trigger. Here's an example of a customer `TriggerProvider` that only provides a custom trigger bound to the `#` character:
-​
+The `Channel` component exposes a `TriggerProvider` prop, which defaults to the [`DefaultTriggerProvider`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx)
+component. This component injects the approved set of triggers into the `autocompleteTriggers`
+value of the `MessageInputContext`. This value is consumed by the `ChatAutoComplete` component and its children to ensure
+proper trigger functionality. By injecting a custom `TriggerProvider` component, you can adjust the behavior of any of these
+triggers.
 
-```javascript
+Here's an example of a custom `TriggerProvider` that overrides the default values with the `#` character:
+
+```jsx
 import React from 'react';
 import { MessageInputContextProvider, useMessageInputContext } from 'stream-chat-react';
 
@@ -86,37 +109,55 @@ const customTriggers = {
 };
 
 export const CustomTriggerProvider = ({ children }) => {
-  const currentContext = useMessageInputContext();
+  const currentContextValue = useMessageInputContext();
 
-  const newContext = {
-    ...currentContext,
+  const updatedContextValue = {
+    ...currentContextValue,
     autocompleteTriggers: customTriggers,
   };
 
-  return <MessageInputContextProvider value={newContext}>{children}</MessageInputContextProvider>;
+  return (
+    <MessageInputContextProvider value={updatedContextValue}>
+      {children}
+    </MessageInputContextProvider>
+  );
 };
 ```
 
 The `CustomTriggerProvider` component is then added as a prop onto `Channel` to override the default trigger behavior.
 
+```jsx
+<Chat client={client}>
+  <Channel channel={channel} TriggerProvider={CustomerTriggerProvider}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
 ```
-<Channel TriggerProvider={CustomerTriggerProvider}>
-  // children of Channel component
-</Channel>
-```
 
+### Building the Input UI
+
+The `MessageInput` component wraps and provides all of the stateful logic needed to build your own Input UI component.
+Both `Channel` and `MessageInput` accept an `Input` prop, which lets you pass in your own UI component that consumes the
+`MessageInputContext` and handles the input's display.
+
+:::note
+If an `Input` prop is not provided, `MessageInput` renders [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
+by default.
+:::
+​
+We provide a `useMessageInputContext` custom hook, which lets you access all the stateful data and functionality needed
+to create your own custom Input UI component.
+
+:::tip
+Use `MessageInputFlat` as a guide to help you build your own custom Input UI component.
+:::
+
+The below example shows how to build a simple Input UI component, which calls the `useMessageInputContext` hook
+and use its return values to build functionality:
 ​
 
-## Building a custom Message Input
-
-The `MessageInput` component is used as a wrapper that provides all of the stateful logic that is needed to build your own Message Input UI component. It accepts a prop called `Input`, which lets you pass in your own component that consumes the `MessageInputContext`; by default this is the `MessageInputFlat` component.
-​
-We provide a convenient hook called `useMessageInputContext` which lets you make use of all the state and callbacks you'll typically need while creating your own custom UI component. For reference, the default UI components that are included with our SDK can give you a good sense of how you can build your own (e.g. [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)).
-​
-Here's an example of a very stripped-down Message Input component, which shows how you can use the `useMessageInputContext` hook and use its return values to create your own custom UI component:
-​
-
-```javascript
+```jsx
 import {
  ChatAutoComplete,
  EmojiIconLarge,
@@ -167,14 +208,15 @@ export const CustomMessageInput = () => {
 };
 ```
 
-Once you've created your custom input component, you render it by adding the `Input` prop to either the `Channel` or `MessageInput` component. Adding onto `Channel` will store the component in the `ComponentContext`, whereas adding onto `MessageInput` will override any context value.
+Once you've created your custom input component, you render it by adding the `Input` prop to either the `Channel` or `MessageInput`
+component. Adding onto `Channel` will store the component in the `ComponentContext`, whereas adding onto `MessageInput` will
+override any context value.
 
-```javascript
-<Channel Input={CustomMessageInput}>// children of Channel component</Channel>
-```
-
-or
-
-```javascript
-<MessageInput Input={CustomMessageInput} />
+```jsx
+<Chat client={client}>
+  <Channel channel={channel} Input={CustomMessageInput}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
 ```
