@@ -4,9 +4,7 @@ sidebar_position: 1
 title: Avatar
 ---
 
-## Overview
-
-A component that displays an avatar image with fallback to the the first letter of the optional name prop. 
+A component that displays an avatar image with fallback to the the first letter of the optional name prop.
 
 ## Basic Usage
 
@@ -33,8 +31,7 @@ const YourCustomChannelPreview = (props) => {
 
 ```tsx
 import { Avatar } from './Avatar';
-const image =
-  'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
+const image = 'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
 const name = 'roy';
 
 <Avatar image={image} name={name} shape='rounded' size={35} />;
@@ -48,12 +45,10 @@ You can also take advantage of the `Avatar` props on the `ChannelHeader` and `Ch
 
 ```tsx
 const CustomAvatar = (props) => {
-  return <Avatar image={props.image} shape='square' size={50} />
-}
+  return <Avatar image={props.image} shape='square' size={50} />;
+};
 
-<ChannelList
-  Preview={(props) => <ChannelPreviewMessenger {...props} Avatar={CustomAvatar} />}
-/>
+<ChannelList Preview={(props) => <ChannelPreviewMessenger {...props} Avatar={CustomAvatar} />} />;
 ```
 
 ## Props
@@ -94,9 +89,9 @@ The mouseOver event handler.
 
 The shape of the avatar image.
 
-| Type                              | Default  |
-| --------------------------------- | -------- |
-| 'circle' \| 'rounded' \| 'square' | circle   |
+| Type                              | Default |
+| --------------------------------- | ------- |
+| 'circle' \| 'rounded' \| 'square' | circle  |
 
 ### size
 
@@ -105,4 +100,3 @@ The size in pixels of the avatar image.
 | Type   | Default |
 | ------ | ------- |
 | number | 32px    |
-

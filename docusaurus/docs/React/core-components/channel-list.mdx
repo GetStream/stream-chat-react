@@ -4,8 +4,6 @@ sidebar_position: 2
 title: ChannelList
 ---
 
-## Overview
-
 The `ChannelList` component queries an array of `channel` objects from the Stream Chat API and displays as a customizable list
 in the UI. It accepts props for [`filters`](#filters), [`sort`](#sort) and [`options`](#options), which allows you to tailor
 your request to the [Query Channels](https://getstream.io/chat/docs/javascript/query_channels/?language=javascript) API. The
@@ -88,7 +86,7 @@ re-setting the list state, you can customize behavior and UI.
 | `connection.recovered`                                                                    | Forces a component render                        | N/A                                           |
 | `message.new`                                                                             | Moves channel to top of list                     | N/A                                           |
 | `notification.added_to_channel`                                                           | Moves channel to top of list and starts watching | [onAddedToChannel](#onaddedtochannel)         |
-| `notification.message`                                                                    | Moves channel to top of list and starts watching | [onMessageNew](#onmessagenew)                 |
+| `notification.message_new`                                                                | Moves channel to top of list and starts watching | [onMessageNew](#onmessagenew)                 |
 | `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](#onremovedfromchannel) |
 | `user.presence.changed`                                                                   | Updates the channel                              | N/A                                           |
 
