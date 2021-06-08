@@ -4,7 +4,7 @@ sidebar_position: 3
 title: MessageInput Hooks
 ---
 
-The `MessageInput` component exposes and uses a variety of custom hooks to assemble the [`MessageInputContext`](../contexts/message-input-context.mdx). These hooks can also be useful when building a custom `MessageInput` component.
+The `MessageInput` component uses a variety of custom hooks to assemble the [`MessageInputContext`](../contexts/message-input-context.mdx). These hooks can also be useful when building a custom `MessageInput` component.
 
 The main provided hook, [`useMessageInputState`](./message_input_hooks#usemessageinputstate)), uses a group of smaller, helper hooks which are segmented by functionality. Other hooks provided include [`useCooldownTimer`](./message_input_hooks#usecooldowntimer))
 and the several hooks used by the [`DefaultTriggerProvider`](../message-input-components/ui_components#defaulttriggerprovider).
@@ -29,7 +29,7 @@ Utilizes two hooks within it, [useFileUploads](https://github.com/GetStream/stre
 
 - [useSubmitHandler](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts) - processes the items in the input and then will send, clears the state after. Returns the handleSubmit handler function. 
 
-### [useCooldownTimer]
+### useCooldownTimer
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.ts) where the `CooldownTimer` component is established. Handles the state logic for the timer and returns this data and the related handler.
 
