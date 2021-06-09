@@ -16,7 +16,7 @@
       margin-bottom: 10px;
 
       &-header {
-        font-size: 14px;
+        font-size: var(--md-font);
         margin-bottom: 10px;
 
         .str-chat__square-button {
@@ -96,7 +96,7 @@
     background: var(--black5);
     border-radius: var(--border-radius-md);
     padding: 20px 69px;
-    font-size: 15px;
+    font-size: var(--lg-font);
     line-height: 17px;
     border: none;
     margin: 0;
@@ -127,7 +127,7 @@
   }
 
   &-cooldown {
-    font-size: 24px;
+    font-size: var(--xl-font);
     font-weight: bold;
   }
 

@@ -4,7 +4,7 @@
     display: flex;
     align-items: center;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 16px;
+    font-size: var(--lg-font);
     //TODO CSS
     border-bottom: 1px solid var(--black10);
 
@@ -25,12 +25,12 @@
     align-items: center;
 
     label {
-      font-size: 14px;
+      font-size: var(--md-font);
       margin-right: 5px;
     }
 
     input {
-      font-size: 14px;
+      font-size: var(--md-font);
       //TODO CSS
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       flex: 1;

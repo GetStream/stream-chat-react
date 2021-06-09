@@ -294,7 +294,7 @@
     flex-direction: column;
     padding: 40px;
     box-sizing: border-box;
-    font-size: 10px;
+    font-size: var(--xs-font);
 
     &__text {
       display: flex;
@@ -353,7 +353,7 @@
       display: block;
       min-height: 32px;
       padding: 5px 10px;
-      font-size: 15px; /* variables */
+      font-size: var(--lg-font); /* variables */
       color: var(--black); /* variables */
       border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
       background: var(--white);
@@ -392,7 +392,7 @@
       &--is-emoji {
         background: transparent;
         border: 1px solid transparent;
-        font-size: 32px;
+        font-size: var(--xxxl-font);
 
         padding-left: 0;
         padding-right: 0;
@@ -415,7 +415,7 @@
   &-data {
     margin-top: 5px;
     width: 100%;
-    font-size: 11px;
+    font-size: var(--xs-font);
     //TODO CSS
     color: var(--black50);
     position: absolute;
@@ -493,7 +493,7 @@
         &--is-emoji {
           background: transparent;
           border: 1px solid transparent;
-          font-size: 32px;
+          font-size: var(--xxxl-font);
           padding-left: 0;
           padding-right: 0;
 
@@ -559,7 +559,7 @@
       background: var(--white10);
       padding: 8px 16px;
       border-radius: var(--border-radius);
-      font-size: 12px;
+      font-size: var(--sm-font);
       color: var(--darken-grey);
     }
   }
@@ -573,7 +573,7 @@
         background: var(--white10);
         padding: 8px 16px;
         border-radius: var(--border-radius);
-        font-size: 12px;
+        font-size: var(--sm-font);
         color: var(--darken-grey);
       }
     }
@@ -583,7 +583,7 @@
   &--error,
   &--failed {
     margin: 0 0 32px 42px;
-    font-size: 12px;
+    font-size: var(--sm-font);
     padding: 4px 0;
 
     .str-chat__message-text-inner {
@@ -733,7 +733,7 @@
         position: relative;
 
         &::before {
-          font-size: 25px;
+          font-size: var(--xxl-font);
           content: '\201C';
           font-style: italic;
           position: absolute;
@@ -808,7 +808,7 @@
 .str-chat__simple-message--error-message {
   text-align: left;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--xs-font);
   opacity: 0.5;
 }
 
@@ -824,7 +824,7 @@
   align-items: center;
   z-index: 1;
   &-number {
-    font-size: 10px;
+    font-size: var(--xs-font);
     margin-left: 4px;
     position: absolute;
     left: 100%;

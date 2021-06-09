@@ -18,7 +18,7 @@
     &-cooldown {
       position: absolute;
       right: 20px;
-      font-size: 20px;
+      font-size: var(--xl-font);
       font-weight: bold;
       top: 8px;
     }
@@ -76,7 +76,7 @@
   &-footer {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--sm-font);
     background: var(--white);
     padding: 0 10px 10px 10px;
     color: var(--lighten-black);
@@ -104,7 +104,7 @@
     //TODO CSS
     border: 1px solid var(--black10);
     border-radius: var(--border-radius-md);
-    font-size: 15px;
+    font-size: var(--lg-font);
     min-height: 42px;
     transition: height 100ms ease-in;
     resize: none;
@@ -181,7 +181,7 @@
 }
 
 .rta {
-  font-size: 14px;
+  font-size: var(--md-font);
 }
 
 .rta__entity--selected {
@@ -195,7 +195,7 @@
 
 .rta__list-header {
   padding: 15px;
-  font-size: 14px;
+  font-size: var(--md-font);
 }
 
 .str-chat__emoji-item {
@@ -210,20 +210,20 @@
 
   &--highlight {
     font-weight: bold;
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 
   &--part {
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 }
 
 .str-chat__slash-command {
   padding: 10px 15px;
-  font-size: 14px;
+  font-size: var(--md-font);
 
   &-description {
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 }
 
@@ -233,11 +233,11 @@
 
   &--highlight {
     font-weight: bold;
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 
   &--part {
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 }
 
@@ -277,7 +277,7 @@
   color: var(--white);
   //TODO CSS
   font-weight: 800;
-  font-size: 12px;
+  font-size: var(--sm-font);
   svg {
     display: none;
   }
@@ -318,7 +318,7 @@
           background: var(--white30);
           //TODO CSS
           border: 1px solid var(--black20);
-          font-size: 13px;
+          font-size: var(--sm-font);
           padding: 12px;
         }
         &-footer {
@@ -417,7 +417,7 @@
   .str-chat__input-small-cooldown {
     position: absolute;
     right: 20px;
-    font-size: 18px;
+    font-size: var(--lg-font);
     font-weight: bold;
     top: 6px;
   }

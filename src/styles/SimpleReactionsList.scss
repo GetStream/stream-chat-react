@@ -24,7 +24,7 @@
     width: auto;
     max-width: 275px;
     padding: 4px 8px;
-    font-size: 13px;
+    font-size: var(--sm-font);
     color: var(--white);
     text-align: center;
 
@@ -58,7 +58,7 @@
     }
 
     &--last-number {
-      font-size: 11px;
+      font-size: var(--xs-font);
       display: flex;
       align-items: center;
       color: black;

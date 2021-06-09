@@ -36,7 +36,7 @@
 
 .str-chat__custom-notification {
   border-radius: var(--border-radius-sm);
-  font-size: 12px;
+  font-size: var(--sm-font);
   padding: 8px;
   font-family: var(--second-font);
   text-align: center;
@@ -68,7 +68,7 @@
   //TODO CSS
   color: var(--red);
   border-radius: var(--border-radius-sm);
-  font-size: 12px;
+  font-size: var(--sm-font);
   padding: 8px;
   font-family: var(--second-font);
   text-align: center;

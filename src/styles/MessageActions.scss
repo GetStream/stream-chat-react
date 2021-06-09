@@ -41,7 +41,7 @@
   cursor: pointer;
   display: block;
   width: 100%;
-  font-size: 12px;
+  font-size: var(--sm-font);
   color: var(--black);
   text-decoration: none;
 }

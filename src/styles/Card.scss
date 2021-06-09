@@ -3,7 +3,7 @@
   background: var(--white);
   border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
   overflow: hidden;
-  font-size: 13px;
+  font-size: var(--sm-font);
   border: 1px solid var(--border-color);
   margin: 32px 0 0 0;
   &--header {

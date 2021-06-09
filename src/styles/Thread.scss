@@ -32,11 +32,11 @@
     padding: 0 20px;
 
     &-details {
-      font-size: 14px;
+      font-size: var(--md-font);
 
       small {
         display: block;
-        font-size: 12px;
+        font-size: var(--sm-font);
       }
     }
   }
@@ -48,7 +48,7 @@
     //TODO CSS
     background: var(--black5);
     text-align: center;
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 
   &-list {

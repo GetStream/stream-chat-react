@@ -97,7 +97,7 @@
       display: block;
       min-height: 32px;
       padding: 5px 10px;
-      font-size: 15px; /* variables */
+      font-size: var(--lg-font); /* variables */
       color: black; /* variables */
       border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
       background: #fff;
@@ -156,7 +156,7 @@
   &-data {
     margin-top: 5px;
     width: 100%;
-    font-size: 11px;
+    font-size: var(--xs-font);
     color: rgba(0, 0, 0, 0.5);
   }
 
@@ -195,7 +195,7 @@
     float: left;
     padding: 8px 16px;
     border-radius: var(--border-radius);
-    font-size: 12px;
+    font-size: var(--sm-font);
     color: var(--darken-grey);
     margin: 0 0 0 42px;
   }
@@ -203,7 +203,7 @@
   /* error messages */
   &--error {
     margin: 0 0 32px 0;
-    font-size: 12px;
+    font-size: var(--sm-font);
 
     .str-chat__message-text-inner {
       background: rgba(208, 2, 27, 0.1);
@@ -401,7 +401,7 @@
         position: relative;
 
         &::before {
-          font-size: 25px;
+          font-size: var(--xxl-font);
           content: '\201C';
           font-style: italic;
           position: absolute;
@@ -429,7 +429,7 @@
 .str-chat__commerce-message--error-message {
   text-align: left;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--xs-font);
   opacity: 0.5;
 }
 
@@ -445,7 +445,7 @@
   align-items: center;
   z-index: 11;
   &-number {
-    font-size: 10px;
+    font-size: var(--xs-font);
     margin-left: 4px;
     position: absolute;
     left: 100%;

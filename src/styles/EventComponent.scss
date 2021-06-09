@@ -7,10 +7,10 @@
       margin-right: 10px;
       //TODO CSS
       color: var(--black50);
-      font-size: 15px;
+      font-size: var(--lg-font);
     }
     &__date {
-      font-size: 11px;
+      font-size: var(--xs-font);
       margin-top: 4px;
     }
   }
@@ -25,10 +25,10 @@
       margin-right: 10px;
       //TODO CSS
       color: var(--black50);
-      font-size: 15px;
+      font-size: var(--lg-font);
     }
     &__date {
-      font-size: 11px;
+      font-size: var(--xs-font);
       margin-top: 4px;
     }
   }

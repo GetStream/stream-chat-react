@@ -6,7 +6,7 @@
 }
 
 .str-chat__message-reactions-list-item {
-  font-size: 20px;
+  font-size: var(--xl-font);
   margin: 0 5px;
   position: relative;
   line-height: 0;
@@ -28,7 +28,7 @@
   &__count {
     position: absolute;
     top: 28px;
-    font-size: 10px;
+    font-size: var(--xs-font);
     color: var(--white);
     font-weight: 700;
     left: 6px;
@@ -54,7 +54,7 @@
       background-image: linear-gradient(-180deg, transparent, var(--black50));
       max-width: 237px;
       padding: 4px 8px;
-      font-size: 13px;
+      font-size: var(--sm-font);
       color: var(--white);
 
       &::after {
@@ -127,7 +127,7 @@
     min-height: 24px;
     max-width: 100%;
     padding: 4px 8px;
-    font-size: 13px;
+    font-size: var(--sm-font);
     color: var(--white);
     text-align: center;
 

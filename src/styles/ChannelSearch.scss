@@ -15,7 +15,7 @@
     height: $height + px;
     border-radius: $height/2 + px;
     color: var(--black);
-    font-size: 14px;
+    font-size: var(--md-font);
     padding: 0 10px;
 
     &::placeholder {

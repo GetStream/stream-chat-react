@@ -71,7 +71,7 @@
       height: 50px;
       display: flex;
       align-items: center;
-      font-size: 14px;
+      font-size: var(--md-font);
       line-height: 22px;
       border-left: 1px solid var(--black10);
       width: auto;
@@ -116,7 +116,7 @@
 
       span {
         line-height: 14px;
-        font-size: 12px;
+        font-size: var(--sm-font);
         font-weight: bold;
         text-transform: uppercase;
         display: block;

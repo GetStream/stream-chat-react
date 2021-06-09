@@ -4,7 +4,7 @@
   align-items: center;
 
   &-date {
-    font-size: 14px;
+    font-size: var(--md-font);
     font-weight: var(--heavy-font-weight);
     //TODO CSS
     color: var(--black70);

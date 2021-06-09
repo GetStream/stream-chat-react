@@ -13,7 +13,7 @@
     box-shadow: 0 1px 1px 0 var(--black20);
 
     &-left {
-      font-size: 14px;
+      font-size: var(--md-font);
 
       &--title {
         //TODO CSS
@@ -30,7 +30,7 @@
       &--livelabel {
         position: relative;
         left: 5px;
-        font-size: 13px;
+        font-size: var(--sm-font);
         text-transform: uppercase;
         //TODO CSS
         color: var(--red);
@@ -99,7 +99,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: var(--md-font);
   //TODO CSS
   color: var(--black40);
 }
@@ -189,7 +189,7 @@
             color: var(--white);
           }
           &--title {
-            font-size: 15px;
+            font-size: var(--lg-font);
           }
         }
       }
@@ -209,14 +209,14 @@
         padding: 25px;
         &-left {
           &--title {
-            font-size: 25px;
+            font-size: var(--xxl-font);
             margin: 0;
             line-height: 1;
             font-weight: 400;
           }
           &--subtitle {
             margin: 8px 0;
-            font-size: 15px;
+            font-size: var(--lg-font);
           }
           &--members {
             display: none;
@@ -255,10 +255,10 @@
         &-left {
           color: var(--white);
           &--title {
-            font-size: 18px;
+            font-size: var(--lg-font);
           }
           &--members {
-            font-size: 13px;
+            font-size: var(--sm-font);
           }
         }
       }

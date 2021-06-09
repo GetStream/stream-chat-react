@@ -76,7 +76,7 @@
   textarea {
     background: transparent;
     min-height: 36px;
-    font-size: 13px;
+    font-size: var(--sm-font);
     padding: 10px 44px 8px 8px;
 
     &:focus {
@@ -89,7 +89,7 @@
   }
 
   .str-chat__user-item {
-    font-size: 14px;
+    font-size: var(--md-font);
   }
 
   .rfu-file-upload-button {

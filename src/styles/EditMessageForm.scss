@@ -15,7 +15,7 @@
     resize: none;
     border-radius: var(--border-radius-sm);
     width: 100%;
-    font-size: 15px;
+    font-size: var(--lg-font);
     line-height: 22px;
 
     /* color: $fontColor; */
@@ -30,10 +30,7 @@
     button {
       background: none;
       border: none;
-
-      /* font-size: $fontSize; */
       font-weight: var(--heavy-font-weight);
-      //TODO CSS
       color: var(--black40);
 
       &[type='submit'] {

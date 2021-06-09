@@ -8,7 +8,7 @@
     align-items: center;
     width: 100%;
     padding: 10px 40px 10px 10px;
-    font-size: 13px;
+    font-size: var(--sm-font);
     //TODO CSS
     border-bottom: 1px solid var(--black10);
     outline: 0;
@@ -52,7 +52,7 @@
     width: 22px;
     height: 22px;
     color: var(--black);
-    font-size: 12px;
+    font-size: var(--sm-font);
     //TODO CSS
     background: lightgray;
     border-radius: var(--border-radius);
@@ -106,7 +106,7 @@
 .str-chat__channel-preview-compact {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   display: flex;
-  font-size: 14px;
+  font-size: var(--md-font);
   letter-spacing: 0;
   line-height: 40px;
   color: var(--black);
@@ -173,13 +173,13 @@
   }
 
   &--last-message {
-    font-size: 13px;
+    font-size: var(--sm-font);
     line-height: 14px;
     opacity: 0.5;
   }
 
   &--name {
-    font-size: 14px;
+    font-size: var(--md-font);
     line-height: 17px;
     font-weight: 600;
     margin-bottom: 2px;

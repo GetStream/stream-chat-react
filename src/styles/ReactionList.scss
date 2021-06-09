@@ -20,7 +20,7 @@
       position: relative;
       list-style-type: none;
       padding: 0;
-      font-size: 15px;
+      font-size: var(--lg-font);
       line-height: 26px;
       display: flex;
       justify-content: center;
@@ -100,7 +100,7 @@
 
     &--counter {
       color: var(--white);
-      font-size: 12px;
+      font-size: var(--sm-font);
     }
   }
 

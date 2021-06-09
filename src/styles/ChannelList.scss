@@ -25,7 +25,7 @@
   background: var(--white);
   //TODO CSS
   box-shadow: 0 1px 1px 0 var(--black10), 0 1px 4px 0 var(--black10);
-  font-size: 14px;
+  font-size: var(--md-font);
   padding: 14px 70px;
   color: var(--primary-color);
   display: flex;

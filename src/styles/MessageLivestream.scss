@@ -28,7 +28,7 @@
     border: 1px solid transparent;
 
     > * {
-      font-size: 13px;
+      font-size: var(--sm-font);
       line-height: 20px;
       margin: 0;
     }
@@ -75,7 +75,7 @@
         'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
       line-height: inherit;
       padding: 10px;
-      font-size: 12px;
+      font-size: var(--sm-font);
       font-weight: 700;
     }
 
@@ -172,7 +172,7 @@
   }
 
   &-time {
-    font-size: 10px;
+    font-size: var(--xs-font);
     line-height: 20px;
     color: var(--black50);
     flex: 2;
@@ -181,7 +181,7 @@
 
   &-text {
     &--is-emoji {
-      font-size: 33px;
+      font-size: var(--xxxl-font);
       line-height: 42px;
     }
   }
@@ -229,7 +229,7 @@
 
   &__thread-banner {
     text-align: center;
-    font-size: 12px;
+    font-size: var(--sm-font);
     padding: 8px;
     margin: 8px 10px 0 10px;
     background: var(--primary-color);
