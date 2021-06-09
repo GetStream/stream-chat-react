@@ -13,7 +13,7 @@ Use this component by adding it as a child of the `Channel` component. If you wa
 **Example 1**
 
 ```jsx
-<Channel>
+<Channel channel={channel}>
   <ChannelHeader live={true} title={'General'} />
 </Channel>
 ```
@@ -21,7 +21,7 @@ Use this component by adding it as a child of the `Channel` component. If you wa
 **Example 2** - using a custom heading component.
 
 ```jsx
-<Channel>
+<Channel channel={channel}>
   <YourCustomChannelHeader />
 </Channel>
 ```

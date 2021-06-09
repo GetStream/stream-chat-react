@@ -4,25 +4,23 @@ sidebar_position: 7
 title: Window
 ---
 
-A UI component for conditionally displaying a `Thread` or `Channel`.
-It's also possible to display the `Thread` side by side with the `Channel`. It's a very minimal component that might fit some use cases, and if not, is easy to modify and rewrite.
+The `Window` component handles width changes in the main channel to ensure a seamless user experience when opening and closing a `Thread` component.
 
 ## Basic Usage
 
-The `Window` component must wrap the main channel components to enable mount and unmount behavior, and the `Thread` component should also be on the same level. This ensures correct width changes in the main channel when opening and closing a `Thread`.
+The `Window` component must wrap the main channel components to enable smooth mount and unmount behavior. It must be rendered at the same level as the `Thread`.
+This ensures correct width changes in the main channel when opening and closing a `Thread`.
 
 ```tsx
-const App = () => (
-  <Chat client={chatClient}>
-    <Channel>
-      <Window>
-        <MessageList />
-        <MessageInput />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
+<Chat client={client}>
+  <Channel channel={channel}>
+    <Window>
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </Channel>
+</Chat>
 ```
 
 ## Props
