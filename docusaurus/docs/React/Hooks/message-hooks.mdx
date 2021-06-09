@@ -21,16 +21,18 @@ A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/c
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useDeleteHandler.ts) to handle message deletion.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const handleDelete = useDeleteHandler(props.message);
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const handleDelete = useDeleteHandler(message);
 
-  if (props.message.type === 'deleted') {
+  if (message.type === 'deleted') {
     return <p>Nothing to see here.</p>;
   }
 
   return (
     <div>
-      {props.message.text} <button onClick={handleDelete}>Delete, please</button>
+      {message.text}
+      <button onClick={handleDelete}>Delete, please</button>
     </div>
   );
 };
@@ -41,17 +43,23 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useEditHandler.ts) to handle message editing. Returns an object with an editing state boolean and handlers for setting and clearing edit mode.
 
 ```jsx
-import { useEditHandler } from '../components';
-const MyCustomMessageComponent = (props) => {
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
   const { editing, setEdit, clearEdit } = useEditHandler();
 
   if (editing) {
-    return <div>Editing: {props.message.text} <button onClick={clearEdit}>Cancel</button></div>
+    return (
+      <div>
+        Editing: {message.text}
+        <button onClick={clearEdit}>Cancel</button>
+      </div>
+    );
   }
 
   return (
     <div>
-      {props.message.text} <button onClick={setEdit}>Edit</button>
+      {message.text}
+      <button onClick={setEdit}>Edit</button>
     </div>
   );
 };
@@ -62,12 +70,15 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useFlagHandler.ts) to handle flagging messages. Returns an event handler that processes message flagging.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const handleFlagging = useFlagHandler(props.message, { notify: props.addNotification });
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const { addNotification } = useChannelActionContext();
+  const handleFlagging = useFlagHandler(message, { notify: addNotification });
 
   return (
     <div>
-      {props.message.text} <button onClick={handleFlagging}>Flag this message</button>
+      {message.text}
+      <button onClick={handleFlagging}>Flag this message</button>
     </div>
   );
 };
@@ -78,12 +89,13 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useMentionsHandler.ts) to give you access to message mentions and returns handlers for mentions click and hover events.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const { onMentionsClick, onMentionsHover } = useMentionsHandler(props.message);
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const { onMentionsClick, onMentionsHover } = useMentionsHandler(message);
 
   return (
     <div onClick={onMentionsClick} onHover={onMentionsHover}>
-      {props.message.text}
+      {message.text}
     </div>
   );
 };
@@ -98,12 +110,15 @@ A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/c
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useMuteHandler.ts) to handle muting users. Returns an event handler that processes user muting.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const handleMute = useMuteHandler(props.message, { notify: props.addNotification });
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const { addNotification } = useChannelActionContext();
+  const handleMute = useMuteHandler(message, { notify: addNotification });
 
   return (
     <div>
-      {props.message.text} <button onClick={handleMute}>Mute the user that sent this!</button>
+      {message.text
+       <button onClick={handleMute}>Mute the user that sent this!</button>
     </div>
   );
 };
@@ -114,12 +129,13 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useOpenThreadHandler.ts) to handle the opening of a `thread` in the current `channel`. Returns an event handler to open a thread.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const onThreadClick = useOpenThreadHandler(props.message);
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const onThreadClick = useOpenThreadHandler(message);
 
   return (
     <div>
-      {props.message.text}
+      {message.text}
       <button onClick={onThreadClick}>Reply</button>
     </div>
   );
@@ -131,11 +147,12 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/usePinHandler.ts) to handle message pinning. It provides the permission status of the connected user and a function to toggle pinned status of of a `message`.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const { addNotification, getPinMessageErrorNotification, message, pinPermissions } = props;
+const MyCustomMessageComponent = () => {
+  const { message, pinPermissions } = useMessageContext();
+  const { addNotification } = useChannelActionContext();
+
   const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
-    notify: addNotification,
-    getErrorNotification: getPinMessageErrorNotification,
+    notify: addNotification
   });
 
   const handleClick = () => {
@@ -148,6 +165,7 @@ const MyCustomMessageComponent = (props) => {
     </div>
   );
 };
+/>
 ```
 
 ### useReactionHandler
@@ -155,12 +173,13 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useReactionHandler.ts) to handle message reactions.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const onReactionClick = useReactionHandler(props.message);
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const onReactionClick = useReactionHandler(message);
 
   return (
     <div>
-      {props.message.text}
+      {message.text}
       <button onClick={(e) => onReactionClick('nice', e)}>Nice!</button>
       <button onClick={(e) => onReactionClick('not-nice', e)}>I don't like it!</button>
     </div>
@@ -173,14 +192,16 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useRetryHandler.ts) to handle the retry of sending a message.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
   const retrySend = useRetryHandler();
 
-  if (props.message.status === 'failed') {
-    const onRetry = () => retrySend(props.message);
+  if (message.status === 'failed') {
+    const onRetry = () => retrySend(message);
+
     return (
       <div>
-        Failed to send: {props.message.text}
+        Failed to send: {message.text}
         <button onClick={onRetry}>Retry</button>
       </div>
     );
@@ -188,7 +209,7 @@ const MyCustomMessageComponent = (props) => {
 
   return (
     <div>
-      {props.message.text}
+      {message.text}
     </div>
   );
 };
@@ -199,15 +220,16 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useUserHandler.ts) that exposes the info for a message's user. Returns event handlers for click and hover events for the user.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
-  const { onUserClick, onUserHover } = useUserHandler(props.message, {
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: (e, user) => console.log(`Message from ${user}`),
     onUserHoverHandler: (e, user) => console.log(`Message from ${user}`),
   });
 
   return (
     <div onClick={onUserClick} onHover={onUserHover}>
-      {props.message.text}
+      {message.text}
     </div>
   );
 };
@@ -218,7 +240,8 @@ const MyCustomMessageComponent = (props) => {
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useUserRole.ts) that exposes the info for a user's role for a certain message. Returns an object with the user's role information.
 
 ```jsx
-const MyCustomMessageComponent = (props) => {
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
   const {
     isMyMessage,
     isAdmin,
@@ -226,7 +249,7 @@ const MyCustomMessageComponent = (props) => {
     isOwner,
     canEditMessage,
     canDeleteMessage
-  } = useUserRole(props.message);
+  } = useUserRole(message);
 
   if (isMyMessage || isAdmin) {
     ...
