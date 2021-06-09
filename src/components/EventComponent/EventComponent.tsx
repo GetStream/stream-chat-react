@@ -74,11 +74,7 @@ const UnMemoizedEventComponent = <
       </div>
     );
 
-  if (
-    type === 'channel.event' &&
-    event &&
-    (event.type === 'member.removed' || event.type === 'member.added')
-  ) {
+  if (event?.type === 'member.removed' || event?.type === 'member.added') {
     const name = event?.user?.name || event?.user?.id;
     const sentence = `${name} ${
       event.type === 'member.added' ? 'has joined the chat' : 'was removed from the chat'

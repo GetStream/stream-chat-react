@@ -1,0 +1,48 @@
+---
+id: installation
+sidebar_position: 1
+slug: /
+title: Installation
+---
+
+Utilizing the Stream Chat API, the Stream Chat React component library includes everything you need to build feature-rich and high-functioning chat user experiences out of the box, while also providing many opportunities for customization.
+Use cases include team and social messaging, virtual event, livestream gaming, and customer support. Just to name a few features, the library supports:
+
+- rich media messages
+- reactions
+- threads and quoted replies
+- text input commands (ex: Giphy and @mentions)
+- image and file uploads
+- video playback
+- read state and typing indicators
+
+A common pattern in the library is the use of context provider hooks (see [Contexts](./contexts/chat_context)). These custom hooks allow for effective value sharing between parent components and their children.
+This makes customization straightforward, as you can use our exported hooks in your custom components to receive the exact values needed, while also subscribing to context changes.
+
+The left navigation will guide you to the various documentation sections for information on everything regarding our robust component library. Check out the instructions below for adding the library to your React project.
+
+We recommended using the component library through a package manager. Stream Chat React is based on top of Stream's [JavaScript Client](https://getstream.io/chat/docs/javascript/?language=javascript).
+
+### Install with NPM
+
+```bash
+npm install stream-chat stream-chat-react
+```
+
+### Install with Yarn
+
+```bash
+yarn add stream-chat stream-chat-react
+```
+
+### Install via CDN
+
+In case you are not using a package manager, or you wish to build a simple proof of concept in CodePen for example, you can load the library through a direct script link. If you choose to do this, make sure you explicitly specify the version of the library to prevent breaking releases from affecting your app.
+
+```html
+<!-- Replace VERSION with the version of stream-chat and stream-chat-react -->
+<script src="https://cdn.jsdelivr.net/npm/stream-chat@VERSION"></script>
+<script src="https://cdn.jsdelivr.net/npm/stream-chat-react@VERSION"></script>
+```
+
+With the installation out of the way, let's get started exploring the basics of the library.

@@ -1,5 +1,67 @@
 # Changelog
 
+## [6.0.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.6) 2021-06-02
+
+### Chore
+
+- Throttle send/remove message reaction functions [#953](https://github.com/GetStream/stream-chat-react/pull/953)
+and [#955](https://github.com/GetStream/stream-chat-react/pull/955)
+
+### Bug
+
+- Restore override props on `ChatAutoComplete` component [#952](https://github.com/GetStream/stream-chat-react/pull/952)
+
+## [6.0.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.5) 2021-05-28
+
+### Feature
+
+- Add optional prop to override default `loadMore` function in `VirtualizedMessageList` [#950](https://github.com/GetStream/stream-chat-react/pull/950)
+
+### Bug
+
+- Prevent unnecessary members query when `disableMentions` is enabled on `MessageInput` [#949](https://github.com/GetStream/stream-chat-react/pull/949)
+
+## [6.0.4](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.4) 2021-05-25
+
+### Bug
+
+- Add missing `Input` prop to `ComponentContext` value [#942](https://github.com/GetStream/stream-chat-react/pull/942)
+
+## [6.0.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.3) 2021-05-25
+
+### Chore
+
+- Export browser bundle as `StreamChatReact` namespace [#940](https://github.com/GetStream/stream-chat-react/pull/940)
+- Use asset path scss variable [#939](https://github.com/GetStream/stream-chat-react/pull/939)
+
+## [6.0.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.2) 2021-05-21
+
+### Feature
+
+- Add German auto translation support [#935](https://github.com/GetStream/stream-chat-react/pull/935)
+
+### Chore
+
+- Upgrade `react-file-utils` dependency for reduced bundle size [#933](https://github.com/GetStream/stream-chat-react/pull/933)
+
+### Bug
+
+- Prevent tree shaking from removing distributed CSS [#936](https://github.com/GetStream/stream-chat-react/pull/936)
+
+## [6.0.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.1) 2021-05-19
+
+### Feature
+
+- Expose the `MessageContext` to the `VirtualizedMessageList`'s `Message` UI component [#924](https://github.com/GetStream/stream-chat-react/pull/924)
+
+### Chore
+
+- Reorganize component documentation for v6 [#926](https://github.com/GetStream/stream-chat-react/pull/926)
+
+### Bug
+
+- Prevent crash when navigate away from, and then back to, an empty channel [#931](https://github.com/GetStream/stream-chat-react/pull/931)
+
 ## [6.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.0) 2021-05-17
 
 ### ⚠️ BREAKING CHANGES ⚠️ - Please review our v6 [implementation guide](https://github.com/GetStream/stream-chat-react/wiki) prior to upgrading.

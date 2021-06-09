@@ -64,7 +64,7 @@ export type ChannelListProps<
   /**
    * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
    * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
-   * and push it to the top of the list by default. You can disable this behavior by setting this props
+   * and push it to the top of the list. You can disable this behavior by setting this prop
    * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
@@ -79,73 +79,73 @@ export type ChannelListProps<
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
   ChannelSearch?: React.ComponentType<ChannelSearchProps<Us>>;
-  /** Set a Channel (of this id) to be active and move it to the top of the list of Channels by ID */
+  /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
-  /** Indicator for Empty State */
+  /** Custom UI component for rendering an empty list, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-  /** Object containing query filters */
+  /** An object containing channel query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
-  /** Custom UI component to display the container for the channels, defaults to and accepts same props as: [ChannelListTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListTeam.tsx) */
+  /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
-  /** When set to true, channels won't dynamically sort by most recent message */
+  /** When true, channels won't dynamically sort by most recent message */
   lockChannelOrder?: boolean;
-  /** Function to override default behavior when a user is added to a channel, corresponds to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a user is added to a channel, corresponds to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onAddedToChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default behavior when a channel is deleted, corresponds to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a channel is deleted, corresponds to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelDeleted?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default behavior when a channel is hidden, corresponds to [channel.hidden](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a channel is hidden, corresponds to [channel.hidden](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelHidden?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default channel truncated behavior, corresponds to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a channel is truncated, corresponds to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelTruncated?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default channel updated behavior, corresponds to [channel.updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a channel is updated, corresponds to [channel.updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelUpdated?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default channel visible behavior, corresponds to [channel.visible](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default channel visible behavior, corresponds to [channel.visible](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelVisible?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default behavior when a message is received on a channel not being watched, corresponds to [notification.message\_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a message is received on a channel not being watched, corresponds to [notification.message\_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onMessageNew?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Function to override default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  /** Function to override the default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void;
-  /** Object containing query options */
+  /** An object containing channel query options */
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
-  /** Custom UI component to display the channel preview in the ChannelList, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
+  /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
   /** Whether or not to load the list with a search component, defaults to false */
   showChannelSearch?: boolean;
-  /** Object containing sort parameters */
+  /** An object containing channel query sort parameters */
   sort?: ChannelSort<Ch>;
-  /** Object containing watcher parameters */
+  /** An object containing query parameters for fetching channel watchers */
   watchers?: { limit?: number; offset?: number };
 };
 
@@ -341,7 +341,7 @@ const UnMemoizedChannelList = <
 };
 
 /**
- * ChannelList - A preview list of Channels, allowing you to select the Channel you want to open.
+ * ChannelList renders a preview list of Channels, allowing you to select the Channel you want to open.
  * @example ./ChannelList.md
  */
 export const ChannelList = React.memo(UnMemoizedChannelList) as typeof UnMemoizedChannelList;

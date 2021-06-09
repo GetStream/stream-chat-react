@@ -119,10 +119,6 @@ const MessageTeamWithContext = <
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
-  if (message.type === 'message.read') {
-    return null;
-  }
-
   if (message.deleted_at) {
     return <MessageDeleted message={message} />;
   }

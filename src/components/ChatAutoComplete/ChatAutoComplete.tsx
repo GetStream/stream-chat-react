@@ -1,23 +1,16 @@
 import React, { useCallback } from 'react';
 
 import { AutoCompleteTextarea } from '../AutoCompleteTextarea';
-import type { CommandItemProps } from '../CommandItem/CommandItem';
-import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
 import { LoadingIndicator } from '../Loading/LoadingIndicator';
-import type { UserItemProps } from '../UserItem/UserItem';
 
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EmojiData } from 'emoji-mart';
-import type {
-  CommandResponse,
-  UserFilters,
-  UserOptions,
-  UserResponse,
-  UserSort,
-} from 'stream-chat';
+import type { CommandResponse, UserResponse } from 'stream-chat';
+
+import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 
 import type {
   CustomTrigger,
@@ -28,10 +21,15 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
-  UnknownType,
 } from '../../types/types';
 
 type ObjectUnion<T> = T[keyof T];
+
+export type SuggestionCommand<
+  Co extends DefaultCommandType = DefaultCommandType
+> = CommandResponse<Co>;
+
+export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
 
 export type SuggestionItemProps<
   Co extends DefaultCommandType = DefaultCommandType,
@@ -80,75 +78,21 @@ export type SuggestionListProps<
   }
 >;
 
-export type SuggestionCommand<
-  Co extends DefaultCommandType = DefaultCommandType
-> = CommandResponse<Co>;
-
-export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
-
-export type AutocompleteMinimalData = {
-  id?: string;
-  name?: string;
-} & ({ id: string } | { name: string });
-
-export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
-  component: string | React.ComponentType<T>;
-  dataProvider: (
-    query: string,
-    text: string,
-    onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
-  ) => U[] | Promise<void> | void;
-  output: (
-    entity: U,
-  ) =>
-    | {
-        caretPosition: 'start' | 'end' | 'next' | number;
-        text: string;
-        key?: string;
-      }
-    | string
-    | null;
-  callback?: (item: U) => void;
-};
-
-export type CommandTriggerSetting<
-  Co extends DefaultCommandType = DefaultCommandType
-> = TriggerSetting<CommandItemProps, SuggestionCommand<Co>>;
-
-export type EmojiTriggerSetting = TriggerSetting<EmoticonItemProps, EmojiData>;
-
-export type UserTriggerSetting<Us extends DefaultUserType<Us> = DefaultUserType> = TriggerSetting<
-  UserItemProps,
-  SuggestionUser<Us>
->;
-
-export type TriggerSettings<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
-  V extends CustomTrigger = CustomTrigger
-> =
-  | {
-      [key in keyof V]: TriggerSetting<V[key]['componentProps'], V[key]['data']>;
-    }
-  | {
-      '/': CommandTriggerSetting<Co>;
-      ':': EmojiTriggerSetting;
-      '@': UserTriggerSetting<Us>;
-    };
-
-export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  filters?: UserFilters<Us>;
-  options?: UserOptions;
-  sort?: UserSort<Us>;
-};
-
 export type ChatAutoCompleteProps = {
-  /** Listener for onfocus event on textarea */
+  /** Function to override the default submit handler on the underlying `textarea` component */
+  handleSubmit?: (event: React.BaseSyntheticEvent) => void;
+  /** Function to override the default onChange behavior on the underlying `textarea` component */
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+  /** Function to run on focus of the underlying `textarea` component */
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
-  /** Placeholder for the textarea */
+  /** Function to override the default onPaste behavior on the underlying `textarea` component */
+  onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  /** Placeholder for the the underlying `textarea` component */
   placeholder?: string;
-  /** The number of rows you want the textarea to have */
+  /** The initial number of rows for the underlying `textarea` component */
   rows?: number;
+  /** The text value of the underlying `textarea` component */
+  value?: string;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -163,16 +107,16 @@ const UnMemoizedChatAutoComplete = <
 >(
   props: ChatAutoCompleteProps,
 ) => {
-  const { t } = useTranslationContext();
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
-  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
-
   const {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { t } = useTranslationContext();
 
-  const { onFocus, placeholder = t('Type your message'), rows = 1 } = props;
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
+
+  const placeholder = props.placeholder || t('Type your message');
 
   const emojiReplace = (word: string) => {
     const found = emojiIndex?.search(word) || [];
@@ -202,7 +146,7 @@ const UnMemoizedChatAutoComplete = <
       disableMentions={messageInput.disableMentions}
       dropdownClassName='str-chat__emojisearch'
       grow={messageInput.grow}
-      handleSubmit={messageInput.handleSubmit}
+      handleSubmit={props.handleSubmit || messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
       keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
@@ -210,16 +154,16 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={messageInput.maxRows}
       minChar={0}
-      onChange={messageInput.handleChange}
-      onFocus={onFocus}
-      onPaste={messageInput.onPaste}
+      onChange={props.onChange || messageInput.handleChange}
+      onFocus={props.onFocus}
+      onPaste={props.onPaste || messageInput.onPaste}
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
-      rows={rows}
+      rows={props.rows || 1}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={messageInput.autocompleteTriggers || {}}
-      value={messageInput.text}
+      value={props.value || messageInput.text}
     />
   );
 };

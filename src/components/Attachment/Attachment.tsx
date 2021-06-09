@@ -36,50 +36,23 @@ import type { ActionHandlerReturnType } from '../Message';
 import type { DefaultAttachmentType } from '../../types/types';
 
 export type AttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  /**
-   * The attachment to render.
-   * See [Attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
-   **/
+  /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
   attachments: ExtendedAttachment<At>[];
-  /**
-		The handler function to call when an action is selected on an attachment.
-		Examples include canceling a \/giphy command or shuffling the results.
-		*/
+  /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
-  /**
-   * Custom UI component for AttachmentActions.
-   * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx)
-   */
+  /** Custom UI component for displaying attachment actions, defaults to and accepts same props as: [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) */
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
-  /**
-   * Custom UI component for audio type Attachment.
-   * Defaults to [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)
-   */
+  /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
   Audio?: React.ComponentType<AudioProps>;
-  /**
-   * Custom UI component for card type Attachment.
-   * Defaults to [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx)
-   */
+  /** Custom UI component for displaying a card type attachment, defaults to and accepts same props as: [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) */
   Card?: React.ComponentType<CardProps>;
-  /**
-   * Custom UI component for file type Attachment.
-   * Defaults to [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx)
-   */
+  /** Custom UI component for displaying a file type attachment, defaults to and accepts same props as: [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) */
   File?: React.ComponentType<FileAttachmentProps>;
-  /**
-   * Custom UI component for gallery type Attachment.
-   * Defaults to [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)
-   */
+  /** Custom UI component for displaying a gallery of image type attachments, defaults to and accepts same props as: [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) */
   Gallery?: React.ComponentType<GalleryProps>;
-  /**
-   * Custom UI component for image type Attachment.
-   * Defaults to [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)
-   */
+  /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
-  /**
-   * Custom UI component for media type Attachment.
-   * Defaults to ReactPlayer from 'react-player'
-   */
+  /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
 };
 
@@ -114,8 +87,7 @@ export type InnerAttachmentUIComponentProps<
 };
 
 /**
- * Attachment - The message Attachment. A message can contain multiple Attachments.
- * By default, the component supports:
+ * A component used for rendering message attachments. By default, the component supports:
  * - AttachmentActions
  * - Audio
  * - Card

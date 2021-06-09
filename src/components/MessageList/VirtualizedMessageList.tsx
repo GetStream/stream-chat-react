@@ -20,7 +20,10 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingI
 import { FixedHeightMessage, FixedHeightMessageProps } from '../Message/FixedHeightMessage';
 import { Message } from '../Message/Message';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
+import {
+  ChannelActionContextValue,
+  useChannelActionContext,
+} from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -53,7 +56,6 @@ type VirtualizedMessageListWithContextProps<
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   hasMore: boolean;
   loadingMore: boolean;
-  loadMore: (messageLimit: number) => Promise<number>;
 };
 
 const VirtualizedMessageListWithContext = <
@@ -178,13 +180,13 @@ const VirtualizedMessageListWithContext = <
 
       const message = messageList[streamMessageIndex];
 
-      if (message.type === 'message.date' && message.date && isDate(message.date)) {
+      if (message.customType === 'message.date' && message.date && isDate(message.date)) {
         return <DateSeparator date={message.date} unread={message.unread} />;
       }
 
       if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
-      if (message.type === 'channel.event' || message.type === 'system') {
+      if (message.type === 'system') {
         return <MessageSystem message={message} />;
       }
 
@@ -300,13 +302,15 @@ export type VirtualizedMessageListProps<
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
+  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  loadMore?: ChannelActionContextValue['loadMore'];
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  /** Set the limit to use when paginating messages */
+  /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  /** Causes the underlying list to render extra content in addition to the necessary one to fill in the visible viewport */
+  /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
   /**
    * Performance improvement by showing placeholders if user scrolls fast through list.
@@ -325,10 +329,7 @@ export type VirtualizedMessageListProps<
   };
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
-  /**
-   * Group messages belong to the same user if true, otherwise show each message individually, defaults to `false`.
-   * What it does is basically pass down a boolean prop named "groupedByUser" to Message component.
-   */
+  /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
   /**
    * The scrollTo behavior when new messages appear. Use `"smooth"`

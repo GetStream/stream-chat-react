@@ -93,7 +93,7 @@ const MessageCommerceWithContext = <
     return <MessageDeleted message={message} />;
   }
 
-  if (message.type === 'message.read' || message.type === 'message.date') {
+  if (message.customType === 'message.date') {
     return null;
   }
 
@@ -121,14 +121,7 @@ const MessageCommerceWithContext = <
       )}
       <div className='str-chat__message-commerce-inner'>
         <>
-          {
-            <MessageOptions
-              displayActions={false}
-              displayLeft={false}
-              displayReplies={false}
-              theme='commerce'
-            />
-          }
+          {<MessageOptions displayLeft={false} displayReplies={false} theme='commerce' />}
           {hasReactions && !showDetailedReactions && isReactionEnabled && (
             <ReactionsList
               own_reactions={message.own_reactions}

@@ -2,11 +2,7 @@ import React, { useMemo } from 'react';
 
 import { getStrippedEmojiData } from '../Channel/emojiData';
 
-import {
-  EmojiSetDef,
-  MinimalEmoji,
-  useChannelStateContext,
-} from '../../context/ChannelStateContext';
+import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
@@ -28,14 +24,17 @@ export type ReactionsListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  emojiSetDef?: EmojiSetDef;
+  /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
+  /** Array of reactions made by the currently set user */
   own_reactions?: ReactionResponse<Re, Us>[] | null;
   /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
   reaction_counts?: { [key: string]: number };
   /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
   reactionOptions?: MinimalEmoji[];
+  /** Array of all reactions on the message */
   reactions?: ReactionResponse<Re, Us>[];
+  /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
 };
 
@@ -113,4 +112,7 @@ const UnMemoizedReactionsList = <
   );
 };
 
+/**
+ * Component that displays a list of reactions on a message.
+ */
 export const ReactionsList = React.memo(UnMemoizedReactionsList) as typeof UnMemoizedReactionsList;

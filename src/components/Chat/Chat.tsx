@@ -98,8 +98,8 @@ export type ChatProps<
 
 /**
  *
- * Chat - Wrapper component for Chat. The needs to be placed around any other Chat components.
- * This component provides the ChatContext to all other components.
+ * The wrapper component for a StreamChat application. Chat needs to be placed around any other chat components
+ * as it provides the ChatContext.
  *
  * ChatContext provides the following values:
  *

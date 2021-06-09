@@ -135,7 +135,6 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
   output: [
     {
-      extend: true, // extend window, not overwrite it
       file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
       globals: {
@@ -143,7 +142,7 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
         'react-dom': 'ReactDOM',
         'stream-chat': 'StreamChat',
       },
-      name: 'window', // write all exported values to window
+      name: 'StreamChatReact', // write all exported values to window under key StreamChatReact
       sourcemap: true,
     },
   ],
@@ -165,7 +164,7 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
       globals: false,
       process: true,
     }),
-    // To work with globals rollup expects them to be namespaced, what is not the case with stream-chat.
+    // To work with globals rollup expects them to be namespaced, which is not the case with stream-chat.
     // This injects some code to define stream-chat globals as expected by rollup.
     prepend(
       'window.StreamChat.StreamChat=StreamChat;window.StreamChat.logChatPromiseExecution=logChatPromiseExecution;window.StreamChat.Channel=Channel;window.ICAL=window.ICAL||{};',

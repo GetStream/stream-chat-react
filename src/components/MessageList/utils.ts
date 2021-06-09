@@ -42,11 +42,6 @@ export const processMessages = <
       continue;
     }
 
-    if (message.type === 'message.read') {
-      newMessages.push(message);
-      continue;
-    }
-
     const messageDate =
       (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
     let prevMessageDate = messageDate;
@@ -67,9 +62,9 @@ export const processMessages = <
       // do not show date separator for current user's messages
       if (!disableDateSeparator && unread && message.user?.id !== userID) {
         newMessages.push({
+          customType: 'message.date',
           date: message.created_at,
           id: message.id,
-          type: 'message.date',
           unread,
         } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>);
       }
@@ -82,15 +77,15 @@ export const processMessages = <
         (hideDeletedMessages &&
           messages[i - 1]?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.type !== 'message.date' // do not show two date separators in a row
+      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row
     ) {
       lastDateSeparator = messageDate;
 
       newMessages.push(
         {
+          customType: 'message.date',
           date: message.created_at,
           id: message.id,
-          type: 'message.date',
         } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
         message,
       );
@@ -170,7 +165,15 @@ export const insertIntro = <
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({ type: 'channel.intro' } as unknown) as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  const intro = ({ customType: 'channel.intro' } as unknown) as StreamMessage<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -200,7 +203,7 @@ export const insertIntro = <
     if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
-        if (messages[i + 1] && messages[i + 1].type === 'message.date') continue;
+        if (messages[i + 1] && messages[i + 1].customType === 'message.date') continue;
         if (!nextMessageTime) {
           newMessages.push(intro);
           return newMessages;
@@ -232,18 +235,16 @@ export const getGroupStyles = <
   nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   noGroupByUser: boolean,
 ): GroupStyle => {
-  if (message.type === 'message.date') return '';
-  if (message.type === 'channel.event') return '';
-  if (message.type === 'channel.intro') return '';
+  if (message.customType === 'message.date') return '';
+  if (message.customType === 'channel.intro') return '';
 
   if (noGroupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
-    previousMessage.type === 'channel.intro' ||
-    previousMessage.type === 'message.date' ||
+    previousMessage.customType === 'channel.intro' ||
+    previousMessage.customType === 'message.date' ||
     previousMessage.type === 'system' ||
-    previousMessage.type === 'channel.event' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
@@ -251,10 +252,9 @@ export const getGroupStyles = <
 
   const isBottomMessage =
     !nextMessage ||
-    nextMessage.type === 'message.date' ||
+    nextMessage.customType === 'message.date' ||
     nextMessage.type === 'system' ||
-    nextMessage.type === 'channel.event' ||
-    nextMessage.type === 'channel.intro' ||
+    nextMessage.customType === 'channel.intro' ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||

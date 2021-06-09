@@ -26,7 +26,6 @@ export type MessageOptionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleOpenThread'>> & {
-  displayActions?: boolean;
   displayLeft?: boolean;
   displayReplies?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;

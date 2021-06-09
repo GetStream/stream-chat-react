@@ -1,0 +1,162 @@
+---
+id: translations
+sidebar_position: 5
+title: Translation and Streami18n
+---
+
+The Stream Chat React component library uses the [`i18next`](https://www.npmjs.com/package/i18next) dependency to create a [`Streami18n`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/Streami18n.ts)
+class constructor that handles language translation. The library provides built-in translations for the following languages:
+
+1. English (en)
+2. Dutch (nl)
+3. Russian (ru)
+4. Turkish (tr)
+5. French (fr)
+6. Italian (it)
+7. Hindi (hi)
+8. Spanish (es)
+9. Portuguese (pt)
+10. German (de)
+
+The default language is English. To change the language of the connected user, create an instance of `Streami18n` and pass
+as a prop into the `Chat` component. The below example changes the current user's language to Spanish and automatically translates all
+text built into the component UI.
+
+```jsx
+const i18nInstance = new Streami18n({ language: 'es' });
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  ...
+</Chat>;
+```
+
+Taking it one step further, the below example shows how to override the default text values built into the components.
+
+```jsx {3-5}
+const i18nInstance = new Streami18n({
+  language: 'es',
+  translationsForLanguage: {
+    'Nothing yet...': 'Nada!', // default is 'Nada aun...'
+  },
+});
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  ...
+</Chat>;
+```
+
+:::note
+All [available translations](https://github.com/GetStream/stream-chat-react/tree/master/src/i18n) are found on GitHub and the
+JSON objects can be imported from the library.
+
+`import { esTranslations } from 'stream-chat-react';`
+:::
+
+## Streami18n API Reference
+
+The `Streami18n` class wraps [`i18next`](https://www.npmjs.com/package/i18next) and provides a set of values and methods.
+
+### Class Constructor Options
+
+| Option                       | Description                                                                          | Type     | Default    |
+| ---------------------------- | ------------------------------------------------------------------------------------ | -------- | ---------- |
+| language                     | connected user's language                                                            | string   | 'en'       |
+| translationsForLanguage      | overrides existing component text                                                    | object   | {}         |
+| disableDateTimeTranslations  | disables translation of date times                                                   | boolean  | false      |
+| debug                        | enables i18n debug mode                                                              | boolean  | false      |
+| logger                       | logs warnings/errors                                                                 | function | () => {}   |
+| dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) | object   | 'enConfig' |
+| DateTimeParser               | custom date time parser                                                              | function | Day.js     |
+
+### Class Instance Methods
+
+#### getAvailableLanguages
+
+Returns an array of language code strings corresponding to available languages.
+
+```tsx
+const availableLanguages = streami18n.getAvailableLanguages();
+```
+
+#### geti18Instance
+
+Returns the instance of `i18next` used within the `Streami18n` instance.
+
+```tsx
+const i18nInstance = streami18n.geti18Instance();
+```
+
+#### getTranslations
+
+Returns the current translation dictionaries for all languages.
+
+```tsx
+const translations = streami18n.getTranslations();
+```
+
+#### getTranslators
+
+Asynchronous function that returns the current translator functions.
+
+```tsx
+const { t, tDateTimeParser } = await streami18n.getTranslators();
+```
+
+#### registerTranslation
+
+Allows you to register a custom translation, which overrides an existing translation for the given language.
+The third parameter, which is an optional Day.js locale, is structured the same as [dayjsLocaleConfigForLanguage](https://github.com/iamkun/dayjs/tree/dev/src/locale).
+
+Review the [`enTranslations`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json) JSON file exported from `stream-chat-react` for a current list of translation keys.
+
+```tsx
+streami18n.registerTranslation('es', {
+  'Nothing yet...': 'Nada!',
+});
+```
+
+##### Parameters
+
+| Name              | Type   | Required           |
+| ----------------- | ------ | ------------------ |
+| language          | string | :heavy_check_mark: |
+| translation       | object | :heavy_check_mark: |
+| customDayjsLocale | object |                    |
+
+#### setLanguage
+
+Asynchronous function that changes the current language and returns a new translation function.
+If not initialized, `undefined` will be returned. If the language fails to update, the current translation function will be returned.
+
+```tsx
+const t = await streami18n.setLanguage('nl');
+```
+
+##### Parameters
+
+| Name     | Type   | Required           |
+| -------- | ------ | ------------------ |
+| language | string | :heavy_check_mark: |
+
+## Add a Language
+
+If you would like to add translation support for an additional language, follow these steps:
+
+1. Create a JSON file in your project (ex: `ko.json` if creating a translation file for Korean)
+2. Copy the content of an existing [translation file](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json)
+3. Change the values to your desired translations
+4. Register the translation file and set the new language
+5. Pass as prop to `Chat` component
+
+```tsx
+import koTranslation from 'path/to/ko.json';
+
+const i18nInstance = new Streami18n();
+
+i18nInstance.registerTranslation('ko', koTranslation);
+i18nInstance.setLanguage('ko');
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  ...
+</Chat>;
+```

@@ -47,6 +47,7 @@ type MessageContextPropsToPick =
   | 'handleReaction'
   | 'handleRetry'
   | 'isReactionEnabled'
+  | 'mutes'
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
   | 'onReactionListClick'
@@ -180,8 +181,8 @@ const MemoizedMessage = React.memo(
 ) as typeof MessageWithContext;
 
 /**
- * Message - A high level component which implements all the logic required for a Message.
- * The actual rendering of the Message is delegated via the "Message" property.
+ * The Message component is a context provider which implements all the logic required for rendering
+ * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  * @example ./Message.md
  */
 export const Message = <
@@ -210,7 +211,7 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
@@ -274,7 +275,7 @@ export const Message = <
       Message={props.Message}
       messageActions={props.messageActions}
       messageListRect={props.messageListRect}
-      mutes={props.mutes}
+      mutes={mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
       onReactionListClick={onReactionListClick}

@@ -161,7 +161,7 @@ describe('Thread', () => {
     renderComponent(chatClient, {
       additionalMessageInputProps,
       autoFocus: true,
-      MessageInput: CustomMessageInputMock,
+      Input: CustomMessageInputMock,
     });
     expect(CustomMessageInputMock).toHaveBeenCalledWith({}, {});
     expect(messageInputContextConsumerFn).toHaveBeenCalledWith(
