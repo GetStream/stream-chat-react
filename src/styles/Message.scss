@@ -306,7 +306,7 @@
         color: var(--black50);
         text-transform: uppercase;
         //TODO CSS
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
       }
     }
     &__line {
@@ -423,7 +423,7 @@
   }
 
   &-name {
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
     margin-right: 5px;
   }
 
@@ -528,12 +528,12 @@
 
   &-link {
     color: var(--primary-color);
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
     text-decoration: none;
   }
 
   &-mention {
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
   }
 
   &-url-link {
@@ -723,7 +723,7 @@
       }
       a {
         color: var(--primary-color);
-        font-weight: var(--heavy-font-weight);
+        font-weight: var(--font-weight-bold);
         text-decoration: none;
       }
       blockquote {

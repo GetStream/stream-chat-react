@@ -88,7 +88,7 @@
     position: relative;
 
     .str-chat__channel-preview-last-message {
-      font-weight: var(--heavy-font-weight);
+      font-weight: var(--font-weight-bold);
       color: var(--black);
     }
   }
@@ -104,7 +104,7 @@
 }
 
 .str-chat__channel-preview-compact {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--second-font);
   display: flex;
   font-size: var(--md-font);
   letter-spacing: 0;
@@ -139,7 +139,7 @@
   }
 
   &--unread {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 }
 
@@ -181,7 +181,7 @@
   &--name {
     font-size: var(--md-font);
     line-height: 17px;
-    font-weight: 600;
+    font-weight: var(--font-weight-semi-bold);
     margin-bottom: 2px;
     max-width: 250px;
     span {
@@ -196,7 +196,7 @@
     .str-chat__channel-preview-messenger--last-message {
       opacity: 1;
       //TODO CSS
-      font-weight: 600;
+      font-weight: var(--font-weight-semi-bold);
     }
   }
 }

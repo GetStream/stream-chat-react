@@ -161,7 +161,7 @@
   }
 
   &-name {
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
     margin-right: 5px;
   }
 
@@ -179,7 +179,7 @@
 
   &-link {
     color: var(--primary-color);
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
     text-decoration: none;
   }
 
@@ -391,7 +391,7 @@
       }
       a {
         color: var(--secondary-color);
-        font-weight: 700;
+        font-weight: var(--font-weight-bold);
         text-decoration: none;
       }
       blockquote {

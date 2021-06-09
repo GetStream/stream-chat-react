@@ -1,5 +1,5 @@
 .str-chat__message-livestream {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--second-font);
   display: flex;
   width: 100%;
   margin: 0 0;
@@ -63,7 +63,7 @@
 
       a {
         color: var(--primary-color);
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
         text-decoration: none;
       }
     }
@@ -76,7 +76,7 @@
       line-height: inherit;
       padding: 10px;
       font-size: var(--sm-font);
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
     }
 
     pre {

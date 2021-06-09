@@ -19,7 +19,7 @@
       position: absolute;
       right: 20px;
       font-size: var(--xl-font);
-      font-weight: bold;
+      font-weight: var(--font-weight-bold);
       top: 8px;
     }
   }
@@ -209,7 +209,7 @@
   }
 
   &--highlight {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     font-size: var(--sm-font);
   }
 
@@ -232,7 +232,7 @@
   display: flex;
 
   &--highlight {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     font-size: var(--sm-font);
   }
 
@@ -418,7 +418,7 @@
     position: absolute;
     right: 20px;
     font-size: var(--lg-font);
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     top: 6px;
   }
 }

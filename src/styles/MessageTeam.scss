@@ -122,7 +122,7 @@
         color: $fontColor;
         font-size: $fontSize;
         line-height: 22px;
-        font-weight: 400;
+        font-weight: var(--font-weight-regular);
         border-left: 1px solid $borderColor;
         position: relative;
         margin: 0 0;
@@ -154,7 +154,7 @@
 
           a {
             color: var(--secondary-color);
-            font-weight: bold;
+            font-weight: var(--font-weight-bold);
             text-decoration: none;
           }
 
@@ -171,7 +171,7 @@
           font-family: var(--main-font);
           line-height: inherit;
           font-size: var(--sm-font);
-          font-weight: 700;
+          font-weight: var(--font-weight-bold);
         }
 
         pre {

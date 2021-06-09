@@ -54,14 +54,14 @@
       padding-left: 10px;
 
       &:hover {
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
         transition: all 0.2s ease-in-out;
       }
     }
   }
 
   &-result.focused {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
   }
 
   &-container.popup {

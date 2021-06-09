@@ -8,7 +8,7 @@
     min-height: 70px;
     display: flex;
     align-items: center;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--second-font);
     background: var(--white);
     box-shadow: 0 1px 1px 0 var(--black20);
 
@@ -17,13 +17,13 @@
 
       &--title {
         //TODO CSS
-        font-weight: 700;
+        font-weight: var(--font-weight-bold);
         margin: 0;
       }
 
       &--members {
         //TODO CSS
-        font-weight: 400;
+        font-weight: var(--font-weight-regular);
         margin: 0;
       }
 
@@ -85,7 +85,7 @@
 
 .str-chat__title {
   //TODO CSS
-  font-weight: 600;
+  font-weight: var(--font-weight-semi-bold);
 }
 
 .str-chat__meta {
@@ -212,7 +212,7 @@
             font-size: var(--xxl-font);
             margin: 0;
             line-height: 1;
-            font-weight: 400;
+            font-weight: var(--font-weight-regular);
           }
           &--subtitle {
             margin: 8px 0;

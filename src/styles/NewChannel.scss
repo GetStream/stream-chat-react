@@ -3,7 +3,7 @@
     padding: 10px;
     display: flex;
     align-items: center;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--second-font);
     font-size: var(--lg-font);
     //TODO CSS
     border-bottom: 1px solid var(--black10);
@@ -12,7 +12,7 @@
       flex: 1;
       text-align: center;
       color: var(--primary-color);
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
       margin-right: 45px;
     }
   }
@@ -32,7 +32,7 @@
     input {
       font-size: var(--md-font);
       //TODO CSS
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: var(--second-font);
       flex: 1;
       width: 100%;
       padding: 15px 0 15px 5px;

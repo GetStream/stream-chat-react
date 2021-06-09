@@ -5,10 +5,10 @@
 
   &-date {
     font-size: var(--md-font);
-    font-weight: var(--heavy-font-weight);
+    font-weight: var(--font-weight-bold);
     //TODO CSS
     color: var(--black70);
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--second-font);
   }
 
   &-line {
