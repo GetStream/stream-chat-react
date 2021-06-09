@@ -6,18 +6,18 @@ $base-font-weight: 400;
 $heavy-font-weight: 700;
 
 /* colors */
-$primary-color: magenta;
+$primary-color: #ff00ff;
 $secondary-color: #006cff;
 $secondary-faded: #bcd8ff;
 
 $dt-bg-team: #1d1f22;
 
-$border-color: rgba(0, 0, 0, 0.08);
+$border-color: #00000014;
 
 $black: #000000;
 $white: #ffffff;
 $grey: #f0f0f0;
-$lighten-black: grey;
+$lighten-black: #808080;
 $darken-grey: #343434;
 $lighten-grey: #858585;
 
@@ -30,30 +30,107 @@ $border-radius: 16px;
   --main-font: #{$main-font};
   --second-font: #{$second-font};
 
+  /* font size */
+
+  --xs-font: 10px;
+  --sm-font: 12px;
+  --md-font: 14px;
+  --lg-font: 18px;
+  --xl-font: 22px;
+  --xxl-font: 26px;
+  --xxxl-font: 32px;
+
+  // font-size: 10px;        11
+  // font-size: 11px;        11
+  // font-size: 12px;       11 or 13
+  // font-size: 13px;        13
+  // font-size: 14px;       15
+  // font-size: 15px;        15
+  // font-size: 18px;      15
+  // font-size: 20px;        21
+  // font-size: 24px;       23
+  // font-size: 25px;        23
+  // font-size: 32px;        meh
+
   /* fonts weight */
   --font-weight-regular: #{$base-font-weight}; //400
   --font-weight-semi-bold: 600;
   --font-weight-bold: #{$heavy-font-weight}; //700
 
+  /* margin/padding */
+
+  --spacing-unit: 10px;
+
+  --margin: 8px;
+  --padding: 8px;
+
+  --margin-sm: calc(var(--margin) / 2);
+  --margin-md: calc(2 * var(--margin));
+  --margin-lg: calc(4 * var(--margin));
+
+  --padding-sm: var(--padding);
+  --padding-md: calc(2 * var(--padding));
+  --padding-lg: calc(4 * var(--padding));
+
   /* colors */
   --magenta: #{$primary-color};
   --primary-color: #{$secondary-color};
+  --primary-color-faded: #006cff5c;
   --secondary-faded: #{$secondary-faded};
+
+  --red: #ff0000;
+  --faded-red: #d0021b1a;
 
   --dt-bg-team: #{$dt-bg-team};
 
   --border-color: #{$border-color};
 
-  --black: #{$black};
   --lighten-black: #{$lighten-black};
-  --white: #{$white};
-  --grey: #{$grey};
-  --darken-grey: #{$darken-grey};
+
   --lighten-grey: #{$lighten-grey};
 
+  --light-grey: #ebebeb;
+  --grey: #{$lighten-black};
+  --dark-grey: #{$darken-grey};
+
+  --green: #28ca42;
+  --faded-green: #02d0021a;
+
+  //-------------------------------White
+  --white: #{$white};
+  --white5: #{$white + '0D'};
+  --white10: #{$white + '1A'};
+  --white20: #{$white + '33'};
+  --white30: #{$white + '4D'};
+  --white40: #{$white + '66'};
+  --white50: #{$white + '80'};
+  --white60: #{$white + '99'};
+  --white70: #{$white + 'B3'};
+  --white80: #{$white + 'CC'};
+  --white90: #{$white + 'E6'};
+  --white95: #{$white + 'F2'};
+
+  //-------------------------------Black
+  --black: #{$black};
+  --black5: #{$black + '0D'};
+  --black10: #{$black + '1A'};
+  --black20: #{$black + '33'};
+  --black30: #{$black + '4D'};
+  --black40: #{$black + '66'};
+  --black50: #{$black + '80'};
+  --black60: #{$black + '99'};
+  --black70: #{$black + 'B3'};
+  --black80: #{$black + 'CC'};
+  --black90: #{$black + 'E6'};
+  --black95: #{$black + 'F2'};
+
+  /* border-radius */
+  --border-radius: #{$border-radius};
+  --border-radius-sm: calc(var(--border-radius) / 4);
+  --border-radius-md: calc(var(--border-radius) / 2);
+  --border-radius-round: 999px;
   /* miscellaneous */
   --assetsPath: '../assets';
-  --border-radius: #{$border-radius};
 }
 
 // Shadow, Background, Color, Border, Fill, Font

@@ -49,9 +49,9 @@
       left: 50%;
       transform: translate(-50%, 0);
       //TODO CSS
-      background: rgba(0, 0, 0, 0.81);
-      border-radius: 5px;
-      background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+      background: var(--black80);
+      border-radius: var(--border-radius-sm);
+      background-image: linear-gradient(-180deg, transparent, var(--black50));
       max-width: 237px;
       padding: 4px 8px;
       font-size: 13px;
@@ -66,21 +66,21 @@
         width: 7px;
         height: 7px;
         //TODO CSS
-        background-color: #1a1a1a;
+        background-color: var(--dark-grey);
       }
     }
 
     &-not-found {
       border: 1.5px solid var(--white);
-      border-radius: 50%;
-      background-color: var(--primary-color);
+      border-radius: var(--border-radius-round);
+      background-color: var(--secondary-color);
       width: inherit;
       height: inherit;
     }
 
     img {
       border: 1.5px solid var(--white);
-      border-radius: 50%;
+      border-radius: var(--border-radius-round);
       object-fit: cover;
       width: inherit;
       height: inherit;
@@ -100,13 +100,13 @@
   position: absolute;
   width: initial;
   //TODO CSS
-  background: rgba(24, 25, 28, 0.98);
-  background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.05) 100%);
+  background: var(--black90);
+  background-image: linear-gradient(-180deg, transparent, var(--black5));
   //TODO CSS
-  border: 1px solid rgba(224, 224, 224, 0.03);
+  border: 1px solid var(--white5);
   //TODO CSS
-  box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
-  border-radius: 30px;
+  box-shadow: 0 3px 1px 0 var(--black5), 0 11px 8px 0 var(--black20);
+  border-radius: var(--border-radius-round);
   display: flex;
   align-items: center;
 
@@ -120,9 +120,9 @@
     position: absolute;
     bottom: calc(100% + 15px);
     //TODO CSS
-    background: rgba(0, 0, 0, 0.81);
-    border-radius: 5px;
-    background-image: linear-gradient(-180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+    background: var(--black80);
+    border-radius: var(--border-radius-sm);
+    background-image: linear-gradient(-180deg, transparent, var(--black50));
     min-width: 85px;
     min-height: 24px;
     max-width: 100%;
@@ -139,7 +139,7 @@
       width: 7px;
       height: 7px;
       //TODO CSS
-      background-color: #1a1a1a;
+      background-color: var(--dark-grey);
     }
   }
 

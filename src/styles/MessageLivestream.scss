@@ -4,7 +4,7 @@
   width: 100%;
   margin: 0 0;
   padding: 10px 10px;
-  border: 1px solid rgba(0, 0, 0, 0);
+  border: 1px solid transparent;
   position: relative;
 
   &-pin-indicator {
@@ -55,14 +55,14 @@
       hyphens: auto;
 
       code {
-        background-color: rgba(white, 0.2);
-        border: 1px solid rgba(var(--secondary-color), 0.1);
+        background-color: var(--white20);
+        border: 1px solid var(--primary-color-faded);
         border-radius: 3px;
         padding: 2px 4px;
       }
 
       a {
-        color: var(--secondary-color);
+        color: var(--primary-color);
         font-weight: bold;
         text-decoration: none;
       }
@@ -82,8 +82,8 @@
     pre {
       margin: 0 5px 0 0;
       border-radius: 4px;
-      background-color: rgba(var(--secondary-color), 0.1);
-      border: 1px solid rgba(var(--secondary-color), 0.2);
+      background-color: var(--primary-color-faded);
+      border: 1px solid var(--primary-color);
     }
 
     code {
@@ -92,8 +92,8 @@
     }
 
     .livestream-quoted-message {
-      background: #ebebeb;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: var(--light-grey);
+      border: 1px solid var(--black10);
       padding: 10px;
       border-radius: 5px;
       margin-bottom: 5px;
@@ -106,9 +106,9 @@
   }
 
   &-actions {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(0, 0, 0, 0.23);
-    box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+    background: var(--white60);
+    border: 1px solid var(--black20);
+    box-shadow: 0 2px 1px 0 var(--black5);
 
     width: 141px;
     height: 24px;
@@ -131,7 +131,7 @@
       text-align: center;
 
       &:not(:last-of-type) {
-        border-right: 1px solid #e0e0e0;
+        border-right: 1px solid var(--light-grey);
       }
 
       > span {
@@ -147,7 +147,7 @@
       cursor: pointer;
 
       svg {
-        fill: #000;
+        fill: var(--black);
         opacity: 0.5;
       }
 
@@ -174,7 +174,7 @@
   &-time {
     font-size: 10px;
     line-height: 20px;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--black50);
     flex: 2;
     padding: 0 4px;
   }
@@ -198,9 +198,9 @@
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
+    background: var(--white5);
+    border: 1px solid var(--black5);
+    box-shadow: 0 0 6px 0 var(--black5);
     border-radius: 6px;
   }
 
@@ -211,11 +211,11 @@
   .str-chat__message-attachment-card {
     margin: 0;
     border-radius: 0;
-    background: rgba(white, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--white20);
+    border: 1px solid var(--black10);
 
     &--content {
-      background: rgba(white, 0.2);
+      background: var(--white20);
     }
 
     &--text {
@@ -232,9 +232,9 @@
     font-size: 12px;
     padding: 8px;
     margin: 8px 10px 0 10px;
-    background: rgba(0, 108, 255, 0.1);
+    background: var(--primary-color);
     border-radius: 2px;
-    color: #404040;
+    color: var(--dark-grey);
   }
 
   &--error,
@@ -247,7 +247,7 @@
             top: 2px;
             margin-right: 4px;
           }
-          color: red;
+          color: var(--red);
         }
       }
     }
@@ -287,39 +287,39 @@
 
 .livestream.dark.str-chat {
   .str-chat__message-livestream {
-    color: #e6e6e6;
+    color: var(--light-grey);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.06);
+      background: var(--white5);
+      border: 1px solid var(--black5);
+      box-shadow: 0 0 6px 0 var(--black5);
       border-radius: 6px;
     }
     .str-chat__message-attachment-card {
-      background: rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(white, 0.08);
+      background: var(--black10);
+      border: 1px solid var(--white10);
       &--content {
-        background: rgba(0, 0, 0, 0.1);
+        background: var(--black10);
       }
       &--url {
-        color: rgba(white, 0.79);
+        color: var(--white80);
       }
     }
   }
 
   .str-chat__message-livestream-actions {
-    background: #1b1d20;
-    border: 1px solid rgba(224, 224, 224, 0.03);
-    box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+    background: var(--dark-grey);
+    border: 1px solid var(--white5);
+    box-shadow: 0 2px 1px 0 var(--black5);
     > span:not(:last-of-type) {
-      border-color: rgba(255, 255, 255, 0.04);
+      border-color: var(--white5);
     }
     svg {
-      fill: #fff;
+      fill: var(--white);
     }
   }
   .str-chat__message-livestream-time {
-    color: #fff;
+    color: var(--white);
     opacity: 0.5;
   }
 }

@@ -7,12 +7,12 @@
   font-size: 12px;
   line-height: 15px;
   font-weight: 700;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   cursor: pointer;
 
   svg {
     //TODO CSS
-    fill: rgba(0, 0, 0, 0.1);
+    fill: var(--black10);
     margin-right: 5px;
   }
 }
@@ -21,14 +21,14 @@
   .str-chat__message-replies-count-button {
     svg {
       //TODO CSS
-      fill: rgba(255, 255, 255, 0.1);
+      fill: var(--white10);
     }
   }
   &.team {
     .str-chat__message-replies-count-button {
       svg {
         //TODO CSS
-        fill: rgba(0, 0, 0, 0.4);
+        fill: var(--black40);
       }
     }
   }

@@ -4,7 +4,7 @@
   bottom: calc(100% + 10px);
   display: flex;
   background: var(--black);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   padding: 3px 7px;
   color: var(--white);
   font-size: 11px;
@@ -14,14 +14,14 @@
     outline: none;
     outline: 0;
     background: none;
-    color: var(--secondary-color);
+    color: var(--primary-color);
     font-size: 11px;
     font-family: var(--second-font);
     border: none;
   }
 
   a {
-    color: var(--secondary-color);
+    color: var(--primary-color);
     text-decoration: none;
   }
 

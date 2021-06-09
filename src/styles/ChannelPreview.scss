@@ -10,7 +10,7 @@
     padding: 10px 40px 10px 10px;
     font-size: 13px;
     //TODO CSS
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--black10);
     outline: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -19,7 +19,7 @@
     &:focus {
       background: var(--white);
       //TODO CSS
-      box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+      box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
     }
   }
 
@@ -35,11 +35,11 @@
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    border-radius: 18px;
+    border-radius: var(--border-radius);
   }
 
   &-title {
-    color: black;
+    color: var(--black);
     display: block;
     overflow: hidden;
     white-space: nowrap;
@@ -55,7 +55,7 @@
     font-size: 12px;
     //TODO CSS
     background: lightgray;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@
   }
 
   &--active {
-    background: var(--secondary-color);
+    background: var(--primary-color);
     color: white;
 
     .str-chat__channel-preview-title {
@@ -80,7 +80,7 @@
 
     .str-chat__channel-preview-last-message {
       //TODO CSS
-      color: rgba(255, 255, 255, 0.69);
+      color: var(--white70);
     }
   }
 
@@ -97,7 +97,7 @@
     width: 5px;
     height: 5px;
     position: absolute;
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
     left: 2px;
     background-color: var(--primary-color);
   }
@@ -118,14 +118,14 @@
   width: 100%;
   padding: 0 40px 0 10px;
   //TODO CSS
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--black10);
   text-align: left;
   outline: 0;
 
   &:focus {
     background: var(--white);
     //TODO CSS
-    box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+    box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
   }
 
   &--left {
@@ -146,7 +146,7 @@
 .str-chat__channel-preview-compact--active {
   color: var(--white);
   //TODO CSS
-  background: #004ab3;
+  background: var(--primary-color);
 }
 
 .str-chat__channel-preview-messenger {
@@ -156,20 +156,20 @@
   padding: 10px;
   align-items: center;
   //TODO CSS
-  background: rgba(255, 255, 255, 0);
+  background: transparent;
   //TODO CSS
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07);
+  box-shadow: 0 1px 0 0 var(--black10);
   text-align: left;
   margin: 5px 0;
 
   &--active {
     border: none;
-    border-radius: 9px;
+    border-radius: var(--border-radius-md);
     //TODO CSS
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--white10);
     box-shadow: none;
     //TODO CSS
-    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 5px 0 var(--black10);
   }
 
   &--last-message {
@@ -205,7 +205,7 @@
   .str-chat__channel-preview {
     &--active {
       //TODO CSS
-      background: #132d50;
+      background: var(--black80);
     }
     &-title {
       color: var(--white);
@@ -213,24 +213,24 @@
     button {
       &:focus {
         //TODO CSS
-        background: #132d50;
+        background: var(--black80);
         //TODO CSS
-        box-shadow: inset 0 0 0 1px var(--secondary-color), inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+        box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
       }
     }
   }
   .str-chat__channel-preview-messenger {
     &--active {
       //TODO CSS
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--white5);
       //TODO CSS
-      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+      box-shadow: 0 1px 5px 0 var(--black10);
     }
     &--last-message {
-      color: rgba(var(--white), 0.5);
+      color: var(--white);
     }
     &--name {
-      color: rgba(var(--white), 1);
+      color: var(--white);
     }
   }
 }

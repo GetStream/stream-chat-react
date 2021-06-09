@@ -1,7 +1,7 @@
 .str-chat__input {
   background: var(--white);
   //TODO CSS
-  box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.05), 0 -1px 0 0 rgba(0, 0, 0, 0.07);
+  box-shadow: 0 -1px 3px 0 var(--black5), 0 -1px 0 0 var(--black5);
   display: flex;
   flex-wrap: wrap;
   padding: 10px;
@@ -55,11 +55,11 @@
     justify-content: center;
     background-size: 44px 44px;
     //TODO CSS
-    fill: rgba(0, 0, 0, 0.6);
+    fill: var(--black60);
 
     &:hover {
       //TODO CSS
-      fill: rgba(0, 0, 0, 1);
+      fill: var(--black);
     }
   }
 
@@ -102,8 +102,8 @@
     padding: 11px;
     background: var(--white);
     //TODO CSS
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border: 1px solid var(--black10);
+    border-radius: var(--border-radius-md);
     font-size: 15px;
     min-height: 42px;
     transition: height 100ms ease-in;
@@ -111,14 +111,14 @@
 
     &:focus {
       background: var(--white);
-      border: 1px solid var(--secondary-color);
+      border: 1px solid var(--primary-color);
       //TODO CSS
-      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+      box-shadow: 0 0 0 2px var(--primary-color-faded);
     }
 
     &:placeholder {
       //TODO CSS
-      color: rgba(0, 0, 0, 0.5);
+      color: var(--black50);
     }
   }
 }
@@ -129,11 +129,11 @@
   width: calc(100% - 20px);
   position: absolute;
   //TODO CSS
-  background: rgba(240, 240, 240, 0.95);
+  background: var(--white95);
   //TODO CSS
-  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 1px 0 var(--black30), 0 0 6px 0 var(--black10);
   z-index: -1;
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
   margin: 0 10px;
   max-height: 360px;
   overflow-y: auto;
@@ -142,25 +142,25 @@
     margin: 0;
     padding: 0;
     list-style-type: none;
-    border-radius: 4px 4px 0 0;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
   }
 }
 
 .dark.str-chat {
   .str-chat__emojisearch {
     //TODO CSS
-    background: #35373a;
+    background: var(--dark-grey);
     //TODO CSS
-    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.31), 0 0 6px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 1px 0 var(--black30), 0 0 6px 0 var(--black10);
     //TODO CSS
-    border-radius: 4px 4px 0 0;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
     .rta__list-header {
       //TODO CSS
-      background: #1b1d20;
+      background: var(--dark-grey);
       //TODO CSS
-      border: 1px solid rgba(224, 224, 224, 0.03);
+      border: 1px solid var(--white5);
       //TODO CSS
-      box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+      box-shadow: 0 2px 1px 0 var(--black5);
       color: var(--white);
     }
     .rta__entity {
@@ -185,12 +185,12 @@
 }
 
 .rta__entity--selected {
-  background-color: var(--secondary-color);
+  background-color: var(--primary-color);
   color: var(--white);
 }
 
 .rta__list {
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 }
 
 .rta__list-header {
@@ -252,13 +252,13 @@
   }
 
   .rfu-dropzone--accept .rfu-dropzone__notifier {
-    background: rgba(var(--secondary-color), 0.7);
+    background: var(--primary-color-faded);
     display: block;
   }
 
   .rfu-dropzone--reject .rfu-dropzone__notifier {
     //TODO CSS
-    background: rgba(red, 0.7);
+    background: var(--red);
     display: block;
   }
 }
@@ -307,24 +307,24 @@
         position: relative;
         z-index: 1;
         //TODO CSS
-        background: rgba(255, 255, 255, 0.29);
+        background: var(--white30);
         //TODO CSS
-        box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -1px 1px 0 var(--black10);
         padding: 10px 20px 5px;
 
         textarea {
-          border-radius: 2px;
+          border-radius: var(--border-radius-sm);
           //TODO CSS
-          background: rgba(255, 255, 255, 0.26);
+          background: var(--white30);
           //TODO CSS
-          border: 1px solid rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--black20);
           font-size: 13px;
           padding: 12px;
         }
         &-footer {
           padding: 0 20px 10px;
           //TODO CSS
-          background: rgba(255, 255, 255, 0.29);
+          background: var(--white30);
         }
       }
     }
@@ -339,25 +339,25 @@
 
 .rfu-file-upload-button svg {
   //TODO CSS
-  fill: rgba(0, 0, 0, 0.6);
+  fill: var(--black60);
 }
 
 .dark.str-chat {
   .str-chat__input {
     //TODO CSS
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--white5);
     //TODO CSS
-    box-shadow: 0 -1px 1px 0 rgba(0, 0, 0, 0.34);
+    box-shadow: 0 -1px 1px 0 var(--black30);
     &-footer {
       //TODO CSS
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--white5);
     }
     textarea {
       //TODO CSS
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--black10);
       //TODO CSS
-      border: 1px solid rgba(0, 0, 0, 0.4);
-      border-radius: 2px;
+      border: 1px solid var(--black40);
+      border-radius: var(--border-radius-sm);
       color: var(--white);
     }
     .str-chat__input-emojiselect {

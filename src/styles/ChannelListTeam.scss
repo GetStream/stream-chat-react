@@ -8,7 +8,7 @@
     flex-direction: column;
     width: 70px;
     padding: 45px 10px 10px;
-    background: #dedfe2;
+    background: var(--light-grey);
 
     &--top {
       display: flex;
@@ -48,9 +48,9 @@
     display: flex;
     align-items: center;
     //TODO CSS
-    background: rgba(255, 255, 255, 0.01);
+    background: var(--white5);
     //TODO CSS
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    box-shadow: 0 1px 1px 0 var(--black20);
     font-size: 14px;
     color: var(--black);
     letter-spacing: 0;
@@ -72,22 +72,22 @@
         content: ' ';
         width: 6px;
         height: 6px;
-        border-radius: 10px;
+        border-radius: var(--border-radius-md);
       }
 
       &.watcher_count::before {
         //TODO CSS
-        background: #28ca42;
+        background: var(--green);
       }
 
       &.busy::before {
         //TODO CSS
-        background: #28ca42;
+        background: var(--green);
       }
 
       &.away::before {
         //TODO CSS
-        background: #28ca42;
+        background: var(--green);
       }
     }
 
@@ -138,7 +138,7 @@
       }
     }
     &__sidebar {
-      background: rgba(var(--black), 0.2);
+      background: var(--black20);
     }
     &__main {
       background: none;

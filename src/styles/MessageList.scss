@@ -35,7 +35,7 @@
 }
 
 .str-chat__custom-notification {
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 12px;
   padding: 8px;
   font-family: var(--second-font);
@@ -43,31 +43,31 @@
 
   &.notification-success {
     //TODO CSS
-    background: rgba(2, 208, 2, 0.1);
+    background: var(--faded-green);
     //TODO CSS
-    border: 1px solid rgba(2, 208, 2, 0.1);
+    border: 1px solid var(--faded-green);
     //TODO CSS
-    color: green;
+    color: var(--green);
   }
 
   &.notification-error {
     //TODO CSS
-    background: rgba(208, 2, 27, 0.1);
+    background: var(--faded-red);
     //TODO CSS
-    border: 1px solid rgba(208, 2, 27, 0.1);
+    border: 1px solid var(--faded-red);
     //TODO CSS
-    color: #f00;
+    color: var(--red);
   }
 }
 
 .str-chat__connection-issue {
   //TODO CSS
-  background: rgba(208, 2, 27, 0.1);
+  background: var(--faded-red);
   //TODO CSS
-  border: 1px solid rgba(208, 2, 27, 0.1);
+  border: 1px solid var(--faded-red);
   //TODO CSS
-  color: #f00;
-  border-radius: 4px;
+  color: var(--red);
+  border-radius: var(--border-radius-sm);
   font-size: 12px;
   padding: 8px;
   font-family: var(--second-font);
@@ -111,9 +111,9 @@
     }
     &.dark {
       .str-chat__list {
-        background: rgba(var(--white), 0.04);
+        background: var(--white5);
         &-notifications {
-          background: rgba(var(--white), 0.04);
+          background: var(--white5);
         }
       }
     }
@@ -178,5 +178,5 @@
 
 .dark .str-chat__virtual-list {
   //TODO CSS
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--white5);
 }

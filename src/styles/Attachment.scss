@@ -67,16 +67,13 @@
     width: 100%;
 
     &--item {
-      /* border: 3px solid #f7f7f7; */
-
-      /* border-radius: 4px; */
       position: relative;
       height: 50px;
       display: flex;
       align-items: center;
       font-size: 14px;
       line-height: 22px;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      border-left: 1px solid var(--black10);
       width: auto;
       padding-left: 5px;
 
@@ -199,7 +196,7 @@
           border-left: none;
           //TODO CSS
           &:hover {
-            background: rgba(255, 255, 255, 0.29);
+            background: var(--white30);
           }
         }
       }

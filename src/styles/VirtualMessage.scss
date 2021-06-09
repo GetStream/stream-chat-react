@@ -16,7 +16,7 @@
   }
 
   .str-chat__avatar--rounded {
-    border-radius: 12px;
+    border-radius: var(--border-radius);
   }
 
   .str-chat__avatar-fallback {
@@ -61,7 +61,7 @@
 }
 
 .str-chat__virtual-message__author {
-  color: var(--secondary-color);
+  color: var(--primary-color);
   font-size: 1rem;
 }
 
@@ -90,7 +90,8 @@
     bottom: 10px;
     left: unset;
     right: 100%;
-    border-radius: 16px 16px 2px 16px;
+    border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+      var(--border-radius);
   }
 }
 
@@ -116,7 +117,7 @@
     padding-right: 16px;
   }
   a {
-    color: var(--secondary-color);
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: var(--heavy-font-weight);
   }
@@ -146,7 +147,7 @@
   .str-chat__virtual-message__wrapper {
     &:hover {
       //TODO CSS
-      background: rgba(0, 0, 0, 0.15);
+      background: var(--black20);
     }
   }
   .str-chat__virtual-message__text {

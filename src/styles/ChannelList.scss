@@ -4,9 +4,9 @@
   overflow-y: auto;
   max-width: 300px;
   //TODO CSS
-  background: #f2f3f5;
+  background: var(--light-grey);
   //TODO CSS
-  box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.07);
+  box-shadow: 1px 0 0 0 var(--black5);
   display: flex;
   flex-direction: column;
 
@@ -17,17 +17,17 @@
   .channel_preview {
     padding: 8px 16px;
     //TODO CSS
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--black10);
   }
 }
 
 .str-chat__button {
   background: var(--white);
   //TODO CSS
-  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
+  box-shadow: 0 1px 1px 0 var(--black10), 0 1px 4px 0 var(--black10);
   font-size: 14px;
   padding: 14px 70px;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,9 +39,9 @@
   &:focus {
     outline: none;
     //TODO CSS
-    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09),
-      0 0 0 2px rgba(0, 108, 255, 0.36);
-    border: 1px solid var(--secondary-color);
+    box-shadow: 0 0 1px 0 var(--black10), 0 1px 4px 0 var(--black10),
+      0 0 0 2px var(--primary-color-faded);
+    border: 1px solid var(--primary-color);
   }
 
   > * {
@@ -49,7 +49,7 @@
   }
 
   &--round {
-    border-radius: 100px;
+    border-radius: var(--border-radius-round);
   }
 }
 
@@ -64,10 +64,10 @@
   width: 10px;
   height: 50px;
   background: var(--white);
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
   padding: 3px;
   //TODO CSS
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.09);
+  box-shadow: 0px 4px 6px var(--black10);
   position: fixed;
   top: 10px;
   left: 0;
@@ -78,9 +78,9 @@
   div {
     width: 4px;
     height: 100%;
-    border-radius: 3px;
+    border-radius: var(--border-radius-sm);
     //TODO CSS
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--black10);
   }
   // display: none;
 }
@@ -101,7 +101,7 @@
       min-height: 100vh;
       overflow-y: auto;
       //TODO CSS
-      box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
+      box-shadow: 7px 0 9px 0 var(--black5), 1px 0 0 0 var(--black5);
       transition: left 200ms ease-in-out;
     }
   }

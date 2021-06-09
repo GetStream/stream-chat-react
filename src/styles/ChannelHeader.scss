@@ -1,27 +1,7 @@
 .str-chat__header {
   display: flex;
   padding: 10px;
-  //TODO CSS
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-
-  &-thread {
-    display: flex;
-    padding: 10px;
-    min-height: 70px;
-    align-items: center;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: var(--white);
-    //TODO CSS
-    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07);
-    font-size: 14px;
-
-    &__back-button {
-      padding: 10px 10px 10px 10px;
-      border: 0;
-      background: none;
-      transform: rotate(180deg);
-    }
-  }
+  border-bottom: 1px solid var(--black10);
 
   &-livestream {
     padding: 10px 40px;
@@ -30,9 +10,7 @@
     align-items: center;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--white);
-
-    //TODO CSS
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    box-shadow: 0 1px 1px 0 var(--black20);
 
     &-left {
       font-size: 14px;
@@ -55,7 +33,7 @@
         font-size: 13px;
         text-transform: uppercase;
         //TODO CSS
-        color: red;
+        color: var(--red);
         display: inline-block;
         animation: pulse 2s infinite;
 
@@ -67,9 +45,9 @@
           display: inline-block;
           width: 5px;
           height: 5px;
-          border-radius: 100%;
+          border-radius: var(--border-radius-round);
           //TODO CSS
-          background-color: red;
+          background-color: var(--red);
         }
 
         @keyframes pulse {
@@ -123,12 +101,12 @@
   justify-content: space-between;
   font-size: 14px;
   //TODO CSS
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--black40);
 }
 
 .str-chat__square-button {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  border: 1px solid var(--black10);
+  border-radius: var(--border-radius-sm);
   padding: 10px;
   margin: 0 5px;
   display: flex;
@@ -136,24 +114,21 @@
   justify-content: center;
   svg {
     //TODO CSS
-    fill: rgba(0, 0, 0, 0.8);
+    fill: var(--black80);
   }
   &:active {
     //TODO CSS
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--black10);
   }
 }
 
 .dark.str-chat {
   .str-chat__square-button {
-    //TODO CSS
-    background: rgba(255, 255, 255, 0.07);
-    //TODO CSS
-    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.69);
-    border-radius: 3px;
+    background: var(--white5);
+    box-shadow: 0 1px 0 0 var(--black70);
+    border-radius: var(--border-radius-sm);
     svg {
-      //TODO CSS
-      fill: rgba(255, 255, 255, 0.7);
+      fill: var(--white70);
     }
   }
 }
@@ -164,11 +139,11 @@
       &__header-livestream {
         position: relative;
         z-index: 1;
-        border-radius: 10px 10px 0 0;
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         //TODO CSS
-        background: rgba(255, 255, 255, 0.9);
+        background: var(--white90);
         //TODO CSS
-        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
+        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
       }
       @media screen and (max-width: 960px) {
         &__header-livestream {
@@ -180,10 +155,10 @@
     &.dark {
       .str-chat__header-livestream {
         //TODO CSS
-        background: rgba(46, 48, 51, 0.98);
+        background: var(--dark-grey);
         //TODO CSS
-        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
-        border-radius: 10px 10px 0 0;
+        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         color: var(--white);
       }
     }
@@ -197,17 +172,17 @@
         position: relative;
         z-index: 1;
         //TODO CSS
-        background: rgba(255, 255, 255, 0.29);
+        background: var(--white30);
         //TODO CSS
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 1px 0 var(--black10);
       }
     }
     &.dark {
       .str-chat__header-livestream {
         //TODO CSS
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--white5);
         //TODO CSS
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
+        box-shadow: 0 1px 1px 0 var(--black30);
         &-left {
           &--title,
           &--members {
@@ -227,10 +202,10 @@
     .str-chat {
       &__header-livestream {
         //TODO CSS
-        background: rgba(255, 255, 255, 0.81);
+        background: var(--white80);
         //TODO CSS
-        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
-        border-radius: 10px 10px 0 0;
+        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         padding: 25px;
         &-left {
           &--title {
@@ -259,11 +234,11 @@
     &.dark {
       .str-chat__header-livestream {
         //TODO CSS
-        background: rgba(44, 47, 51, 0.81);
+        background: var(--grey);
         //TODO CSS
-        box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
-        border-radius: 10px 10px 0 0;
-        color: rgba(var(--white), 1);
+        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+        color: var(--white);
       }
     }
   }
@@ -274,9 +249,9 @@
     &.dark {
       .str-chat__header-livestream {
         //TODO CSS
-        background: rgba(38, 40, 43, 0.9);
+        background: var(--dark-grey);
         //TODO CSS
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.26);
+        box-shadow: 0 1px 1px 0 var(--black30);
         &-left {
           color: var(--white);
           &--title {
@@ -302,7 +277,7 @@
   cursor: pointer;
   &:hover {
     .str-chat__header-hamburger--line {
-      background: var(--secondary-color);
+      background: var(--primary-color);
     }
   }
   @media screen and (max-width: 960px) {
@@ -312,6 +287,6 @@
 .str-chat__header-hamburger--line {
   width: 100%;
   height: 2px;
-  background: var(--secondary-faded);
-  border-radius: 2px;
+  background: var(--primary-color);
+  border-radius: var(--border-radius-sm);
 }

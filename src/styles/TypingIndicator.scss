@@ -18,7 +18,7 @@
     position: relative;
     background: var(--white);
     //TODO CSS
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--black10);
     padding: 5px 10px;
     border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
   }
@@ -26,9 +26,9 @@
     display: inline-block;
     width: 6px;
     height: 6px;
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
     margin-right: 3px;
-    background: var(--secondary-color);
+    background: var(--primary-color);
     animation: wave 1.1s linear infinite;
 
     &:nth-child(2) {
@@ -48,11 +48,11 @@
     &__avatars {
       .str-chat__avatar {
         //TODO CSS
-        border-color: #282a2d;
+        border-color: var(--dark-grey);
       }
     }
     &__dots {
-      background: rgba(var(--white), 0.05);
+      background: var(--white5);
     }
   }
 }

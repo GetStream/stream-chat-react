@@ -7,14 +7,14 @@
     font-size: 14px;
     font-weight: var(--heavy-font-weight);
     //TODO CSS
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--black70);
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   &-line {
     flex: 1;
     //TODO CSS
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--black10);
     height: 1px;
     border: none;
   }
@@ -35,18 +35,18 @@
   .str-chat__date-separator {
     &-line {
       //TODO CSS
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--white10);
     }
     &-date {
       //TODO CSS
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--white70);
     }
   }
   &.team {
     .str-chat__date-separator {
       &-line {
         //TODO CSS
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: var(--black40);
       }
     }
   }

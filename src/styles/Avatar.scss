@@ -11,11 +11,11 @@
   overflow: hidden;
 
   &--circle {
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
   }
 
   &--rounded {
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
   }
 
   &--square {
@@ -34,7 +34,7 @@
     background-color: none;
   }
   &-fallback {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
   }
 }
 

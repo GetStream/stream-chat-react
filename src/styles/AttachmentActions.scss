@@ -12,17 +12,17 @@
     background: none;
     margin: 0 4px;
     padding: 8px 8px;
-    border-radius: 100px;
+    border-radius: var(--border-radius-round);
     outline: none;
 
     &:focus {
-      border: 1px solid var(--secondary-color);
+      border: 1px solid var(--primary-color);
       //TODO CSS
-      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+      box-shadow: 0 0 0 2px var(--primary-color-faded);
     }
 
     &--primary {
-      background-color: var(--secondary-color);
+      background-color: var(--primary-color);
       color: var(--white);
     }
 
@@ -37,7 +37,7 @@
     &-button {
       color: var(--white);
       &--default {
-        border-color: rgba(var(--white), 0.1);
+        border-color: var(--white10);
       }
     }
   }

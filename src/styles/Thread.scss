@@ -1,6 +1,6 @@
 .str-chat__thread {
   //TODO CSS
-  background: #f1f1f3;
+  background: var(--light-grey);
   flex: 1 0 300px;
   min-width: 300px;
   max-width: 300px;
@@ -21,9 +21,9 @@
     position: relative;
     width: 100%;
     //TODO CSS
-    background: #f1f1f3;
+    background: var(--light-grey);
     //TODO CSS
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    box-shadow: 0 1px 1px 0 var(--black20);
     height: 70px;
     top: 0;
     display: flex;
@@ -42,11 +42,11 @@
   }
 
   &-start {
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
     margin: 10px 10px 0 10px;
     padding: 8px;
     //TODO CSS
-    background: rgba(153, 196, 255, 0.1);
+    background: var(--black5);
     text-align: center;
     font-size: 12px;
   }
@@ -69,9 +69,9 @@
     }
 
     .str-chat__message-attachment.str-chat__message-attachment--file {
-      border-radius: 8px;
+      border-radius: var(--border-radius-md);
       //TODO CSS
-      border-bottom: 1px solid #ebebeb;
+      border-bottom: 1px solid var(--light-grey);
     }
 
     .quoted-message {
@@ -84,8 +84,8 @@
         text-align: start;
         align-items: flex-end;
         //TODO CSS
-        background: #ebebeb;
-        border-radius: 8px 8px 8px 0;
+        background: var(--light-grey);
+        border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 408px;
         padding: 5px 10px;
 
@@ -99,7 +99,7 @@
 
         .str-chat__message-attachment.str-chat__message-attachment--card {
           border: none;
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
         }
 
         .str-chat__message-attachment {
@@ -109,7 +109,7 @@
           }
 
           img {
-            border-radius: 8px;
+            border-radius: var(--border-radius-md);
           }
         }
 
@@ -133,7 +133,7 @@
       &__thread {
         margin-right: 10px;
         margin-top: 20px;
-        border-radius: 8px 8px 0 0;
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 
         overflow: hidden;
         //TODO CSS
@@ -191,12 +191,12 @@
     }
     &.dark {
       .str-chat__thread {
-        background: rgba(var(--white), 0.04);
+        background: var(--white5);
         &-header {
           //TODO CSS
-          background: rgba(46, 48, 51, 0.98);
+          background: var(--black80);
           //TODO CSS
-          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
+          box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
           color: var(--white);
         }
         &-start {
@@ -206,7 +206,7 @@
       @media screen and (max-width: 960px) {
         .str-chat__thread {
           //TODO CSS
-          background: #282a2d;
+          background: var(--dark-grey);
         }
       }
     }
@@ -250,7 +250,7 @@
     background: transparent;
     &-header {
       //TODO CSS
-      background: rgba(255, 255, 255, 0.29);
+      background: ver(--white30);
     }
   }
   .str-chat__list--thread {
@@ -259,18 +259,18 @@
   &.dark {
     .str-chat__thread {
       //TODO CSS
-      background: #1a1a1a;
+      background: var(--dark-grey);
       &-header {
         //TODO CSS
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--white5);
         //TODO CSS
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
+        box-shadow: 0 1px 1px 0 var(--black30);
         color: var(--white);
       }
       &-start {
         //TODO CSS
-        background: rgba(153, 196, 255, 0.1);
-        border-radius: 4px;
+        background: var(--black5);
+        border-radius: var(--border-radius-sm);
         color: var(--white);
       }
     }

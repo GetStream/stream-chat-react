@@ -3,7 +3,7 @@
     height: 80px;
     overflow: hidden;
     position: relative;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     margin: 0;
     display: flex;
     background: var(--white);
@@ -21,10 +21,10 @@
       position: absolute;
       top: 0;
       left: 0;
-      background: rgba(var(--black), 0.4);
+      background: var(--black40);
       z-index: 30;
       font-size: 3em;
-      color: rgba(var(--white), 0.69);
+      color: var(--white70);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,7 +39,7 @@
       width: 40px;
       height: 40px;
       svg {
-        fill: rgba(var(--white), 0.69);
+        fill: var(--white70);
       }
     }
 
@@ -79,16 +79,16 @@
     &--progress {
       height: 6px;
       width: 100%;
-      border-radius: 4px;
-      background: rgba(var(--black), 0.1);
+      border-radius: var(--border-radius-sm);
+      background: var(--black10);
       padding: 1px;
       margin: 2px 0;
 
       > div {
         height: 4px;
-        border-radius: 4px;
+        border-radius: var(--border-radius-sm);
         width: 0%;
-        background: var(--secondary-color);
+        background: var(--primary-color);
         transition: width 0.5s linear;
       }
     }
@@ -103,7 +103,7 @@
     }
     &__content {
       &--progress {
-        background: rgba(var(--white), 0.1);
+        background: var(--white10);
       }
     }
   }

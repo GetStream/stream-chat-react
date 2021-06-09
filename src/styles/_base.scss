@@ -50,19 +50,19 @@
   font-family: var(--second-font);
   &.messaging,
   &.commerce {
-    background-color: #f1f1f3;
+    background-color: var(--light-grey);
     &.dark {
-      background-color: #212326;
+      background-color: var(--dark-grey);
     }
   }
   &.team {
     &.dark {
-      background: #212326;
+      background: var(--dark-grey);
     }
   }
   &.livestream {
     &.dark {
-      background: #1a1a1a;
+      background: var(--dark-grey);
     }
   }
 }
@@ -148,13 +148,13 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
         width: 100%;
       }
       &__container {
-        background: rgba(255, 255, 255, 0.97);
+        background: var(--white95);
       }
     }
     &.dark {
       .str-chat__container {
-        background: rgba(29, 32, 36, 0.9);
-        box-shadow: 0 10px 31px 0 rgba(0, 0, 0, 0.5);
+        background: var(--dark-grey);
+        box-shadow: 0 10px 31px 0 var(--black50);
       }
     }
   }
@@ -162,16 +162,16 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
 
 .str-chat.dark {
   .emoji-mart {
-    background: #1a1a1a;
-    border: lighten(#1a1a1a, 10%);
+    background: var(--dark-grey);
+    border: var(--dark-grey);
   }
   .emoji-mart-category-label span {
-    background: lighten(#1a1a1a, 2%);
+    background: var(--dark-grey);
     color: var(--white);
   }
   .emoji-mart-search {
     input {
-      background: lighten(#1a1a1a, 2%);
+      background: var(--dark-grey);
       color: var(--white);
     }
     button svg {

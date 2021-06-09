@@ -44,10 +44,10 @@
     align-items: center;
     justify-content: center;
     background-size: 44px 44px;
-    fill: rgba(0, 0, 0, 0.6);
+    fill: var(--black60);
 
     &:hover {
-      fill: rgba(0, 0, 0, 1);
+      fill: var(--black);
     }
   }
 
@@ -106,15 +106,15 @@
 .dark.str-chat {
   .str-chat__small-message-input {
     textarea {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.21);
-      border-radius: 6px;
-      color: white;
+      background: var(--white5);
+      border: 1px solid var(--black20);
+      border-radius: var(--border-radius-sm);
+      color: var(--white);
     }
     .rfu-file-upload-button,
     .str-chat__small-message-input-emojiselect {
       svg {
-        fill: white;
+        fill: var(--white);
       }
     }
   }
