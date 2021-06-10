@@ -41,8 +41,6 @@ export type ChatProps<
 > = {
   /** The StreamChat client object */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** CSS variables object */
-  customStyles?: Record<string, unknown>;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
