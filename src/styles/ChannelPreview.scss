@@ -9,7 +9,6 @@
     width: 100%;
     padding: 8px 40px 8px 8px;
     font-size: var(--sm-font);
-    //TODO CSS
     border-bottom: 1px solid var(--black10);
     outline: 0;
     overflow: hidden;
@@ -18,7 +17,6 @@
 
     &:focus {
       background: var(--white);
-      //TODO CSS
       box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
     }
   }
@@ -53,7 +51,6 @@
     height: 22px;
     color: var(--black);
     font-size: var(--sm-font);
-    //TODO CSS
     background: lightgray;
     border-radius: var(--border-radius);
     display: flex;
@@ -79,7 +76,6 @@
     }
 
     .str-chat__channel-preview-last-message {
-      //TODO CSS
       color: var(--white70);
     }
   }
@@ -117,14 +113,12 @@
   align-items: center;
   width: 100%;
   padding: 0 40px 0 8px;
-  //TODO CSS
   border-bottom: 1px solid var(--black10);
   text-align: left;
   outline: 0;
 
   &:focus {
     background: var(--white);
-    //TODO CSS
     box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
   }
 
@@ -145,7 +139,6 @@
 
 .str-chat__channel-preview-compact--active {
   color: var(--white);
-  //TODO CSS
   background: var(--primary-color);
 }
 
@@ -155,9 +148,7 @@
   border: none;
   padding: 8px;
   align-items: center;
-  //TODO CSS
   background: transparent;
-  //TODO CSS
   box-shadow: 0 1px 0 0 var(--black10);
   text-align: left;
   margin: 8px 0;
@@ -165,10 +156,8 @@
   &--active {
     border: none;
     border-radius: var(--border-radius-md);
-    //TODO CSS
     background: var(--white10);
     box-shadow: none;
-    //TODO CSS
     box-shadow: 0 1px 5px 0 var(--black10);
   }
 
@@ -195,7 +184,6 @@
   &--unread {
     .str-chat__channel-preview-messenger--last-message {
       opacity: 1;
-      //TODO CSS
       font-weight: var(--font-weight-semi-bold);
     }
   }
@@ -204,7 +192,6 @@
 .dark.str-chat {
   .str-chat__channel-preview {
     &--active {
-      //TODO CSS
       background: var(--black80);
     }
     &-title {
@@ -212,18 +199,14 @@
     }
     button {
       &:focus {
-        //TODO CSS
         background: var(--black80);
-        //TODO CSS
         box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
       }
     }
   }
   .str-chat__channel-preview-messenger {
     &--active {
-      //TODO CSS
       background: var(--white5);
-      //TODO CSS
       box-shadow: 0 1px 5px 0 var(--black10);
     }
     &--last-message {

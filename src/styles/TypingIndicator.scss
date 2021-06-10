@@ -17,7 +17,6 @@
   &__dots {
     position: relative;
     background: var(--white);
-    //TODO CSS
     border: 1px solid var(--black10);
     padding: 4px 8px;
     border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
@@ -47,7 +46,6 @@
   .str-chat__typing-indicator {
     &__avatars {
       .str-chat__avatar {
-        //TODO CSS
         border-color: var(--dark-grey);
       }
     }

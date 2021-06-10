@@ -6,7 +6,6 @@
 
   input {
     flex: 1;
-    //TODO CSS
     background: var(--black5);
     border: 1px solid transparent;
     outline: none;
@@ -25,7 +24,6 @@
     &:focus {
       background: var(--white);
       border: 1px solid var(--primary-color);
-      //TODO CSS
       box-shadow: 0 0 0 2px var(--primary-color-faded);
       transition: all 0.2s ease-in-out;
     }
@@ -69,20 +67,16 @@
     background: var(--white);
     left: 300px;
     top: 20px;
-    //TODO CSS
     box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
-    //TODO CSS
     border: 1px solid var(--black10);
 
     .str-chat__channel-search-result {
       &:hover {
-        //TODO CSS
         background: var(--light-grey);
       }
     }
 
     .str-chat__channel-search-result.focused {
-      //TODO CSS
       background: var(--light-grey);
     }
   }
@@ -90,7 +84,6 @@
   &-container.inline {
     top: 60px;
     right: 0px;
-    //TODO CSS
     background: var(--light-grey);
     height: calc(100vh - 60px);
 
@@ -109,7 +102,6 @@
 .dark.str-chat {
   .str-chat__channel-search {
     input {
-      //TODO CSS
       background: var(--white5);
       color: var(--white);
     }

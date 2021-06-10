@@ -16,13 +16,11 @@
       font-size: var(--md-font);
 
       &--title {
-        //TODO CSS
         font-weight: var(--font-weight-bold);
         margin: 0;
       }
 
       &--members {
-        //TODO CSS
         font-weight: var(--font-weight-regular);
         margin: 0;
       }
@@ -32,7 +30,6 @@
         left: 5px;
         font-size: var(--sm-font);
         text-transform: uppercase;
-        //TODO CSS
         color: var(--red);
         display: inline-block;
         animation: pulse 2s infinite;
@@ -46,7 +43,6 @@
           width: 5px;
           height: 5px;
           border-radius: var(--border-radius-round);
-          //TODO CSS
           background-color: var(--red);
         }
 
@@ -84,7 +80,6 @@
 }
 
 .str-chat__title {
-  //TODO CSS
   font-weight: var(--font-weight-semi-bold);
 }
 
@@ -100,7 +95,6 @@
   display: flex;
   justify-content: space-between;
   font-size: var(--md-font);
-  //TODO CSS
   color: var(--black40);
 }
 
@@ -113,11 +107,9 @@
   align-items: center;
   justify-content: center;
   svg {
-    //TODO CSS
     fill: var(--black80);
   }
   &:active {
-    //TODO CSS
     background-color: var(--black10);
   }
 }
@@ -140,9 +132,7 @@
         position: relative;
         z-index: 1;
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-        //TODO CSS
         background: var(--white90);
-        //TODO CSS
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
       }
       @media screen and (max-width: 960px) {
@@ -154,9 +144,7 @@
     }
     &.dark {
       .str-chat__header-livestream {
-        //TODO CSS
         background: var(--dark-grey);
-        //TODO CSS
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         color: var(--white);
@@ -171,17 +159,13 @@
       &__header-livestream {
         position: relative;
         z-index: 1;
-        //TODO CSS
         background: var(--white30);
-        //TODO CSS
         box-shadow: 0 1px 1px 0 var(--black10);
       }
     }
     &.dark {
       .str-chat__header-livestream {
-        //TODO CSS
         background: var(--white5);
-        //TODO CSS
         box-shadow: 0 1px 1px 0 var(--black30);
         &-left {
           &--title,
@@ -201,9 +185,7 @@
   &.str-chat {
     .str-chat {
       &__header-livestream {
-        //TODO CSS
         background: var(--white80);
-        //TODO CSS
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         padding: 24px;
@@ -233,9 +215,7 @@
     }
     &.dark {
       .str-chat__header-livestream {
-        //TODO CSS
         background: var(--grey);
-        //TODO CSS
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         color: var(--white);
@@ -248,9 +228,7 @@
   &.str-chat {
     &.dark {
       .str-chat__header-livestream {
-        //TODO CSS
         background: var(--dark-grey);
-        //TODO CSS
         box-shadow: 0 1px 1px 0 var(--black30);
         &-left {
           color: var(--white);

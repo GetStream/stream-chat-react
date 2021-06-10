@@ -6,7 +6,6 @@
   width: 100%;
 
   &-quoted {
-    //TODO CSS
     border-top: 1px solid var(--black10);
 
     .quoted-message-preview {
@@ -33,7 +32,6 @@
       &-content {
         display: flex;
         align-items: flex-end;
-        //TODO CSS
         background: var(--light-grey);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 60%;
@@ -92,7 +90,6 @@
   }
   .str-chat__textarea > textarea {
     min-height: 56px;
-    //TODO CSS
     background: var(--black5);
     border-radius: var(--border-radius-md);
     padding: 20px 69px;
@@ -103,7 +100,6 @@
     &:focus {
       border: none;
       border-radius: var(--border-radius-md);
-      //TODO CSS
       box-shadow: 0 0 0 3px var(--primary-color);
     }
   }
@@ -218,7 +214,6 @@
   .str-chat__input-flat {
     background: var(--white5);
     textarea {
-      //TODO CSS
       background: var(--white5);
       border-radius: var(--border-radius-md);
       color: var(--white);

@@ -1,7 +1,6 @@
 .str-chat__actions-box {
   background: var(--white);
   background-image: linear-gradient(-180deg, var(--white), var(--black));
-  //TODO CSS
   box-shadow: 0 1px 0 0 var(--black10);
   border-radius: var(--border-radius-md);
   display: flex;
@@ -31,7 +30,6 @@
     cursor: pointer;
 
     &:not(:last-of-type) {
-      //TODO CSS
       box-shadow: 0 1px 0 0 var(--black10);
     }
 
@@ -45,7 +43,6 @@
   .str-chat__message-actions-box {
     background: var(--grey);
     background-image: linear-gradient(-180deg, var(--white5), var(--black5));
-    //TODO CSS
     box-shadow: 0 0 2px 0 var(--black20), 0 1px 0 0 var(--black10), 0 1px 8px 0 var(--black5);
     button {
       color: var(--white);

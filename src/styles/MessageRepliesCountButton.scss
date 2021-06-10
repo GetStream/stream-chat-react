@@ -11,7 +11,6 @@
   cursor: pointer;
 
   svg {
-    //TODO CSS
     fill: var(--black10);
     margin-right: 4px;
   }
@@ -20,14 +19,12 @@
 .dark.str-chat {
   .str-chat__message-replies-count-button {
     svg {
-      //TODO CSS
       fill: var(--white10);
     }
   }
   &.team {
     .str-chat__message-replies-count-button {
       svg {
-        //TODO CSS
         fill: var(--black40);
       }
     }

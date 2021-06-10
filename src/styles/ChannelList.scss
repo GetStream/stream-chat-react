@@ -3,9 +3,7 @@
   flex: 1;
   overflow-y: auto;
   max-width: 300px;
-  //TODO CSS
   background: var(--light-grey);
-  //TODO CSS
   box-shadow: 1px 0 0 0 var(--black5);
   display: flex;
   flex-direction: column;
@@ -16,14 +14,12 @@
 
   .channel_preview {
     padding: 8px 16px;
-    //TODO CSS
     border-bottom: 1px solid var(--black10);
   }
 }
 
 .str-chat__button {
   background: var(--white);
-  //TODO CSS
   box-shadow: 0 1px 1px 0 var(--black10), 0 1px 4px 0 var(--black10);
   font-size: var(--md-font);
   padding: 16px 72px;
@@ -38,7 +34,6 @@
   &:active,
   &:focus {
     outline: none;
-    //TODO CSS
     box-shadow: 0 0 1px 0 var(--black10), 0 1px 4px 0 var(--black10),
       0 0 0 2px var(--primary-color-faded);
     border: 1px solid var(--primary-color);
@@ -66,7 +61,6 @@
   background: var(--white);
   border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
   padding: 4px;
-  //TODO CSS
   box-shadow: 0px 4px 6px var(--black10);
   position: fixed;
   top: 10px;
@@ -79,7 +73,6 @@
     width: 4px;
     height: 100%;
     border-radius: var(--border-radius-sm);
-    //TODO CSS
     background: var(--black10);
   }
   // display: none;
@@ -100,7 +93,6 @@
       z-index: 1001;
       min-height: 100vh;
       overflow-y: auto;
-      //TODO CSS
       box-shadow: 7px 0 9px 0 var(--black5), 1px 0 0 0 var(--black5);
       transition: left 200ms ease-in-out;
     }

@@ -42,30 +42,21 @@
   text-align: center;
 
   &.notification-success {
-    //TODO CSS
     background: var(--faded-green);
-    //TODO CSS
     border: 1px solid var(--faded-green);
-    //TODO CSS
     color: var(--green);
   }
 
   &.notification-error {
-    //TODO CSS
     background: var(--faded-red);
-    //TODO CSS
     border: 1px solid var(--faded-red);
-    //TODO CSS
     color: var(--red);
   }
 }
 
 .str-chat__connection-issue {
-  //TODO CSS
   background: var(--faded-red);
-  //TODO CSS
   border: 1px solid var(--faded-red);
-  //TODO CSS
   color: var(--red);
   border-radius: var(--border-radius-sm);
   font-size: var(--sm-font);
@@ -177,6 +168,5 @@
 }
 
 .dark .str-chat__virtual-list {
-  //TODO CSS
   background: var(--white5);
 }

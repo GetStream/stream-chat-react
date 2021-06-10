@@ -5,7 +5,6 @@
   position: relative;
 
   &:hover {
-    //TODO CSS
     background: ghostwhite;
   }
   & > .str-chat__avatar {
@@ -20,7 +19,6 @@
   }
 
   .str-chat__avatar-fallback {
-    //TODO CSS
     background-color: lightslategray;
   }
 }
@@ -146,12 +144,10 @@
 .dark {
   .str-chat__virtual-message__wrapper {
     &:hover {
-      //TODO CSS
       background: var(--black20);
     }
   }
   .str-chat__virtual-message__text {
-    //TODO CSS
     color: ghostwhite;
   }
   .str-chat__virtual-message__date {

@@ -11,7 +11,6 @@
       display: flex;
       text-align: start;
       align-items: flex-end;
-      //TODO CSS
       background: var(--light-grey);
       border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
       max-width: 408px;
@@ -36,7 +35,6 @@
         &--file:first-of-type {
           background: var(--white);
           border-radius: var(--border-radius-md);
-          //TODO CSS
           border-bottom: 1px solid var(--light-grey);
           min-width: 33%;
         }
@@ -302,10 +300,8 @@
       width: 100%;
       p {
         margin: 0 24px;
-        //TODO CSS
         color: var(--black50);
         text-transform: uppercase;
-        //TODO CSS
         font-weight: var(--font-weight-bold);
       }
     }
@@ -313,13 +309,11 @@
       flex: 1;
       height: 1px;
       width: 100%;
-      //TODO CSS
       background-color: var(--black10);
     }
     &__date {
       margin-top: 4px;
       text-transform: uppercase;
-      //TODO CSS
       color: var(--black50);
     }
   }
@@ -357,7 +351,6 @@
       color: var(--black); /* variables */
       border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
       background: var(--white);
-      //TODO CSS
       border: 1px solid var(--border-color);
 
       margin-left: 0; /* set spacing when unfocused */
@@ -416,7 +409,6 @@
     margin-top: 4px;
     width: 100%;
     font-size: var(--xs-font);
-    //TODO CSS
     color: var(--black50);
     position: absolute;
     white-space: nowrap;
@@ -471,7 +463,6 @@
 
       &-text-inner {
         flex: initial;
-        //TODO CSS
         background: var(--light-grey);
         border-color: transparent;
         text-align: right;
@@ -555,7 +546,6 @@
     flex-direction: column;
     align-items: flex-start;
     &-inner {
-      //TODO CSS
       background: var(--white10);
       padding: 8px 16px;
       border-radius: var(--border-radius);
@@ -569,7 +559,6 @@
       margin: 0 40px 0 0;
       align-items: flex-end;
       &-inner {
-        //TODO CSS
         background: var(--white10);
         padding: 8px 16px;
         border-radius: var(--border-radius);
@@ -587,9 +576,7 @@
     padding: 4px 0;
 
     .str-chat__message-text-inner {
-      //TODO CSS
       background: var(--faded-red);
-      //TODO CSS
       border: 1px solid var(--faded-red);
     }
   }
@@ -828,7 +815,6 @@
     margin-left: 4px;
     position: absolute;
     left: 100%;
-    //TODO CSS
     color: var(--black60);
   }
 
@@ -866,11 +852,9 @@
     border-radius: var(--border-radius-sm) var(--border-radius) var(--border-radius-sm)
       var(--border-radius-sm);
     background: var(--white);
-    //TODO CSS
     border: 1px solid var(--black10);
 
     &--content {
-      //TODO CSS
       background: var(--light-grey);
     }
 
@@ -882,7 +866,6 @@
     margin: 0;
     background: var(--white);
     border-color: transparent;
-    //TODO CSS
     border: 1px solid var(--light-grey);
     border-radius: var(--border-radius-md);
     .str-chat__message-attachment-file--item {
@@ -897,9 +880,7 @@
       border-top-color: transparent;
       border-radius: 0 0 var(--border-radius) calc(var(--border-radius-sm) / 2);
       &:first-of-type {
-        //TODO CSS
         border-bottom: 1px solid var(--light-grey);
-        //TODO CSS
         border-top: 1px solid var(--light-grey);
         border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
           calc(var(--border-radius-sm) / 2);
@@ -1009,7 +990,6 @@
 
     .str-chat__message-simple-status {
       &-number {
-        //TODO CSS
         color: var(--white60);
       }
     }
@@ -1017,7 +997,6 @@
     &--me {
       .str-chat__message-simple {
         &-text-inner {
-          //TODO CSS
           background: var(--black);
           &--is-emoji {
             background: transparent;
@@ -1029,7 +1008,6 @@
           }
         }
         .str-chat__message-attachment--file {
-          //TODO CSS
           background: var(--black20);
         }
       }
@@ -1039,7 +1017,6 @@
 
 .dark.str-chat {
   .str-chat__message-simple__actions__action--options .str-chat__actions-box {
-    //TODO CSS
     background: var(--grey);
     box-shadow: 0 0 2px 0 var(--black20), 0 1px 0 0 var(--black10), 0 1px 8px 0 var(--black5);
   }
@@ -1047,7 +1024,6 @@
     &--error,
     &--failed {
       .str-chat__message-simple-text-inner {
-        //TODO CSS
         background: var(--faded-red);
         border: 1px solid var(--faded-red);
       }

@@ -1,11 +1,9 @@
 .str-chat__thread {
-  //TODO CSS
   background: var(--light-grey);
   flex: 1 0 300px;
   min-width: 300px;
   max-width: 300px;
   overflow-y: hidden;
-  //TODO CSS
   font-family: var(--second-font);
   overflow: hidden;
   max-height: 100%;
@@ -20,9 +18,7 @@
   &-header {
     position: relative;
     width: 100%;
-    //TODO CSS
     background: var(--light-grey);
-    //TODO CSS
     box-shadow: 0 1px 1px 0 var(--black20);
     height: 70px;
     top: 0;
@@ -45,7 +41,6 @@
     border-radius: var(--border-radius-sm);
     margin: 8px 8px 0 8px;
     padding: 8px;
-    //TODO CSS
     background: var(--black5);
     text-align: center;
     font-size: var(--sm-font);
@@ -70,7 +65,6 @@
 
     .str-chat__message-attachment.str-chat__message-attachment--file {
       border-radius: var(--border-radius-md);
-      //TODO CSS
       border-bottom: 1px solid var(--light-grey);
     }
 
@@ -83,7 +77,6 @@
         display: flex;
         text-align: start;
         align-items: flex-end;
-        //TODO CSS
         background: var(--light-grey);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 408px;
@@ -136,7 +129,6 @@
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 
         overflow: hidden;
-        //TODO CSS
         background: var(--white);
         max-height: 100%;
         display: flex;
@@ -193,9 +185,7 @@
       .str-chat__thread {
         background: var(--white5);
         &-header {
-          //TODO CSS
           background: var(--black80);
-          //TODO CSS
           box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
           color: var(--white);
         }
@@ -205,7 +195,6 @@
       }
       @media screen and (max-width: 960px) {
         .str-chat__thread {
-          //TODO CSS
           background: var(--dark-grey);
         }
       }
@@ -249,7 +238,6 @@
   .str-chat__thread {
     background: transparent;
     &-header {
-      //TODO CSS
       background: ver(--white30);
     }
   }
@@ -258,17 +246,13 @@
   }
   &.dark {
     .str-chat__thread {
-      //TODO CSS
       background: var(--dark-grey);
       &-header {
-        //TODO CSS
         background: var(--white5);
-        //TODO CSS
         box-shadow: 0 1px 1px 0 var(--black30);
         color: var(--white);
       }
       &-start {
-        //TODO CSS
         background: var(--black5);
         border-radius: var(--border-radius-sm);
         color: var(--white);

@@ -48,7 +48,6 @@
       bottom: calc(100% + 5px);
       left: 50%;
       transform: translate(-50%, 0);
-      //TODO CSS
       background: var(--black80);
       border-radius: var(--border-radius-sm);
       background-image: linear-gradient(-180deg, transparent, var(--black50));
@@ -65,7 +64,6 @@
         transform: translate(-50%, 0) rotate(45deg);
         width: 7px;
         height: 7px;
-        //TODO CSS
         background-color: var(--dark-grey);
       }
     }
@@ -99,12 +97,9 @@
   height: 60px;
   position: absolute;
   width: initial;
-  //TODO CSS
   background: var(--black90);
   background-image: linear-gradient(-180deg, transparent, var(--black5));
-  //TODO CSS
   border: 1px solid var(--white5);
-  //TODO CSS
   box-shadow: 0 3px 1px 0 var(--black5), 0 11px 8px 0 var(--black20);
   border-radius: var(--border-radius-round);
   display: flex;
@@ -119,7 +114,6 @@
   &-tooltip {
     position: absolute;
     bottom: calc(100% + 15px);
-    //TODO CSS
     background: var(--black80);
     border-radius: var(--border-radius-sm);
     background-image: linear-gradient(-180deg, transparent, var(--black50));
@@ -138,7 +132,6 @@
       transform: translate(-50%, 0) rotate(45deg);
       width: 7px;
       height: 7px;
-      //TODO CSS
       background-color: var(--dark-grey);
     }
   }

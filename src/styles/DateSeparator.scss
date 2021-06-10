@@ -6,14 +6,12 @@
   &-date {
     font-size: var(--md-font);
     font-weight: var(--font-weight-bold);
-    //TODO CSS
     color: var(--black70);
     font-family: var(--second-font);
   }
 
   &-line {
     flex: 1;
-    //TODO CSS
     background-color: var(--black10);
     height: 1px;
     border: none;
@@ -34,18 +32,15 @@
 .dark.str-chat {
   .str-chat__date-separator {
     &-line {
-      //TODO CSS
       background-color: var(--white10);
     }
     &-date {
-      //TODO CSS
       color: var(--white70);
     }
   }
   &.team {
     .str-chat__date-separator {
       &-line {
-        //TODO CSS
         background-color: var(--black40);
       }
     }
