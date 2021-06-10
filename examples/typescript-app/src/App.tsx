@@ -15,6 +15,7 @@ import {
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
+import { CustomList } from './components/CustomList';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
 const userId = process.env.REACT_APP_USER_ID as string;
@@ -36,7 +37,7 @@ chatClient.connectUser({ id: userId }, userToken);
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>
     <ChannelList
-      List={ChannelListMessenger}
+      List={CustomList}
       Preview={ChannelPreviewMessenger}
       filters={filters}
       sort={sort}

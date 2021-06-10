@@ -1,14 +1,12 @@
 ---
-id: channel_list_input
+id: channel_list_preview
 sidebar_position: 1
-title: ChannelList - Input, Preview
+title: ChannelList - List, Preview
 ---
 
 `ChannelList` UI is determined by two of its props, `List` and `Preview`. The `List` prop allows you to customize the container
 in which the array of channels is rendered. The `Preview` prop dictates the design and click functionality of an individual
-channel in the list. If not provided via props, these UI components default to
-[`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
-and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
+channel in the list. If not provided via props, these UI components fall back to the default components.
 
 To customize the container and list item UI for your `ChannelList`, provide custom component overrides. Your custom components
 will receive the same props as the defaults.
@@ -30,3 +28,11 @@ const CustomListItem = (props) => {
   </Channel>
 </Chat>;
 ```
+
+
+## The Code:
+
+
+
+## Result:
+(screenshot)
