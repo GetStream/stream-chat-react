@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadingIndicatorProps } from 'react-file-utils/dist/types/components/LoadingIndicator';
 import { ChannelSort, StreamChat } from 'stream-chat';
 import {
   Chat,
@@ -12,6 +13,7 @@ import {
   MessageInputFlat,
   Thread,
   Window,
+  ChatDownProps,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -34,25 +36,33 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
-const App = () => (
-  <Chat client={chatClient} theme={`messaging ${theme}`}>
-    <ChannelList
-      List={CustomList}
-      Preview={ChannelPreviewMessenger}
-      filters={filters}
-      sort={sort}
-      options={options}
-      showChannelSearch
-    />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput Input={MessageInputFlat} focus />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
+const App = () => {
+  const CustomLoadingIndicator = (props: ChatDownProps) => {
+    // render custom list item here
+    console.log('props in custom loader:', props);
+    return <div>loading indicator</div>
+  };
+
+  return (
+    <Chat client={chatClient} theme={`messaging ${theme}`}>
+      <ChannelList
+        List={CustomList}
+        Preview={ChannelPreviewMessenger}
+        filters={filters}
+        sort={sort}
+        options={options}
+        showChannelSearch
+      />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput Input={MessageInputFlat} focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  )
+};
 
 export default App;

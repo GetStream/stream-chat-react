@@ -4,24 +4,116 @@ sidebar_position: 1
 title: ChannelList - List, Preview
 ---
 
-`ChannelList` UI is determined by two of its props, `List` and `Preview`. The `List` prop allows you to customize the container
-in which the array of channels is rendered. The `Preview` prop dictates the design and click functionality of an individual
-channel in the list. If not provided via props, these UI components fall back to the default components.
+## How-to Guide for Customizing the ChannelList UI
 
-To customize the container and list item UI for your `ChannelList`, provide custom component overrides. Your custom components
-will receive the same props as the defaults.
+To customize the UI for the [`ChannelList`](../core-components/channel-list.mdx) you need to focus on the two wrapper components that dictate the UI, the list and preview components. These are set via the optional `List` and `Preview` props, and if nothing is provided they default to
+[`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
+and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx). 
+
+Let's individually build these two components to use to override the defaults.
+
+## The List component 
+
+The list component used by `ChannelList` receives the same props as the default, and is a container that renders the list of channels via the children prop. The code below is an example of the minimum viable soluttion as a possible return block
+for a custom list component.
 
 ```jsx
-const CustomListContainer = (props) => {
-  // render custom list container here
+  return (
+    <div>{props.children}</div>
+  );
+```
+
+Using the default `ChannelListMessenger` component as a model, let's incorporate the other props to render the list conditionally.
+
+```jsx
+if (props.error) {
+  return <div>Warning! Error Message!</div>;
+}
+
+if (props.loading) {
+  return null;
+}
+```
+
+The items we're rendering in those conditionals are not very helpful for the user, so let's take advantage of several of the library's status indicator components via the `LoadingErrorIndicator` and `LoadingIndicator`
+props and assign the default values for each, `ChatDown` and `LoadingChannels`. This assignment is necessary here to satisfy TypeScript since these props are optional.
+
+```jsx
+import { ChatDown, LoadingChannels } from 'stream-chat-react';
+
+const {
+  LoadingErrorIndicator = ChatDown,
+  LoadingIndicator = LoadingChannels,
+} = props;
+
+if (error) {
+  return <LoadingErrorIndicator type={'connection'} />;
+}
+
+if (loading) {
+  return <LoadingIndicator />;
+}
+```
+
+If you would like to use a custom component (or a different library component) for either the `LoadingErrorIndicactor` or `LoadingIndicator` props in the custom component (and in the default list component, too),
+you can utilize the props of the same names on `ChannelList`. If either of these props are provided, then the assignment mentioned in the above step is not necessary.
+
+```jsx
+const CustomErrorIndicator = (props: ChatDownProps) => {
+  return <div>So much error when rendering.</div>
 };
 
-const CustomListItem = (props) => {
-  // render custom list item here
+<ChannelList
+  LoadingErrorIndicator={(props) => (
+    <CustomErrorIndicator {...props} type={'connection'} />
+  )}
+/>
+```
+
+This is a basic example of how you can create a custom list component using all of the provided props, though the only one that is actually necessary for a functional component is children.
+It's possible to render any addtional UI items or incorporate other logic that you'd need to fit your requirements within your custom component.
+
+**The Code:**
+
+```jsx
+const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) => {
+  const {
+    children,
+    error,
+    loading,
+    LoadingErrorIndicator,
+    LoadingIndicator,
+  } = props;
+
+  if (error) {
+    return <LoadingErrorIndicator type={'connection'} />;
+  }
+
+  if (loading) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <div>{children}</div>
+  );
+};
+
+const CustomErrorIndicator = (props: ChatDownProps) => {
+  return <div>So much error when rendering.</div>
+};
+
+const CustomLoadingIndicator = () => {
+  return <div>Loading, loading, loading...</div>
 };
 
 <Chat client={client}>
-  <ChannelList List={CustomListContainer} Preview={CustomListItem} />
+  <ChannelList
+    List={CustomList}
+    LoadingErrorIndicator={(props) => (
+      <CustomErrorIndicator {...props} type={'connection'} />
+    )}
+    LoadingIndicator={CustomLoadingIndicator}
+  />
   <Channel>
     <MessageList />
     <MessageInput />
@@ -29,10 +121,14 @@ const CustomListItem = (props) => {
 </Chat>;
 ```
 
+## The Preview component
 
-## The Code:
+The `Preview` prop dictates the design and click functionality of an individual channel in the list that we built above. Let's build a custom preview component.
+
+**The Code:**
 
 
 
-## Result:
+
+**Result:**
 (screenshot)
