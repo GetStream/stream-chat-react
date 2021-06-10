@@ -7,7 +7,7 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    padding: 10px 40px 10px 10px;
+    padding: 8px 40px 8px 8px;
     font-size: var(--sm-font);
     //TODO CSS
     border-bottom: 1px solid var(--black10);
@@ -27,7 +27,7 @@
     display: flex;
     flex-direction: column;
     text-align: left;
-    padding: 0 10px;
+    padding: 0 8px;
     max-width: 250px;
   }
 
@@ -116,7 +116,7 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
-  padding: 0 40px 0 10px;
+  padding: 0 40px 0 8px;
   //TODO CSS
   border-bottom: 1px solid var(--black10);
   text-align: left;
@@ -135,7 +135,7 @@
 
   &--right {
     flex: 1;
-    margin-left: 11px;
+    margin-left: 16px;
   }
 
   &--unread {
@@ -153,14 +153,14 @@
   display: flex;
   width: 100%;
   border: none;
-  padding: 10px;
+  padding: 8px;
   align-items: center;
   //TODO CSS
   background: transparent;
   //TODO CSS
   box-shadow: 0 1px 0 0 var(--black10);
   text-align: left;
-  margin: 5px 0;
+  margin: 8px 0;
 
   &--active {
     border: none;

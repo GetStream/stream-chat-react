@@ -8,7 +8,6 @@ $heavy-font-weight: 700;
 /* colors */
 $primary-color: #ff00ff;
 $secondary-color: #006cff;
-$secondary-faded: #bcd8ff;
 
 $dt-bg-team: #1d1f22;
 
@@ -45,27 +44,11 @@ $border-radius: 16px;
   --font-weight-semi-bold: 600;
   --font-weight-bold: #{$heavy-font-weight}; //700
 
-  /* margin/padding */
-
-  --spacing-unit: 10px;
-
-  --margin: 8px;
-  --padding: 8px;
-
-  --margin-sm: calc(var(--margin) / 2);
-  --margin-md: calc(2 * var(--margin));
-  --margin-lg: calc(4 * var(--margin));
-
-  --padding-sm: var(--padding);
-  --padding-md: calc(2 * var(--padding));
-  --padding-lg: calc(4 * var(--padding));
-
   /* colors */
-  --magenta: #{$primary-color};
   --primary-color: #{$secondary-color};
   --primary-color-faded: #006cff5c;
-  --secondary-faded: #{$secondary-faded};
 
+  --magenta: #{$primary-color};
   --red: #ff0000;
   --faded-red: #d0021b1a;
 

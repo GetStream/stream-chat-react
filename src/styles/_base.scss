@@ -39,7 +39,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: 20px 20px 0 10px;
+        padding: 16px 16px 0 8px;
       }
     }
   }
@@ -127,11 +127,11 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   }
   &.messaging {
     .str-chat__main-panel {
-      padding: 20px 10px 0 0px;
+      padding: 16px 8px 0 0px;
     }
     @media screen and (max-width: 960px) {
       .str-chat__main-panel {
-        padding: 5px 5px 0;
+        padding: 4px 4px 0;
       }
     }
   }

@@ -17,7 +17,7 @@
   &__inner {
     max-width: 667px;
     background: var(--white);
-    padding: 20px;
+    padding: 24px;
     border-radius: var(--border-radius-md);
   }
 
@@ -25,7 +25,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    padding: 20px;
+    padding: 24px;
     font-size: var(--md-font);
     line-height: 10px;
     color: var(--white);
@@ -35,7 +35,7 @@
     svg {
       position: relative;
       top: 1px;
-      margin-left: 10px;
+      margin-left: 8px;
       fill: var(--white);
     }
     &:hover {

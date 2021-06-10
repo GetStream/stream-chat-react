@@ -1,6 +1,6 @@
 .str-chat__new-channel {
   &--header {
-    padding: 10px;
+    padding: 8px;
     display: flex;
     align-items: center;
     font-family: var(--second-font);
@@ -13,12 +13,12 @@
       text-align: center;
       color: var(--primary-color);
       font-weight: var(--font-weight-bold);
-      margin-right: 45px;
+      margin-right: 48px;
     }
   }
 
   &--name {
-    padding: 0 0 0 15px;
+    padding: 0 0 0 16px;
     //TODO CSS
     border-bottom: 1px solid var(--black10);
     display: flex;
@@ -26,7 +26,7 @@
 
     label {
       font-size: var(--md-font);
-      margin-right: 5px;
+      margin-right: 4px;
     }
 
     input {
@@ -35,7 +35,7 @@
       font-family: var(--second-font);
       flex: 1;
       width: 100%;
-      padding: 15px 0 15px 5px;
+      padding: 16px 0 16px 4px;
       background: var(--white);
       border: none;
       outline: none;

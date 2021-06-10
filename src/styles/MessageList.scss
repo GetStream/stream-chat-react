@@ -6,7 +6,7 @@
   padding: 0;
 
   .str-chat__reverse-infinite-scroll {
-    padding-top: 75px;
+    padding-top: 72px;
   }
 
   &-wrapper {
@@ -17,7 +17,7 @@
   }
 
   &--thread {
-    padding: 15px 0 0 0;
+    padding: 16px 0 0 0;
     overflow: visible;
   }
   &__center {
@@ -89,7 +89,7 @@
         padding: 0 40px 0;
         background: var(--white);
         .str-chat__reverse-infinite-scroll {
-          padding-top: 55px;
+          padding-top: 56px;
         }
         &-notifications {
           background: var(--white);
@@ -99,12 +99,12 @@
     @media screen and (max-width: 960px) {
       .str-chat {
         &__list {
-          padding: 0 10px 0;
+          padding: 0 8px 0;
           .str-chat__reverse-infinite-scroll {
-            padding-top: 55px;
+            padding-top: 56px;
           }
           &-notifications {
-            padding: 0 10px;
+            padding: 0 8px;
           }
         }
       }
@@ -124,9 +124,9 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 10px;
+        padding: 0 8px;
         .str-chat__reverse-infinite-scroll {
-          padding-top: 55px;
+          padding-top: 56px;
         }
       }
     }
@@ -137,13 +137,13 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 20px 0;
+        padding: 0 24px 0;
         .str-chat__reverse-infinite-scroll {
-          padding-top: 75px;
+          padding-top: 72px;
         }
         &-notifications {
-          padding-left: 22px;
-          padding-right: 22px;
+          padding-left: 24px;
+          padding-right: 24px;
         }
       }
     }

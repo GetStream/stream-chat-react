@@ -1,10 +1,10 @@
 .str-chat__header {
   display: flex;
-  padding: 10px;
+  padding: 8px;
   border-bottom: 1px solid var(--black10);
 
   &-livestream {
-    padding: 10px 40px;
+    padding: 8px 40px;
     min-height: 70px;
     display: flex;
     align-items: center;
@@ -70,7 +70,7 @@
 
     &-right {
       display: flex;
-      margin: 0 -5px;
+      margin: 0 -4px;
 
       &-button-wrapper {
         position: relative;
@@ -107,8 +107,8 @@
 .str-chat__square-button {
   border: 1px solid var(--black10);
   border-radius: var(--border-radius-sm);
-  padding: 10px;
-  margin: 0 5px;
+  padding: 8px;
+  margin: 0 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,8 +147,8 @@
       }
       @media screen and (max-width: 960px) {
         &__header-livestream {
-          padding-left: 20px;
-          padding-right: 20px;
+          padding-left: 16px;
+          padding-right: 16px;
         }
       }
     }
@@ -206,7 +206,7 @@
         //TODO CSS
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-        padding: 25px;
+        padding: 24px;
         &-left {
           &--title {
             font-size: var(--xxl-font);
@@ -269,8 +269,8 @@
 .str-chat__header-hamburger {
   width: 30px;
   height: 38px;
-  padding: 10px 10px 10px 0px;
-  margin-right: 10px;
+  padding: 8px 8px 8px 0px;
+  margin-right: 8px;
   display: none;
   flex-direction: column;
   justify-content: space-around;

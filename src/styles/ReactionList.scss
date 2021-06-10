@@ -24,7 +24,7 @@
       line-height: 26px;
       display: flex;
       justify-content: center;
-      margin: -1px -15px 0 0;
+      margin: -1px -16px 0 0;
       z-index: 888;
     }
 
@@ -69,7 +69,7 @@
 
     &--reverse {
       ul {
-        margin: -1px -5px 0 -15px;
+        margin: -1px -4px 0 -16px;
       }
 
       right: initial;
@@ -116,7 +116,7 @@
       left: 16px;
 
       ul {
-        margin: -1px 0 0 -15px;
+        margin: -1px 0 0 -16px;
       }
 
       &::after {
@@ -136,7 +136,7 @@
         left: initial;
 
         ul {
-          margin: -1px -15px 0 0;
+          margin: -1px -16px 0 0;
         }
 
         &::after {

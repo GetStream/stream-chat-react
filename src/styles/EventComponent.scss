@@ -1,10 +1,10 @@
 .str-chat.messaging {
   .str-chat__event-component__channel-event {
     display: flex;
-    margin-top: 20px;
+    margin-top: 24px;
 
     &__content {
-      margin-right: 10px;
+      margin-right: 8px;
       //TODO CSS
       color: var(--black50);
       font-size: var(--lg-font);
@@ -22,7 +22,7 @@
     margin: 20px 40px;
 
     &__content {
-      margin-right: 10px;
+      margin-right: 8px;
       //TODO CSS
       color: var(--black50);
       font-size: var(--lg-font);

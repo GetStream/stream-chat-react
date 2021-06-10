@@ -4,7 +4,7 @@
   box-shadow: 0 -1px 3px 0 var(--black5), 0 -1px 0 0 var(--black5);
   display: flex;
   flex-wrap: wrap;
-  padding: 10px;
+  padding: 8px;
   position: relative;
   font-family: var(--second-font);
   padding-bottom: 0;
@@ -39,7 +39,7 @@
     position: relative;
     .str-chat__textarea {
       textarea {
-        padding-right: 70px;
+        padding-right: 72px;
       }
     }
   }
@@ -78,7 +78,7 @@
     justify-content: space-between;
     font-size: var(--sm-font);
     background: var(--white);
-    padding: 0 10px 10px 10px;
+    padding: 0 8px 8px 8px;
     color: var(--lighten-black);
 
     &--typing {
@@ -99,7 +99,7 @@
   textarea {
     width: 100%;
     outline: none;
-    padding: 11px;
+    padding: 16px;
     background: var(--white);
     //TODO CSS
     border: 1px solid var(--black10);
@@ -134,7 +134,7 @@
   box-shadow: 0 0 1px 0 var(--black30), 0 0 6px 0 var(--black10);
   z-index: -1;
   border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
-  margin: 0 10px;
+  margin: 0 8px;
   max-height: 360px;
   overflow-y: auto;
 
@@ -194,12 +194,12 @@
 }
 
 .rta__list-header {
-  padding: 15px;
+  padding: 16px;
   font-size: var(--md-font);
 }
 
 .str-chat__emoji-item {
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   margin: 0 -8px;
@@ -219,7 +219,7 @@
 }
 
 .str-chat__slash-command {
-  padding: 10px 15px;
+  padding: 8px 16px;
   font-size: var(--md-font);
 
   &-description {
@@ -228,7 +228,7 @@
 }
 
 .str-chat__user-item {
-  padding: 10px 15px;
+  padding: 8px 16px;
   display: flex;
 
   &--highlight {
@@ -246,7 +246,7 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    padding: 5px;
+    padding: 4px;
     z-index: 1001;
     display: none;
   }
@@ -266,7 +266,7 @@
 .rfu-dropzone__inner {
   width: 100%;
   height: 100%;
-  padding: 0 30px;
+  padding: 0 32px;
   border: 1px dashed transparent;
   box-sizing: border-box;
   display: flex;
@@ -291,10 +291,10 @@
 .livestream.str-chat {
   .str-chat {
     &__input {
-      padding: 10px 40px;
+      padding: 8px 40px;
 
       &-footer {
-        padding: 0 40px 10px;
+        padding: 0 40px 8px;
       }
     }
   }
@@ -310,7 +310,7 @@
         background: var(--white30);
         //TODO CSS
         box-shadow: 0 -1px 1px 0 var(--black10);
-        padding: 10px 20px 5px;
+        padding: 8px 24px 4px;
 
         textarea {
           border-radius: var(--border-radius-sm);
@@ -319,10 +319,10 @@
           //TODO CSS
           border: 1px solid var(--black20);
           font-size: var(--sm-font);
-          padding: 12px;
+          padding: 16px;
         }
         &-footer {
-          padding: 0 20px 10px;
+          padding: 0 24px 8px;
           //TODO CSS
           background: var(--white30);
         }

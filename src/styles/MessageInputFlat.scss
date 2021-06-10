@@ -1,6 +1,6 @@
 .str-chat__input-flat {
   background: var(--white);
-  padding: 10px 40px;
+  padding: 8px 40px;
   position: relative;
   z-index: 1;
   width: 100%;
@@ -13,11 +13,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
 
       &-header {
         font-size: var(--md-font);
-        margin-bottom: 10px;
+        margin-bottom: 8px;
 
         .str-chat__square-button {
           position: absolute;
@@ -37,7 +37,7 @@
         background: var(--light-grey);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 60%;
-        padding: 8px 10px;
+        padding: 8px 16px;
 
         &-inner {
           display: flex;
@@ -64,7 +64,7 @@
                 background: var(--white);
                 border-radius: var(--border-radius-md);
                 border-left: none;
-                padding: 0 10px;
+                padding: 0 8px;
               }
             }
 
@@ -75,7 +75,7 @@
           }
 
           :nth-child(2) {
-            margin-left: 10px;
+            margin-left: 8px;
           }
         }
       }
@@ -109,7 +109,7 @@
   }
 
   &-footer {
-    padding: 10px 40px;
+    padding: 8px 40px;
     background: var(--white);
   }
 
@@ -209,7 +209,7 @@
 
 .commerce.str-chat {
   .str-chat__input-flat {
-    padding: 10px 22px;
+    padding: 8px 24px;
     background: transparent;
   }
 }
@@ -240,7 +240,7 @@
 @media screen and (max-width: 960px) {
   .str-chat.messaging {
     .str-chat__input-flat {
-      padding: 10px 10px;
+      padding: 8px 8px;
     }
   }
 }

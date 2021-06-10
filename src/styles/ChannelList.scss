@@ -26,13 +26,13 @@
   //TODO CSS
   box-shadow: 0 1px 1px 0 var(--black10), 0 1px 4px 0 var(--black10);
   font-size: var(--md-font);
-  padding: 14px 70px;
+  padding: 16px 72px;
   color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
   width: calc(100% - 10px);
-  margin: 5px;
+  margin: 4px;
   border: 1px solid transparent;
 
   &:active,
@@ -45,7 +45,7 @@
   }
 
   > * {
-    margin: 0 5px;
+    margin: 0 4px;
   }
 
   &--round {
@@ -65,7 +65,7 @@
   height: 50px;
   background: var(--white);
   border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
-  padding: 3px;
+  padding: 4px;
   //TODO CSS
   box-shadow: 0px 4px 6px var(--black10);
   position: fixed;
@@ -119,7 +119,7 @@
   .str-chat__channel-list-messenger {
     padding: 0;
     &__main {
-      padding: 20px 10px 0 10px;
+      padding: 16px 16px 0 16px;
       height: 100%;
       overflow-y: auto;
     }
