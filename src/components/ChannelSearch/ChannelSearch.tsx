@@ -68,6 +68,8 @@ const UnMemoizedChannelSearch = <
     SearchResultsHeader,
   } = props;
 
+  console.log('PROPS in channelsearch IS:', props);
+
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 

@@ -7,6 +7,7 @@ import {
   ChannelList,
   ChannelListMessenger,
   ChannelPreviewMessenger,
+  ChannelSearchProps,
   MessageList,
   MessageInput,
   MessageInputFlat,
@@ -33,25 +34,39 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
-const App = () => (
-  <Chat client={chatClient} theme={`messaging ${theme}`}>
-    <ChannelList
-      List={ChannelListMessenger}
-      Preview={ChannelPreviewMessenger}
-      filters={filters}
-      sort={sort}
-      options={options}
-      showChannelSearch
-    />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput Input={MessageInputFlat} focus />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
+const App = () => {
+  const searchFunction = () => {
+    console.log('search function in the search component');
+  };
+
+  const customProps: ChannelSearchProps = { searchFunction: searchFunction };
+
+  // const customProps = {
+  //   ...ChannelSearchProps,
+  //   searchFunction: searchFunction
+  // }
+  
+  return (
+    <Chat client={chatClient} theme={`messaging ${theme}`}>
+      <ChannelList
+        List={ChannelListMessenger}
+        Preview={ChannelPreviewMessenger}
+        filters={filters}
+        sort={sort}
+        options={options}
+        showChannelSearch
+        additionalChannelSearchProps={customProps}
+      />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput Input={MessageInputFlat} focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  )
+};
 
 export default App;
