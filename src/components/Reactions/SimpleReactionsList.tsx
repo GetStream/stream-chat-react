@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { getStrippedEmojiData } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
+import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
 import type {
@@ -22,16 +23,14 @@ export type SimpleReactionsListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  /**
-   * Handler to set/unset reaction on message.
-   *
-   * @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
-   * */
+  /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
+  additionalEmojiProps?: Partial<NimbleEmojiProps>;
+  /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
-  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
-  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmoji[];
+  /** A list of the currently supported reactions on a message */
+  reactionOptions?: ReactionEmoji[];
   /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse<Re, Us>[];
 };
@@ -48,31 +47,45 @@ const UnMemoizedSimpleReactionsList = <
   props: SimpleReactionsListProps<Re, Us>,
 ) => {
   const {
+    additionalEmojiProps = {},
     handleReaction: propHandleReaction,
-    reaction_counts,
-    reactionOptions: reactionOptionsProp,
-    reactions,
+    reaction_counts: propReactionCounts,
+    reactionOptions: propReactionOptions,
+    reactions: propReactions,
   } = props;
 
-  const { handleReaction: contextHandleReaction } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { handleReaction: contextHandleReaction, message } = useMessageContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
-  const { defaultMinimalEmojis, emojiData: defaultEmojiData, emojiSetDef } = emojiConfig || {};
+  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
   const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
 
-  const emojiData = getStrippedEmojiData(defaultEmojiData);
   const handleReaction = propHandleReaction || contextHandleReaction;
-  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
+  const reactions = propReactions || message.latest_reactions || [];
+  const reactionCounts = propReactionCounts || message.reaction_counts || {};
+  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
+  const reactionsAreCustom = !!propReactionOptions?.length;
 
-  if (!reactions || reactions.length === 0) {
-    return null;
-  }
+  const emojiData = useMemo(
+    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
+    [fullEmojiData, reactionsAreCustom],
+  );
 
-  const getUsersPerReactionType = (type?: string) =>
+  if (!reactions.length) return null;
+
+  const getUsersPerReactionType = (type: string) =>
     reactions
-      ?.map((reaction) => {
+      .map((reaction) => {
         if (reaction.type === type) {
           return reaction.user?.name || reaction.user?.id;
         }
@@ -81,16 +94,37 @@ const UnMemoizedSimpleReactionsList = <
       .filter(Boolean);
 
   const getTotalReactionCount = () =>
-    Object.values(reaction_counts || {}).reduce((total, count) => total + count, 0);
+    Object.values(reactionCounts).reduce((total, count) => total + count, 0);
 
-  const getReactionTypes = () => {
-    if (!reactions) return [];
-    const allTypes = new Set(reactions.map(({ type }) => type));
-
-    return Array.from(allTypes);
+  const getCurrentMessageReactionTypes = () => {
+    const reactionTypes: string[] = [];
+    reactions.forEach(({ type }) => {
+      if (reactionTypes.indexOf(type) === -1) {
+        reactionTypes.push(type);
+      }
+    });
+    return reactionTypes;
   };
 
-  const getOptionForType = (type: string) => reactionOptions.find((option) => option.id === type);
+  const getEmojiByReactionType = (type: string): ReactionEmoji | undefined => {
+    const reactionEmoji = reactionOptions.find((option: ReactionEmoji) => option.id === type);
+    return reactionEmoji;
+  };
+
+  const getSupportedReactionMap = () => {
+    const reactionMap: Record<string, boolean> = {};
+    reactionOptions.forEach(({ id }) => (reactionMap[id] = true));
+    return reactionMap;
+  };
+
+  const messageReactionTypes = getCurrentMessageReactionTypes();
+  const supportedReactionMap = getSupportedReactionMap();
+
+  const supportedReactionsArePresent = messageReactionTypes.some(
+    (type) => supportedReactionMap[type],
+  );
+
+  if (!supportedReactionsArePresent) return null;
 
   return (
     <ul
@@ -98,28 +132,27 @@ const UnMemoizedSimpleReactionsList = <
       data-testid='simple-reaction-list'
       onMouseLeave={() => setTooltipReactionType(undefined)}
     >
-      {getReactionTypes().map((reactionType, i) => {
-        const emojiDefinition = getOptionForType(reactionType);
-        return emojiDefinition ? (
+      {messageReactionTypes.map((reactionType, i) => {
+        const emojiObject = getEmojiByReactionType(reactionType);
+
+        return emojiObject ? (
           <li
             className='str-chat__simple-reactions-list-item'
-            key={`${emojiDefinition?.id}-${i}`}
+            key={`${emojiObject.id}-${i}`}
             onClick={(event) => handleReaction(reactionType, event)}
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
-              {Emoji && (
+              {
                 <Emoji
-                  // @ts-expect-error
-                  emoji={emojiDefinition}
-                  {...emojiSetDef}
-                  // @ts-expect-error
                   data={emojiData}
+                  emoji={emojiObject}
                   size={13}
+                  {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
                 />
-              )}
+              }
               &nbsp;
             </span>
-            {tooltipReactionType === getOptionForType(reactionType)?.id && (
+            {tooltipReactionType === emojiObject.id && (
               <div className='str-chat__simple-reactions-list-tooltip'>
                 <div className='arrow' />
                 {getUsersPerReactionType(tooltipReactionType)?.join(', ')}
