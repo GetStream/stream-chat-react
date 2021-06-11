@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageTeam } from '../MessageTeam';
@@ -57,6 +58,7 @@ async function renderMessageTeam(
           <ComponentProvider
             value={{
               Attachment: AttachmentMock,
+              Emoji: EmojiComponentMock,
               // eslint-disable-next-line react/display-name
               Message: () => <MessageTeam {...props} />,
               ...components,
@@ -145,7 +147,7 @@ describe('<MessageTeam />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {

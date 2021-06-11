@@ -1,6 +1,8 @@
-import type { Data as EmojiData } from 'emoji-mart';
+import type { BaseEmoji, Data as EmojiData } from 'emoji-mart';
 
 import type { CommonEmoji, EmojiSetDef, MinimalEmoji } from '../../context/ChannelStateContext';
+
+export type ReactionEmoji = BaseEmoji | MinimalEmoji;
 
 export const commonEmoji: CommonEmoji = {
   custom: true,
@@ -9,10 +11,10 @@ export const commonEmoji: CommonEmoji = {
 };
 
 export const emojiSetDef: EmojiSetDef = {
+  imageUrl: '',
   sheetColumns: 2,
   sheetRows: 3,
   sheetSize: 64,
-  size: 20,
   spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
 };
 
@@ -74,7 +76,7 @@ export const defaultMinimalEmojis: MinimalEmoji[] = [
 ];
 
 // use this only for small lists like in ReactionSelector
-export const getStrippedEmojiData = (data?: EmojiData) => ({
+export const getStrippedEmojiData = (data: EmojiData) => ({
   ...data,
   emojis: {},
 });
