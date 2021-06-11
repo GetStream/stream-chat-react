@@ -1,19 +1,20 @@
 import React from 'react';
-import { LoadingIndicatorProps } from 'react-file-utils/dist/types/components/LoadingIndicator';
+// import { LoadingIndicatorProps } from 'react-file-utils/dist/types/components/LoadingIndicator';
 import { ChannelSort, StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
   ChannelHeader,
   ChannelList,
-  ChannelListMessenger,
-  ChannelPreviewMessenger,
+  // ChannelListMessenger,
+  // ChannelPreviewMessenger,
   MessageList,
   MessageInput,
   MessageInputFlat,
   Thread,
   Window,
   ChatDownProps,
+  // ChatDownProps,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -37,21 +38,27 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 chatClient.connectUser({ id: userId }, userToken);
 
 const App = () => {
-  const CustomLoadingIndicator = (props: ChatDownProps) => {
-    // render custom list item here
-    console.log('props in custom loader:', props);
-    return <div>loading indicator</div>
+  const CustomErrorIndicator = (props: ChatDownProps) => {
+    const {
+      text
+    } = props
+  
+    console.log('props HERE:', props);
+  
+    return <div>{text}</div>
   };
 
   return (
     <Chat client={chatClient} theme={`messaging ${theme}`}>
       <ChannelList
         List={CustomList}
-        Preview={ChannelPreviewMessenger}
         filters={filters}
         sort={sort}
         options={options}
         showChannelSearch
+        LoadingErrorIndicator={() => (
+          <CustomErrorIndicator text={'Loading Error - check your connection.'} type={'connection'} />
+        )}
       />
       <Channel>
         <Window>

@@ -4,23 +4,15 @@ import { ChatDown, ChannelListMessengerProps } from 'stream-chat-react';
 import { LoadingChannels } from 'stream-chat-react';
 
 export const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) => {
-    const CustomLoadingIndicator = (props: any) => {
-        // render custom list item here
-        console.log('props in custom loader:', props);
-        return <div>loading indicator</div>
-      };
-
     const {
       children,
       error,
       loading,
-      LoadingErrorIndicator = CustomLoadingIndicator,
+      LoadingErrorIndicator = ChatDown,
       LoadingIndicator = LoadingChannels,
     } = props;
   
-
-
-    if (error) {
+    if (true) {
       return <LoadingErrorIndicator type={'connection'} />;
     }
   
@@ -29,6 +21,6 @@ export const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) 
     }
   
     return (
-        <div>{children}</div>
-      );
+      <div>{children}</div>
+    );
   };
