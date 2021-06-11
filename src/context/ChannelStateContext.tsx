@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Data as EmojiMartData } from 'emoji-mart';
+import type { Data as EmojiMartData, EmojiSheetSize } from 'emoji-mart';
 import type {
   Channel,
   MessageResponse,
@@ -32,10 +32,10 @@ export type CommonEmoji = {
 };
 
 export type EmojiSetDef = {
+  imageUrl: string;
   sheetColumns: number;
   sheetRows: number;
-  sheetSize: number;
-  size: number;
+  sheetSize: EmojiSheetSize;
   spriteUrl: string;
 };
 

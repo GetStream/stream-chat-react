@@ -167,14 +167,7 @@ const MessageLivestreamWithContext = <
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector
-            detailedView
-            latest_reactions={message.latest_reactions}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            ref={reactionSelectorRef}
-            reverse={false}
-          />
+          <ReactionSelector ref={reactionSelectorRef} />
         )}
         <MessageLivestreamActions
           messageWrapperRef={messageWrapperRef}
@@ -247,13 +240,7 @@ const MessageLivestreamWithContext = <
             {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
-            {isReactionEnabled && (
-              <ReactionsList
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
+            {isReactionEnabled && <ReactionsList />}
             {!initialMessage && (
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
