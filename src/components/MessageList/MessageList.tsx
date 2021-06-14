@@ -237,6 +237,7 @@ type PropsDrilledToMessage =
   | 'getPinMessageErrorNotification'
   | 'Message'
   | 'messageActions'
+  | 'onlySenderCanEdit'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'

@@ -105,7 +105,7 @@ const UnMemoizedFixedHeightMessage = <
   const userColor = useMemo(() => getUserColor(theme, userId), [userId, theme]);
 
   const messageActionsHandler = useCallback(
-    () => getMessageActions(['delete'], { canDelete: role.canDeleteMessage }),
+    () => getMessageActions(['delete'], { canDelete: role.canDelete }),
     [role],
   );
 
