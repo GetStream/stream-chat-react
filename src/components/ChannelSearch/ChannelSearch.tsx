@@ -18,6 +18,13 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
+export type ChannelSearchFunctionParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  setQuery: React.Dispatch<React.SetStateAction<string>>;
+  setResults: React.Dispatch<React.SetStateAction<Array<UserResponse<Us>>>>;
+  setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   filters?: UserFilters<Us>;
   options?: UserOptions;
@@ -35,10 +42,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   SearchEmpty?: React.ComponentType;
   /** Custom search function to override default */
   searchFunction?: (
-    setQuery: React.Dispatch<React.SetStateAction<string>>,
-    setResults: React.Dispatch<React.SetStateAction<Array<UserResponse<Us>>>>,
-    setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    setSearching: React.Dispatch<React.SetStateAction<boolean>>,
+    params: ChannelSearchFunctionParams<Us>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
   /** Custom UI component to display the search loading state */
@@ -150,13 +154,18 @@ const UnMemoizedChannelSearch = <
     getChannelsThrottled(event.target.value);
   };
 
+  const channelSearchParams = {
+    setQuery,
+    setResults,
+    setResultsOpen,
+    setSearching,
+  };
+
   return (
     <div className='str-chat__channel-search'>
       <input
         onChange={(event) =>
-          searchFunction
-            ? searchFunction(setQuery, setResults, setResultsOpen, setSearching, event)
-            : onSearch
+          searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
         }
         placeholder={t('Search')}
         ref={inputRef}
