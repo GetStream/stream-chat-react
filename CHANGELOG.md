@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.0.7](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.7) 2021-06-14
+
+### Feature
+
+- Add support for custom reactions [#968](https://github.com/GetStream/stream-chat-react/pull/968)
+
+### Chore
+
+- Upgrade `stream-chat` dependency
+
+### Bug
+
+- Fix UI component conditional rendering in `Attachment` [#972](https://github.com/GetStream/stream-chat-react/pull/972)
+- Add needed params to `ChannelSearch` search function prop [#973](https://github.com/GetStream/stream-chat-react/pull/973)
+
 ## [6.0.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.6) 2021-06-02
 
 ### Chore

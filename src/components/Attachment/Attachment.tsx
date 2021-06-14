@@ -163,15 +163,15 @@ export const Attachment = <At extends DefaultAttachmentType = DefaultAttachmentT
           });
         }
 
-        if (isFileAttachment(attachment)) {
-          return renderFile({
+        if (isAudioAttachment(attachment)) {
+          return renderAudio({
             ...propsWithDefault,
             attachment,
           });
         }
 
-        if (isAudioAttachment(attachment)) {
-          return renderAudio({
+        if (isFileAttachment(attachment)) {
+          return renderFile({
             ...propsWithDefault,
             attachment,
           });

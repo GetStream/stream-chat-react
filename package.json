@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "6.0.6",
+  "version": "6.0.7",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -151,7 +151,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "stream-chat": "3.10.0",
+    "stream-chat": "3.11.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-recommended-scss": "^4.2.0",

@@ -35,7 +35,6 @@ export const QuotedMessage = <
   if (!quoted_message) return null;
 
   const quotedMessageText =
-    // @ts-expect-error
     quoted_message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     quoted_message.text;
 
@@ -49,7 +48,6 @@ export const QuotedMessage = <
 
   return (
     <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
-      {/*  @ts-expect-error */}
       <Avatar image={quoted_message?.user?.image} size={20} />
       <div className='quoted-message-inner'>
         {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}

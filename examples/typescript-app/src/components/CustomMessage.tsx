@@ -17,7 +17,6 @@ import './CustomMessage.scss';
 
 export const CustomMessage = () => {
   const {
-    handleOpenThread,
     showDetailedReactions,
     isReactionEnabled,
     message,
@@ -32,11 +31,7 @@ export const CustomMessage = () => {
     <div className='message-wrapper'>
       <Avatar image={message.user?.image} />
       <div className='message-wrapper-content'>
-        <MessageOptions
-          displayLeft={false}
-          handleOpenThread={handleOpenThread}
-          messageWrapperRef={messageWrapperRef}
-        />
+        <MessageOptions displayLeft={false} messageWrapperRef={messageWrapperRef} />
         <div className='message-header'>
           <div className='message-header-name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>
@@ -44,24 +39,13 @@ export const CustomMessage = () => {
           </div>
         </div>
         {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector
-            detailedView
-            latest_reactions={message.latest_reactions}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            ref={reactionSelectorRef}
-          />
+          <ReactionSelector ref={reactionSelectorRef} />
         )}
         <MessageText />
         <MessageStatus />
         {message.attachments && <Attachment attachments={message.attachments} />}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && (
-          <SimpleReactionsList
-            reaction_counts={message.reaction_counts || undefined}
-            reactions={message.latest_reactions}
-          />
-        )}
-        <MessageRepliesCountButton reply_count={message.reply_count} onClick={handleOpenThread} />
+        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
+        <MessageRepliesCountButton reply_count={message.reply_count} />
       </div>
     </div>
   );

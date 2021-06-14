@@ -2,6 +2,7 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageCommerce } from '../MessageCommerce';
@@ -48,6 +49,7 @@ async function renderMessageCommerce(
           <ComponentProvider
             value={{
               Attachment: AttachmentMock,
+              Emoji: EmojiComponentMock,
               // eslint-disable-next-line react/display-name
               Message: () => <MessageCommerce {...props} />,
               ...components,
@@ -120,7 +122,7 @@ describe('<MessageCommerce />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
