@@ -33,6 +33,5 @@ jobs:
         run: |
           if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
           if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
-          if [ "$TYPESCRIPT" == "no" ]; then yarn docs; fi
           if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
           if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi
