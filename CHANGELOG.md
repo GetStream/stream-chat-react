@@ -1,5 +1,27 @@
 # Changelog
 
+## [6.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.1.0) 2021-06-15
+
+### 🎉 UPDATED DOCS! 🎉
+
+- We have completely re-written our [SDK docs](https://getstream.io/chat/docs/sdk/react/)
+- Component/props/context references are all complete
+- We'll continually add to the Custom Code Examples section for easier customization
+- The new docs are found on the [website](https://getstream.io/chat/docs/sdk/react/)
+
+### Feature
+
+- Refine edit message privileges and add `onlySenderCanEdit` prop to `MessageList` [#975](https://github.com/GetStream/stream-chat-react/pull/975)
+
+### Chore
+
+- Change attachment type for video messages [#976](https://github.com/GetStream/stream-chat-react/pull/976)
+- Adjust mouse event listener options [#980](https://github.com/GetStream/stream-chat-react/pull/980)
+
+### Bug
+
+- Prevent `EmptyStateIndicator` from showing up in `Thread` [#977](https://github.com/GetStream/stream-chat-react/pull/977)
+
 ## [6.0.7](https://github.com/GetStream/stream-chat-react/releases/tag/v6.0.7) 2021-06-14
 
 ### Feature
