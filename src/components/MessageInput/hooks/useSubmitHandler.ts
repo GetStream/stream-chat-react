@@ -18,7 +18,7 @@ import type {
  * Get attachment type from MIME type
  */
 const getAttachmentTypeFromMime = (mime: string) => {
-  if (mime.includes('video/')) return 'media';
+  if (mime.includes('video/')) return 'video';
   if (mime.includes('audio/')) return 'audio';
   return 'file';
 };
