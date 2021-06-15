@@ -79,7 +79,6 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
 };
 
 /**
- * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
- * @example ./Gallery.md
+ * Displays images in a simple responsive grid with a light box to view the images.
  */
 export const Gallery = React.memo(UnMemoizedGallery) as typeof UnMemoizedGallery;

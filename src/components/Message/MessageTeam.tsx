@@ -298,9 +298,8 @@ const MemoizedMessageTeam = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
+ * Handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
- * @example ./MessageTeam.md
  */
 export const MessageTeam = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

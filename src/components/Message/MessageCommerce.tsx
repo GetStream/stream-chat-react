@@ -173,7 +173,7 @@ const MemoizedMessageCommerce = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageCommerce - UI component that renders a message and receives functionality from the Message/MessageList components
+ * UI component that renders a message and receives functionality from the Message/MessageList components
  */
 export const MessageCommerce = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

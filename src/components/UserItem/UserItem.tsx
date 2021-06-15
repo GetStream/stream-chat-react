@@ -16,16 +16,12 @@ export type UserItemProps = {
     /** Name of the user */
     name?: string;
   };
-  /**
-   * Custom UI component to display user avatar
-   *
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
 };
 
 /**
- * UserItem - Component rendered in commands menu
+ * UI component for mentions rendered in suggestion list
  */
 const UnMemoizedUserItem: React.FC<UserItemProps> = (props) => {
   const { Avatar = DefaultAvatar, entity } = props;

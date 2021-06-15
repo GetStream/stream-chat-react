@@ -1,6 +1,16 @@
-.str-chat,
-.str-chat-channel,
-.str-chat__container {
-  height: 100% !important;
-  max-height: 600px !important;
+.rsg--sidebar-4,
+.rsg--header-24,
+.rsg--button-33,
+.rsg--footer-6,
+.rsg--toolbar-11 {
+  display: none !important;
+}
+
+.rsg--content-3 {
+  margin-top: 16px !important;
+}
+
+.rsg--para-31 {
+  font-size: 1.5rem !important;
+  margin-top: 16px !important;
 }
