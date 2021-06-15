@@ -192,6 +192,8 @@ const MessageListWithContext = <
 
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
+  console.log('elements IS:', elements);
+
   return (
     <>
       <div
@@ -199,7 +201,7 @@ const MessageListWithContext = <
         onScroll={onScroll}
         ref={listRef}
       >
-        {!elements.length ? (
+        {!elements.length && !threadList ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
