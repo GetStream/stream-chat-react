@@ -192,8 +192,6 @@ const MessageListWithContext = <
 
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
-  console.log('elements IS:', elements);
-
   return (
     <>
       <div
