@@ -214,7 +214,6 @@ const UnMemoizedMessageActionsBox = <
 
 /**
  * A popup box that displays the available actions on a message, such edit, delete, pin, etc.
- * @example ./MessageActionsBox.md
  */
 export const MessageActionsBox = React.memo(
   UnMemoizedMessageActionsBox,

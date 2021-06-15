@@ -9,7 +9,7 @@
 
 [![NPM](https://img.shields.io/npm/v/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
 [![build](https://github.com/GetStream/stream-chat-react/workflows/test/badge.svg)](https://github.com/GetStream/stream-chat-react/actions)
-[![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.github.io/stream-chat-react/)
+[![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.io/chat/docs/sdk/react/)
 [![codecov](https://codecov.io/gh/GetStream/stream-chat-react/branch/master/graph/badge.svg)](https://codecov.io/gh/GetStream/stream-chat-react)
 
 <img align="right" src="https://getstream.imgix.net/images/chat/chattutorialart@3x.png?auto=format,enhance" width="50%" />
@@ -19,7 +19,7 @@
 - [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
 - [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
 - [Demo Apps](https://getstream.io/chat/demos/)
-- [Component Docs](https://getstream.github.io/stream-chat-react/)
+- [Component Docs](https://getstream.io/chat/docs/sdk/react/)
 - [Chat UI Kit](https://getstream.io/chat/ui-kit/)
 - [Internationalization](#internationalization)
 
@@ -65,7 +65,7 @@ We have built five demo applications showcasing a variety of chat use cases, inc
 
 ## Docs
 
-We use a doc generator to build our [component documentation](https://getstream.github.io/stream-chat-react/). We provide a brief description of each chat component and define all of the props it accepts.
+We use a doc generator to build our [component documentation](https://getstream.io/chat/docs/sdk/react/). We provide a brief description of each chat component and define all of the props it accepts.
 
 The React components are created using the [stream-chat-js](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's likely you'll need to make additional calls to our Chat API using our JavaScript client, which has [documentation](https://getstream.io/chat/docs/js/) on our website.
 

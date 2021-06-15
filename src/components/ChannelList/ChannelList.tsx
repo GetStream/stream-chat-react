@@ -59,7 +59,7 @@ export type ChannelListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  /** Additional props for underlying ChannelSearch component, [Available props](https://getstream.github.io/stream-chat-react/#channelsearch) */
+  /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
   additionalChannelSearchProps?: ChannelSearchProps<Us>;
   /**
    * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
@@ -70,10 +70,7 @@ export type ChannelListProps<
   allowNewMessagesFromUnfilteredChannels?: boolean;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
-  /**
-   * Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList.
-   * We recommend using a pure function with array methods like filter/sort/reduce.
-   */
+  /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
@@ -341,7 +338,6 @@ const UnMemoizedChannelList = <
 };
 
 /**
- * ChannelList renders a preview list of Channels, allowing you to select the Channel you want to open.
- * @example ./ChannelList.md
+ * Renders a preview list of Channels, allowing you to select the Channel you want to open
  */
 export const ChannelList = React.memo(UnMemoizedChannelList) as typeof UnMemoizedChannelList;

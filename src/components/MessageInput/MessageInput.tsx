@@ -153,10 +153,6 @@ const UnMemoizedMessageInput = <
 };
 
 /**
- * MessageInput - a high level component that has provides all functionality to the Input it renders.
- *
- * It exposes the [useMessageInput](https://getstream.github.io/stream-chat-react/#section-usemessageinput) hook, which accepts the MessageInput props and returns
- * all functions needed to customize and build your custom Input components.
- * @example ./MessageInput.md
+ * A high level component that has provides all functionality to the Input it renders.
  */
 export const MessageInput = React.memo(UnMemoizedMessageInput) as typeof UnMemoizedMessageInput;
