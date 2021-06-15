@@ -149,21 +149,10 @@ const MessageSimpleWithContext = <
                 messageWrapperRef={messageWrapperRef}
               />
               {hasReactions && !showDetailedReactions && isReactionEnabled && (
-                <ReactionsList
-                  own_reactions={message.own_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  reactions={message.latest_reactions}
-                  reverse
-                />
+                <ReactionsList reverse />
               )}
               {showDetailedReactions && isReactionEnabled && (
-                <ReactionSelector
-                  detailedView
-                  latest_reactions={message.latest_reactions}
-                  own_reactions={message.own_reactions}
-                  reaction_counts={message.reaction_counts || undefined}
-                  ref={reactionSelectorRef}
-                />
+                <ReactionSelector ref={reactionSelectorRef} />
               )}
             </>
             {message.attachments && (
@@ -207,7 +196,6 @@ const MemoizedMessageSimple = React.memo(
 
 /**
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
- * @example ./MessageSimple.md
  */
 export const MessageSimple = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

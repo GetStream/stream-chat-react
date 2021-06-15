@@ -21,6 +21,7 @@ export const useUserRole = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  onlySenderCanEdit?: boolean,
 ) => {
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -36,13 +37,13 @@ export const useUserRole = <
     channel?.state?.membership?.role === 'channel_moderator' ||
     channel?.state?.membership?.role === 'moderator';
 
-  const canEditMessage = isMyMessage || isModerator || isOwner || isAdmin;
+  const canEdit = isMyMessage || (!onlySenderCanEdit && (isModerator || isAdmin));
 
-  const canDeleteMessage = canEditMessage;
+  const canDelete = isMyMessage || isModerator || isAdmin;
 
   return {
-    canDeleteMessage,
-    canEditMessage,
+    canDelete,
+    canEdit,
     isAdmin,
     isModerator,
     isMyMessage,

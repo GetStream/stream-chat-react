@@ -199,7 +199,7 @@ const MessageListWithContext = <
         onScroll={onScroll}
         ref={listRef}
       >
-        {!elements.length ? (
+        {!elements.length && !threadList ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
@@ -237,6 +237,7 @@ type PropsDrilledToMessage =
   | 'getPinMessageErrorNotification'
   | 'Message'
   | 'messageActions'
+  | 'onlySenderCanEdit'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'
@@ -270,11 +271,11 @@ export type MessageListProps<
   internalInfiniteScrollProps?: InfiniteScrollProps;
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
-  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** The limit to use when paginating messages */
   messageLimit?: number;
-  /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
@@ -287,11 +288,10 @@ export type MessageListProps<
 /**
  * The MessageList component renders a list of Messages.
  * It is a consumer of the following contexts:
- * - [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
- * - [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext)
- * - [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
- * - [TypingContext](https://getstream.github.io/stream-chat-react/#section-typingcontext)
- * @example ./MessageList.md
+ * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
+ * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
+ * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
+ * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

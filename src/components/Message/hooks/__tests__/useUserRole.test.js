@@ -36,7 +36,7 @@ async function renderUserRoleHook(
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useUserRole(message), { wrapper });
+  const { result } = renderHook(() => useUserRole(message, false), { wrapper });
   return result.current;
 }
 
@@ -133,17 +133,17 @@ describe('useUserRole custom hook', () => {
     ['admin', true],
     ['moderator', true],
     ['channel_moderator', true],
-    ['owner', true],
+    ['owner', false],
   ])('should allow user to edit or delete message if user role is %s', async (role, expected) => {
     const message = generateMessage();
-    const { canDeleteMessage, canEditMessage } = await renderUserRoleHook(message, {
+    const { canDelete, canEdit } = await renderUserRoleHook(message, {
       state: {
         membership: {
           role,
         },
       },
     });
-    expect(canEditMessage).toBe(expected);
-    expect(canDeleteMessage).toBe(expected);
+    expect(canEdit).toBe(expected);
+    expect(canDelete).toBe(expected);
   });
 });

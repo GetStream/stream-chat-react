@@ -65,12 +65,12 @@ function by adding the `handleReaction` prop.
 
 :::caution
 If custom `reactionOptions` are supplied to the `ReactionSelector` component, then the same data set needs to be delivered to the
-`ReactionsList` component so the display of processed reactions has the same emoji objects.
+`ReactionsList` component so the display for processed reactions has the same emoji objects.
 :::
 
 ```jsx
 const customReactions = [
-  // add array of custom `MinimalEmoji` type objects here
+  // add array of custom `ReactionEmoji` type objects here
 ];
 
 const customReactionHandler = (reactionType, event) => {
@@ -90,9 +90,7 @@ const CustomMessage = () => {
         />
       )}
       // render remaining custom Message UI
-      {message.latest_reactions && (
-        <ReactionsList reactions={message.latest_reactions} reactionOptions={customReactions} />
-      )}
+      {message.latest_reactions && <ReactionsList reactionOptions={customReactions} />}
     </div>
   );
 };
@@ -131,6 +129,14 @@ const CustomReactionsList = (props) => {
 
 ## ReactionSelector Props
 
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+| ------ |
+| object |
+
 ### Avatar
 
 Custom UI component to display a user's avatar.
@@ -157,15 +163,7 @@ Function that adds/removes a reaction on a message (overrides the function store
 
 ### latest_reactions
 
-An array of the latest reaction objects on a message.
-
-| Type  |
-| ----- |
-| array |
-
-### own_reactions
-
-An array of the reaction objects on a message made by the connected user.
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 
 | Type  |
 | ----- |
@@ -173,7 +171,7 @@ An array of the reaction objects on a message made by the connected user.
 
 ### reaction_counts
 
-An object that keeps track of the count of each type of reaction on a message.
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
 
 | Type                            |
 | ------------------------------- |
@@ -199,23 +197,15 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 
 ### onClick
 
-Custom on click handler for an individual reaction in the list.
+Custom on click handler for an individual reaction in the list (overrides the function stored in `MessageContext`).
 
 | Type                                                        | Default                                                                                           |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](../contexts/message-context.mdx#onreactionlistclick) |
 
-### own_reactions
-
-An array of the reaction objects on a message made by the connected user.
-
-| Type  |
-| ----- |
-| array |
-
 ### reaction_counts
 
-An object that keeps track of the count of each type of reaction on a message.
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
 
 | Type                            |
 | ------------------------------- |
@@ -231,11 +221,11 @@ A list of the currently supported reactions on a message.
 
 ### reactions
 
-An array of the reaction objects to display in the list.
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 
-| Type                            |
-| ------------------------------- |
-| { [key: reactionType]: number } |
+| Type  |
+| ----- |
+| array |
 
 ### reverse
 
@@ -247,6 +237,14 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 
 ## SimpleReactionsList Props
 
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+| ------ |
+| object |
+
 ### handleReaction
 
 Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`).
@@ -257,7 +255,7 @@ Function that adds/removes a reaction on a message (overrides the function store
 
 ### reaction_counts
 
-An object that keeps track of the count of each type of reaction on a message.
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
 
 | Type                            |
 | ------------------------------- |
@@ -273,8 +271,8 @@ A list of the currently supported reactions on a message.
 
 ### reactions
 
-An array of the reaction objects to display in the list.
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 
-| Type                            |
-| ------------------------------- |
-| { [key: reactionType]: number } |
+| Type  |
+| ----- |
+| array |

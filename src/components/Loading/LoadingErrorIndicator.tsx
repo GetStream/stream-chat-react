@@ -8,9 +8,7 @@ export type LoadingErrorIndicatorProps = {
 };
 
 /**
- * LoadingErrorIndicator - UI component for error indicator in Channel.
- *
- * @example ../../docs/LoadingErrorIndicator.md
+ * UI component for error indicator in a Channel
  */
 const UnMemoizedLoadingErrorIndicator: React.FC<LoadingErrorIndicatorProps> = ({ error }) => {
   const { t } = useTranslationContext();

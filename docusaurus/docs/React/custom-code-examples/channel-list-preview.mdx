@@ -12,7 +12,7 @@ To customize the UI for the [`ChannelList`](../core-components/channel-list.mdx)
 [`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
 and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx). 
 
-Here is a guide to build these two UI components to use to override the defaults.
+Here is a guide to build these two UI components to override the defaults.
 
 ## The List Prop Component 
 
@@ -130,15 +130,12 @@ const CustomLoadingIndicator = () => {
 ## The Preview Prop Component
 
 The component set via the `Preview` prop (or the default) dictates the design and click functionality of an individual channel in the list that we built above.
-Ultimately, these UI components are rendered via the [`ChannelPreview`](../utility-components/channel-preview.mdx).
-wrapper component.
+Ultimately, these UI components are rendered via the [`ChannelPreview`](../utility-components/channel-preview.mdx) wrapper component.
 
 Here is a guide to build a custom UI component to override the default using the large variety of props provided.
 The code snippet below includes the bare minimum code that would be required for standard preview functionality (click handler and active channel selection), and anything additional would be to satisfy unique requirements.
 
 ```jsx
-import React, { useRef } from 'react';
-
 import { ChannelPreviewUIComponentProps } from 'stream-chat-react';
 
 export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
@@ -152,7 +149,7 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
       <div
         onClick={() => setActiveChannel(channel, watchers)}
       >
-        <span>Channel Preview</span>
+        <span>{channel.data.name || 'Channel Preview'}</span>
       </div>
     );
   };
@@ -179,8 +176,6 @@ For a complete overview of the available props in the custom component, take a l
 **The Final Code:**
 
 ```jsx
-import React from 'react';
-
 import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
 import './CustomPreview.scss';
 

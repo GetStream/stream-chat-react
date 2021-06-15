@@ -33,11 +33,11 @@ export type ThreadProps<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = {
-  /** Additional props for `MessageInput` component: [available props](https://getstream.github.io/stream-chat-react/#messageinput) */
+  /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
-  /** Additional props for `MessageList` component: [available props](https://getstream.github.io/stream-chat-react/#messagelist) */
+  /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
   additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Additional props for `Message` component of the parent message: [available props](https://getstream.github.io/stream-chat-react/#message) */
+  /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
   additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
@@ -50,12 +50,7 @@ export type ThreadProps<
 };
 
 /**
- * The Thread component renders a parent Message with a list of replies.
- * The underlying MessageList, MessageInput and Message components can be customized using props:
- * - additionalParentMessageProps
- * - additionalMessageListProps
- * - additionalMessageInputProps
- * @example ./Thread.md
+ * The Thread component renders a parent Message with a list of replies
  */
 export const Thread = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

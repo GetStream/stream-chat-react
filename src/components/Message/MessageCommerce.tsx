@@ -122,22 +122,9 @@ const MessageCommerceWithContext = <
       <div className='str-chat__message-commerce-inner'>
         <>
           {<MessageOptions displayLeft={false} displayReplies={false} theme='commerce' />}
-          {hasReactions && !showDetailedReactions && isReactionEnabled && (
-            <ReactionsList
-              own_reactions={message.own_reactions}
-              reaction_counts={message.reaction_counts || undefined}
-              reactions={message.latest_reactions}
-            />
-          )}
+          {hasReactions && !showDetailedReactions && isReactionEnabled && <ReactionsList />}
           {showDetailedReactions && isReactionEnabled && (
-            <ReactionSelector
-              detailedView
-              latest_reactions={message.latest_reactions}
-              own_reactions={message.own_reactions}
-              reaction_counts={message.reaction_counts || undefined}
-              ref={reactionSelectorRef}
-              reverse={false}
-            />
+            <ReactionSelector ref={reactionSelectorRef} />
           )}
         </>
         {message.attachments && (
@@ -186,7 +173,7 @@ const MemoizedMessageCommerce = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageCommerce - UI component that renders a message and receives functionality from the Message/MessageList components
+ * UI component that renders a message and receives functionality from the Message/MessageList components
  */
 export const MessageCommerce = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

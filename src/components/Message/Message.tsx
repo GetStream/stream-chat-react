@@ -65,14 +65,7 @@ type MessageWithContextProps<
 > = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> &
   Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick> & {
     canPin: boolean;
-    userRoles: {
-      canDeleteMessage: boolean;
-      canEditMessage: boolean;
-      isAdmin: boolean;
-      isModerator: boolean;
-      isMyMessage: boolean;
-      isOwner: boolean;
-    };
+    userRoles: ReturnType<typeof useUserRole>;
   };
 
 const MessageWithContext = <
@@ -110,11 +103,8 @@ const MessageWithContext = <
     onUserHoverHandler: propOnUserHover,
   });
 
-  const { isAdmin, isModerator, isMyMessage } = userRoles;
+  const { canDelete, canEdit, isMyMessage } = userRoles;
 
-  const canEdit = isMyMessage || isModerator || isAdmin;
-  const canDelete = canEdit;
-  const canQuote = !disableQuotedMessages;
   const canReact = true;
   const canReply = true;
 
@@ -129,7 +119,7 @@ const MessageWithContext = <
       canFlag: !isMyMessage,
       canMute: !isMyMessage && !!channelConfig?.mutes,
       canPin,
-      canQuote,
+      canQuote: !disableQuotedMessages,
       canReact,
       canReply,
     });
@@ -137,10 +127,10 @@ const MessageWithContext = <
     canDelete,
     canEdit,
     canPin,
-    canQuote,
     canReply,
     canReact,
     channelConfig?.mutes,
+    disableQuotedMessages,
     isMyMessage,
     message,
     messageActions.length,
@@ -149,6 +139,7 @@ const MessageWithContext = <
   const {
     canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onlySenderCanEdit: onlySenderCanEditPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -183,7 +174,6 @@ const MemoizedMessage = React.memo(
 /**
  * The Message component is a context provider which implements all the logic required for rendering
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
- * @example ./Message.md
  */
 export const Message = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -203,6 +193,7 @@ export const Message = <
     getMuteUserSuccessNotification,
     getPinMessageErrorNotification,
     message,
+    onlySenderCanEdit = false,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
@@ -222,7 +213,7 @@ export const Message = <
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
-  const userRoles = useUserRole(message);
+  const userRoles = useUserRole(message, onlySenderCanEdit);
 
   const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,

@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "6.0.6",
+  "version": "6.0.7",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -136,7 +136,6 @@
     "react": "^17.0.1",
     "react-docgen-typescript": "1.21.0",
     "react-dom": "^17.0.1",
-    "react-styleguidist": "^11.1.4",
     "react-test-renderer": "^17.0.1",
     "rollup": "^2.33.3",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -151,7 +150,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "stream-chat": "3.10.0",
+    "stream-chat": "3.11.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.8.0",
     "stylelint-config-recommended-scss": "^4.2.0",
@@ -179,8 +178,6 @@
     "build-translations": "rm -rf .tmpi18ncache || true && mkdir .tmpi18ncache && yarn run babel --config-file ./babel.i18next-extract.js --extensions '.ts','.tsx','.js','.jsx' 'src/**/*.{js,jsx,ts,tsx}' --out-dir '.tmpi18ncache/' && rm -rf .tmpi18ncache && prettier --write 'src/i18n/*.{js,jsx,ts,tsx,json}'",
     "copy-version": "echo '\u001b[34mℹ\u001b[0m Copying Version to \u001b[34msrc/version.ts\u001b[0m' && PACKAGE_VERSION=$(node -pe 'require(`./package.json`).version') && PACKAGE_STRING=\"'$PACKAGE_VERSION'\" && echo 'export const version = '$PACKAGE_STRING';' > src/version.ts && echo '\u001b[32m✓\u001b[0m Done Copying Version'",
     "coverage": "yarn test --collectCoverage && codecov",
-    "docs": "styleguidist build",
-    "docs-server": "styleguidist server",
     "eslint": "eslint '**/*.{js,md,ts,jsx,tsx}' --max-warnings 0",
     "lint": "prettier --list-different 'src/**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js && eslint 'src/**/*.{js,ts,tsx,md}' --max-warnings 0 && yarn validate-translations && yarn stylelint",
     "lint-fix": "prettier --write 'src/**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js && eslint --fix 'src/**/*.{js,ts,tsx,md}' --max-warnings 0 && yarn stylelint --fix",
@@ -194,7 +191,6 @@
     "test": "jest",
     "types": "tsc --strict",
     "validate-translations": "node scripts/validate-translations.js",
-    "version": "yarn docs && git add docs",
     "watch-styles": "sass --watch src/styles/index.scss dist/css/index.css"
   },
   "stylelint": {

@@ -72,7 +72,6 @@ const MessageTeamWithContext = <
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     initialMessage,
     isReactionEnabled,
@@ -211,16 +210,7 @@ const MessageTeamWithContext = <
                   className={`str-chat__message-team-actions`}
                   data-testid='message-team-actions'
                 >
-                  {showDetailedReactions && (
-                    <ReactionSelector
-                      detailedView={true}
-                      handleReaction={handleReaction}
-                      latest_reactions={message.latest_reactions}
-                      own_reactions={message.own_reactions}
-                      reaction_counts={message.reaction_counts || undefined}
-                      ref={reactionSelectorRef}
-                    />
-                  )}
+                  {showDetailedReactions && <ReactionSelector ref={reactionSelectorRef} />}
                   {isReactionEnabled && (
                     <span
                       data-testid='message-team-reaction-icon'
@@ -265,13 +255,7 @@ const MessageTeamWithContext = <
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
-              <ReactionsList
-                handleReaction={handleReaction}
-                onClick={onReactionListClick}
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
+              <ReactionsList />
             )}
             {message.status === 'failed' && (
               <button
@@ -293,15 +277,7 @@ const MessageTeamWithContext = <
           {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
             message.text === '' &&
-            isReactionEnabled && (
-              <ReactionsList
-                handleReaction={handleReaction}
-                onClick={onReactionListClick}
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
+            isReactionEnabled && <ReactionsList />}
           {!threadList && (
             <MessageRepliesCountButton
               onClick={handleOpenThread}
@@ -322,9 +298,8 @@ const MemoizedMessageTeam = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
+ * Handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
- * @example ./MessageTeam.md
  */
 export const MessageTeam = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

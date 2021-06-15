@@ -99,7 +99,7 @@ export type MessageContextValue<
   setEditingState: ReactEventHandler;
   /** Whether or not to show reaction list details */
   showDetailedReactions: boolean;
-  /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
+  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Channel config object */
   channelConfig?: ChannelConfigWithInfo<Co>;
@@ -115,7 +115,7 @@ export type MessageContextValue<
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute<Us>[];
   /** The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;

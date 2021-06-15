@@ -37,7 +37,7 @@ export type ChannelListTeamProps = {
 /**
  *  @deprecated - This UI component will be removed in the next major release.
  *
- * ChannelListTeam - A preview list of channels, allowing you to select the channel you want to open
+ * A preview list of channels, allowing you to select the channel you want to open
  */
 export const ChannelListTeam = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

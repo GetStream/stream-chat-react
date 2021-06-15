@@ -87,16 +87,7 @@ export type InnerAttachmentUIComponentProps<
 };
 
 /**
- * A component used for rendering message attachments. By default, the component supports:
- * - AttachmentActions
- * - Audio
- * - Card
- * - File
- * - Gallery
- * - Image
- * - Media (video)
- *
- * @example ./Attachment.md
+ * A component used for rendering message attachments. By default, the component supports: AttachmentActions, Audio, Card, File, Gallery, Image, and Video
  */
 export const Attachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   props: AttachmentProps<At>,
@@ -163,15 +154,15 @@ export const Attachment = <At extends DefaultAttachmentType = DefaultAttachmentT
           });
         }
 
-        if (isFileAttachment(attachment)) {
-          return renderFile({
+        if (isAudioAttachment(attachment)) {
+          return renderAudio({
             ...propsWithDefault,
             attachment,
           });
         }
 
-        if (isAudioAttachment(attachment)) {
-          return renderAudio({
+        if (isFileAttachment(attachment)) {
+          return renderFile({
             ...propsWithDefault,
             attachment,
           });

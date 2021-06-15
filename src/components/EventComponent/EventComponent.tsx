@@ -27,15 +27,12 @@ export type EventComponentProps<
 > = {
   /** Message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /**
-   * Custom UI component to display user avatar.
-   * Defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx)
-   * */
+  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
 };
 
 /**
- * EventComponent - Custom render component to display system and channel event messages
+ * Component to display system and channel event messages
  */
 const UnMemoizedEventComponent = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

@@ -171,13 +171,7 @@ export type ChannelProps<
   LoadingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['LoadingIndicator'];
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
-  /**
-   * Custom UI component to display a message in the standard `MessageList`, available built-in components (also accepts the same props as):
-   * 1. [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) (default)
-   * 2. @deprecated - [MessageTeam](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTeam.tsx)
-   * 3. @deprecated - [MessageLivestream](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageLivestream.tsx)
-   * 4. @deprecated - [MessageCommerce](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageCommerce.tsx)
-   */
+  /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
@@ -902,10 +896,9 @@ const ChannelInner = <
 /**
  * A wrapper component that provides channel data and renders children.
  * The Channel component provides the following contexts:
- * - [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext)
- * - [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext)
- * - [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext)
- * - [TypingContext](https://getstream.github.io/stream-chat-react/#section-typingcontext)
- * @example ./Channel.md
+ * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
+ * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
+ * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
+ * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;

@@ -167,14 +167,7 @@ const MessageLivestreamWithContext = <
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector
-            detailedView
-            latest_reactions={message.latest_reactions}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            ref={reactionSelectorRef}
-            reverse={false}
-          />
+          <ReactionSelector ref={reactionSelectorRef} />
         )}
         <MessageLivestreamActions
           messageWrapperRef={messageWrapperRef}
@@ -247,13 +240,7 @@ const MessageLivestreamWithContext = <
             {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
-            {isReactionEnabled && (
-              <ReactionsList
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
+            {isReactionEnabled && <ReactionsList />}
             {!initialMessage && (
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
@@ -376,9 +363,8 @@ const MemoizedMessageLivestream = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
+ * Handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
- * @example ./MessageLivestream.md
  */
 export const MessageLivestream = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

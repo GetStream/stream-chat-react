@@ -13,8 +13,7 @@ export type ImageProps = {
 };
 
 /**
- * Image - a simple component that displays an image.
- * @example ./Image.md
+ * A simple component that displays an image.
  */
 export const ImageComponent: React.FC<ImageProps> = (props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
