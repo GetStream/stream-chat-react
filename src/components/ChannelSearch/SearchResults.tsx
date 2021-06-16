@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { ChannelOrUserType, isChannel } from './utils';
+
 import { Avatar } from '../Avatar/Avatar';
 import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { UserResponse } from 'stream-chat';
-
 import type { DefaultUserType } from '../../types/types';
 
 export type SearchResultItemProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   index: number;
-  result: UserResponse<Us>;
-  selectResult: (user: UserResponse<Us>) => Promise<void> | void;
+  result: ChannelOrUserType;
+  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
   focusedUser?: number;
 };
 
@@ -23,21 +23,33 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
   const focused = focusedUser === index;
 
-  return (
-    <div
-      className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
-      onClick={() => selectResult(result)}
-    >
-      <Avatar image={result.image} />
-      {result.name || result.id}
-    </div>
-  );
+  if (isChannel(result)) {
+    return (
+      <div
+        className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+        onClick={() => selectResult(result)}
+      >
+        <div className='result-hashtag'>#</div>
+        <p className='channel-search__result-text'>{result?.data?.name}</p>
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+        onClick={() => selectResult(result)}
+      >
+        <Avatar image={result?.image} />
+        {result.name || result.id}
+      </div>
+    );
+  }
 };
 
 export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: UserResponse<Us>[];
+  results: Array<ChannelOrUserType> | [];
   searching: boolean;
-  selectResult: (user: UserResponse<Us>) => Promise<void> | void;
+  selectResult: (result: ChannelOrUserType) => Promise<void> | void;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
@@ -130,7 +142,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   return (
     <ResultsContainer>
       {SearchResultsHeader && <SearchResultsHeader />}
-      {results.map((result, index) => (
+      {results.map((result: ChannelOrUserType, index: number) => (
         <SearchResultItem
           focusedUser={focusedUser}
           index={index}

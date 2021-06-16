@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import { ChannelOrUserType, isChannel } from './utils';
+
 import { SearchResultItemProps, SearchResults } from './SearchResults';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { UserFilters, UserOptions, UserResponse, UserSort } from 'stream-chat';
+import type { UserFilters, UserOptions, UserSort } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -20,7 +22,7 @@ import type {
 
 export type ChannelSearchFunctionParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<React.SetStateAction<Array<UserResponse<Us>>>>;
+  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserType> | []>>;
   setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -35,7 +37,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
   /** Custom handler function to run on search result item selection */
-  onSelectResult?: (user: UserResponse<Us>) => Promise<void> | void;
+  onSelectResult?: (result: ChannelOrUserType) => Promise<void> | void;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
@@ -78,13 +80,11 @@ const UnMemoizedChannelSearch = <
     SearchResultsHeader,
   } = props;
 
-  console.log('PROPS in channelsearch IS:', props);
-
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<UserResponse<Us>>>([]);
+  const [results, setResults] = useState<Array<ChannelOrUserType> | []>([]);
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -111,14 +111,19 @@ const UnMemoizedChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [resultsOpen]);
 
-  const selectResult = async (user: UserResponse<Us>) => {
+  const selectResult = async (result: ChannelOrUserType) => {
     if (!client.userID) return;
 
-    // @ts-expect-error
-    const newChannel = client.channel(channelType, { members: [client.userID, user.id] });
-    await newChannel.watch();
+    if (isChannel(result)) {
+      // @ts-expect-error
+      setActiveChannel(result);
+    } else {
+      // @ts-expect-error
+      const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
+      await newChannel.watch();
 
-    setActiveChannel(newChannel);
+      setActiveChannel(newChannel);
+    }
     clearState();
   };
 
@@ -127,7 +132,7 @@ const UnMemoizedChannelSearch = <
     setSearching(true);
 
     try {
-      const { users } = await client.queryUsers(
+      const userResponse = await client.queryUsers(
         // @ts-expect-error
         {
           $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
@@ -138,7 +143,20 @@ const UnMemoizedChannelSearch = <
         { limit: 8, ...searchQueryParams?.options },
       );
 
-      setResults(users);
+      const channelResponse = client.queryChannels(
+        // @ts-expect-error
+        {
+          name: { $autocomplete: text },
+          ...searchQueryParams?.filters,
+        },
+        {},
+        { limit: 5, ...searchQueryParams?.filters },
+      );
+
+      const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
+
+      if (!channels && !users) setResults([]);
+      setResults([...channels, ...users] as Array<ChannelOrUserType>);
       setResultsOpen(true);
     } catch (error) {
       clearState();
@@ -166,7 +184,7 @@ const UnMemoizedChannelSearch = <
   return (
     <div className='str-chat__channel-search'>
       <input
-        onChange={(event) =>
+        onChange={(event: React.BaseSyntheticEvent) =>
           searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
         }
         placeholder={t('Search')}

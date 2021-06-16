@@ -6,9 +6,14 @@ title: ChannelSearch
 
 ## How-to Guide for Customizing the ChannelSearch Search Function
 
-`ChannelSearch` is a UI component that searches for chat users. It can be used standalone or used in the `ChannelList` via the `showChannelSearch` prop (default is false).
-The input searches for users by default, but the `searchFunction` prop can be used to override this out of the box behavior.
-Selection of a search result will set the active channel with the selected user.
+`ChannelSearch` is a UI component that searches for chat users. Selection of a search result will set the active channel with the selected user.
+
+It can be used standalone or used in the `ChannelList` via the `showChannelSearch` prop (default is false).
+The components `searchFunction` prop can be used to override this out of the box behavior.
+
+A complete override of this component is possible by utilizing the [`ChannelSearch`](../core-components/channel_list/#channelsearch) prop on `ChannelList`, but for this guide we will focus on using just the `searchFunction` prop to customize the search functionality.
+
+
 
 
 

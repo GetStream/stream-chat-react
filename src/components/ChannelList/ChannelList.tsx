@@ -187,8 +187,6 @@ const UnMemoizedChannelList = <
     watchers = {},
   } = props;
 
-  console.log('additionalChannelSearchProps in channellist IS:', additionalChannelSearchProps);
-
   const {
     channel,
     client,
