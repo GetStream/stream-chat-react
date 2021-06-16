@@ -117,11 +117,11 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
   useEffect(() => {
     const scrollElement = useWindow ? window : scrollComponent.current?.parentNode;
     if (scrollElement) {
-      scrollElement.addEventListener('mousewheel', mousewheelListener, useCapture);
+      scrollElement.addEventListener('wheel', mousewheelListener, { passive: false });
     }
     return () => {
       if (scrollElement) {
-        scrollElement.removeEventListener('mousewheel', mousewheelListener, useCapture);
+        scrollElement.removeEventListener('wheel', mousewheelListener, useCapture);
       }
     };
   }, [useCapture, useWindow]);

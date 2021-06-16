@@ -302,13 +302,13 @@ export type VirtualizedMessageListProps<
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
-  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMore?: ChannelActionContextValue['loadMore'];
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
   Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
-  /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
@@ -331,11 +331,7 @@ export type VirtualizedMessageListProps<
   scrollToLatestMessageOnFocus?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
-  /**
-   * The scrollTo behavior when new messages appear. Use `"smooth"`
-   * for regular chat channels, and `"auto"` (which results in instant scroll to bottom)
-   * if you expect high throughput.
-   */
+  /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
 };
 
@@ -344,7 +340,6 @@ export type VirtualizedMessageListProps<
  * It is a consumer of the React contexts set in [Channel](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/Channel.tsx).
  *
  * **Note**: It works well when there are thousands of messages in a channel, it has a shortcoming though - the message UI should have a fixed height.
- * @example ./VirtualizedMessageList.md
  */
 export function VirtualizedMessageList<
   At extends DefaultAttachmentType = DefaultAttachmentType,

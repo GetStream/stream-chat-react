@@ -1,8 +1,5 @@
 import React from 'react';
 
-/**
- * Modal - Custom Image component used in modal
- */
 export type ModalImageProps = {
   /** The src attribute for the image element */
   data: { source: string };

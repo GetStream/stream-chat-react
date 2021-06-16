@@ -32,7 +32,6 @@ const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
 };
 
 /**
- * ChatDown - A simple indicator that chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
- * @example ./ChatDown.md
+ * A simple indicator that chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
  */
 export const ChatDown = React.memo(UnMemoizedChatDown) as typeof UnMemoizedChatDown;

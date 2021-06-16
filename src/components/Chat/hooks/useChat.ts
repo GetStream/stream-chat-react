@@ -46,7 +46,7 @@ export const useChat = <
   initialNavOpen,
 }: UseChatParams<At, Ch, Co, Ev, Me, Re, Us>) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: (key) => key,
+    t: (key: string) => key,
     tDateTimeParser: (input) => Dayjs(input),
     userLanguage: 'en',
   });

@@ -363,9 +363,8 @@ const MemoizedMessageLivestream = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
+ * Handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
- * @example ./MessageLivestream.md
  */
 export const MessageLivestream = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

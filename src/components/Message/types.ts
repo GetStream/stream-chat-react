@@ -38,7 +38,7 @@ export type MessageProps<
 > = {
   /** The message object */
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
+  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
@@ -46,32 +46,17 @@ export type MessageProps<
   disableQuotedMessages?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
-  /**
-   * Function that returns the notification text to be displayed when a flag message request fails. This function receives the
-   * flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
-   */
+  /** Function that returns the notification text to be displayed when a flag message request fails */
   getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
-  /**
-   * Function that returns the notification text to be displayed when a flag message request succeeds. This function receives the
-   * flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
-   */
+  /** Function that returns the notification text to be displayed when a flag message request succeeds */
   getFlagMessageSuccessNotification?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => string;
-  /**
-   * Function that returns the notification text to be displayed when a mute user request fails. This function receives the
-   * muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
-   */
+  /** Function that returns the notification text to be displayed when a mute user request fails */
   getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
-  /**
-   * Function that returns the notification text to be displayed when a mute user request succeeds. This function receives the
-   * muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
-   */
+  /** Function that returns the notification text to be displayed when a mute user request succeeds */
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
-  /**
-   * Function that returns the notification text to be displayed when a pin message request fails. This function receives the
-   * pinned [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
-   */
+  /** Function that returns the notification text to be displayed when a pin message request fails */
   getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
@@ -79,7 +64,7 @@ export type MessageProps<
   initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.github.io/stream-chat-react/#section-componentcontext) */
+  /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message) */
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
@@ -87,15 +72,15 @@ export type MessageProps<
   messageListRect?: DOMRect;
   /** If true, only the sender of the message has editing privileges */
   onlySenderCanEdit?: boolean;
-  /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   onMentionsClick?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsClick'];
-  /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   onMentionsHover?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsHover'];
   /** Custom function to run on user avatar click */
   onUserClick?: UserEventHandler<Us>;
   /** Custom function to run on user avatar hover */
   onUserHover?: UserEventHandler<Us>;
-  /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
   /** The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
@@ -107,7 +92,7 @@ export type MessageProps<
     mentioned_users?: UserResponse<Us>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
-  /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.github.io/stream-chat-react/#section-channelactioncontext) */
+  /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;

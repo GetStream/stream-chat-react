@@ -5,9 +5,7 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultAttachmentType } from '../../types/types';
 
 const progressUpdateInterval = 500;
-/**
- * Audio attachment with play/pause button and progress bar
- */
+
 export type AudioProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
   og: Attachment<At>;
 };
@@ -100,4 +98,7 @@ const UnMemoizedAudio = <At extends DefaultAttachmentType = DefaultAttachmentTyp
   );
 };
 
+/**
+ * Audio attachment with play/pause button and progress bar
+ */
 export const Audio = React.memo(UnMemoizedAudio) as typeof UnMemoizedAudio;

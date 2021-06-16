@@ -4,7 +4,7 @@ import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
 import { ModalImage } from './ModalImage';
 
 /**
- * ImageModal - Small modal component
+ * Small modal component
  */
 export type ModalWrapperProps = {
   /** The images for the Carousel component */
