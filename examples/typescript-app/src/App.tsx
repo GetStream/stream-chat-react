@@ -107,7 +107,7 @@ const App = () => {
         sort={sort}
         options={options}
         showChannelSearch
-        // additionalChannelSearchProps={{ searchFunction: searchFunction }}
+        additionalChannelSearchProps={{ searchForChannels: true }}
       />
       <Channel>
         <Window>

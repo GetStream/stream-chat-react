@@ -42,6 +42,8 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
   SearchEmpty?: React.ComponentType;
+  /** Boolean to search for channels as well as users in the server query, default is false and jsut searches for users */
+  searchForChannels?: boolean;
   /** Custom search function to override default */
   searchFunction?: (
     params: ChannelSearchFunctionParams<Us>,
@@ -73,6 +75,7 @@ const UnMemoizedChannelSearch = <
     onSelectResult,
     popupResults = false,
     SearchEmpty,
+    searchForChannels = false,
     searchFunction,
     SearchLoading,
     searchQueryParams,
@@ -143,20 +146,31 @@ const UnMemoizedChannelSearch = <
         { limit: 8, ...searchQueryParams?.options },
       );
 
-      const channelResponse = client.queryChannels(
-        // @ts-expect-error
-        {
-          name: { $autocomplete: text },
-          ...searchQueryParams?.filters,
-        },
-        {},
-        { limit: 5, ...searchQueryParams?.filters },
-      );
+      // let channelResponse: Channel<At, Ch, Co, Ev, Me, Re, Us>[] = [];
+      if (searchForChannels) {
+        const channelResponse = client.queryChannels(
+          // @ts-expect-error
+          {
+            name: { $autocomplete: text },
+            ...searchQueryParams?.filters,
+          },
+          {},
+          { limit: 5, ...searchQueryParams?.filters },
+        );
 
-      const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
+        const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
-      if (!channels && !users) setResults([]);
-      setResults([...channels, ...users] as Array<ChannelOrUserType>);
+        if (!channels && !users) setResults([]);
+        setResults([...channels, ...users] as Array<ChannelOrUserType>);
+        setResultsOpen(true);
+        setSearching(false);
+        return;
+      }
+
+      const { users } = await Promise.resolve(userResponse);
+
+      if (!users) setResults([]);
+      setResults([...users] as Array<ChannelOrUserType>);
       setResultsOpen(true);
     } catch (error) {
       clearState();
