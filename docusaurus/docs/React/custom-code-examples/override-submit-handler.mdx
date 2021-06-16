@@ -1,0 +1,104 @@
+---
+id: override_submit_handler
+sidebar_position: 5
+title: Input Submit Handler
+---
+
+import SubmitHandler from '../assets/SubmitHandler.png';
+
+In this example, we demonstrate how to provide custom logic and override the [`MessageInput`](../message-input-components/message-input.mdx)
+component's default submit handler function. Our custom handler function will bold any message text.
+
+## overrideSubmitHandler Prop
+
+The `MessageInput` component accepts an `overrideSubmitHandler` prop, which allows you to add custom logic to the
+conclusion of the underlying `textarea` element's [`handleSubmit`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts)
+function.
+
+The `overrideSubmitHandler` function receives two arguments, the message to be sent and the `cid` (channel type prepended to channel id)
+for the currently active channel. The message object is of the following type:
+
+```tsx
+type MessageToSend = {
+  attachments?: MessageAttachments;
+  errorStatusCode?: number;
+  id?: string;
+  mentioned_users?: UserResponse[];
+  parent?: StreamMessage;
+  parent_id?: string;
+  status?: string;
+  text?: string;
+};
+```
+
+:::important
+Call the `sendMessage` function from the [`ChannelActionContext`](../contexts/channel_action_context#sendmessage) within
+your custom function to ensure a message is sent to the active channel.
+:::
+
+## Custom Function
+
+For this example, we will take the input text entered by the user and wrap it in two asterisks to render bold markdown. Once we've
+added the markdown characters, we call the `sendMessage` function with the updated message object.
+
+```tsx
+const overrideSubmitHandler = (message: MessageToSend, cid: string) => {
+  const boldMessage = {
+    ...message,
+    text: `**${message.text}**`,
+  };
+
+  sendMessage(boldMessage);
+};
+```
+
+## Implementation
+
+Now that we have our custom function, we can add the `overrideSubmitHandler` prop to the `MessageInput` component and begin sending
+bold text to our `MessageList`.
+
+:::note
+Since `sendMessage` is drawn from the `ChannelActionContext`, we must create an inner component that is a child of `Channel` and
+call the `useChannelActionContext` custom hook.
+:::
+
+### The Code
+
+```tsx
+const ChannelInner: React.FC = () => {
+  const { sendMessage } = useChannelActionContext();
+
+  const overrideSubmitHandler = (message: MessageToSend, cid: string) => {
+    const boldMessage = {
+      ...message,
+      text: `**${message.text}**`,
+    };
+
+    sendMessage(boldMessage);
+  };
+
+  return (
+    <>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput overrideSubmitHandler={overrideSubmitHandler} />
+      </Window>
+      <Thread />
+    </>
+  );
+};
+
+const App = () => (
+  <Chat client={chatClient}>
+    <ChannelList />
+    <Channel>
+      <ChannelInner />
+    </Channel>
+  </Chat>
+);
+```
+
+### The Result
+
+<img src={SubmitHandler} alt='Override Submit Handler' width='700' />
