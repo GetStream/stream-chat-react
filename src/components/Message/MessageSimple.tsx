@@ -144,10 +144,7 @@ const MessageSimpleWithContext = <
             }
           >
             <>
-              <MessageOptions
-                handleOpenThread={handleOpenThread}
-                messageWrapperRef={messageWrapperRef}
-              />
+              <MessageOptions messageWrapperRef={messageWrapperRef} />
               {hasReactions && !showDetailedReactions && isReactionEnabled && (
                 <ReactionsList reverse />
               )}
