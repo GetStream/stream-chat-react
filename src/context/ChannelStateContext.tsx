@@ -3,6 +3,7 @@ import React, { PropsWithChildren, useContext } from 'react';
 import type { Data as EmojiMartData, EmojiSheetSize } from 'emoji-mart';
 import type {
   Channel,
+  ChannelConfigWithInfo,
   MessageResponse,
   Mute,
   ChannelState as StreamChannelState,
@@ -104,6 +105,7 @@ export type ChannelStateContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channelConfig: ChannelConfigWithInfo<Co> | undefined;
   emojiConfig: EmojiConfig;
   multipleUploads: boolean;
   notifications: ChannelNotifications;

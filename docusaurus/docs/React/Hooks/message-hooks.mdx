@@ -207,11 +207,7 @@ const MyCustomMessageComponent = () => {
     );
   }
 
-  return (
-    <div>
-      {message.text}
-    </div>
-  );
+  return <div>{message.text}</div>;
 };
 ```
 
@@ -243,12 +239,17 @@ A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/c
 const MyCustomMessageComponent = () => {
   const { message } = useMessageContext();
   const {
-    isMyMessage,
+    canDelete,
+    canEdit,
+    canFlag,
+    canMute,
+    canQuote,
+    canReact,
+    canReply,
     isAdmin,
     isModerator,
+    isMyMessage,
     isOwner,
-    canEditMessage,
-    canDeleteMessage
   } = useUserRole(message);
 
   if (isMyMessage || isAdmin) {

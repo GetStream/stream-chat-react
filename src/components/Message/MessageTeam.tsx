@@ -7,7 +7,7 @@ import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
-import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
+import { areMessageUIPropsEqual, MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
@@ -65,7 +65,6 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channelConfig,
     clearEditingState,
     editing,
     getMessageActions,
@@ -104,7 +103,10 @@ const MessageTeamWithContext = <
 
   const { t, userLanguage } = useTranslationContext();
 
-  const showActionsBox = showMessageActionsBox(getMessageActions());
+  const messageActions = getMessageActions();
+  const showActionsBox = showMessageActionsBox(messageActions);
+
+  const shouldShowReplies = messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 && !threadList;
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -220,7 +222,7 @@ const MessageTeamWithContext = <
                       <ReactionIcon />
                     </span>
                   )}
-                  {!threadList && channelConfig?.replies !== false && (
+                  {shouldShowReplies && (
                     <span
                       data-testid='message-team-thread-icon'
                       onClick={handleOpenThread}
