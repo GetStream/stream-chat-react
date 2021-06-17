@@ -2,7 +2,7 @@ import type { MessageInputReducerAction, MessageInputState } from './useMessageI
 import type { MessageInputProps } from '../MessageInput';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { Attachment, logChatPromiseExecution, MessageResponse, UpdatedMessage } from 'stream-chat';
+import { Attachment, logChatPromiseExecution, UpdatedMessage } from 'stream-chat';
 import type {
   CustomTrigger,
   DefaultAttachmentType,
@@ -39,6 +39,7 @@ export const useSubmitHandler = <
   numberOfUploads: number,
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
+
   const {
     attachments,
     fileOrder,
@@ -48,6 +49,7 @@ export const useSubmitHandler = <
     mentioned_users,
     text,
   } = state;
+
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { editMessage, sendMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -146,7 +148,7 @@ export const useSubmitHandler = <
 
       logChatPromiseExecution(updateMessagePromise, 'update message');
       dispatch({ type: 'clear' });
-    } else if (overrideSubmitHandler && channel) {
+    } else if (overrideSubmitHandler) {
       overrideSubmitHandler(
         {
           ...updatedMessage,
@@ -158,12 +160,12 @@ export const useSubmitHandler = <
     } else if (sendMessage) {
       const sendMessagePromise = sendMessage({
         ...updatedMessage,
-        parent: parent as MessageResponse<At, Ch, Co, Me, Re, Us>,
+        parent,
       });
       logChatPromiseExecution(sendMessagePromise, 'send message');
       dispatch({ type: 'clear' });
     }
-    if (channel && publishTypingEvent) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
+    if (publishTypingEvent) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
   };
 
   return {
