@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { ChannelConfigWithInfo, Mute, UserResponse } from 'stream-chat';
+import type { Mute, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
 import type { StreamMessage } from './ChannelStateContext';
@@ -101,8 +101,6 @@ export type MessageContextValue<
   showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Channel config object */
-  channelConfig?: ChannelConfigWithInfo<Co>;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */

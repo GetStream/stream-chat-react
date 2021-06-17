@@ -52,7 +52,6 @@ const UnMemoizedMessageOptions = <
   } = props;
 
   const {
-    channelConfig,
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
@@ -65,18 +64,11 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
+  const showActionsBox = showMessageActionsBox(messageActions);
 
-  const showActionsBox = showMessageActionsBox(getMessageActions());
-
-  const shouldShowReactions =
-    messageActions.indexOf(MESSAGE_ACTIONS.react) > -1 && channelConfig?.reactions;
-
+  const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =
-    messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 &&
-    displayReplies &&
-    !threadList &&
-    channelConfig &&
-    channelConfig.replies;
+    messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 && displayReplies && !threadList;
 
   if (
     !message.type ||
