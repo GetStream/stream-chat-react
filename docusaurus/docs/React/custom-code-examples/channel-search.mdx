@@ -4,18 +4,302 @@ sidebar_position: 4
 title: ChannelSearch
 ---
 
-## How-to Guide for Customizing the ChannelSearch Search Function
+import CustomChannelSearch from '../assets/CustomChannelSearch.png';
 
-`ChannelSearch` is a UI component that searches for chat users. Selection of a search result will set the active channel with the selected user.
+## How-to Guide for Customizing ChannelSearch
 
-It can be used standalone or used in the `ChannelList` via the `showChannelSearch` prop (default is false).
-The components `searchFunction` prop can be used to override this out of the box behavior.
+In this example we will customize the [`ChannelSearch`](../core-components/channel_list/#channelsearch) component. Though this component can be used standalone, we will do our customization when it's established in the `ChannelList`. Here is a guide that outlines how to
+override the default `DropdownContainer` and `SearchResultItem` components, as well as use several other useful props.
 
-A complete override of this component is possible by utilizing the [`ChannelSearch`](../core-components/channel_list/#channelsearch) prop on `ChannelList`, but for this guide we will focus on using just the `searchFunction` prop to customize the search functionality.
+:::note
+A complete override of this component is possible by utilizing the [`ChannelSearch`](../core-components/channel_list/#channelsearch) prop on `ChannelList`.
+:::
 
+### Step 1 - Setting Up For Success
 
+To make the search component visible in the `ChannelList`, you need to use the `showChannelSearch` prop. At this point, the search component is ready to go with all of the default UI and functionality.
 
+Let's allow the query to search for `channels` in addition to the default query of just users by setting the `searchForChannels` prop. You'll notice that all props for `ChannelSearch`
+are drilled to the component via the `additionalChannelSearchProps` prop on `ChannelList`. With just this one additional prop, the search functionality is fully functional and expanded from just the default search of users.
 
+```jsx
+<ChannelList
+    showChannelSearch
+    additionalChannelSearchProps={
+        {
+          searchForChannels: true,
+        }
+    }
+/>
+```
 
-Create a demo with a dual query in the search, similar to the team/messaging query from the Team demo app. 
-How to customize the search function of the channel component. Like the team demo query in example format. 
+### Step 2 - Customizing the DropdownContainer
+
+Since we've enabled the search to also search for channels, let's customize the dropdown results container to fit a design that separates the result by type.
+
+```jsx
+  const CustomDropdown = (props: DropdownContainerProps) => {
+    const { results, focusedUser, selectResult, SearchResultItem } = props;
+
+    let items: ChannelOrUserType[] = results.filter(x => x.cid);
+    let users: ChannelOrUserType[] = results.filter(x => !x.cid);
+
+    return (
+      <div>
+        <p>Channels</p>
+        {items.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+        <p>Users</p>
+        {users.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+      </div>
+    );
+  };
+```
+
+```jsx
+<ChannelList
+    showChannelSearch
+    additionalChannelSearchProps={
+        {
+            searchForChannels: true,
+            DropdownContainer: (props: DropdownContainerProps) => <CustomDropdown {...props} />
+        }
+    }
+/>
+```
+
+### Step 3 - The Final Code
+
+The separation by the type of result, is a huge UI improvement for users, but the above code is still using the default component for each result. Let's create our own component with more information.
+
+```jsx
+  const CustomResultItem = (props: SearchResultItemProps) => {
+    const { focusedUser, index, result, selectResult } = props;
+
+    const focused = focusedUser === index;
+
+    if (result.cid) {
+      const channel = result as Channel;
+      const members: number = channel.data?.member_count;
+
+      return (
+        <div
+          className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+          onClick={() => selectResult(result)}
+        >
+          <div className='result-hashtag'>#</div>
+          <p className='channel-search__result-text'>{channel.data.name}, ({members} member{members === 1 ? '' : 's'})</p>
+        </div>
+      );
+    } else {
+      const user = result as UserResponse;
+      const online: boolean | undefined = user.online;
+
+      return (
+        <div
+          className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+          onClick={() => selectResult(result)}
+        >
+          <Avatar image={user?.image} />
+          {user.name || result.id}
+          {online && <p className='user-online'> Online Now!</p>}
+        </div>
+      );
+    }
+  }
+```
+
+```jsx
+<ChannelList
+    showChannelSearch
+    additionalChannelSearchProps={
+        {
+            searchForChannels: true,
+            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+        }
+    }
+/>
+```
+
+### Step 4 - Changing the Positioning and Adding A Header
+
+For fun, let's add the `popupResults` prop to change the dropdown to be absolutely positioned instead of inline. Let's also add a quick header component.
+
+```jsx
+const SearchResultsHeader = () => {
+    return <div className='channel-search-header'>So many search results!</div>
+}
+
+<ChannelList
+    showChannelSearch
+    additionalChannelSearchProps={
+        {
+            popupResults: true,
+            SearchResultsHeader: SearchResultsHeader,
+            searchForChannels: true,
+            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+        }
+    }
+/>
+```
+
+### Step 5 - The Final Code
+
+```css
+.channel-search__result-user {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}
+
+.result-hashtag {
+  margin: 12px;
+  display: flex;
+  justify-content: center;
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: bold;
+  color: #005FFF;
+}
+
+.channel-search__result-text {
+  width: 100%;
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 120%;
+  color: #2c2c30;
+}
+
+.user-online {
+  color: red;
+  font-size: 10px;
+  padding-top: 2px;
+  padding-left: 5px;
+}
+
+.channel-search-header {
+  font-weight: 700;
+  font-size: 16px;
+}
+```
+
+```jsx
+  const CustomDropdown = (props: DropdownContainerProps) => {
+    const { results, focusedUser, selectResult, SearchResultItem } = props;
+
+    let items: ChannelOrUserType[] = results.filter(x => x.cid);
+    let users: ChannelOrUserType[] = results.filter(x => !x.cid);
+
+    console.log(results);
+
+    return (
+      <div>
+        <p>Channels</p>
+        {items.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+        <p>Users</p>
+        {users.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const CustomResultItem = (props: SearchResultItemProps) => {
+    const { focusedUser, index, result, selectResult } = props;
+
+    const focused = focusedUser === index;
+
+    if (result.cid) {
+      const channel = result as Channel;
+      const members: number = channel.data?.member_count;
+
+      return (
+        <div
+          className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+          onClick={() => selectResult(result)}
+        >
+          <div className='result-hashtag'>#</div>
+          <p className='channel-search__result-text'>{channel.data.name}, ({members} member{members === 1 ? '' : 's'})</p>
+        </div>
+      );
+    } else {
+      const user = result as UserResponse;
+      const online: boolean | undefined = user.online;
+
+      return (
+        <div
+          className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
+          onClick={() => selectResult(result)}
+        >
+          <Avatar image={user?.image} />
+          {user.name || result.id}
+          {online && <p className='user-online'> Online Now!</p>}
+        </div>
+      );
+    }
+  }
+
+  const SearchResultsHeader = () => {
+    return <div className='channel-search-header'>So many search results!</div>
+  }
+```
+
+```jsx
+  return (
+    <Chat client={chatClient} theme={`messaging ${theme}`}>
+      <ChannelList
+        showChannelSearch
+        additionalChannelSearchProps={
+          {
+            popupResults: true,
+            searchForChannels: true,
+            SearchResultsHeader: SearchResultsHeader,
+            DropdownContainer: (props: DropdownContainerProps) => <CustomDropdown {...props} />,
+            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+          }
+        }
+      />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput Input={MessageInputFlat} focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  )
+};
+```
+
+**Result:**
+<img src={CustomChannelSearch} alt='Custom Channel Search UI Component for Chat' width='700' />
