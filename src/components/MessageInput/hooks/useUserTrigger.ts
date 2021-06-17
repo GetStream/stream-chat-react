@@ -157,7 +157,8 @@ export const useUserTrigger = <
           return user.id.toLowerCase().includes(query.toLowerCase());
         });
 
-        const data = matchingUsers.slice(0, 10);
+        const usersToShow = mentionQueryParams.options?.limit || 10;
+        const data = matchingUsers.slice(0, usersToShow);
 
         if (onReady) onReady(filterMutes(data), query);
 
