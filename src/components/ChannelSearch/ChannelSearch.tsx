@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { ChannelOrUserType, isChannel } from './utils';
-
 import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
+
+import { ChannelOrUserType, isChannel } from './utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -22,7 +22,7 @@ import type {
 
 export type ChannelSearchFunctionParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserType> | []>>;
+  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserType>>>;
   setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -90,7 +90,7 @@ const UnMemoizedChannelSearch = <
   const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<ChannelOrUserType> | []>([]);
+  const [results, setResults] = useState<Array<ChannelOrUserType>>([]);
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 

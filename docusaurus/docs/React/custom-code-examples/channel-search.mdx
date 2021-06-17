@@ -25,10 +25,7 @@ are drilled to the component via the `additionalChannelSearchProps` prop on `Cha
 ```jsx
 <ChannelList
     showChannelSearch
-    additionalChannelSearchProps={
-        {
-          searchForChannels: true,
-        }
+    additionalChannelSearchProps={{searchForChannels: true }
     }
 />
 ```
@@ -41,8 +38,8 @@ Since we've enabled the search to also search for channels, let's customize the 
   const CustomDropdown = (props: DropdownContainerProps) => {
     const { results, focusedUser, selectResult, SearchResultItem } = props;
 
-    let items: ChannelOrUserType[] = results.filter(x => x.cid);
-    let users: ChannelOrUserType[] = results.filter(x => !x.cid);
+    const items: ChannelOrUserType[] = results.filter(x => x.cid);
+    const users: ChannelOrUserType[] = results.filter(x => !x.cid);
 
     return (
       <div>
@@ -72,12 +69,14 @@ Since we've enabled the search to also search for channels, let's customize the 
 ```
 
 ```jsx
+const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
+
 <ChannelList
     showChannelSearch
     additionalChannelSearchProps={
         {
             searchForChannels: true,
-            DropdownContainer: (props: DropdownContainerProps) => <CustomDropdown {...props} />
+            DropdownContainer: DropDown
         }
     }
 />
@@ -95,7 +94,7 @@ The separation by the type of result, is a huge UI improvement for users, but th
 
     if (result.cid) {
       const channel = result as Channel;
-      const members: number = channel.data?.member_count;
+      const members = channel.data?.member_count;
 
       return (
         <div
@@ -108,7 +107,7 @@ The separation by the type of result, is a huge UI improvement for users, but th
       );
     } else {
       const user = result as UserResponse;
-      const online: boolean | undefined = user.online;
+      const online = user.online;
 
       return (
         <div
@@ -125,12 +124,14 @@ The separation by the type of result, is a huge UI improvement for users, but th
 ```
 
 ```jsx
+const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...props} />;
+
 <ChannelList
     showChannelSearch
     additionalChannelSearchProps={
         {
             searchForChannels: true,
-            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+            SearchResultItem: SearchResult,
         }
     }
 />
@@ -202,10 +203,8 @@ const SearchResultsHeader = () => {
   const CustomDropdown = (props: DropdownContainerProps) => {
     const { results, focusedUser, selectResult, SearchResultItem } = props;
 
-    let items: ChannelOrUserType[] = results.filter(x => x.cid);
-    let users: ChannelOrUserType[] = results.filter(x => !x.cid);
-
-    console.log(results);
+    const items: ChannelOrUserType[] = results.filter(x => x.cid);
+    const users: ChannelOrUserType[] = results.filter(x => !x.cid);
 
     return (
       <div>
@@ -240,7 +239,7 @@ const SearchResultsHeader = () => {
 
     if (result.cid) {
       const channel = result as Channel;
-      const members: number = channel.data?.member_count;
+      const members = channel.data?.member_count;
 
       return (
         <div
@@ -253,7 +252,7 @@ const SearchResultsHeader = () => {
       );
     } else {
       const user = result as UserResponse;
-      const online: boolean | undefined = user.online;
+      const online = user.online;
 
       return (
         <div
@@ -274,6 +273,9 @@ const SearchResultsHeader = () => {
 ```
 
 ```jsx
+    const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
+    const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...props} />;
+
   return (
     <Chat client={chatClient} theme={`messaging ${theme}`}>
       <ChannelList
@@ -283,8 +285,8 @@ const SearchResultsHeader = () => {
             popupResults: true,
             searchForChannels: true,
             SearchResultsHeader: SearchResultsHeader,
-            DropdownContainer: (props: DropdownContainerProps) => <CustomDropdown {...props} />,
-            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+            DropdownContainer: DropDown,
+            SearchResultItem: SearchResult,
           }
         }
       />
