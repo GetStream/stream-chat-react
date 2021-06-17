@@ -36,6 +36,7 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
 export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
+  /** Custom UI component to display all of the search results, defaults to accepts same props as: [DefaultDropdownContainer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
   DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (result: ChannelOrUserType) => Promise<void> | void;
@@ -43,7 +44,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
   SearchEmpty?: React.ComponentType;
-  /** Boolean to search for channels as well as users in the server query, default is false and jsut searches for users */
+  /** Boolean to search for channels as well as users in the server query, default is false and just searches for users */
   searchForChannels?: boolean;
   /** Custom search function to override default */
   searchFunction?: (
@@ -56,7 +57,6 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   searchQueryParams?: SearchQueryParams<Us>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
   SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
-  // SearchResults?: React.ComponentType<SearchResultsProps<Us>>;
   /** Custom UI component to display the search results header */
   SearchResultsHeader?: React.ComponentType;
 };
@@ -138,12 +138,6 @@ const UnMemoizedChannelSearch = <
     setSearching(true);
 
     try {
-      // const promises: ((APIResponse & {
-      //       users: UserResponse<Us>[];
-      //     })
-      //   | Promise<Channel<At, Ch, Co, Ev, Me, Re, Us>[]>
-      // )[] = [];
-
       const userResponse = await client.queryUsers(
         // @ts-expect-error
         {
@@ -154,7 +148,6 @@ const UnMemoizedChannelSearch = <
         { id: 1, ...searchQueryParams?.sort },
         { limit: 8, ...searchQueryParams?.options },
       );
-      // promises.push(userResponse);
 
       if (searchForChannels) {
         const channelResponse = client.queryChannels(
@@ -166,8 +159,6 @@ const UnMemoizedChannelSearch = <
           {},
           { limit: 5, ...searchQueryParams?.filters },
         );
-
-        // promises.push(channelResponse);
 
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 

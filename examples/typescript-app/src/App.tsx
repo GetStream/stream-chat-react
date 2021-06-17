@@ -15,6 +15,8 @@ import {
   Window,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
+import { DropdownContainerProps } from '../../../dist/components/ChannelSearch/SearchResults';
+import { ChannelOrUserType } from '../../../dist/components/ChannelSearch/utils';
 import './App.css';
 
 // import throttle from 'lodash.throttle';
@@ -41,6 +43,44 @@ const App = () => {
   const SearchResultsHeader = () => {
     return <div>Search Results Header!</div>
   }
+
+  const CustomDropdown = (props: DropdownContainerProps) => {
+    const { results, focusedUser, selectResult, SearchResultItem } = props;
+
+    console.log(results);
+
+    let items: ChannelOrUserType[] = results.filter(x => x.cid);
+    let users: ChannelOrUserType[] = results.filter(x => !x.cid);
+
+    return (
+      <div>
+        <p>Channels</p>
+        {items.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+        <p>Users</p>
+        {users.map((result: ChannelOrUserType, index: number) => (
+          <SearchResultItem
+            focusedUser={focusedUser}
+            index={index}
+            key={index}
+            result={result}
+            selectResult={selectResult}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // const CustomItem = () => {
+  //   return <div>custom item</div>;
+  // }
   
   return (
     <Chat client={chatClient} theme={`messaging ${theme}`}>
@@ -53,8 +93,10 @@ const App = () => {
         showChannelSearch
         additionalChannelSearchProps={
           {
+            popupResults: true,
             searchForChannels: true,
             SearchResultsHeader: SearchResultsHeader,
+            DropdownContainer: (props) => <CustomDropdown {...props} />
           }
         }
       />
