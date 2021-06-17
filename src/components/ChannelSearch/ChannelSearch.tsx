@@ -3,7 +3,7 @@ import throttle from 'lodash.throttle';
 
 import { ChannelOrUserType, isChannel } from './utils';
 
-import { SearchResultItemProps, SearchResults } from './SearchResults';
+import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -36,6 +36,7 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
 export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (result: ChannelOrUserType) => Promise<void> | void;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
@@ -55,6 +56,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   searchQueryParams?: SearchQueryParams<Us>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
   SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
+  // SearchResults?: React.ComponentType<SearchResultsProps<Us>>;
   /** Custom UI component to display the search results header */
   SearchResultsHeader?: React.ComponentType;
 };
@@ -72,6 +74,7 @@ const UnMemoizedChannelSearch = <
 ) => {
   const {
     channelType = 'messaging',
+    DropdownContainer,
     onSelectResult,
     popupResults = false,
     SearchEmpty,
@@ -135,6 +138,12 @@ const UnMemoizedChannelSearch = <
     setSearching(true);
 
     try {
+      // const promises: ((APIResponse & {
+      //       users: UserResponse<Us>[];
+      //     })
+      //   | Promise<Channel<At, Ch, Co, Ev, Me, Re, Us>[]>
+      // )[] = [];
+
       const userResponse = await client.queryUsers(
         // @ts-expect-error
         {
@@ -145,8 +154,8 @@ const UnMemoizedChannelSearch = <
         { id: 1, ...searchQueryParams?.sort },
         { limit: 8, ...searchQueryParams?.options },
       );
+      // promises.push(userResponse);
 
-      // let channelResponse: Channel<At, Ch, Co, Ev, Me, Re, Us>[] = [];
       if (searchForChannels) {
         const channelResponse = client.queryChannels(
           // @ts-expect-error
@@ -157,6 +166,8 @@ const UnMemoizedChannelSearch = <
           {},
           { limit: 5, ...searchQueryParams?.filters },
         );
+
+        // promises.push(channelResponse);
 
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
@@ -170,7 +181,7 @@ const UnMemoizedChannelSearch = <
       const { users } = await Promise.resolve(userResponse);
 
       if (!users) setResults([]);
-      setResults([...users] as Array<ChannelOrUserType>);
+      setResults([...users]);
       setResultsOpen(true);
     } catch (error) {
       clearState();
@@ -208,6 +219,7 @@ const UnMemoizedChannelSearch = <
       />
       {query && (
         <SearchResults
+          DropdownContainer={DropdownContainer}
           popupResults={popupResults}
           results={results}
           SearchEmpty={SearchEmpty}

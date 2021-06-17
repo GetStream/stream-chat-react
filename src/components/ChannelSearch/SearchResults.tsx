@@ -46,10 +46,38 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
   }
 };
 
+export type DropdownContainerProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  results: ChannelOrUserType[];
+  SearchResultItem: React.ComponentType<SearchResultItemProps<Us>>;
+  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
+  focusedUser?: number;
+};
+
+const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: DropdownContainerProps<Us>,
+) => {
+  const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
+
+  return (
+    <div>
+      {results.map((result: ChannelOrUserType, index: number) => (
+        <SearchResultItem
+          focusedUser={focusedUser}
+          index={index}
+          key={index}
+          result={result}
+          selectResult={selectResult}
+        />
+      ))}
+    </div>
+  );
+};
+
 export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   results: Array<ChannelOrUserType> | [];
   searching: boolean;
   selectResult: (result: ChannelOrUserType) => Promise<void> | void;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
@@ -61,6 +89,7 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   props: SearchResultsProps<Us>,
 ) => {
   const {
+    DropdownContainer = DefaultDropdownContainer,
     popupResults,
     results,
     searching,
@@ -142,15 +171,12 @@ export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
   return (
     <ResultsContainer>
       {SearchResultsHeader && <SearchResultsHeader />}
-      {results.map((result: ChannelOrUserType, index: number) => (
-        <SearchResultItem
-          focusedUser={focusedUser}
-          index={index}
-          key={index}
-          result={result}
-          selectResult={selectResult}
-        />
-      ))}
+      <DropdownContainer
+        focusedUser={focusedUser}
+        results={results}
+        SearchResultItem={SearchResultItem}
+        selectResult={selectResult}
+      />
     </ResultsContainer>
   );
 };
