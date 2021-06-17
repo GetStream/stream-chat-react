@@ -31,7 +31,7 @@ const alice = generateUser(aliceProfile);
 const bob = generateUser({ name: 'bob' });
 
 async function renderMsg(message) {
-  const channel = generateChannel();
+  const channel = generateChannel({ state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 

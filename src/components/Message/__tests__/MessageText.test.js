@@ -53,6 +53,7 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig: () => ({ reactions: true, ...channelConfig }),
+    state: { membership: {} },
   });
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 

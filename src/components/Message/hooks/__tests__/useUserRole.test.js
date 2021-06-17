@@ -25,6 +25,7 @@ async function renderUserRoleHook(
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig,
+    state: { membership: {} },
     ...channelProps,
   });
 
