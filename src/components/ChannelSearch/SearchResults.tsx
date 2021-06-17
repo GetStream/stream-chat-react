@@ -9,6 +9,33 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultUserType } from '../../types/types';
 
+export type DropdownContainerProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  results: ChannelOrUserType[];
+  SearchResultItem: React.ComponentType<SearchResultItemProps<Us>>;
+  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
+  focusedUser?: number;
+};
+
+const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: DropdownContainerProps<Us>,
+) => {
+  const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
+
+  return (
+    <div>
+      {results.map((result: ChannelOrUserType, index: number) => (
+        <SearchResultItem
+          focusedUser={focusedUser}
+          index={index}
+          key={index}
+          result={result}
+          selectResult={selectResult}
+        />
+      ))}
+    </div>
+  );
+};
+
 export type SearchResultItemProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   index: number;
   result: ChannelOrUserType;
@@ -44,33 +71,6 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
       </div>
     );
   }
-};
-
-export type DropdownContainerProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: ChannelOrUserType[];
-  SearchResultItem: React.ComponentType<SearchResultItemProps<Us>>;
-  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
-  focusedUser?: number;
-};
-
-const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: DropdownContainerProps<Us>,
-) => {
-  const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
-
-  return (
-    <div>
-      {results.map((result: ChannelOrUserType, index: number) => (
-        <SearchResultItem
-          focusedUser={focusedUser}
-          index={index}
-          key={index}
-          result={result}
-          selectResult={selectResult}
-        />
-      ))}
-    </div>
-  );
 };
 
 export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
