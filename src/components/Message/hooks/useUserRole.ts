@@ -20,30 +20,38 @@ export const useUserRole = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   onlySenderCanEdit?: boolean,
+  disableQuotedMessages?: boolean,
 ) => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const isMyMessage = !!message?.user && !!client?.user && client.user.id === message.user.id;
-
-  const isAdmin = client?.user?.role === 'admin' || channel?.state?.membership?.role === 'admin';
-
-  const isOwner = channel?.state?.membership?.role === 'owner';
+  const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
+  const isMyMessage = client.userID === message.user?.id;
+  const isOwner = channel.state.membership.role === 'owner';
 
   const isModerator =
-    client?.user?.role === 'channel_moderator' ||
-    channel?.state?.membership?.role === 'channel_moderator' ||
-    channel?.state?.membership?.role === 'moderator';
+    client.user?.role === 'channel_moderator' ||
+    channel.state.membership.role === 'channel_moderator' ||
+    channel.state.membership.role === 'moderator';
 
   const canEdit = isMyMessage || (!onlySenderCanEdit && (isModerator || isAdmin));
-
   const canDelete = isMyMessage || isModerator || isAdmin;
+  const canFlag = !isMyMessage;
+  const canMute = !isMyMessage && channelConfig?.mutes;
+  const canQuote = !disableQuotedMessages;
+  const canReact = channelConfig?.reactions;
+  const canReply = channelConfig?.replies;
 
   return {
     canDelete,
     canEdit,
+    canFlag,
+    canMute,
+    canQuote,
+    canReact,
+    canReply,
     isAdmin,
     isModerator,
     isMyMessage,

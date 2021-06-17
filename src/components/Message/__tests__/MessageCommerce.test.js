@@ -38,13 +38,14 @@ async function renderMessageCommerce(
   props = {},
   channelConfig = { replies: true },
   components = {},
+  channelStateOpts = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock, ...channelStateOpts }}>
         <ChannelActionProvider value={{ openThread: openThreadMock }}>
           <ComponentProvider
             value={{
@@ -263,7 +264,13 @@ describe('<MessageCommerce />', () => {
 
   it('should render message actions when message has no text and channel has reactions enabled', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { getByTestId } = await renderMessageCommerce(message, {}, { reactions: true });
+    const { getByTestId } = await renderMessageCommerce(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     expect(getByTestId(messageCommerceActionsTestId)).toBeInTheDocument();
   });
 

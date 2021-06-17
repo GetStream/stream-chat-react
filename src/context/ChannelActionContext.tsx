@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useContext } from 'react';
 
 import type {
   Attachment,
-  MessageResponse,
   UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
@@ -32,6 +31,7 @@ export type MessageToSend<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
@@ -40,7 +40,7 @@ export type MessageToSend<
   errorStatusCode?: number;
   id?: string;
   mentioned_users?: UserResponse<Us>[];
-  parent?: MessageResponse<At, Ch, Co, Me, Re, Us>;
+  parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   parent_id?: string;
   status?: string;
   text?: string;
@@ -81,7 +81,7 @@ export type ChannelActionContextValue<
   ) => void;
   removeMessage: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => void;
   retrySendMessage: RetrySendMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  sendMessage: (message: MessageToSend<At, Ch, Co, Me, Re, Us>) => Promise<void>;
+  sendMessage: (message: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void>;
   setQuotedMessage: React.Dispatch<
     React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
   >;

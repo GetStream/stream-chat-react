@@ -50,11 +50,9 @@ describe('InfiniteScroll', () => {
       const addEventListenerSpy = useWindow ? windowAddEventListenerSpy : divAddEventListenerSpy;
 
       expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), useCapture);
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        'mousewheel',
-        expect.any(Function),
-        useCapture,
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function), {
+        passive: false,
+      });
       expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), useCapture);
     },
   );
@@ -84,11 +82,9 @@ describe('InfiniteScroll', () => {
         expect.any(Function),
         useCapture,
       );
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        'mousewheel',
-        expect.any(Function),
-        useCapture,
-      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function), {
+        passive: false,
+      });
       expect(removeEventListenerSpy).toHaveBeenCalledWith(
         'resize',
         expect.any(Function),

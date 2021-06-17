@@ -304,6 +304,7 @@ const ChannelInner = <
   const lastRead = useRef(new Date());
   const online = useRef(true);
 
+  const channelConfig = channel.getConfig();
   const emojiConfig: EmojiConfig = {
     commonEmoji,
     defaultMinimalEmojis,
@@ -532,7 +533,7 @@ const ChannelInner = <
   const updateMessage = useCallback(
     (
       updatedMessage:
-        | MessageToSend<At, Ch, Co, Me, Re, Us>
+        | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
         | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     ) => {
       if (!channel) return;
@@ -558,7 +559,9 @@ const ChannelInner = <
 
   const doSendMessage = useCallback(
     async (
-      message: MessageToSend<At, Ch, Co, Me, Re, Us> | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+      message:
+        | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
+        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     ) => {
       if (!channel) return;
 
@@ -615,7 +618,7 @@ const ChannelInner = <
     (
       text: string,
       attachments: MessageAttachments<At>,
-      parent: MessageResponse<At, Ch, Co, Me, Re, Us> | undefined,
+      parent: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined,
       mentioned_users: UserResponse<Us>[],
     ) => {
       // create a preview of the message
@@ -645,7 +648,7 @@ const ChannelInner = <
       mentioned_users = [],
       parent = undefined,
       text = '',
-    }: MessageToSend<At, Ch, Co, Me, Re, Us>) => {
+    }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (!channel) return;
 
       // remove error messages upon submit
@@ -777,6 +780,7 @@ const ChannelInner = <
     ...restState,
     acceptedFiles,
     channel,
+    channelConfig,
     emojiConfig,
     maxNumberOfFiles,
     multipleUploads,

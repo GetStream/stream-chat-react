@@ -174,6 +174,7 @@ const MessageListWithContext = <
       Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
+      onlySenderCanEdit: props.onlySenderCanEdit,
       onMentionsClick: props.onMentionsClick,
       onMentionsHover: props.onMentionsHover,
       onUserClick: props.onUserClick,
