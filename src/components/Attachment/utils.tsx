@@ -13,15 +13,13 @@ import type { DefaultAttachmentType } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
-export type AttachmentContainerProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType
-> = Required<
-  Pick<
-    RenderAttachmentProps,
-    'AttachmentActions' | 'Audio' | 'Card' | 'File' | 'Gallery' | 'Image' | 'Media'
-  >
-> & {
-  attachment: Attachment<At>;
+export type GalleryAttachment<At extends DefaultAttachmentType = DefaultAttachmentType> = {
+  images: Attachment<At>[];
+  type: string;
+};
+
+export type AttachmentContainerProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
+  attachment: Attachment<At> | GalleryAttachment<At>;
   componentType: string;
 };
 
@@ -31,6 +29,17 @@ export type RenderAttachmentProps<At extends DefaultAttachmentType = DefaultAtta
 > & {
   attachment: Attachment<At>;
 };
+
+export type RenderGalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = Omit<
+  AttachmentProps<At>,
+  'attachments'
+> & {
+  attachment: GalleryAttachment<At>;
+};
+
+export const isGalleryAttachmentType = <At extends DefaultAttachmentType = DefaultAttachmentType>(
+  output: Attachment<At> | GalleryAttachment<At>,
+): output is GalleryAttachment<At> => (output as GalleryAttachment<At>).images != null;
 
 export const isAudioAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: Attachment<At>,
@@ -43,10 +52,6 @@ export const isFileAttachment = <At extends DefaultAttachmentType = DefaultAttac
   (attachment.mime_type &&
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
     attachment.type !== 'video');
-
-export const isGalleryAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  attachment: Attachment<At>,
-) => attachment.type === 'gallery';
 
 export const isImageAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
   attachment: Attachment<At>,
@@ -61,23 +66,29 @@ export const isMediaAttachment = <At extends DefaultAttachmentType = DefaultAtta
 export const renderAttachmentWithinContainer = <
   At extends DefaultAttachmentType = DefaultAttachmentType
 >(
-  props: PropsWithChildren<Partial<AttachmentContainerProps<At>>>,
+  props: PropsWithChildren<AttachmentContainerProps<At>>,
 ) => {
   const { attachment, children, componentType } = props;
 
-  const extra =
-    componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
-      ? 'no-image'
-      : attachment && attachment.actions && attachment.actions.length
-      ? 'actions'
-      : '';
+  let extra = '';
+
+  if (!isGalleryAttachmentType(attachment)) {
+    extra =
+      componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
+        ? 'no-image'
+        : attachment && attachment.actions && attachment.actions.length
+        ? 'actions'
+        : '';
+  }
 
   return (
     <div
       className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
         attachment?.type || ''
       } str-chat__message-attachment--${componentType}--${extra}`}
-      key={`${attachment?.id}-${attachment?.type || 'none'} `}
+      key={`${isGalleryAttachmentType(attachment) ? '' : attachment?.id}-${
+        attachment?.type || 'none'
+      } `}
     >
       {children}
     </div>
@@ -104,7 +115,7 @@ export const renderAttachmentActions = <At extends DefaultAttachmentType = Defau
 };
 
 export const renderGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+  props: RenderGalleryProps<At>,
 ) => {
   const { attachment, Gallery = DefaultGallery } = props;
 

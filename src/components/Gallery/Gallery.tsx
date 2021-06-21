@@ -9,7 +9,12 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultAttachmentType } from '../../types/types';
 
 export type GalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  images: Attachment<At>[];
+  images:
+    | {
+        image_url?: string | undefined;
+        thumb_url?: string | undefined;
+      }[]
+    | Attachment<At>[];
 };
 
 const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
