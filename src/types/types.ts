@@ -10,7 +10,13 @@ export type CustomTrigger = {
 };
 
 export type DefaultAttachmentType = UnknownType & {
+  asset_url?: string;
   file_size?: number;
+  id?: string;
+  images?: Array<{
+    image_url?: string;
+    thumb_url?: string;
+  }>;
   mime_type?: string;
 };
 

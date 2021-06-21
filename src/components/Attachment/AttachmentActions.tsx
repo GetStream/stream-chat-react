@@ -2,6 +2,8 @@ import React from 'react';
 
 import type { Action } from 'stream-chat';
 
+import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
+
 export type AttachmentActionsProps = {
   /** A list of actions */
   actions: Action[];
@@ -10,11 +12,7 @@ export type AttachmentActionsProps = {
   /** The text for the form input */
   text: string;
   /** Click event handler */
-  actionHandler?: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    name?: string,
-    value?: string,
-  ) => void;
+  actionHandler?: ActionHandlerReturnType;
 };
 
 const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
@@ -26,7 +24,7 @@ const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) =>
     value?: string,
   ) => {
     if (actionHandler) {
-      actionHandler(event, name, value);
+      actionHandler(name, value, event);
     }
   };
 

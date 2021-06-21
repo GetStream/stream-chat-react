@@ -19,7 +19,7 @@ export type ActionHandlerReturnType = (
   dataOrName?: string | FormData,
   value?: string,
   event?: React.BaseSyntheticEvent,
-) => Promise<void>;
+) => Promise<void> | void;
 
 export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments. 
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
