@@ -5,7 +5,8 @@ title: ChannelSearch
 ---
 
 `ChannelSearch` is a UI component that searches for chat users and displays the results in a list. It can be used standalone or in the `ChannelList` via the `showChannelSearch` prop (default is false).
-The input searches for users by default, but the `searchFunction` prop can be used to override this out of the box behavior. Selection of a search result will set the active channel with the selected user.
+The input searches for users by default, but you can utilize the `searchForChannels` prop to also search for `channels`. Completely override the querying via the `searchFunction` prop.
+Selection of a search result will set the active channel with the selected user, or if a channel is an option and is selected, set the active channel with the existing channel.
 
 ## Basic Usage
 
@@ -35,6 +36,14 @@ The type of `channel` to create on user result selection.
 | --------------------------------------------------------------- | ----------- |
 | `livestream` \| `messaging` \| `team` \| `gaming` \| `commerce` | `messaging` |
 
+### DropdownContainer
+
+Custom UI component to display all of the search results.
+
+| Type      |                                                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| component | [DefaultDropdownContainer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) |
+
 ### onSelectResult
 
 Custom handler function to run on search result item selection.
@@ -58,6 +67,14 @@ Custom UI component to display empty search results.
 | Type      |                                |
 | --------- | ------------------------------ |
 | component | a div with: 'No results found' |
+
+### searchForChannels
+
+Boolean to search for channels as well as users in the server query, default is false and just searches for users.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### searchFunction
 
