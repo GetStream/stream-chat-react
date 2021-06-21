@@ -24,8 +24,8 @@ are drilled to the component via the `additionalChannelSearchProps` prop on `Cha
 
 ```jsx
 <ChannelList
-    showChannelSearch
-    additionalChannelSearchProps={{ searchForChannels: true }}
+  showChannelSearch
+  additionalChannelSearchProps={{ searchForChannels: true }}
 />
 ```
 
@@ -71,14 +71,14 @@ Since we've enabled the search to also search for channels, let's customize the 
 
 ```jsx
 const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
-const additionalProps =  {
-  searchForChannels: true,
+const additionalProps = {
   DropdownContainer: DropDown
+  searchForChannels: true,
 }
 
 <ChannelList
-    showChannelSearch
-    additionalChannelSearchProps={additionalProps}
+  additionalChannelSearchProps={additionalProps}
+  showChannelSearch
 />
 ```
 
@@ -88,9 +88,9 @@ The separation by the type of result, is a huge UI improvement for users, but th
 
 ```jsx
   const isChannel = (
-    channel: Channel | UserResponse,
-  ): channel is Channel =>
-    (channel as Channel).cid != null;
+    output: Channel | UserResponse,
+  ): output is Channel =>
+    (output as Channel).cid != null;
 
   const CustomResultItem = (props: SearchResultItemProps) => {
     const { focusedUser, index, result, selectResult } = props;
@@ -107,7 +107,7 @@ The separation by the type of result, is a huge UI improvement for users, but th
           onClick={() => selectResult(result)}
         >
           <div className='result-hashtag'>#</div>
-          <p className='channel-search__result-text'>{channel?.data?.name}, ({members_count} member{member_count === 1 ? '' : 's'})</p>
+          <p className='channel-search__result-text'>{channel?.data?.name}, ({member_count} member{member_count === 1 ? '' : 's'})</p>
         </div>
       );
     } else {
@@ -116,7 +116,7 @@ The separation by the type of result, is a huge UI improvement for users, but th
           className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
           onClick={() => selectResult(result)}
         >
-          <Avatar image={result?.image} />
+          <Avatar image={result.image} />
           {result.id}
           {result.online && <p className='user-online'> Online Now!</p>}
         </div>
@@ -127,14 +127,15 @@ The separation by the type of result, is a huge UI improvement for users, but th
 
 ```jsx
 const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...props} />;
+
 const additionalProps = {
   searchForChannels: true,
   SearchResultItem: SearchResult
 }
 
 <ChannelList
-    showChannelSearch
-    additionalChannelSearchProps={additionalProps}
+  additionalChannelSearchProps={additionalProps}
+  showChannelSearch
 />
 ```
 
@@ -146,6 +147,7 @@ For fun, let's add the `popupResults` prop to change the dropdown to be absolute
 const SearchResultsHeader = () => {
     return <div className='channel-search-header'>So many search results!</div>
 }
+
 const additionalProps = {
   popupResults: true,
   searchForChannels: true,
@@ -153,8 +155,8 @@ const additionalProps = {
 }
 
 <ChannelList
-    showChannelSearch
-    additionalChannelSearchProps={additionalProps}
+  additionalChannelSearchProps={additionalProps}
+  showChannelSearch
 />
 ```
 
@@ -234,9 +236,9 @@ const additionalProps = {
   };
 
   const isChannel = (
-    channel: Channel | UserResponse,
-  ): channel is Channel =>
-    (channel as Channel).cid != null;
+    output: Channel | UserResponse,
+  ): output is Channel =>
+    (output as Channel).cid != null;
 
   const CustomResultItem = (props: SearchResultItemProps) => {
     const { focusedUser, index, result, selectResult } = props;
@@ -278,19 +280,20 @@ const additionalProps = {
 ```jsx
   const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
   const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...props} />;
+
   const additionalProps = {
+    DropdownContainer: DropDown,
     popupResults: true,
     searchForChannels: true,
     SearchResultsHeader: SearchResultsHeader,
-    DropdownContainer: DropDown,
     SearchResultItem: SearchResult
   }
 
   return (
     <Chat client={chatClient} theme={`messaging ${theme}`}>
       <ChannelList
-        showChannelSearch
         additionalChannelSearchProps={additionalProps}
+        showChannelSearch
       />
       <Channel>
         <Window>

@@ -47,7 +47,7 @@ const DefaultDropdownContainer = <
 
   return (
     <div>
-      {results.map((result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>, index: number) => (
+      {results.map((result, index) => (
         <SearchResultItem
           focusedUser={focusedUser}
           index={index}

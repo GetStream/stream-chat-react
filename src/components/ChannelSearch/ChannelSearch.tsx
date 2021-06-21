@@ -183,7 +183,6 @@ const UnMemoizedChannelSearch = <
 
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
-        if (!channels && !users) setResults([]);
         setResults([...channels, ...users]);
         setResultsOpen(true);
         setSearching(false);
@@ -192,8 +191,7 @@ const UnMemoizedChannelSearch = <
 
       const { users } = await Promise.resolve(userResponse);
 
-      if (!users) setResults([]);
-      setResults([...users]);
+      setResults(users);
       setResultsOpen(true);
     } catch (error) {
       clearState();

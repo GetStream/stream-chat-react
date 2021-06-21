@@ -29,6 +29,6 @@ export const isChannel = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  channel: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>,
-): channel is Channel<At, Ch, Co, Ev, Me, Re, Us> =>
-  (channel as Channel<At, Ch, Co, Ev, Me, Re, Us>).cid != null;
+  output: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>,
+): output is Channel<At, Ch, Co, Ev, Me, Re, Us> =>
+  (output as Channel<At, Ch, Co, Ev, Me, Re, Us>).cid != null;
