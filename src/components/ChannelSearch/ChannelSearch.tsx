@@ -3,7 +3,7 @@ import throttle from 'lodash.throttle';
 
 import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
 
-import { ChannelOrUserResponse, isChannelOrUserResponse } from './utils';
+import { ChannelOrUserResponse, isChannel } from './utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -20,9 +20,19 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type ChannelSearchFunctionParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type ChannelSearchFunctionParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserResponse>>>;
+  setResults: React.Dispatch<
+    React.SetStateAction<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>
+  >;
   setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -33,13 +43,23 @@ export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> 
   sort?: UserSort<Us>;
 };
 
-export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type ChannelSearchProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
   /** Custom UI component to display all of the search results, defaults to accepts same props as: [DefaultDropdownContainer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
-  DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom handler function to run on search result item selection */
-  onSelectResult?: (result: ChannelOrUserResponse) => Promise<void> | void;
+  onSelectResult?: (
+    result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>,
+  ) => Promise<void> | void;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
@@ -48,7 +68,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   searchForChannels?: boolean;
   /** Custom search function to override default */
   searchFunction?: (
-    params: ChannelSearchFunctionParams<Us>,
+    params: ChannelSearchFunctionParams<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
   /** Custom UI component to display the search loading state */
@@ -56,7 +76,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   /** Object containing filters/sort/options overrides for user search */
   searchQueryParams?: SearchQueryParams<Us>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
-  SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
+  SearchResultItem?: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the search results header */
   SearchResultsHeader?: React.ComponentType;
 };
@@ -70,7 +90,7 @@ const UnMemoizedChannelSearch = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: ChannelSearchProps<Us>,
+  props: ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     channelType = 'messaging',
@@ -90,7 +110,9 @@ const UnMemoizedChannelSearch = <
   const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<ChannelOrUserResponse>>([]);
+  const [results, setResults] = useState<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>(
+    [],
+  );
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -117,11 +139,10 @@ const UnMemoizedChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [resultsOpen]);
 
-  const selectResult = async (result: ChannelOrUserResponse) => {
+  const selectResult = async (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => {
     if (!client.userID) return;
 
-    if (isChannelOrUserResponse(result)) {
-      // @ts-expect-error
+    if (isChannel(result)) {
       setActiveChannel(result);
     } else {
       // @ts-expect-error
@@ -163,7 +184,7 @@ const UnMemoizedChannelSearch = <
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
         if (!channels && !users) setResults([]);
-        setResults([...channels, ...users] as Array<ChannelOrUserResponse>);
+        setResults([...channels, ...users]);
         setResultsOpen(true);
         setSearching(false);
         return;

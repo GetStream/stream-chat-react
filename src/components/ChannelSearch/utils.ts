@@ -10,35 +10,25 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type ChannelOrUserResponse =
-  | Channel<
-      DefaultAttachmentType,
-      DefaultChannelType,
-      DefaultCommandType,
-      DefaultEventType,
-      DefaultMessageType,
-      DefaultReactionType,
-      DefaultUserType
-    >
-  | UserResponse<DefaultUserType>;
+export type ChannelOrUserResponse<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = Channel<At, Ch, Co, Ev, Me, Re, Us> | UserResponse<Us>;
 
-export const isChannelOrUserResponse = (
-  channel: ChannelOrUserResponse,
-): channel is Channel<
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType
-> =>
-  (channel as Channel<
-    DefaultAttachmentType,
-    DefaultChannelType,
-    DefaultCommandType,
-    DefaultEventType,
-    DefaultMessageType,
-    DefaultReactionType,
-    DefaultUserType
-  >).cid != null;
+export const isChannel = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  channel: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>,
+): channel is Channel<At, Ch, Co, Ev, Me, Re, Us> =>
+  (channel as Channel<At, Ch, Co, Ev, Me, Re, Us>).cid != null;

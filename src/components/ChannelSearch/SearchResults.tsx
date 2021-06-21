@@ -1,29 +1,53 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ChannelOrUserResponse, isChannelOrUserResponse } from './utils';
+import { ChannelOrUserResponse, isChannel } from './utils';
 
 import { Avatar } from '../Avatar/Avatar';
 import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultUserType } from '../../types/types';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../types/types';
 
-export type DropdownContainerProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: ChannelOrUserResponse[];
-  SearchResultItem: React.ComponentType<SearchResultItemProps<Us>>;
-  selectResult: (user: ChannelOrUserResponse) => Promise<void> | void;
+export type DropdownContainerProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  results: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>[];
+  SearchResultItem: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
   focusedUser?: number;
 };
 
-const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: DropdownContainerProps<Us>,
+const DefaultDropdownContainer = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
 
   return (
     <div>
-      {results.map((result: ChannelOrUserResponse, index: number) => (
+      {results.map((result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>, index: number) => (
         <SearchResultItem
           focusedUser={focusedUser}
           index={index}
@@ -36,21 +60,37 @@ const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserTy
   );
 };
 
-export type SearchResultItemProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type SearchResultItemProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   index: number;
-  result: ChannelOrUserResponse;
-  selectResult: (user: ChannelOrUserResponse) => Promise<void> | void;
+  result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>;
+  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
   focusedUser?: number;
 };
 
-const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: SearchResultItemProps<Us>,
+const DefaultSearchResultItem = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const { focusedUser, index, result, selectResult } = props;
 
   const focused = focusedUser === index;
 
-  if (isChannelOrUserResponse(result)) {
+  if (isChannel(result)) {
     const channel = result;
 
     return (
@@ -75,20 +115,36 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
   }
 };
 
-export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: Array<ChannelOrUserResponse> | [];
+export type SearchResultsProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  results: Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>> | [];
   searching: boolean;
-  selectResult: (result: ChannelOrUserResponse) => Promise<void> | void;
-  DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
+  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>>;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
-  SearchResultItem?: React.ComponentType<SearchResultItemProps<Us>>;
+  SearchResultItem?: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
   SearchResultsHeader?: React.ComponentType;
 };
 
-export const SearchResults = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: SearchResultsProps<Us>,
+export const SearchResults = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: SearchResultsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
     DropdownContainer = DefaultDropdownContainer,
