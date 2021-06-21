@@ -47,10 +47,10 @@ type UseMessageListElementsProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   enrichedMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  internalMessageProps: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   threadList: boolean;
-  internalMessageProps?: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
 
@@ -92,7 +92,11 @@ export const useMessageListElements = <
         if (message.customType === 'message.date' && message.date && isDate(message.date)) {
           return (
             <li key={`${message.date.toISOString()}-i`}>
-              <DateSeparator date={message.date} unread={message.unread} />
+              <DateSeparator
+                date={message.date}
+                formatDate={internalMessageProps.formatDate}
+                unread={message.unread}
+              />
             </li>
           );
         }
