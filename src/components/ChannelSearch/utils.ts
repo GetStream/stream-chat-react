@@ -1,6 +1,16 @@
 import type { Channel, UserResponse } from 'stream-chat';
 
-export type ChannelOrUserType =
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../types/types';
+
+export type ChannelOrUserResponse =
   | Channel<
       DefaultAttachmentType,
       DefaultChannelType,
@@ -12,18 +22,8 @@ export type ChannelOrUserType =
     >
   | UserResponse<DefaultUserType>;
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
-
-export const isChannel = (
-  channel: ChannelOrUserType,
+export const isChannelOrUserResponse = (
+  channel: ChannelOrUserResponse,
 ): channel is Channel<
   DefaultAttachmentType,
   DefaultChannelType,
@@ -41,4 +41,4 @@ export const isChannel = (
     DefaultMessageType,
     DefaultReactionType,
     DefaultUserType
-  >).cid !== undefined;
+  >).cid != null;

@@ -25,8 +25,7 @@ are drilled to the component via the `additionalChannelSearchProps` prop on `Cha
 ```jsx
 <ChannelList
     showChannelSearch
-    additionalChannelSearchProps={{searchForChannels: true }
-    }
+    additionalChannelSearchProps={{searchForChannels: true }}
 />
 ```
 
@@ -38,13 +37,14 @@ Since we've enabled the search to also search for channels, let's customize the 
   const CustomDropdown = (props: DropdownContainerProps) => {
     const { results, focusedUser, selectResult, SearchResultItem } = props;
 
-    const items: ChannelOrUserType[] = results.filter(x => x.cid);
-    const users: ChannelOrUserType[] = results.filter(x => !x.cid);
+    let items: ChannelOrUserResponse[] = results.filter(x => x.cid);
+    let users: ChannelOrUserResponse[] = results.filter(x => !x.cid);
 
     return (
       <div>
         <p>Channels</p>
-        {items.map((result: ChannelOrUserType, index: number) => (
+        {!items.length && <p>No Channels...</p>}
+        {items.map((result: ChannelOrUserResponse, index: number) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -54,7 +54,8 @@ Since we've enabled the search to also search for channels, let's customize the 
           />
         ))}
         <p>Users</p>
-        {users.map((result: ChannelOrUserType, index: number) => (
+        {!users.length && <p>No Users...</p>}
+        {users.map((result: ChannelOrUserResponse, index: number) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -75,26 +76,31 @@ const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} /
     showChannelSearch
     additionalChannelSearchProps={
         {
-            searchForChannels: true,
-            DropdownContainer: DropDown
+          searchForChannels: true,
+          DropdownContainer: DropDown
         }
     }
 />
 ```
 
-### Step 3 - The Final Code
+### Step 3 - Customizing the Result Component
 
-The separation by the type of result, is a huge UI improvement for users, but the above code is still using the default component for each result. Let's create our own component with more information.
+The separation by the type of result, is a huge UI improvement for users, but the above code is still using the default component for each result. Let's create our own component with more information. We've also added a Type Guard so we know what type we're displaying.
 
 ```jsx
+  const isChannelOrUserResponse = (
+    channel: Channel | UserResponse,
+  ): channel is Channel =>
+    (channel as Channel).cid != null;
+
   const CustomResultItem = (props: SearchResultItemProps) => {
     const { focusedUser, index, result, selectResult } = props;
 
     const focused = focusedUser === index;
 
-    if (result.cid) {
-      const channel = result as Channel;
-      const members = channel.data?.member_count;
+    if (isChannelOrUserResponse(result)) {
+      const channel = result;
+      const members = channel?.data?.member_count;
 
       return (
         <div
@@ -102,21 +108,18 @@ The separation by the type of result, is a huge UI improvement for users, but th
           onClick={() => selectResult(result)}
         >
           <div className='result-hashtag'>#</div>
-          <p className='channel-search__result-text'>{channel.data.name}, ({members} member{members === 1 ? '' : 's'})</p>
+          <p className='channel-search__result-text'>{channel?.data?.name}, ({members} member{members === 1 ? '' : 's'})</p>
         </div>
       );
     } else {
-      const user = result as UserResponse;
-      const online = user.online;
-
       return (
         <div
           className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
           onClick={() => selectResult(result)}
         >
-          <Avatar image={user?.image} />
-          {user.name || result.id}
-          {online && <p className='user-online'> Online Now!</p>}
+          <Avatar image={result?.image} />
+          {result.id}
+          {result.online && <p className='user-online'> Online Now!</p>}
         </div>
       );
     }
@@ -130,8 +133,8 @@ const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...pro
     showChannelSearch
     additionalChannelSearchProps={
         {
-            searchForChannels: true,
-            SearchResultItem: SearchResult,
+          searchForChannels: true,
+          SearchResultItem: SearchResult,
         }
     }
 />
@@ -150,10 +153,9 @@ const SearchResultsHeader = () => {
     showChannelSearch
     additionalChannelSearchProps={
         {
-            popupResults: true,
-            SearchResultsHeader: SearchResultsHeader,
-            searchForChannels: true,
-            SearchResultItem: (props: SearchResultItemProps) => <CustomResultItem {...props} />
+          popupResults: true,
+          SearchResultsHeader: SearchResultsHeader,
+          searchForChannels: true,
         }
     }
 />
@@ -203,13 +205,14 @@ const SearchResultsHeader = () => {
   const CustomDropdown = (props: DropdownContainerProps) => {
     const { results, focusedUser, selectResult, SearchResultItem } = props;
 
-    const items: ChannelOrUserType[] = results.filter(x => x.cid);
-    const users: ChannelOrUserType[] = results.filter(x => !x.cid);
+    let items: ChannelOrUserResponse[] = results.filter(x => x.cid);
+    let users: ChannelOrUserResponse[] = results.filter(x => !x.cid);
 
     return (
       <div>
         <p>Channels</p>
-        {items.map((result: ChannelOrUserType, index: number) => (
+        {!items.length && <p>No Channels...</p>}
+        {items.map((result: ChannelOrUserResponse, index: number) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -219,7 +222,8 @@ const SearchResultsHeader = () => {
           />
         ))}
         <p>Users</p>
-        {users.map((result: ChannelOrUserType, index: number) => (
+        {!users.length && <p>No Users...</p>}
+        {users.map((result: ChannelOrUserResponse, index: number) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -232,14 +236,19 @@ const SearchResultsHeader = () => {
     );
   };
 
+  const isChannelOrUserResponse = (
+    channel: Channel | UserResponse,
+  ): channel is Channel =>
+    (channel as Channel).cid != null;
+
   const CustomResultItem = (props: SearchResultItemProps) => {
     const { focusedUser, index, result, selectResult } = props;
 
     const focused = focusedUser === index;
 
-    if (result.cid) {
-      const channel = result as Channel;
-      const members = channel.data?.member_count;
+    if (isChannelOrUserResponse(result)) {
+      const channel = result;
+      const members = channel?.data?.member_count;
 
       return (
         <div
@@ -247,21 +256,18 @@ const SearchResultsHeader = () => {
           onClick={() => selectResult(result)}
         >
           <div className='result-hashtag'>#</div>
-          <p className='channel-search__result-text'>{channel.data.name}, ({members} member{members === 1 ? '' : 's'})</p>
+          <p className='channel-search__result-text'>{channel?.data?.name}, ({members} member{members === 1 ? '' : 's'})</p>
         </div>
       );
     } else {
-      const user = result as UserResponse;
-      const online = user.online;
-
       return (
         <div
           className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
           onClick={() => selectResult(result)}
         >
-          <Avatar image={user?.image} />
-          {user.name || result.id}
-          {online && <p className='user-online'> Online Now!</p>}
+          <Avatar image={result?.image} />
+          {result.id}
+          {result.online && <p className='user-online'> Online Now!</p>}
         </div>
       );
     }

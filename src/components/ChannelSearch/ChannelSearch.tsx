@@ -3,7 +3,7 @@ import throttle from 'lodash.throttle';
 
 import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
 
-import { ChannelOrUserType, isChannel } from './utils';
+import { ChannelOrUserResponse, isChannelOrUserResponse } from './utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -22,7 +22,7 @@ import type {
 
 export type ChannelSearchFunctionParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserType>>>;
+  setResults: React.Dispatch<React.SetStateAction<Array<ChannelOrUserResponse>>>;
   setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -39,7 +39,7 @@ export type ChannelSearchProps<Us extends DefaultUserType<Us> = DefaultUserType>
   /** Custom UI component to display all of the search results, defaults to accepts same props as: [DefaultDropdownContainer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
   DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
   /** Custom handler function to run on search result item selection */
-  onSelectResult?: (result: ChannelOrUserType) => Promise<void> | void;
+  onSelectResult?: (result: ChannelOrUserResponse) => Promise<void> | void;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
@@ -90,7 +90,7 @@ const UnMemoizedChannelSearch = <
   const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<ChannelOrUserType>>([]);
+  const [results, setResults] = useState<Array<ChannelOrUserResponse>>([]);
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -117,10 +117,10 @@ const UnMemoizedChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [resultsOpen]);
 
-  const selectResult = async (result: ChannelOrUserType) => {
+  const selectResult = async (result: ChannelOrUserResponse) => {
     if (!client.userID) return;
 
-    if (isChannel(result)) {
+    if (isChannelOrUserResponse(result)) {
       // @ts-expect-error
       setActiveChannel(result);
     } else {
@@ -163,7 +163,7 @@ const UnMemoizedChannelSearch = <
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
         if (!channels && !users) setResults([]);
-        setResults([...channels, ...users] as Array<ChannelOrUserType>);
+        setResults([...channels, ...users] as Array<ChannelOrUserResponse>);
         setResultsOpen(true);
         setSearching(false);
         return;

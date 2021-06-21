@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ChannelOrUserType, isChannel } from './utils';
+import { ChannelOrUserResponse, isChannelOrUserResponse } from './utils';
 
 import { Avatar } from '../Avatar/Avatar';
 import { useBreakpoint } from '../Message/hooks/useBreakpoint';
@@ -10,9 +10,9 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { DefaultUserType } from '../../types/types';
 
 export type DropdownContainerProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: ChannelOrUserType[];
+  results: ChannelOrUserResponse[];
   SearchResultItem: React.ComponentType<SearchResultItemProps<Us>>;
-  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
+  selectResult: (user: ChannelOrUserResponse) => Promise<void> | void;
   focusedUser?: number;
 };
 
@@ -23,7 +23,7 @@ const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserTy
 
   return (
     <div>
-      {results.map((result: ChannelOrUserType, index: number) => (
+      {results.map((result: ChannelOrUserResponse, index: number) => (
         <SearchResultItem
           focusedUser={focusedUser}
           index={index}
@@ -38,8 +38,8 @@ const DefaultDropdownContainer = <Us extends DefaultUserType<Us> = DefaultUserTy
 
 export type SearchResultItemProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   index: number;
-  result: ChannelOrUserType;
-  selectResult: (user: ChannelOrUserType) => Promise<void> | void;
+  result: ChannelOrUserResponse;
+  selectResult: (user: ChannelOrUserResponse) => Promise<void> | void;
   focusedUser?: number;
 };
 
@@ -50,14 +50,16 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
   const focused = focusedUser === index;
 
-  if (isChannel(result)) {
+  if (isChannelOrUserResponse(result)) {
+    const channel = result;
+
     return (
       <div
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
-        onClick={() => selectResult(result)}
+        onClick={() => selectResult(channel)}
       >
         <div className='result-hashtag'>#</div>
-        <p className='channel-search__result-text'>{result?.data?.name}</p>
+        <p className='channel-search__result-text'>{channel?.data?.name}</p>
       </div>
     );
   } else {
@@ -74,9 +76,9 @@ const DefaultSearchResultItem = <Us extends DefaultUserType<Us> = DefaultUserTyp
 };
 
 export type SearchResultsProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  results: Array<ChannelOrUserType> | [];
+  results: Array<ChannelOrUserResponse> | [];
   searching: boolean;
-  selectResult: (result: ChannelOrUserType) => Promise<void> | void;
+  selectResult: (result: ChannelOrUserResponse) => Promise<void> | void;
   DropdownContainer?: React.ComponentType<DropdownContainerProps<Us>>;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
