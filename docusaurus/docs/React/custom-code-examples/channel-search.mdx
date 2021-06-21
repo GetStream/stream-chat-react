@@ -44,7 +44,7 @@ Since we've enabled the search to also search for channels, let's customize the 
       <div>
         <p>Channels</p>
         {!items.length && <p>No Channels...</p>}
-        {items.map((result: ChannelOrUserResponse, index: number) => (
+        {items.map((result, index) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -55,7 +55,7 @@ Since we've enabled the search to also search for channels, let's customize the 
         ))}
         <p>Users</p>
         {!users.length && <p>No Users...</p>}
-        {users.map((result: ChannelOrUserResponse, index: number) => (
+        {users.map((result, index) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -211,7 +211,7 @@ const additionalProps = {
       <div>
         <p>Channels</p>
         {!items.length && <p>No Channels...</p>}
-        {items.map((result: ChannelOrUserResponse, index: number) => (
+        {items.map((result, index) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -222,7 +222,7 @@ const additionalProps = {
         ))}
         <p>Users</p>
         {!users.length && <p>No Users...</p>}
-        {users.map((result: ChannelOrUserResponse, index: number) => (
+        {users.map((result, index) => (
           <SearchResultItem
             focusedUser={focusedUser}
             index={index}
@@ -299,7 +299,7 @@ const additionalProps = {
         <Window>
           <ChannelHeader />
           <MessageList />
-          <MessageInput Input={MessageInputFlat} focus />
+          <MessageInput />
         </Window>
         <Thread />
       </Channel>
