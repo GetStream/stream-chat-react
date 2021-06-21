@@ -1,5 +1,28 @@
 # Changelog
 
+## [6.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.1.2) 2021-06-21
+
+### Feature
+
+- Refactor message permissions so they respect channel config [#986](https://github.com/GetStream/stream-chat-react/pull/986)
+- Add limit option to default user mention behavior [#988](https://github.com/GetStream/stream-chat-react/pull/988)
+- Add additional customization for `ChannelSearch` component [#989](https://github.com/GetStream/stream-chat-react/pull/989)
+- Add `formatDate` prop override potential `DateSeparator` component [#992](https://github.com/GetStream/stream-chat-react/pull/992)
+
+### Chore
+
+- Refactor typing of `Attachment` component [#991](https://github.com/GetStream/stream-chat-react/pull/991)
+
+## [6.1.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.1.1) 2021-06-16
+
+### Chore
+
+- Upgrade TypeScript dependencies [#982](https://github.com/GetStream/stream-chat-react/pull/982)
+
+### Bug
+
+- Add missing `onlySenderCanEdit` prop to `Message` component [#982](https://github.com/GetStream/stream-chat-react/pull/982)
+
 ## [6.1.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.1.0) 2021-06-15
 
 ### 🎉 UPDATED DOCS! 🎉
