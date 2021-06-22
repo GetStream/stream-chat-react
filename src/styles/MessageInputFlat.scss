@@ -32,7 +32,7 @@
       &-content {
         display: flex;
         align-items: flex-end;
-        background: var(--light-grey);
+        background: var(--grey-whisper);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 60%;
         padding: 8px 16px;
@@ -90,7 +90,7 @@
   }
   .str-chat__textarea > textarea {
     min-height: 56px;
-    background: var(--black5);
+    background: var(--grey-whisper);
     border-radius: var(--border-radius-md);
     padding: 20px 69px;
     font-size: var(--lg-font);
@@ -99,6 +99,7 @@
     margin: 0;
     &:focus {
       border: none;
+      color: var(--black);
       border-radius: var(--border-radius-md);
       box-shadow: 0 0 0 3px var(--primary-color);
     }

@@ -1,24 +1,25 @@
 .str-chat__channel-search {
-  padding: var(--sm-p) var(--sm-p) 0;
+  padding: var(--md-p) var(--md-p) 0;
   display: flex;
   align-items: center;
   position: relative;
+  background: var(--grey-gainsboro);
 
   input {
     flex: 1;
-    background: var(--black5);
+    background: var(--grey-whisper);
     border: 1px solid transparent;
     outline: none;
     $height: 30;
 
     height: $height + px;
-    border-radius: $height/2 + px;
+    border-radius: var(--border-radius);
     color: var(--black);
     font-size: var(--md-font);
-    padding: 0 8px;
+    padding: var(--sm-p);
 
     &::placeholder {
-      color: var(--lighten-black);
+      color: var(--grey);
     }
 
     &:focus {
@@ -64,7 +65,7 @@
 
   &-container.popup {
     border-radius: var(--border-radius-md);
-    background: var(--white);
+    background: var(--white-smoke);
     left: 300px;
     top: 20px;
     box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
@@ -84,7 +85,7 @@
   &-container.inline {
     top: 60px;
     right: 0px;
-    background: var(--grey-whisper);
+    background: var(--grey-gainsboro);
     height: calc(100vh - 60px);
 
     .str-chat__channel-search-result {

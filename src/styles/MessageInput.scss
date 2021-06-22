@@ -98,7 +98,7 @@
     outline: none;
     padding: 16px;
     background: var(--white);
-    border: 1px solid var(--black10);
+    border: 1px solid var(--border);
     border-radius: var(--border-radius-md);
     font-size: var(--lg-font);
     min-height: 42px;
@@ -317,7 +317,7 @@
 }
 
 .rfu-file-upload-button svg {
-  fill: var(--black60);
+  fill: var(--grey);
 }
 
 .dark.str-chat {

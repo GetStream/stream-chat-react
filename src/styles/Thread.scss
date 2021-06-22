@@ -1,5 +1,5 @@
 .str-chat__thread {
-  background: var(--light-grey);
+  background: var(--grey-whisper);
   flex: 1 0 300px;
   min-width: 300px;
   max-width: 300px;
@@ -9,7 +9,7 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: 0px;
+  padding-top: 0;
 
   &--full {
     max-width: 100%;
@@ -18,8 +18,8 @@
   &-header {
     position: relative;
     width: 100%;
-    background: var(--light-grey);
-    box-shadow: 0 1px 1px 0 var(--black20);
+    background: var(--grey-whisper);
+    box-shadow: 0 1px 1px 0 var(--border);
     height: 70px;
     top: 0;
     display: flex;
@@ -39,9 +39,9 @@
 
   &-start {
     border-radius: var(--border-radius-sm);
-    margin: 8px 8px 0 8px;
-    padding: 8px;
-    background: var(--black5);
+    margin: var(--xs-m) var(--xs-m) 0 var(--xs-m);
+    padding: var(--xs-p);
+    background: var(--grey-whisper);
     text-align: center;
     font-size: var(--sm-font);
   }
@@ -52,7 +52,7 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding-top: 16px;
+    padding-top: var(--sm-p);
 
     .str-chat__list {
       padding: 0;
@@ -71,7 +71,7 @@
     .quoted-message {
       display: flex;
       align-items: flex-end;
-      margin-bottom: 4px;
+      margin-bottom: var(--xxs-m);
 
       &-inner {
         display: flex;
@@ -80,7 +80,7 @@
         background: var(--light-grey);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 408px;
-        padding: 4px 8px;
+        padding: var(--xxs-p) var(--xs-p);
 
         .str-chat__message-attachment.str-chat__message-attachment--file {
           display: none;
@@ -107,7 +107,7 @@
         }
 
         :nth-child(2) {
-          margin-left: 8px;
+          margin-left: var(--xs-m);
         }
       }
     }
@@ -124,16 +124,15 @@
   &.str-chat {
     .str-chat {
       &__thread {
-        margin-right: 8px;
-        margin-top: 24px;
+        margin-right: var(--xs-m);
+        margin-top: var(--sm-m);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-
         overflow: hidden;
         background: var(--white);
         max-height: 100%;
         display: flex;
         flex-direction: column;
-        padding-top: 0px;
+        padding-top: 0;
 
         &.str-chat__thread--full {
           margin: 0;
@@ -149,7 +148,7 @@
         }
       }
       &__thread-list {
-        padding: 16px 16px 0 16px;
+        padding: var(--sm-p) var(--sm-p) 0 var(--sm-p);
 
         > .str-chat__list {
           background: transparent;
@@ -161,11 +160,12 @@
       }
       &__thread-header {
         border: none;
-        box-shadow: none;
+        // box-shadow: none;
         background: var(--white);
+        box-shadow: 0 2px 9px 0 var(--border), 0 1px 0 0 var(--border);
       }
       &__thread-start {
-        margin-top: 24px;
+        margin-top: var(--md-m);
       }
       @media screen and (max-width: 960px) {
         &__thread {
@@ -238,11 +238,11 @@
   .str-chat__thread {
     background: transparent;
     &-header {
-      background: ver(--white30);
+      background: var(--white30);
     }
   }
   .str-chat__list--thread {
-    padding: 0 8px;
+    padding: 0 var(--xs-p);
   }
   &.dark {
     .str-chat__thread {

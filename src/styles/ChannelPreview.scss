@@ -51,7 +51,7 @@
     height: 22px;
     color: var(--black);
     font-size: var(--sm-font);
-    background: lightgray;
+    background: var(--grey-whisper);
     border-radius: var(--border-radius);
     display: flex;
     align-items: center;
@@ -149,16 +149,17 @@
   padding: var(--xs-p);
   align-items: center;
   background: transparent;
-  box-shadow: 0 1px 0 0 var(--black10);
+  box-shadow: 0 1px 0 0 var(--border);
   text-align: left;
   margin: var(--xs-m) 0;
+  color: var(--black);
 
   &--active {
     border: none;
     border-radius: var(--border-radius-md);
-    background: var(--white10);
+    background: var(--grey-whisper);
     box-shadow: none;
-    box-shadow: 0 1px 5px 0 var(--black10);
+    box-shadow: 0 1px 5px 0 var(--border);
   }
 
   &--last-message {

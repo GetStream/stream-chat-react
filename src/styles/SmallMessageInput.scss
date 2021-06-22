@@ -44,7 +44,7 @@
     align-items: center;
     justify-content: center;
     background-size: 44px 44px;
-    fill: var(--black60);
+    fill: var(--grey);
 
     &:hover {
       fill: var(--black);
@@ -74,7 +74,8 @@
   }
 
   textarea {
-    background: transparent;
+    background: var(--grey-whisper);
+    color: var(--black);
     min-height: 36px;
     font-size: var(--sm-font);
     padding: 10px 44px 8px 8px;
