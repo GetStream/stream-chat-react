@@ -19,7 +19,9 @@ export type AttachmentActionsProps<
   actionHandler?: ActionHandlerReturnType;
 };
 
-const UnMemoizedAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
+const UnMemoizedAttachmentActions = <At extends DefaultAttachmentType = DefaultAttachmentType>(
+  props: AttachmentActionsProps<At>,
+) => {
   const { actionHandler, actions, id, text } = props;
 
   const handleActionClick = (
