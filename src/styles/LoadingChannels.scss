@@ -1,7 +1,7 @@
 .str-chat__loading-channels {
   width: 300px;
   height: 100%;
-  padding: 24px;
+  padding: var(--md-p);
   background: var(--grey-whisper);
 
   &-meta {
@@ -46,7 +46,7 @@
     width: 100%;
     height: 40px;
     border-radius: var(--border-radius-sm);
-    margin-bottom: 16px;
+    margin-bottom: var(--sm-m);
     animation: pulsate 1s linear 0s infinite alternate;
 
     &:nth-of-type(2) {

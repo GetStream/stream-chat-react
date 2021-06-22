@@ -9,7 +9,7 @@
         background: var(--grey-whisper);
         box-shadow: 0 1px 5px 0 var(--border);
         color: var(--grey);
-        padding: 8px;
+        padding: var(--xs-p);
         font-size: var(--md-font);
       }
     }
@@ -21,7 +21,7 @@
         background: transparent;
         width: 100%;
         height: 40px;
-        padding: 8px;
+        padding: var(--xs-p);
         font-size: var(--md-font);
       }
     }
