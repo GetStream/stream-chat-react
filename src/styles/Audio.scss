@@ -6,7 +6,7 @@
     border-radius: var(--border-radius-sm);
     margin: 0;
     display: flex;
-    background: var(--white);
+    background: var(--grey-whisper);
   }
 
   &__image {
@@ -21,10 +21,10 @@
       position: absolute;
       top: 0;
       left: 0;
-      background: var(--black40);
+      background: var(--overlay-dark);
       z-index: 30;
       font-size: 3em;
-      color: var(--white70);
+      color: var(--white-smoke);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,7 +39,7 @@
       width: 40px;
       height: 40px;
       svg {
-        fill: var(--white70);
+        fill: var(--white-smoke);
       }
     }
 
@@ -58,8 +58,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    padding: 8px 16px;
-    margin-left: 16px;
+    padding: var(--xs-p) var(--sm-p);
+    margin-left: var(--sm-m);
     width: 100%;
 
     &--title {
@@ -80,9 +80,9 @@
       height: 6px;
       width: 100%;
       border-radius: var(--border-radius-sm);
-      background: var(--black10);
+      background: var(--overlay);
       padding: 1px;
-      margin: 2px 0;
+      margin: calc(var(--xxs-m) / 2) 0; //TODO-CSS
 
       > div {
         height: 4px;
@@ -103,7 +103,7 @@
     }
     &__content {
       &--progress {
-        background: var(--white10);
+        background: var(--grey);
       }
     }
   }

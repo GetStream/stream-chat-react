@@ -7,9 +7,8 @@
     display: flex;
     flex-direction: column;
     width: 70px;
-    padding: 48px 8px 8px;
+    padding: 48px var(--xs-p) var(--xs-p);
     background: var(--light-grey);
-
     &--top {
       display: flex;
       flex-direction: column;
@@ -18,7 +17,7 @@
       margin: -8px 0;
 
       > * {
-        margin: 8px 0;
+        margin: var(--xs-m) 0;
       }
     }
 
@@ -92,12 +91,12 @@
 
     &--middle {
       flex: 1;
-      margin-left: 16px;
+      margin-left: var(--sm-m);
     }
 
     &--button {
       margin: 0;
-      padding: 16px 4px;
+      padding: var(--sm-p) var(--xxs-m);
       border: 0;
       background: none;
     }

@@ -1,16 +1,16 @@
 .str-chat__header {
   display: flex;
-  padding: 8px;
-  border-bottom: 1px solid var(--black10);
+  padding: var(--xs-p);
+  border-bottom: 1px solid var(--border);
 
   &-livestream {
-    padding: 8px 40px;
+    padding: var(--xs-p) var(--xl-p);
     min-height: 70px;
     display: flex;
     align-items: center;
     font-family: var(--second-font);
     background: var(--white);
-    box-shadow: 0 1px 1px 0 var(--black20);
+    box-shadow: 0 1px 1px 0 var(--border);
 
     &-left {
       font-size: var(--md-font);
@@ -43,7 +43,7 @@
           width: 5px;
           height: 5px;
           border-radius: var(--border-radius-round);
-          background-color: var(--red);
+          background-color: var(--accent_red);
         }
 
         @keyframes pulse {
@@ -66,8 +66,7 @@
 
     &-right {
       display: flex;
-      margin: 0 -4px;
-
+      margin: 0 calc(var(--xxs-m) * -1);
       &-button-wrapper {
         position: relative;
       }
@@ -76,7 +75,7 @@
 }
 
 .str-chat__header .str-chat__avatar {
-  margin: 0 16px 0 0;
+  margin: 0 var(--sm-m) 0 0;
 }
 
 .str-chat__title {
@@ -95,22 +94,22 @@
   display: flex;
   justify-content: space-between;
   font-size: var(--md-font);
-  color: var(--black40);
+  color: var(--grey);
 }
 
 .str-chat__square-button {
-  border: 1px solid var(--black10);
+  border: 1px solid var(--border);
   border-radius: var(--border-radius-sm);
-  padding: 8px;
-  margin: 0 4px;
+  padding: var(--xs-p);
+  margin: 0 var(--xxs-m);
   display: flex;
   align-items: center;
   justify-content: center;
   svg {
-    fill: var(--black80);
+    fill: var(--black);
   }
   &:active {
-    background-color: var(--black10);
+    background-color: var(--grey-whisper);
   }
 }
 
@@ -132,20 +131,20 @@
         position: relative;
         z-index: 1;
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-        background: var(--white90);
-        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+        background: var(--white-snow);
+        box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
       }
       @media screen and (max-width: 960px) {
         &__header-livestream {
-          padding-left: 16px;
-          padding-right: 16px;
+          padding-left: var(--sm-p);
+          padding-right: var(--sm-p);
         }
       }
     }
     &.dark {
       .str-chat__header-livestream {
         background: var(--dark-grey);
-        box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+        box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         color: var(--white);
       }
@@ -159,14 +158,14 @@
       &__header-livestream {
         position: relative;
         z-index: 1;
-        background: var(--white30);
-        box-shadow: 0 1px 1px 0 var(--black10);
+        background: var(--grey-whisper);
+        box-shadow: 0 1px 1px 0 var(--border);
       }
     }
     &.dark {
       .str-chat__header-livestream {
         background: var(--white5);
-        box-shadow: 0 1px 1px 0 var(--black30);
+        box-shadow: 0 1px 1px 0 var(--border);
         &-left {
           &--title,
           &--members {
@@ -188,7 +187,7 @@
         background: var(--white80);
         box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
         border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-        padding: 24px;
+        padding: var(--md-p);
         &-left {
           &--title {
             font-size: var(--xxl-font);
@@ -197,7 +196,7 @@
             font-weight: var(--font-weight-regular);
           }
           &--subtitle {
-            margin: 8px 0;
+            margin: var(--xs-m) 0;
             font-size: var(--lg-font);
           }
           &--members {
@@ -247,8 +246,8 @@
 .str-chat__header-hamburger {
   width: 30px;
   height: 38px;
-  padding: 8px 8px 8px 0px;
-  margin-right: 8px;
+  padding: var(--xs-p) var(--xs-p) var(--xs-p) 0px;
+  margin-right: var(--xs-m);
   display: none;
   flex-direction: column;
   justify-content: space-around;

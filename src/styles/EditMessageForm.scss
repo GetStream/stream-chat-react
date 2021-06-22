@@ -16,8 +16,8 @@
     width: 100%;
     font-size: var(--lg-font);
     line-height: 22px;
+    color: var(--black);
 
-    /* color: $fontColor; */
     &:focus {
       box-shadow: inset 0 0 0 1px var(--primary-color), 0 0 0 2px var(--primary-color-faded);
       outline: 0;
@@ -29,7 +29,7 @@
       background: none;
       border: none;
       font-weight: var(--font-weight-bold);
-      color: var(--black40);
+      color: var(--overlay-dark);
 
       &[type='submit'] {
         color: var(--primary-color);
@@ -69,13 +69,13 @@
     .rfu-file-upload-button,
     .str-chat__input-emojiselect {
       svg {
-        fill: var(--white);
+        fill: var(--grey-gainsboro);
       }
     }
 
     .str-chat__message-team-form-footer {
       button {
-        color: var(--white40);
+        color: var(--grey-gainsboro);
         &[type='submit'] {
           color: var(--primary-color);
         }

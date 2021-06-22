@@ -1,7 +1,7 @@
 .str-chat__message-attachment-actions {
   &-form {
     width: 100%;
-    margin: 8px 0;
+    margin: var(--xs-m) 0;
     padding: 0;
     display: flex;
   }
@@ -10,8 +10,8 @@
     flex: 1;
     border: none;
     background: none;
-    margin: 0 4px;
-    padding: 8px 8px;
+    margin: 0 var(--xxs-m);
+    padding: var(--xs-p) var(--xs-p);
     border-radius: var(--border-radius-round);
     outline: none;
 
@@ -26,7 +26,7 @@
     }
 
     &--default {
-      border: 2px solid var(--border-color);
+      border: 2px solid var(--border);
     }
   }
 }
@@ -36,7 +36,7 @@
     &-button {
       color: var(--white);
       &--default {
-        border-color: var(--white10);
+        border-color: var(--grey-whisper);
       }
     }
   }

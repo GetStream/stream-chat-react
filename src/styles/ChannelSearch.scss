@@ -1,5 +1,5 @@
 .str-chat__channel-search {
-  padding: 16px 16px 0;
+  padding: var(--sm-p) var(--sm-p) 0;
   display: flex;
   align-items: center;
   position: relative;
@@ -67,8 +67,8 @@
     background: var(--white);
     left: 300px;
     top: 20px;
-    box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
-    border: 1px solid var(--black10);
+    box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
+    border: 1px solid var(--border);
 
     .str-chat__channel-search-result {
       &:hover {
@@ -84,7 +84,7 @@
   &-container.inline {
     top: 60px;
     right: 0px;
-    background: var(--light-grey);
+    background: var(--grey-whisper);
     height: calc(100vh - 60px);
 
     .str-chat__channel-search-result {
@@ -102,7 +102,7 @@
 .dark.str-chat {
   .str-chat__channel-search {
     input {
-      background: var(--white5);
+      background: var(--grey-gainsboro);
       color: var(--white);
     }
   }

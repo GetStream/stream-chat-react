@@ -39,7 +39,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: 16px 16px 0 8px;
+        padding: var(--sm-p) var(--sm-p) 0 var(--xs-p);
       }
     }
   }
@@ -48,9 +48,10 @@
 .str-chat {
   height: 100vh;
   font-family: var(--second-font);
+  color: var(--black);
   &.messaging,
   &.commerce {
-    background-color: var(--light-grey);
+    background-color: var(--grey-whisper);
     &.dark {
       background-color: var(--dark-grey);
     }
@@ -127,11 +128,11 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   }
   &.messaging {
     .str-chat__main-panel {
-      padding: 16px 8px 0 0px;
+      padding: var(--sm-p) var(--xs-p) 0 0px;
     }
     @media screen and (max-width: 960px) {
       .str-chat__main-panel {
-        padding: 4px 4px 0;
+        padding: var(--xxs-p) var(--xxs-p) 0;
       }
     }
   }

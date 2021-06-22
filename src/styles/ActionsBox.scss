@@ -1,7 +1,7 @@
 .str-chat__actions-box {
   background: var(--white);
-  background-image: linear-gradient(-180deg, var(--white), var(--black));
-  box-shadow: 0 1px 0 0 var(--black10);
+  background-image: linear-gradient(-180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  box-shadow: 0 1px 0 0 var(--border);
   border-radius: var(--border-radius-md);
   display: flex;
   flex-direction: column;
@@ -24,13 +24,13 @@
     width: 100%;
     border: none;
     margin: 0;
-    padding: 8px;
+    padding: var(--xs-p);
     font-size: var(--sm-font);
     background: none;
     cursor: pointer;
 
     &:not(:last-of-type) {
-      box-shadow: 0 1px 0 0 var(--black10);
+      box-shadow: 0 1px 0 0 var(--border);
     }
 
     &:hover {
@@ -42,8 +42,8 @@
 .dark.str-chat {
   .str-chat__message-actions-box {
     background: var(--grey);
-    background-image: linear-gradient(-180deg, var(--white5), var(--black5));
-    box-shadow: 0 0 2px 0 var(--black20), 0 1px 0 0 var(--black10), 0 1px 8px 0 var(--black5);
+    background-image: linear-gradient(-180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    box-shadow: 0 0 2px 0 var(--border), 0 1px 0 0 var(--border), 0 1px 8px 0 var(--border);
     button {
       color: var(--white);
       &:hover {

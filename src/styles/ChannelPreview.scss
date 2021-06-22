@@ -129,7 +129,7 @@
 
   &--right {
     flex: 1;
-    margin-left: 16px;
+    margin-left: var(--sm-m);
   }
 
   &--unread {
@@ -146,12 +146,12 @@
   display: flex;
   width: 100%;
   border: none;
-  padding: 8px;
+  padding: var(--xs-p);
   align-items: center;
   background: transparent;
   box-shadow: 0 1px 0 0 var(--black10);
   text-align: left;
-  margin: 8px 0;
+  margin: var(--xs-m) 0;
 
   &--active {
     border: none;
@@ -171,7 +171,7 @@
     font-size: var(--md-font);
     line-height: 17px;
     font-weight: var(--font-weight-semi-bold);
-    margin-bottom: 2px;
+    margin-bottom: calc(var(--xxs-m) / 2);
     max-width: 250px;
     span {
       display: block;

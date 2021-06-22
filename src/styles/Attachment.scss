@@ -27,15 +27,16 @@
   &-attachment {
     width: 100%;
     max-width: 375px;
+
     border-radius: var(--border-radius);
-    margin: 8px auto 8px 0;
+    margin: var(--xs-m) auto var(--xs-m) 0;
     padding: 0;
   }
 
   &--me {
     .str-chat__message-attachment {
       padding-left: 0;
-      margin: 8px 0 8px auto;
+      margin: var(--xs-m) 0 var(--xs-m) auto;
     }
   }
 }
@@ -73,9 +74,9 @@
       align-items: center;
       font-size: var(--md-font);
       line-height: 22px;
-      border-left: 1px solid var(--black10);
+      border-left: 1px solid var(--border);
       width: auto;
-      padding-left: 4px;
+      padding-left: var(--xxs-p);
 
       &:hover {
         background: var(--white);
@@ -83,7 +84,7 @@
 
       img,
       svg {
-        margin-right: 8px;
+        margin-right: var(--xs-m);
       }
 
       &-text {
@@ -195,7 +196,7 @@
         .str-chat__message-attachment-file--item {
           border-left: none;
           &:hover {
-            background: var(--white30);
+            background: var(--grey-whisper);
           }
         }
       }
