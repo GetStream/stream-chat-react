@@ -6,7 +6,7 @@ import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
-import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
+import { areMessageUIPropsEqual, MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
@@ -167,14 +167,7 @@ const MessageLivestreamWithContext = <
         ref={messageWrapperRef}
       >
         {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector
-            detailedView
-            latest_reactions={message.latest_reactions}
-            own_reactions={message.own_reactions}
-            reaction_counts={message.reaction_counts || undefined}
-            ref={reactionSelectorRef}
-            reverse={false}
-          />
+          <ReactionSelector ref={reactionSelectorRef} />
         )}
         <MessageLivestreamActions
           messageWrapperRef={messageWrapperRef}
@@ -247,13 +240,7 @@ const MessageLivestreamWithContext = <
             {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
-            {isReactionEnabled && (
-              <ReactionsList
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
+            {isReactionEnabled && <ReactionsList />}
             {!initialMessage && (
               <MessageRepliesCountButton
                 onClick={handleOpenThread}
@@ -288,7 +275,6 @@ const MessageLivestreamActions = <
   const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const {
-    channelConfig,
     getMessageActions,
     handleOpenThread,
     initialMessage,
@@ -302,7 +288,11 @@ const MessageLivestreamActions = <
   const messageDeletedAt = !!message.deleted_at;
   const messageWrapper = messageWrapperRef?.current;
 
-  const showActionsBox = showMessageActionsBox(getMessageActions());
+  const messageActions = getMessageActions();
+  const showActionsBox = showMessageActionsBox(messageActions);
+
+  const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
+  const shouldShowReplies = messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 && !threadList;
 
   useEffect(() => {
     if (messageWrapper) {
@@ -351,14 +341,14 @@ const MessageLivestreamActions = <
       data-testid={'message-livestream-actions'}
     >
       <MessageTimestamp customClass='str-chat__message-livestream-time' />
-      {channelConfig?.reactions && (
+      {shouldShowReactions && (
         <span data-testid='message-livestream-reactions-action' onClick={onReactionListClick}>
           <span>
             <ReactionIcon />
           </span>
         </span>
       )}
-      {!threadList && channelConfig?.replies && (
+      {shouldShowReplies && (
         <span data-testid='message-livestream-thread-action' onClick={handleOpenThread}>
           <ThreadIcon />
         </span>
@@ -376,9 +366,8 @@ const MemoizedMessageLivestream = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageLivestream - handles the rendering of a message and depends on the Message component for all the logic.
+ * Handles the rendering of a message and depends on the Message component for all the logic.
  * Implements the look and feel for a livestream use case.
- * @example ./MessageLivestream.md
  */
 export const MessageLivestream = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isMutableRef } from './utils/utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { getStrippedEmojiData } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
+import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
 import type {
@@ -25,35 +26,21 @@ export type ReactionSelectorProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
+  additionalEmojiProps?: Partial<NimbleEmojiProps>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
   /** If true, shows the user's avatar with the reaction */
   detailedView?: boolean;
-  /** Handler to set/unset a reaction on message, @param type e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' */
+  /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
-  /**
-   * Array of latest reactions.
-   * Reaction object has following structure:
-   *
-   * ```json
-   * {
-   *  "type": "love",
-   *  "user_id": "demo_user_id",
-   *  "user": {
-   *    ...userObject
-   *  },
-   *  "created_at": "datetime";
-   * }
-   * ```
-   * */
+  /** An array of the reaction objects to display in the list */
   latest_reactions?: ReactionResponse<Re, Us>[];
-  /** An array of the reaction objects on a message made by the connected user */
-  own_reactions?: ReactionResponse<Re, Us>[] | null;
-  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
-  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmoji[];
-  /** Adds a CSS class that changes the horizontal positioning to the opposite (right: 0), defaults to false (left: 0) */
+  /** A list of the currently supported reactions on a message */
+  reactionOptions?: ReactionEmoji[];
+  /** If true, adds a CSS class that reverses the horizontal positioning of the selector */
   reverse?: boolean;
 };
 
@@ -71,18 +58,19 @@ const UnMemoizedReactionSelector = React.forwardRef(
     ref: React.ForwardedRef<HTMLDivElement | null>,
   ) => {
     const {
+      additionalEmojiProps = {},
       Avatar: propAvatar,
       detailedView = true,
       handleReaction: propHandleReaction,
-      latest_reactions,
-      reaction_counts,
-      reactionOptions: reactionOptionsProp,
+      latest_reactions: propLatestReactions,
+      reaction_counts: propReactionCounts,
+      reactionOptions: propReactionOptions,
       reverse = false,
     } = props;
 
     const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
     const { Avatar: contextAvatar, Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-    const { handleReaction: contextHandleReaction } = useMessageContext<
+    const { handleReaction: contextHandleReaction, message } = useMessageContext<
       At,
       Ch,
       Co,
@@ -95,9 +83,16 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
     const Avatar = propAvatar || contextAvatar || DefaultAvatar;
-    const emojiData = getStrippedEmojiData(fullEmojiData);
     const handleReaction = propHandleReaction || contextHandleReaction;
-    const reactionOptions = reactionOptionsProp || defaultMinimalEmojis;
+    const latestReactions = propLatestReactions || message?.latest_reactions || [];
+    const reactionCounts = propReactionCounts || message?.reaction_counts || {};
+    const reactionOptions = propReactionOptions || defaultMinimalEmojis;
+    const reactionsAreCustom = !!propReactionOptions?.length;
+
+    const emojiData = useMemo(
+      () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
+      [fullEmojiData, reactionsAreCustom],
+    );
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
     const [tooltipPositions, setTooltipPositions] = useState<{
@@ -108,8 +103,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const targetRef = useRef<HTMLDivElement | null>(null);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-    const showTooltip = useCallback((e, reactionType: string) => {
-      targetRef.current = e.target;
+    const showTooltip = useCallback((event, reactionType: string) => {
+      targetRef.current = event.target;
       setTooltipReactionType(reactionType);
     }, []);
 
@@ -142,8 +137,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
     }, [tooltipReactionType, ref]);
 
     const getUsersPerReactionType = (type: string | null) =>
-      latest_reactions
-        ?.map((reaction) => {
+      latestReactions
+        .map((reaction) => {
           if (reaction.type === type) {
             return reaction.user?.name || reaction.user?.id;
           }
@@ -152,7 +147,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
         .filter(Boolean);
 
     const getLatestUserForReactionType = (type: string | null) =>
-      latest_reactions?.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
+      latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
       undefined;
 
     return (
@@ -181,9 +176,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
           </div>
         )}
         <ul className='str-chat__message-reactions-list'>
-          {reactionOptions?.map((reactionOption) => {
+          {reactionOptions.map((reactionOption: ReactionEmoji) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
-            const count = reaction_counts && reaction_counts[reactionOption.id];
+            const count = reactionCounts && reactionCounts[reactionOption.id];
 
             return (
               <li
@@ -208,15 +203,14 @@ const UnMemoizedReactionSelector = React.forwardRef(
                     </div>
                   </>
                 )}
-                {Emoji && (
+                {
                   <Emoji
-                    // @ts-expect-error
-                    emoji={reactionOption}
-                    {...emojiSetDef}
-                    // @ts-expect-error
                     data={emojiData}
+                    emoji={reactionOption}
+                    size={20}
+                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
                   />
-                )}
+                }
                 {Boolean(count) && detailedView && (
                   <span className='str-chat__message-reactions-list-item__count'>
                     {count || ''}

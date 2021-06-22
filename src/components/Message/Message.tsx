@@ -37,7 +37,6 @@ import type {
 type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
 
 type MessageContextPropsToPick =
-  | 'channelConfig'
   | 'handleAction'
   | 'handleDelete'
   | 'handleFlag'
@@ -65,14 +64,7 @@ type MessageWithContextProps<
 > = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> &
   Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick> & {
     canPin: boolean;
-    userRoles: {
-      canDeleteMessage: boolean;
-      canEditMessage: boolean;
-      isAdmin: boolean;
-      isModerator: boolean;
-      isMyMessage: boolean;
-      isOwner: boolean;
-    };
+    userRoles: ReturnType<typeof useUserRole>;
   };
 
 const MessageWithContext = <
@@ -88,8 +80,6 @@ const MessageWithContext = <
 ) => {
   const {
     canPin,
-    channelConfig,
-    disableQuotedMessages,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -110,13 +100,16 @@ const MessageWithContext = <
     onUserHoverHandler: propOnUserHover,
   });
 
-  const { isAdmin, isModerator, isMyMessage } = userRoles;
-
-  const canEdit = isMyMessage || isModerator || isAdmin;
-  const canDelete = canEdit;
-  const canQuote = !disableQuotedMessages;
-  const canReact = true;
-  const canReply = true;
+  const {
+    canDelete,
+    canEdit,
+    canFlag,
+    canMute,
+    canQuote,
+    canReact,
+    canReply,
+    isMyMessage,
+  } = userRoles;
 
   const messageActionsHandler = useCallback(() => {
     if (!message || !messageActions) {
@@ -126,29 +119,19 @@ const MessageWithContext = <
     return getMessageActions(messageActions, {
       canDelete,
       canEdit,
-      canFlag: !isMyMessage,
-      canMute: !isMyMessage && !!channelConfig?.mutes,
+      canFlag,
+      canMute,
       canPin,
       canQuote,
       canReact,
       canReply,
     });
-  }, [
-    canDelete,
-    canEdit,
-    canPin,
-    canQuote,
-    canReply,
-    canReact,
-    channelConfig?.mutes,
-    isMyMessage,
-    message,
-    messageActions.length,
-  ]);
+  }, [canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply]);
 
   const {
     canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    onlySenderCanEdit: onlySenderCanEditPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -183,7 +166,6 @@ const MemoizedMessage = React.memo(
 /**
  * The Message component is a context provider which implements all the logic required for rendering
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
- * @example ./Message.md
  */
 export const Message = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -197,12 +179,14 @@ export const Message = <
   props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    disableQuotedMessages,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
     getPinMessageErrorNotification,
     message,
+    onlySenderCanEdit = false,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
@@ -211,18 +195,16 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel, mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
-  const channelConfig = channel.getConfig();
 
   const handleAction = useActionHandler(message);
   const handleDelete = useDeleteHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
-  const userRoles = useUserRole(message);
+  const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
 
   const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,
@@ -255,7 +237,6 @@ export const Message = <
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
       canPin={canPin}
-      channelConfig={channelConfig}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
       formatDate={props.formatDate}

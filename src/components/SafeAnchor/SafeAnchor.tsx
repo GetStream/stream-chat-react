@@ -2,8 +2,7 @@ import React from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 /**
- * SafeAnchor - In all ways similar to a regular anchor tag.
- * The difference is that it sanitizes the href value and prevents XSS
+ * Similar to a regular anchor tag, but it sanitizes the href value and prevents XSS
  */
 export type SafeAnchorProps = {
   /** Set the className for the anchor tag element */

@@ -3,6 +3,7 @@ import React from 'react';
 import Dayjs from 'dayjs';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageLivestream } from '../MessageLivestream';
@@ -37,14 +38,15 @@ async function renderMessageLivestream(
   props = {},
   channelConfig = { reactions: true, replies: true },
   components = {},
+  channelStateOpts = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock, ...channelStateOpts }}>
         <TranslationProvider
           value={{
             t: (key) => key,
@@ -55,6 +57,7 @@ async function renderMessageLivestream(
           <ComponentProvider
             value={{
               Attachment: AttachmentMock,
+              Emoji: EmojiComponentMock,
               // eslint-disable-next-line react/display-name
               Message: () => <MessageLivestream {...props} />,
               ...components,
@@ -138,8 +141,9 @@ describe('<MessageLivestream />', () => {
     const { getByTestId } = await renderMessageLivestream(
       message,
       {},
-      { reactions: true },
+      {},
       { ReactionSelector: React.forwardRef(CustomReactionSelector) },
+      { channelConfig: { reactions: true } },
     );
 
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
@@ -152,7 +156,7 @@ describe('<MessageLivestream />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
@@ -328,19 +332,25 @@ describe('<MessageLivestream />', () => {
 
   it('should display a reactions icon when channel has reactions enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageLivestream(message, {
-      channelConfig: {
-        reactions: true,
-      },
-    });
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
   });
 
   it('should open reaction selector when reaction action is clicked', async () => {
     const message = generateAliceMessage();
-    const { getByTestId, queryByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { reactions: true },
-    });
+    const { getByTestId, queryByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
@@ -348,9 +358,13 @@ describe('<MessageLivestream />', () => {
 
   it('should close the reaction selector when mouse leaves the message wrapper', async () => {
     const message = generateAliceMessage();
-    const { getByTestId, queryByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { reactions: true },
-    });
+    const { getByTestId, queryByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     fireEvent.click(getByTestId(messageLiveStreamReactionsTestId));
     expect(getByTestId(messageLiveStreamReactionsTestId)).toBeInTheDocument();
     const mouseLeave = new MouseEvent('mouseleave', {
@@ -363,9 +377,13 @@ describe('<MessageLivestream />', () => {
 
   it('should display thread action button when channel has replies enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { replies: true },
-    });
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { replies: true } },
+    );
     expect(getByTestId(messageLivestreamThreadTestId)).toBeInTheDocument();
   });
 
@@ -384,10 +402,13 @@ describe('<MessageLivestream />', () => {
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
     const openThread = jest.fn();
-    const { getByTestId } = await renderMessageLivestream(message, {
-      channelConfig: { replies: true },
-      openThread,
-    });
+    const { getByTestId } = await renderMessageLivestream(
+      message,
+      { openThread },
+      {},
+      {},
+      { channelConfig: { replies: true } },
+    );
     expect(openThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageLivestreamThreadTestId));
     // eslint-disable-next-line jest/prefer-called-with

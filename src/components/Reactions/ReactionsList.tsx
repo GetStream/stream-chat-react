@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 
-import { getStrippedEmojiData } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { MinimalEmoji, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
+import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../Message/types';
@@ -24,15 +25,15 @@ export type ReactionsListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
+  additionalEmojiProps?: Partial<NimbleEmojiProps>;
   /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
-  /** Array of reactions made by the currently set user */
-  own_reactions?: ReactionResponse<Re, Us>[] | null;
-  /** Object/map of reaction id/type (e.g. 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') vs count */
+  /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
-  /** Provide a list of reaction options [{id: 'angry', emoji: 'angry'}] */
-  reactionOptions?: MinimalEmoji[];
-  /** Array of all reactions on the message */
+  /** A list of the currently supported reactions on a message */
+  reactionOptions?: ReactionEmoji[];
+  /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse<Re, Us>[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
@@ -50,34 +51,64 @@ const UnMemoizedReactionsList = <
   props: ReactionsListProps<Re, Us>,
 ) => {
   const {
+    additionalEmojiProps,
     onClick,
-    reaction_counts,
-    reactionOptions: reactionOptionsProp,
-    reactions,
+    reaction_counts: propReactionCounts,
+    reactionOptions: propReactionOptions,
+    reactions: propReactions,
     reverse = false,
   } = props;
 
   const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { message, onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
-  const emojiData = useMemo(() => getStrippedEmojiData(fullEmojiData), [fullEmojiData]);
+  const reactions = propReactions || message.latest_reactions || [];
+  const reactionCounts = propReactionCounts || message.reaction_counts || {};
+  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
+  const reactionsAreCustom = !!propReactionOptions?.length;
 
-  const reactionOptions = reactionOptionsProp || defaultMinimalEmojis || [];
+  const emojiData = useMemo(
+    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
+    [fullEmojiData, reactionsAreCustom],
+  );
+
+  if (!reactions.length) return null;
 
   const getTotalReactionCount = () =>
-    Object.values(reaction_counts || {}).reduce((total, count) => total + count, 0);
+    Object.values(reactionCounts).reduce((total, count) => total + count, 0);
 
-  const getOptionForType = (type: string) => reactionOptions.find((option) => option.id === type);
-
-  const getReactionTypes = () => {
-    if (!reactions) return [];
-    const allTypes = new Set(reactions.map(({ type }) => type));
-
-    return Array.from(allTypes);
+  const getCurrentMessageReactionTypes = () => {
+    const reactionTypes: string[] = [];
+    reactions.forEach(({ type }) => {
+      if (reactionTypes.indexOf(type) === -1) {
+        reactionTypes.push(type);
+      }
+    });
+    return reactionTypes;
   };
+
+  const getEmojiByReactionType = (type: string): ReactionEmoji | undefined => {
+    const reactionEmoji = reactionOptions.find((option: ReactionEmoji) => option.id === type);
+    return reactionEmoji;
+  };
+
+  const getSupportedReactionMap = () => {
+    const reactionMap: Record<string, boolean> = {};
+    reactionOptions.forEach(({ id }) => (reactionMap[id] = true));
+    return reactionMap;
+  };
+
+  const messageReactionTypes = getCurrentMessageReactionTypes();
+  const supportedReactionMap = getSupportedReactionMap();
+
+  const supportedReactionsArePresent = messageReactionTypes.some(
+    (type) => supportedReactionMap[type],
+  );
+
+  if (!supportedReactionsArePresent) return null;
 
   return (
     <div
@@ -86,20 +117,19 @@ const UnMemoizedReactionsList = <
       onClick={onClick || onReactionListClick}
     >
       <ul>
-        {getReactionTypes().map((reactionType) => {
-          const emojiDefinition = getOptionForType(reactionType);
-          return emojiDefinition ? (
-            <li key={emojiDefinition.id}>
-              {Emoji && (
+        {messageReactionTypes.map((reactionType) => {
+          const emojiObject = getEmojiByReactionType(reactionType);
+
+          return emojiObject ? (
+            <li key={emojiObject.id}>
+              {
                 <Emoji
-                  // @ts-expect-error
-                  emoji={emojiDefinition}
-                  {...emojiSetDef}
-                  // @ts-expect-error
                   data={emojiData}
+                  emoji={emojiObject}
                   size={16}
+                  {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
                 />
-              )}
+              }
               &nbsp;
             </li>
           ) : null;

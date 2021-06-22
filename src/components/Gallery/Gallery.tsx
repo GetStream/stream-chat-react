@@ -9,7 +9,12 @@ import type { Attachment } from 'stream-chat';
 import type { DefaultAttachmentType } from '../../types/types';
 
 export type GalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  images: Attachment<At>[];
+  images:
+    | {
+        image_url?: string | undefined;
+        thumb_url?: string | undefined;
+      }[]
+    | Attachment<At>[];
 };
 
 const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
@@ -79,7 +84,6 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
 };
 
 /**
- * Gallery - displays up to 4 images in a simple responsive grid with a lightbox to view the images.
- * @example ./Gallery.md
+ * Displays images in a simple responsive grid with a light box to view the images.
  */
 export const Gallery = React.memo(UnMemoizedGallery) as typeof UnMemoizedGallery;

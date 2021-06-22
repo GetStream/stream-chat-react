@@ -19,7 +19,7 @@ export type MMLProps = {
 };
 
 /**
- * MML - A wrapper component around MML-React library
+ * A wrapper component around MML-React library
  */
 export const MML: React.FC<MMLProps> = (props) => {
   const { actionHandler, align = 'right', source } = props;

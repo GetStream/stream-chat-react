@@ -2,6 +2,7 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageCommerce } from '../MessageCommerce';
@@ -37,17 +38,19 @@ async function renderMessageCommerce(
   props = {},
   channelConfig = { replies: true },
   components = {},
+  channelStateOpts = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock, ...channelStateOpts }}>
         <ChannelActionProvider value={{ openThread: openThreadMock }}>
           <ComponentProvider
             value={{
               Attachment: AttachmentMock,
+              Emoji: EmojiComponentMock,
               // eslint-disable-next-line react/display-name
               Message: () => <MessageCommerce {...props} />,
               ...components,
@@ -120,7 +123,7 @@ describe('<MessageCommerce />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
@@ -261,7 +264,13 @@ describe('<MessageCommerce />', () => {
 
   it('should render message actions when message has no text and channel has reactions enabled', async () => {
     const message = generateAliceMessage({ text: undefined });
-    const { getByTestId } = await renderMessageCommerce(message, {}, { reactions: true });
+    const { getByTestId } = await renderMessageCommerce(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     expect(getByTestId(messageCommerceActionsTestId)).toBeInTheDocument();
   });
 

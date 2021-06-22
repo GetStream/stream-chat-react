@@ -3,6 +3,7 @@ import React from 'react';
 import testRenderer from 'react-test-renderer';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
@@ -52,6 +53,7 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     getConfig: () => ({ reactions: true, ...channelConfig }),
+    state: { membership: {} },
   });
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
@@ -71,6 +73,7 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
             <ComponentProvider
               value={{
                 Attachment,
+                Emoji: EmojiComponentMock,
                 // eslint-disable-next-line react/display-name
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
               }}

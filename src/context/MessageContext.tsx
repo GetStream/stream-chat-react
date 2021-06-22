@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { ChannelConfigWithInfo, Mute, UserResponse } from 'stream-chat';
+import type { Mute, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
 import type { StreamMessage } from './ChannelStateContext';
@@ -99,10 +99,8 @@ export type MessageContextValue<
   setEditingState: ReactEventHandler;
   /** Whether or not to show reaction list details */
   showDetailedReactions: boolean;
-  /** Additional props for underlying MessageInput component, [Available props](https://getstream.github.io/stream-chat-react/#messageinput) */
+  /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Channel config object */
-  channelConfig?: ChannelConfigWithInfo<Co>;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
@@ -115,7 +113,7 @@ export type MessageContextValue<
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelStateContext](https://getstream.github.io/stream-chat-react/#section-channelstatecontext) */
+  /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute<Us>[];
   /** The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;

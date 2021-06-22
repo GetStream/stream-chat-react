@@ -55,7 +55,7 @@ async function renderMessageSimple(
   channelConfig = { reactions: true, replies: true },
   components = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
   return render(
     <ChatProvider value={{ client }}>
@@ -196,7 +196,7 @@ describe('<MessageSimple />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {

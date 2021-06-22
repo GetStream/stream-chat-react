@@ -51,6 +51,7 @@ async function renderComponent({
     getConfig: () => channelConfig,
     sendAction,
     sendReaction,
+    state: { membership: {} },
     ...channelStateOpts,
   });
   const client = await getTestClientWithUser(alice);
@@ -678,7 +679,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelConfig: { mutes: true },
+      channelStateOpts: { channelConfig: { mutes: true } },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -883,14 +884,15 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelConfig: channelConfigMock,
+      channelStateOpts: { channelConfig: channelConfigMock },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
     });
 
-    expect(context.channelConfig).toBe(channelConfigMock);
+    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.mute);
+    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.reply);
   });
 
   it('should rerender if message changes', async () => {

@@ -93,13 +93,23 @@ describe('ReactionsList', () => {
   });
 
   it('should add reverse class if the prop is set to true', () => {
+    const reaction_counts = {
+      banana: 1,
+      cowboy: 2,
+    };
+    const reactionOptions = [
+      { emoji: '🍌', id: 'banana' },
+      { emoji: '🤠', id: 'cowboy' },
+    ];
+
     expect(
-      renderComponent({ reverse: true }).container.querySelector(
+      renderComponent({ reaction_counts, reactionOptions, reverse: true }).container.querySelector(
         '.str-chat__reaction-list--reverse',
       ),
     ).toBeInTheDocument();
+
     expect(
-      renderComponent({ reverse: false }).container.querySelector(
+      renderComponent({ reaction_counts, reactionOptions, reverse: false }).container.querySelector(
         '.str-chat__reaction-list--reverse',
       ),
     ).not.toBeInTheDocument();

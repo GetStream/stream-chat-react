@@ -79,7 +79,6 @@ const UnMemoizedChannelPreviewLastMessage = <
  * @deprecated - This UI component will be removed in the next major release.
  *
  * Used as preview component for channel item in [ChannelList](#channellist) component
- * @example ./ChannelPreviewLastMessage.md
  */
 export const ChannelPreviewLastMessage = React.memo(
   UnMemoizedChannelPreviewLastMessage,

@@ -12,6 +12,11 @@ It provides four separate contexts to its children:
 - [`ComponentContext`](../contexts/component-context.mdx) - custom component UI overrides (ex: `Avatar` or `Message`)
 - [`TypingContext`](../contexts/typing-context.mdx) - object of currently typing users (i.e., `typing`)
 
+:::note
+The `Channel` component renders an individual `channel` object. For detailed information regarding `channel` objects and their
+functionality, check out the [JavaScript docs](https://getstream.io/chat/docs/javascript/creating_channels/) on our website.
+:::
+
 ## Basic Usage
 
 The `Channel` component does not inject any UI, so its implementation is fairly simple and can be handled in one of two ways, both

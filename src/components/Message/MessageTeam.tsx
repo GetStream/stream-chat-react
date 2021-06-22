@@ -7,7 +7,7 @@ import { MessageTimestamp as DefaultTimestamp } from './MessageTimestamp';
 import { useReactionClick } from './hooks';
 import { PinIndicator as DefaultPinIndicator, ErrorIcon, ReactionIcon, ThreadIcon } from './icons';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
-import { areMessageUIPropsEqual, showMessageActionsBox } from './utils';
+import { areMessageUIPropsEqual, MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { MessageActions } from '../MessageActions';
@@ -65,14 +65,12 @@ const MessageTeamWithContext = <
   props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    channelConfig,
     clearEditingState,
     editing,
     getMessageActions,
     groupStyles,
     handleAction,
     handleOpenThread,
-    handleReaction,
     handleRetry,
     initialMessage,
     isReactionEnabled,
@@ -105,7 +103,10 @@ const MessageTeamWithContext = <
 
   const { t, userLanguage } = useTranslationContext();
 
-  const showActionsBox = showMessageActionsBox(getMessageActions());
+  const messageActions = getMessageActions();
+  const showActionsBox = showMessageActionsBox(messageActions);
+
+  const shouldShowReplies = messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1 && !threadList;
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -211,16 +212,7 @@ const MessageTeamWithContext = <
                   className={`str-chat__message-team-actions`}
                   data-testid='message-team-actions'
                 >
-                  {showDetailedReactions && (
-                    <ReactionSelector
-                      detailedView={true}
-                      handleReaction={handleReaction}
-                      latest_reactions={message.latest_reactions}
-                      own_reactions={message.own_reactions}
-                      reaction_counts={message.reaction_counts || undefined}
-                      ref={reactionSelectorRef}
-                    />
-                  )}
+                  {showDetailedReactions && <ReactionSelector ref={reactionSelectorRef} />}
                   {isReactionEnabled && (
                     <span
                       data-testid='message-team-reaction-icon'
@@ -230,7 +222,7 @@ const MessageTeamWithContext = <
                       <ReactionIcon />
                     </span>
                   )}
-                  {!threadList && channelConfig?.replies !== false && (
+                  {shouldShowReplies && (
                     <span
                       data-testid='message-team-thread-icon'
                       onClick={handleOpenThread}
@@ -265,13 +257,7 @@ const MessageTeamWithContext = <
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
             {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
-              <ReactionsList
-                handleReaction={handleReaction}
-                onClick={onReactionListClick}
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
+              <ReactionsList />
             )}
             {message.status === 'failed' && (
               <button
@@ -293,15 +279,7 @@ const MessageTeamWithContext = <
           {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
             message.text === '' &&
-            isReactionEnabled && (
-              <ReactionsList
-                handleReaction={handleReaction}
-                onClick={onReactionListClick}
-                own_reactions={message.own_reactions}
-                reaction_counts={message.reaction_counts || undefined}
-                reactions={message.latest_reactions}
-              />
-            )}
+            isReactionEnabled && <ReactionsList />}
           {!threadList && (
             <MessageRepliesCountButton
               onClick={handleOpenThread}
@@ -322,9 +300,8 @@ const MemoizedMessageTeam = React.memo(
 /**
  * @deprecated - This UI component will be removed in the next major release.
  *
- * MessageTeam - handles the rendering of a Message and depends on the Message component for all the logic.
+ * Handles the rendering of a Message and depends on the Message component for all the logic.
  * Implements the look and feel for a team style collaboration environment.
- * @example ./MessageTeam.md
  */
 export const MessageTeam = <
   At extends DefaultAttachmentType = DefaultAttachmentType,

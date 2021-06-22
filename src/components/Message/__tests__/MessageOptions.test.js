@@ -48,13 +48,14 @@ async function renderMessageOptions(
   customMessageProps = {},
   channelConfig,
   customOptionsProps = {},
+  channelStateOpts = {},
 ) {
   const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
         <ComponentProvider
           value={{
             Attachment,
@@ -111,9 +112,12 @@ describe('<MessageOptions />', () => {
   });
 
   it('should display thread actions when message is not displayed on a thread list and channel has replies configured', async () => {
-    const { getByTestId } = await renderMessageOptions(defaultMessageProps, {
-      replies: true,
-    });
+    const { getByTestId } = await renderMessageOptions(
+      defaultMessageProps,
+      {},
+      {},
+      { channelConfig: { replies: true } },
+    );
     expect(getByTestId(threadActionTestId)).toBeInTheDocument();
   });
 
@@ -132,7 +136,9 @@ describe('<MessageOptions />', () => {
     const message = generateMessage();
     const { getByTestId } = await renderMessageOptions(
       { message, openThread: handleOpenThread, threadList: false },
-      { replies: true },
+      {},
+      {},
+      { channelConfig: { replies: true } },
     );
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
@@ -141,7 +147,12 @@ describe('<MessageOptions />', () => {
   });
 
   it('should display reactions action when channel has reactions enabled', async () => {
-    const { getByTestId } = await renderMessageOptions({}, { reactions: true });
+    const { getByTestId } = await renderMessageOptions(
+      {},
+      {},
+      {},
+      { channelConfig: { reactions: true } },
+    );
     expect(getByTestId(reactionActionTestId)).toBeInTheDocument();
   });
 

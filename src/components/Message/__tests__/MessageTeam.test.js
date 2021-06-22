@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
+import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 
 import { Message } from '../Message';
 import { MessageTeam } from '../MessageTeam';
@@ -39,14 +40,15 @@ async function renderMessageTeam(
   props = {},
   channelConfig = { reactions: true, replies: true },
   components = {},
+  channelStateOpts = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig });
+  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
   const client = await getTestClientWithUser(alice);
   const customDateTimeParser = jest.fn((date) => Dayjs(date));
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock, ...channelStateOpts }}>
         <TranslationProvider
           value={{
             t: (key) => key,
@@ -57,6 +59,7 @@ async function renderMessageTeam(
           <ComponentProvider
             value={{
               Attachment: AttachmentMock,
+              Emoji: EmojiComponentMock,
               // eslint-disable-next-line react/display-name
               Message: () => <MessageTeam {...props} />,
               ...components,
@@ -145,7 +148,7 @@ describe('<MessageTeam />', () => {
       latest_reactions: [bobReaction],
       text: undefined,
     });
-    const CustomReactionsList = ({ reactions }) => (
+    const CustomReactionsList = ({ reactions = [] }) => (
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
@@ -432,17 +435,26 @@ describe('<MessageTeam />', () => {
 
   it('should display thread action button when channel has replies enabled', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageTeam(message, {}, { replies: true });
+    const { getByTestId } = await renderMessageTeam(
+      message,
+      {},
+      {},
+      {},
+      { channelConfig: { replies: true } },
+    );
     expect(getByTestId(messageTeamThreadIcon)).toBeInTheDocument();
   });
 
   it('should open thread when thread action button is clicked', async () => {
     const message = generateAliceMessage();
     const handleOpenThread = jest.fn();
-    const { getByTestId } = await renderMessageTeam(message, {
-      channelConfig: { replies: true },
-      handleOpenThread,
-    });
+    const { getByTestId } = await renderMessageTeam(
+      message,
+      { handleOpenThread },
+      {},
+      {},
+      { channelConfig: { replies: true } },
+    );
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTeamThreadIcon));
     expect(handleOpenThread).toHaveBeenCalledWith(

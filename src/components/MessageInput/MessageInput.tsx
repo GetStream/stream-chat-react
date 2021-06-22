@@ -8,10 +8,11 @@ import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { Attachment, Channel, SendFileAPIResponse, UserResponse } from 'stream-chat';
+import type { Channel, SendFileAPIResponse } from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
 import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
+import type { MessageToSend } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type {
@@ -84,12 +85,7 @@ export type MessageInputProps<
   noFiles?: boolean;
   /** Function to override the default submit handler */
   overrideSubmitHandler?: (
-    message: {
-      attachments: Attachment<At>[];
-      mentioned_users: UserResponse<Us>[];
-      text: string;
-      parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-    },
+    message: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
     channelCid: string,
   ) => void;
   /** When replying in a thread, the parent message object */
@@ -153,10 +149,6 @@ const UnMemoizedMessageInput = <
 };
 
 /**
- * MessageInput - a high level component that has provides all functionality to the Input it renders.
- *
- * It exposes the [useMessageInput](https://getstream.github.io/stream-chat-react/#section-usemessageinput) hook, which accepts the MessageInput props and returns
- * all functions needed to customize and build your custom Input components.
- * @example ./MessageInput.md
+ * A high level component that has provides all functionality to the Input it renders.
  */
 export const MessageInput = React.memo(UnMemoizedMessageInput) as typeof UnMemoizedMessageInput;

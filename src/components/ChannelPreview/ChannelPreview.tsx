@@ -66,22 +66,11 @@ export type ChannelPreviewProps<
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
   key?: string;
-  /**
-   * Available built-in options (also accepts the same props as):
-   *
-   * 1. [ChannelPreviewCompact](https://getstream.github.io/stream-chat-react/#ChannelPreviewCompact) (default)
-   * 2. [ChannelPreviewLastMessage](https://getstream.github.io/stream-chat-react/#ChannelPreviewLastMessage)
-   * 3. [ChannelPreviewMessenger](https://getstream.github.io/stream-chat-react/#ChannelPreviewMessanger)
-   *
-   * The Preview to use, defaults to ChannelPreviewLastMessage
-   * */
+  /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Setter for selected Channel */
   setActiveChannel?: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['setActiveChannel'];
-  /**
-   * Object containing watcher parameters
-   * @see See [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
-   */
+  /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
 
