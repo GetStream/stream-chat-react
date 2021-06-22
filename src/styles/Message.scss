@@ -450,7 +450,7 @@
         align-items: flex-end;
         @media screen and (min-width: 420px) {
           margin-right: unset;
-          margin-left: calc(var(--xxl-m) + var(--md-m));
+          margin-left: 88px;
         }
         > .str-chat__message-simple__actions {
           position: absolute;

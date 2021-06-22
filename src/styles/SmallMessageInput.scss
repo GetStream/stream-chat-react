@@ -1,7 +1,7 @@
 .str-chat__small-message-input {
   display: flex;
   flex-wrap: wrap;
-  margin: 8px;
+  margin: var(--xs-m);
   position: relative;
   z-index: 1000;
 

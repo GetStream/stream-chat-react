@@ -5,7 +5,7 @@
   width: calc(100% - 20px);
   background: var(--grey);
   border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
-  box-shadow: 0 0 1px 0 var(--black30), 0 0 6px 0 var(--black10);
+  box-shadow: 0 0 1px 0 var(--border), 0 0 6px 0 var(--border);
   z-index: 11;
 
   &-list {
@@ -16,10 +16,10 @@
     &-item {
       display: flex;
       align-items: center;
-      border-bottom: 1px solid var(--black5);
+      border-bottom: 1px solid var(--border);
 
       label {
-        padding: 16px;
+        padding: var(--sm-p);
         width: 100%;
         height: 100%;
         display: flex;
@@ -36,12 +36,12 @@
         }
 
         &:hover {
-          background-color: var(--lighten-grey);
+          background-color: var(--grey-whisper);
         }
       }
 
       span {
-        margin-right: 16px;
+        margin-right: var(--sm-m);
       }
 
       &:first-of-type {

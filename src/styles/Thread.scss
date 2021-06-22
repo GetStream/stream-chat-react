@@ -25,7 +25,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px;
+    padding: 0 var(--sm-p);
 
     &-details {
       font-size: var(--md-font);
@@ -65,7 +65,7 @@
 
     .str-chat__message-attachment.str-chat__message-attachment--file {
       border-radius: var(--border-radius-md);
-      border-bottom: 1px solid var(--light-grey);
+      border-bottom: 1px solid var(--grey-whisper);
     }
 
     .quoted-message {
@@ -77,7 +77,7 @@
         display: flex;
         text-align: start;
         align-items: flex-end;
-        background: var(--light-grey);
+        background: var(--grey-whisper);
         border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 408px;
         padding: var(--xxs-p) var(--xs-p);

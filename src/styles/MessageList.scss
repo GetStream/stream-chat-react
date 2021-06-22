@@ -17,7 +17,7 @@
   }
 
   &--thread {
-    padding: 16px 0 0 0;
+    padding: var(--sm-p) 0 0 0;
     overflow: visible;
   }
   &__center {
@@ -37,36 +37,36 @@
 .str-chat__custom-notification {
   border-radius: var(--border-radius-sm);
   font-size: var(--sm-font);
-  padding: 8px;
+  padding: var(--xs-p);
   font-family: var(--second-font);
   text-align: center;
 
   &.notification-success {
     background: var(--faded-green);
-    border: 1px solid var(--faded-green);
+    border: 1px solid var(--green);
     color: var(--green);
   }
 
   &.notification-error {
     background: var(--faded-red);
-    border: 1px solid var(--faded-red);
+    border: 1px solid var(--red);
     color: var(--red);
   }
 }
 
 .str-chat__connection-issue {
   background: var(--faded-red);
-  border: 1px solid var(--faded-red);
+  border: 1px solid var(--red);
   color: var(--red);
   border-radius: var(--border-radius-sm);
   font-size: var(--sm-font);
-  padding: 8px;
+  padding: var(--xs-p);
   font-family: var(--second-font);
   text-align: center;
 }
 
 .str-chat__list-notifications {
-  padding: 0 40px;
+  padding: 0 var(--xl-p);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -77,7 +77,7 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 40px 0;
+        padding: 0 var(--xl-p) 0;
         background: var(--white);
         .str-chat__reverse-infinite-scroll {
           padding-top: 56px;
@@ -90,12 +90,12 @@
     @media screen and (max-width: 960px) {
       .str-chat {
         &__list {
-          padding: 0 8px 0;
+          padding: 0 var(--xs-p) 0;
           .str-chat__reverse-infinite-scroll {
             padding-top: 56px;
           }
           &-notifications {
-            padding: 0 8px;
+            padding: 0 var(--xs-p);
           }
         }
       }
@@ -115,7 +115,7 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 8px;
+        padding: 0 var(--xs-p);
         .str-chat__reverse-infinite-scroll {
           padding-top: 56px;
         }
@@ -128,13 +128,13 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 24px 0;
+        padding: 0 var(--md-p) 0;
         .str-chat__reverse-infinite-scroll {
           padding-top: 72px;
         }
         &-notifications {
-          padding-left: 24px;
-          padding-right: 24px;
+          padding-left: var(--md-p);
+          padding-right: var(--md-p);
         }
       }
     }
@@ -156,7 +156,7 @@
   // a simple workaround is to make the loading indicator an overlay.
   &__loading {
     display: flex;
-    padding-top: 8px;
+    padding-top: var(--xs-p);
     justify-content: center;
     width: 100%;
     position: absolute;

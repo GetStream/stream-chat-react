@@ -1,11 +1,11 @@
 .str-chat__new-channel {
   &--header {
-    padding: 8px;
+    padding: var(--xs-p);
     display: flex;
     align-items: center;
     font-family: var(--second-font);
     font-size: var(--lg-font);
-    border-bottom: 1px solid var(--black10);
+    border-bottom: 1px solid var(--border);
 
     &__title {
       flex: 1;
@@ -17,14 +17,14 @@
   }
 
   &--name {
-    padding: 0 0 0 16px;
-    border-bottom: 1px solid var(--black10);
+    padding: 0 0 0 var(--sm-p);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
 
     label {
       font-size: var(--md-font);
-      margin-right: 4px;
+      margin-right: var(--xxs-m);
     }
 
     input {
@@ -32,7 +32,7 @@
       font-family: var(--second-font);
       flex: 1;
       width: 100%;
-      padding: 16px 0 16px 4px;
+      padding: var(--sm-p) 0 var(--sm-p) var(--xxs-p);
       background: var(--white);
       border: none;
       outline: none;

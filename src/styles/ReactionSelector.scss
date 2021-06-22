@@ -7,7 +7,7 @@
 
 .str-chat__message-reactions-list-item {
   font-size: var(--xl-font);
-  margin: 0 4px;
+  margin: 0 var(--xxs-m);
   position: relative;
   line-height: 0;
   button {
@@ -52,7 +52,7 @@
       border-radius: var(--border-radius-sm);
       background-image: linear-gradient(-180deg, transparent, var(--black50));
       max-width: 237px;
-      padding: 4px 8px;
+      padding: var(--xxs-p) var(--xs-p);
       font-size: var(--sm-font);
       color: var(--white);
 
@@ -97,10 +97,10 @@
   height: 60px;
   position: absolute;
   width: initial;
-  background: var(--black90);
-  background-image: linear-gradient(-180deg, transparent, var(--black5));
+  background: var(--black);
+  background-image: linear-gradient(-180deg, transparent, var(--border));
   border: 1px solid var(--white5);
-  box-shadow: 0 3px 1px 0 var(--black5), 0 11px 8px 0 var(--black20);
+  box-shadow: 0 3px 1px 0 var(--border), 0 11px 8px 0 var(--border);
   border-radius: var(--border-radius-round);
   display: flex;
   align-items: center;
@@ -108,19 +108,18 @@
   ul {
     position: relative;
     z-index: 1000;
-    margin: 0 16px;
+    margin: 0 var(--sm-m);
   }
 
   &-tooltip {
     position: absolute;
     bottom: calc(100% + 15px);
-    background: var(--black80);
+    background: var(--black);
     border-radius: var(--border-radius-sm);
-    background-image: linear-gradient(-180deg, transparent, var(--black50));
     min-width: 85px;
     min-height: 24px;
     max-width: 100%;
-    padding: 4px 8px;
+    padding: var(--xxs-p) var(--xs-p);
     font-size: var(--sm-font);
     color: var(--white);
     text-align: center;
@@ -132,7 +131,7 @@
       transform: translate(-50%, 0) rotate(45deg);
       width: 7px;
       height: 7px;
-      background-color: var(--dark-grey);
+      background-color: var(--black);
     }
   }
 

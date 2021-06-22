@@ -8,9 +8,9 @@
   &__avatars {
     display: flex;
     .str-chat__avatar {
-      margin-right: -8px;
+      margin-right: calc(var(--xs-m) * -1);
       &:last-of-type {
-        margin-right: 8px;
+        margin-right: var(--xs-m);
       }
     }
   }
@@ -18,7 +18,7 @@
     position: relative;
     background: var(--white);
     border: 1px solid var(--black10);
-    padding: 4px 8px;
+    padding: var(--xxs-p) var(--xs-m);
     border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
   }
   &__dot {
@@ -26,7 +26,7 @@
     width: 6px;
     height: 6px;
     border-radius: var(--border-radius-round);
-    margin-right: 4px;
+    margin-right: var(--xxs-m);
     background: var(--primary-color);
     animation: wave 1.1s linear infinite;
 

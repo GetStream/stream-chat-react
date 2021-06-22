@@ -3,7 +3,7 @@
   border: none;
   background: none;
   padding: 0;
-  margin-top: 8px;
+  margin-top: var(--xs-m);
   font-size: var(--sm-font);
   line-height: 15px;
   font-weight: var(--font-weight-bold);
@@ -11,8 +11,8 @@
   cursor: pointer;
 
   svg {
-    fill: var(--black10);
-    margin-right: 4px;
+    fill: var(--grey-whisper);
+    margin-right: var(--xxs-m);
   }
 }
 
