@@ -34,7 +34,7 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
-    latestMessageLength = 14,
+    latestMessageLength = 32,
     setActiveChannel,
     unread,
     watchers,

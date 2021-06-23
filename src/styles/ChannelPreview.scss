@@ -154,6 +154,10 @@
   margin: var(--xs-m) 0;
   color: var(--black);
 
+  &:hover {
+    cursor: pointer;
+  }
+
   &--active {
     border: none;
     border-radius: var(--border-radius-md);

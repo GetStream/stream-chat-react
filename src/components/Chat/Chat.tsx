@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
 import { useChat } from './hooks/useChat';
-import { darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
+import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
 import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
@@ -42,9 +42,9 @@ export type ChatProps<
 > = {
   /** The StreamChat client object */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Object containing custom styles to override css variables */
-  customStyles?: { [key: string]: string };
-  /** Boolean to set default dark mode color pallet */
+  /** Object containing custom styles to override the default CSS variables */
+  customStyles?: CustomStyles;
+  /** If true, toggles the CSS variables to the default dark mode color palette */
   darkMode?: boolean;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
@@ -77,7 +77,7 @@ export const Chat = <
   const {
     children,
     client,
-    customStyles = {},
+    customStyles,
     darkMode = false,
     i18nInstance,
     initialNavOpen = true,

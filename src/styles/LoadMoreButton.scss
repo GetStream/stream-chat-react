@@ -11,6 +11,10 @@
         color: var(--grey);
         padding: var(--xs-p);
         font-size: var(--md-font);
+
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }
@@ -23,6 +27,10 @@
         height: 40px;
         padding: var(--xs-p);
         font-size: var(--md-font);
+
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }
