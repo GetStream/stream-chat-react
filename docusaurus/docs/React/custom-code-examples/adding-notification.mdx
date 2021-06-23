@@ -26,7 +26,7 @@ This method is used extensively in the library by handler functions to notify of
 In this quick implementation we will listen for the 'message.updated' client event and add our custom notification when this happens. Editing or pinning a message will cause this event to occur.
 
 :::note
-Since `sendMessage` is drawn from the `ChannelActionContext`, we must create an inner component that is a child of `Channel` and
+Since `addNotification` is drawn from the `ChannelActionContext`, we must create an inner component that is a child of `Channel` and
 call the `useChannelActionContext` custom hook.
 :::
 
