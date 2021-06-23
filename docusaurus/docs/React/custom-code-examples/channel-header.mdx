@@ -22,7 +22,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
     const { name } = channel.data || {};
 
     return (
-        <div>{title || name}{' '}</div>
+        <div>{title || name}</div>
     )
 };
 ```
@@ -44,7 +44,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
     )
 }
 
-<Channel TypingIndicator={() => null }>
+<Channel TypingIndicator={() => null}>
 ```
 
 The options are endless for displaying additional items in the header since so much more information is available to us if we were to continue destructuring from the `channel` object. For this demo, though, let's add both library styling and local CSS and call it a day.
@@ -123,7 +123,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 const App = () => (
     <Chat client={chatClient}>
         <ChannelList />
-        <Channel TypingIndicator={() => null }>
+        <Channel TypingIndicator={() => null}>
             <Window>
                 <CustomChannelHeader />
                 <MessageList />
