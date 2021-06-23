@@ -29,7 +29,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 
 Let's add the typing indicator to our header component and remove the indicator where it appears by default in the `MessageList`. We can accomplish the removal by overriding the default with a null value.
 
-```jsx
+```tsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
     const { title } = props;
 
@@ -44,7 +44,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
     )
 }
 
-<Channel TypingIndicator={() => { return null } }>
+<Channel TypingIndicator={() => null }>
 ```
 
 The options are endless for displaying additional items in the header since so much more information is available to us if we were to continue destructuring from the `channel` object. For this demo, though, let's add both library styling and local CSS and call it a day.
@@ -61,7 +61,7 @@ The options are endless for displaying additional items in the header since so m
     }
 ```
 
-```jsx
+```tsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
     const { title } = props;
 
@@ -98,7 +98,7 @@ Finally and most importantly, let's add in our custom component in the place whe
     }
 ```
 
-```jsx
+```tsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
     const { title } = props;
 
@@ -119,12 +119,11 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 }
 ```
 
-```jsx
-
+```tsx
 const App = () => (
     <Chat client={chatClient}>
         <ChannelList />
-        <Channel TypingIndicator={() => { return null } }>
+        <Channel TypingIndicator={() => null }>
             <Window>
                 <CustomChannelHeader />
                 <MessageList />
