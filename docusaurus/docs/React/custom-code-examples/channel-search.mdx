@@ -8,7 +8,7 @@ import CustomChannelSearch from '../assets/CustomChannelSearch.png';
 
 ## How-to Guide for Customizing ChannelSearch
 
-In this example we will customize the [`ChannelSearch`](../core-components/channel_list/#channelsearch) component. Though this component can be used standalone, we will do our customization when it's established in the `ChannelList`. Here is a guide that outlines how to
+In this example, we will customize the [`ChannelSearch`](../core-components/channel_list/#channelsearch) component. Though this component can be used standalone, we will do our customization when it's established in the `ChannelList`. Here is a guide that outlines how to
 override the default `DropdownContainer` and `SearchResultItem` components, as well as use several other useful props.
 
 :::note
@@ -290,7 +290,7 @@ const additionalProps = {
   }
 
   return (
-    <Chat client={chatClient} theme={`messaging ${theme}`}>
+    <Chat client={chatClient}>
       <ChannelList
         additionalChannelSearchProps={additionalProps}
         showChannelSearch
@@ -308,5 +308,5 @@ const additionalProps = {
 };
 ```
 
-**Result:**
+### Result: 
 <img src={CustomChannelSearch} alt='Custom Channel Search UI Component for Chat' width='700' />
