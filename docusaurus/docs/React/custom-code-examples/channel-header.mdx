@@ -160,7 +160,7 @@ const ChannelInner = () => {
 const App = () => (
     <Chat client={chatClient}>
         <ChannelList />
-        <Channel>
+        <Channel TypingIndicator={() => { return null } }>
             <ChannelInner />
         </Channel>
     </Chat>
