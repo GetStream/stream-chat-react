@@ -13,7 +13,7 @@ In this example, we demonstrate how to use the method `addNotification` pulled f
 This method receives two arguments: text and type. The text parameter is the notification text, and the type argument is of type string and is either 'success' or 'error'. The type determines the style added.
 These messages are temporary in the list and are removed after five seconds.
 
-This method is used extensively in the library by handler functions to notify of success or failure and are usually used in conjunction with Javascript event listeners or API event listeners. 
+This method is used extensively in the library by handler functions to notify of success or failure and are usually used in conjunction with JavaScript event listeners or API event listeners. 
 
 ```jsx
   const addNotification = (text: string, type: 'success' | 'error') => {
@@ -42,10 +42,10 @@ call the `useChannelActionContext` custom hook.
         addNotification('A message has been edited!', 'success');
       }
   
-      channel?.on('message.updated', clickToAddNotification);
+      channel.on('message.updated', clickToAddNotification);
   
       return () => {
-        channel?.off('message.updated', clickToAddNotification);
+        channel.off('message.updated', clickToAddNotification);
       };
     }, [addNotification, channel]);
 

@@ -48,23 +48,24 @@ To see your custom component in action, try muting a user by using the '/' comma
 
 ```jsx
 const CustomSystemMessage = (props: EventComponentProps) => {
-const { Avatar = DefaultAvatar, message } = props;
+    const { Avatar = DefaultAvatar, message } = props;
 
-const { created_at = '', text, type, user } = message;
-const date = created_at.toString();
+    const { created_at = '', text, type, user } = message;
+    const date = created_at.toString();
 
-if (type === 'system') {
-    return (
-        <div className='custom-system-message'>
-            <span>Event: {text} at {date}</span>
-            <span>
-                Actor: <Avatar image={user?.image} shape={'square'} size={20} />
-                {user?.name}
-            </span>
-        </div>
-    )
-}
-return null;
+    if (type === 'system') {
+        return (
+            <div className='custom-system-message'>
+                <span>Event: {text} at {date}</span>
+                <span>
+                    Actor: <Avatar image={user?.image} shape={'square'} size={20} />
+                    {user?.name}
+                </span>
+            </div>
+        )
+    }
+
+    return null;
 }
 
 const App = () => (
