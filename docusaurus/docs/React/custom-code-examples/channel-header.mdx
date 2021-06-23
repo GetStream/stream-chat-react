@@ -11,12 +11,8 @@ your custom component in place of the library's header option.
 
 ### Implementation
 
-The default header displays the name of the channel, the number of members, and the number of members online. In our example, we will display the name and add the typing indicator below. We need to pull the `channel` information from context.
-
-:::note
-Since `channel` is drawn from the `ChannelStateContext`, we must create an inner component that is a child of `Channel` and
-call the `useChannelStateContext` custom hook.
-:::
+The default header displays the name of the channel, the number of members, and the number of members online. In our example, we will display the name and add the typing indicator below. We need to pull the `channel` information from context. Pulling from this context is possible in our
+custom component because it's a child of `Channel`.
 
 ```jsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
@@ -29,28 +25,6 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
         <div>{title || name}{' '}</div>
     )
 };
-
-const ChannelInner = () => {
-  return (
-    <>
-      <Window>
-        <CustomChannelHeader />
-        <MessageList />
-        <MessageInput />
-      </Window>
-      <Thread />
-    </>
-  )
-};
-
-const App = () => (
-    <Chat client={chatClient}>
-        <ChannelList />
-        <Channel>
-            <ChannelInner />
-        </Channel>
-    </Chat>
-);
 ```
 
 Let's add the typing indicator to our header component and remove the indicator where it appears by default in the `MessageList`. We can accomplish the removal by overriding the default with a null value.
@@ -64,7 +38,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 
     return (
         <>
-            <div>{title || name}{' '}</div>
+            <div>{title || name}</div>
             <TypingIndicator />
         </>
     )
@@ -99,7 +73,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
             <div>
                 <div className='header-item'>
                     <span className='header-pound'>#</span>
-                    {title || name}{' '}
+                    {title || name}
                 </div>
                 <TypingIndicator />
             </div>
@@ -109,6 +83,8 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 ```
 
 ### The Final Code
+
+Finally and most importantly, let's add in our custom component in the place where the default would have been.
 
 ```css
     .header-title {
@@ -134,7 +110,7 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
             <div>
                 <div className='header-item'>
                     <span className='header-pound'>#</span>
-                    {title || name}{' '}
+                    {title || name}
                 </div>
                 <TypingIndicator />
             </div>
@@ -144,24 +120,17 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 ```
 
 ```jsx
-const ChannelInner = () => {
-  return (
-    <>
-      <Window>
-        <CustomChannelHeader />
-        <MessageList />
-        <MessageInput />
-      </Window>
-      <Thread />
-    </>
-  )
-};
 
 const App = () => (
     <Chat client={chatClient}>
         <ChannelList />
         <Channel TypingIndicator={() => { return null } }>
-            <ChannelInner />
+            <Window>
+                <CustomChannelHeader />
+                <MessageList />
+                <MessageInput />
+            </Window>
+            <Thread />
         </Channel>
     </Chat>
 );
