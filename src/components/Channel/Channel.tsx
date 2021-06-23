@@ -66,6 +66,7 @@ import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageListNotificationsProps } from '../MessageList/MessageList';
 import type { MessageNotificationProps } from '../MessageList/MessageNotification';
 
 import type {
@@ -175,6 +176,8 @@ export type ChannelProps<
   Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
+  /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageList.tsx) */
+  MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
@@ -828,6 +831,7 @@ const ChannelInner = <
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,
+      MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
