@@ -1,0 +1,16 @@
+---
+id: new_message_custom_handler
+sidebar_position: 10
+title: New Message Custom Handler
+---
+
+Hello!
+
+The problem: when a client creates an app with two ChannelList
+components (think team channels and DMs in Slack), the event listeners will pick up new message events in both lists.
+Assume two lists, A and B. If a message is sent to a channel in list B, the new message event listener in A will also pick up the event and bump the
+channel to the top of its list as well.
+
+Create an app with two ChannelList components, each with a different channel type. Create a custom
+onMessageNew function and pass as a prop to ChannelList and ensure channels are only
+bumped to the top of their respective list when a new message arrives.

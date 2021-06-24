@@ -11,7 +11,11 @@ import {
   MessageInput,
   MessageInputFlat,
   Thread,
+  useTypingContext,
   Window,
+  TypingIndicator,
+  ChannelHeaderProps,
+  useChannelStateContext,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -33,6 +37,34 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
+
+  return (
+    <div className='str-chat__header-livestream'>
+      <div>
+        <div>Typing Indicator</div>
+        <div>{name}</div>
+      </div>
+      {/* <TypingIndicator /> */}
+    </div>
+  )
+}
+
+const ChannelInner = () => {
+  return (
+    <>
+      <Window>
+        <CustomChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </>
+  )
+}
+
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>
     <ChannelList
@@ -43,13 +75,8 @@ const App = () => (
       options={options}
       showChannelSearch
     />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput Input={MessageInputFlat} focus />
-      </Window>
-      <Thread />
+    <Channel TypingIndicator={() => { return null } }>
+      <ChannelInner />
     </Channel>
   </Chat>
 );
