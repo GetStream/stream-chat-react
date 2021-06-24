@@ -201,14 +201,15 @@ export const Message = <
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const handleAction = useActionHandler(message);
-  const handleDelete = useDeleteHandler(message, {
-    getErrorNotification: getDeleteMessageErrorNotification,
-    notify: addNotification,
-  });
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
+
+  const handleDelete = useDeleteHandler(message, {
+    getErrorNotification: getDeleteMessageErrorNotification,
+    notify: addNotification,
+  });
 
   const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,
