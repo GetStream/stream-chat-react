@@ -10,7 +10,7 @@ In this example, we will demonstrate how to create a custom Emoji Picker compone
 This component will replace the default [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx)
 with only breakfast food emojis.
 
-### Choose Your Emojis
+## Choose Your Emojis
 
 The default `EmojiPicker` renders individual emoji objects using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js)
 component from [emoji-mart](https://www.npmjs.com/package/emoji-mart). Our custom set of emojis will need to follow the same `NimbleEmoji` props.
@@ -41,7 +41,7 @@ For help getting emoji object data, you can index search the default [emojiData]
 loaded into the component library.
 :::
 
-### Create the Custom Component
+## Create the Custom Component
 
 To construct our component, we will utilize the `ChannelStateContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for
 our `data` prop. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker. This is what our final code will look like:
