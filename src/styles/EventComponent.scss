@@ -1,18 +1,15 @@
 .str-chat.messaging {
   .str-chat__event-component__channel-event {
     display: flex;
-    margin-top: 20px;
-
+    margin-top: var(--md-m);
     &__content {
-      margin-right: 10px;
-      color: rgba(0, 0, 0, 0.5);
-      font-size: 15px;
-    }
-    &__sentence {
+      margin-right: var(--xs-m);
+      color: var(--overlay-dark);
+      font-size: var(--lg-font);
     }
     &__date {
-      font-size: 11px;
-      margin-top: 4px;
+      font-size: var(--xs-font);
+      margin-top: var(--xxs-m);
     }
   }
 }
@@ -20,18 +17,21 @@
 .str-chat.team {
   .str-chat__event-component__channel-event {
     display: flex;
-    margin: 20px 40px;
+    margin: var(--md-m) var(--xl-m);
 
     &__content {
-      margin-right: 10px;
-      color: rgba(0, 0, 0, 0.5);
-      font-size: 15px;
+      margin-right: var(--xs-m);
+      color: var(--overlay-dark);
+      font-size: var(--lg-font);
     }
     &__sentence {
+      margin-right: var(--xs-m);
+      color: var(--overlay-dark);
+      font-size: var(--lg-font);
     }
     &__date {
-      font-size: 11px;
-      margin-top: 4px;
+      font-size: var(--xs-font);
+      margin-top: var(--xxs-m);
     }
   }
 }

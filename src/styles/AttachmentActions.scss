@@ -1,7 +1,7 @@
 .str-chat__message-attachment-actions {
   &-form {
     width: 100%;
-    margin: 8px 0;
+    margin: var(--xs-m) 0;
     padding: 0;
     display: flex;
   }
@@ -10,23 +10,23 @@
     flex: 1;
     border: none;
     background: none;
-    margin: 0 4px;
-    padding: 8px 8px;
-    border-radius: 100px;
+    margin: 0 var(--xxs-m);
+    padding: var(--xs-p) var(--xs-p);
+    border-radius: var(--border-radius-round);
     outline: none;
 
     &:focus {
-      border: 1px solid $secondary-color;
-      box-shadow: 0 0 0 2px rgba(0, 108, 255, 0.36);
+      border: 1px solid var(--primary-color);
+      box-shadow: 0 0 0 2px var(--primary-color-faded);
     }
 
     &--primary {
-      background-color: $secondary-color;
-      color: $white;
+      background-color: var(--primary-color);
+      color: var(--white);
     }
 
     &--default {
-      border: 2px solid $border-color;
+      border: 2px solid var(--border);
     }
   }
 }
@@ -34,9 +34,9 @@
 .dark.str-chat {
   .str-chat__message-attachment-actions {
     &-button {
-      color: white;
+      color: var(--white);
       &--default {
-        border-color: rgba(white, 0.1);
+        border-color: var(--grey-whisper);
       }
     }
   }

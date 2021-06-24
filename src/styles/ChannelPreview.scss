@@ -7,18 +7,17 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    padding: 10px 40px 10px 10px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 8px 40px 8px 8px;
+    font-size: var(--sm-font);
+    border-bottom: 1px solid var(--black10);
     outline: 0;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 
     &:focus {
-      background: white;
-      box-shadow: inset 0 0 0 1px $secondary-color,
-        inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+      background: var(--white);
+      box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
     }
   }
 
@@ -26,7 +25,7 @@
     display: flex;
     flex-direction: column;
     text-align: left;
-    padding: 0 10px;
+    padding: 0 8px;
     max-width: 250px;
   }
 
@@ -34,11 +33,11 @@
     width: 32px;
     height: 32px;
     flex: 0 0 32px;
-    border-radius: 18px;
+    border-radius: var(--border-radius);
   }
 
   &-title {
-    color: black;
+    color: var(--black);
     display: block;
     overflow: hidden;
     white-space: nowrap;
@@ -50,10 +49,10 @@
     right: 10px;
     width: 22px;
     height: 22px;
-    color: black;
-    font-size: 12px;
-    background: lightgray;
-    border-radius: 12px;
+    color: var(--black);
+    font-size: var(--sm-font);
+    background: var(--grey-whisper);
+    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,7 +60,7 @@
   }
 
   &-last-message {
-    color: lighten($black, 50%);
+    color: var(--lighten-black);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -69,15 +68,15 @@
   }
 
   &--active {
-    background: #006cff;
+    background: var(--primary-color);
     color: white;
 
     .str-chat__channel-preview-title {
-      color: $white;
+      color: var(--white);
     }
 
     .str-chat__channel-preview-last-message {
-      color: rgba(255, 255, 255, 0.69);
+      color: var(--white70);
     }
   }
 
@@ -85,8 +84,8 @@
     position: relative;
 
     .str-chat__channel-preview-last-message {
-      font-weight: 700;
-      color: $black;
+      font-weight: var(--font-weight-bold);
+      color: var(--black);
     }
   }
 
@@ -94,34 +93,33 @@
     width: 5px;
     height: 5px;
     position: absolute;
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
     left: 2px;
-    background-color: $primary-color;
+    background-color: var(--primary-color);
   }
 }
 
 .str-chat__channel-preview-compact {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--second-font);
   display: flex;
-  font-size: 14px;
+  font-size: var(--md-font);
   letter-spacing: 0;
   line-height: 40px;
-  color: black;
+  color: var(--black);
   position: relative;
   border: none;
   background: none;
   flex-direction: row;
   align-items: center;
   width: 100%;
-  padding: 0 40px 0 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0 40px 0 8px;
+  border-bottom: 1px solid var(--black10);
   text-align: left;
   outline: 0;
 
   &:focus {
-    background: white;
-    box-shadow: inset 0 0 0 1px $secondary-color,
-      inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+    background: var(--white);
+    box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
   }
 
   &--left {
@@ -131,49 +129,54 @@
 
   &--right {
     flex: 1;
-    margin-left: 11px;
+    margin-left: var(--sm-m);
   }
 
   &--unread {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 }
 
 .str-chat__channel-preview-compact--active {
-  color: white;
-  background: #004ab3;
+  color: var(--white);
+  background: var(--primary-color);
 }
 
 .str-chat__channel-preview-messenger {
   display: flex;
   width: 100%;
   border: none;
-  padding: 10px;
+  padding: var(--xs-p);
   align-items: center;
-  background: rgba(255, 255, 255, 0);
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.07);
+  background: transparent;
+  box-shadow: 0 1px 0 0 var(--border);
   text-align: left;
-  margin: 5px 0;
+  margin: var(--xs-m) 0;
+  color: var(--black);
+
+  &:hover {
+    cursor: pointer;
+  }
 
   &--active {
     border: none;
-    border-radius: 9px;
-    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--border-radius-md);
+    background: var(--white-snow);
     box-shadow: none;
-    box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 5px 0 var(--border);
   }
 
   &--last-message {
-    font-size: 13px;
+    font-size: var(--sm-font);
     line-height: 14px;
     opacity: 0.5;
   }
 
   &--name {
-    font-size: 14px;
+    font-size: var(--md-font);
     line-height: 17px;
-    font-weight: 600;
-    margin-bottom: 2px;
+    font-weight: var(--font-weight-semi-bold);
+    margin-bottom: calc(var(--xxs-m) / 2);
     max-width: 250px;
     span {
       display: block;
@@ -186,7 +189,7 @@
   &--unread {
     .str-chat__channel-preview-messenger--last-message {
       opacity: 1;
-      font-weight: 600;
+      font-weight: var(--font-weight-semi-bold);
     }
   }
 }
@@ -194,29 +197,28 @@
 .dark.str-chat {
   .str-chat__channel-preview {
     &--active {
-      background: #132d50;
+      background: var(--black80);
     }
     &-title {
-      color: white;
+      color: var(--white);
     }
     button {
       &:focus {
-        background: #132d50;
-        box-shadow: inset 0 0 0 1px $secondary-color,
-          inset 0 0 0 2px rgba(0, 108, 255, 0.36);
+        background: var(--black80);
+        box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
       }
     }
   }
   .str-chat__channel-preview-messenger {
     &--active {
-      background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.07);
+      background: var(--white5);
+      box-shadow: 0 1px 5px 0 var(--black10);
     }
     &--last-message {
-      color: rgba(white, 0.5);
+      color: var(--white);
     }
     &--name {
-      color: rgba(white, 1);
+      color: var(--white);
     }
   }
 }

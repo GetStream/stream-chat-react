@@ -1,15 +1,15 @@
 .str-chat__thread {
-  background: #f1f1f3;
+  background: var(--grey-whisper);
   flex: 1 0 300px;
   min-width: 300px;
   max-width: 300px;
   overflow-y: hidden;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--second-font);
   overflow: hidden;
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: 0px;
+  padding-top: 0;
 
   &--full {
     max-width: 100%;
@@ -18,32 +18,32 @@
   &-header {
     position: relative;
     width: 100%;
-    background: #f1f1f3;
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14);
+    background: var(--grey-whisper);
+    box-shadow: 0 1px 1px 0 var(--border);
     height: 70px;
     top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 var(--sm-p);
 
     &-details {
-      font-size: 14px;
+      font-size: var(--md-font);
 
       small {
         display: block;
-        font-size: 12px;
+        font-size: var(--sm-font);
       }
     }
   }
 
   &-start {
-    border-radius: 4px;
-    margin: 10px 10px 0 10px;
-    padding: 8px;
-    background: rgba(153, 196, 255, 0.1);
+    border-radius: var(--border-radius-sm);
+    margin: var(--xs-m) var(--xs-m) 0 var(--xs-m);
+    padding: var(--xs-p);
+    background: var(--grey-whisper);
     text-align: center;
-    font-size: 12px;
+    font-size: var(--sm-font);
   }
 
   &-list {
@@ -52,7 +52,7 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding-top: 20px;
+    padding-top: var(--sm-p);
 
     .str-chat__list {
       padding: 0;
@@ -64,23 +64,23 @@
     }
 
     .str-chat__message-attachment.str-chat__message-attachment--file {
-      border-radius: 8px;
-      border-bottom: 1px solid #ebebeb;
+      border-radius: var(--border-radius-md);
+      border-bottom: 1px solid var(--grey-whisper);
     }
 
     .quoted-message {
       display: flex;
       align-items: flex-end;
-      margin-bottom: 5px;
+      margin-bottom: var(--xxs-m);
 
       &-inner {
         display: flex;
         text-align: start;
         align-items: flex-end;
-        background: #ebebeb;
-        border-radius: 8px 8px 8px 0;
+        background: var(--grey-whisper);
+        border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
         max-width: 408px;
-        padding: 5px 10px;
+        padding: var(--xxs-p) var(--xs-p);
 
         .str-chat__message-attachment.str-chat__message-attachment--file {
           display: none;
@@ -92,7 +92,7 @@
 
         .str-chat__message-attachment.str-chat__message-attachment--card {
           border: none;
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
         }
 
         .str-chat__message-attachment {
@@ -102,19 +102,19 @@
           }
 
           img {
-            border-radius: 8px;
+            border-radius: var(--border-radius-md);
           }
         }
 
         :nth-child(2) {
-          margin-left: 10px;
+          margin-left: var(--xs-m);
         }
       }
     }
 
     .quoted-message.mine {
       .quoted-message-inner {
-        background: $white;
+        background: var(--white);
       }
     }
   }
@@ -124,16 +124,15 @@
   &.str-chat {
     .str-chat {
       &__thread {
-        margin-right: 10px;
-        margin-top: 20px;
-        border-radius: 8px 8px 0 0;
-
+        margin-right: var(--xs-m);
+        margin-top: var(--sm-m);
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         overflow: hidden;
-        background: white;
+        background: var(--white);
         max-height: 100%;
         display: flex;
         flex-direction: column;
-        padding-top: 0px;
+        padding-top: 0;
 
         &.str-chat__thread--full {
           margin: 0;
@@ -149,7 +148,7 @@
         }
       }
       &__thread-list {
-        padding: 20px 10px 0 10px;
+        padding: var(--sm-p) var(--sm-p) 0 var(--sm-p);
 
         > .str-chat__list {
           background: transparent;
@@ -161,11 +160,12 @@
       }
       &__thread-header {
         border: none;
-        box-shadow: none;
-        background: white;
+        // box-shadow: none;
+        background: var(--white);
+        box-shadow: 0 2px 9px 0 var(--border), 0 1px 0 0 var(--border);
       }
       &__thread-start {
-        margin-top: 20px;
+        margin-top: var(--md-m);
       }
       @media screen and (max-width: 960px) {
         &__thread {
@@ -173,7 +173,7 @@
           top: 0;
           right: 0;
           height: 100vh;
-          background: white;
+          background: var(--white);
           z-index: 1000;
           margin: 0;
           width: 100vw;
@@ -183,19 +183,19 @@
     }
     &.dark {
       .str-chat__thread {
-        background: rgba(white, 0.04);
+        background: var(--white5);
         &-header {
-          background: rgba(46, 48, 51, 0.98);
-          box-shadow: 0 7px 9px 0 rgba(0, 0, 0, 0.03), 0 1px 0 0 rgba(0, 0, 0, 0.03);
-          color: white;
+          background: var(--black80);
+          box-shadow: 0 7px 9px 0 var(--black5), 0 1px 0 0 var(--black5);
+          color: var(--white);
         }
         &-start {
-          color: white;
+          color: var(--white);
         }
       }
       @media screen and (max-width: 960px) {
         .str-chat__thread {
-          background: #282a2d;
+          background: var(--dark-grey);
         }
       }
     }
@@ -206,7 +206,7 @@
   &.str-chat {
     .str-chat {
       &__thread {
-        background: white;
+        background: var(--white);
       }
       @media screen and (max-width: 960px) {
         &__thread {
@@ -214,7 +214,7 @@
           top: 0;
           right: 0;
           height: 100vh;
-          background: white;
+          background: var(--white);
           z-index: 1000;
           margin: 0;
           width: 100vw;
@@ -227,7 +227,7 @@
     }
     &.dark {
       .str-chat__thread {
-        background: $dt-bg-team;
+        background: var(--dt-bg-team);
       }
     }
   }
@@ -238,24 +238,24 @@
   .str-chat__thread {
     background: transparent;
     &-header {
-      background: rgba(255, 255, 255, 0.29);
+      background: var(--white30);
     }
   }
   .str-chat__list--thread {
-    padding: 0 10px;
+    padding: 0 var(--xs-p);
   }
   &.dark {
     .str-chat__thread {
-      background: #1a1a1a;
+      background: var(--dark-grey);
       &-header {
-        background: rgba(255, 255, 255, 0.03);
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.34);
-        color: white;
+        background: var(--white5);
+        box-shadow: 0 1px 1px 0 var(--black30);
+        color: var(--white);
       }
       &-start {
-        background: rgba(153, 196, 255, 0.1);
-        border-radius: 4px;
-        color: white;
+        background: var(--black5);
+        border-radius: var(--border-radius-sm);
+        color: var(--white);
       }
     }
   }

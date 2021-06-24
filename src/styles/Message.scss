@@ -5,68 +5,70 @@
   .quoted-message {
     display: flex;
     align-items: flex-end;
-    margin-bottom: 5px;
+    margin-bottom: var(--xxs-m);
 
     &-inner {
       display: flex;
       text-align: start;
       align-items: flex-end;
-      background: #ebebeb;
-      border-radius: 8px 8px 8px 0;
+      background: var(--grey-whisper);
+      border-radius: var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 0;
       max-width: 408px;
-      padding: 5px 10px;
+      padding: var(--xxs-p) var(--xs-p);
 
       .str-chat__message-attachment-card.str-chat__message-attachment-card--image {
         border: none;
-        border-radius: 8px;
+        border-radius: var(--border-radius-md);
       }
 
       .str-chat__message-attachment {
         &--image:first-of-type {
           max-height: 48px;
           max-width: 48px;
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
         }
 
         img {
-          border-radius: 8px;
+          border-radius: var(--border-radius-md);
         }
 
         &--file:first-of-type {
-          background: $white;
-          border-radius: 8px;
-          border-bottom: 1px solid #ebebeb;
+          background: var(--white);
+          border-radius: var(--border-radius-md);
+          border-bottom: 1px solid var(--grey-whisper);
           min-width: 33%;
         }
       }
 
       :nth-child(2) {
-        margin-left: 10px;
+        margin-left: var(--xs-m);
       }
     }
   }
 
   .quoted-message.mine {
     .quoted-message-inner {
-      background: $white;
+      background: var(--white-snow);
     }
   }
 
   /* group styling */
   &--top,
   &--single {
-    margin: 20px 0 0;
+    margin: 24px 0 0;
     .str-chat__message {
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
         }
       }
 
@@ -75,21 +77,25 @@
         .str-chat__message {
           &-attachment--img,
           &-attachment-card {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
           .str-chat__message-attachment--img,
           .str-chat__message-attachment-card {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
         .str-chat__gallery {
-          border-radius: $border-radius $border-radius 2px $border-radius;
+          border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+            var(--border-radius);
         }
         &.str-chat__message--has-text {
           .str-chat__gallery {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
       }
@@ -103,14 +109,16 @@
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card,
         .str-chat__gallery {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
         }
       }
 
@@ -119,14 +127,15 @@
           &-attachment--img,
           &-attachment-card,
           .str-chat__gallery {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
           .str-chat__message-attachment--img,
           .str-chat__message-attachment-card,
           .str-chat__gallery {
-            border-top-left-radius: 2px;
+            border-top-left-radius: calc(var(--border-radius-sm) / 2);
           }
         }
       }
@@ -134,19 +143,21 @@
   }
 
   &--bottom {
-    margin: 0 0 20px;
+    margin: 0 0 24px;
     .str-chat__message {
       &-attachment--img,
       &-attachment-card,
       .str-chat__gallery {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
 
       &.str-chat__message--has-text.str-chat__message--has-attachment {
         .str-chat__message-attachment--img,
         .str-chat__message-attachment-card,
         .str-chat__gallery {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
         }
       }
 
@@ -155,14 +166,15 @@
           &-attachment--img,
           &-attachment-card,
           .str-chat__gallery {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
         &.str-chat__message--has-text.str-chat__message--has-attachment {
           .str-chat__message-attachment--img,
           .str-chat__message-attachment-card,
           .str-chat__gallery {
-            border-top-left-radius: 2px;
+            border-top-left-radius: calc(var(--border-radius-sm) / 2);
           }
         }
       }
@@ -170,7 +182,7 @@
   }
 
   &--single {
-    margin-bottom: 20px;
+    margin-bottom: var(--md-m);
   }
 
   &--top,
@@ -186,14 +198,16 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
         }
       }
 
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
           }
         }
       }
@@ -204,10 +218,12 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: $border-radius $border-radius $border-radius 2px;
+          border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
 
           &--has-attachment {
-            border-radius: 2px $border-radius $border-radius 2px;
+            border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius)
+              var(--border-radius) calc(var(--border-radius-sm) / 2);
           }
         }
       }
@@ -215,10 +231,12 @@
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius $border-radius 2px $border-radius;
+            border-radius: var(--border-radius) var(--border-radius)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
 
             &--has-attachment {
-              border-radius: $border-radius 2px 2px $border-radius;
+              border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+                calc(var(--border-radius-sm) / 2) var(--border-radius);
             }
           }
         }
@@ -231,14 +249,16 @@
     .str-chat__message {
       &-text {
         &-inner {
-          border-radius: 2px $border-radius $border-radius 2px;
+          border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+            calc(var(--border-radius-sm) / 2);
         }
       }
 
       &--me {
         .str-chat__message-text {
           &-inner {
-            border-radius: $border-radius 2px 2px $border-radius;
+            border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+              calc(var(--border-radius-sm) / 2) var(--border-radius);
             &--has-attachment {
               margin: 0;
             }
@@ -247,7 +267,8 @@
         .str-chat__message-attachment-card {
           margin: 0;
           padding: 0;
-          border-radius: $border-radius 2px 2px $border-radius;
+          border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+            calc(var(--border-radius-sm) / 2) var(--border-radius);
         }
       }
     }
@@ -259,9 +280,9 @@
   display: inline-flex;
   justify-content: flex-start;
   align-items: flex-end;
-  padding: 0 0 0 0;
+  padding: 0;
   position: relative;
-  margin: 1px 0;
+  margin: calc(var(--xxs-m) / 2) 0;
   width: 100%;
 
   &--system {
@@ -269,38 +290,38 @@
     align-items: center;
     width: 100%;
     flex-direction: column;
-    padding: 40px;
+    padding: var(--xl-p);
     box-sizing: border-box;
-    font-size: 10px;
+    font-size: var(--xs-font);
 
     &__text {
       display: flex;
       align-items: center;
       width: 100%;
       p {
-        margin: 0 25px;
-        color: rgba(0, 0, 0, 0.5);
+        margin: 0 24px;
+        color: var(--grey);
         text-transform: uppercase;
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
       }
     }
     &__line {
       flex: 1;
       height: 1px;
       width: 100%;
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: var(--overlay);
     }
     &__date {
-      margin-top: 3px;
+      margin-top: 4px;
       text-transform: uppercase;
-      color: rgba(0, 0, 0, 0.5);
+      color: var(--grey);
     }
   }
   &-inner {
     position: relative;
 
     @media screen and (min-width: 420px) {
-      margin-right: 90px;
+      margin-right: 88px;
       margin-left: unset;
     }
     > .str-chat__message-simple__actions {
@@ -317,7 +338,7 @@
     display: inline-flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 0 0 0 0;
+    padding: 0;
     position: relative;
 
     &-inner {
@@ -325,13 +346,12 @@
       flex: 1;
       display: block;
       min-height: 32px;
-      padding: 5px 10px;
-      font-size: 15px; /* variables */
-      color: black; /* variables */
-      border-radius: $border-radius $border-radius $border-radius 0;
-      background: #fff;
-      border: 1px solid $border-color;
-
+      padding: var(--xxs-p) var(--xs-p);
+      font-size: var(--lg-font);
+      color: var(--black);
+      border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
+      background: var(--white-snow);
+      border: 1px solid var(--border);
       margin-left: 0; /* set spacing when unfocused */
 
       p {
@@ -349,21 +369,22 @@
 
       /* if text consists is focused */
       &--focused {
-        background: $secondary-faded;
-        border: 1px solid $secondary-color;
+        background: var(--primary-color);
+        border: 1px solid var(--primary-color);
         margin-right: 0;
         margin-left: 0; /* set spacing when focused */
       }
 
       &--has-attachment {
-        border-radius: 2px $border-radius $border-radius 2px;
+        border-radius: calc(var(--border-radius-sm) / 2) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
 
       /* if text consists of just one emoji */
       &--is-emoji {
         background: transparent;
         border: 1px solid transparent;
-        font-size: 32px;
+        font-size: var(--xxxl-font);
 
         padding-left: 0;
         padding-right: 0;
@@ -384,17 +405,17 @@
   }
 
   &-data {
-    margin-top: 5px;
+    margin-top: var(--xxs-m);
     width: 100%;
-    font-size: 11px;
-    color: rgba(0, 0, 0, 0.5);
+    font-size: var(--xs-font);
+    color: var(--overlay-dark);
     position: absolute;
     white-space: nowrap;
   }
 
   &-name {
-    font-weight: $heavy-font-weight;
-    margin-right: 5px;
+    font-weight: var(--font-weight-bold);
+    margin-right: var(--xxs-m);
   }
 
   p {
@@ -402,14 +423,14 @@
     white-space: pre-line;
     line-height: 20px;
     &:not(:first-of-type) {
-      margin: 16px 0 0;
+      margin: var(--sm-m) 0 0;
     }
   }
 
   /* me */
   &--me {
     display: flex;
-    margin: 4px 0;
+    margin: var(--xxs-m) 0;
     justify-content: flex-end;
 
     .str-chat__message {
@@ -429,7 +450,7 @@
         align-items: flex-end;
         @media screen and (min-width: 420px) {
           margin-right: unset;
-          margin-left: 90px;
+          margin-left: 88px;
         }
         > .str-chat__message-simple__actions {
           position: absolute;
@@ -441,26 +462,28 @@
 
       &-text-inner {
         flex: initial;
-        background: #ebebeb;
+        background: var(--grey-whisper);
         border-color: transparent;
         text-align: right;
-        border-radius: $border-radius $border-radius 2px $border-radius;
+        border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+          var(--border-radius);
         margin-right: 0; /* set spacing when unfocused */
         &--focused {
-          background: $secondary-faded;
-          border: 1px solid $secondary-color;
+          background: var(--primary-color);
+          border: 1px solid var(--primary-color);
           margin-left: 0;
           margin-right: 0; /* set spacing when focused */
         }
 
         &--has-attachment {
-          border-radius: $border-radius 2px 2px $border-radius;
+          border-radius: var(--border-radius) calc(var(--border-radius-sm) / 2)
+            calc(var(--border-radius-sm) / 2) var(--border-radius);
         }
 
         &--is-emoji {
           background: transparent;
           border: 1px solid transparent;
-          font-size: 32px;
+          font-size: var(--xxxl-font);
           padding-left: 0;
           padding-right: 0;
 
@@ -490,17 +513,17 @@
   }
 
   &--with-reactions {
-    margin-top: 30px;
+    margin-top: var(--md-m);
   }
 
   &-link {
-    color: $primary-color;
-    font-weight: $heavy-font-weight;
+    color: var(--primary-color);
+    font-weight: var(--font-weight-bold);
     text-decoration: none;
   }
 
   &-mention {
-    font-weight: $heavy-font-weight;
+    font-weight: var(--font-weight-bold);
   }
 
   &-url-link {
@@ -518,28 +541,28 @@
 
   /* deleted messages */
   &--deleted {
-    margin: 0 0 0 42px;
+    margin: 0 0 0 var(--xl-m);
     flex-direction: column;
     align-items: flex-start;
     &-inner {
-      background: rgba(#fff, 0.1);
-      padding: 8px 16px;
-      border-radius: $border-radius;
-      font-size: 12px;
-      color: darken($grey, 30%);
+      background: var(--grey-whisper);
+      padding: var(--xs-p) var(--sm-p);
+      border-radius: var(--border-radius);
+      font-size: var(--sm-font);
+      color: var(--grey);
     }
   }
 
   &--me {
     &.str-chat__message--deleted {
-      margin: 0 42px 0 0;
+      margin: 0 var(--xl-m) 0 0;
       align-items: flex-end;
       &-inner {
-        background: rgba(#fff, 0.1);
-        padding: 8px 16px;
-        border-radius: $border-radius;
-        font-size: 12px;
-        color: darken($grey, 30%);
+        background: var(--white-smoke);
+        padding: var(--xs-) var(--sm-p);
+        border-radius: var(--border-radius);
+        font-size: var(--sm-font);
+        color: var(--grey);
       }
     }
   }
@@ -547,13 +570,13 @@
   /* error messages */
   &--error,
   &--failed {
-    margin: 0 0 32px 42px;
-    font-size: 12px;
-    padding: 4px 0;
+    margin: 0 0 var(--lg-m) var(--xl-m);
+    font-size: var(--sm-font);
+    padding: var(--xxs-p) 0;
 
     .str-chat__message-text-inner {
-      background: rgba(208, 2, 27, 0.1);
-      border: 1px solid rgba(208, 2, 27, 0.1);
+      background: var(--faded-red);
+      border: 1px solid var(--faded-red);
     }
   }
 
@@ -561,7 +584,7 @@
     &.str-chat__message--error,
     &.str-chat__message--failed {
       border-left: initial;
-      margin-right: 42px;
+      margin-right: var(--xl-m);
     }
   }
 
@@ -575,26 +598,27 @@
     .str-chat {
       &__message,
       &__message--me {
-        margin: 1px 0;
+        margin: calc(var(--xxs-m) / 2) 0;
         &--with-reactions {
-          margin-top: 30px;
+          margin-top: var(--lg-m);
         }
       }
 
       &__message-attachment--image {
-        margin: 1px 0;
+        margin: calc(var(--xxs-m) / 2) 0;
 
         max-width: 480px;
       }
       &__message-attachment--card {
-        margin: 1px 0;
+        margin: calc(var(--xxs-m) / 2) 0;
         line-height: normal;
       }
       &__message-attachment-card {
-        margin: 1px auto;
+        margin: calc(var(--xxs-m) / 2) auto;
         line-height: normal;
+        background: var(--grey-gainsboro);
         &--title {
-          color: $secondary-color;
+          color: var(--primary-color);
         }
         &--text {
           display: none;
@@ -604,7 +628,7 @@
         }
       }
       &__message--deleted {
-        margin: 0 42px;
+        margin: 0 var(--xl-m);
       }
 
       &__li {
@@ -612,7 +636,7 @@
           .str-chat__message {
             .str-chat__message-attachment--card,
             .str-chat__message-attachment--image {
-              border-top-left-radius: 2px;
+              border-top-left-radius: calc(var(--border-radius-sm) / 2);
             }
           }
         }
@@ -623,18 +647,18 @@
 
 .str-chat {
   &__message-simple {
-    font-family: $second-font;
+    font-family: var(--second-font);
     &__actions {
       display: flex;
 
       &__action {
-        margin: 5px;
+        margin: var(--xxs-m);
         display: flex;
         align-items: center;
         height: 10px;
         cursor: pointer;
         svg {
-          fill: #000;
+          fill: var(--black);
           opacity: 0.5;
         }
         &:hover {
@@ -665,7 +689,7 @@
     &-text {
       display: flex;
       justify-content: flex-end;
-      padding: 0 0 0 0;
+      padding: 0;
       position: relative;
     }
 
@@ -685,18 +709,18 @@
         text-align: left;
       }
       a {
-        color: $secondary-color;
-        font-weight: 700;
+        color: var(--primary-color);
+        font-weight: var(--font-weight-bold);
         text-decoration: none;
       }
       blockquote {
-        margin: 0 0 0 5px;
+        margin: 0 0 0 var(--xxs-m);
         font-style: italic;
-        padding-left: 20px;
+        padding-left: var(--md-p);
         position: relative;
 
         &::before {
-          font-size: 25px;
+          font-size: var(--xxl-font);
           content: '\201C';
           font-style: italic;
           position: absolute;
@@ -716,8 +740,8 @@
           flex-direction: row-reverse;
           svg {
             transform: scaleX(-1);
-            margin-left: 5px;
-            margin-bottom: 4px;
+            margin-left: var(--xxs-m);
+            margin-bottom: var(--xxs-m);
             margin-right: 0;
           }
         }
@@ -771,12 +795,12 @@
 .str-chat__simple-message--error-message {
   text-align: left;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--xs-font);
   opacity: 0.5;
 }
 
 .str-chat__message-simple-status {
-  margin: 10px 0px 10px 10px;
+  margin: var(--xs-m) 0px var(--xs-m) var(--xs-m);
   order: 3;
   position: absolute;
   left: 100%;
@@ -787,11 +811,11 @@
   align-items: center;
   z-index: 1;
   &-number {
-    font-size: 10px;
+    font-size: var(--xs-font);
     margin-left: 4px;
     position: absolute;
     left: 100%;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--overlay-dark);
   }
 
   > .str-chat__avatar {
@@ -825,12 +849,11 @@
 .str-chat__message-simple {
   .str-chat__message-attachment-card {
     margin: 0;
-    border-radius: 4px $border-radius 4px 4px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--white);
+    border: 1px solid var(--border);
 
     &--content {
-      background: #ebebeb;
+      background: var(--grey-gainsboro);
     }
 
     &--text {
@@ -839,25 +862,26 @@
   }
   .str-chat__message-attachment--file {
     margin: 0;
-    background: white;
+    background: var(--white);
     border-color: transparent;
-    border: 1px solid #ebebeb;
-    border-radius: 8px;
+    border: 1px solid var(--grey-gainsboro);
+    border-radius: var(--border-radius-md);
     .str-chat__message-attachment-file--item {
       border-color: transparent;
-      padding: 0 10px;
+      padding: 0 var(--xs-p);
     }
     &:first-of-type {
-      border-radius: $border-radius $border-radius 0 0;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
       border-bottom: transparent;
     }
     &:last-of-type {
       border-top-color: transparent;
-      border-radius: 0 0 $border-radius 2px;
+      border-radius: 0 0 var(--border-radius) calc(var(--border-radius-sm) / 2);
       &:first-of-type {
-        border-bottom: 1px solid #ebebeb;
-        border-top: 1px solid #ebebeb;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-bottom: 1px solid var(--grey-gainsboro);
+        border-top: 1px solid var(--grey-gainsboro);
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
     }
   }
@@ -866,15 +890,17 @@
   }
   &--me {
     .str-chat__message-attachment-card {
-      border-radius: $border-radius 4px 4px 4px;
+      border-radius: var(--border-radius) var(--border-radius-sm) var(--border-radius-sm)
+        var(--border-radius-sm);
     }
     .str-chat__message-attachment--file {
-      background: #ebebeb;
+      background: var(--grey-gainsboro);
       &:last-of-type {
-        border-radius: 0 0 2px $border-radius;
+        border-radius: 0 0 calc(var(--border-radius-sm) / 2) var(--border-radius);
 
         &:first-of-type {
-          border-radius: $border-radius $border-radius 2px $border-radius;
+          border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+            var(--border-radius);
         }
       }
     }
@@ -890,7 +916,8 @@
       .str-chat__message-actions-box {
         right: unset;
         left: 100%;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
     }
   }
@@ -900,7 +927,7 @@
   .str-chat {
     &__li {
       &--single {
-        margin: 0px 0;
+        margin: 0;
       }
     }
   }
@@ -920,39 +947,39 @@
 .dark.str-chat {
   .str-chat__message-simple {
     &-text-inner {
-      background: rgba(white, 0.05);
-      color: white;
+      background: var(--white-smoke);
+      color: var(--white);
       &--is-emoji {
         background: transparent;
       }
     }
     &__actions {
       svg {
-        fill: white;
+        fill: var(--white);
       }
     }
     &-data {
-      color: white;
+      color: var(--white);
       opacity: 0.5;
     }
 
     .str-chat__message-attachment-card {
       background: transparent;
       &--content {
-        background: rgba(white, 0.05);
+        background: var(--white-smoke);
       }
       &--url {
-        color: rgba(white, 0.5);
+        color: var(--grey-gainsboro);
       }
     }
 
     .str-chat__message-attachment--file {
       border-color: transparent;
-      background: rgba(white, 0.05);
+      background: var(--white-smoke);
 
       a,
       span {
-        color: white;
+        color: var(--white);
       }
       span {
         opacity: 0.5;
@@ -961,25 +988,25 @@
 
     .str-chat__message-simple-status {
       &-number {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--grey-gainsboro);
       }
     }
 
     &--me {
       .str-chat__message-simple {
         &-text-inner {
-          background: rgba(black, 0.2);
+          background: var(--black);
           &--is-emoji {
             background: transparent;
           }
         }
         .str-chat__message-attachment-card {
           &--content {
-            background: rgba(black, 0.2);
+            background: var(--black);
           }
         }
         .str-chat__message-attachment--file {
-          background: rgba(0, 0, 0, 0.2);
+          background: var(--overlay);
         }
       }
     }
@@ -988,16 +1015,15 @@
 
 .dark.str-chat {
   .str-chat__message-simple__actions__action--options .str-chat__actions-box {
-    background: #67686a;
-    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.22), 0 1px 0 0 rgba(0, 0, 0, 0.08),
-      0 1px 8px 0 rgba(0, 0, 0, 0.05);
+    background: var(--grey);
+    box-shadow: 0 0 2px 0 var(--overlay), 0 1px 0 0 var(--border), 0 1px 8px 0 var(--border);
   }
   .str-chat__message {
     &--error,
     &--failed {
       .str-chat__message-simple-text-inner {
-        background: rgba(208, 2, 27, 0.1);
-        border: 1px solid rgba(208, 2, 27, 0.1);
+        background: var(--faded-red);
+        border: 1px solid var(--faded-red);
       }
     }
   }
@@ -1011,17 +1037,20 @@
       &--reverse {
         right: 100%;
         left: unset;
-        border-radius: $border-radius $border-radius 2px $border-radius;
+        border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+          var(--border-radius);
       }
     }
     .str-chat__message-actions-box--mine {
       right: 100%;
       left: unset;
-      border-radius: $border-radius $border-radius 2px $border-radius;
+      border-radius: var(--border-radius) var(--border-radius) calc(var(--border-radius-sm) / 2)
+        var(--border-radius);
       &.str-chat__message-actions-box--reverse {
         left: 100%;
         right: unset;
-        border-radius: $border-radius $border-radius $border-radius 2px;
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius)
+          calc(var(--border-radius-sm) / 2);
       }
     }
   }
@@ -1053,7 +1082,7 @@
   // fixes the overall overflow/flex issues together with the rule below
   .mml-container {
     display: flex;
-    padding-bottom: 4px;
+    padding-bottom: var(--xxs-p);
   }
 
   .mml-icon {

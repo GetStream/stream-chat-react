@@ -1,0 +1,124 @@
+---
+id: css_and_theming
+sidebar_position: 4
+title: CSS and Theming
+---
+
+import Theming1 from '../assets/Theming1.png';
+import Theming2 from '../assets/Theming2.png';
+import Theming3 from '../assets/Theming3.png';
+
+While the components in the React Chat library come with basic styling, the look and feel can easily be adjusted to fit
+your specifications. For small and precise changes, individual CSS classes can be overridden. For larger, theme-related
+adjustments, the `Chat` component accepts a [`customStyles`](../core-components/chat.mdx#customstyles) prop which can toggle
+a large selection of CSS variables.
+
+## Overriding CSS
+
+To override pre-defined library styles, follow this simple process:
+
+- Import our bundled CSS into the file where you instantiate your chat application
+
+- Use the browser inspector or view the library code and locate default styles you wish to override
+
+- Add selectors to your local CSS file to override our defaults
+
+- Import your local CSS file after Stream's bundled CSS
+
+For example:
+
+```jsx
+import 'stream-chat-react/dist/css/index.css';
+import './App.css';
+```
+
+## Theming Your App
+
+To make more sweeping stylistic changes to the default CSS, the library exposes a variety of
+[CSS variables](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss) that can be
+adjusted with props. The `Chat` component accepts a `customStyles` prop, an object type with keys as the CSS variables
+you wish to change and values for the corresponding, adjusted CSS.
+
+In the below example, we demonstrate how to change four of the library's global CSS variables:
+
+- Primary color
+- Medium font size
+- Extra small margin
+- Extra small padding
+
+```tsx
+const customStyles: CustomStyles = {
+  '--primary-color': 'green',
+  '--md-font': '1.2rem',
+  '--xs-m': '1.2rem',
+  '--xs-p': '1.2rem',
+};
+
+const App = () => (
+  <Chat client={client} customStyles={customStyles}>
+    <ChannelList />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+The first screenshot shows an app running with the default library styling. In the second, we've supplied a
+`customStyles` object to the `Chat` component to create a more zoomed-in user experience with a green primary
+color.
+
+### Default Styles
+
+<img src={Theming1} alt='Theming1' width='700' />
+
+### Custom CSS Variables
+
+<img src={Theming2} alt='Theming2' width='700' />
+
+### Simple Dark Mode
+
+The `Chat` component also accepts a `darkMode` boolean prop that toggles the app into a basic dark mode setting.
+The dark mode toggle is meant to point you in the right direction for building a custom theme into your app.
+
+Adding the `darkMode` prop is equivalent to supplying to following object to `customStyles`:
+
+```tsx
+const darkModeTheme: CustomStyles = {
+  '--bg-gradient-end': '#101214',
+  '--bg-gradient-start': '#070a0d',
+  '--black': '#ffffff',
+  '--blue-alice': '#00193d',
+  '--border': '#141924',
+  '--button-background': '#ffffff',
+  '--button-text': '#005fff',
+  '--grey': '#7a7a7a',
+  '--grey-gainsboro': '#2d2f2f',
+  '--grey-whisper': '#1c1e22',
+  '--modal-shadow': '#000000',
+  '--overlay': '#00000066',
+  '--overlay-dark': '#ffffffcc',
+  '--shadow-icon': '#00000080',
+  '--targetedMessageBackground': '#302d22',
+  '--transparent': 'transparent',
+  '--white': '#101418',
+  '--white-smoke': '#13151b',
+  '--white-snow': '#070a0d',
+};
+```
+
+#### The result:
+
+<img src={Theming3} alt='Theming3' width='700' />
+
+### Variables Reference
+
+A complete reference of all supported CSS variables, as well as their default values, can be found within our
+[SCSS variables file](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss).
+Any of the CSS variables (prepended with `--`) can be overridden via the `customStyles` approach detailed
+above.

@@ -3,10 +3,10 @@
     height: 80px;
     overflow: hidden;
     position: relative;
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
     margin: 0;
     display: flex;
-    background: #f1f1f1;
+    background: var(--grey-whisper);
   }
 
   &__image {
@@ -21,10 +21,10 @@
       position: absolute;
       top: 0;
       left: 0;
-      background: rgba(black, 0.4);
+      background: var(--overlay-dark);
       z-index: 30;
       font-size: 3em;
-      color: rgba(white, 0.69);
+      color: var(--white-smoke);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,7 +39,7 @@
       width: 40px;
       height: 40px;
       svg {
-        fill: rgba(white, 0.69);
+        fill: var(--white-smoke);
       }
     }
 
@@ -58,12 +58,11 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    padding: 8px 16px;
-    margin-left: 16px;
+    padding: var(--xs-p) var(--sm-p);
+    margin-left: var(--sm-m);
     width: 100%;
 
     &--title {
-      // color: $fontColor;
       margin: 0;
       padding: 0;
       line-height: 1;
@@ -73,24 +72,23 @@
       margin: 0;
       padding: 0;
       line-height: 1;
-      font-size: 12px;
+      font-size: var(--sm-font);
       opacity: 0.49;
-      // color: rgba($secondary-color, 0.69);
     }
 
     &--progress {
       height: 6px;
       width: 100%;
-      border-radius: 4px;
-      background: rgba(black, 0.1);
+      border-radius: var(--border-radius-sm);
+      background: var(--overlay);
       padding: 1px;
-      margin: 2px 0;
+      margin: calc(var(--xxs-m) / 2) 0; //TODO-CSS
 
       > div {
         height: 4px;
-        border-radius: 4px;
+        border-radius: var(--border-radius-sm);
         width: 0%;
-        background: $secondary-color;
+        background: var(--primary-color);
         transition: width 0.5s linear;
       }
     }
@@ -100,12 +98,12 @@
 .str-chat.dark {
   .str-chat__audio {
     &__wrapper {
-      background: #1a1a1a;
-      color: white;
+      background: var(--black);
+      color: var(--white);
     }
     &__content {
       &--progress {
-        background: rgba(white, 0.1);
+        background: var(--grey);
       }
     }
   }

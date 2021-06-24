@@ -2,20 +2,20 @@
   width: 32px;
   height: 32px;
   flex: 0 0 32px;
-  margin-right: 10px;
+  margin-right: var(--xs-m);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--white);
   text-transform: uppercase;
   overflow: hidden;
 
   &--circle {
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
   }
 
   &--rounded {
-    border-radius: 6px;
+    border-radius: var(--border-radius-sm);
   }
 
   &--square {
@@ -34,7 +34,7 @@
     background-color: none;
   }
   &-fallback {
-    background-color: $secondary-color;
+    background-color: var(--primary-color);
   }
 }
 
@@ -43,7 +43,7 @@
     > .str-chat__avatar {
       order: 1;
       margin: 0;
-      margin-left: 10px;
+      margin-left: var(--xs-m);
     }
   }
 }

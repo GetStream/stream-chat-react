@@ -1,5 +1,5 @@
 .str-chat__channel-list-messenger {
-  padding: 20px 10px 0 10px;
+  padding: var(--sm-p) var(--sm-p) 0 var(--sm-p);
   min-width: 300px;
-  height: 100%;
+  background: var(--grey-gainsboro);
 }

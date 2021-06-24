@@ -3,12 +3,12 @@
   height: 100%;
   &-main {
     flex: 1;
-    padding: 30px;
+    padding: var(--lg-p);
   }
 }
 
 .dark.str-chat {
   .str-chat__down {
-    color: rgba(white, 0.87);
+    color: var(--white);
   }
 }

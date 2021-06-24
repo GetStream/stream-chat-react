@@ -3,25 +3,25 @@
   right: 0;
   bottom: calc(100% + 10px);
   display: flex;
-  background: #000;
-  border-radius: 4px;
-  padding: 3px 7px;
-  color: white;
-  font-size: 11px;
+  background: var(--black);
+  border-radius: var(--border-radius-sm);
+  padding: var(--xxs-p) var(--xs-p);
+  color: var(--white);
+  font-size: var(--xs-font);
   max-width: 300px;
 
   button {
     outline: none;
     outline: 0;
     background: none;
-    color: #006cff;
-    font-size: 11px;
-    font-family: $second-font;
+    color: var(--primary-color);
+    font-size: var(--xs-font);
+    font-family: var(--second-font);
     border: none;
   }
 
   a {
-    color: #006cff;
+    color: var(--primary-color);
     text-decoration: none;
   }
 
@@ -32,7 +32,7 @@
     right: 5px;
     width: 5px;
     height: 5px;
-    background: #000;
+    background: var(--black);
     transform: rotate(45deg);
   }
 }
