@@ -44,14 +44,14 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-type MessageListNotificationsProps = {
+export type MessageListNotificationsProps = {
   hasNewMessages: boolean;
   MessageNotification: React.ComponentType<MessageNotificationProps>;
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
 };
 
-const MessageListNotifications = (props: MessageListNotificationsProps) => {
+const DefaultMessageListNotifications = (props: MessageListNotificationsProps) => {
   const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
 
   const { t } = useTranslationContext();
@@ -132,6 +132,7 @@ const MessageListWithContext = <
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
+    MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -166,6 +167,7 @@ const MessageListWithContext = <
       customMessageActions: props.customMessageActions,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
+      getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
@@ -231,6 +233,7 @@ type PropsDrilledToMessage =
   | 'customMessageActions'
   | 'disableQuotedMessages'
   | 'formatDate'
+  | 'getDeleteMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
   | 'getMuteUserErrorNotification'
