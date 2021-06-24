@@ -51,8 +51,10 @@ export const CustomEmojiPicker = () => {
   const { emojiConfig } = useChannelStateContext();
   const { Emoji } = useComponentContext();
   const { onSelectEmoji } = useMessageInputContext();
+
   const { emojiData } = emojiConfig || {};
   const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
+
   return (
     <div className='wrapper'>
       {customEmojis.map((emoji) => (
