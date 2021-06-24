@@ -1,0 +1,87 @@
+---
+id: emoji_picker
+sidebar_position: 11
+title: Emoji Picker
+---
+
+import CustomEmojiPicker from '../assets/CustomEmojiPicker.png';
+
+In this example, we will demonstrate how to create a custom Emoji Picker component that can be used in the MessageInput. This component will replace the default [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx) with only breakfast food emojis.
+
+### Step 1 - Choose Your Emojis
+
+The default `EmojiPicker` renders individual emoji objects using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from [emoji-mart](https://www.npmjs.com/package/emoji-mart). Our custom set of emojis will need to follow the same `NimbleEmoji` props.
+
+`NimbleEmoji` accepts an `emoji` prop, which pertains to the object mapping of your custom reaction. The `emoji` prop has
+the following type:
+
+```jsx
+export interface BaseEmoji {
+  colons: string;
+  emoticons: string[];
+  id: string;
+  name: string;
+  native: string;
+  skin: EmojiSkin | null;
+  unified: string;
+}
+```
+
+In this example we will be using only the id of the emojis we want in our selector. For a more detailed example of how to construct these emoji objects please see the Reactions Selector and List section.
+
+Below is the array of breakfast emojis we will use:
+
+```jsx
+const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
+```
+
+:::tip
+For help getting emoji object data, you can index search the default [emojiData](https://github.com/GetStream/stream-chat-react/blob/master/src/stream-emoji.json)
+loaded into the component library.
+:::
+
+### Step 2 - Create the Custom Component
+
+To construct our component we will need to utilize the `useChannelStateContext` to get our emojiConfig. This contains the emojiData we need for our `data` prop. Using the `onSelectEmoji` method from `messageInput` we can add the onClick functionality to our custom picker. This is what our final code will look like:
+
+```css
+.wrapper {
+  font-weight: 800;
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+  border: 1px solid #e0e0e0;
+  align-items: center;
+  padding: 8px;
+}
+```
+
+```jsx
+export const CustomEmojiPicker = () => {
+  const { emojiConfig } = useChannelStateContext();
+  const { Emoji } = useComponentContext();
+  const messageInput = useMessageInputContext();
+
+  const { emojiData } = emojiConfig || {};
+
+  const { onSelectEmoji } = messageInput;
+
+  const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
+
+  return (
+    <div className='wrapper'>
+      {customEmojis.map((emoji) => (
+        <Emoji onClick={onSelectEmoji} emoji={emoji} size={40} data={emojiData} />
+      ))}
+    </div>
+  );
+};
+```
+
+From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+`<Channel EmojiPicker={CustomEmojiPicker}>`
+
+**Result:**
+
+<img src={CustomEmojiPicker} alt='Custom Emoji Picker UI Component for Chat' width='700' />
