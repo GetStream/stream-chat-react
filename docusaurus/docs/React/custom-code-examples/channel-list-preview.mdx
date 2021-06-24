@@ -10,19 +10,17 @@ import CustomPreview from '../assets/CustomPreview.png';
 
 To customize the UI for the [`ChannelList`](../core-components/channel-list.mdx) you need to focus on the two components that dictate the UI, the list and preview components. These are set via the optional `List` and `Preview` props, and if nothing is provided they default to
 [`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
-and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx). 
+and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
 
 Here is a guide to build these two UI components to override the defaults.
 
-## The List Prop Component 
+## The List Prop Component
 
 The list component used by `ChannelList` receives the same props as the default and is a container that renders the list of channels via the children prop. The return block in the code below is an example of the minimum necessary elements
 needed for a custom list component.
 
 ```jsx
-  return (
-    <div>{props.children}</div>
-  );
+return <div>{props.children}</div>;
 ```
 
 Using the default `ChannelListMessenger` component as a model, let's incorporate the other props to render the list conditionally.
@@ -43,10 +41,7 @@ props and assign the default values for each, `ChatDown` and `LoadingChannels`. 
 ```jsx
 import { ChatDown, LoadingChannels } from 'stream-chat-react';
 
-const {
-  LoadingErrorIndicator = ChatDown,
-  LoadingIndicator = LoadingChannels,
-} = props;
+const { LoadingErrorIndicator = ChatDown, LoadingIndicator = LoadingChannels } = props;
 
 if (error) {
   return <LoadingErrorIndicator type={'connection'} />;
@@ -62,30 +57,22 @@ you can utilize the props of the same names on `ChannelList`. If either of these
 
 ```jsx
 const CustomErrorIndicator = (props: ChatDownProps) => {
-  return <div>So much error when rendering.</div>
+  return <div>So much error when rendering.</div>;
 };
 
 <ChannelList
-  LoadingErrorIndicator={(props) => (
-    <CustomErrorIndicator {...props} type={'connection'} />
-  )}
-/>
+  LoadingErrorIndicator={(props) => <CustomErrorIndicator {...props} type={'connection'} />}
+/>;
 ```
 
-This is a basic example, but possibilities are endless for 
-adding additional UI items, not using all of the props, and incorporating other logic that fit your requirements. Check out the [CSS section](../customization/theming-and-css.mdx) for a note on custom styling.
+This is a basic example, but possibilities are endless for
+adding additional UI items, not using all of the props, and incorporating other logic that fit your requirements. Check out the [CSS section](../customization/css-and-theming.mdx) for a note on custom styling.
 
 **The Final Code:**
 
 ```jsx
 const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) => {
-  const {
-    children,
-    error,
-    loading,
-    LoadingErrorIndicator,
-    LoadingIndicator,
-  } = props;
+  const { children, error, loading, LoadingErrorIndicator, LoadingIndicator } = props;
 
   if (error) {
     return <LoadingErrorIndicator type={'connection'} />;
@@ -95,21 +82,17 @@ const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) => {
     return <LoadingIndicator />;
   }
 
-  return (
-    <div>{children}</div>
-  );
+  return <div>{children}</div>;
 };
 
 const CustomErrorIndicator = (props: ChatDownProps) => {
-  const {
-    text
-  } = props
+  const { text } = props;
 
-  return <div>{text}</div>
+  return <div>{text}</div>;
 };
 
 const CustomLoadingIndicator = () => {
-  return <div>Loading, loading, loading...</div>
+  return <div>Loading, loading, loading...</div>;
 };
 
 <Chat client={client}>
@@ -135,29 +118,23 @@ Ultimately, these UI components are rendered via the [`ChannelPreview`](../utili
 Here is a guide to build a custom UI component to override the default using the large variety of props provided.
 The code snippet below includes the bare minimum code that would be required for standard preview functionality (click handler and active channel selection), and anything additional would be to satisfy unique requirements.
 
-```jsx
+```tsx
 import { ChannelPreviewUIComponentProps } from 'stream-chat-react';
 
 export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
-    const {
-      channel,
-      setActiveChannel,
-      watchers,
-    } = props;
-  
-    return (
-      <div
-        onClick={() => setActiveChannel(channel, watchers)}
-      >
-        <span>{channel.data.name || 'Channel Preview'}</span>
-      </div>
-    );
-  };
+  const { channel, setActiveChannel, watchers } = props;
+
+  return (
+    <div onClick={() => setActiveChannel(channel, watchers)}>
+      <span>{channel.data.name || 'Channel Preview'}</span>
+    </div>
+  );
+};
 ```
 
-Let's take advantage of the SDK's [CSS classes](../customization/theming-and-css.mdx) for styling. We'll import the bundled CSS into the file where the application is instantiated then apply a class to the button element.
+Let's take advantage of the SDK's [CSS classes](../customization/css-and-theming.mdx) for styling. We'll import the bundled CSS into the file where the application is instantiated then apply a class to the button element.
 
-```jsx
+```tsx
 import 'stream-chat-react/dist/css/index.css';
 
 <div
@@ -175,43 +152,41 @@ For a complete overview of the available props in the custom component, take a l
 
 **The Final Code:**
 
-```jsx
+```tsx
 import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
 import './CustomPreview.scss';
 
 export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
-    const { channel, setActiveChannel } = props;
+  const { channel, setActiveChannel } = props;
 
-    const { channel: activeChannel } = useChatContext();
+  const { channel: activeChannel } = useChatContext();
 
-    const selected = channel?.id === activeChannel?.id;
+  const selected = channel?.id === activeChannel?.id;
 
-    const renderMessageText = () => {
-        const lastMessageText = channel.state.messages[channel.state.messages.length - 1].text;
+  const renderMessageText = () => {
+    const lastMessageText = channel.state.messages[channel.state.messages.length - 1].text;
 
-        const text = lastMessageText || 'message text';
+    const text = lastMessageText || 'message text';
 
-        return text.length < 60 ? lastMessageText : `${text.slice(0, 70)}...`;
-    };
+    return text.length < 60 ? lastMessageText : `${text.slice(0, 70)}...`;
+  };
 
-    if (!channel.state.messages.length) return null;
+  if (!channel.state.messages.length) return null;
 
-    return (
-        <div
-        className={
-            selected ? 'channel-preview__container selected' : 'channel-preview__container'
-        }
-        onClick={() => setActiveChannel(channel)}
-        >
-            <div className='channel-preview__content-wrapper'>
-                <div className='channel-preview__content-top'>
-                    <p className='channel-preview__content-name'>{channel.data?.name || 'Channel'}</p>
-                    <p className='channel-preview__content-name'>{channel.data?.subtitle}</p>
-                </div>
-                <p className='channel-preview__content-message'>{renderMessageText()}</p>
-            </div>
+  return (
+    <div
+      className={selected ? 'channel-preview__container selected' : 'channel-preview__container'}
+      onClick={() => setActiveChannel(channel)}
+    >
+      <div className='channel-preview__content-wrapper'>
+        <div className='channel-preview__content-top'>
+          <p className='channel-preview__content-name'>{channel.data?.name || 'Channel'}</p>
+          <p className='channel-preview__content-name'>{channel.data?.subtitle}</p>
         </div>
-    );
+        <p className='channel-preview__content-message'>{renderMessageText()}</p>
+      </div>
+    </div>
+  );
 };
 ```
 
@@ -234,7 +209,6 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.07);
   transition: background 0.1s ease-in-out;
 }
-
 
 .channel-preview__container.selected {
   background: #ffffff;
@@ -286,12 +260,9 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
 }
 ```
 
-```jsx
+```tsx
 <Chat client={client}>
-  <ChannelList
-    Preview={CustomPreview}
-    showChannelSearch
-  />
+  <ChannelList Preview={CustomPreview} showChannelSearch />
   <Channel>
     <Window>
       <ChannelHeader />
@@ -304,5 +275,5 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
 ```
 
 **Result:**
-<img src={CustomPreview} alt='Custom Preview UI Component for Chat' width='500' />
 
+<img src={CustomPreview} alt='Custom Preview UI Component for Chat' width='500' />
