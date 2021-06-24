@@ -123,7 +123,7 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | AddMentionedUserAction<Us>;
 
 export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  closeEmojiPicker: React.MouseEventHandler<HTMLButtonElement>;
+  closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
