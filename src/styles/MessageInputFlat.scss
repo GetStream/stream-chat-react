@@ -45,6 +45,10 @@
           .str-chat__message-attachment {
             margin: 0;
 
+            &--image {
+              width: 48px;
+            }
+
             &--img,
             &--card {
               border-radius: var(--border-radius-md);
