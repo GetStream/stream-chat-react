@@ -28,7 +28,6 @@ export type DeleteMessageNotifications<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   getErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
-  getSuccessNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
