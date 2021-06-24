@@ -104,6 +104,15 @@ Overrides the default date formatting logic, has access to the original date obj
 | ---------------------- |
 | (date: Date) => string |
 
+### getDeleteMessageErrorNotification
+
+Function that returns the notification text to be displayed when a delete message request fails. This function receives the
+deleted [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
 ### getFlagMessageErrorNotification
 
 Function that returns the notification text to be displayed when a flag message request fails. This function receives the
