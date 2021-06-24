@@ -166,6 +166,7 @@ const MessageListWithContext = <
       customMessageActions: props.customMessageActions,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
+      getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
@@ -231,6 +232,7 @@ type PropsDrilledToMessage =
   | 'customMessageActions'
   | 'disableQuotedMessages'
   | 'formatDate'
+  | 'getDeleteMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
   | 'getMuteUserErrorNotification'

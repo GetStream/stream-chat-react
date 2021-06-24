@@ -180,6 +180,7 @@ export const Message = <
 ) => {
   const {
     disableQuotedMessages,
+    getDeleteMessageErrorNotification,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMuteUserErrorNotification,
@@ -200,7 +201,10 @@ export const Message = <
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
   const handleAction = useActionHandler(message);
-  const handleDelete = useDeleteHandler(message);
+  const handleDelete = useDeleteHandler(message, {
+    getErrorNotification: getDeleteMessageErrorNotification,
+    notify: addNotification,
+  });
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);

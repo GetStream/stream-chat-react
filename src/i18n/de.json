@@ -14,6 +14,7 @@
   "Empty message...": "Leere Nachricht...",
   "Error adding flag": "Fehler beim Hinzufügen des Flags",
   "Error connecting to chat, refresh the page to try again.": "Fehler beim Herstellen einer Verbindung zum Chat. Aktualisieren Sie die Seite, um es erneut zu versuchen.",
+  "Error deleting message": "Fehler beim Löschen der Nachricht",
   "Error muting a user ...": "Fehler beim Stummschalten eines Benutzers...",
   "Error pinning message": "Fehler beim Fixieren der Nachricht",
   "Error removing message pin": "Fehler beim Entfernen des Nachrichten-Pins",
