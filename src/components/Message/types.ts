@@ -46,6 +46,10 @@ export type MessageProps<
   disableQuotedMessages?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
+  /** Function that returns the notification text to be displayed when a delete message request fails */
+  getDeleteMessageErrorNotification?: (
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  ) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
   getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
