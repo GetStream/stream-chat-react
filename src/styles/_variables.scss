@@ -45,7 +45,7 @@ $border-radius: 16px;
   --font-weight-bold: #{$heavy-font-weight}; //700
 
   /* colors */
-  --primary-color: #{$secondary-color};
+  --primary-color: #{$secondary-color}; // this reassignment is to maintain backwards compatibility with the old scss variables
   --primary-color-faded: #006cff5c;
 
   --magenta: #{$primary-color};
