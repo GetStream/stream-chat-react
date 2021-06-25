@@ -10,7 +10,7 @@ In this example we will demonstrate how to make a custom `ThreadHeader` componen
 
 ## Create the Component
 
-The default `ThreadHeader` shows the number of replies along side a button to close the thread. In our example we will use the `Avatar` component to render pictures of the current participants in the thread. We will also change the look of the button and show the number of replies. All of this data and more can be easily pulled from the `thread` prop. The last thing we will utilize is the `closeThread` prop which is also passed to `Thread` as a prop.
+The default `ThreadHeader` shows the number of replies along side a button to close the thread. In our example we will use the `Avatar` component to render pictures of the current participants in the thread. We will also change the look of the button and show the number of replies. All of this data and more can be easily pulled from the `thread` prop. The last thing we will utilize is the `closeThread` function which is also passed to `Thread` as a prop.
 
 ```tsx
 export const CustomThreadHeader = ({ closeThread, thread }) => {
