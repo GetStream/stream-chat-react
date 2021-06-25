@@ -1,7 +1,7 @@
 ---
 id: channel_search
 sidebar_position: 4
-title: ChannelSearch
+title: Channel Search
 ---
 
 import CustomChannelSearch from '../assets/CustomChannelSearch.png';
@@ -23,10 +23,7 @@ Let's allow the query to search for `channels` in addition to the default query 
 are drilled to the component via the `additionalChannelSearchProps` prop on `ChannelList`. With just this one additional prop, the search functionality is fully functional and expanded from just the default search of users.
 
 ```jsx
-<ChannelList
-  showChannelSearch
-  additionalChannelSearchProps={{ searchForChannels: true }}
-/>
+<ChannelList showChannelSearch additionalChannelSearchProps={{ searchForChannels: true }} />
 ```
 
 ### Step 2 - Customizing the DropdownContainer
@@ -34,39 +31,39 @@ are drilled to the component via the `additionalChannelSearchProps` prop on `Cha
 Since we've enabled the search to also search for channels, let's customize the dropdown results container to fit a design that separates the result by type.
 
 ```jsx
-  const CustomDropdown = (props: DropdownContainerProps) => {
-    const { results, focusedUser, selectResult, SearchResultItem } = props;
+const CustomDropdown = (props: DropdownContainerProps) => {
+  const { results, focusedUser, selectResult, SearchResultItem } = props;
 
-    let items: ChannelOrUserResponse[] = results.filter(x => x.cid);
-    let users: ChannelOrUserResponse[] = results.filter(x => !x.cid);
+  let items: ChannelOrUserResponse[] = results.filter((x) => x.cid);
+  let users: ChannelOrUserResponse[] = results.filter((x) => !x.cid);
 
-    return (
-      <div>
-        <p>Channels</p>
-        {!items.length && <p>No Channels...</p>}
-        {items.map((result, index) => (
-          <SearchResultItem
-            focusedUser={focusedUser}
-            index={index}
-            key={index}
-            result={result}
-            selectResult={selectResult}
-          />
-        ))}
-        <p>Users</p>
-        {!users.length && <p>No Users...</p>}
-        {users.map((result, index) => (
-          <SearchResultItem
-            focusedUser={focusedUser}
-            index={index}
-            key={index}
-            result={result}
-            selectResult={selectResult}
-          />
-        ))}
-      </div>
-    );
-  };
+  return (
+    <div>
+      <p>Channels</p>
+      {!items.length && <p>No Channels...</p>}
+      {items.map((result, index) => (
+        <SearchResultItem
+          focusedUser={focusedUser}
+          index={index}
+          key={index}
+          result={result}
+          selectResult={selectResult}
+        />
+      ))}
+      <p>Users</p>
+      {!users.length && <p>No Users...</p>}
+      {users.map((result, index) => (
+        <SearchResultItem
+          focusedUser={focusedUser}
+          index={index}
+          key={index}
+          result={result}
+          selectResult={selectResult}
+        />
+      ))}
+    </div>
+  );
+};
 ```
 
 ```jsx
@@ -175,7 +172,7 @@ const additionalProps = {
   justify-content: center;
   font-family: Helvetica Neue, sans-serif;
   font-weight: bold;
-  color: #005FFF;
+  color: #005fff;
 }
 
 .channel-search__result-text {
@@ -308,5 +305,6 @@ const additionalProps = {
 };
 ```
 
-### Result: 
+### Result:
+
 <img src={CustomChannelSearch} alt='Custom Channel Search UI Component for Chat' width='700' />
