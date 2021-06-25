@@ -10,25 +10,24 @@ In this example we will demonstrate how to make a custom `ThreadHeader` componen
 
 ## Create the Component
 
-The default `ThreadHeader` shows the number of replies along side a button to close the thread. In our example we will use the `Avatar` component to render pictures of the current participants in the thread. We will also change the look of the button and show the number of replies. All of this data and more can be easily pulled from the `thread` prop, which represents the parent message. The last thing we will utilize is the `closeThread` function which is also passed to `Thread` as a prop.
+The default `ThreadHeader` shows the number of replies alongside a button to close the thread. In our example we will use the `Avatar` component to render pictures of the current participants in the thread. We will also change the look of the button and show the number of replies. All of this data and more can be easily pulled from the `thread` prop, which represents the parent message. The last thing we will utilize is the `closeThread` function, which is also passed to `Thread` as a prop.
 
 ```tsx
 export const CustomThreadHeader = ({ closeThread, thread }) => {
-  const replyCount = thread?.reply_count;
-  const threadParticipants = thread?.thread_participants;
+  const replyCount = thread.reply_count;
+  const threadParticipants = thread.thread_participants;
 
   return (
     <div className='wrapper'>
       <div className='participants-wrapper'>
-        {threadParticipants?.map((participant) => (
+        {threadParticipants.map((participant) => (
           <div className='participant'>
-            <Avatar image={participant?.image} name={participant?.name} />
+            <Avatar image={participant.image} name={participant.name} />
           </div>
         ))}
         <div className='reply-count'>{replyCount} Replies</div>
       </div>
-
-      <div onClick={(event) => closeThread && closeThread(event)} className='close-button'>
+      <div onClick={(event) => closeThread(event)} className='close-button'>
         <div className='left'>
           <div className='right'></div>
         </div>
@@ -60,14 +59,14 @@ export const CustomThreadHeader = ({ closeThread, thread }) => {
 
 .participant {
   margin-left: calc(var(--md-m) * -1);
-  border-radius: 999px;
+  border-radius: var(--border-radius-round);
   border: 2px solid var(--white);
   padding-right: 0;
 }
 
 .reply-count {
   margin-left: var(--sm-m);
-  font-weight: 600;
+  font-weight: var(--font-weight-semi-bold);
 }
 
 .close-button {
