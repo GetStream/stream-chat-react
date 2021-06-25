@@ -1,7 +1,7 @@
 ---
 id: channel_header
 sidebar_position: 9
-title: ChannelHeader
+title: Channel Header
 ---
 
 import CustomChannelHeader from '../assets/CustomChannelHeader.png';
@@ -16,14 +16,12 @@ custom component because it's a child of `Channel`.
 
 ```jsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
-    const { title } = props;
+  const { title } = props;
 
-    const { channel } = useChannelStateContext();
-    const { name } = channel.data || {};
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
 
-    return (
-        <div>{title || name}</div>
-    )
+  return <div>{title || name}</div>;
 };
 ```
 
@@ -50,36 +48,36 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 The options are endless for displaying additional items in the header since so much more information is available to us if we were to continue destructuring from the `channel` object. For this demo, though, let's add both library styling and local CSS and call it a day.
 
 ```css
-    .header-title {
-        padding: 5px 7px;
-    }
+.header-title {
+  padding: 5px 7px;
+}
 
-    .header-pound {
-        color: #006CFF;
-        font-weight: 800;
-        padding-right: 2px;
-    }
+.header-pound {
+  color: #006cff;
+  font-weight: 800;
+  padding-right: 2px;
+}
 ```
 
 ```tsx
 const CustomChannelHeader = (props: ChannelHeaderProps) => {
-    const { title } = props;
+  const { title } = props;
 
-    const { channel } = useChannelStateContext();
-    const { name } = channel.data || {};
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
 
-    return (
-        <div className='str-chat__header-livestream'>
-            <div>
-                <div className='header-item'>
-                    <span className='header-pound'>#</span>
-                    {title || name}
-                </div>
-                <TypingIndicator />
-            </div>
+  return (
+    <div className='str-chat__header-livestream'>
+      <div>
+        <div className='header-item'>
+          <span className='header-pound'>#</span>
+          {title || name}
         </div>
-    )
-}
+        <TypingIndicator />
+      </div>
+    </div>
+  );
+};
 ```
 
 ### The Final Code
@@ -87,56 +85,54 @@ const CustomChannelHeader = (props: ChannelHeaderProps) => {
 Finally and most importantly, let's add in our custom component in the place where the default would have been.
 
 ```css
-    .header-title {
-        padding: 5px 7px;
-    }
+.header-title {
+  padding: 5px 7px;
+}
 
-    .header-pound {
-        color: #006CFF;
-        font-weight: 800;
-        padding-right: 2px;
-    }
-```
-
-```tsx
-const CustomChannelHeader = (props: ChannelHeaderProps) => {
-    const { title } = props;
-
-    const { channel } = useChannelStateContext();
-    const { name } = channel.data || {};
-
-    return (
-        <div className='str-chat__header-livestream'>
-            <div>
-                <div className='header-item'>
-                    <span className='header-pound'>#</span>
-                    {title || name}
-                </div>
-                <TypingIndicator />
-            </div>
-        </div>
-    )
+.header-pound {
+  color: #006cff;
+  font-weight: 800;
+  padding-right: 2px;
 }
 ```
 
 ```tsx
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+  const { title } = props;
+
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
+
+  return (
+    <div className='str-chat__header-livestream'>
+      <div>
+        <div className='header-item'>
+          <span className='header-pound'>#</span>
+          {title || name}
+        </div>
+        <TypingIndicator />
+      </div>
+    </div>
+  );
+};
+```
+
+```tsx
 const App = () => (
-    <Chat client={chatClient}>
-        <ChannelList />
-        <Channel TypingIndicator={() => null}>
-            <Window>
-                <CustomChannelHeader />
-                <MessageList />
-                <MessageInput />
-            </Window>
-            <Thread />
-        </Channel>
-    </Chat>
+  <Chat client={chatClient}>
+    <ChannelList />
+    <Channel TypingIndicator={() => null}>
+      <Window>
+        <CustomChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
 );
 ```
 
 ## The Result:
 
 <img src={CustomChannelHeader} alt='Custom ChannelHeader in Chat' width='700' />
-
-
