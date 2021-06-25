@@ -124,6 +124,7 @@ const MessageListWithContext = <
     notifications,
     noGroupByUser = false,
     pinPermissions = defaultPinPermissions,
+    returnAllReadByUser = false,
     threadList = false,
     unsafeHTML = false,
     headerPosition,
@@ -190,6 +191,7 @@ const MessageListWithContext = <
     messageGroupStyles,
     onMessageLoadCaptured,
     read,
+    returnAllReadByUser,
     threadList,
   });
 
@@ -283,6 +285,8 @@ export type MessageListProps<
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
+  /** If true, `readBy` data supplied to the `Message` components will include all user read states per message */
+  returnAllReadByUser?: boolean;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** Set to `true` to indicate that the list is a thread  */

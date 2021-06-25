@@ -326,6 +326,14 @@ Custom action handler to retry sending a message after a failed request.
 | -------- | -------------------------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
+### returnAllReadByUser
+
+If true, `readBy` data supplied to the `Message` components will include all user read states per message.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
 ### scrolledUpThreshold
 
 The pixel threshold to determine whether or not the user is scrolled up in the list. When scrolled up in the active

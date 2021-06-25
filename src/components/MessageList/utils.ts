@@ -129,6 +129,7 @@ export const getReadStates = <
 >(
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   read: Record<string, { last_read: Date; user: UserResponse<Us> }> = {},
+  returnAllReadByUser: boolean,
 ) => {
   // create object with empty array for each message id
   const readData: Record<string, Array<UserResponse<Us>>> = {};
@@ -136,15 +137,30 @@ export const getReadStates = <
   Object.values(read).forEach((readState) => {
     if (!readState.last_read) return;
 
-    let userLastReadMsgId;
+    let userLastReadMsgId: string | undefined;
+
+    // loop messages sent by current user and add read data for other users in channel
     messages.forEach((msg) => {
       if (msg.updated_at && msg.updated_at < readState.last_read) {
         userLastReadMsgId = msg.id;
+
+        // if true, save other user's read data for all messages they've read
+        if (returnAllReadByUser) {
+          if (!readData[userLastReadMsgId]) {
+            readData[userLastReadMsgId] = [];
+          }
+
+          readData[userLastReadMsgId].push(readState.user);
+        }
       }
     });
 
-    if (userLastReadMsgId) {
-      if (!readData[userLastReadMsgId]) readData[userLastReadMsgId] = [];
+    // if true, only save read data for other user's last read message
+    if (userLastReadMsgId && !returnAllReadByUser) {
+      if (!readData[userLastReadMsgId]) {
+        readData[userLastReadMsgId] = [];
+      }
+
       readData[userLastReadMsgId].push(readState.user);
     }
   });
