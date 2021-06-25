@@ -100,7 +100,7 @@ const CustomAttachment: React.FC<AttachmentProps> = (props) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
 
-<Channel Attachment={CustomAttachment} />;
+<Channel Attachment={CustomAttachment}>{/* children of Channel component */}</Channel>;
 ```
 
 ## Input Submit Handler
