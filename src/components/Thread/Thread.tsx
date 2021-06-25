@@ -81,8 +81,8 @@ export type ThreadHeaderProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  closeThread?: (event: React.BaseSyntheticEvent) => void;
-  thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  closeThread: (event: React.BaseSyntheticEvent) => void;
+  thread: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
 const DefaultThreadHeader = <
@@ -101,7 +101,7 @@ const DefaultThreadHeader = <
   const { t } = useTranslationContext();
 
   const getReplyCount = () => {
-    if (!thread?.reply_count || !t) return '';
+    if (!thread.reply_count) return '';
     if (thread.reply_count === 1) return t('1 reply');
     return t('{{ replyCount }} replies', {
       replyCount: thread.reply_count,
@@ -117,7 +117,7 @@ const DefaultThreadHeader = <
       <button
         className='str-chat__square-button'
         data-testid='close-button'
-        onClick={(event) => closeThread && closeThread(event)}
+        onClick={(event) => closeThread(event)}
       >
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
