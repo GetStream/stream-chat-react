@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChannelSort, StreamChat } from 'stream-chat';
+import { ChannelSort, StreamChat, UserResponse } from 'stream-chat';
 import {
   Chat,
   Channel,
@@ -12,6 +12,7 @@ import {
   MessageInputFlat,
   Thread,
   Window,
+  Tooltip,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -33,6 +34,18 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
+const Hover = (e: React.BaseSyntheticEvent, userHovered: UserResponse<{}> | undefined) => {
+  return <div>{userHovered?.name}</div>;
+};
+
+const Click = (e: React.BaseSyntheticEvent, userHovered: UserResponse<{}> | undefined) => {
+  return (
+    <div style={{ height: '200px', width: '200px' }}>
+      <Tooltip>{userHovered?.name}</Tooltip>
+    </div>
+  );
+};
+
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>
     <ChannelList
@@ -43,7 +56,7 @@ const App = () => (
       options={options}
       showChannelSearch
     />
-    <Channel>
+    <Channel onMentionsClick={Click} onMentionsHover={Hover}>
       <Window>
         <ChannelHeader />
         <MessageList />
