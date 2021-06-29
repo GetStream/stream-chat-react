@@ -50,6 +50,7 @@ type UseMessageListElementsProps<
   internalMessageProps: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
+  returnAllReadData: boolean;
   threadList: boolean;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
@@ -71,6 +72,7 @@ export const useMessageListElements = <
     messageGroupStyles,
     onMessageLoadCaptured,
     read,
+    returnAllReadData,
     threadList,
   } = props;
 
@@ -82,7 +84,12 @@ export const useMessageListElements = <
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   // get the readData, but only for messages submitted by the user themselves
-  const readData = useLastReadData(client.userID, enrichedMessages, read);
+  const readData = useLastReadData({
+    messages: enrichedMessages,
+    read,
+    returnAllReadData,
+    userID: client.userID,
+  });
 
   const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
 
