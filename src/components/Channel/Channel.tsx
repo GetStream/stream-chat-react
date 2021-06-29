@@ -192,6 +192,8 @@ export type ChannelProps<
     Re,
     Us
   >['MessageRepliesCountButton'];
+  /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */
+  MessageStatus?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageStatus'];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) */
   MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
   /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
@@ -835,6 +837,7 @@ const ChannelInner = <
       MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
+      MessageStatus: props.MessageStatus,
       MessageSystem: props.MessageSystem,
       MessageTimestamp: props.MessageTimestamp,
       PinIndicator: props.PinIndicator,
