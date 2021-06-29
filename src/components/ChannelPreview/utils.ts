@@ -2,6 +2,8 @@ import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
+import { renderText } from '../../utils';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -24,7 +26,7 @@ export const getLatestMessagePreview = <
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
-) => {
+): JSX.Element | string => {
   const latestMessage = channel.state.messages[channel.state.messages.length - 1];
 
   const previewTextToRender =
@@ -40,7 +42,12 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    return previewTextToRender;
+    if (previewTextToRender) {
+      const renderedText = renderText(previewTextToRender);
+      return renderedText || previewTextToRender;
+    } else {
+      return previewTextToRender;
+    }
   }
 
   if (latestMessage.command) {
