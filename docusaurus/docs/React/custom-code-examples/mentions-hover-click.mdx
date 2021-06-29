@@ -1,0 +1,181 @@
+---
+id: mentions_actions
+sidebar_position: 14
+title: Mentions Actions
+---
+
+import MentionClick from '../assets/MentionClick.png';
+
+In this example we will demonstrate how to construct and utilize the `onMentionsHover` and `onMentionsClick` custom functions.
+
+## Create an onHover Function
+
+The first parameter this function will be called with is the `event` itself. We can use this `event` to change the color of the mentioned users name randomly every time we mouse over the mention.
+
+```tsx
+const OnHoverMention = (e: React.BaseSyntheticEvent) => {
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  e.target.style.color = `#${randomColor}`;
+};
+```
+
+From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+
+```tsx
+<Channel onMentionsHover={OnHoverMention}>{/* children of Channel component */}</Channel>
+```
+
+## Create an onClick Function
+
+For the this example we will go more in-depth to show how an onClick function can be used. To start out we will make two state variables at the App.tsx level to hold our user object and active click state. Also, we will make a function in order to set these state variables.
+
+```tsx
+const [isClicked, setIsClicked] = useState(false);
+const [user, setUser] = useState<UserResponse | undefined>(undefined);
+
+const onMentionClick = (
+  event: React.BaseSyntheticEvent,
+  userClicked: UserResponse<{}> | undefined,
+) => {
+  setUser(userClicked);
+  setIsClicked(true);
+  return;
+};
+```
+
+We can now create a custom component that takes `user` and `setIsClicked` as props to render a users info in a sidebar. The user object passed to our function will allow us to show things such as the users Avatar and online status.
+
+```tsx
+export const ClickedUser = ({
+  userClicked,
+  setIsClicked,
+}: {
+  userClicked: UserResponse<DefaultUserType>;
+  setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  return (
+    <div className='wrapper'>
+      <div className='header'>
+        {userClicked.online ? (
+          <div className='online'>Online</div>
+        ) : (
+          <div className='offline'>Offline</div>
+        )}
+        <button
+          className='str-chat__square-button'
+          data-testid='close-button'
+          onClick={() => setIsClicked(false)}
+        >
+          <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
+              fillRule='evenodd'
+            />
+          </svg>
+        </button>
+      </div>
+      <div className='inner'>
+        {userClicked.image && <Avatar image={userClicked?.image} size={240} />}
+        <div className='name'>Name: {<p>{userClicked.name}</p>}</div>
+        <div className='id'>ID: {<p>{userClicked.id}</p>}</div>
+        <div className='role'>Role: {<p>{userClicked.role}</p>}</div>
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.wrapper {
+  width: fit-content;
+  margin-top: var(--sm-m);
+  margin-right: var(--xs-m);
+  background: var(--white);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.header {
+  height: 70px;
+  display: flex;
+  padding: 0 var(--sm-p);
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-top: var(--lg-m);
+  padding: var(--sm-p);
+}
+
+.inner .str-chat__avatar {
+  margin: 0;
+}
+
+.online {
+  font-weight: var(--font-weight-bold);
+  color: var(--green);
+}
+.offline {
+  font-weight: var(--font-weight-bold);
+  color: var(--grey);
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  font-size: var(--xl-font);
+}
+
+.name p {
+  color: var(--grey);
+  font-size: var(--xl-font);
+  margin: 0;
+  margin: var(--xs-m);
+}
+
+.id {
+  display: flex;
+  align-items: center;
+}
+
+.id p {
+  color: var(--grey);
+  margin: 0;
+  margin: var(--xs-m);
+}
+
+.role {
+  display: flex;
+  align-items: center;
+}
+
+.role p {
+  color: var(--grey);
+  margin: 0;
+  margin: var(--xs-m);
+}
+```
+
+Now we just need to plug in our function and component to tie it all together
+
+```tsx
+<Channel onMentionsClick={onMentionClick}>
+  <Window>
+    <ChannelHeader />
+    <MessageList />
+    <MessageInput />
+  </Window>
+  <Thread />
+  {isClicked && user && <ClickedUser userClicked={user} setIsClicked={setIsClicked} />}
+</Channel>
+```
+
+## The Result
+
+<img src={MentionClick} alt='Custom Mention CLick UI Component for Chat' width='500' />
