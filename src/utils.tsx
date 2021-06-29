@@ -59,11 +59,23 @@ const messageCodeBlocks = (message: string) => {
   return matches || [];
 };
 
-export const truncate = (input?: string, length?: number, end = '...') => {
+export const truncate = (input?: string | JSX.Element, length?: number, end = '...') => {
   if (!input || !length) return '';
-  if (input.length > length) {
-    return `${input.substring(0, length - end.length)}${end}`;
+
+  if (typeof input === 'string') {
+    if (input.length > length) {
+      return `${input.substring(0, length - end.length)}${end}`;
+    }
+  } else {
+    const text = input.props.source;
+
+    if (text > length) {
+      const truncated = `${text.substring(0, length - end.length)}${end}`;
+      return renderText(truncated);
+    }
+    return renderText(text);
   }
+
   return input;
 };
 

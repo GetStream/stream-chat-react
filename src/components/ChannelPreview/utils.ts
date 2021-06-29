@@ -26,7 +26,7 @@ export const getLatestMessagePreview = <
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
-): JSX.Element | string => {
+): string | JSX.Element => {
   const latestMessage = channel.state.messages[channel.state.messages.length - 1];
 
   const previewTextToRender =
@@ -42,12 +42,12 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    if (previewTextToRender) {
-      const renderedText = renderText(previewTextToRender);
-      return renderedText || previewTextToRender;
-    } else {
-      return previewTextToRender;
+    let truncatedText = previewTextToRender;
+    if (previewTextToRender.length > 32) {
+      truncatedText = `${previewTextToRender.substring(0, 29)}...`;
     }
+    const renderedText = renderText(truncatedText);
+    return renderedText || previewTextToRender;
   }
 
   if (latestMessage.command) {

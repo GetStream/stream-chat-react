@@ -40,8 +40,8 @@ export type ChannelPreviewUIComponentProps<
   displayTitle?: string;
   /** The last message received in a channel */
   lastMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Latest message preview text to display */
-  latestMessage?: JSX.Element | string;
+  /** Latest message preview to display, will be a string or JSX element supporting markdown. */
+  latestMessage?: string | JSX.Element;
   /** Text truncation limit for latest message */
   latestMessageLength?: number;
   /** Number of unread Messages */
