@@ -50,7 +50,7 @@ type UseMessageListElementsProps<
   internalMessageProps: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
-  returnAllReadByUser: boolean;
+  returnAllReadData: boolean;
   threadList: boolean;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
@@ -72,7 +72,7 @@ export const useMessageListElements = <
     messageGroupStyles,
     onMessageLoadCaptured,
     read,
-    returnAllReadByUser,
+    returnAllReadData,
     threadList,
   } = props;
 
@@ -87,7 +87,7 @@ export const useMessageListElements = <
   const readData = useLastReadData({
     messages: enrichedMessages,
     read,
-    returnAllReadByUser,
+    returnAllReadData,
     userID: client.userID,
   });
 

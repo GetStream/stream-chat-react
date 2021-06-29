@@ -129,7 +129,7 @@ export const getReadStates = <
 >(
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
   read: Record<string, { last_read: Date; user: UserResponse<Us> }> = {},
-  returnAllReadByUser: boolean,
+  returnAllReadData: boolean,
 ) => {
   // create object with empty array for each message id
   const readData: Record<string, Array<UserResponse<Us>>> = {};
@@ -145,7 +145,7 @@ export const getReadStates = <
         userLastReadMsgId = msg.id;
 
         // if true, save other user's read data for all messages they've read
-        if (returnAllReadByUser) {
+        if (returnAllReadData) {
           if (!readData[userLastReadMsgId]) {
             readData[userLastReadMsgId] = [];
           }
@@ -156,7 +156,7 @@ export const getReadStates = <
     });
 
     // if true, only save read data for other user's last read message
-    if (userLastReadMsgId && !returnAllReadByUser) {
+    if (userLastReadMsgId && !returnAllReadData) {
       if (!readData[userLastReadMsgId]) {
         readData[userLastReadMsgId] = [];
       }

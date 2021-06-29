@@ -26,7 +26,7 @@ type UseLastReadDataParams<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  returnAllReadByUser: boolean;
+  returnAllReadData: boolean;
   userID: string | undefined;
   read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
 };
@@ -42,15 +42,15 @@ export const useLastReadData = <
 >(
   props: UseLastReadDataParams<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { messages, read, returnAllReadByUser, userID } = props;
+  const { messages, read, returnAllReadData, userID } = props;
 
   return useMemo(
     () =>
       getReadStates(
         messages.filter(({ user }) => user?.id === userID),
         read,
-        returnAllReadByUser,
+        returnAllReadData,
       ),
-    [messages, read, returnAllReadByUser, userID],
+    [messages, read, returnAllReadData, userID],
   );
 };

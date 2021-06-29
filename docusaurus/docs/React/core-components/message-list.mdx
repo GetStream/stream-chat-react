@@ -326,9 +326,10 @@ Custom action handler to retry sending a message after a failed request.
 | -------- | -------------------------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
-### returnAllReadByUser
+### returnAllReadData
 
-If true, `readBy` data supplied to the `Message` components will include all user read states per message.
+If true, `readBy` data supplied to the `Message` components will include all user read states per sent message. By default,
+only `readBy` data for a user's most recently sent message is returned.
 
 | Type    | Default |
 | ------- | ------- |
