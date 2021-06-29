@@ -1,5 +1,5 @@
 export { Item as DefaultSuggestionListItem } from './Item';
-export { List as DefaultuggestionList } from './List';
+export { List as DefaultSuggestionList } from './List';
 export { DefaultSuggestionListHeader } from './Header';
 export type { SuggestionListHeaderProps } from './Header';
 export { default as listener, KEY_CODES } from './listener';
