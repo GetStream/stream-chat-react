@@ -538,6 +538,57 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  .messaging {
+    &.str-chat {
+      .str-chat {
+        &__message,
+        &__message--me {
+          margin: calc(var(--xxs-m) / 2) 0;
+          &--with-reactions {
+            margin-top: var(--lg-m);
+          }
+        }
+
+        &__message-attachment--image {
+          margin: calc(var(--xxs-m) / 2) 0;
+
+          max-width: 480px;
+        }
+        &__message-attachment--card {
+          margin: calc(var(--xxs-m) / 2) 0;
+          line-height: normal;
+        }
+        &__message-attachment-card {
+          margin: calc(var(--xxs-m) / 2) auto;
+          line-height: normal;
+          background: var(--grey-gainsboro);
+          &--title {
+            color: var(--primary-color);
+          }
+          &--text {
+            display: none;
+          }
+          &--url {
+            text-transform: lowercase;
+          }
+        }
+        &__message--deleted {
+          margin: 0 var(--xl-m);
+        }
+
+        &__li {
+          &--middle {
+            .str-chat__message {
+              .str-chat__message-attachment--card,
+              .str-chat__message-attachment--image {
+                border-top-left-radius: calc(var(--border-radius-sm) / 2);
+              }
+            }
+          }
+        } /* __li*/
+      }
+    }
+  }
 
   /* deleted messages */
   &--deleted {
@@ -590,58 +641,6 @@
 
   .str-chat__message-attachment-file--item:hover {
     background: transparent;
-  }
-}
-
-.messaging {
-  &.str-chat {
-    .str-chat {
-      &__message,
-      &__message--me {
-        margin: calc(var(--xxs-m) / 2) 0;
-        &--with-reactions {
-          margin-top: var(--lg-m);
-        }
-      }
-
-      &__message-attachment--image {
-        margin: calc(var(--xxs-m) / 2) 0;
-
-        max-width: 480px;
-      }
-      &__message-attachment--card {
-        margin: calc(var(--xxs-m) / 2) 0;
-        line-height: normal;
-      }
-      &__message-attachment-card {
-        margin: calc(var(--xxs-m) / 2) auto;
-        line-height: normal;
-        background: var(--grey-gainsboro);
-        &--title {
-          color: var(--primary-color);
-        }
-        &--text {
-          display: none;
-        }
-        &--url {
-          text-transform: lowercase;
-        }
-      }
-      &__message--deleted {
-        margin: 0 var(--xl-m);
-      }
-
-      &__li {
-        &--middle {
-          .str-chat__message {
-            .str-chat__message-attachment--card,
-            .str-chat__message-attachment--image {
-              border-top-left-radius: calc(var(--border-radius-sm) / 2);
-            }
-          }
-        }
-      } /* __li*/
-    }
   }
 }
 
