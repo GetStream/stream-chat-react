@@ -2,6 +2,8 @@ import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
+import { renderText } from '../../utils';
+
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -40,12 +42,8 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    // let truncatedText = previewTextToRender;
-    // if (previewTextToRender.length > 32) {
-    //   truncatedText = `${previewTextToRender.substring(0, 29)}...`;
-    // }
-    // const renderedText = renderText(truncatedText);
-    return previewTextToRender;
+    const renderedText = renderText(previewTextToRender);
+    return renderedText || previewTextToRender;
   }
 
   if (latestMessage.command) {

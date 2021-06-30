@@ -64,7 +64,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 120px;
+    max-width: 150px;
   }
 
   &--active {
@@ -170,10 +170,10 @@
     font-size: var(--sm-font);
     line-height: 14px;
     opacity: 0.5;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &--name {
@@ -194,10 +194,10 @@
     .str-chat__channel-preview-messenger--last-message {
       opacity: 1;
       font-weight: var(--font-weight-semi-bold);
+      max-width: 150px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px;
     }
   }
 }
@@ -224,10 +224,10 @@
     }
     &--last-message {
       color: var(--white);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       max-width: 150px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
     &--name {
       color: var(--white);
