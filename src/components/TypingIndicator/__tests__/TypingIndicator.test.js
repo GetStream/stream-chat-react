@@ -155,12 +155,13 @@ describe('TypingIndicator', () => {
     const ch = generateChannel({ config: { typing_events: false } });
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch.id);
+    const channelConfig = { typing_events: false };
     await channel.watch();
 
     const tree = renderer
       .create(
         <ChatProvider value={{ client }}>
-          <ChannelStateProvider value={{ channel }}>
+          <ChannelStateProvider value={{ channel, channelConfig }}>
             <TypingProvider value={{ typing: {} }}>
               <TypingIndicator />
             </TypingProvider>
