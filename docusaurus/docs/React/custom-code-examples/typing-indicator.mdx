@@ -6,27 +6,29 @@ title: Typing Indicator
 
 import TypingIndicator from '../assets/TypingIndicator.png';
 
-In this example we will demonstrate how to make a custom `TypingIndicator` using the default component as a guide.
+In this example, we will demonstrate how to build a custom `TypingIndicator` using the default component as a guide.
 
 ## Create the Component
 
-Using the `typing` object provided by the `TypingContext` we can get data about the user typing and use `name` and `role` in this example. The `threadList` prop will allow us to conditionally render the typing indicator in the main message list or at the bottom of a thread.
+Using the `typing` object provided by the `TypingContext`, we can access the `name` and `role` of users currently typing
+in a channel. The `threadList` prop will allow us to conditionally render the typing indicator in the main message
+list, or at the bottom of a thread.
 
 ```tsx
 export const CustomTypingIndicator = (props: TypingIndicatorProps) => {
   const { threadList } = props;
 
-  const { channel, thread } = useChannelStateContext();
+  const { channelConfig, thread } = useChannelStateContext();
   const { client } = useChatContext();
   const { typing = {} } = useTypingContext();
 
-  if (channel?.getConfig()?.typing_events === false) {
+  if (channelConfig?.typing_events === false) {
     return null;
   }
 
   const typingInChannel = !threadList
     ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id === client.user?.id && !parent_id,
+        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
@@ -102,7 +104,7 @@ export const CustomTypingIndicator = (props: TypingIndicatorProps) => {
 }
 ```
 
-From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+From here, all we need to do is override the default component in `Channel`:
 
 ```tsx
 <Channel TypingIndicator={CustomTypingIndicator}>{/* children of Channel component */}</Channel>
