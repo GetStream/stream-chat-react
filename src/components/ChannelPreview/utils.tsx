@@ -1,8 +1,10 @@
+import React from 'react';
+
+import ReactMarkdown from 'react-markdown/with-html';
+
 import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
-
-import { renderText } from '../../utils';
 
 import type {
   DefaultAttachmentType,
@@ -13,6 +15,8 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
+
+export const renderPreviewText = (text: string) => <ReactMarkdown source={text} />;
 
 export const getLatestMessagePreview = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -42,8 +46,8 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    const renderedText = renderText(previewTextToRender);
-    return renderedText || previewTextToRender;
+    const renderedText = renderPreviewText(previewTextToRender);
+    return renderedText;
   }
 
   if (latestMessage.command) {
