@@ -56,7 +56,7 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
     <div
       className="str-chat__channel-preview-messenger--last-message"
     >
-      Thi...
+      Latest message!
     </div>
   </div>
 </button>

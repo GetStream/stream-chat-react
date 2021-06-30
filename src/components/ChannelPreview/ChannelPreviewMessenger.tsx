@@ -2,8 +2,6 @@ import React, { useRef } from 'react';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 
-import { truncate } from '../../utils';
-
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type {
@@ -34,7 +32,6 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
-    latestMessageLength = 32,
     setActiveChannel,
     unread,
     watchers,
@@ -68,9 +65,7 @@ const UnMemoizedChannelPreviewMessenger = <
         <div className='str-chat__channel-preview-messenger--name'>
           <span>{displayTitle}</span>
         </div>
-        <div className='str-chat__channel-preview-messenger--last-message'>
-          {truncate(latestMessage, latestMessageLength)}
-        </div>
+        <div className='str-chat__channel-preview-messenger--last-message'>{latestMessage}</div>
       </div>
     </button>
   );
