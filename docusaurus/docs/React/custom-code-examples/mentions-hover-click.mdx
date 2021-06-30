@@ -5,67 +5,73 @@ title: Mentions Actions
 ---
 
 import MentionClick from '../assets/MentionClick.png';
+import MentionHover from '../assets/MentionHover.png';
 
-In this example we will demonstrate how to construct and utilize the `onMentionsHover` and `onMentionsClick` custom functions.
+In this example, we will demonstrate how to utilize custom functions that run on hover and click of a mentioned user in a message.
+We pass `onMentionsHover` and `onMentionsClick` functions as props to the `Channel` component to achieve the desired result.
 
-## Create an onHover Function
+## Mention Hover Action
 
-The first parameter this function will be called with is the `event` itself. We can use this `event` to change the color of the mentioned users name randomly every time we mouse over the mention.
+For a simple on hover example, we will randomly change the color of the mentioned user text. Our custom function receives the
+`event` object as a parameter. Through DOM manipulation, we can use the `target` field on the `event` to change the color.
+
+### The Code
 
 ```tsx
-const OnHoverMention = (e: React.BaseSyntheticEvent) => {
+const onMentionsHover = (event: React.BaseSyntheticEvent) => {
   const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-  e.target.style.color = `#${randomColor}`;
+  event.target.style.color = `#${randomColor}`;
 };
 ```
 
-From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+From here, all we need to do is override the default component in `Channel`:
 
 ```tsx
-<Channel onMentionsHover={OnHoverMention}>{/* children of Channel component */}</Channel>
+<Channel onMentionsHover={onMentionsHover}>{/* children of Channel component */}</Channel>
 ```
 
-## Create an onClick Function
+### The Result
 
-For the this example we will go more in-depth to show how an onClick function can be used. To start out we will make two state variables at the App.tsx level to hold our user object and active click state. Also, we will make a function in order to set these state variables.
+<img src={MentionHover} alt='Mention Hover' width='700' />
+
+## Mention Click Action
+
+For this example, we will go more in-depth to show how an on click function can be used to navigate to a user details component.
+
+### The Code
+
+To start, we will create a state variable to hold our clicked user object. Our custom mention click function will set this user in state.
 
 ```tsx
-const [isClicked, setIsClicked] = useState(false);
-const [user, setUser] = useState<UserResponse | undefined>(undefined);
+const [clickedUser, setClickedUser] = useState<UserResponse | undefined>();
 
-const onMentionClick = (
-  event: React.BaseSyntheticEvent,
-  userClicked: UserResponse<{}> | undefined,
-) => {
-  setUser(userClicked);
-  setIsClicked(true);
-  return;
+const onMentionsClick = (event: React.BaseSyntheticEvent, user: UserResponse) => {
+  event.stopPropagation();
+  setClickedUser(user);
 };
 ```
 
-We can now create a custom component that takes `user` and `setIsClicked` as props to render a users info in a sidebar. The user object passed to our function will allow us to show things such as the users Avatar and online status.
+We can now create a custom component that takes `clickedUser` and `setClickedUser` as props and renders the user's info in a sidebar. The user object passed to
+our function will allow us to show things such as the user's Avatar and online status.
 
 ```tsx
-export const ClickedUser = ({
-  userClicked,
-  setIsClicked,
-}: {
-  userClicked: UserResponse<DefaultUserType>;
-  setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+type ClickedUserProps = {
+  clickedUser: UserResponse;
+  setClickedUser: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
+};
+
+export const ClickedUser: React.FC<ClickedUserProps> = (props) => {
+  const { clickedUser, setClickedUser } = props;
+
   return (
     <div className='wrapper'>
       <div className='header'>
-        {userClicked.online ? (
+        {clickedUser.online ? (
           <div className='online'>Online</div>
         ) : (
           <div className='offline'>Offline</div>
         )}
-        <button
-          className='str-chat__square-button'
-          data-testid='close-button'
-          onClick={() => setIsClicked(false)}
-        >
+        <button className='str-chat__square-button' onClick={() => setClickedUser(undefined)}>
           <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
             <path
               d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
@@ -75,10 +81,10 @@ export const ClickedUser = ({
         </button>
       </div>
       <div className='inner'>
-        {userClicked.image && <Avatar image={userClicked?.image} size={240} />}
-        <div className='name'>Name: {<p>{userClicked.name}</p>}</div>
-        <div className='id'>ID: {<p>{userClicked.id}</p>}</div>
-        <div className='role'>Role: {<p>{userClicked.role}</p>}</div>
+        {clickedUser.image && <Avatar image={clickedUser.image} size={240} />}
+        <div className='name'>Name: {<p>{clickedUser.name}</p>}</div>
+        <div className='id'>ID: {<p>{clickedUser.id}</p>}</div>
+        <div className='role'>Role: {<p>{clickedUser.role}</p>}</div>
       </div>
     </div>
   );
@@ -121,6 +127,7 @@ export const ClickedUser = ({
   font-weight: var(--font-weight-bold);
   color: var(--green);
 }
+
 .offline {
   font-weight: var(--font-weight-bold);
   color: var(--grey);
@@ -162,20 +169,33 @@ export const ClickedUser = ({
 }
 ```
 
-Now we just need to plug in our function and component to tie it all together
+Lastly, we plug our custom function and component into our app to tie it all together:
 
 ```tsx
-<Channel onMentionsClick={onMentionClick}>
-  <Window>
-    <ChannelHeader />
-    <MessageList />
-    <MessageInput />
-  </Window>
-  <Thread />
-  {isClicked && user && <ClickedUser userClicked={user} setIsClicked={setIsClicked} />}
-</Channel>
+const App = () => {
+  const [clickedUser, setClickedUser] = useState<UserResponse | undefined>();
+
+  const onMentionsClick = (event: React.BaseSyntheticEvent, user: UserResponse) => {
+    setClickedUser(user);
+  };
+
+  return (
+    <Chat client={client}>
+      <ChannelList />
+      <Channel onMentionsClick={onMentionsClick}>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput />
+        </Window>
+        <Thread />
+        {clickedUser && <ClickedUser clickedUser={clickedUser} setClickedUser={setClickedUser} />}
+      </Channel>
+    </Chat>
+  );
+};
 ```
 
-## The Result
+### The Result
 
-<img src={MentionClick} alt='Custom Mention CLick UI Component for Chat' width='500' />
+<img src={MentionClick} alt='Mention Click' width='500' />
