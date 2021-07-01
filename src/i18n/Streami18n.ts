@@ -203,7 +203,7 @@ type Options = {
   disableDateTimeTranslations?: boolean;
   language?: TranslationLanguages;
   logger?: (message?: string) => void;
-  translationsForLanguage?: typeof enTranslations;
+  translationsForLanguage?: Partial<typeof enTranslations>;
 };
 
 /**
@@ -470,7 +470,14 @@ export class Streami18n {
 
     if (translationsForLanguage) {
       this.translations[this.currentLanguage] = {
-        [defaultNS]: translationsForLanguage,
+        [defaultNS]:
+          this.translations[this.currentLanguage] &&
+          this.translations[this.currentLanguage][defaultNS]
+            ? {
+                ...this.translations[this.currentLanguage][defaultNS],
+                ...translationsForLanguage,
+              }
+            : translationsForLanguage,
       };
     }
 
