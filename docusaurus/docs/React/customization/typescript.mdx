@@ -69,7 +69,13 @@ will extend these defaults. Core to understanding this pattern is how generics c
 
 ```tsx
 type DefaultAttachmentType = Record<string, unknown> & {
-  file_size?: number | string;
+  asset_url?: string;
+  file_size?: number;
+  id?: string;
+  images?: Array<{
+    image_url?: string;
+    thumb_url?: string;
+  }>;
   mime_type?: string;
 };
 
@@ -128,3 +134,8 @@ const { channel } = useChannelStateContext<
   { nickName?: string }
 >();
 ```
+
+:::tip
+To see an example of extending the default `Attachment` type, see the [Geolocation Attachment](../custom-code-examples/geolocation-attachment.mdx#custom-map-attachment)
+custom code example.
+:::
