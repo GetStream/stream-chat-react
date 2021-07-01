@@ -1,6 +1,6 @@
 ---
 id: geolocation_attachment
-sidebar_position: 17
+sidebar_position: 18
 title: Geolocation Attachment
 ---
 
@@ -118,14 +118,14 @@ Since the `GoogleMapReact` component can take some time to render as coordinates
 API, we render the component library's standard [`LoadingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx)
 while we wait for `latitude` and `longitude` to be set.
 
-:::note
-Since we've added new fields to our `map` type message attachment, we must extend the basic `Attachment` type
-(renamed to `StreamAttachment` here) to support `latitude` and `longitude`.
-:::
-
 :::important
 In order to interact with the Google Maps API, you must [set up an account](https://developers.google.com/maps/documentation/javascript/cloud-setup)
 and generate an API key.
+:::
+
+:::note
+Since we've added new fields to our `map` type message attachment, we must extend the basic `Attachment` type
+(renamed to `StreamAttachment` here) to support `latitude` and `longitude`.
 :::
 
 ```tsx
