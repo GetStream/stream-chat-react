@@ -9,7 +9,7 @@ The list's state variable is then updated accordingly via the hooks.
 
 Rather than exporting these individual hooks for customization purposes, many of these event listeners accept custom handler functions, which allows you to override the library's default event response behavior.
 
-To view the list of these custom handler functions to override (if there is one), see the `ChannelList` [documentation](../core-components/channel_list#event-listeners).
+To view the list of these custom handler functions to override (if there is one), see the `ChannelList` [documentation](../core-components/channel-list.mdx/#event-listeners).
 
 ## Hooks
 
@@ -55,11 +55,11 @@ A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/c
 
 ### usePaginatedChannels
 
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/hooks/usePaginatedChannels.ts) that handles when a user's status changes (ex: online, offline, etc.).
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/hooks/usePaginatedChannels.ts) that handles pagination and the querying of the channels for the list.
 
 ### useUserPresenceChangedListener
 
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/hooks/useUserPresenceChangedListener.ts) that handles pagination and the querying of the channels for the list.
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/hooks/useUserPresenceChangedListener.ts) that handles when a user's status changes (ex: online, offline, etc.).
 
 ### useMobileNavigation
 
