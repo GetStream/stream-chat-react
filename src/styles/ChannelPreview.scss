@@ -64,7 +64,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 120px;
+    max-width: 150px;
   }
 
   &--active {
@@ -166,10 +166,24 @@
     box-shadow: 0 1px 5px 0 var(--border);
   }
 
+  &--last-message p {
+    font-size: var(--sm-font);
+    line-height: 14px;
+    opacity: 0.5;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
   &--last-message {
     font-size: var(--sm-font);
     line-height: 14px;
     opacity: 0.5;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &--name {
@@ -187,9 +201,22 @@
   }
 
   &--unread {
+    .str-chat__channel-preview-messenger--last-message p {
+      opacity: 1;
+      font-weight: var(--font-weight-semi-bold);
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .str-chat__channel-preview-messenger--last-message {
       opacity: 1;
       font-weight: var(--font-weight-semi-bold);
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
@@ -214,8 +241,19 @@
       background: var(--white5);
       box-shadow: 0 1px 5px 0 var(--black10);
     }
+    &--last-message p {
+      color: var(--white);
+      max-width: 150px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
     &--last-message {
       color: var(--white);
+      max-width: 150px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
     &--name {
       color: var(--white);

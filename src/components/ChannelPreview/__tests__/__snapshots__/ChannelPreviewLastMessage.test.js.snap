@@ -55,7 +55,7 @@ exports[`ChannelPreviewLastMessage should render correctly 1`] = `
       <span
         className="str-chat__channel-preview-last-message"
       >
-        Thi...
+        Latest message is here!
       </span>
       <span
         className="str-chat__channel-preview-unread-count"

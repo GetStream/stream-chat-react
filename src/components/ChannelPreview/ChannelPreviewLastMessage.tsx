@@ -2,8 +2,6 @@ import React, { useRef } from 'react';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 
-import { truncate } from '../../utils';
-
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type {
@@ -34,7 +32,6 @@ const UnMemoizedChannelPreviewLastMessage = <
     displayImage,
     displayTitle,
     latestMessage,
-    latestMessageLength = 20,
     setActiveChannel,
     unread,
     watchers,
@@ -63,9 +60,7 @@ const UnMemoizedChannelPreviewLastMessage = <
         <Avatar image={displayImage} name={displayTitle} />
         <div className='str-chat__channel-preview-info'>
           <span className='str-chat__channel-preview-title'>{displayTitle}</span>
-          <span className='str-chat__channel-preview-last-message'>
-            {truncate(latestMessage, latestMessageLength)}
-          </span>
+          <span className='str-chat__channel-preview-last-message'>{latestMessage}</span>
           {unread && unread >= 1 ? (
             <span className='str-chat__channel-preview-unread-count'>{unread}</span>
           ) : null}
