@@ -39,7 +39,7 @@ export type SuggestionItemProps<
   component: JSX.Element;
   item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>;
   key: React.Key;
-  onClickHandler: React.MouseEventHandler<HTMLDivElement>;
+  onClickHandler: (event: React.BaseSyntheticEvent) => void;
   onSelectHandler: (item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>) => void;
   selected: boolean;
   style: React.CSSProperties;

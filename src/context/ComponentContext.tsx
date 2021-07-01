@@ -18,6 +18,7 @@ import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCoo
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
+import type { MessageStatusProps } from '../components/Message/MessageStatus';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
@@ -75,6 +76,7 @@ export type ComponentContextValue<
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
+  MessageStatus?: React.ComponentType<MessageStatusProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;

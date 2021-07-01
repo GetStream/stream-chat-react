@@ -1,47 +1,47 @@
 .str-chat__date-separator {
   display: flex;
-  padding: 40px;
+  padding: var(--xl-p);
   align-items: center;
 
   &-date {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(0, 0, 0, 0.7);
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: var(--md-font);
+    font-weight: var(--font-weight-bold);
+    color: var(--overlay-dark);
+    font-family: var(--second-font);
   }
 
   &-line {
     flex: 1;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--overlay);
     height: 1px;
     border: none;
   }
   > * {
     &:not(:last-child) {
-      margin-right: 20px;
+      margin-right: var(--sm-m);
     }
   }
 }
 
 .commerce.str-chat {
   .str-chat__date-separator {
-    padding: 40px 0;
+    padding: var(--xl-p) 0;
   }
 }
 
 .dark.str-chat {
   .str-chat__date-separator {
     &-line {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--grey-gainsboro);
     }
     &-date {
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--grey-whisper);
     }
   }
   &.team {
     .str-chat__date-separator {
       &-line {
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: var(--overlay);
       }
     }
   }

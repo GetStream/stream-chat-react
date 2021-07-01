@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
-import { MessageStatus } from './MessageStatus';
+import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
@@ -77,6 +77,7 @@ const MessageSimpleWithContext = <
     MessageDeleted = DefaultMessageDeleted,
     MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
+    MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,

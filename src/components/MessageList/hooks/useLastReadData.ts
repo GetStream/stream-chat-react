@@ -16,6 +16,21 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+type UseLastReadDataParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  returnAllReadData: boolean;
+  userID: string | undefined;
+  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
+};
+
 export const useLastReadData = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -25,15 +40,17 @@ export const useLastReadData = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  userID: string | undefined,
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
-  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>,
-) =>
-  useMemo(
+  props: UseLastReadDataParams<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { messages, read, returnAllReadData, userID } = props;
+
+  return useMemo(
     () =>
       getReadStates(
         messages.filter(({ user }) => user?.id === userID),
         read,
+        returnAllReadData,
       ),
-    [messages, read, userID],
+    [messages, read, returnAllReadData, userID],
   );
+};

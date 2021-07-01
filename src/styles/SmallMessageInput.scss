@@ -1,7 +1,7 @@
 .str-chat__small-message-input {
   display: flex;
   flex-wrap: wrap;
-  margin: 10px;
+  margin: var(--xs-m);
   position: relative;
   z-index: 1000;
 
@@ -44,10 +44,10 @@
     align-items: center;
     justify-content: center;
     background-size: 44px 44px;
-    fill: rgba(0, 0, 0, 0.6);
+    fill: var(--grey);
 
     &:hover {
-      fill: rgba(0, 0, 0, 1);
+      fill: var(--black);
     }
   }
 
@@ -74,9 +74,10 @@
   }
 
   textarea {
-    background: transparent;
+    background: var(--grey-whisper);
+    color: var(--black);
     min-height: 36px;
-    font-size: 13px;
+    font-size: var(--sm-font);
     padding: 10px 44px 8px 8px;
 
     &:focus {
@@ -89,7 +90,7 @@
   }
 
   .str-chat__user-item {
-    font-size: 14px;
+    font-size: var(--md-font);
   }
 
   .rfu-file-upload-button {
@@ -106,15 +107,15 @@
 .dark.str-chat {
   .str-chat__small-message-input {
     textarea {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.21);
-      border-radius: 6px;
-      color: white;
+      background: var(--white5);
+      border: 1px solid var(--black20);
+      border-radius: var(--border-radius-sm);
+      color: var(--white);
     }
     .rfu-file-upload-button,
     .str-chat__small-message-input-emojiselect {
       svg {
-        fill: white;
+        fill: var(--white);
       }
     }
   }

@@ -3,10 +3,10 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  padding: 0 0 0 0;
+  padding: 0;
 
   .str-chat__reverse-infinite-scroll {
-    padding-top: 75px;
+    padding-top: 72px;
   }
 
   &-wrapper {
@@ -17,7 +17,7 @@
   }
 
   &--thread {
-    padding: 15px 0 0 0;
+    padding: var(--sm-p) 0 0 0;
     overflow: visible;
   }
   &__center {
@@ -35,38 +35,38 @@
 }
 
 .str-chat__custom-notification {
-  border-radius: 4px;
-  font-size: 12px;
-  padding: 8px;
-  font-family: $second-font;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--sm-font);
+  padding: var(--xs-p);
+  font-family: var(--second-font);
   text-align: center;
 
   &.notification-success {
-    background: rgba(2, 208, 2, 0.1);
-    border: 1px solid rgba(2, 208, 2, 0.1);
-    color: green;
+    background: var(--faded-green);
+    border: 1px solid var(--green);
+    color: var(--green);
   }
 
   &.notification-error {
-    background: rgba(208, 2, 27, 0.1);
-    border: 1px solid rgba(208, 2, 27, 0.1);
-    color: #f00;
+    background: var(--faded-red);
+    border: 1px solid var(--red);
+    color: var(--red);
   }
 }
 
 .str-chat__connection-issue {
-  background: rgba(208, 2, 27, 0.1);
-  border: 1px solid rgba(208, 2, 27, 0.1);
-  color: #f00;
-  border-radius: 4px;
-  font-size: 12px;
-  padding: 8px;
-  font-family: $second-font;
+  background: var(--faded-red);
+  border: 1px solid var(--red);
+  color: var(--red);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--sm-font);
+  padding: var(--xs-p);
+  font-family: var(--second-font);
   text-align: center;
 }
 
 .str-chat__list-notifications {
-  padding: 0 40px;
+  padding: 0 var(--xl-p);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -77,34 +77,34 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 40px 0;
-        background: white;
+        padding: 0 var(--xl-p) 0;
+        background: var(--white);
         .str-chat__reverse-infinite-scroll {
-          padding-top: 55px;
+          padding-top: 56px;
         }
         &-notifications {
-          background: white;
+          background: var(--white);
         }
       }
     }
     @media screen and (max-width: 960px) {
       .str-chat {
         &__list {
-          padding: 0 10px 0;
+          padding: 0 var(--xs-p) 0;
           .str-chat__reverse-infinite-scroll {
-            padding-top: 55px;
+            padding-top: 56px;
           }
           &-notifications {
-            padding: 0 10px;
+            padding: 0 var(--xs-p);
           }
         }
       }
     }
     &.dark {
       .str-chat__list {
-        background: rgba(white, 0.04);
+        background: var(--white5);
         &-notifications {
-          background: rgba(white, 0.04);
+          background: var(--white5);
         }
       }
     }
@@ -115,9 +115,9 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 10px;
+        padding: 0 var(--xs-p);
         .str-chat__reverse-infinite-scroll {
-          padding-top: 55px;
+          padding-top: 56px;
         }
       }
     }
@@ -128,13 +128,13 @@
   &.str-chat {
     .str-chat {
       &__list {
-        padding: 0 20px 0;
+        padding: 0 var(--md-p) 0;
         .str-chat__reverse-infinite-scroll {
-          padding-top: 75px;
+          padding-top: 72px;
         }
         &-notifications {
-          padding-left: 22px;
-          padding-right: 22px;
+          padding-left: var(--md-p);
+          padding-right: var(--md-p);
         }
       }
     }
@@ -147,7 +147,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable smooth scrolling on ios */
-  background: white;
+  background: var(--white);
   margin: 0;
   width: 100%;
   height: 100%;
@@ -156,7 +156,7 @@
   // a simple workaround is to make the loading indicator an overlay.
   &__loading {
     display: flex;
-    padding-top: 8px;
+    padding-top: var(--xs-p);
     justify-content: center;
     width: 100%;
     position: absolute;
@@ -168,5 +168,5 @@
 }
 
 .dark .str-chat__virtual-list {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--white5);
 }

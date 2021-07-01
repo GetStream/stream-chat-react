@@ -6,8 +6,8 @@
 }
 
 .str-chat__message-reactions-list-item {
-  font-size: 20px;
-  margin: 0 5px;
+  font-size: var(--xl-font);
+  margin: 0 var(--xxs-m);
   position: relative;
   line-height: 0;
   button {
@@ -18,7 +18,6 @@
     position: relative;
     display: block;
     top: -2px;
-    transform: scalce(1);
     transition: transform 100ms ease;
 
     &:hover {
@@ -29,15 +28,10 @@
   &__count {
     position: absolute;
     top: 28px;
-    font-size: 10px;
-    color: #fff;
-    font-weight: 700;
+    font-size: var(--xs-font);
+    color: var(--white);
+    font-weight: var(--font-weight-bold);
     left: 6px;
-  }
-
-  .str-chat__avarar {
-    margin: 0;
-    visibility: visible;
   }
 
   .latest-user {
@@ -54,17 +48,13 @@
       bottom: calc(100% + 5px);
       left: 50%;
       transform: translate(-50%, 0);
-      background: rgba(0, 0, 0, 0.81);
-      border-radius: 5px;
-      background-image: linear-gradient(
-        -180deg,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.5) 100%
-      );
+      background: var(--black80);
+      border-radius: var(--border-radius-sm);
+      background-image: linear-gradient(-180deg, transparent, var(--black50));
       max-width: 237px;
-      padding: 4px 8px;
-      font-size: 13px;
-      color: white;
+      padding: var(--xxs-p) var(--xs-p);
+      font-size: var(--sm-font);
+      color: var(--white);
 
       &::after {
         content: '';
@@ -74,21 +64,21 @@
         transform: translate(-50%, 0) rotate(45deg);
         width: 7px;
         height: 7px;
-        background-color: #1a1a1a;
+        background-color: var(--dark-grey);
       }
     }
 
     &-not-found {
-      border: 1.5px solid #fff;
-      border-radius: 50%;
-      background-color: $primary-color;
+      border: 1.5px solid var(--white);
+      border-radius: var(--border-radius-round);
+      background-color: var(--secondary-color);
       width: inherit;
       height: inherit;
     }
 
     img {
-      border: 1.5px solid #fff;
-      border-radius: 50%;
+      border: 1.5px solid var(--white);
+      border-radius: var(--border-radius-round);
       object-fit: cover;
       width: inherit;
       height: inherit;
@@ -107,40 +97,31 @@
   height: 60px;
   position: absolute;
   width: initial;
-  background: rgba(24, 25, 28, 0.98);
-  background-image: linear-gradient(
-    -180deg,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
-  border: 1px solid rgba(224, 224, 224, 0.03);
-  box-shadow: 0 3px 1px 0 rgba(0, 0, 0, 0.07), 0 11px 8px 0 rgba(0, 0, 0, 0.15);
-  border-radius: 30px;
+  background: var(--black);
+  background-image: linear-gradient(-180deg, transparent, var(--border));
+  border: 1px solid var(--white5);
+  box-shadow: 0 3px 1px 0 var(--border), 0 11px 8px 0 var(--border);
+  border-radius: var(--border-radius-round);
   display: flex;
   align-items: center;
 
   ul {
     position: relative;
     z-index: 1000;
-    margin: 0 16px;
+    margin: 0 var(--sm-m);
   }
 
   &-tooltip {
     position: absolute;
     bottom: calc(100% + 15px);
-    background: rgba(0, 0, 0, 0.81);
-    border-radius: 5px;
-    background-image: linear-gradient(
-      -180deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.5) 100%
-    );
+    background: var(--black);
+    border-radius: var(--border-radius-sm);
     min-width: 85px;
     min-height: 24px;
     max-width: 100%;
-    padding: 4px 8px;
-    font-size: 13px;
-    color: white;
+    padding: var(--xxs-p) var(--xs-p);
+    font-size: var(--sm-font);
+    color: var(--white);
     text-align: center;
 
     .arrow {
@@ -150,7 +131,7 @@
       transform: translate(-50%, 0) rotate(45deg);
       width: 7px;
       height: 7px;
-      background-color: #1a1a1a;
+      background-color: var(--black);
     }
   }
 

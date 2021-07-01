@@ -8,26 +8,26 @@
   &__avatars {
     display: flex;
     .str-chat__avatar {
-      margin-right: -8px;
+      margin-right: calc(var(--xs-m) * -1);
       &:last-of-type {
-        margin-right: 8px;
+        margin-right: var(--xs-m);
       }
     }
   }
   &__dots {
     position: relative;
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 5px 10px;
-    border-radius: $border-radius $border-radius $border-radius 2px;
+    background: var(--white);
+    border: 1px solid var(--black10);
+    padding: var(--xxs-p) var(--xs-m);
+    border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 2px;
   }
   &__dot {
     display: inline-block;
     width: 6px;
     height: 6px;
-    border-radius: 50%;
-    margin-right: 3px;
-    background: $secondary-color;
+    border-radius: var(--border-radius-round);
+    margin-right: var(--xxs-m);
+    background: var(--primary-color);
     animation: wave 1.1s linear infinite;
 
     &:nth-child(2) {
@@ -46,11 +46,11 @@
   .str-chat__typing-indicator {
     &__avatars {
       .str-chat__avatar {
-        border-color: #282a2d;
+        border-color: var(--dark-grey);
       }
     }
     &__dots {
-      background: rgba(white, 0.05);
+      background: var(--white5);
     }
   }
 }

@@ -1,5 +1,5 @@
 .str-chat__modal {
-  background: black;
+  background: var(--black);
   position: fixed;
   top: 0;
   left: 0;
@@ -16,27 +16,27 @@
 
   &__inner {
     max-width: 667px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
+    background: var(--white);
+    padding: var(--md-p);
+    border-radius: var(--border-radius-md);
   }
 
   &__close-button {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 20px;
-    font-size: 14px;
+    padding: var(--md-p);
+    font-size: var(--md-font);
     line-height: 10px;
-    color: white;
+    color: var(--white);
     cursor: pointer;
     display: flex;
     align-items: center;
     svg {
       position: relative;
       top: 1px;
-      margin-left: 10px;
-      fill: white;
+      margin-left: var(--xs-m);
+      fill: var(--white);
     }
     &:hover {
       opacity: 0.79;
@@ -58,8 +58,8 @@
 .str-chat.dark.messaging {
   .str-chat__modal {
     &__inner {
-      border: 2px solid white;
-      background: black;
+      border: 2px solid var(--white);
+      background: var(--black);
     }
   }
 }

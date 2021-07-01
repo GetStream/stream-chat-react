@@ -1,5 +1,24 @@
 # Changelog
 
+## [6.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.2.0) 2021-06-24
+
+### 🎉 CSS VARIABLES THEMING! 🎉
+
+- We've replaced much of the library's hardcoded CSS with customizable variables [#927](https://github.com/GetStream/stream-chat-react/pull/927)
+- Variable support has been added for fonts, colors, border radius, padding, and margin
+- The `Chat` component now accepts a `customStyles` prop, an object type of CSS variables and value overrides
+- See the [CSS and Theming](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/) section of our docs
+for an example of how to implement
+
+### Feature
+
+- Added error notification handling for failed deleted messages [#1002](https://github.com/GetStream/stream-chat-react/pull/1002)
+- Added UI component override prop for `MessageListNotifications` [#996](https://github.com/GetStream/stream-chat-react/pull/996)
+
+### Chore
+
+- Refactor typing of `Attachment` components [#995](https://github.com/GetStream/stream-chat-react/pull/995)
+
 ## [6.1.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.1.2) 2021-06-21
 
 ### Feature

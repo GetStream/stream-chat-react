@@ -3,29 +3,29 @@
   border: none;
   background: none;
   padding: 0;
-  margin-top: 8px;
-  font-size: 12px;
+  margin-top: var(--xs-m);
+  font-size: var(--sm-font);
   line-height: 15px;
-  font-weight: 700;
-  color: $secondary-color;
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
   cursor: pointer;
 
   svg {
-    fill: rgba(0, 0, 0, 0.1);
-    margin-right: 5px;
+    fill: var(--grey-whisper);
+    margin-right: var(--xxs-m);
   }
 }
 
 .dark.str-chat {
   .str-chat__message-replies-count-button {
     svg {
-      fill: rgba(255, 255, 255, 0.1);
+      fill: var(--white10);
     }
   }
   &.team {
     .str-chat__message-replies-count-button {
       svg {
-        fill: rgba(0, 0, 0, 0.4);
+        fill: var(--black40);
       }
     }
   }

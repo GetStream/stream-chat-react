@@ -1,10 +1,9 @@
 .str-chat__channel-list {
-  /* min-height: 667px; */
   flex: 1;
   overflow-y: auto;
   max-width: 300px;
-  background: #f2f3f5;
-  box-shadow: 1px 0 0 0 rgba(0, 0, 0, 0.07);
+  background: var(--blue-alice);
+  box-shadow: 1px 0 0 0 var(--black5);
   display: flex;
   flex-direction: column;
 
@@ -13,38 +12,38 @@
   }
 
   .channel_preview {
-    padding: 8px 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: var(--xs-p) var(--sm-p);
+    border-bottom: 1px solid var(--black10);
   }
 }
 
 .str-chat__button {
-  background: #fff;
-  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09);
-  font-size: 14px;
-  padding: 14px 70px;
-  color: #006cff;
+  background: var(--white);
+  box-shadow: 0 1px 1px 0 var(--black10), 0 1px 4px 0 var(--black10);
+  font-size: var(--md-font);
+  padding: var(--sm-p) var(--xxl-p); //TODO-CSS 72px
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
   width: calc(100% - 10px);
-  margin: 5px;
+  margin: var(--xxs-m);
   border: 1px solid transparent;
 
   &:active,
   &:focus {
     outline: none;
-    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.12), 0 1px 4px 0 rgba(0, 0, 0, 0.09),
-      0 0 0 2px rgba(0, 108, 255, 0.36);
-    border: 1px solid $secondary-color;
+    box-shadow: 0 0 1px 0 var(--border), 0 1px 4px 0 var(--border),
+      0 0 0 2px var(--primary-color-faded);
+    border: 1px solid var(--primary-color);
   }
 
   > * {
-    margin: 0 5px;
+    margin: 0 var(--xxs-m);
   }
 
   &--round {
-    border-radius: 100px;
+    border-radius: var(--border-radius-round);
   }
 }
 
@@ -58,10 +57,10 @@
 .str-chat-channel-list-burger {
   width: 10px;
   height: 50px;
-  background: white;
-  border-radius: 0 4px 4px 0;
-  padding: 3px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.09);
+  background: var(--white);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  padding: var(--xxs-p);
+  box-shadow: 0px 4px 6px var(--border);
   position: fixed;
   top: 10px;
   left: 0;
@@ -72,8 +71,8 @@
   div {
     width: 4px;
     height: 100%;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.08);
+    border-radius: var(--border-radius-sm);
+    background: var(--border);
   }
   // display: none;
 }
@@ -93,7 +92,7 @@
       z-index: 1001;
       min-height: 100vh;
       overflow-y: auto;
-      box-shadow: 7px 0 9px 0 rgba(0, 0, 0, 0.03), 1px 0 0 0 rgba(0, 0, 0, 0.03);
+      box-shadow: 7px 0 9px 0 var(--black5), 1px 0 0 0 var(--black5);
       transition: left 200ms ease-in-out;
     }
   }
@@ -111,8 +110,8 @@
   .str-chat__channel-list-messenger {
     padding: 0;
     &__main {
-      padding: 20px 10px 0 10px;
-      height: 100%;
+      padding: var(--sm-p) var(--sm-p) 0 var(--sm-p);
+      // height: 100%;
       overflow-y: auto;
     }
   }
