@@ -9,13 +9,8 @@ import {
   ChannelPreviewMessenger,
   MessageList,
   MessageInput,
-  MessageInputFlat,
   Thread,
-  useTypingContext,
   Window,
-  TypingIndicator,
-  ChannelHeaderProps,
-  useChannelStateContext,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './App.css';
@@ -26,6 +21,7 @@ const userToken = process.env.REACT_APP_USER_TOKEN as string;
 const theme = 'light';
 
 const filters = { type: 'messaging' };
+const teamFilters = { type: 'team '};
 const options = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
@@ -37,26 +33,11 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
-const CustomChannelHeader = (props: ChannelHeaderProps) => {
-  const { channel } = useChannelStateContext();
-  const { name } = channel.data || {};
-
-  return (
-    <div className='str-chat__header-livestream'>
-      <div>
-        <div>Typing Indicator</div>
-        <div>{name}</div>
-      </div>
-      {/* <TypingIndicator /> */}
-    </div>
-  )
-}
-
 const ChannelInner = () => {
   return (
     <>
       <Window>
-        <CustomChannelHeader />
+        <ChannelHeader />
         <MessageList />
         <MessageInput />
       </Window>
@@ -64,6 +45,15 @@ const ChannelInner = () => {
     </>
   )
 }
+
+const onMessageNew = (setChannels: any, event: any) => {
+  console.log('in the onMessageNew');
+}
+
+chatClient.on((event) => {
+  console.log(event)
+} )
+
 
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>
@@ -74,8 +64,18 @@ const App = () => (
       sort={sort}
       options={options}
       showChannelSearch
+      onMessageNew={onMessageNew}
     />
-    <Channel TypingIndicator={() => { return null } }>
+    <ChannelList
+      List={ChannelListMessenger}
+      Preview={ChannelPreviewMessenger}
+      filters={teamFilters}
+      sort={sort}
+      options={options}
+      showChannelSearch
+      onMessageNew={onMessageNew}
+    />
+    <Channel>
       <ChannelInner />
     </Channel>
   </Chat>
