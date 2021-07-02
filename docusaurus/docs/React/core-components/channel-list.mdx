@@ -281,9 +281,17 @@ Custom UI component to display the channel preview in the list.
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | component | [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) |
 
+### sendChannelsToList
+
+If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
 ### setActiveChannelOnMount
 
-Whether or not to set the most recent channel received from the query as active on component mount.
+If true, sets the most recent channel received from the query as active on component mount.
 
 | Type    | Default |
 | ------- | ------- |
@@ -291,7 +299,7 @@ Whether or not to set the most recent channel received from the query as active 
 
 ### showChannelSearch
 
-Whether or not to load the list with a search component.
+If true, loads the list with a search component.
 
 | Type    | Default |
 | ------- | ------- |
