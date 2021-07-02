@@ -59,14 +59,6 @@ const messageCodeBlocks = (message: string) => {
   return matches || [];
 };
 
-export const truncate = (input?: string, length?: number, end = '...') => {
-  if (!input || !length) return '';
-  if (input.length > length) {
-    return `${input.substring(0, length - end.length)}${end}`;
-  }
-  return input;
-};
-
 type MarkDownRenderers = {
   children: React.ReactElement;
   href?: string;

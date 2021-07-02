@@ -22,8 +22,7 @@ describe('ChannelPreviewLastMessage', () => {
       channel={channel}
       displayImage='https://randomimage.com/src.jpg'
       displayTitle='Channel name'
-      latestMessage='This is latest message !!!'
-      latestMessageLength={6}
+      latestMessage='Latest message is here!'
       setActiveChannel={jest.fn()}
       unread={10}
       {...props}
