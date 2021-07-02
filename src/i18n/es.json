@@ -19,6 +19,8 @@
   "Error pinning message": "Mensaje de error al fijar",
   "Error removing message pin": "Error al quitar el pin del mensaje",
   "Error unmuting a user ...": "Error al activar el silencio de un usuario ...",
+  "Error uploading file": "Error al cargar el archivo",
+  "Error uploading image": "Error subiendo imagen",
   "Error · Unsent": "Error · No enviado",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
   "Flag": "Bandera",

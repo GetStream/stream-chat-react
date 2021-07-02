@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
-import type { SendFileAPIResponse } from 'stream-chat';
 
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+
+import type { SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
@@ -32,7 +35,10 @@ export const useImageUploads = <
 ) => {
   const { doImageUploadRequest, errorHandler } = props;
   const { imageUploads } = state;
+
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
 
   const removeImage = useCallback((id) => {
     dispatch({ id, type: 'removeImageUpload' });
@@ -42,12 +48,16 @@ export const useImageUploads = <
   const uploadImage = useCallback(
     async (id) => {
       const img = imageUploads[id];
-      if (!img || !channel) return;
+      if (!img) return;
+
       const { file } = img;
+
       if (img.state !== 'uploading') {
         dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
+
       let response: SendFileAPIResponse;
+
       try {
         if (doImageUploadRequest) {
           response = await doImageUploadRequest(file, channel);
@@ -55,13 +65,19 @@ export const useImageUploads = <
           response = await channel.sendImage(file as File);
         }
       } catch (error) {
-        console.warn(error);
+        const errorMessage: string =
+          typeof error.message === 'string' ? error.message : t('Error uploading image');
+
+        addNotification(errorMessage, 'error');
+
         let alreadyRemoved = false;
+
         if (!imageUploads[id]) {
           alreadyRemoved = true;
         } else {
           dispatch({ id, state: 'failed', type: 'setImageUpload' });
         }
+
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(error, 'upload-image', {
@@ -69,6 +85,7 @@ export const useImageUploads = <
             id,
           });
         }
+
         return;
       }
 
