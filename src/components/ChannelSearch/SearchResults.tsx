@@ -99,7 +99,7 @@ const DefaultSearchResultItem = <
         onClick={() => selectResult(channel)}
       >
         <div className='result-hashtag'>#</div>
-        <p className='channel-search__result-text'>{channel?.data?.name}</p>
+        <p className='channel-search__result-text'>{channel.data?.name}</p>
       </div>
     );
   } else {
@@ -108,7 +108,7 @@ const DefaultSearchResultItem = <
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(result)}
       >
-        <Avatar image={result?.image} />
+        <Avatar image={result.image} user={result} />
         {result.name || result.id}
       </div>
     );

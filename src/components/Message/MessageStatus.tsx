@@ -82,7 +82,7 @@ const UnMemoizedMessageStatus = <
         data-testid='message-status-read-by'
       >
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
-        <Avatar image={lastReadUser?.image} name={lastReadUser?.name} size={15} />
+        <Avatar image={lastReadUser.image} name={lastReadUser.name} size={15} user={lastReadUser} />
         {readBy.length > 2 && (
           <span
             className={`str-chat__message-${messageType}-status-number`}
