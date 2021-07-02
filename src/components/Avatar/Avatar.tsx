@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-export type AvatarProps = {
+import type { UserResponse } from 'stream-chat';
+
+import type { DefaultUserType } from '../../types/types';
+
+export type AvatarProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string | null;
   /** Name of the image, used for title tag fallback */
@@ -17,12 +21,16 @@ export type AvatarProps = {
    * @default 32px
    */
   size?: number;
+  /** The entire user object for the chat user displayed in the component */
+  user?: UserResponse<Us>;
 };
 
 /**
  * A round avatar image with fallback to username's first letter
  */
-export const Avatar: React.FC<AvatarProps> = (props) => {
+export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
+  props: AvatarProps<Us>,
+) => {
   const {
     image,
     name,
