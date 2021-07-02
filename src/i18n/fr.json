@@ -19,6 +19,8 @@
   "Error pinning message": "Erreur d'épinglage du message",
   "Error removing message pin": "Erreur lors de la suppression du code PIN du message",
   "Error unmuting a user ...": "Erreur de désactivation de la fonction sourdine pour un utilisateur ...",
+  "Error uploading file": "Erreur lors du téléchargement du fichier",
+  "Error uploading image": "Erreur lors de l'envoi de l'image",
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Flag": "Signaler",
