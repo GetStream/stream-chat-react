@@ -1,5 +1,30 @@
 # Changelog
 
+## [6.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.3.0) 2021-07-02
+
+### ⚠️ BREAKING CHANGES ⚠️ - We've removed the following deprecated UI components [#1031](https://github.com/GetStream/stream-chat-react/pull/1031):
+
+- `ChannelListTeam`
+- `ChannelPreviewCompact`
+- `ChannelPreviewCountOnly`
+- `ChannelPreviewLastMessage`
+- `MessageInputLarge`
+- `MessageInputSimple`
+
+### Feature
+
+- Added option to view read states on all messages [#1014](https://github.com/GetStream/stream-chat-react/pull/1014)
+- Added markdown rendering support for `ChannelPreview` component [#1021](https://github.com/GetStream/stream-chat-react/pull/1021)
+- Added `sendChannelsToList` prop to `ChannelList` to pass `loadedChannels` to the `List` UI component [#1028](https://github.com/GetStream/stream-chat-react/pull/1028)
+- Pass entire user object to `Avatar` component for custom component usage [#1030](https://github.com/GetStream/stream-chat-react/pull/1030)
+- Send error notification to channel via `addNotification` method when file/image upload fails [#1032](https://github.com/GetStream/stream-chat-react/pull/1032)
+- Conditionally render `SendButton` when attachments have been uploaded but no input text exists [#1033](https://github.com/GetStream/stream-chat-react/pull/1033)
+
+### Chore
+
+- Update `MessageInput` emoji icons [#1020](https://github.com/GetStream/stream-chat-react/pull/1020) and [#1029](https://github.com/GetStream/stream-chat-react/pull/1029)
+- Upgrade `react-file-utils` dependency [#1027](https://github.com/GetStream/stream-chat-react/pull/1027)
+
 ## [6.2.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.2.0) 2021-06-24
 
 ### 🎉 CSS VARIABLES THEMING! 🎉

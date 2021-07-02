@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 
-export type ChannelListMessengerProps = {
+import type { Channel } from 'stream-chat';
+
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../types/types';
+
+export type ChannelListMessengerProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   /** Whether or not the channel query request returned an errored response */
   error?: boolean;
+  /** The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true */
+  loadedChannels?: Channel<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Whether or not channels are currently loading */
   loading?: boolean;
   /** Custom UI component to display a loading error, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
@@ -17,7 +39,17 @@ export type ChannelListMessengerProps = {
 /**
  * A preview list of channels, allowing you to select the channel you want to open
  */
-export const ChannelListMessenger: React.FC<ChannelListMessengerProps> = (props) => {
+export const ChannelListMessenger = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  props: PropsWithChildren<ChannelListMessengerProps<At, Ch, Co, Ev, Me, Re, Us>>,
+) => {
   const {
     children,
     error = false,

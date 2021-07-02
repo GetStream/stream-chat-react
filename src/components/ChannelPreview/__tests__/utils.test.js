@@ -34,10 +34,6 @@ describe('ChannelPreview utils', () => {
 
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
-    const customMessage = generateMessage();
-    const channelWithTextMessage = generateChannel({
-      messages: [customMessage],
-    });
     const channelWithDeletedMessage = generateChannel({
       messages: [generateMessage({ deleted_at: new Date() })],
     });
@@ -54,7 +50,6 @@ describe('ChannelPreview utils', () => {
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
       ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
       ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
-      [customMessage.text, 'channelWithTextMessage', channelWithTextMessage],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
       const t = (text) => text;
       const channel = await getQueriedChannelInstance(c);

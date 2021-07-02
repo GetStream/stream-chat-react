@@ -72,14 +72,14 @@ const UnMemoizedEventComponent = <
     );
 
   if (event?.type === 'member.removed' || event?.type === 'member.added') {
-    const name = event?.user?.name || event?.user?.id;
+    const name = event.user?.name || event.user?.id;
     const sentence = `${name} ${
       event.type === 'member.added' ? 'has joined the chat' : 'was removed from the chat'
     }`;
 
     return (
       <div className='str-chat__event-component__channel-event'>
-        <Avatar image={event?.user?.image} name={name} />
+        <Avatar image={event.user?.image} name={name} user={event.user} />
         <div className='str-chat__event-component__channel-event__content'>
           <em className='str-chat__event-component__channel-event__sentence'>{sentence}</em>
           <div className='str-chat__event-component__channel-event__date'>

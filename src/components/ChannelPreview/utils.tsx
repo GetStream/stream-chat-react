@@ -1,3 +1,7 @@
+import React from 'react';
+
+import ReactMarkdown from 'react-markdown/with-html';
+
 import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
@@ -12,6 +16,8 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
+export const renderPreviewText = (text: string) => <ReactMarkdown source={text} />;
+
 export const getLatestMessagePreview = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -24,7 +30,7 @@ export const getLatestMessagePreview = <
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
-) => {
+): string | JSX.Element => {
   const latestMessage = channel.state.messages[channel.state.messages.length - 1];
 
   const previewTextToRender =
@@ -40,7 +46,8 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    return previewTextToRender;
+    const renderedText = renderPreviewText(previewTextToRender);
+    return renderedText;
   }
 
   if (latestMessage.command) {
