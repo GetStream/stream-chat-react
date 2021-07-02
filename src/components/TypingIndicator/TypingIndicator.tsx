@@ -76,6 +76,7 @@ const UnMemoizedTypingIndicator = <
             key={`${user?.id}-${i}`}
             name={user?.name || user?.id}
             size={avatarSize}
+            user={user}
           />
         ))}
       </div>

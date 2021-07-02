@@ -118,12 +118,15 @@ const UnMemoizedFixedHeightMessage = <
       } ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}`}
       key={message.id}
     >
-      <Avatar
-        image={message.user?.image}
-        name={message.user?.name || message.user?.id}
-        shape='rounded'
-        size={38}
-      />
+      {message.user && (
+        <Avatar
+          image={message.user.image}
+          name={message.user.name || message.user.id}
+          shape='rounded'
+          size={38}
+          user={message.user}
+        />
+      )}
       <div className='str-chat__virtual-message__content'>
         <div className='str-chat__virtual-message__meta'>
           <div className='str-chat__virtual-message__author' style={{ color: userColor }}>

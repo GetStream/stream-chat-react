@@ -4,7 +4,6 @@ import '@testing-library/jest-dom';
 
 import { MessageInput } from '../MessageInput';
 import { MessageInputFlat } from '../MessageInputFlat';
-import { MessageInputLarge } from '../MessageInputLarge';
 import { MessageInputSmall } from '../MessageInputSmall';
 import { EditMessageForm } from '../EditMessageForm';
 
@@ -37,7 +36,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 };
 
 [
-  { InputComponent: MessageInputLarge, name: 'MessageInputLarge' },
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },

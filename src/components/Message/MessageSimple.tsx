@@ -133,6 +133,7 @@ const MessageSimpleWithContext = <
               name={message.user.name || message.user.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
+              user={message.user}
             />
           )}
           <div

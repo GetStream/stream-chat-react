@@ -585,6 +585,7 @@ describe('<MessageTeam />', () => {
         image: bob.image,
         name: bob.name,
         size: 15,
+        user: expect.any(Object),
       },
       {},
     );

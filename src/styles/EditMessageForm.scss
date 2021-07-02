@@ -44,6 +44,7 @@
   .rfu-file-upload-button,
   .str-chat__input-emojiselect,
   .str-chat__input-fileupload {
+    display: flex;
     position: unset;
     top: unset;
     right: unset;
@@ -62,6 +63,11 @@
 
 .str-chat__edit-message-form-options {
   display: flex;
+  align-items: baseline;
+}
+
+.str-chat__edit-message-form-options .str-chat__fileupload-wrapper:hover .str-chat__tooltip {
+  display: none;
 }
 
 .str-chat.dark {
