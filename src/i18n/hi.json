@@ -57,17 +57,14 @@
   "You've reached the maximum number of files": "आप अधिकतम फ़ाइलों तक पहुँच गए हैं",
   "live": "लाइव",
   "this content could not be displayed": "यह कॉन्टेंट लोड नहीं हो पाया",
-  "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} और {{ lastUser }} टाइप कर रहे हैं...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} और {{ moreCount }} और",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} और {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} और {{ secondUser }}",
-  "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} और {{ secondUser }} टाइप कर रहे हैं...",
   "{{ imageCount }} more": "{{ imageCount }} और",
   "{{ memberCount }} members": "{{ memberCount }} मेंबर्स",
   "{{ replyCount }} replies": "{{ replyCount }} रिप्लाई",
   "{{ user }} has been muted": "{{ user }} को म्यूट कर दिया गया है",
   "{{ user }} has been unmuted": "{{ user }} को अनम्यूट कर दिया गया है",
-  "{{ user }} is typing...": "{{ user }} टाइप कर रहा है...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 अटैचमेंट"
 }

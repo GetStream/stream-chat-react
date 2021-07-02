@@ -57,17 +57,14 @@
   "You've reached the maximum number of files": "Vous avez atteint le nombre maximum de fichiers",
   "live": "en direct",
   "this content could not be displayed": "ce contenu n'a pu être affiché",
-  "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} et {{ lastUser }} sont en train d'écrire...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} et {{ moreCount }} autres",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} et {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} et {{ secondUser }}",
-  "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} et {{ secondUser }} sont en train d'écrire...",
   "{{ imageCount }} more": "{{ imageCount }} supplémentaires",
   "{{ memberCount }} members": "{{ memberCount }} membres",
   "{{ replyCount }} replies": "{{ replyCount }} réponses",
   "{{ user }} has been muted": "{{ user }} a été mis en sourdine",
   "{{ user }} has been unmuted": "{{ user }} n'est plus en sourdine",
-  "{{ user }} is typing...": "{{ user }} est en train d'écrire...",
   "{{ watcherCount }} online": "{{ watcherCount }} en ligne",
   "🏙 Attachment...": "🏙 Pièce jointe..."
 }
