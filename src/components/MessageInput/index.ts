@@ -5,7 +5,5 @@ export * from './hooks';
 export * from './icons';
 export * from './MessageInput';
 export * from './MessageInputFlat';
-export * from './MessageInputLarge';
-export * from './MessageInputSimple';
 export * from './MessageInputSmall';
 export * from './UploadsPreview';
