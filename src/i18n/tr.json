@@ -55,17 +55,14 @@
   "You've reached the maximum number of files": "Maksimum dosya sayısına ulaştınız",
   "live": "canlı",
   "this content could not be displayed": "bu içerik gösterilemiyor",
-  "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} ve {{ lastUser }} yazıyor...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} ve {{ moreCount }} daha",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, ve {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} ve {{ secondUser }}",
-  "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} ve {{ secondUser }} yazıyor...",
   "{{ imageCount }} more": "{{ imageCount }} adet daha",
   "{{ memberCount }} members": "{{ memberCount }} üyeler",
   "{{ replyCount }} replies": "{{ replyCount }} cevaplar",
   "{{ user }} has been muted": "{{ user }} sessize alındı",
   "{{ user }} has been unmuted": "{{ user }} sesi açıldı",
-  "{{ user }} is typing...": "{{ user }} yazıyor...",
   "{{ watcherCount }} online": "{{ watcherCount }} çevrimiçi",
   "🏙 Attachment...": "🏙 Ek..."
 }

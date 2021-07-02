@@ -55,17 +55,14 @@
   "You've reached the maximum number of files": "Вы достигли максимального количества файлов",
   "live": "В прямом эфире",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
-  "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} и {{ lastUser }} пишут...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} и {{ moreCount }} еще",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} и {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} и {{ secondUser }}",
-  "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} и {{ secondUser }} пишут...",
   "{{ imageCount }} more": "Ещё {{ imageCount }}",
   "{{ memberCount }} members": "{{ memberCount }} члены",
   "{{ replyCount }} replies": "{{ replyCount }} ответов",
   "{{ user }} has been muted": "Вы отписались от уведомлений от {{ user }}",
   "{{ user }} has been unmuted": "Уведомления от {{ user }} были включены",
-  "{{ user }} is typing...": "{{ user }} пишет...",
   "{{ watcherCount }} online": "{{ watcherCount }} в сети",
   "🏙 Attachment...": "🏙 Вложение..."
 }

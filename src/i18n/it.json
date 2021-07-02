@@ -55,17 +55,14 @@
   "You've reached the maximum number of files": "Hai raggiunto il numero massimo di file",
   "live": "live",
   "this content could not be displayed": "questo contenuto non puó essere mostrato",
-  "{{ commaSeparatedUsers }} and {{ lastUser }} are typing...": "{{ commaSeparatedUsers }} e {{ lastUser }} stanno scrivendo...",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} e altri {{ moreCount }}",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} e {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} e {{ secondUser }}",
-  "{{ firstUser }} and {{ secondUser }} are typing...": "{{ firstUser }} e {{ secondUser }} stanno scrivendo...",
   "{{ imageCount }} more": "+ {{ imageCount }}",
   "{{ memberCount }} members": "{{ memberCount }} membri",
   "{{ replyCount }} replies": "{{ replyCount }} risposte",
   "{{ user }} has been muted": "{{ user }} é stato silenziato",
   "{{ user }} has been unmuted": "Notifiche riattivate per {{ user }}",
-  "{{ user }} is typing...": "{{ user }} sta scrivendo...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Allegato..."
 }
