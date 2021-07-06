@@ -1,147 +1,3 @@
-.str-chat__channel-preview {
-  button {
-    position: relative;
-    border: none;
-    background: none;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    padding: 8px 40px 8px 8px;
-    font-size: var(--sm-font);
-    border-bottom: 1px solid var(--black10);
-    outline: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-
-    &:focus {
-      background: var(--white);
-      box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
-    }
-  }
-
-  &-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    padding: 0 8px;
-    max-width: 250px;
-  }
-
-  &-avatar {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    border-radius: var(--border-radius);
-  }
-
-  &-title {
-    color: var(--black);
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  &-unread-count {
-    position: absolute;
-    right: 10px;
-    width: 22px;
-    height: 22px;
-    color: var(--black);
-    font-size: var(--sm-font);
-    background: var(--grey-whisper);
-    border-radius: var(--border-radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
-  }
-
-  &-last-message {
-    color: var(--lighten-black);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
-  }
-
-  &--active {
-    background: var(--primary-color);
-    color: white;
-
-    .str-chat__channel-preview-title {
-      color: var(--white);
-    }
-
-    .str-chat__channel-preview-last-message {
-      color: var(--white70);
-    }
-  }
-
-  &--unread {
-    position: relative;
-
-    .str-chat__channel-preview-last-message {
-      font-weight: var(--font-weight-bold);
-      color: var(--black);
-    }
-  }
-
-  &--dot {
-    width: 5px;
-    height: 5px;
-    position: absolute;
-    border-radius: var(--border-radius-round);
-    left: 2px;
-    background-color: var(--primary-color);
-  }
-}
-
-.str-chat__channel-preview-compact {
-  font-family: var(--second-font);
-  display: flex;
-  font-size: var(--md-font);
-  letter-spacing: 0;
-  line-height: 40px;
-  color: var(--black);
-  position: relative;
-  border: none;
-  background: none;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  padding: 0 40px 0 8px;
-  border-bottom: 1px solid var(--black10);
-  text-align: left;
-  outline: 0;
-
-  &:focus {
-    background: var(--white);
-    box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
-  }
-
-  &--left {
-    width: 22px;
-    height: 22px;
-  }
-
-  &--right {
-    flex: 1;
-    margin-left: var(--sm-m);
-  }
-
-  &--unread {
-    font-weight: var(--font-weight-bold);
-  }
-}
-
-.str-chat__channel-preview-compact--active {
-  color: var(--white);
-  background: var(--primary-color);
-}
-
 .str-chat__channel-preview-messenger {
   display: flex;
   width: 100%;
@@ -168,6 +24,7 @@
 
   &--last-message p {
     font-size: var(--sm-font);
+    margin: 0;
     line-height: 14px;
     max-width: 150px;
     text-overflow: ellipsis;
@@ -191,6 +48,7 @@
     font-weight: var(--font-weight-semi-bold);
     margin-bottom: calc(var(--xxs-m) / 2);
     max-width: 250px;
+
     span {
       display: block;
       overflow: hidden;
@@ -221,32 +79,21 @@
 }
 
 .dark.str-chat {
-  .str-chat__channel-preview {
-    &--active {
-      background: var(--black80);
-    }
-    &-title {
-      color: var(--white);
-    }
-    button {
-      &:focus {
-        background: var(--black80);
-        box-shadow: inset 0 0 0 1px var(--primary-color), inset 0 0 0 2px var(--primary-color-faded);
-      }
-    }
-  }
   .str-chat__channel-preview-messenger {
     &--active {
       background: var(--white5);
       box-shadow: 0 1px 5px 0 var(--black10);
     }
+
     &--last-message p {
       color: var(--white);
+      margin: 0;
       max-width: 150px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
     }
+
     &--last-message {
       color: var(--white);
       max-width: 150px;
@@ -254,6 +101,7 @@
       overflow: hidden;
       white-space: nowrap;
     }
+
     &--name {
       color: var(--white);
     }

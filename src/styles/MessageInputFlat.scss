@@ -92,6 +92,7 @@
   .str-chat__textarea {
     flex: 1;
   }
+
   .str-chat__textarea > textarea {
     min-height: 56px;
     background: var(--grey-whisper);
@@ -144,6 +145,7 @@
         right: 25px;
       }
     }
+
     .str-chat__emojiselect-wrapper {
       .str-chat__tooltip {
         bottom: 50px;
@@ -183,13 +185,16 @@
 
 .rfu-image-previewer {
   flex: 1 1 100%;
+
   &__image {
     width: 60px !important;
     height: 60px !important;
+
     .rfu-thumbnail__wrapper {
       width: 60px !important;
       height: 60px !important;
       border-radius: var(--border-radius-md);
+
       .rfu-thumbnail__overlay,
       .rfu-icon-button {
         padding: 0;
@@ -201,6 +206,7 @@
       }
     }
   }
+
   .rfu-thumbnail-placeholder {
     width: 60px;
     height: 60px;
@@ -223,6 +229,7 @@
       border-radius: var(--border-radius-md);
       color: var(--white);
     }
+
     &-emojiselect,
     .rfu-file-upload-button {
       svg {
@@ -230,6 +237,7 @@
       }
     }
   }
+
   &.commerce {
     .str-chat__input-flat {
       background: none;
