@@ -5,8 +5,7 @@ import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-e
 
 import { SimpleReactionsList } from '../SimpleReactionsList';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ComponentProvider } from '../../../context/ComponentContext';
+import { EmojiProvider } from '../../../context/EmojiContext';
 import { emojiComponentMock, emojiDataMock, generateReaction } from '../../../mock-builders';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
@@ -27,22 +26,21 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
 
   return {
     ...render(
-      <ChannelStateProvider value={{ emojiConfig: emojiDataMock }}>
-        <ComponentProvider
-          value={{
-            Emoji: emojiComponentMock.Emoji,
-            EmojiIndex: emojiComponentMock.EmojiIndex,
-            EmojiPicker: emojiComponentMock.EmojiPicker,
-          }}
-        >
-          <SimpleReactionsList
-            handleReaction={handleReactionMock}
-            reaction_counts={reaction_counts}
-            reactions={reactions}
-            {...props}
-          />
-        </ComponentProvider>
-      </ChannelStateProvider>,
+      <EmojiProvider
+        value={{
+          Emoji: emojiComponentMock.Emoji,
+          emojiConfig: emojiDataMock,
+          EmojiIndex: emojiComponentMock.EmojiIndex,
+          EmojiPicker: emojiComponentMock.EmojiPicker,
+        }}
+      >
+        <SimpleReactionsList
+          handleReaction={handleReactionMock}
+          reaction_counts={reaction_counts}
+          reactions={reactions}
+          {...props}
+        />
+      </EmojiProvider>,
     ),
     reactions,
   };

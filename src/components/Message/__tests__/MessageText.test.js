@@ -15,6 +15,7 @@ import { Attachment } from '../../Attachment/Attachment';
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { EmojiProvider } from '../../../context/EmojiContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
@@ -59,7 +60,7 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
 
   return renderer(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider value={{ channel }}>
         <ChannelActionProvider
           value={{ onMentionsClick: onMentionsClickMock, onMentionsHover: onMentionsHoverMock }}
         >
@@ -78,9 +79,11 @@ async function renderMessageText(customProps, channelConfig = {}, renderer = ren
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
               }}
             >
-              <Message {...defaultProps} {...customProps}>
-                <MessageText {...defaultProps} {...customProps} />
-              </Message>
+              <EmojiProvider value={{ emojiConfig: emojiDataMock }}>
+                <Message {...defaultProps} {...customProps}>
+                  <MessageText {...defaultProps} {...customProps} />
+                </Message>
+              </EmojiProvider>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
