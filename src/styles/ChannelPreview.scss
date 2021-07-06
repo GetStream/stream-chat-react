@@ -48,6 +48,7 @@
     font-weight: var(--font-weight-semi-bold);
     margin-bottom: calc(var(--xxs-m) / 2);
     max-width: 250px;
+
     span {
       display: block;
       overflow: hidden;
@@ -83,13 +84,16 @@
       background: var(--white5);
       box-shadow: 0 1px 5px 0 var(--black10);
     }
+
     &--last-message p {
       color: var(--white);
+      margin: 0;
       max-width: 150px;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
     }
+
     &--last-message {
       color: var(--white);
       max-width: 150px;
@@ -97,6 +101,7 @@
       overflow: hidden;
       white-space: nowrap;
     }
+
     &--name {
       color: var(--white);
     }
