@@ -47,8 +47,6 @@ export const useNotificationMessageNewListener = <
       }
     };
 
-    console.log('in the notification.message_new');
-
     client.on('notification.message_new', handleEvent);
 
     return () => {
