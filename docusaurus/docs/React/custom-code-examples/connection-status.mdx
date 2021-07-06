@@ -6,7 +6,7 @@ title: Connection Status
 
 import ConnectionStatus from '../assets/ConnectionStatus.png';
 
-This example will show you how to change the message text in the `ConnectionStatus` component. This status appears when there is connection issues with the Stream Chat API.
+This example will show you how to change the message text in the `ConnectionStatus` component. This status appears when there is a connection issue with the Stream Chat API.
 
 This component is established within the `MessageList` via the `DefaultMessageListNotifications` component in the same file. For a complete override of all of these notifications, see this [detailed example](./adding-notification.mdx), but in this smaller guide
 we will replace just the text of one of the components using the Stream [`i18n instance`](../customization/translations.mdx).
@@ -37,6 +37,3 @@ const i18nInstance = new Streami18n({
 ## The Result
 
 <img src={ConnectionStatus} alt='Custom Connection Status Message for Chat' width='700' />
-
-
-

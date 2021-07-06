@@ -299,6 +299,7 @@ describe('<MessageSimple />', () => {
         name: message.user.name,
         onClick: expect.any(Function),
         onMouseOver: expect.any(Function),
+        user: expect.any(Object),
       },
       {},
     );

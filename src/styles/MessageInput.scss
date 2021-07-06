@@ -7,30 +7,17 @@
   position: relative;
   font-family: var(--second-font);
   padding-bottom: 0;
-  // display: flex;
-
-  &-large {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-
-    &-cooldown {
-      position: absolute;
-      right: 20px;
-      font-size: var(--xl-font);
-      font-weight: var(--font-weight-bold);
-      top: 8px;
-    }
-  }
 
   &--emojipicker {
     position: absolute;
     bottom: 100%;
     right: 0;
   }
+
   .rfu-file-previewer {
     flex: 1 1 100%;
   }
+
   &--textarea-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -143,24 +130,29 @@
     background: var(--dark-grey);
     box-shadow: 0 0 1px 0 var(--black30), 0 0 6px 0 var(--black10);
     border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+
     .rta__list-header {
       background: var(--dark-grey);
       border: 1px solid var(--white5);
       box-shadow: 0 2px 1px 0 var(--black5);
       color: var(--white);
     }
+
     .rta__entity {
       color: var(--white);
     }
   }
+
   .rfu-file-previewer__file {
     a {
       color: var(--white);
     }
+
     &:hover {
       background: transparent;
     }
   }
+
   .rfu-file-previewer__close-button {
     color: var(--white);
   }
@@ -271,45 +263,6 @@
   display: none;
 }
 
-.team.str-chat,
-.livestream.str-chat {
-  .str-chat {
-    &__input {
-      padding: 8px 40px;
-
-      &-footer {
-        padding: 0 40px 8px;
-      }
-    }
-  }
-}
-
-.livestream {
-  &.str-chat {
-    .str-chat {
-      &__input {
-        position: relative;
-        z-index: 1;
-        background: var(--white30);
-        box-shadow: 0 -1px 1px 0 var(--black10);
-        padding: 8px 24px 4px;
-
-        textarea {
-          border-radius: var(--border-radius-sm);
-          background: var(--white30);
-          border: 1px solid var(--black20);
-          font-size: var(--sm-font);
-          padding: 16px;
-        }
-        &-footer {
-          padding: 0 24px 8px;
-          background: var(--white30);
-        }
-      }
-    }
-  }
-}
-
 .str-chat__file-uploads {
   max-height: 300px;
   flex: 1 1 100%;
@@ -324,20 +277,24 @@
   .str-chat__input {
     background: var(--white5);
     box-shadow: 0 -1px 1px 0 var(--black30);
+
     &-footer {
       background: var(--white5);
     }
+
     textarea {
       background: var(--black10);
       border: 1px solid var(--black40);
       border-radius: var(--border-radius-sm);
       color: var(--white);
     }
+
     .str-chat__input-emojiselect {
       svg {
         fill: var(--white);
       }
     }
+
     .rfu-file-upload-button {
       svg {
         fill: var(--white);
@@ -366,12 +323,14 @@
     bottom: 35px;
     right: 24px;
   }
+
   &:hover {
     .str-chat__tooltip {
       display: block;
     }
   }
 }
+
 .str-chat__small-message-input--textarea-wrapper {
   .str-chat__fileupload-wrapper {
     .str-chat__tooltip {

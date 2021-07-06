@@ -91,7 +91,9 @@ export const QuotedMessagePreview = <
     <div className='quoted-message-preview'>
       <QuotedMessagePreviewHeader />
       <div className='quoted-message-preview-content'>
-        <Avatar image={quotedMessage?.user?.image} size={20} />
+        {quotedMessage.user && (
+          <Avatar image={quotedMessage.user.image} size={20} user={quotedMessage.user} />
+        )}
         <div className='quoted-message-preview-content-inner'>
           {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
           <div>{quotedMessageText}</div>

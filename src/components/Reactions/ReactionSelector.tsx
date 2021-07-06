@@ -196,7 +196,12 @@ const UnMemoizedReactionSelector = React.forwardRef(
                       onMouseLeave={hideTooltip}
                     >
                       {latestUser ? (
-                        <Avatar image={latestUser.image} name={latestUser.name} size={20} />
+                        <Avatar
+                          image={latestUser.image}
+                          name={latestUser.name}
+                          size={20}
+                          user={latestUser}
+                        />
                       ) : (
                         <div className='latest-user-not-found' />
                       )}

@@ -83,7 +83,7 @@ export type ChannelListProps<
   /** An object containing channel query filters */
   filters?: ChannelFilters<Ch, Co, Us>;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
-  List?: React.ComponentType<ChannelListMessengerProps>;
+  List?: React.ComponentType<ChannelListMessengerProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
@@ -136,6 +136,8 @@ export type ChannelListProps<
   Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
+  sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
   setActiveChannelOnMount?: boolean;
   /** Whether or not to load the list with a search component, defaults to false */
@@ -181,6 +183,7 @@ const UnMemoizedChannelList = <
     options,
     Paginator = LoadMorePaginator,
     Preview,
+    sendChannelsToList = false,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
     sort = DEFAULT_SORT,
@@ -300,6 +303,7 @@ const UnMemoizedChannelList = <
   const renderList = () => (
     <List
       error={status.error}
+      loadedChannels={sendChannelsToList ? loadedChannels : undefined}
       loading={status.loadingChannels}
       LoadingErrorIndicator={LoadingErrorIndicator}
       LoadingIndicator={LoadingIndicator}

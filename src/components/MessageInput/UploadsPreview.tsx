@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -41,6 +41,7 @@ export const UploadsPreview = <
     numberOfUploads,
     removeFile,
     removeImage,
+    text,
     uploadFile,
     uploadImage,
     uploadNewFiles,
@@ -48,6 +49,19 @@ export const UploadsPreview = <
 
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
+
+  useEffect(() => {
+    const elements = document.getElementsByClassName('str-chat__send-button');
+    const sendButton = elements.item(0);
+
+    if (sendButton instanceof HTMLButtonElement) {
+      if (numberOfUploads && !text) {
+        sendButton.style.display = 'block';
+      } else {
+        sendButton.style.display = 'none';
+      }
+    }
+  }, [numberOfUploads, text]);
 
   return (
     <>

@@ -1,8 +1,12 @@
 import { useCallback, useEffect } from 'react';
 
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+
+import type { SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type {
   CustomTrigger,
@@ -31,7 +35,10 @@ export const useFileUploads = <
 ) => {
   const { doFileUploadRequest, errorHandler } = props;
   const { fileUploads } = state;
+
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { t } = useTranslationContext();
 
   const uploadFile = useCallback((id) => {
     dispatch({ id, state: 'uploading', type: 'setFileUpload' });
@@ -44,15 +51,16 @@ export const useFileUploads = <
 
   useEffect(() => {
     (async () => {
-      if (!channel) return;
       const upload = Object.values(fileUploads).find(
         (fileUpload) => fileUpload.state === 'uploading' && fileUpload.file,
       );
+
       if (!upload) return;
 
       const { file, id } = upload;
-      /** @type FileUploadAPIResponse */
-      let response;
+
+      let response: SendFileAPIResponse;
+
       try {
         if (doFileUploadRequest) {
           response = await doFileUploadRequest(file, channel);
@@ -60,7 +68,11 @@ export const useFileUploads = <
           response = await channel.sendFile(file as File);
         }
       } catch (error) {
-        console.warn(error);
+        const errorMessage: string =
+          typeof error.message === 'string' ? error.message : t('Error uploading file');
+
+        addNotification(errorMessage, 'error');
+
         let alreadyRemoved = false;
 
         if (!fileUploads[id]) {
@@ -68,10 +80,12 @@ export const useFileUploads = <
         } else {
           dispatch({ id, state: 'failed', type: 'setFileUpload' });
         }
+
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
           errorHandler(error, 'upload-file', file);
         }
+
         return;
       }
 
