@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 
 import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
 
 import type { NimbleEmojiProps } from 'emoji-mart';
@@ -54,8 +53,7 @@ const UnMemoizedSimpleReactionsList = <
     reactions: propReactions,
   } = props;
 
-  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji, emojiConfig } = useEmojiContext();
   const { handleReaction: contextHandleReaction, message } = useMessageContext<
     At,
     Ch,
@@ -143,12 +141,14 @@ const UnMemoizedSimpleReactionsList = <
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
               {
-                <Emoji
-                  data={emojiData}
-                  emoji={emojiObject}
-                  size={13}
-                  {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                />
+                <Suspense fallback={null}>
+                  <Emoji
+                    data={emojiData}
+                    emoji={emojiObject}
+                    size={13}
+                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                  />
+                </Suspense>
               }
               &nbsp;
             </span>

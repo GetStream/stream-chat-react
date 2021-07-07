@@ -11,7 +11,7 @@ In this example, we will demonstrate how to override the library's default react
 [`defaultMinimalEmojis`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/emojiData.ts)
 variable. We will replace the default set with up and down arrows, simulating an up/down voting feature.
 
-### Step 1 - Choose Your Reactions
+### Choose Your Reactions
 
 Under the hood, our `ReactionSelector`, `ReactionsList`, and `SimpleReactionsList` components render individual emoji objects
 using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component
@@ -67,14 +67,13 @@ loaded into the component library.
 :::
 
 ```jsx
-const { emojiConfig } = useChannelStateContext();
-const { EmojiIndex } = useComponentContext();
+const { emojiConfig, EmojiIndex } = useEmojiContext();
 
 const emojiIndex = new EmojiIndex(emojiConfig.emojiData);
 const results = emojiIndex.search('arrow'); // returns an array of emoji object results
 ```
 
-### Step 2 - Override the Default Set
+### Override the Default Set
 
 To override the default set of reactions, add your custom set to the `reactionOptions` prop on both the
 [`ReactionSelector`](../message-components/reactions.mdx#reactionselector-props) component and your list component,
@@ -112,7 +111,7 @@ If custom `reactionOptions` are supplied to the selector component, then the sam
 list component so the display for processed reactions has the same emoji objects.
 :::
 
-### Step 3 - The Final Code
+### The Final Code
 
 Putting all the pieces together and building upon the [custom message](../customization/message-ui.mdx#how-it-fits-together)
 in the General Customization section, we are left with the following code for our [Message UI](../message-components/message-ui.mdx)
@@ -196,7 +195,7 @@ export const CustomMessage = () => {
 };
 ```
 
-### Step 4 - The Resulting UI
+### The Resulting UI
 
 **The ReactionSelector component:**
 

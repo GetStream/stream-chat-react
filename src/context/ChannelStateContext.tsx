@@ -1,6 +1,5 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Data as EmojiMartData, EmojiSheetSize } from 'emoji-mart';
 import type {
   Channel,
   ChannelConfigWithInfo,
@@ -25,36 +24,6 @@ export type ChannelNotifications = Array<{
   text: string;
   type: 'success' | 'error';
 }>;
-
-export type CommonEmoji = {
-  custom: boolean;
-  emoticons: [];
-  short_names: [];
-};
-
-export type EmojiSetDef = {
-  imageUrl: string;
-  sheetColumns: number;
-  sheetRows: number;
-  sheetSize: EmojiSheetSize;
-  spriteUrl: string;
-};
-
-export type MinimalEmoji = CommonEmoji &
-  EmojiSetDef & {
-    colons: string;
-    id: string;
-    name: string;
-    sheet_x: number;
-    sheet_y: number;
-  };
-
-export type EmojiConfig = {
-  commonEmoji: CommonEmoji;
-  defaultMinimalEmojis: MinimalEmoji[];
-  emojiData: EmojiMartData;
-  emojiSetDef: EmojiSetDef;
-};
 
 export type StreamMessage<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -106,7 +75,6 @@ export type ChannelStateContextValue<
 > = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   channelConfig: ChannelConfigWithInfo<Co> | undefined;
-  emojiConfig: EmojiConfig;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   acceptedFiles?: string[];

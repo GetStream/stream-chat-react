@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import { useEmojiContext } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { EmojiData } from 'emoji-mart';
@@ -42,8 +41,7 @@ export const EmojiPicker = <
 ) => {
   const { small } = props;
 
-  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { EmojiPicker: EmojiPickerComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext();
   const { t } = useTranslationContext();
 
   const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -57,7 +55,7 @@ export const EmojiPicker = <
 
     return (
       <div className={className} ref={messageInput.emojiPickerRef}>
-        {EmojiPickerComponent && (
+        <Suspense fallback={null}>
           <EmojiPickerComponent
             color='#006CFF'
             data={emojiData}
@@ -71,7 +69,7 @@ export const EmojiPicker = <
             title={t('Pick your emoji')}
             useButton
           />
-        )}
+        </Suspense>
       </div>
     );
   }
