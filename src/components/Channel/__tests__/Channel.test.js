@@ -10,6 +10,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
+import { useEmojiContext } from '../../../context/EmojiContext';
 import {
   generateChannel,
   generateMember,
@@ -37,8 +38,14 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelStateContext = useChannelStateContext();
   const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
+  const emojiContext = useEmojiContext();
 
-  const channelContext = { ...channelStateContext, ...channelActionContext, ...componentContext };
+  const channelContext = {
+    ...channelStateContext,
+    ...channelActionContext,
+    ...componentContext,
+    ...emojiContext,
+  };
 
   useEffect(() => {
     callback(channelContext);

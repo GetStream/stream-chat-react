@@ -43,13 +43,14 @@ loaded into the component library.
 
 ## Create the Custom Component
 
-To construct our component, we will utilize the `ChannelStateContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for
-our `data` prop. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker. This is what our final code will look like:
+To construct our component, we will utilize the `EmojiContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for the
+`data` prop on the `Emoji` component. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker.
+
+This is what our final code will look like:
 
 ```tsx
 export const CustomEmojiPicker = () => {
-  const { emojiConfig } = useChannelStateContext();
-  const { Emoji } = useComponentContext();
+  const { Emoji, emojiConfig } = useEmojiContext();
   const { onSelectEmoji } = useMessageInputContext();
 
   const { emojiData } = emojiConfig || {};

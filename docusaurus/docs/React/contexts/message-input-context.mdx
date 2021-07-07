@@ -1,11 +1,11 @@
 ---
 id: message_input_context
-sidebar_position: 6
+sidebar_position: 7
 title: MessageInputContext
 ---
 
 The `MessageInputContext` is established within the [`MessageInput`](../message-input-components/message-input.mdx) component.
-The value is the combination of the `MessageInputProps`, `MessageInputState` (returned by the `useMessageInputState` hook), and `cooldownTimerState` (returned by the `useCooldownTimer hook`). 
+The value is the combination of the `MessageInputProps`, `MessageInputState` (returned by the `useMessageInputState` hook), and `cooldownTimerState` (returned by the `useCooldownTimer hook`).
 It provides data to the [Input UI](../message-input-components/input-ui.mdx) component and its children. Use the values stored
 within this context to build a custom Input UI component. You can access the context values by calling the `useMessageInputContext`
 custom hook.

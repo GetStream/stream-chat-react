@@ -1,0 +1,50 @@
+---
+id: emoji_context
+sidebar_position: 5
+title: EmojiContext
+---
+
+The `EmojiContext` is established by the `Channel` component and exposes the `useEmojiContext` hook. This context holds
+the UI components and stateful data necessary to render emoji selector functionality.
+
+## Basic Usage
+
+Pull values from context with our custom hook:
+
+```jsx
+const { Emoji, emojiConfig } = useEmojiContext();
+```
+
+## Values
+
+### Emoji
+
+Custom UI component to override default `NimbleEmoji` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
+
+| Type      |
+| --------- |
+| component |
+
+### emojiConfig
+
+The configuration data for emojis, including the rendered JSON data set.
+
+| Type        |
+| ----------- |
+| EmojiConfig |
+
+### EmojiIndex
+
+Custom class constructor to override default `NimbleEmojiIndex` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
+
+| Type        |
+| ----------- |
+| constructor |
+
+### EmojiPicker
+
+Custom UI component to override default `NimblePicker` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
+
+| Type      |
+| --------- |
+| component |

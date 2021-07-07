@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isMutableRef } from './utils/utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
 
 import type { NimbleEmojiProps } from 'emoji-mart';
@@ -68,8 +68,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
-    const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-    const { Avatar: contextAvatar, Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const { Emoji, emojiConfig } = useEmojiContext();
     const { handleReaction: contextHandleReaction, message } = useMessageContext<
       At,
       Ch,
@@ -209,12 +209,14 @@ const UnMemoizedReactionSelector = React.forwardRef(
                   </>
                 )}
                 {
-                  <Emoji
-                    data={emojiData}
-                    emoji={reactionOption}
-                    size={20}
-                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                  />
+                  <Suspense fallback={null}>
+                    <Emoji
+                      data={emojiData}
+                      emoji={reactionOption}
+                      size={20}
+                      {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                    />
+                  </Suspense>
                 }
                 {Boolean(count) && detailedView && (
                   <span className='str-chat__message-reactions-list-item__count'>
