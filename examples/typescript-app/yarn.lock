@@ -9844,10 +9844,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.0.tgz#54913d558f98c6864d6c1f3b65e99b40f83b4a68"
-  integrity sha512-h9IWUk31gYqmmSUxM6Op3SoWEyiKVBX9alGN6uUOKNxe5gmc5fYPKrd9SwSwF5lX3M5Pr24SXqfZMgVdAxGQFg==
+react-file-utils@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.1.tgz#620f06154f1ca61c4c89702acb61da88445739b3"
+  integrity sha512-ioJcEZQOUBbpFC61aUPp+7zByJsrFZ8JwFu4E4zIssn+NeSUjnSkUxzoZMI438Pzp6nG10r5ZBgtnjnmu+WQVA==
   dependencies:
     react-dropzone "11.2.0"
 

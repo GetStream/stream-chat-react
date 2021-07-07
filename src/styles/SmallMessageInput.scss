@@ -23,6 +23,7 @@
     bottom: 10px;
     right: 6px;
   }
+
   .rfu-file-upload-button {
     bottom: 9px;
     right: 26px;
@@ -65,9 +66,11 @@
     cursor: pointer;
     flex: 0 1;
     outline: 0;
+
     &:hover {
       opacity: 0.69;
     }
+
     @media screen and (min-width: 768px) {
       display: none;
     }
@@ -112,6 +115,7 @@
       border-radius: var(--border-radius-sm);
       color: var(--white);
     }
+
     .rfu-file-upload-button,
     .str-chat__small-message-input-emojiselect {
       svg {
