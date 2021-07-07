@@ -48,8 +48,8 @@ export const useUserTrigger = <
   const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const members = channel?.state?.members;
-  const watchers = channel?.state?.watchers;
+  const { members } = channel.state;
+  const { watchers } = channel.state;
 
   const getMembersAndWatchers = useCallback(() => {
     const memberUsers = members ? Object.values(members).map(({ user }) => user) : [];
