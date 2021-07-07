@@ -94,6 +94,7 @@ export const usePaginatedChannels = <
     hasNextPage,
     loadNextPage,
     setChannels,
+    setOffset,
     status: {
       error,
       loadingChannels,
