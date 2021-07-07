@@ -31,6 +31,7 @@ export const useNotificationMessageNewListener = <
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
+  setOffset?: React.Dispatch<React.SetStateAction<number>>,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -45,6 +46,8 @@ export const useNotificationMessageNewListener = <
         // move channel to starting position
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }
+
+      setOffset?.((prevOffset) => prevOffset + 1);
     };
 
     client.on('notification.message_new', handleEvent);

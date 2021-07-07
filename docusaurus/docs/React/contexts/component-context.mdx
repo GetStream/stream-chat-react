@@ -14,7 +14,7 @@ The `ComponentContext` also exposes the hook `useComponentContext`.
 Pull values from context with our custom hook:
 
 ```jsx
-const { Attachment, Avatar, EmojiPicker } = useComponentContext();
+const { Attachment, Avatar, Message } = useComponentContext();
 ```
 
 ## Values
@@ -83,14 +83,6 @@ Custom UI component to override default edit message input.
 | --------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | component | [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) |
 
-### Emoji
-
-Custom UI component to override default `NimbleEmoji` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
-
-| Type      |
-| --------- |
-| component |
-
 ### EmojiIcon
 
 Custom UI component for emoji button in input.
@@ -98,22 +90,6 @@ Custom UI component for emoji button in input.
 | Type      | Default                                                                                                            |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
 | component | [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
-
-### EmojiIndex
-
-Custom class constructor to override default `NimbleEmojiIndex` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
-
-| Type        |
-| ----------- |
-| constructor |
-
-### EmojiPicker
-
-Custom UI component to override default `NimblePicker` from ['emoji-mart'](https://www.npmjs.com/package/emoji-mart).
-
-| Type      |
-| --------- |
-| component |
 
 ### EmptyStateIndicator
 

@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import type { NimbleEmojiIndex } from 'emoji-mart';
 
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useComponentContext } from '../../../context/ComponentContext';
+import { useEmojiContext } from '../../../context/EmojiContext';
 
 export const useEmojiIndex = () => {
-  const { emojiConfig } = useChannelStateContext();
-  const { EmojiIndex } = useComponentContext();
+  const { emojiConfig, EmojiIndex } = useEmojiContext();
+
   const { emojiData } = emojiConfig || {};
 
   const emojiIndex: NimbleEmojiIndex | undefined = useMemo(() => {
