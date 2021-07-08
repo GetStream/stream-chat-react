@@ -136,7 +136,7 @@ This component can now be passed to `Channel` and later pulled from the componen
 Now we will build a very basic message component that changes its background from turquoise to yellow when a message is pinned. Our custom pin indicator will also replace the `MessageOptions` unless the message is currently being hovered.
 
 ```tsx
-export const CustomPinMessage = () => {
+export const CustomMessage = () => {
   const [hovering, setHovering] = useState(false);
 
   const { message } = useMessageContext();
@@ -207,25 +207,14 @@ export const CustomPinMessage = () => {
 .str-chat__message-simple__actions {
   display: flex;
 }
-.custom-message-wrapper:hover {
+
+.custom-message-wrapper {
   background: turquoise;
   box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
 }
 
 .custom-message-wrapper:hover .str-chat__message-text-inner {
   background: turquoise;
-}
-
-.str-chat__li:hover .str-chat__message-simple__actions__action--reactions {
-  display: flex;
-}
-
-.str-chat__li:hover .str-chat__message-simple__actions__action--options {
-  display: flex;
-}
-
-.str-chat__li:hover .str-chat__message-simple__actions__action--thread {
-  display: flex;
 }
 
 .str-chat__message-replies-count-button {
@@ -253,34 +242,23 @@ export const CustomPinMessage = () => {
 .pinned-custom-message-wrapper .str-chat__message-text-inner {
   background: papayawhip;
 }
-.str-chat__li:hover
-  .pinned-custom-message-wrapper
-  .str-chat__message-simple__actions__action--reactions {
-  display: flex;
-}
+```
 
-.str-chat__li:hover
-  .pinned-custom-message-wrapper
-  .str-chat__message-simple__actions__action--options {
-  display: flex;
-}
+From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
 
-.str-chat__li:hover
-  .pinned-custom-message-wrapper
-  .str-chat__message-simple__actions__action--thread {
-  display: flex;
-}
+```tsx
+<Channel Message={CustomMessage}>{/* children of Channel component */}</Channel>
 ```
 
 ## The Result
 
 Unpinned Message:
 
-<img src={CustomPinMessage} alt='Custom Pin Indicator UI Component for Chat' width='700' />
+<img src={CustomPinMessage} alt='Custom Pin Indicator UI Component for Chat' width='650' />
 
 Pinned Message (not hovered):
 
-<img src={CustomPinMessagePinned} alt='Custom Pin Indicator UI Component for Chat' width='700' />
+<img src={CustomPinMessagePinned} alt='Custom Pin Indicator UI Component for Chat' width='650' />
 
 Pinned Message (hovered):
 
