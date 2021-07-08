@@ -78,7 +78,7 @@ export const defaultPinPermissions: PinPermissions = {
 When using a custom channel type these permissions must be set for each user type.
 :::
 
-If you want to use a different user permissions or create a custom channel type, the new permissions would need to be passed to `MessageList` using the `pinPermissions` prop.
+If you want to use different user permissions or create a custom channel type, the new permissions would need to be passed to `MessageList` using the `pinPermissions` prop.
 
 ```tsx
 const CustomPermissions = {
@@ -127,7 +127,7 @@ export const CustomPinIndicator = (props) => {
 }
 ```
 
-This component can now be passed to `Channel` and later pulled from the component context when used.
+This component can now be passed to `Channel` and later pulled from the `ComponentContext` when used.
 
 ```tsx
 <Channel PinIndicator={CustomPinIndicator}>{/* children of Channel component */}</Channel>
