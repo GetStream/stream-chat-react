@@ -1,20 +1,26 @@
-.pin-message-wrapper {
+.custom-message-wrapper {
   display: flex;
   padding: 12px;
   width: fit-content;
   border-radius: 16px;
 }
 
-.pin-message-wrapper-content {
+.custom-message-wrapper-content {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-.pin-message-header {
+.right-wrapper {
+  margin-left: 80px;
+  margin-right: 16px;
+  width: 48px;
 }
 
-.pin-message-header-name {
+.custom-message-header {
+}
+
+.custom-message-header-name {
   color: black;
   font-weight: bold;
   font-size: 14;
@@ -30,28 +36,17 @@
   margin: 8px 0;
 }
 
-.str-chat__li:hover .str-chat__message-simple__actions {
-  /* position: absolute;
-  top: -14px;
-  right: 20px; */
+.str-chat__message-simple__actions {
+  position: relative;
   display: flex;
-  margin-left: 80px;
-  /* align-items: center;
-  justify-content: space-between;
-  height: 24px;
-  border-radius: 100px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-  z-index: 1;
-  padding: 0 4px 0; */
+  /* margin-left: 80px; */
 }
-.pin-message-wrapper:hover {
+.custom-message-wrapper:hover {
   background: turquoise;
   box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
 }
 
-.pin-message-wrapper:hover .str-chat__message-text-inner {
+.custom-message-wrapper:hover .str-chat__message-text-inner {
   background: turquoise;
 }
 
@@ -82,9 +77,47 @@
 .str-chat__reaction-selector {
   max-height: 40px;
   top: -46px;
-  /* right: 20px; */
   border-radius: 20px;
   background: white;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid #bed5e4;
+}
+
+/** Pinned Message */
+
+.pinned-custom-message-wrapper {
+  display: flex;
+  padding: 12px;
+  width: fit-content;
+  border-radius: 16px;
+}
+
+.pinned-custom-message-wrapper {
+  background: papayawhip;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+}
+
+.pinned-custom-message-wrapper:hover .str-chat__message-text-inner {
+  background: papayawhip;
+}
+
+.pinned-custom-message-wrapper .str-chat__message-text-inner {
+  background: papayawhip;
+}
+.str-chat__li:hover
+  .pinned-custom-message-wrapper
+  .str-chat__message-simple__actions__action--reactions {
+  display: flex;
+}
+
+.str-chat__li:hover
+  .pinned-custom-message-wrapper
+  .str-chat__message-simple__actions__action--options {
+  display: flex;
+}
+
+.str-chat__li:hover
+  .pinned-custom-message-wrapper
+  .str-chat__message-simple__actions__action--thread {
+  display: flex;
 }

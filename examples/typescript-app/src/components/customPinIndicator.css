@@ -1,27 +1,4 @@
-.pinned-message {
-  position: relative;
-  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-  background: cornsilk;
-  align-items: center;
-  display: flex;
-  border-radius: 999px;
-}
-/* .pinned-message:after {
-  content: 'pinned';
+.pin-text {
   font-style: italic;
-  position: absolute;
-  right: 16px;
-  color: var(--grey);
-} */
-/* .pinned-message:after {
-  content: url('./—Pngtree—disconnected\ pins_6073794.png');
-  transform: scale(0.09);
-  position: absolute;
- 
-  width: 10px;
-  right: 70px;
+  color: grey;
 }
-
-.pin-wrapper {
-  border: 1px solid black;
-} */
