@@ -8,12 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-// @ts-expect-error
-import DefaultEmoji from 'emoji-mart/dist/components/emoji/nimble-emoji.js';
-// @ts-expect-error
-import DefaultEmojiIndex from 'emoji-mart/dist/utils/emoji-index/nimble-emoji-index.js';
-// @ts-expect-error
-import DefaultEmojiPicker from 'emoji-mart/dist/components/picker/nimble-picker.js';
+
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import {
@@ -55,11 +50,11 @@ import {
   ChannelNotifications,
   ChannelStateContextValue,
   ChannelStateProvider,
-  EmojiConfig,
   StreamMessage,
 } from '../../context/ChannelStateContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
+import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
@@ -147,15 +142,15 @@ export type ChannelProps<
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EditMessageInput'];
   /** Custom UI component to override default `NimbleEmoji` from `emoji-mart` */
-  Emoji?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Emoji'];
+  Emoji?: EmojiContextValue['Emoji'];
   /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
   emojiData?: EmojiMartData;
   /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   EmojiIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIcon'];
   /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
-  EmojiIndex?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIndex'];
+  EmojiIndex?: EmojiContextValue['EmojiIndex'];
   /** Custom UI component to override default `NimblePicker` from `emoji-mart` */
-  EmojiPicker?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiPicker'];
+  EmojiPicker?: EmojiContextValue['EmojiPicker'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, , defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
@@ -786,7 +781,6 @@ const ChannelInner = <
     acceptedFiles,
     channel,
     channelConfig,
-    emojiConfig,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
@@ -822,10 +816,7 @@ const ChannelInner = <
       CooldownTimer: props.CooldownTimer,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
-      Emoji: props.Emoji || DefaultEmoji,
       EmojiIcon: props.EmojiIcon,
-      EmojiIndex: props.EmojiIndex || DefaultEmojiIndex,
-      EmojiPicker: props.EmojiPicker || DefaultEmojiPicker,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       HeaderComponent: props.HeaderComponent,
@@ -851,6 +842,16 @@ const ChannelInner = <
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       VirtualMessage: props.VirtualMessage,
+    }),
+    [],
+  );
+
+  const emojiContextValue: EmojiContextValue = useMemo(
+    () => ({
+      Emoji: props.Emoji,
+      emojiConfig,
+      EmojiIndex: props.EmojiIndex,
+      EmojiPicker: props.EmojiPicker,
     }),
     [],
   );
@@ -893,10 +894,12 @@ const ChannelInner = <
     >
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          <ComponentProvider<At, Ch, Co, Ev, Me, Re, Us> value={componentContextValue}>
-            <TypingProvider value={typingContextValue}>
-              <div className='str-chat__container'>{children}</div>
-            </TypingProvider>
+          <ComponentProvider value={componentContextValue}>
+            <EmojiProvider value={emojiContextValue}>
+              <TypingProvider value={typingContextValue}>
+                <div className='str-chat__container'>{children}</div>
+              </TypingProvider>
+            </EmojiProvider>
           </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
@@ -910,6 +913,7 @@ const ChannelInner = <
  * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
  * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
+ * - [EmojiContext](https://getstream.io/chat/docs/sdk/react/contexts/emoji_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;

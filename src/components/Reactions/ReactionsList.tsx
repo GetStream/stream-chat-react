@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 
 import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
 
 import type { NimbleEmojiProps } from 'emoji-mart';
@@ -59,8 +58,7 @@ const UnMemoizedReactionsList = <
     reverse = false,
   } = props;
 
-  const { emojiConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { Emoji } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji, emojiConfig } = useEmojiContext();
   const { message, onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
@@ -123,12 +121,14 @@ const UnMemoizedReactionsList = <
           return emojiObject ? (
             <li key={emojiObject.id}>
               {
-                <Emoji
-                  data={emojiData}
-                  emoji={emojiObject}
-                  size={16}
-                  {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                />
+                <Suspense fallback={null}>
+                  <Emoji
+                    data={emojiData}
+                    emoji={emojiObject}
+                    size={16}
+                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                  />
+                </Suspense>
               }
               &nbsp;
             </li>

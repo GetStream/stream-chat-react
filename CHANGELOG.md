@@ -1,5 +1,22 @@
 # Changelog
 
+## [6.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.0) 2021-07-07
+
+### ⚠️ BREAKING CHANGES ⚠️ - The following values have been moved to the newly created [`EmojiContext`](https://getstream.io/chat/docs/sdk/react/contexts/emoji_context/):
+
+- `Emoji` - moved from `ComponentContext`
+- `emojiConfig` - moved from `ChannelStateContext`
+- `EmojiIndex` - moved from `ComponentContext`
+- `EmojiPicker` - moved from `ComponentContext`
+
+### Feature
+
+- Lazy load the `emoji-mart` dependency [#1037](https://github.com/GetStream/stream-chat-react/pull/1037)
+
+### Chore
+
+- Remove unused CSS [#1035](https://github.com/GetStream/stream-chat-react/pull/1035)
+
 ## [6.3.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.3.0) 2021-07-02
 
 ### ⚠️ BREAKING CHANGES ⚠️ - We've removed the following deprecated UI components [#1031](https://github.com/GetStream/stream-chat-react/pull/1031):

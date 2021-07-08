@@ -181,7 +181,9 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const emojiIcon = await findByTitle('Open emoji picker');
       fireEvent.click(emojiIcon);
 
-      expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
+      });
 
       const emoji = '💯';
       const emojiButton = queryAllByText(emoji)[0];

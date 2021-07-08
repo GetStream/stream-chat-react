@@ -1,6 +1,6 @@
 import type { BaseEmoji, Data as EmojiData } from 'emoji-mart';
 
-import type { CommonEmoji, EmojiSetDef, MinimalEmoji } from '../../context/ChannelStateContext';
+import type { CommonEmoji, EmojiSetDef, MinimalEmoji } from '../../context/EmojiContext';
 
 export type ReactionEmoji = BaseEmoji | MinimalEmoji;
 

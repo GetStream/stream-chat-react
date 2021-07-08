@@ -8,8 +8,8 @@ import { ReactionSelector } from '../ReactionSelector';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { defaultMinimalEmojis } from '../../Channel/emojiData';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
+import { EmojiProvider } from '../../../context/EmojiContext';
 import {
   emojiComponentMock,
   emojiDataMock,
@@ -40,17 +40,18 @@ const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
   render(
-    <ChannelStateProvider value={{ emojiConfig: emojiDataMock }}>
-      <ComponentProvider
+    <ComponentProvider value={{ Avatar: AvatarMock }}>
+      <EmojiProvider
         value={{
           Emoji: emojiComponentMock.Emoji,
+          emojiConfig: emojiDataMock,
           EmojiIndex: emojiComponentMock.EmojiIndex,
           EmojiPicker: emojiComponentMock.EmojiPicker,
         }}
       >
         <ReactionSelector handleReaction={handleReactionMock} {...props} />
-      </ComponentProvider>
-    </ChannelStateProvider>,
+      </EmojiProvider>
+    </ComponentProvider>,
   );
 
 describe('ReactionSelector', () => {
