@@ -8,7 +8,7 @@ import CustomPinMessage from '../assets/CustomPinMessage.png';
 import CustomPinMessagePinned from '../assets/CustomPinMessagePinned.png';
 import CustomPinMessagePinnedHover from '../assets/CustomPinMessagePinnedHover.png';
 
-In this example we will demonstrate how to create a custom pin indicator component for pinned messages as well as set custom permissions for pinning.
+In this example, we will demonstrate how to create a custom pin indicator component for pinned messages, as well as set custom permissions for pinning.
 
 ## Pin Permissions
 
@@ -75,7 +75,7 @@ export const defaultPinPermissions: PinPermissions = {
 ```
 
 :::important
-When using a custom channel type these permissions must be set for each user type.
+When using a custom channel type, these permissions must be set for each user role.
 :::
 
 If you want to use different user permissions or create a custom channel type, the new permissions would need to be passed to `MessageList` using the `pinPermissions` prop.
@@ -102,16 +102,10 @@ const CustomPermissions = {
 
 ## Custom Pin Indicator
 
-To utilize pinned messages we will create a basic message component as well as a custom pin indicator to display when a message has been pinned.
-
-Using the same message prop as the default [`PinIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) we can easily pull the pinned state off of the message object. We will then create a very basic component that simple displays the text 'pinned'. This is where you could get very creative with custom icons and styles.
+To utilize pinned messages, we will create a basic message component as well as a custom pin indicator to display when a message has been pinned. The custom pin indicator component will simply display the text 'pinned'. This is where you could get creative with custom icons and styles.
 
 ```tsx
-export const CustomPinIndicator = (props) => {
-  const { message } = props;
-
-  if (!message) return null;
-
+export const CustomPinIndicator = () => {
   return (
     <div>
       <div className='pin-text'>pinned</div>
@@ -133,7 +127,7 @@ This component can now be passed to `Channel` and later pulled from the `Compone
 <Channel PinIndicator={CustomPinIndicator}>{/* children of Channel component */}</Channel>
 ```
 
-Now we will build a very basic message component that changes its background from turquoise to yellow when a message is pinned. Our custom pin indicator will also replace the `MessageOptions` unless the message is currently being hovered.
+Now we will build a message component that changes its background from turquoise to yellow when a message is pinned. Our custom pin indicator will also replace the `MessageOptions` component unless the message is currently being hovered.
 
 ```tsx
 export const CustomMessage = () => {
@@ -163,7 +157,7 @@ export const CustomMessage = () => {
         {hovering ? (
           <MessageOptions messageWrapperRef={messageWrapperRef} />
         ) : (
-          message.pinned && <PinIndicator message={message} />
+          pinned && <PinIndicator />
         )}
       </div>
     </div>
