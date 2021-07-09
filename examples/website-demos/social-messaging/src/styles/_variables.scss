@@ -1,0 +1,33 @@
+:root {
+    --white: #ffffff;
+    --black: #000000;
+
+    // greys
+    --text-high-emphasis: #000000;
+    --text-low-emphasis: #72767E;
+    --disabled: #B4B7BB;
+    --borders: #DBDDE1;
+    --input-bg: #E9EAED;
+    --app-bg: #F7F7F8;
+    --bars-bg: #FFFFFF;
+    --link-bg: #E9F2FF;
+
+    --accent-primary: #006cff;
+    --accent-error: #FF3742;
+    --accent-info: #20E070;
+
+    // specials
+    --section-bg-gradients: linear-gradient(180deg, #F7F7F8 0%, #E9EAED 100%);
+    --highlight: #FBF4DD;
+    --overlay-light: rgba(252, 252, 252, 0.9);
+    --overlay: rgba(0, 0, 0, 0.2);
+    --overlay-dark: rgba(0, 0, 0, 0.6);
+    --overlay-android: rgba(190, 190, 190, 0.9);
+
+    // effects
+    // --border-top: 
+    // --border-bottom:
+    // --icon-button-shadow:
+    // --modal-shadow:
+    // --background-blur:
+  }
