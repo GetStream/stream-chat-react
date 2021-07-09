@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
@@ -7,7 +8,7 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { ReactEventHandler } from '../types';
 
-import type { Reaction, ReactionResponse } from 'stream-chat';
+import type { MessageResponse, Reaction, ReactionResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -37,11 +38,61 @@ export const useReactionHandler = <
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  console.log({ message });
+
+  const createMessagePreview = useCallback(
+    (reaction: Reaction<Re, Us>, message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+      const newReactions: ReactionResponse<Re, Us>[] | undefined = [
+        //@ts-expect-error
+        ...message?.latest_reactions,
+        reaction,
+      ];
+
+      return ({
+        __html: message?.text,
+        attachments: message?.attachments,
+        created_at: message?.created_at,
+        html: message?.text,
+        id: message?.id,
+        latest_reactions: newReactions || message?.latest_reactions,
+        mentioned_users: message?.mentioned_users,
+        status: message?.status,
+        text: message?.text,
+        type: message?.type,
+        user: message?.user,
+        ...(message?.parent_id ? { parent_id: message?.parent_id } : null),
+      } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
+    },
+    [client.user, client.userID],
+  );
+
+  const creatReactionPreview = (id: string, type: string) => {
+    return {
+      created_at: message?.created_at,
+      message_id: message?.id,
+      score: 1,
+      type,
+      updated_at: message?.updated_at,
+      user: message?.user,
+      user_id: id,
+    };
+  };
+
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
+    // console.log({ id });
+    // console.log({ type });
+    // console.log({ add });
+
+    const newReaction = creatReactionPreview(id, type);
+    //@ts-expect-error
+    const tempMessage = createMessagePreview(newReaction, message);
+
     try {
       if (add) {
+        if (message) updateMessage(tempMessage);
         await channel.sendReaction(id, { type } as Reaction<Re, Us>);
       } else {
+        if (message) updateMessage(tempMessage);
         await channel.deleteReaction(id, type);
       }
     } catch (error) {
