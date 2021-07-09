@@ -1,13 +1,13 @@
 import './styles/App.scss';
 
 import { ChannelListContainer } from './components/ChannelList/ChannelListContainer';
-import { MessageListContainer } from './components/MessageList/MessageListContainer';
+import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 
 function App() {
   return (
     <div className='app-container'>
      <ChannelListContainer />
-     <MessageListContainer />
+     <ChannelContainer />
     </div>
   );
 }
