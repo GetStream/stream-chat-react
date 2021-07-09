@@ -1,0 +1,59 @@
+@import '../../styles/variables';
+
+.navigation {
+  height: 100%;
+  width: 80px;
+  background: $app-canvas;
+  border: 1px solid $stroke;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  > .top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16px;
+
+    > .main-logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1.6px solid $stroke;
+      box-sizing: border-box;
+      border-radius: 24px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
+    }
+
+    > .tab-options {
+      > div {
+        position: relative;
+
+        .selected {
+          position: absolute;
+          top: 6px;
+          background: $primary-accent;
+          width: 8px;
+          height: 55px;
+          border-radius: 0px 4px 4px 0px;
+        }
+      }
+
+      svg {
+        padding: 8px;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  > img {
+    border-radius: 24px;
+    margin-bottom: 16px;
+  }
+}

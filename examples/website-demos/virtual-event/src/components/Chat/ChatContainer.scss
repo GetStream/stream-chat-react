@@ -1,0 +1,12 @@
+@import '../../styles/variables';
+
+.chat-container {
+  height: 100%;
+  width: 320px;
+  background: $app-canvas;
+  transition: all 1s;
+
+  &.full-screen {
+    width: 56px;
+  }
+}
