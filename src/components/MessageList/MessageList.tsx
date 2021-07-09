@@ -184,6 +184,7 @@ const MessageListWithContext = <
       onUserHover: props.onUserHover,
       openThread: props.openThread,
       pinPermissions,
+      popupGiphyPreview: props.popupGiphyPreview,
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
       unsafeHTML,
@@ -250,6 +251,7 @@ type PropsDrilledToMessage =
   | 'onUserHover'
   | 'openThread'
   | 'pinPermissions'
+  | 'popupGiphyPreview'
   | 'renderText'
   | 'retrySendMessage'
   | 'unsafeHTML';

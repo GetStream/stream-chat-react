@@ -83,6 +83,7 @@ const VirtualizedMessageListWithContext = <
     messageLimit = 100,
     messages,
     overscan = 0,
+    popupGiphyPreview,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
@@ -223,9 +224,27 @@ const VirtualizedMessageListWithContext = <
       );
 
     // using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => (
-      <div {...props} className='str-chat__virtual-list-message-wrapper' />
-    );
+    const Item: Components['Item'] = (props) => {
+      /**
+       * Accessing the message via children is the only way to conditionally add the giphy preview CSS class
+       * to the message's outermost HTML element for absolute positioning during a busy event.
+       */
+      const isGiphyPreviewPopup =
+        popupGiphyPreview &&
+        // @ts-expect-error
+        props?.children?.props?.message.command === 'giphy' &&
+        // @ts-expect-error
+        props.children.props.message.type === 'ephemeral';
+
+      return (
+        <div
+          {...props}
+          className={`str-chat__virtual-list-message-wrapper ${
+            isGiphyPreviewPopup ? 'giphy-preview-popup' : ''
+          }`}
+        />
+      );
+    };
 
     const Footer: Components['Footer'] = () =>
       TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
@@ -312,6 +331,8 @@ export type VirtualizedMessageListProps<
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
+  /** If true, the Giphy preview will render as an absolutely positioned popup, rather than inline with the other messages in the list. */
+  popupGiphyPreview?: boolean;
   /**
    * Performance improvement by showing placeholders if user scrolls fast through list.
    * it can be used like this:

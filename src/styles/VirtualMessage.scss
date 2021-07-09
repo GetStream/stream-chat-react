@@ -39,6 +39,12 @@
 .str-chat__virtual-list-message-wrapper {
   display: inline-block;
   width: 100%;
+
+  &.giphy-preview-popup {
+    position: absolute;
+    bottom: 0%;
+    left: 0%;
+  }
 }
 
 .str-chat__virtual-message__meta {
