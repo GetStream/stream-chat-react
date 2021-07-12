@@ -7,7 +7,11 @@ import NavigationAvatar from '../../assets/NavigationAvatar.png';
 
 import type { TabProps } from '../../App';
 
-export const Navigation: React.FC<TabProps> = (props) => {
+type Props = TabProps & {
+  setEvent: React.Dispatch<React.SetStateAction<string>>;
+};
+
+export const Navigation: React.FC<Props> = (props) => {
   const { selected, setSelected } = props;
 
   return (

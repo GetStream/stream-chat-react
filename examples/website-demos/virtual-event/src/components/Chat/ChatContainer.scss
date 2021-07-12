@@ -3,10 +3,18 @@
 .chat-container {
   height: 100%;
   width: 320px;
+  min-width: 320px;
   background: $app-canvas;
   transition: all 1s;
 
   &.full-screen {
     width: 56px;
+    min-width: 56px;
+  }
+
+  &-components {
+    &.full-screen {
+      visibility: hidden;
+    }
   }
 }

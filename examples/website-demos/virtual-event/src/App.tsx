@@ -15,15 +15,16 @@ export type TabProps = {
 };
 
 export const App = () => {
+  const [event, setEvent] = useState('global');
   const [selected, setSelected] = useState<TabOptions>('overview');
 
   const { setMode, setTheme } = useTheme(); // eslint-disable-line
 
   return (
     <div className='app-container'>
-      <Navigation selected={selected} setSelected={setSelected} />
-      <VideoContainer />
-      <ChatContainer />
+      <Navigation selected={selected} setSelected={setSelected} setEvent={setEvent} />
+      <VideoContainer setEvent={setEvent} />
+      <ChatContainer event={event} />
     </div>
   );
 };
