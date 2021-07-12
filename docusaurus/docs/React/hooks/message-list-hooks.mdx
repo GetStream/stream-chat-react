@@ -16,6 +16,10 @@ This returned value is then added to the props object given to the `InfiniteScro
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/hooks/useEnrichedMessages.ts) that determines which messages need date separators and group css styles, returns the processed array of messages.
 
+### useGiphyPreview
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/hooks/useGiphyPreview.ts) that handles state setting logic for the optional `GiphyPreviewMessage` component in the `VirtualizedMessageList`.
+
 ### useLastReadData
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/hooks/useLastReadData.ts) that returns a memoized value of read states for each message. Used within the `useEnrichedMessages` hook.
