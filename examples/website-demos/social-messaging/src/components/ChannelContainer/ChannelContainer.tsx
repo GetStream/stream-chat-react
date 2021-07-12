@@ -9,7 +9,7 @@ type Props = {};
 
 export const ChannelContainer: React.FC<Props> = (props) => {
   return (
-    <div className={'channel-container'}>
+    <div className='channel-container'>
         <SocialChannelHeader />
         <SocialMessageList />
       <p>Channel Container</p>
