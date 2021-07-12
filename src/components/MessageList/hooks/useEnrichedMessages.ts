@@ -56,14 +56,14 @@ export const useEnrichedMessages = <
   let messagesWithDates =
     threadList || (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator)
       ? messages
-      : processMessages(
-          messages,
-          lastRead,
-          client.userID,
-          hideDeletedMessages,
+      : processMessages({
           disableDateSeparator,
+          hideDeletedMessages,
           hideNewMessageSeparator,
-        );
+          lastRead,
+          messages,
+          userId: client.userID || '',
+        });
 
   if (HeaderComponent) {
     messagesWithDates = insertIntro(messagesWithDates, headerPosition);

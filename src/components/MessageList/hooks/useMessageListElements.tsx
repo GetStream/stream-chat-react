@@ -132,16 +132,9 @@ export const useMessageListElements = <
 
         const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
 
-        const isGiphyPreviewPopup =
-          internalMessageProps.popupGiphyPreview &&
-          message.command === 'giphy' &&
-          message.type === 'ephemeral';
-
         return (
           <li
-            className={`str-chat__li str-chat__li--${groupStyles} ${
-              isGiphyPreviewPopup ? 'giphy-preview-popup' : ''
-            }`}
+            className={`str-chat__li str-chat__li--${groupStyles} `}
             key={message.id || (message.created_at as string)}
             onLoadCapture={onMessageLoadCaptured}
           >

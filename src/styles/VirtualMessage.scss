@@ -1,29 +1,9 @@
-.str-chat__virtual-message__wrapper {
-  display: flex;
-  padding: 10px 40px;
-  flex-direction: row;
-  position: relative;
-
-  &:hover {
-    background: ghostwhite;
-  }
-  & > .str-chat__avatar {
-    margin: 0;
-  }
-  & > .str-chat__virtual-message__content {
-    padding-left: 12px;
-  }
-
-  .str-chat__avatar--rounded {
-    border-radius: var(--border-radius);
-  }
-
-  .str-chat__avatar-fallback {
-    background-color: lightslategray;
-  }
-}
-
 .str-chat__virtual-list {
+  .str-chat__virtual-list-message-wrapper {
+    // display: inline-block;
+    width: 100%;
+  }
+
   // this resolves the issue with 1px tall messages (i.e. deleted messages)
   font-size: 0;
   .str-chat__message.str-chat__message--deleted {
@@ -36,14 +16,35 @@
   }
 }
 
-.str-chat__virtual-list-message-wrapper {
-  display: inline-block;
-  width: 100%;
+.giphy-preview-message {
+  background: var(--white-snow);
+  border-top: 2px solid var(--border);
+}
 
-  &.giphy-preview-popup {
-    position: absolute;
-    bottom: 0%;
-    left: 0%;
+.str-chat__virtual-message__wrapper {
+  display: flex;
+  padding: 10px 40px;
+  flex-direction: row;
+  position: relative;
+
+  &:hover {
+    background: ghostwhite;
+  }
+
+  & > .str-chat__avatar {
+    margin: 0;
+  }
+
+  & > .str-chat__virtual-message__content {
+    padding-left: 12px;
+  }
+
+  .str-chat__avatar--rounded {
+    border-radius: var(--border-radius);
+  }
+
+  .str-chat__avatar-fallback {
+    background-color: lightslategray;
   }
 }
 
@@ -80,10 +81,12 @@
 .str-chat__virtual-message__actions {
   position: relative;
   cursor: pointer;
+
   svg {
     fill: var(--black);
     opacity: 0.5;
   }
+
   &:hover {
     svg {
       opacity: 1;
@@ -117,9 +120,11 @@
   justify-content: space-between;
   width: 100%;
   word-break: break-word;
+
   p {
     padding-right: 16px;
   }
+
   a {
     color: var(--primary-color);
     text-decoration: none;
@@ -129,6 +134,7 @@
 
 .str-chat__virtual-message__wrapper--group {
   padding-top: 0;
+
   & > .str-chat__avatar {
     display: none;
   }
@@ -139,6 +145,7 @@
 
   .str-chat__virtual-message__content {
     padding-left: 50px;
+
     .str-chat__gallery {
       width: 100%;
       margin: 0;
@@ -153,9 +160,11 @@
       background: var(--black20);
     }
   }
+
   .str-chat__virtual-message__text {
     color: ghostwhite;
   }
+
   .str-chat__virtual-message__date {
     color: var(--white);
   }

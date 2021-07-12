@@ -88,8 +88,6 @@ export type MessageProps<
   openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
   /** The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
-  /** If true, the Giphy preview will render as an absolutely positioned popup, rather than inline with the other messages in the list. */
-  popupGiphyPreview?: boolean;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */

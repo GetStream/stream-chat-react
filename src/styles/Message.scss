@@ -273,27 +273,6 @@
       }
     }
   }
-
-  &.giphy-preview-popup {
-    position: absolute;
-    bottom: 56px;
-    border: 2px solid var(--grey-whisper);
-    border-radius: var(--border-radius);
-    background: var(--white);
-    padding-left: var(--sm-p);
-    padding-right: var(--sm-p);
-
-    .str-chat__avatar,
-    .str-chat__message-simple-status,
-    .str-chat__message-text,
-    .str-chat__message-data {
-      display: none;
-    }
-
-    .str-chat__message-inner {
-      margin-left: unset;
-    }
-  }
 }
 
 .str-chat__message,

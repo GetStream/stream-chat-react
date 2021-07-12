@@ -7,6 +7,8 @@ import {
   VirtuosoHandle,
 } from 'react-virtuoso';
 
+import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
+import { useGiphyPreview } from './hooks/useGiphyPreview';
 import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
@@ -29,7 +31,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { isDate, useTranslationContext } from '../../context/TranslationContext';
 
-import type { Channel, StreamChat } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -53,9 +55,9 @@ type VirtualizedMessageListWithContextProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   hasMore: boolean;
   loadingMore: boolean;
+  userId: string;
 };
 
 const VirtualizedMessageListWithContext = <
@@ -71,7 +73,6 @@ const VirtualizedMessageListWithContext = <
 ) => {
   const {
     channel,
-    client,
     customMessageRenderer,
     disableDateSeparator = true,
     hasMore,
@@ -83,17 +84,19 @@ const VirtualizedMessageListWithContext = <
     messageLimit = 100,
     messages,
     overscan = 0,
-    popupGiphyPreview,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
+    separateGiphyPreview = false,
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
+    userId,
   } = props;
 
   const {
     DateSeparator = DefaultDateSeparator,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
+    GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     LoadingIndicator = DefaultLoadingIndicator,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
@@ -107,23 +110,40 @@ const VirtualizedMessageListWithContext = <
 
   const MessageUIComponent = propMessage || contextMessage;
 
+  const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >(separateGiphyPreview);
+
   const processedMessages = useMemo(() => {
     if (typeof messages === 'undefined') {
       return [];
     }
 
-    if (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator) {
+    if (
+      disableDateSeparator &&
+      !hideDeletedMessages &&
+      hideNewMessageSeparator &&
+      !separateGiphyPreview
+    ) {
       return messages;
     }
 
-    return processMessages(
-      messages,
-      lastRead,
-      client.userID,
-      hideDeletedMessages,
+    return processMessages({
       disableDateSeparator,
+      hideDeletedMessages,
       hideNewMessageSeparator,
-    );
+      lastRead,
+      messages,
+      separateGiphyPreview,
+      setGiphyPreviewMessage,
+      userId,
+    });
   }, [
     disableDateSeparator,
     hideDeletedMessages,
@@ -131,7 +151,7 @@ const VirtualizedMessageListWithContext = <
     lastRead,
     messages,
     messages?.length,
-    client.userID,
+    userId,
   ]);
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -140,7 +160,7 @@ const VirtualizedMessageListWithContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(processedMessages, client.userID);
+  } = useNewMessageNotification(processedMessages, userId);
 
   const scrollToBottom = useCallback(() => {
     if (virtuoso.current) {
@@ -169,7 +189,15 @@ const VirtualizedMessageListWithContext = <
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, userId);
+
+  const followOutput = (isAtBottom: boolean) => {
+    if (shouldForceScrollToBottom()) {
+      return isAtBottom ? stickToBottomScrollBehavior : 'auto';
+    }
+    // a message from another user has been received - don't scroll to bottom unless already there
+    return isAtBottom ? stickToBottomScrollBehavior : false;
+  };
 
   const messageRenderer = useCallback(
     (messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], virtuosoIndex: number) => {
@@ -209,7 +237,7 @@ const VirtualizedMessageListWithContext = <
     [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
   );
 
-  const virtuosoComponents = useMemo(() => {
+  const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
       <>{EmptyStateIndicator && <EmptyStateIndicator listType='message' />}</>
     );
@@ -224,27 +252,9 @@ const VirtualizedMessageListWithContext = <
       );
 
     // using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => {
-      /**
-       * Accessing the message via children is the only way to conditionally add the giphy preview CSS class
-       * to the message's outermost HTML element for absolute positioning during a busy event.
-       */
-      const isGiphyPreviewPopup =
-        popupGiphyPreview &&
-        // @ts-expect-error
-        props?.children?.props?.message.command === 'giphy' &&
-        // @ts-expect-error
-        props.children.props.message.type === 'ephemeral';
-
-      return (
-        <div
-          {...props}
-          className={`str-chat__virtual-list-message-wrapper ${
-            isGiphyPreviewPopup ? 'giphy-preview-popup' : ''
-          }`}
-        />
-      );
-    };
+    const Item: Components['Item'] = (props) => (
+      <div {...props} className='str-chat__virtual-list-message-wrapper' />
+    );
 
     const Footer: Components['Footer'] = () =>
       TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
@@ -254,50 +264,49 @@ const VirtualizedMessageListWithContext = <
       Footer,
       Header,
       Item,
-    } as Partial<Components>;
+    };
   }, [loadingMore]);
+
+  const atBottomStateChange = (isAtBottom: boolean) => {
+    atBottom.current = isAtBottom;
+    if (isAtBottom && newMessagesNotification) {
+      setNewMessagesNotification(false);
+    }
+  };
+
+  const startReached = () => {
+    if (hasMore && loadMore) {
+      loadMore(messageLimit);
+    }
+  };
 
   if (!processedMessages) return null;
 
   return (
-    <div className='str-chat__virtual-list'>
-      <Virtuoso
-        atBottomStateChange={(isAtBottom) => {
-          atBottom.current = isAtBottom;
-          if (isAtBottom && newMessagesNotification) {
-            setNewMessagesNotification(false);
-          }
-        }}
-        components={virtuosoComponents}
-        firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
-        followOutput={(isAtBottom) => {
-          if (shouldForceScrollToBottom()) {
-            return isAtBottom ? stickToBottomScrollBehavior : 'auto';
-          }
-          // a message from another user has been received - don't scroll to bottom unless already there
-          return isAtBottom ? stickToBottomScrollBehavior : false;
-        }}
-        initialTopMostItemIndex={
-          processedMessages && processedMessages.length > 0 ? processedMessages.length - 1 : 0
-        }
-        itemContent={(i) => messageRenderer(processedMessages, i)}
-        overscan={overscan}
-        ref={virtuoso}
-        startReached={() => {
-          if (hasMore && loadMore) {
-            loadMore(messageLimit);
-          }
-        }}
-        style={{ overflowX: 'hidden' }}
-        totalCount={processedMessages.length}
-        {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-      />
-      <div className='str-chat__list-notifications'>
-        <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
-          {t('New Messages!')}
-        </MessageNotification>
+    <>
+      <div className='str-chat__virtual-list'>
+        <Virtuoso
+          atBottomStateChange={atBottomStateChange}
+          components={virtuosoComponents}
+          firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
+          followOutput={followOutput}
+          initialTopMostItemIndex={processedMessages.length ? processedMessages.length - 1 : 0}
+          itemContent={(i) => messageRenderer(processedMessages, i)}
+          overscan={overscan}
+          ref={virtuoso}
+          startReached={startReached}
+          style={{ overflowX: 'hidden' }}
+          totalCount={processedMessages.length}
+          {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
+        />
+        <div className='str-chat__list-notifications'>
+          <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
+            {t('New Messages!')}
+          </MessageNotification>
+        </div>
       </div>
-    </div>
+      {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
+    </>
   );
 };
 
@@ -331,8 +340,6 @@ export type VirtualizedMessageListProps<
   messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
   /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
-  /** If true, the Giphy preview will render as an absolutely positioned popup, rather than inline with the other messages in the list. */
-  popupGiphyPreview?: boolean;
   /**
    * Performance improvement by showing placeholders if user scrolls fast through list.
    * it can be used like this:
@@ -350,6 +357,8 @@ export type VirtualizedMessageListProps<
   };
   /** When `true`, the list will scroll to the latest message when the window regains focus */
   scrollToLatestMessageOnFocus?: boolean;
+  /** If true, the Giphy preview will render as a separate component above the `MessageInput`, rather than inline with the other messages in the list */
+  separateGiphyPreview?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
@@ -388,11 +397,11 @@ export function VirtualizedMessageList<
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
-      client={client}
       hasMore={!!hasMore}
       loadingMore={!!loadingMore}
       loadMore={loadMore}
       messages={messages}
+      userId={client.userID || ''}
       {...props}
     />
   );
