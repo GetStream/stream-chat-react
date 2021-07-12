@@ -1,4 +1,7 @@
+@import '../../styles/variables';
+
 .channellist-container {
     width: 360px;
     height: 100%;
+    background-color: $input-bg;
 }
