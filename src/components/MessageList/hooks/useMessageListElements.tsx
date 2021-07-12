@@ -134,7 +134,7 @@ export const useMessageListElements = <
 
         return (
           <li
-            className={`str-chat__li str-chat__li--${groupStyles} `}
+            className={`str-chat__li str-chat__li--${groupStyles}`}
             key={message.id || (message.created_at as string)}
             onLoadCapture={onMessageLoadCaptured}
           >
