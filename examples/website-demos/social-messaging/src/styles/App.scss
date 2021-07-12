@@ -1,0 +1,7 @@
+@import './_variables';
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  box-shadow: $modal-shadow;
+}
