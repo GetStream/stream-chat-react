@@ -1,4 +1,3 @@
-/* eslint-disable arrow-body-style */
 import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
@@ -79,15 +78,13 @@ export const useReactionHandler = <
     [client.user, client.userID],
   );
 
-  const creatReactionPreview = (type: string) => {
-    return {
-      message_id: message?.id,
-      score: 1,
-      type,
-      user: client.user,
-      user_id: client.user?.id,
-    };
-  };
+  const creatReactionPreview = (type: string) => ({
+    message_id: message?.id,
+    score: 1,
+    type,
+    user: client.user,
+    user_id: client.user?.id,
+  });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
     if (!message) return;
