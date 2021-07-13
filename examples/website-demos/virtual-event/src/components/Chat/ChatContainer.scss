@@ -4,6 +4,11 @@
   padding: 0;
 }
 
+.str-chat__virtual-list {
+  background: $app-canvas;
+  transition: background 1s;
+}
+
 .chat {
   height: 100%;
   width: 320px;

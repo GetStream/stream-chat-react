@@ -46,6 +46,7 @@
       border: 1px solid $stroke-low-emphasis;
       box-shadow: $shadow;
       transition: all 1s;
+      z-index: 1;
 
       &-item {
         display: flex;
