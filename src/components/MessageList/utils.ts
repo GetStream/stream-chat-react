@@ -15,6 +15,27 @@ import type {
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
+type ProcessMessagesParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  disableDateSeparator: boolean;
+  hideDeletedMessages: boolean;
+  hideNewMessageSeparator: boolean;
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  userId: string;
+  lastRead?: Date | null;
+  separateGiphyPreview?: boolean;
+  setGiphyPreviewMessage?: React.Dispatch<
+    React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
+  >;
+};
+
 export const processMessages = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -24,21 +45,39 @@ export const processMessages = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
-  lastRead?: Date | string | null,
-  userID?: string,
-  hideDeletedMessages?: boolean,
-  disableDateSeparator?: boolean,
-  hideNewMessageSeparator?: boolean,
+  params: ProcessMessagesParams<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
+  const {
+    disableDateSeparator,
+    hideDeletedMessages,
+    hideNewMessageSeparator,
+    lastRead,
+    messages,
+    separateGiphyPreview,
+    setGiphyPreviewMessage,
+    userId,
+  } = params;
+
   let unread = false;
+  let ephemeralMessagePresent = false;
   let lastDateSeparator;
   const newMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[] = [];
 
-  for (let i = 0, l = messages.length; i < l; i += 1) {
+  for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
 
     if (hideDeletedMessages && message.type === 'deleted') {
+      continue;
+    }
+
+    if (
+      separateGiphyPreview &&
+      setGiphyPreviewMessage &&
+      message.type === 'ephemeral' &&
+      message.command === 'giphy'
+    ) {
+      ephemeralMessagePresent = true;
+      setGiphyPreviewMessage(message);
       continue;
     }
 
@@ -60,7 +99,7 @@ export const processMessages = <
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      if (!disableDateSeparator && unread && message.user?.id !== userID) {
+      if (!disableDateSeparator && unread && message.user?.id !== userId) {
         newMessages.push({
           customType: 'message.date',
           date: message.created_at,
@@ -92,6 +131,11 @@ export const processMessages = <
     } else {
       newMessages.push(message);
     }
+  }
+
+  // clean up the giphy preview component state after a Cancel action
+  if (separateGiphyPreview && !ephemeralMessagePresent) {
+    setGiphyPreviewMessage?.(undefined);
   }
 
   return newMessages;

@@ -9,6 +9,7 @@ import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicat
 import type { FixedHeightMessageProps } from '../components/Message/FixedHeightMessage';
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
+import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPreviewMessage';
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageList';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
@@ -63,6 +64,7 @@ export type ComponentContextValue<
   EmojiIcon?: React.ComponentType;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
+  GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
   HeaderComponent?: React.ComponentType;
   Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
