@@ -1,11 +1,10 @@
 import React from 'react';
 
-type Props = {
-  isFullScreen: boolean;
-  setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+import { useEventContext } from '../contexts/EventContext';
 
-export const CloseChatButton: React.FC<Props> = ({ isFullScreen, setIsFullScreen }) => {
+export const CloseChatButton: React.FC = () => {
+  const { isFullScreen, setIsFullScreen } = useEventContext();
+
   return (
     <svg
       onClick={() => setIsFullScreen((prev) => !prev)}

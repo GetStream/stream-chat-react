@@ -1,6 +1,10 @@
 @import '../../styles/variables';
 
-.chat-container {
+.str-chat-channel.messaging .str-chat__main-panel {
+  padding: 0;
+}
+
+.chat {
   height: 100%;
   width: 320px;
   min-width: 320px;
@@ -15,6 +19,36 @@
   &-components {
     &.full-screen {
       visibility: hidden;
+    }
+
+    &-header {
+      background: $app-canvas;
+
+      &-top {
+        padding: 8px;
+      }
+
+      &-tabs {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        height: 56px;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 18px;
+        color: $text-high-emphasis;
+        border: 1px solid $stroke;
+
+        div {
+          display: flex;
+          justify-content: center;
+          width: 50px;
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+      }
     }
   }
 }

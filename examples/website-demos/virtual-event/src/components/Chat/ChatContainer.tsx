@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Channel as StreamChannel, StreamChat } from 'stream-chat';
-import { Chat, Channel, MessageList, MessageInput, Thread, Window } from 'stream-chat-react';
+import {
+  Chat,
+  Channel,
+  MessageInput,
+  Thread,
+  Window,
+  VirtualizedMessageList,
+} from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
 import './ChatContainer.scss';
+import { ChatHeader } from './ChatHeader';
 
 import { CloseChatButton } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -13,16 +22,11 @@ const apiKey = urlParams.get('apikey') || (process.env.REACT_APP_STREAM_KEY as s
 const userId = urlParams.get('user') || (process.env.REACT_APP_USER_ID as string);
 const userToken = urlParams.get('user_token') || (process.env.REACT_APP_USER_TOKEN as string);
 
-type Props = {
-  event: string;
-};
-
-export const ChatContainer: React.FC<Props> = (props) => {
-  const { event } = props;
+export const ChatContainer: React.FC = () => {
+  const { event, isFullScreen } = useEventContext();
 
   const [chatClient, setChatClient] = useState<StreamChat>();
   const [currentChannel, setCurrentChannel] = useState<StreamChannel>();
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const switchChannel = async (eventName: string) => {
     if (!chatClient) return;
@@ -63,13 +67,14 @@ export const ChatContainer: React.FC<Props> = (props) => {
   if (!chatClient) return null;
 
   return (
-    <div className={`chat-container ${isFullScreen ? 'full-screen' : ''}`}>
-      <CloseChatButton isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
-      <div className={`chat-container-components ${isFullScreen ? 'full-screen' : ''}`}>
+    <div className={`chat ${isFullScreen ? 'full-screen' : ''}`}>
+      {isFullScreen && <CloseChatButton />}
+      <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient}>
           <Channel channel={currentChannel}>
             <Window hideOnThread>
-              <MessageList />
+              <ChatHeader />
+              <VirtualizedMessageList />
               <MessageInput focus />
             </Window>
             <Thread />
