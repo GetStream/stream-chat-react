@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Channel, MessageInput, Window } from 'stream-chat-react';
+
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
 import { SocialMessageList } from '../MessageList/SocialMessageList';
 
@@ -10,9 +12,13 @@ type Props = {};
 export const ChannelContainer: React.FC<Props> = (props) => {
   return (
     <div className='channel-container'>
-        <SocialChannelHeader />
-        <SocialMessageList />
-      <p>Channel Container</p>
+      <Channel>
+        <Window>
+          <SocialChannelHeader />
+          <SocialMessageList />
+          <MessageInput />
+        </Window>
+      </Channel>
     </div>
   );
 };

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
-import { LiteralStringForUnion, StreamChat } from 'stream-chat';
-import { Chat } from 'stream-chat-react';
+import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
+import { Chat, ChannelList } from 'stream-chat-react';
 
 import './styles/App.scss';
 
-import { ChannelListContainer } from './components/ChannelList/ChannelListContainer';
+import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
+import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
 
 import { useTheme } from './hooks/useTheme';
 
@@ -20,6 +21,16 @@ const userToConnect: { id: string; name?: string; image?: string } = {
   image: 'https://ca.slack-edge.com/T02RM6X6B-U01J8HMLA4F-d7bab110afb4-512',
 };
 
+const filters = { type: 'messaging', members: { $in: [user!] } };
+
+const options = { state: true, watch: true, presence: true, limit: 8 };
+
+const sort: ChannelSort  = {
+  last_message_at: -1,
+  updated_at: -1,
+  cid: 1,
+};
+
 export type AttachmentType = {};
 export type ChannelType = {};
 export type CommandType = LiteralStringForUnion;
@@ -30,7 +41,6 @@ export type UserType = { image?: string };
 
 function App() {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
-
 
   useEffect(() => {
     const initChat = async () => {
@@ -55,13 +65,23 @@ function App() {
   }, []); // eslint-disable-line
 
   const { setMode } = useTheme(); // eslint-disable-line
+  const mode = 'light';
 
   if (!chatClient) return null;
 
   return (
-    <Chat client={chatClient}>
+    <Chat client={chatClient} theme={`messaging ${mode}`}>
       <div className='app-container'>
-        <ChannelListContainer />
+        <ChannelList
+           filters={filters}
+           options={options}
+           List={(props) => (
+            <SocialChannelList {...props} />
+          )}
+           Preview={SocialChannelPreview}
+           showChannelSearch
+           sort={sort}
+        />
         <ChannelContainer />
       </div>
     </Chat>

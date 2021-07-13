@@ -1,7 +1,8 @@
 @import '../../styles/variables';
 
-.channellist-container {
-    width: 360px;
+.social-channellist {
+    min-width: 360px;
+    max-width: 360px;
     height: 100%;
     background-color: $input-bg;
     border: 1px #DBDDE1;
