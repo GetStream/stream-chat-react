@@ -90,8 +90,8 @@ export const useReactionHandler = <
     if (!message) return;
 
     const newReaction = creatReactionPreview(type) as ReactionResponse<Re, Us>;
-
     const tempMessage = createMessagePreview(add, newReaction, message);
+
     try {
       if (message) updateMessage(tempMessage);
 
