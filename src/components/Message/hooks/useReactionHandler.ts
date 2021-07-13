@@ -8,7 +8,7 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { ReactEventHandler } from '../types';
 
-import type { MessageResponse, Reaction, ReactionResponse } from 'stream-chat';
+import type { Reaction, ReactionResponse } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -38,62 +38,72 @@ export const useReactionHandler = <
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  console.log({ message });
-
   const createMessagePreview = useCallback(
-    (reaction: Reaction<Re, Us>, message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
-      const newReactions: ReactionResponse<Re, Us>[] | undefined = [
-        //@ts-expect-error
-        ...message?.latest_reactions,
-        reaction,
-      ];
+    (
+      add: boolean,
+      reaction: ReactionResponse<Re, Us>,
+      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    ): StreamMessage<At, Ch, Co, Ev, Me, Re, Us> => {
+      const newReactionCounts = message?.reaction_counts || {};
+      const reactionType = reaction.type;
+      const hasReaction = !!newReactionCounts[reactionType];
 
-      return ({
-        __html: message?.text,
-        attachments: message?.attachments,
-        created_at: message?.created_at,
-        html: message?.text,
-        id: message?.id,
-        latest_reactions: newReactions || message?.latest_reactions,
-        mentioned_users: message?.mentioned_users,
-        status: message?.status,
-        text: message?.text,
-        type: message?.type,
-        user: message?.user,
-        ...(message?.parent_id ? { parent_id: message?.parent_id } : null),
-      } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
+      if (add) {
+        newReactionCounts[reactionType] = hasReaction ? newReactionCounts[reactionType] + 1 : 1;
+      } else {
+        if (hasReaction && newReactionCounts[reactionType] > 1) {
+          newReactionCounts[reactionType]--;
+        } else {
+          delete newReactionCounts[reactionType];
+        }
+      }
+
+      const newReactions: Reaction<Re, Us>[] | undefined = add
+        ? [reaction, ...(message?.latest_reactions || [])]
+        : message.latest_reactions?.filter(
+            (item) => !(item.type === reaction.type && item.user_id === reaction.user_id),
+          );
+
+      const newOwnReactions = add
+        ? [reaction, ...(message?.own_reactions || [])]
+        : message?.own_reactions?.filter((item) => item.type !== reaction.type);
+
+      return {
+        ...message,
+        latest_reactions: newReactions || message.latest_reactions,
+        own_reactions: newOwnReactions,
+        reaction_counts: newReactionCounts,
+        reaction_scores: newReactionCounts,
+      } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
     },
     [client.user, client.userID],
   );
 
-  const creatReactionPreview = (id: string, type: string) => {
+  const creatReactionPreview = (type: string) => {
     return {
-      created_at: message?.created_at,
       message_id: message?.id,
       score: 1,
       type,
-      updated_at: message?.updated_at,
-      user: message?.user,
-      user_id: id,
+      user: client.user,
+      user_id: client.user?.id,
     };
   };
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    // console.log({ id });
-    // console.log({ type });
-    // console.log({ add });
+    if (!message) return;
 
-    const newReaction = creatReactionPreview(id, type);
-    //@ts-expect-error
-    const tempMessage = createMessagePreview(newReaction, message);
+    const newReaction = creatReactionPreview(type) as ReactionResponse<Re, Us>;
 
+    const tempMessage = createMessagePreview(add, newReaction, message);
     try {
-      if (add) {
-        if (message) updateMessage(tempMessage);
-        await channel.sendReaction(id, { type } as Reaction<Re, Us>);
-      } else {
-        if (message) updateMessage(tempMessage);
-        await channel.deleteReaction(id, type);
+      if (message) updateMessage(tempMessage);
+
+      const messageResponse = add
+        ? await channel.sendReaction(id, { type } as Reaction<Re, Us>)
+        : await channel.deleteReaction(id, type);
+
+      if (messageResponse) {
+        updateMessage(messageResponse.message);
       }
     } catch (error) {
       // revert to the original message if the API call fails
