@@ -9,9 +9,11 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  transition: background 1s;
 
-  > .top {
+  &-top {
     display: flex;
+    position: relative;
     flex-direction: column;
     align-items: center;
     padding-top: 16px;
@@ -26,9 +28,58 @@
       width: 48px;
       height: 48px;
       margin-bottom: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
 
-    > .tab-options {
+    &-theme-modal {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      width: 200px;
+      background: $app-canvas;
+      border-radius: 8px;
+      top: 72px;
+      left: 16px;
+      border: 1px solid $stroke-low-emphasis;
+      box-shadow: $shadow;
+      transition: all 1s;
+
+      &-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 40px;
+        padding-left: 16px;
+        padding-right: 16px;
+        color: $text-high-emphasis;
+        font-size: 12px;
+        transition: all 0.2s;
+
+        &:hover {
+          cursor: pointer;
+          color: $text-self;
+          background: $primary-accent;
+
+          svg path:last-child {
+            fill: #ffffff;
+            transition: all 0.2s;
+          }
+        }
+      }
+
+      > div:first-child:hover {
+        border-radius: 8px 8px 0 0;
+      }
+
+      > div:last-child:hover {
+        border-radius: 0 0 8px 8px;
+      }
+    }
+
+    &-tabs {
       > div {
         position: relative;
 

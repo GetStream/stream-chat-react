@@ -11,6 +11,10 @@
   background: $app-canvas;
   transition: all 1s;
 
+  &-close:hover {
+    cursor: pointer;
+  }
+
   &.full-screen {
     width: 56px;
     min-width: 56px;
@@ -23,6 +27,7 @@
 
     &-header {
       background: $app-canvas;
+      transition: background 1s;
 
       &-top {
         padding: 8px;

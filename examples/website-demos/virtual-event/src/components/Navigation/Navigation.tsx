@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import './Navigation.scss';
+
+import { ThemeModal } from './ThemeModal';
 
 import { MainEventButton, MainLogo, OverviewButton, RoomsButton } from '../../assets';
 import NavigationAvatar from '../../assets/NavigationAvatar.png';
 
 export const Navigation: React.FC = () => {
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
+
   return (
     <div className='navigation'>
-      <div className='top'>
-        <MainLogo />
-        <div className='tab-options'>
+      <div className='navigation-top'>
+        <MainLogo setThemeModalOpen={setThemeModalOpen} themeModalOpen={themeModalOpen} />
+        {themeModalOpen && <ThemeModal />}
+        <div className='navigation-tabs'>
           <OverviewButton />
           <MainEventButton />
           <RoomsButton />
