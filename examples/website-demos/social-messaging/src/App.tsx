@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
 import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
-import { Chat, ChannelList } from 'stream-chat-react';
+import { Chat } from 'stream-chat-react';
 
 import './styles/App.scss';
 
-import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
+import { ChannelListContainer } from './components/ChannelListContainer/ChannelListContainer';
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
-import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
 
 import { useTheme } from './hooks/useTheme';
+import { SideDrawer } from './components/SideDrawer/SideDrawer';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY;
 const user = process.env.REACT_APP_USER_ID;
@@ -41,6 +41,8 @@ export type UserType = { image?: string };
 
 function App() {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
+  const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
+
 
   useEffect(() => {
     const initChat = async () => {
@@ -72,16 +74,20 @@ function App() {
   return (
     <Chat client={chatClient} theme={`messaging ${mode}`}>
       <div className='app-container'>
-        <ChannelList
-           filters={filters}
-           options={options}
-           List={(props) => (
-            <SocialChannelList {...props} />
-          )}
-           Preview={SocialChannelPreview}
-           showChannelSearch
-           sort={sort}
-        />
+        {!isSideDrawerOpen && (
+          <ChannelListContainer
+            {...{
+              filters,
+              isSideDrawerOpen,
+              options,
+              setSideDrawerOpen,
+              sort,
+            }}
+          />
+        )}
+        {isSideDrawerOpen && (
+          <SideDrawer onClose={() => setSideDrawerOpen(false)} />
+        )}
         <ChannelContainer />
       </div>
     </Chat>

@@ -1,7 +1,17 @@
 import './SideDrawer.scss';
 
-export const SideDrawer = () => {
+type Props = {
+    onClose: () => void;
+}
+
+export const SideDrawer: React.FC<Props> = (props) => {
+    const { onClose } = props;
+
+    console.log('in the sidedrawer');
+
     return (
-        <div>SideDrawer</div>
+        <div onClick={onClose}>
+            SideDrawer!!
+        </div>
     )
 };
