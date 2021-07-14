@@ -49,13 +49,25 @@
         color: $text-high-emphasis;
         border: 1px solid $stroke;
 
-        div {
+        &-item {
+          position: relative;
           display: flex;
           justify-content: center;
+          align-items: center;
+          height: 100%;
           width: 50px;
 
           &:hover {
             cursor: pointer;
+          }
+
+          .selected {
+            position: absolute;
+            top: 0;
+            width: 72px;
+            height: 4px;
+            background: $primary-accent;
+            border-radius: 0 0 4px 4px;
           }
         }
       }

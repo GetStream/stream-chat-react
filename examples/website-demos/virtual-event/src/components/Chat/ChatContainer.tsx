@@ -46,7 +46,7 @@ export const ChatContainer: React.FC = () => {
         client.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
       }
 
-      await client.connectUser({ id: userId }, userToken);
+      await client.connectUser({ id: userId, name: userId }, userToken);
 
       const globalChannel = client.channel('livestream', 'global', { name: 'global' });
       await globalChannel.watch({ watchers: { limit: 100 } });
@@ -60,11 +60,15 @@ export const ChatContainer: React.FC = () => {
     } else {
       switchChannel(chatType, eventName);
     }
+  }, [chatType, eventName]); // eslint-disable-line
 
+  useEffect(() => {
     return () => {
       chatClient?.disconnectUser();
+      setChatClient(undefined);
+      setCurrentChannel(undefined);
     };
-  }, [chatType, eventName]); // eslint-disable-line
+  }, []); // eslint-disable-line
 
   if (!chatClient) return null;
 
