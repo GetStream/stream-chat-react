@@ -1,0 +1,87 @@
+.homepage-header {
+  grid-area: header;
+  // grid-column: col-start / span 2;
+  // grid-row: 1;
+  background: lightblue;
+}
+.homepage-title {
+  grid-area: title;
+  background: lightgreen;
+  // grid-column: col-start 11 / span 2;
+  // grid-row: 2;
+}
+.homepage-title-date {
+  grid-area: date;
+  background: lightpink;
+  // grid-column: col-start 11 / span 2;
+  // grid-row: 2;
+}
+.homepage-tabs {
+  grid-area: tabs;
+  background: lightcyan;
+  // grid-column: col-start / span 12;
+  // grid-row: 2;
+}
+.homepage-content {
+  grid-area: content;
+  background: lightcoral;
+  // grid-column: col-start 3 / span 8;
+  // grid-row: 2 / 4;
+}
+.homepage-content-stats {
+  grid-area: stats;
+  background: lightgreen;
+  // grid-column: col-start 11 / span 2;
+  // grid-row: 3;
+}
+.homepage-partners {
+  grid-area: partners;
+  background: lightyellow;
+  // grid-column: col-start / span 12;
+}
+.homepage-schedule {
+  grid-area: schedule;
+  background: lightslategrey;
+}
+
+.homepage-container {
+  display: grid;
+  // grid-template-columns: repeat(12, [col-start] 1fr);
+  // grid-column: col-start / span 12;
+  // gap: 2px;
+  border: 1px black solid;
+  height: 100%;
+  width: 100%;
+  gap: 10px;
+  grid-template-areas:
+    'header'
+    'title'
+    'date'
+    'tabs'
+    'content'
+    'stats'
+    'partners'
+    'schedule';
+}
+
+@media (min-width: 700px) {
+  .homepage-container {
+    grid-template-columns: 1fr 4fr 1fr;
+    grid-template-areas:
+      'header header  header'
+      'header header  header'
+      'tabs tabs tabs'
+      'title title date'
+      'content content  stats'
+      'content content  stats'
+      'content content  stats'
+      'content content  stats'
+      'content content  stats'
+      'partners partners partners'
+      'schedule schedule schedule';
+  }
+  .homepage-tabs ul {
+    display: flex;
+    justify-content: space-between;
+  }
+}
