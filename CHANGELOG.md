@@ -9,7 +9,7 @@
 
 ### Chore
 
-- Upgrade `typescript` and `stream-chat` dependencies
+- Upgrade `typescript` and `stream-chat` dependencies [#1049](https://github.com/GetStream/stream-chat-react/pull/1049)
 
 ## [6.4.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.1) 2021-07-09
 
