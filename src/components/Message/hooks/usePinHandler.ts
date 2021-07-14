@@ -4,8 +4,6 @@ import { StreamMessage, useChannelStateContext } from '../../../context/ChannelS
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { UpdatedMessage } from 'stream-chat';
-
 import type { ReactEventHandler } from '../types';
 
 import type {
@@ -94,7 +92,7 @@ export const usePinHandler = <
 
     if (!message.pinned) {
       try {
-        await client.pinMessage(message as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
+        await client.pinMessage(message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
@@ -103,7 +101,7 @@ export const usePinHandler = <
       }
     } else {
       try {
-        await client.unpinMessage(message as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
+        await client.unpinMessage(message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);

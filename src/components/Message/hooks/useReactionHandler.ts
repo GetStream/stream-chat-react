@@ -93,18 +93,16 @@ export const useReactionHandler = <
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
-      if (message) updateMessage(tempMessage);
+      updateMessage(tempMessage);
 
       const messageResponse = add
         ? await channel.sendReaction(id, { type } as Reaction<Re, Us>)
         : await channel.deleteReaction(id, type);
 
-      if (messageResponse) {
-        updateMessage(messageResponse.message);
-      }
+      updateMessage(messageResponse.message);
     } catch (error) {
       // revert to the original message if the API call fails
-      if (message) updateMessage(message);
+      updateMessage(message);
     }
   }, 1000);
 
