@@ -2,36 +2,42 @@ import React, { useContext, useState } from 'react';
 
 import { ModeOptions, ThemeOptions, useTheme } from '../hooks/useTheme';
 
+export type ChatType = 'global' | 'main-event' | 'room';
 type TabOptions = 'overview' | 'main-event' | 'rooms';
 
 type EventContextValue = {
-  event: string;
+  chatType: ChatType;
   isFullScreen: boolean;
   selected: TabOptions;
-  setEvent: React.Dispatch<React.SetStateAction<string>>;
+  setChatType: React.Dispatch<React.SetStateAction<ChatType>>;
+  setEventName: React.Dispatch<React.SetStateAction<string | undefined>>;
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
   setMode: React.Dispatch<React.SetStateAction<ModeOptions>>;
   setSelected: React.Dispatch<React.SetStateAction<TabOptions>>;
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
+  eventName?: string;
 };
 
 const EventContext = React.createContext({} as EventContextValue);
 
 export const EventProvider: React.FC = ({ children }) => {
-  const [event, setEvent] = useState('global');
+  const [chatType, setChatType] = useState<ChatType>('global');
+  const [eventName, setEventName] = useState<string | undefined>();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [selected, setSelected] = useState<TabOptions>('overview');
 
   const { setMode, setTheme } = useTheme();
 
   const value: EventContextValue = {
-    event,
+    chatType,
+    eventName,
     isFullScreen,
-    setEvent,
-    setIsFullScreen,
     selected,
-    setSelected,
+    setChatType,
+    setEventName,
+    setIsFullScreen,
     setMode,
+    setSelected,
     setTheme,
   };
 

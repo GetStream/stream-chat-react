@@ -14,7 +14,7 @@ import './ChatContainer.scss';
 import { ChatHeader } from './ChatHeader';
 
 import { CloseChatButton } from '../../assets';
-import { useEventContext } from '../../contexts/EventContext';
+import { ChatType, useEventContext } from '../../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -23,15 +23,17 @@ const userId = urlParams.get('user') || (process.env.REACT_APP_USER_ID as string
 const userToken = urlParams.get('user_token') || (process.env.REACT_APP_USER_TOKEN as string);
 
 export const ChatContainer: React.FC = () => {
-  const { event, isFullScreen } = useEventContext();
+  const { chatType, eventName, isFullScreen } = useEventContext();
 
   const [chatClient, setChatClient] = useState<StreamChat>();
   const [currentChannel, setCurrentChannel] = useState<StreamChannel>();
 
-  const switchChannel = async (eventName: string) => {
+  const switchChannel = async (type: ChatType, event?: string) => {
     if (!chatClient) return;
 
-    const newChannel = chatClient.channel('livestream', eventName, { name: eventName });
+    const channelId = event ? `${type}-${event}` : type;
+    const newChannel = chatClient.channel('livestream', channelId);
+
     await newChannel.watch({ watchers: { limit: 100 } });
     setCurrentChannel(newChannel);
   };
@@ -56,13 +58,13 @@ export const ChatContainer: React.FC = () => {
     if (!chatClient) {
       initChat();
     } else {
-      switchChannel(event);
+      switchChannel(chatType, eventName);
     }
 
     return () => {
       chatClient?.disconnectUser();
     };
-  }, [event]); // eslint-disable-line
+  }, [chatType, eventName]); // eslint-disable-line
 
   if (!chatClient) return null;
 
