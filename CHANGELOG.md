@@ -1,5 +1,26 @@
 # Changelog
 
+## [6.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.2) 2021-07-14
+
+### Feature
+
+- In the `VirtualizedMessageList`, add option to view the Giphy preview above the `MessageInput` (not as a message in the list) using the `separateGiphyPreview` prop [#1045](https://github.com/GetStream/stream-chat-react/pull/1045)
+- Add optimistic response for sending reactions [#1048](https://github.com/GetStream/stream-chat-react/pull/1048)
+
+### Chore
+
+- Upgrade `typescript` and `stream-chat` dependencies [#1049](https://github.com/GetStream/stream-chat-react/pull/1049)
+
+## [6.4.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.1) 2021-07-09
+
+### Chore
+
+- Upgrade `react-file-utils` to fix NextJS support [#1043](https://github.com/GetStream/stream-chat-react/pull/1043)
+
+### Bug
+
+- Fix `offset` increment issue for unwatched channels [#1038](https://github.com/GetStream/stream-chat-react/pull/1038)
+
 ## [6.4.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.0) 2021-07-07
 
 ### ⚠️ BREAKING CHANGES ⚠️ - The following values have been moved to the newly created [`EmojiContext`](https://getstream.io/chat/docs/sdk/react/contexts/emoji_context/):

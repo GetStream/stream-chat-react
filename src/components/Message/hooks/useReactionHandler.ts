@@ -37,16 +37,72 @@ export const useReactionHandler = <
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    try {
+  const createMessagePreview = useCallback(
+    (
+      add: boolean,
+      reaction: ReactionResponse<Re, Us>,
+      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    ): StreamMessage<At, Ch, Co, Ev, Me, Re, Us> => {
+      const newReactionCounts = message?.reaction_counts || {};
+      const reactionType = reaction.type;
+      const hasReaction = !!newReactionCounts[reactionType];
+
       if (add) {
-        await channel.sendReaction(id, { type } as Reaction<Re, Us>);
+        newReactionCounts[reactionType] = hasReaction ? newReactionCounts[reactionType] + 1 : 1;
       } else {
-        await channel.deleteReaction(id, type);
+        if (hasReaction && newReactionCounts[reactionType] > 1) {
+          newReactionCounts[reactionType]--;
+        } else {
+          delete newReactionCounts[reactionType];
+        }
       }
+
+      const newReactions: Reaction<Re, Us>[] | undefined = add
+        ? [reaction, ...(message?.latest_reactions || [])]
+        : message.latest_reactions?.filter(
+            (item) => !(item.type === reaction.type && item.user_id === reaction.user_id),
+          );
+
+      const newOwnReactions = add
+        ? [reaction, ...(message?.own_reactions || [])]
+        : message?.own_reactions?.filter((item) => item.type !== reaction.type);
+
+      return {
+        ...message,
+        latest_reactions: newReactions || message.latest_reactions,
+        own_reactions: newOwnReactions,
+        reaction_counts: newReactionCounts,
+        reaction_scores: newReactionCounts,
+      } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+    },
+    [client.user, client.userID],
+  );
+
+  const creatReactionPreview = (type: string) => ({
+    message_id: message?.id,
+    score: 1,
+    type,
+    user: client.user,
+    user_id: client.user?.id,
+  });
+
+  const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
+    if (!message) return;
+
+    const newReaction = creatReactionPreview(type) as ReactionResponse<Re, Us>;
+    const tempMessage = createMessagePreview(add, newReaction, message);
+
+    try {
+      updateMessage(tempMessage);
+
+      const messageResponse = add
+        ? await channel.sendReaction(id, { type } as Reaction<Re, Us>)
+        : await channel.deleteReaction(id, type);
+
+      updateMessage(messageResponse.message);
     } catch (error) {
       // revert to the original message if the API call fails
-      if (message) updateMessage(message);
+      updateMessage(message);
     }
   }, 1000);
 
