@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 
 import { ModeOptions, ThemeOptions, useTheme } from '../hooks/useTheme';
 
-export type ChatType = 'global' | 'main-event' | 'room';
+export type ChatType = 'global' | 'main-event' | 'room' | 'direct' | 'qa';
 type TabOptions = 'overview' | 'main-event' | 'rooms';
 
 type EventContextValue = {

@@ -12,8 +12,8 @@ import 'stream-chat-react/dist/css/index.css';
 
 import './ChatContainer.scss';
 import { ChatHeader } from './ChatHeader';
+import { ChatSidebar } from './ChatSidebar';
 
-import { CloseChatButton } from '../../assets';
 import { ChatType, useEventContext } from '../../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -46,7 +46,7 @@ export const ChatContainer: React.FC = () => {
         client.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
       }
 
-      await client.connectUser({ id: userId }, userToken);
+      await client.connectUser({ id: userId, name: userId }, userToken);
 
       const globalChannel = client.channel('livestream', 'global', { name: 'global' });
       await globalChannel.watch({ watchers: { limit: 100 } });
@@ -60,17 +60,21 @@ export const ChatContainer: React.FC = () => {
     } else {
       switchChannel(chatType, eventName);
     }
+  }, [chatType, eventName]); // eslint-disable-line
 
+  useEffect(() => {
     return () => {
       chatClient?.disconnectUser();
+      setChatClient(undefined);
+      setCurrentChannel(undefined);
     };
-  }, [chatType, eventName]); // eslint-disable-line
+  }, []); // eslint-disable-line
 
   if (!chatClient) return null;
 
   return (
     <div className={`chat ${isFullScreen ? 'full-screen' : ''}`}>
-      {isFullScreen && <CloseChatButton />}
+      {isFullScreen && <ChatSidebar />}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient}>
           <Channel channel={currentChannel}>

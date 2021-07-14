@@ -14,7 +14,22 @@
   width: 320px;
   min-width: 320px;
   background: $app-canvas;
-  transition: all 1s;
+  transition: all 0.5s;
+
+  &-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+
+    svg {
+      padding-bottom: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
 
   &-close:hover {
     cursor: pointer;
@@ -35,6 +50,9 @@
       transition: background 1s;
 
       &-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: 8px;
       }
 
@@ -49,13 +67,25 @@
         color: $text-high-emphasis;
         border: 1px solid $stroke;
 
-        div {
+        &-item {
+          position: relative;
           display: flex;
           justify-content: center;
+          align-items: center;
+          height: 100%;
           width: 50px;
 
           &:hover {
             cursor: pointer;
+          }
+
+          .selected {
+            position: absolute;
+            top: 0;
+            width: 72px;
+            height: 4px;
+            background: $primary-accent;
+            border-radius: 0 0 4px 4px;
           }
         }
       }
