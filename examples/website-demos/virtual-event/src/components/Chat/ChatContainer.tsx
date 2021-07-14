@@ -12,8 +12,8 @@ import 'stream-chat-react/dist/css/index.css';
 
 import './ChatContainer.scss';
 import { ChatHeader } from './ChatHeader';
+import { ChatSidebar } from './ChatSidebar';
 
-import { CloseChatButton } from '../../assets';
 import { ChatType, useEventContext } from '../../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -74,7 +74,7 @@ export const ChatContainer: React.FC = () => {
 
   return (
     <div className={`chat ${isFullScreen ? 'full-screen' : ''}`}>
-      {isFullScreen && <CloseChatButton />}
+      {isFullScreen && <ChatSidebar />}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient}>
           <Channel channel={currentChannel}>

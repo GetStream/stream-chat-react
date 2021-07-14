@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CloseChatButton } from '../../assets';
+import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 const ChatHeaderTabs = () => {
@@ -55,6 +55,7 @@ export const ChatHeader: React.FC = () => {
     <div className='chat-components-header'>
       <div className='chat-components-header-top'>
         <CloseChatButton />
+        <OnlineUsersIcon />
       </div>
       <ChatHeaderTabs />
     </div>
