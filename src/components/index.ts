@@ -22,6 +22,7 @@ export * from './Message';
 export * from './MessageActions';
 export * from './MessageInput';
 export * from './MessageList';
+export * from './MML';
 export * from './Modal';
 export * from './Reactions';
 export * from './SafeAnchor';
