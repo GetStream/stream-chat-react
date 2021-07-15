@@ -87,7 +87,7 @@ export const usePaginatedChannels = <
 
   useEffect(() => {
     queryChannels('reload');
-  }, [filterString]);
+  }, [filterString, sort]);
 
   return {
     channels,
