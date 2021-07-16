@@ -1,0 +1,153 @@
+.overview-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border-right: 1px solid #e5e5e6;
+}
+
+.overview-header {
+  background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
+  height: 320px;
+}
+
+.overview-tabs {
+  border-bottom: 1px solid #e5e5e6;
+  display: flex;
+  align-items: center;
+  height: 48px;
+
+  span {
+    display: flex;
+    justify-content: center;
+    width: 25%;
+  }
+}
+
+.overview-title {
+  display: flex;
+  align-items: center;
+  margin: 16px;
+
+  &-content {
+    flex: 5;
+  }
+
+  &-date {
+    display: flex;
+    align-items: center;
+    flex: 1;
+
+    &-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      background: #f2f2f2;
+      color: var(--primary-accent);
+      border-radius: 8px;
+    }
+  }
+
+  &-icon {
+    height: 60px;
+    width: 60px;
+    background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
+    border: 1px solid #e5e5e6;
+    box-sizing: border-box;
+    border-radius: 16px;
+    margin-right: 8px;
+  }
+
+  &-header {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+  }
+
+  &-sub-header {
+    display: flex;
+    color: #8a898e;
+
+    &-left {
+      font-style: normal;
+      font-weight: normal;
+      font-size: 14px;
+      margin-right: 4px;
+    }
+
+    &-right {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
+}
+
+.overview-content {
+  margin: 32px 16px;
+  display: flex;
+
+  &-container {
+    flex: 5;
+  }
+
+  &-title {
+    margin-bottom: 8px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  &-content {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+  }
+
+  &-stats {
+    height: 200px;
+    background: lightgreen;
+    margin-top: 32px;
+    flex: 1;
+  }
+}
+
+.overview-partners {
+  margin: 0 16px;
+
+  &-title {
+    margin-bottom: 8px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  &-logos {
+    display: flex;
+    justify-content: space-between;
+    padding: 32px 16px;
+    align-items: center;
+
+    img {
+      max-width: 120px;
+    }
+  }
+}
+.overview-schedule {
+  &-title {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    margin-left: 32px;
+  }
+
+  &-event {
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    margin: 32px;
+    width: 974px;
+    height: 156px;
+  }
+}
