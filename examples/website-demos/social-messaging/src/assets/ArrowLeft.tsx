@@ -1,9 +1,20 @@
-export const ArrowLeft: React.FC = () => (
+type Props = {
+    isNewChat: boolean;
+    setNewChat: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const ArrowLeft: React.FC<Props> = ({ isNewChat, setNewChat }) => (
     <svg
         width="16"
         height="16"
         viewBox="0 0 16 16"
         fill="none"
+        onClick={() => {
+            if (isNewChat) {
+                setNewChat(false);
+            }
+        }}
+        style={{ cursor: 'pointer', marginLeft: '16px' }}
         xmlns="http://www.w3.org/2000/svg"
     >
         <path

@@ -7,3 +7,21 @@
     background-color: $input-bg;
     border: 1px #DBDDE1;
 }
+
+.channel-list-header {
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    &.text {
+        color: $text-high-emphasis;
+    }
+}
+
+.channel-list-footer {
+    height: 56px;
+    background-color: $bars-bg;
+    border-top: $border-top;
+}

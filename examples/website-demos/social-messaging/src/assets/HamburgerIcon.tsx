@@ -13,7 +13,7 @@ export const HamburgerIcon: React.FC<Props> = ({ isSideDrawerOpen, setSideDrawer
             if (!isSideDrawerOpen) {
                 setSideDrawerOpen(true);
             }
-          }}
+        }}
         style={{ cursor: 'pointer', marginLeft: '16px' }}
         xmlns="http://www.w3.org/2000/svg">
         <path

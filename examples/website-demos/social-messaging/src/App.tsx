@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
-import { Chat } from 'stream-chat-react';
+import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import './styles/App.scss';
 
-import { ChannelListContainer } from './components/ChannelListContainer/ChannelListContainer';
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
+import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
+import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
 
 import { useTheme } from './hooks/useTheme';
 import { SideDrawer } from './components/SideDrawer/SideDrawer';
@@ -42,7 +43,7 @@ export type UserType = { image?: string };
 function App() {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
-
+  const [isNewChat, setNewChat] = useState(false);
 
   useEffect(() => {
     const initChat = async () => {
@@ -67,30 +68,30 @@ function App() {
   }, []); // eslint-disable-line
 
   const { setMode } = useTheme(); // eslint-disable-line
-  const mode = 'light';
+  // const mode = 'light';
 
   if (!chatClient) return null;
 
   return (
-    <Chat client={chatClient} theme={`messaging ${mode}`}>
-      <div className='app-container'>
-        {!isSideDrawerOpen && (
-          <ChannelListContainer
-            {...{
-              filters,
-              isSideDrawerOpen,
-              options,
-              setSideDrawerOpen,
-              sort,
-            }}
+    <div className='chat-container'>
+      <Chat client={chatClient}>
+        <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
+          <ChannelList
+            filters={filters}
+            List={(props) => (
+              <SocialChannelList {...props} {...{ isNewChat, isSideDrawerOpen, setNewChat, setSideDrawerOpen }} />
+            )}
+            options={options}
+            Preview={SocialChannelPreview}
+            sort={sort}
           />
-        )}
-        {isSideDrawerOpen && (
-          <SideDrawer onClose={() => setSideDrawerOpen(false)} />
-        )}
-        <ChannelContainer />
-      </div>
-    </Chat>
+        </div>
+        {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
+        <Channel>
+          <ChannelContainer { ...{ isNewChat, setNewChat }} />
+        </Channel>
+      </Chat>
+    </div>
   );
 }
 

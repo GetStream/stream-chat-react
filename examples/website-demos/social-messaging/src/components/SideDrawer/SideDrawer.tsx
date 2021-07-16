@@ -1,17 +1,16 @@
 import './SideDrawer.scss';
 
 type Props = {
+    isSideDrawerOpen: boolean;
     onClose: () => void;
 }
 
 export const SideDrawer: React.FC<Props> = (props) => {
-    const { onClose } = props;
-
-    console.log('in the sidedrawer');
+    const { isSideDrawerOpen, onClose } = props;
 
     return (
-        <div onClick={onClose}>
-            SideDrawer!!
+        <div className={`side-drawer ${isSideDrawerOpen ? 'isSideDrawerOpen' : ''}`} onClick={onClose}>
+            <span>SideDrawer!!</span>
         </div>
     )
 };

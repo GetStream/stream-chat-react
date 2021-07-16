@@ -1,7 +1,21 @@
 @import './_variables';
 
-.app-container {
+.chat-container {
+  box-shadow: $modal-shadow;
   display: flex;
   height: 100vh;
-  box-shadow: $modal-shadow;
+  // overflow: hidden;
+  // position: relative;
+  width: 100%;
+}
+
+.channel-list-container {
+  min-width: 360px;
+  max-width: 360px;
+  height: 100%;
+  overflow-y: auto;
+
+  &.sideDrawerOpen {
+    display: none;
+  }
 }
