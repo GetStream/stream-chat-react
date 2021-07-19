@@ -22,6 +22,7 @@ module.exports = (on, config) => {
   let sp1;
   let sp2;
   on('before:run', () => {
+    // change the below path to your stream-chat-react and examples/typescript-app path
     sp1 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react'});
     sp2 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react/examples/typescript-app'});
   })
