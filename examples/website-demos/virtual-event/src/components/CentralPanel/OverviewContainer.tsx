@@ -45,9 +45,8 @@ const eventText = (
         Engage with booth representatives and ask for their unique booth code. It's that easy!
       </li>
       <li>
-        Engage with booth representatives and ask for their unique booth code. It's that easy! Enter
-        the code of each booth you visit in the corresponding passport field, along with your foll
-        name. To qualify, we ask that you visit a minimum of 4 booths.
+        Enter the code of each booth you visit in the corresponding passport field, along with your
+        full name. To qualify, we ask that you visit a minimum of 4 booths.
       </li>
       <li>
         Submit your completed passport to Dorah Nielsen at dorah.nielsen@whs.com by 10 a.m. EST on
