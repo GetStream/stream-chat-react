@@ -1,5 +1,9 @@
 @import '../../styles/variables';
 
+.str-chat {
+  height: calc(100vh - 114px); // height of ChatHeader component
+}
+
 .str-chat-channel.messaging .str-chat__main-panel {
   padding: 0;
 }
@@ -7,6 +11,10 @@
 .str-chat__virtual-list {
   background: $app-canvas;
   transition: background 1s;
+}
+
+.str-chat__input-flat {
+  background: $app-canvas;
 }
 
 .chat {

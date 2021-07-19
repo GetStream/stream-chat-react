@@ -1,0 +1,90 @@
+@import '../../styles/variables';
+
+.str-chat.messaging {
+  background: $app-canvas;
+  transition: background 1s;
+}
+
+.dm {
+  display: flex;
+  flex-direction: column;
+
+  &-list {
+    height: calc(100% - 56px); // height of chat start button
+    width: 320px;
+
+    &-preview {
+      position: relative;
+      display: flex;
+      height: 74px;
+      border-bottom: 1px solid $stroke;
+      padding: 8px;
+
+      svg {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      &:hover {
+        background: $card-background;
+        cursor: pointer;
+      }
+
+      &-top {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+
+        div:first-child {
+          color: $text-high-emphasis;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        div:last-child {
+          color: $text-mid-emphasis;
+          font-size: 12px;
+          margin-left: 5px;
+        }
+      }
+
+      &-bottom {
+        color: $text-high-emphasis;
+        font-size: 14px;
+
+        p {
+          margin: 0;
+          max-height: 32px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+}
+
+.start-chat {
+  position: absolute;
+  bottom: 0;
+  max-height: 56px;
+  padding: 8px;
+  box-sizing: border-box;
+  width: 320px;
+  border: 1px solid $stroke;
+
+  &-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $primary-accent;
+    color: $white;
+    border-radius: 8px;
+    height: 40px;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 1s;
+  }
+}

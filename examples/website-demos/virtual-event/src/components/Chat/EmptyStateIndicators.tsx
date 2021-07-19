@@ -1,6 +1,6 @@
 import React from 'react';
-import { EmptyChatIcon, EmptyDMIcon, EmptyQAIcon } from '../../assets';
 
+import { EmptyChatIcon, EmptyDMIcon, EmptyQAIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 const EmptyStateWrapper: React.FC = ({ children }) => (

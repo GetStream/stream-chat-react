@@ -1,3 +1,4 @@
+export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';
 export { EmptyChatIcon } from './EmptyChatIcon';
 export { EmptyDMIcon } from './EmptyDMIcon';

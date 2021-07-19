@@ -3,25 +3,36 @@ import React from 'react';
 import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-const ChatHeaderTabs = () => {
-  const { chatType, eventName, selected, setChatType, setEventName } = useEventContext();
+const ChatHeaderTabs: React.FC = () => {
+  const {
+    chatType,
+    eventName,
+    selected,
+    setChatType,
+    setEventName,
+    setShowChannelList,
+  } = useEventContext();
 
   const handleGlobalClick = () => {
     setEventName(undefined);
     setChatType('global');
+    setShowChannelList(false);
   };
 
   const handleEventClick = () => {
     const eventType = selected === 'main-event' ? 'main-event' : 'room';
     setChatType(eventType);
+    setShowChannelList(false);
   };
 
   const handleDirectClick = () => {
-    console.log('direct click');
+    setChatType('direct');
+    setShowChannelList(true);
   };
 
   const handleQAClick = () => {
     setChatType('qa');
+    setShowChannelList(false);
   };
 
   return (

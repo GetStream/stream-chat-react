@@ -14,7 +14,9 @@ type EventContextValue = {
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
   setMode: React.Dispatch<React.SetStateAction<ModeOptions>>;
   setSelected: React.Dispatch<React.SetStateAction<TabOptions>>;
+  setShowChannelList: React.Dispatch<React.SetStateAction<boolean>>;
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
+  showChannelList: boolean;
   eventName?: string;
 };
 
@@ -25,6 +27,7 @@ export const EventProvider: React.FC = ({ children }) => {
   const [eventName, setEventName] = useState<string | undefined>();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [selected, setSelected] = useState<TabOptions>('overview');
+  const [showChannelList, setShowChannelList] = useState(false);
 
   const { setMode, setTheme } = useTheme();
 
@@ -39,6 +42,8 @@ export const EventProvider: React.FC = ({ children }) => {
     setMode,
     setSelected,
     setTheme,
+    showChannelList,
+    setShowChannelList,
   };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
