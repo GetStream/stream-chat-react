@@ -8,6 +8,9 @@
   }
 
   &-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
     height: 320px;
   }
@@ -53,12 +56,16 @@
 
       &-number {
         color: var(--primary-accent);
+        font-weight: 600;
         margin-top: 4px;
         display: flex;
       }
     }
 
     &-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       height: 60px;
       width: 60px;
       background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
@@ -118,6 +125,7 @@
       font-style: normal;
       font-weight: normal;
       font-size: 14px;
+      margin-right: 32px;
     }
 
     &-stats {
@@ -143,9 +151,12 @@
         height: 30px;
         background: #f2f2f2;
         border-radius: 8px;
+        font-weight: 600;
       }
 
       &-description {
+        display: flex;
+        align-items: center;
         color: #8a898e;
         margin-left: 8px;
       }

@@ -5,6 +5,7 @@ import './EventCard.scss';
 
 type EventCardProps = {
   content: string;
+  image: () => JSX.Element;
   label: string;
   title: string;
   videoViewers?: number;
@@ -12,11 +13,15 @@ type EventCardProps = {
 };
 
 export const EventCard = (props: EventCardProps) => {
-  const { content, label, title, videoViewers, viewers } = props;
+  const { content, image, label, title, videoViewers, viewers } = props;
+
+  const Image = image;
 
   return (
     <div className='event-card-container'>
-      <div className='event-card-image'></div>
+      <div className='event-card-image'>
+        <Image />
+      </div>
       <div className='event-card-content'>
         <div className='event-card-title'>
           <EventCardIcon />

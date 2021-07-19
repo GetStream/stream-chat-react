@@ -8,30 +8,65 @@ import GoGuardian from '../../assets/GoGuardian.png';
 import LogRhythm from '../../assets/LogRhythm.png';
 
 import './OverviewContainer.scss';
+import { HackerSummitHero } from '../../assets/HackerSummitHero';
+import { HackerSummitLogo } from '../../assets/HackerSummitLogo';
+import { Card1 } from '../../assets/eventCardPictures/Card1';
+import { Card2 } from '../../assets/eventCardPictures/Card2';
 
-const eventText = `Welcome to the inaugural World Hacker Summit! The goal of today's event is to spotlight
-innovative thought leaders and to provide an opportunity to share and exchange new ideas,
-technology trends and networking. Click here to watch a two-minute tutorial with
-step-by-step instruction for how you can best maximize today's in-platform experience. We
-encourage you to view the event schedule and to take full advantage of all that this
-dynamic virtual event platform has to offer! Engage in real-time networking and Q&A
-opportunities on a local, national, and global level. Grow your personal brand and your
-community in the "Networking" area. Here you will get paired with like minded individuals
-for 1:1 conversation. Take your virtual connections one step further — by initiating a
-request to schedule a meeting or sending a direct message with anyone in the
-"Participants" tab. You will have the opportunity to connect in a private conversation or
-private video session with up to 9 other people. Enjoy today's event and don't forget to
-download your virtual passport for your chance to win. Contest details are noted below:
-Download Your Virtual Passport. Engage with booth representatives and ask for their unique
-booth code. It's that easy! Enter the code of each booth you visit in the corresponding
-passport field, along with your full name. To qualify, we ask that you visit a minimum of
-4 booths. Submit your completed passport to Dorah Nielsen at dorah.nielsen@whs.com by 10
-a.m. EST on 3/6. Stay tuned. Winners will be announced on 3/6 on our social media sites!`;
+const eventText = (
+  <div>
+    <p>Welcome to the inaugural World Hacker Summit!</p>
+    <p>
+      The goal of today's event is to spotlight innovative thought leaders and to provide an
+      opportunity to share and exchange new ideas, technology trends and networking. Click here to
+      watch a two-minute tutorial with step-by-step instruction for how you can best maximize
+      today's in-platform experience. We encourage you to view the event schedule and to take full
+      advantage of all that this dynamic virtual event platform has to offer!
+    </p>
+    <ul>
+      <li>
+        Engage in real-time networking and Q&A opportunities on a local, national, and global level.
+      </li>
+      <li>
+        Grow your personal brand and your community in the "Networking" area. Here you will get
+        paired with like minded individuals for 1:1 conversation.
+      </li>
+      <li>
+        Take your virtual connections one step further — by initiating a request to schedule a
+        meeting or sending a direct message with anyone in the "Participants" tab. You will have the
+        opportunity to connect in a private conversation or private video session with up to 9 other
+        people.
+      </li>
+    </ul>
+    <p>
+      Enjoy today's event and don't forget to download your virtual passport for your chance to win.
+      Contest details are noted below:
+    </p>
+    <ol>
+      <li>Download Your Virtual Passport.</li>
+      <li>
+        Engage with booth representatives and ask for their unique booth code. It's that easy!
+      </li>
+      <li>
+        Engage with booth representatives and ask for their unique booth code. It's that easy! Enter
+        the code of each booth you visit in the corresponding passport field, along with your foll
+        name. To qualify, we ask that you visit a minimum of 4 booths.
+      </li>
+      <li>
+        Submit your completed passport to Dorah Nielsen at dorah.nielsen@whs.com by 10 a.m. EST on
+        3/6.
+      </li>
+      <li> Stay tuned. Winners will be announced on 3/6 on our social media sites!</li>
+    </ol>
+  </div>
+);
 
 export const OverviewContainer = () => {
   return (
     <div className='overview-container'>
-      <div className='overview-header'>HEADER</div>
+      <div className='overview-header'>
+        <HackerSummitHero />
+      </div>
       <div className='overview-tabs'>
         <span>Description</span>
         <span>Partners</span>
@@ -40,7 +75,9 @@ export const OverviewContainer = () => {
       </div>
       <div className='overview-title'>
         <div className='overview-title-content'>
-          <div className='overview-title-icon'></div>
+          <div className='overview-title-icon'>
+            <HackerSummitLogo />
+          </div>
           <div className='overview-title-header'>
             <span className='overview-title-header-main'>World Hacker Summit 2021</span>
             <div className='overview-title-header-sub'>
@@ -100,6 +137,7 @@ export const OverviewContainer = () => {
         <div className='overview-schedule-title'>Schedule</div>
         <EventCard
           content='skjadhfjklhasjkldhfjkhalsjkhdfjaljkshdjkfhljkasd'
+          image={Card1}
           title='Neil'
           label='Moderated'
           videoViewers={20}
@@ -107,6 +145,7 @@ export const OverviewContainer = () => {
         />
         <EventCard
           content='jsakhfdljkhasjkdhfjklhasjkdhfjkahsjkldhfjkahsjkldhfjhajklsdhfjkhajkslhdjkllhakljshlkj'
+          image={Card2}
           title='Boi'
           label='Open'
           videoViewers={10}
