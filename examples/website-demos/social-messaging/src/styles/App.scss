@@ -3,17 +3,27 @@
 .chat-container {
   box-shadow: $modal-shadow;
   display: flex;
-  height: 100vh;
-  // overflow: hidden;
-  // position: relative;
+  min-height: 100vh;
   width: 100%;
 }
 
 .channel-list-container {
-  min-width: 360px;
-  max-width: 360px;
+  min-width: 418px;
+  max-width: 418px;
   height: 100%;
   overflow-y: auto;
+  background: $input-bg;
+  border: $border-top;
+
+  position: static;
+  left: calc(50% - 360px/2 - 332px);
+  top: calc(50% - 900px/2);
+
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  margin: 0px 0px;
 
   &.sideDrawerOpen {
     display: none;

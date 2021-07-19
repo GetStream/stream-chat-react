@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
+import 'stream-chat-react/dist/css/index.css';
 import './styles/App.scss';
 
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
@@ -11,6 +12,7 @@ import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelP
 
 import { useTheme } from './hooks/useTheme';
 import { SideDrawer } from './components/SideDrawer/SideDrawer';
+import { SocialMessageInput } from './components/MessageInput/SocialMessageInput';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY;
 const user = process.env.REACT_APP_USER_ID;
@@ -83,11 +85,14 @@ function App() {
             )}
             options={options}
             Preview={SocialChannelPreview}
+            showChannelSearch
             sort={sort}
           />
         </div>
         {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
-        <Channel>
+        <Channel
+          Input={SocialMessageInput}
+        >
           <ChannelContainer { ...{ isNewChat, setNewChat }} />
         </Channel>
       </Chat>

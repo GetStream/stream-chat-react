@@ -1,3 +1,66 @@
-.social-channelpreview {
-    
+@import '../../styles/variables';
+
+.channel-preview {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    box-shadow: $border-bottom;
+    // padding: var(--xs-p);
+    max-height: 72px;
+    align-items: center;
+    flex-grow: 0;
+    margin: 1px 0px;
+    border: none;
+    text-align: left;
+    justify-content: space-between;
+    background-color: $app-bg;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    &--active {
+        background: #DBDDE1;
+        box-shadow: $border-bottom;
+      }
+
+    &-contents {
+        &-last-message p {
+            color: $text-low-emphasis;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &-last-message {
+            color: $text-low-emphasis;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &-name {
+            color: $text-high-emphasis;
+            font-size: 17px;
+            font-weight: 500;
+        }
+    }
+
+    &-end {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        &-unread {
+            height: 18px;
+            width: 18px;
+            background-color: $accent-error;
+            border-radius: 999px;
+            padding: 2px, 6px, 1px, 6px;
+            // font-color: $white;
+        }
+    }
+
 }

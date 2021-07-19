@@ -1,11 +1,14 @@
 @import '../../styles/variables';
 
 .social-channellist {
-    min-width: 360px;
-    max-width: 360px;
+    min-width: 416px;
+    max-width: 416px;
     height: 100%;
+    overflow: auto;
     background-color: $input-bg;
-    border: 1px #DBDDE1;
+    border-bottom: $border-top;
+    display: flex;
+    flex-direction: column;
 }
 
 .channel-list-header {
@@ -14,6 +17,14 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    background-color: $bars-bg;
+    border-bottom: $border-top;
+
+    // position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 20px;
 
     &.text {
         color: $text-high-emphasis;
@@ -21,7 +32,34 @@
 }
 
 .channel-list-footer {
-    height: 56px;
     background-color: $bars-bg;
     border-top: $border-top;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    padding: 0px;
+    margin-top: auto;
+
+    height: 56px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+
+    .chats {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        font: $text-high-emphasis;
+        margin: 10px;
+    }
+
+    .mentions {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        font: $text-low-emphasis;
+        margin: 10px;
+    }
 }
