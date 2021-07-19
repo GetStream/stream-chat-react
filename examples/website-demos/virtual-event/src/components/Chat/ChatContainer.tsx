@@ -15,6 +15,7 @@ import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 
 import { ChatType, useEventContext } from '../../contexts/EventContext';
+import { EmptyStateIndicators } from './EmptyStateIndicators';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -77,10 +78,10 @@ export const ChatContainer: React.FC = () => {
       {isFullScreen && <ChatSidebar />}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient}>
-          <Channel channel={currentChannel}>
+          <Channel channel={currentChannel} EmptyStateIndicator={EmptyStateIndicators}>
             <Window hideOnThread>
               <ChatHeader />
-              <VirtualizedMessageList />
+              <VirtualizedMessageList hideDeletedMessages />
               <MessageInput focus />
             </Window>
             <Thread />

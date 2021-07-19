@@ -90,5 +90,26 @@
         }
       }
     }
+
+    &-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+
+      :nth-child(2) {
+        font-size: 18px;
+        color: $text-high-emphasis;
+        margin: 10px 0;
+      }
+
+      :last-child {
+        font-size: 14px;
+        color: $text-mid-emphasis;
+        text-align: center;
+        max-width: 260px;
+      }
+    }
   }
 }
