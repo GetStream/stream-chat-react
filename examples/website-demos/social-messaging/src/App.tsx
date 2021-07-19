@@ -6,6 +6,11 @@ import { Channel, ChannelList, Chat } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './styles/App.scss';
 
+import { Chats } from './assets/Chats';
+import { HamburgerIcon } from './assets//HamburgerIcon';
+import { Mentions } from './assets//Mentions';
+import { NewChat } from './assets//NewChat';
+
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
 import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
@@ -78,6 +83,11 @@ function App() {
     <div className='chat-container'>
       <Chat client={chatClient}>
         <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
+          <div className='channel-list-header'>
+            <HamburgerIcon {...{ isSideDrawerOpen, setSideDrawerOpen }} />
+            <span className='text'>Stream Chat</span>
+            <NewChat {...{ isNewChat, setNewChat }} />
+          </div>
           <ChannelList
             filters={filters}
             List={(props) => (
@@ -85,9 +95,19 @@ function App() {
             )}
             options={options}
             Preview={SocialChannelPreview}
-            showChannelSearch
             sort={sort}
+            showChannelSearch
           />
+          <div className='channel-list-footer'>
+            <div className='chats'>
+              <Chats />
+              <span>Chats</span>
+            </div>
+            <div className='mentions'>
+              <Mentions />
+              <span>Mentions</span>
+            </div>
+          </div>
         </div>
         {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
         <Channel

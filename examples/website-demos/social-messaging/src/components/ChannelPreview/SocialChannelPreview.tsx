@@ -21,7 +21,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
       const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
     
       const activeClass = active ? 'active' : '';
-      // const unreadClass = unread && unread >= 1 ? 'unread' : '';
+      const unreadCount = unread && unread > 0 ? true : false;
     
       const onSelectChannel = () => {
         if (setActiveChannel) {
@@ -72,7 +72,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
             <div className='channel-preview-contents-last-message'>{latestMessage}</div>
           </div>
           <div className='channel-preview-end'>
-            {unread && <span className='channel-preview-end-unread'>{unread}</span>}
+            {unreadCount && <span className='channel-preview-end-unread'>{unread}</span>}
             <p className='channel-preview-end-timestamp'>{getTimeStamp(channel)}</p>
           </div>
         </button>
