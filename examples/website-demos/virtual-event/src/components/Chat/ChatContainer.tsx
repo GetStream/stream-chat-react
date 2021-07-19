@@ -52,7 +52,7 @@ export const ChatContainer: React.FC = () => {
         {
           id: userId,
           name: userId,
-          image: 'https://ca.slack-edge.com/T02RM6X6B-UK5CL27QU-4b6f5994aa8f-512',
+          image: process.env.REACT_APP_USER_IMAGE,
         },
         userToken,
       );

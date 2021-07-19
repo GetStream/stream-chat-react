@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Channel as StreamChannel, ChannelSort } from 'stream-chat';
 import {
   Avatar,
   Channel,
@@ -9,14 +8,18 @@ import {
   ChannelSearch,
   MessageInput,
   Thread,
+  useChatContext,
   VirtualizedMessageList,
   Window,
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
+
+import type { Channel as StreamChannel, ChannelSort, UserResponse } from 'stream-chat';
 
 const filters = { type: 'messaging' };
 const options = { state: true, presence: true, limit: 10 };
@@ -26,7 +29,7 @@ const ListWrapper: React.FC = ({ children }) => {
   return <div className='dm-list'>{children}</div>;
 };
 
-const List: React.FC<ChannelListMessengerProps> = (props) => {
+const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   const { children, error, loading } = props;
 
   if (loading) {
@@ -48,45 +51,57 @@ const List: React.FC<ChannelListMessengerProps> = (props) => {
   return <ListWrapper>{children}</ListWrapper>;
 };
 
-const getFormattedTime = (time: number) => {
-  if (!time) return '';
-  if (time < 60) return 'Less than 1 min';
-  if (time < 120) return '1 min';
-  if (time < 3600) return `${Math.floor(time / 60)} mins`;
-  if (time < 86400) return `${Math.floor(time / 3600)} hours`;
-  return `${Math.floor(time / 86400)} days`;
+const PreviewUI: React.FC<
+  ChannelPreviewUIComponentProps & {
+    setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
+  }
+> = (props) => {
+  const { channel, displayImage, displayTitle, latestMessage, setDmChannel } = props;
+
+  const secondsSinceLastMessage = channel.state?.last_message_at
+    ? (Date.now() - channel.state.last_message_at.getTime()) / 1000
+    : 0;
+
+  const formattedTime = getFormattedTime(secondsSinceLastMessage);
+
+  return (
+    <div className='dm-list-preview' onClick={() => setDmChannel(channel)}>
+      <Avatar image={displayImage} />
+      <div>
+        <div className='dm-list-preview-top'>
+          <div>{displayTitle}</div>
+          <div>{formattedTime}</div>
+        </div>
+        <div className='dm-list-preview-bottom'>{latestMessage}</div>
+      </div>
+      <ClickDMIcon />
+    </div>
+  );
 };
 
 export const DMChannelList = () => {
+  const { client } = useChatContext();
+
   const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [searching, setSearching] = useState(false);
 
-  const Preview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
-    const { channel, displayImage, displayTitle, latestMessage } = props;
+  const handleSelectResult = async (result: StreamChannel | UserResponse) => {
+    if (!client.userID || isChannel(result)) return;
 
-    const timeSinceLastMessage = channel.state?.last_message_at
-      ? (Date.now() - channel.state.last_message_at.getTime()) / 1000
-      : 0;
+    try {
+      const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
+      await newChannel.watch();
 
-    const formattedTime = getFormattedTime(timeSinceLastMessage);
+      setDmChannel(newChannel);
+    } catch (err) {
+      console.log(err);
+    }
 
-    return (
-      <div className='dm-list-preview' onClick={() => setDmChannel(channel)}>
-        <Avatar image={displayImage} />
-        <div>
-          <div className='dm-list-preview-top'>
-            <div>{displayTitle}</div>
-            <div>{formattedTime}</div>
-          </div>
-          <div className='dm-list-preview-bottom'>{latestMessage}</div>
-        </div>
-        <ClickDMIcon />
-      </div>
-    );
+    setSearching(false);
   };
 
   if (searching) {
-    return <ChannelSearch />;
+    return <ChannelSearch onSelectResult={handleSelectResult} />;
   }
 
   return (
@@ -104,9 +119,9 @@ export const DMChannelList = () => {
           <ChannelList
             EmptyStateIndicator={EmptyStateIndicators}
             filters={filters}
-            List={List}
+            List={ListUI}
             options={options}
-            Preview={Preview}
+            Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
             sort={sort}
           />
           <div className='start-chat'>
