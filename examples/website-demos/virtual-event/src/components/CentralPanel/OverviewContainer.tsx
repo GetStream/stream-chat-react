@@ -1,4 +1,4 @@
-import React from 'react';
+import { EventCard } from './EventCard';
 
 import RedCanary from '../../assets/RedCanary.png';
 import Symantec from '../../assets/Symantec.png';
@@ -41,14 +41,19 @@ export const OverviewContainer = () => {
       <div className='overview-title'>
         <div className='overview-title-content'>
           <div className='overview-title-icon'></div>
-          <span className='overview-title-header'>World Hacker Summit 2021</span>
-          <div className='overview-title-sub-header'>
-            <span className='overview-title-sub-header-left'>Presented by</span>
-            <span className='overview-title-sub-header-right'>Stream</span>
+          <div className='overview-title-header'>
+            <span className='overview-title-header-main'>World Hacker Summit 2021</span>
+            <div className='overview-title-header-sub'>
+              <span className='overview-title-header-sub-left'>Presented by</span>
+              <span className='overview-title-header-sub-right'>Stream</span>
+            </div>
           </div>
         </div>
         <div className='overview-title-date'>
-          <div className='overview-title-date-icon'>1</div>
+          <div className='overview-title-date-icon'>
+            <div>Day</div>
+            <div className='overview-title-date-number'>1</div>
+          </div>
         </div>
       </div>
       <div className='overview-content'>
@@ -56,7 +61,29 @@ export const OverviewContainer = () => {
           <div className='overview-content-title'>Description</div>
           <div className='overview-content-content'>{eventText}</div>
         </div>
-        <div className='overview-content-stats'>STATS</div>
+        <div className='overview-content-stats'>
+          <div className='overview-content-stats-title'>Stats</div>
+          <div className='overview-content-stats-stat'>
+            <div className='overview-content-stats-total'>2</div>
+            <div className='overview-content-stats-description'>Days</div>
+          </div>
+          <div className='overview-content-stats-stat'>
+            <div className='overview-content-stats-total'>4</div>
+            <div className='overview-content-stats-description'>Main event</div>
+          </div>
+          <div className='overview-content-stats-stat'>
+            <div className='overview-content-stats-total'>38</div>
+            <div className='overview-content-stats-description'>Rooms</div>
+          </div>
+          <div className='overview-content-stats-stat'>
+            <div className='overview-content-stats-total'>120</div>
+            <div className='overview-content-stats-description'>Speakers</div>
+          </div>
+          <div className='overview-content-stats-stat'>
+            <div className='overview-content-stats-total'>2k</div>
+            <div className='overview-content-stats-description'>Tickets sold</div>
+          </div>
+        </div>
       </div>
       <div className='overview-partners'>
         <div className='overview-partners-title'>Partners</div>
@@ -71,8 +98,20 @@ export const OverviewContainer = () => {
       </div>
       <div className='overview-schedule'>
         <div className='overview-schedule-title'>Schedule</div>
-        <div className='overview-schedule-event'></div>
-        <div className='overview-schedule-event'></div>
+        <EventCard
+          content='skjadhfjklhasjkldhfjkhalsjkhdfjaljkshdjkfhljkasd'
+          title='Neil'
+          label='Moderated'
+          videoViewers={20}
+          viewers={2}
+        />
+        <EventCard
+          content='jsakhfdljkhasjkdhfjklhasjkdhfjkahsjkldhfjkahsjkldhfjhajklsdhfjkhajkslhdjkllhakljshlkj'
+          title='Boi'
+          label='Open'
+          videoViewers={10}
+          viewers={30}
+        />
       </div>
     </div>
   );
