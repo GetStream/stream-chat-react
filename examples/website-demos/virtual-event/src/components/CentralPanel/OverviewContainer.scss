@@ -1,10 +1,14 @@
+@import '../../styles/variables';
+
 .overview {
   &-container {
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    border-right: 1px solid #e5e5e6;
+    background: $app-canvas;
+    transition: background 1s;
+    color: $text-high-emphasis;
   }
 
   &-header {
@@ -16,7 +20,7 @@
   }
 
   &-tabs {
-    border-bottom: 1px solid #e5e5e6;
+    border-bottom: 1px solid $stroke;
     display: flex;
     align-items: center;
     height: 48px;
@@ -50,12 +54,12 @@
         align-items: center;
         width: 50px;
         height: 50px;
-        background: #f2f2f2;
+        background: $stroke-low-emphasis;
         border-radius: 8px;
       }
 
       &-number {
-        color: var(--primary-accent);
+        color: $primary-accent;
         font-weight: 600;
         margin-top: 4px;
         display: flex;
@@ -69,7 +73,7 @@
       height: 60px;
       width: 60px;
       background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
-      border: 1px solid #e5e5e6;
+      border: 1px solid $stroke;
       box-sizing: border-box;
       border-radius: 16px;
       margin-right: 8px;
@@ -88,7 +92,7 @@
 
       &-sub {
         display: flex;
-        color: #8a898e;
+        color: $text-mid-emphasis;
 
         &-left {
           font-style: normal;
@@ -149,7 +153,7 @@
         justify-content: center;
         width: 50px;
         height: 30px;
-        background: #f2f2f2;
+        background: $card-background;
         border-radius: 8px;
         font-weight: 600;
       }
@@ -157,8 +161,11 @@
       &-description {
         display: flex;
         align-items: center;
-        color: #8a898e;
+        color: $text-mid-emphasis;
         margin-left: 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
     }
   }

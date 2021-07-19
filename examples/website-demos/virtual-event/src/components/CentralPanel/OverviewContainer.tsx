@@ -1,5 +1,6 @@
 import { EventCard } from './EventCard';
 
+import { Card1, Card2, HackerSummitLogo, HackerSummitHero } from '../../assets';
 import RedCanary from '../../assets/RedCanary.png';
 import Symantec from '../../assets/Symantec.png';
 import CrowdStrike from '../../assets/CrowdStrike.png';
@@ -8,10 +9,6 @@ import GoGuardian from '../../assets/GoGuardian.png';
 import LogRhythm from '../../assets/LogRhythm.png';
 
 import './OverviewContainer.scss';
-import { HackerSummitHero } from '../../assets/HackerSummitHero';
-import { HackerSummitLogo } from '../../assets/HackerSummitLogo';
-import { Card1 } from '../../assets/eventCardPictures/Card1';
-import { Card2 } from '../../assets/eventCardPictures/Card2';
 
 const eventText = (
   <div>
@@ -136,18 +133,18 @@ export const OverviewContainer = () => {
       <div className='overview-schedule'>
         <div className='overview-schedule-title'>Schedule</div>
         <EventCard
-          content='skjadhfjklhasjkldhfjkhalsjkhdfjaljkshdjkfhljkasd'
+          content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
           image={Card1}
-          title='Neil'
           label='Moderated'
+          title='Implementing a Cybersecurity Framework'
           videoViewers={20}
           viewers={2}
         />
         <EventCard
-          content='jsakhfdljkhasjkdhfjklhasjkdhfjkahsjkldhfjkahsjkldhfjhajklsdhfjkhajkslhdjkllhakljshlkj'
+          content='ESG Regulations, Standards and Disclosure: Who to publish it for and how to make it meaningful.'
           image={Card2}
-          title='Boi'
-          label='Open'
+          label='Private'
+          title='ESG Data - How to create it'
           videoViewers={10}
           viewers={30}
         />
