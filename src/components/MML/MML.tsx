@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react';
-import 'mml-react/dist/styles/index.css';
 
 import { useChatContext } from '../../context/ChatContext';
 
