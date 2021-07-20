@@ -2,11 +2,11 @@
 @import './_variables.scss';
 @import './base.scss';
 
-// Components
-
+// External dependencies
 @import '../../node_modules/react-file-utils/dist/index.css';
 @import '../../node_modules/emoji-mart/css/emoji-mart.css';
 
+// Components
 @import './ActionsBox.scss';
 @import './AttachmentActions.scss';
 @import './Attachment.scss';
