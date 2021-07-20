@@ -4,9 +4,8 @@
 
 // Components
 
-@import '../../node_modules/mml-react/src/styles/index.scss';
-@import './vendor/react-file-utils.scss';
-@import './vendor/emoji-mart.scss';
+@import '../../node_modules/react-file-utils/dist/index.css';
+@import '../../node_modules/emoji-mart/css/emoji-mart.css';
 
 @import './ActionsBox.scss';
 @import './AttachmentActions.scss';
