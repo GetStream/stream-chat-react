@@ -9,6 +9,7 @@
 Replace the path with your react and typescript-app path in the /cypress/cypress/plugins
 
  sp1 = spawn('npm', ['start'], {cwd:'/Users/ENTER USER HERE/stream-chat-react'});
+ 
  sp2 = spawn('npm', ['start'], {cwd:'/Users/ENTER USER HERE/stream-chat-react/examples/typescript-app'});
 
 ## Running the test 
