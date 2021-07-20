@@ -1,0 +1,23 @@
+.message-input {
+  &-container {
+    display: flex;
+    width: 320px;
+    border: 1px black solid;
+  }
+
+  &-input {
+    border-radius: 8px;
+    margin: 8px;
+    height: 40px;
+    flex: 1;
+    background: blue;
+  }
+
+  &-send {
+    border-radius: 8px;
+    height: 40px;
+    width: 40px;
+    background: red;
+    margin: 8px 8px 8px 0;
+  }
+}
