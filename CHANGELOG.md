@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.4) 2021-07-20
+
+### Bug
+
+- Fix bundle issues with dependency CSS imports [#1061](https://github.com/GetStream/stream-chat-react/pull/1061)
+
 ## [6.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.3) 2021-07-20
 
 ### Feature
