@@ -3,6 +3,8 @@
 <p align="center">
   <a href="https://getstream.io/chat/react-chat/tutorial/"><img src="https://i.imgur.com/SRkDlFX.png" alt="react native chat" width="60%" /></a>
 </p>
+
+
 ## Spawning the react app from cypress startup
 Replace the path with your react and typescript-app path in the /cypress/cypress/plugins
 
