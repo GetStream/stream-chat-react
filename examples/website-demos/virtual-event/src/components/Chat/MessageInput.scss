@@ -1,23 +1,32 @@
+@import '../../styles/variables';
+
 .message-input {
   &-container {
     display: flex;
     width: 320px;
-    border: 1px black solid;
+    border-top: 1px solid $stroke;
   }
 
   &-input {
     border-radius: 8px;
+    border: 1px solid $stroke;
     margin: 8px;
     height: 40px;
     flex: 1;
-    background: blue;
+    background: $card-alt-background;
   }
 
   &-send {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
     border-radius: 8px;
     height: 40px;
     width: 40px;
-    background: red;
+    background: $card-background;
     margin: 8px 8px 8px 0;
+    color: $text-low-emphasis;
+    font-size: 11px;
   }
 }
