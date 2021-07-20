@@ -157,7 +157,7 @@ const MessageSimpleWithContext = <
             {message.attachments && (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             )}
-            {message.text && <MessageText />}
+            {message.text && <MessageText message={message} />}
             {message.mml && (
               <MML
                 actionHandler={handleAction}
