@@ -48,7 +48,14 @@ export const ChatContainer: React.FC = () => {
         client.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
       }
 
-      await client.connectUser({ id: userId, name: userId }, userToken);
+      await client.connectUser(
+        {
+          id: userId,
+          name: userId,
+          image: process.env.REACT_APP_USER_IMAGE,
+        },
+        userToken,
+      );
 
       const globalChannel = client.channel('livestream', 'global', { name: 'global' });
       await globalChannel.watch({ watchers: { limit: 100 } });

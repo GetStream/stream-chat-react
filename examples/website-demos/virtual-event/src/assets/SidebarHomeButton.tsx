@@ -3,12 +3,13 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 export const SidebarHomeButton: React.FC = () => {
-  const { setChatType, setEventName, setSelected } = useEventContext();
+  const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
 
   const handleClick = () => {
     setChatType('global');
     setEventName(undefined);
     setSelected('overview');
+    setShowChannelList(false);
   };
 
   return (

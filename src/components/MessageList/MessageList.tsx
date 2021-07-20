@@ -204,7 +204,7 @@ const MessageListWithContext = <
         onScroll={onScroll}
         ref={listRef}
       >
-        {!elements.length && !threadList ? (
+        {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll

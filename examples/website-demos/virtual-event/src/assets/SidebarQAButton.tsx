@@ -8,7 +8,7 @@ export const SidebarQAButton: React.FC = () => {
   const handleClick = () => {
     setChatType('qa');
     setIsFullScreen(false);
-    setShowChannelList(false);
+    setTimeout(() => setShowChannelList(false), 100); // fixes a screen flash during the state changes
   };
 
   return (
