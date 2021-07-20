@@ -1,12 +1,14 @@
 import { EventCard } from './EventCard';
 
 import { Card1, Card2, HackerSummitLogo, HackerSummitHero } from '../../assets';
-import RedCanary from '../../assets/RedCanary.png';
-import Symantec from '../../assets/Symantec.png';
-import CrowdStrike from '../../assets/CrowdStrike.png';
-import Cybereason from '../../assets/Cybereason.png';
-import GoGuardian from '../../assets/GoGuardian.png';
-import LogRhythm from '../../assets/LogRhythm.png';
+import {
+  CrowdStrike,
+  Cybereason,
+  GoGuardian,
+  LogRhythm,
+  RedCanary,
+  Symantec,
+} from '../../assets/companyLogos';
 
 import './OverviewContainer.scss';
 
@@ -133,7 +135,7 @@ export const OverviewContainer = () => {
         <div className='overview-schedule-title'>Schedule</div>
         <EventCard
           content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-          image={Card1}
+          Image={Card1}
           label='Moderated'
           title='Implementing a Cybersecurity Framework'
           videoViewers={20}
@@ -141,7 +143,7 @@ export const OverviewContainer = () => {
         />
         <EventCard
           content='ESG Regulations, Standards and Disclosure: Who to publish it for and how to make it meaningful.'
-          image={Card2}
+          Image={Card2}
           label='Private'
           title='ESG Data - How to create it'
           videoViewers={10}

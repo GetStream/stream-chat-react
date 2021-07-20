@@ -85,8 +85,6 @@
       justify-content: center;
 
       &-main {
-        font-style: normal;
-        font-weight: normal;
         font-size: 24px;
       }
 
@@ -95,14 +93,11 @@
         color: $text-mid-emphasis;
 
         &-left {
-          font-style: normal;
-          font-weight: normal;
           font-size: 14px;
           margin-right: 4px;
         }
 
         &-right {
-          font-style: normal;
           font-weight: 600;
           font-size: 14px;
         }
@@ -120,14 +115,11 @@
 
     &-title {
       margin-bottom: 8px;
-      font-style: normal;
       font-weight: 600;
       font-size: 18px;
     }
 
     &-content {
-      font-style: normal;
-      font-weight: normal;
       font-size: 14px;
       margin-right: 32px;
     }
@@ -175,7 +167,6 @@
 
     &-title {
       margin-bottom: 8px;
-      font-style: normal;
       font-weight: 600;
       font-size: 18px;
     }
@@ -194,7 +185,6 @@
 
   &-schedule {
     &-title {
-      font-style: normal;
       font-weight: 600;
       font-size: 18px;
       margin-left: 32px;

@@ -3,19 +3,17 @@ import { VideoViewersIcon } from '../../assets/VideoViewersIcon';
 import { ViewersIcon } from '../../assets/ViewersIcon';
 import './EventCard.scss';
 
-type EventCardProps = {
+type Props = {
   content: string;
-  image: () => JSX.Element;
+  Image: () => JSX.Element;
   label: string;
   title: string;
   videoViewers?: number;
   viewers?: number;
 };
 
-export const EventCard = (props: EventCardProps) => {
-  const { content, image, label, title, videoViewers, viewers } = props;
-
-  const Image = image;
+export const EventCard = (props: Props) => {
+  const { content, Image, label, title, videoViewers, viewers } = props;
 
   return (
     <div className='event-card-container'>
