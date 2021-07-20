@@ -3,7 +3,7 @@ import { Channel as StreamChannel, StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
-  // MessageInput,
+  MessageInput,
   Thread,
   Window,
   VirtualizedMessageList,
@@ -15,7 +15,7 @@ import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
-import { MessageInput } from './MessageInput';
+import { MessageInputUI } from './MessageInputUI';
 
 import { ChatType, useEventContext } from '../../contexts/EventContext';
 
@@ -91,10 +91,13 @@ export const ChatContainer: React.FC = () => {
           {showChannelList ? (
             <DMChannelList />
           ) : (
-            <Channel channel={currentChannel} EmptyStateIndicator={EmptyStateIndicators}>
+            <Channel
+              channel={currentChannel}
+              EmptyStateIndicator={EmptyStateIndicators}
+              Input={MessageInputUI}
+            >
               <Window hideOnThread>
                 <VirtualizedMessageList hideDeletedMessages />
-                {/* <MessageInput focus /> */}
                 <MessageInput />
               </Window>
               <Thread />

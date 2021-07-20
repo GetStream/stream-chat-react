@@ -30,3 +30,13 @@
     font-size: 11px;
   }
 }
+
+.str-chat__textarea {
+  height: 100%;
+}
+
+.str-chat__textarea textarea {
+  padding: 0;
+  border: none;
+  min-height: unset;
+}
