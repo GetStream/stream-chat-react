@@ -44,7 +44,7 @@ const UnMemoizedChannelPreviewMessenger = <
 
   const avatarName = displayTitle
     ? displayTitle
-    : channel.state.messages[channel.state.messages.length - 1].user?.id;
+    : channel.state.messages[channel.state.messages.length - 1]?.user?.id;
 
   const onSelectChannel = () => {
     if (setActiveChannel) {
