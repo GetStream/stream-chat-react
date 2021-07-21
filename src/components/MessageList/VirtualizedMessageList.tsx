@@ -19,8 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { FixedHeightMessage, FixedHeightMessageProps } from '../Message/FixedHeightMessage';
-import { Message } from '../Message/Message';
+import { FixedHeightMessage, Message, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelActionContextValue,
@@ -326,14 +325,18 @@ export type VirtualizedMessageListProps<
   ) => React.ReactElement;
   /** Disables the injection of date separator components, defaults to `true` */
   disableDateSeparator?: boolean;
+  /** Whether or not the list has more items to load */
+  hasMore?: boolean;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
+  /** Whether or not the list is currently loading more items */
+  loadingMore?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  loadMore?: ChannelActionContextValue['loadMore'];
+  loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
-  Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
@@ -363,6 +366,8 @@ export type VirtualizedMessageListProps<
   shouldGroupByUser?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
+  /** If true, indicates the message list is a thread  */
+  threadList?: boolean;
 };
 
 /**
