@@ -59,7 +59,11 @@ const UnMemoizedChannelPreviewMessenger = <
       ref={channelPreviewButton}
     >
       <div className='str-chat__channel-preview-messenger--left'>
-        <Avatar image={displayImage} name={displayTitle} size={40} />
+        <Avatar
+          image={displayImage}
+          name={displayTitle || channel.state.messages[channel.state.messages.length - 1].user?.id}
+          size={40}
+        />
       </div>
       <div className='str-chat__channel-preview-messenger--right'>
         <div className='str-chat__channel-preview-messenger--name'>
