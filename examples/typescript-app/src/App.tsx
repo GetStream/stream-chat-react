@@ -9,7 +9,6 @@ import {
   ChannelPreviewMessenger,
   MessageList,
   MessageInput,
-  MessageInputFlat,
   Thread,
   Window,
 } from 'stream-chat-react';
@@ -47,7 +46,7 @@ const App = () => (
       <Window>
         <ChannelHeader />
         <MessageList />
-        <MessageInput Input={MessageInputFlat} focus />
+        <MessageInput focus />
       </Window>
       <Thread />
     </Channel>
