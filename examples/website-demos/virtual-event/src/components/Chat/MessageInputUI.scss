@@ -2,18 +2,26 @@
 
 .message-input {
   &-container {
+    position: relative;
     display: flex;
     width: 320px;
     border-top: 1px solid $stroke;
   }
 
   &-input {
+    display: flex;
+    align-items: center;
     border-radius: 8px;
     border: 1px solid $stroke;
     margin: 8px;
+    padding: 8px;
     height: 40px;
     flex: 1;
     background: $card-alt-background;
+
+    svg {
+      fill: $text-mid-emphasis;
+    }
   }
 
   &-send {
@@ -33,22 +41,48 @@
 
 .str-chat__textarea {
   width: 176px;
-  padding: 2px;
+  padding-right: 16px;
   display: flex;
   align-items: center;
   height: 100%;
 }
 
 .str-chat__textarea textarea {
+  background: $card-alt-background;
   padding: 0;
   border: none;
   min-height: unset;
   font-size: 14px;
   border-radius: 0;
+  color: $text-high-emphasis;
 }
 
 .str-chat__textarea textarea:focus {
+  background: $card-alt-background;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+.emoji-mart {
+  width: 320px !important;
+  background: $app-canvas;
+  box-shadow: $shadow;
+  border-color: $stroke;
+
+  &-category-label {
+    background: $app-canvas;
+    color: $text-high-emphasis;
+
+    span {
+      background: $app-canvas;
+    }
+  }
+  &-bar {
+    display: none;
+  }
+
+  &-search {
+    display: none;
+  }
 }
