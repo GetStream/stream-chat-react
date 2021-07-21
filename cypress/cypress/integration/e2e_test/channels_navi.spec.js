@@ -48,9 +48,6 @@ it('Populate text on all channels', () => { // TO DO
   const channel_last_preview = 'channel-preview-button'
   const input = 'Testing 12345 {enter}'
   cy.dataTestContains(channel_more).click({force: true})
-  cy.xpath("//button[contains(@class,'str-chat__channel-preview-messenger  ')]").last().next().click({force: true}).then(element => {
-  console.log()
-  cy.wrap(element).click({force: true})
   cy.wait(10000)
   cy.get('[data-testid="channel-preview-button"]').each(element => {
     console.log()
@@ -60,7 +57,6 @@ it('Populate text on all channels', () => { // TO DO
     .type('{enter}')
   cy.wait(100)
 
-})
 })
 })
 })
