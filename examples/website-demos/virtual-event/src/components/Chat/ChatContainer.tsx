@@ -98,7 +98,7 @@ export const ChatContainer: React.FC = () => {
             >
               <Window hideOnThread>
                 <VirtualizedMessageList hideDeletedMessages />
-                <MessageInput />
+                <MessageInput maxRows={2} grow />
               </Window>
               <Thread />
             </Channel>

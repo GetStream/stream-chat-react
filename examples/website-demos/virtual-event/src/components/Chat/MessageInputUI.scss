@@ -32,6 +32,10 @@
 }
 
 .str-chat__textarea {
+  width: 176px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
   height: 100%;
 }
 
@@ -39,4 +43,12 @@
   padding: 0;
   border: none;
   min-height: unset;
+  font-size: 14px;
+  border-radius: 0;
+}
+
+.str-chat__textarea textarea:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }

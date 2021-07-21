@@ -7,13 +7,6 @@ import './MessageInputUI.scss';
 export const MessageInputUI: React.FC = () => {
   const { handleSubmit } = useMessageInputContext();
 
-  useEffect(() => {
-    document
-      .getElementsByClassName('rta__textarea str-chat__textarea__textarea')
-      .item(0)
-      ?.setAttribute('style', 'height:100%');
-  }, []);
-
   return (
     <div className='message-input-container'>
       <div className='message-input-input'>
