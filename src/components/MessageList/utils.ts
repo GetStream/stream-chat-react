@@ -34,6 +34,7 @@ type ProcessMessagesParams<
   setGiphyPreviewMessage?: React.Dispatch<
     React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
   >;
+  threadList?: boolean;
 };
 
 export const processMessages = <
@@ -55,6 +56,7 @@ export const processMessages = <
     messages,
     separateGiphyPreview,
     setGiphyPreviewMessage,
+    threadList,
     userId,
   } = params;
 
@@ -89,13 +91,14 @@ export const processMessages = <
     if (
       i > 0 &&
       !disableDateSeparator &&
+      !threadList &&
       previousMessage.created_at &&
       isDate(previousMessage.created_at)
     ) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
 
-    if (!unread && !hideNewMessageSeparator) {
+    if (!unread && !hideNewMessageSeparator && !threadList) {
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
@@ -111,6 +114,7 @@ export const processMessages = <
 
     if (
       !disableDateSeparator &&
+      !threadList &&
       (i === 0 ||
         messageDate !== prevMessageDate ||
         (hideDeletedMessages &&
