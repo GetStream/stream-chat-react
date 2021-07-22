@@ -13,7 +13,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
         run: |
-          cd ../example/typescript-app
+          cd ../
           pwd
           ls
         # yarn;yarn start
