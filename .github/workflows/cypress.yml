@@ -11,9 +11,9 @@ jobs:
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: start react app
-        uses: yarn;yarn start@v2
+        uses: yarn start@v2
       - name: start react app
-        uses: example/typescript-app/yarn;yarn start@v2
+        uses: example/typescript-app/yarn start@v2
         with:  
           wait-on: "http://localhost:3000"
           wait-on-timeout: 300
