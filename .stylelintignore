@@ -11,4 +11,5 @@ examples/*/src/serviceWorker.js
 *.test.js
 dist
 *dist*
+/src/styles/vendor/
 /coverage

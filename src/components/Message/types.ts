@@ -62,6 +62,8 @@ export type MessageProps<
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /** Function that returns the notification text to be displayed when a pin message request fails */
   getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
+  groupedByUser?: boolean;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */

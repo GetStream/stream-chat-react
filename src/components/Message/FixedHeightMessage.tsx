@@ -55,7 +55,7 @@ export type FixedHeightMessageProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  groupedByUser: boolean;
+  groupedByUser?: boolean;
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
 
