@@ -13,8 +13,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
         run: |
-          pwd
-          # cd example/typescript-app 
+          cd /home/runner/work/stream-chat-react/stream-chat-react/example/typescript-app 
           ls
         # yarn;yarn start
       # Install NPM dependencies, cache them correctly
