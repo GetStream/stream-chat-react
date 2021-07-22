@@ -13,7 +13,8 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
         run: |
-          cd example/typescript-app 
+          pwd
+          # cd example/typescript-app 
           ls
         # yarn;yarn start
       # Install NPM dependencies, cache them correctly
