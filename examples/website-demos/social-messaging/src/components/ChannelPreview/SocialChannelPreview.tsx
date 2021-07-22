@@ -63,7 +63,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
           ref={channelPreviewButton}
         >
           <div>
-            <Avatar image={displayImage} name={displayTitle} size={40} />
+            <Avatar image={displayImage} name={displayTitle} size={56} />
           </div>
           <div className='channel-preview-contents'>
             <div className='channel-preview-contents-name'>
@@ -72,7 +72,9 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
             <div className='channel-preview-contents-last-message'>{latestMessage}</div>
           </div>
           <div className='channel-preview-end'>
-            {unreadCount && <span className='channel-preview-end-unread'>{unread}</span>}
+            <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
+              <span className='channel-preview-end-unread-text'>{unread}</span>
+            </div>
             <p className='channel-preview-end-timestamp'>{getTimeStamp(channel)}</p>
           </div>
         </button>

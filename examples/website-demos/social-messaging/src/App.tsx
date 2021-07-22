@@ -6,13 +6,10 @@ import { Channel, ChannelList, Chat } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 import './styles/App.scss';
 
-import { Chats } from './assets/Chats';
-import { HamburgerIcon } from './assets//HamburgerIcon';
-import { Mentions } from './assets//Mentions';
-import { NewChat } from './assets//NewChat';
-
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
+import { SocialChannelListFooter } from './components/SocialChannelList/SocialChannelListFooter';
+import { SocialChannelListHeader } from './components/SocialChannelList/SocialChannelListHeader';
 import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
 
 import { useTheme } from './hooks/useTheme';
@@ -83,31 +80,17 @@ function App() {
     <div className='chat-container'>
       <Chat client={chatClient}>
         <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
-          <div className='channel-list-header'>
-            <HamburgerIcon {...{ isSideDrawerOpen, setSideDrawerOpen }} />
-            <span className='text'>Stream Chat</span>
-            <NewChat {...{ isNewChat, setNewChat }} />
-          </div>
+          <SocialChannelListHeader  { ...{ isNewChat, isSideDrawerOpen, setNewChat, setSideDrawerOpen}} />
           <ChannelList
             filters={filters}
             List={(props) => (
-              <SocialChannelList {...props} {...{ isNewChat, isSideDrawerOpen, setNewChat, setSideDrawerOpen }} />
+              <SocialChannelList {...props} />
             )}
             options={options}
             Preview={SocialChannelPreview}
             sort={sort}
-            showChannelSearch
           />
-          <div className='channel-list-footer'>
-            <div className='chats'>
-              <Chats />
-              <span>Chats</span>
-            </div>
-            <div className='mentions'>
-              <Mentions />
-              <span>Mentions</span>
-            </div>
-          </div>
+          <SocialChannelListFooter />
         </div>
         {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
         <Channel

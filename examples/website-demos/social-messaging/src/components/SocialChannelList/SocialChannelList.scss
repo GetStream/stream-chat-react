@@ -8,58 +8,56 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    max-height: 80vh;
+    height: calc(100vh - 110px);
 
-    // &-footer {
-    //     background-color: $bars-bg;
-    //     border-top: $border-top;
-    
-    //     display: flex;
-    //     flex-direction: row;
-    //     justify-content: space-evenly;
-    //     align-items: flex-start;
-    //     padding: 0px;
-    //     // margin-top: auto;
-    
-    //     height: 56px;
-    //     left: 0px;
-    //     right: 0px;
-    //     bottom: 0px;
-    
-    //     .chats {
-    //         align-items: center;
-    //         display: flex;
-    //         flex-direction: column;
-    //         font: $text-high-emphasis;
-    //         margin: 10px;
-    //     }
-    
-    //     .mentions {
-    //         align-items: center;
-    //         display: flex;
-    //         flex-direction: column;
-    //         font: $text-low-emphasis;
-    //         margin: 10px;
-    //     }
-    // }
+    &-header {
+        height: 60px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        background-color: $bars-bg;
+        border-bottom: $border-top;
+      
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 20px;
+      
+        &.text {
+            color: $text-high-emphasis;
+        }
+    }
+
+    &-footer {
+        background-color: $bars-bg;
+        border-top: $border-top;
+      
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        padding: 0px;
+      
+        height: 56px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+      
+        .chats {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            font: $text-high-emphasis;
+            margin: 10px;
+        }
+      
+        .mentions {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            font: $text-low-emphasis;
+            margin: 10px;
+        }
+      }
 }
-
-// .channel-list-header {
-//     height: 60px;
-//     display: flex;
-//     flex-direction: row;
-//     justify-content: space-between;
-//     align-items: center;
-//     background-color: $bars-bg;
-//     border-bottom: $border-top;
-
-//     // position: absolute;
-//     left: 0px;
-//     right: 0px;
-//     top: 0px;
-//     bottom: 20px;
-
-//     &.text {
-//         color: $text-high-emphasis;
-//     }
-// }

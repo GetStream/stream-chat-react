@@ -13,74 +13,14 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  // overflow-y: auto;
   background: $input-bg;
   border: $border-top;
 
-  // position: static;
-  // left: calc(50% - 360px / 2 - 332px);
-  // top: calc(50% - 900px / 2);
-
-  // flex: none;
-  order: 0;
   align-self: stretch;
   flex-grow: 0;
   margin: 0px 0px;
 
   &.sideDrawerOpen {
     display: none;
-  }
-}
-
-.channel-list-header {
-  height: 60px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  background-color: $bars-bg;
-  border-bottom: $border-top;
-
-  // position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 0px;
-  bottom: 20px;
-
-  &.text {
-      color: $text-high-emphasis;
-  }
-}
-
-.channel-list-footer {
-  background-color: $bars-bg;
-  border-top: $border-top;
-
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: flex-start;
-  padding: 0px;
-  // margin-top: auto;
-
-  height: 56px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-
-  .chats {
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      font: $text-high-emphasis;
-      margin: 10px;
-  }
-
-  .mentions {
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      font: $text-low-emphasis;
-      margin: 10px;
   }
 }
