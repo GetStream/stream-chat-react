@@ -3,11 +3,12 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 export const SidebarDMButton: React.FC = () => {
-  const { setIsFullScreen } = useEventContext();
+  const { setChatType, setIsFullScreen, setShowChannelList } = useEventContext();
 
   const handleClick = () => {
-    console.log('direct click');
+    setChatType('direct');
     setIsFullScreen(false);
+    setShowChannelList(true);
   };
 
   return (

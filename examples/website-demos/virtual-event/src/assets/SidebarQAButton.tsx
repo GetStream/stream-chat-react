@@ -3,11 +3,12 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 export const SidebarQAButton: React.FC = () => {
-  const { setChatType, setIsFullScreen } = useEventContext();
+  const { setChatType, setIsFullScreen, setShowChannelList } = useEventContext();
 
   const handleClick = () => {
     setChatType('qa');
     setIsFullScreen(false);
+    setTimeout(() => setShowChannelList(false), 100); // fixes a screen flash during the state changes
   };
 
   return (
