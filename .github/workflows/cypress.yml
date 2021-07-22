@@ -11,17 +11,17 @@ jobs:
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: start react app
-        uses: yarn start@v2
+        run: yarn;yarn start
       - name: start react app
-        uses: example/typescript-app/yarn start@v2
-        with:  
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 300
+        working-directory: ./example/typescript-app
+        run: yarn;yarn start
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 300
           build: npm run build
           start: npm start
-          config-file: /cypress/cypress.json
+          config-file: ./cypress/cypress.json
           browser: chrome
           headless: true
