@@ -12,7 +12,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
-          run: yarn;yarn start
+        run: yarn;yarn start
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: start react app
