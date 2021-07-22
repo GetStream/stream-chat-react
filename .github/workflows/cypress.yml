@@ -8,6 +8,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Lint and Test with ${{ matrix.node }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          TYPESCRIPT: ${{ matrix.typescript }}
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: start react app
