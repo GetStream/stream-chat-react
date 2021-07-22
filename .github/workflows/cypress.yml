@@ -13,9 +13,9 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
         run:  |
-          yarn;yarn start &
-          cd ./example/typescript-app/
-          yarn;yarn start
+          yarn;yarn start &&
+          cd ./example/typescript-app
+          run: yarn;yarn start
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Cypress run
