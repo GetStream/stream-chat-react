@@ -12,7 +12,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
-        # working-directory: ./example/typescript-app 
+        working-directory: example/typescript-app 
         run: ls
         # yarn;yarn start
       # Install NPM dependencies, cache them correctly
@@ -24,6 +24,6 @@ jobs:
           wait-on-timeout: 300
           build: npm run build
           start: npm start
-          config-file: ./cypress/cypress.json
+          config-file: cypress/cypress.json
           browser: chrome
           headless: true
