@@ -62,7 +62,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
           onClick={onSelectChannel}
           ref={channelPreviewButton}
         >
-          <div>
+          <div className='channel-preview-avatar'>
             <Avatar image={displayImage} name={displayTitle} size={56} />
           </div>
           <div className='channel-preview-contents'>

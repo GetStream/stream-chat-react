@@ -46,6 +46,8 @@ export type UserType = { image?: string };
 
 function App() {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
+  const [isListChats, setListChats] = useState(false);
+  const [isListMentions, setListMentions] = useState(false);
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [isNewChat, setNewChat] = useState(false);
 
@@ -90,7 +92,7 @@ function App() {
             Preview={SocialChannelPreview}
             sort={sort}
           />
-          <SocialChannelListFooter />
+          <SocialChannelListFooter { ...{ isListChats, isListMentions, setListChats, setListMentions}} />
         </div>
         {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
         <Channel
