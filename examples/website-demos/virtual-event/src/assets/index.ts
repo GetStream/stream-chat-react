@@ -4,7 +4,7 @@ export { Card3 } from './eventCardPictures/Card3';
 export { Card4 } from './eventCardPictures/Card4';
 export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';
-export { EmojiIcon } from './EmojiIcon';
+export { EmojiPickerIcon } from './EmojiPickerIcon';
 export { EmptyChatIcon } from './EmptyChatIcon';
 export { EmptyDMIcon } from './EmptyDMIcon';
 export { EmptyQAIcon } from './EmptyQAIcon';

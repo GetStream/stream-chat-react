@@ -15,6 +15,7 @@ import {
 
 import './DMChannelList.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { MessageInputUI } from './MessageInputUI';
 import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
@@ -107,7 +108,11 @@ export const DMChannelList = () => {
   return (
     <div className='dm'>
       {dmChannel ? (
-        <Channel channel={dmChannel} EmptyStateIndicator={EmptyStateIndicators}>
+        <Channel
+          channel={dmChannel}
+          EmptyStateIndicator={EmptyStateIndicators}
+          Input={MessageInputUI}
+        >
           <Window hideOnThread>
             <VirtualizedMessageList hideDeletedMessages />
             <MessageInput focus />

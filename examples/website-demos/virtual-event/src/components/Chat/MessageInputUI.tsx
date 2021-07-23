@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { ChatAutoComplete, EmojiPicker, useMessageInputContext } from 'stream-chat-react';
 
-import { EmojiIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
+import { EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
 import './MessageInputUI.scss';
@@ -39,13 +39,13 @@ export const MessageInputUI: React.FC = () => {
 
       handleChange(event);
     },
-    [text, giphyState, numberOfUploads, handleChange, setGiphyState],
+    [text, giphyState, numberOfUploads], // eslint-disable-line
   );
 
   return (
     <div className='message-input-container'>
       <EmojiPicker />
-      <div className={`message-input-input ${giphyState ? 'giphy' : ''} ${text ? 'text' : ''}`}>
+      <div className={`message-input-input ${giphyState ? 'giphy' : ''}`}>
         {giphyState && !numberOfUploads && <GiphyIcon />}
         <ChatAutoComplete onChange={onChange} placeholder='Say something' />
         {!giphyState && (
@@ -54,11 +54,11 @@ export const MessageInputUI: React.FC = () => {
             ref={emojiPickerRef}
             onClick={openEmojiPicker}
           >
-            <EmojiIcon />
+            <EmojiPickerIcon />
           </div>
         )}
       </div>
-      <div className='message-input-send' onClick={handleSubmit}>
+      <div className={`message-input-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
         {giphyState ? (
           <GiphySearch />
         ) : (
