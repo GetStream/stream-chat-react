@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.6) 2021-07-23
+
+### Chore
+
+- Add error handling to `MessageInput` submit handler functions [#1068](https://github.com/GetStream/stream-chat-react/pull/1068)
+- Upgrade `react-images` dependency for React 17 support [#1069](https://github.com/GetStream/stream-chat-react/pull/1069)
+
 ## [6.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.5) 2021-07-21
 
 ### Feature
