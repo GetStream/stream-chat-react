@@ -12,7 +12,7 @@ type Props = {
   viewers?: number;
 };
 
-export const EventCard = (props: Props) => {
+export const EventCard: React.FC<Props> = (props) => {
   const { content, Image, label, title, videoViewers, viewers } = props;
 
   return (
