@@ -18,6 +18,7 @@ import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 import type { Channel as StreamChannel, ChannelSort, UserResponse } from 'stream-chat';
 
@@ -82,7 +83,7 @@ const PreviewUI: React.FC<
 export const DMChannelList = () => {
   const { client } = useChatContext();
 
-  const [dmChannel, setDmChannel] = useState<StreamChannel>();
+  const { dmChannel, setDmChannel } = useEventContext();
   const [searching, setSearching] = useState(false);
 
   const handleSelectResult = async (result: StreamChannel | UserResponse) => {
