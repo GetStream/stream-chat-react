@@ -107,7 +107,7 @@ export const DMChannelList = () => {
 
   return (
     <div className='dm'>
-      {dmChannel ? (
+      {dmChannel && (
         <Channel channel={dmChannel} EmptyStateIndicator={EmptyStateIndicators}>
           <Window hideOnThread>
             <VirtualizedMessageList hideDeletedMessages />
@@ -115,23 +115,22 @@ export const DMChannelList = () => {
           </Window>
           <Thread />
         </Channel>
-      ) : (
-        <>
-          <ChannelList
-            EmptyStateIndicator={EmptyStateIndicators}
-            filters={filters}
-            List={ListUI}
-            options={options}
-            Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
-            sort={sort}
-          />
-          <div className='start-chat'>
-            <div className='start-chat-button' onClick={() => setSearching(true)}>
-              Start a chat
-            </div>
-          </div>
-        </>
       )}
+      <div className={dmChannel && 'dm-hidden'}>
+        <ChannelList
+          EmptyStateIndicator={EmptyStateIndicators}
+          filters={filters}
+          List={ListUI}
+          options={options}
+          Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
+          sort={sort}
+        />
+        <div className='start-chat'>
+          <div className='start-chat-button' onClick={() => setSearching(true)}>
+            Start a chat
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

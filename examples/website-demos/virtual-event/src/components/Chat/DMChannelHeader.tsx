@@ -20,11 +20,8 @@ export const DMChannelHeader = () => {
   const { dmChannel, setDmChannel } = useEventContext();
   const [openMenu, setOpenMenu] = useState(false);
 
-  console.log({ dmChannel });
-
   //@ts-expect-error
   const channelTitle = dmChannel?.data?.created_by?.id;
-  console.log(channelTitle);
 
   const handleCloseDm = () => {
     setDmChannel(undefined);

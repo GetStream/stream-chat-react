@@ -9,6 +9,10 @@
   display: flex;
   flex-direction: column;
 
+  &-hidden {
+    display: none;
+  }
+
   &-list {
     height: calc(100% - 56px); // height of chat start button
     width: 320px;
