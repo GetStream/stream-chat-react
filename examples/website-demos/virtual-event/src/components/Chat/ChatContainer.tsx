@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Channel as StreamChannel, StreamChat } from 'stream-chat';
-import {
-  Chat,
-  Channel,
-  MessageInput,
-  Thread,
-  Window,
-  VirtualizedMessageList,
-} from 'stream-chat-react';
+import { Chat, Channel } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
 import './ChatContainer.scss';
@@ -15,8 +8,11 @@ import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { MessageInputUI } from './MessageInputUI';
 
 import { ChatType, useEventContext } from '../../contexts/EventContext';
+import { ChannelInner } from './ChannelInner';
+import { GiphyContextProvider } from '../../contexts/GiphyContext';
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -90,12 +86,14 @@ export const ChatContainer: React.FC = () => {
           {showChannelList ? (
             <DMChannelList />
           ) : (
-            <Channel channel={currentChannel} EmptyStateIndicator={EmptyStateIndicators}>
-              <Window hideOnThread>
-                <VirtualizedMessageList hideDeletedMessages />
-                <MessageInput focus />
-              </Window>
-              <Thread />
+            <Channel
+              channel={currentChannel}
+              EmptyStateIndicator={EmptyStateIndicators}
+              Input={MessageInputUI}
+            >
+              <GiphyContextProvider>
+                <ChannelInner />
+              </GiphyContextProvider>
             </Channel>
           )}
         </Chat>
