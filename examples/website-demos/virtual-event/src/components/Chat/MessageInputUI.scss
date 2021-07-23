@@ -19,8 +19,25 @@
     flex: 1;
     background: $card-alt-background;
 
+    &-emoji-picker:hover {
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
     svg {
-      fill: $text-mid-emphasis;
+      fill: $text-low-emphasis;
+    }
+
+    &.giphy {
+      border: 2px solid $primary-accent;
+      caret-color: $primary-accent;
+    }
+
+    &.text {
+      border: 2px solid $primary-accent;
+      caret-color: $primary-accent;
     }
   }
 
@@ -36,11 +53,33 @@
     margin: 8px 8px 8px 0;
     color: $text-low-emphasis;
     font-size: 11px;
+
+    svg {
+      fill: $text-low-emphasis;
+    }
+  }
+
+  &-send:hover {
+    cursor: pointer;
+    color: $primary-accent;
+
+    svg {
+      fill: $primary-accent;
+    }
+  }
+
+  &-send:active {
+    background: $primary-accent;
+    color: $white;
+
+    svg {
+      fill: $white;
+    }
   }
 }
 
 .str-chat__textarea {
-  width: 176px;
+  width: 100%;
   padding-right: 16px;
   display: flex;
   align-items: center;
@@ -50,6 +89,7 @@
 .str-chat__textarea textarea {
   background: $card-alt-background;
   padding: 0;
+  padding-left: 4px;
   border: none;
   min-height: unset;
   font-size: 14px;

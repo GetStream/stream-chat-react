@@ -4,6 +4,8 @@ export { EmojiIcon } from './EmojiIcon';
 export { EmptyChatIcon } from './EmptyChatIcon';
 export { EmptyDMIcon } from './EmptyDMIcon';
 export { EmptyQAIcon } from './EmptyQAIcon';
+export { GiphyIcon } from './GiphyIcon';
+export { GiphySearch } from './GiphySearch';
 export { MainEventButton } from './MainEventButton';
 export { MainLogo } from './MainLogo';
 export { OnlineUsersIcon } from './OnlineUsersIcon';
