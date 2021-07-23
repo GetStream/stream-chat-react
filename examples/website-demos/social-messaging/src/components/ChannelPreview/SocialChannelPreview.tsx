@@ -5,6 +5,7 @@ import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-reac
 import { AvatarGroup, getTimeStamp } from './utils';
 
 import './SocialChannelPreview.scss';
+// import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
 
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
     const {
@@ -18,13 +19,10 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
 
     const { client } = useChatContext();
 
-    console.log('channel IS:', channel);
-    // checkmark - delivered;
-    // double checkmark - read;
-  
     const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
   
     const activeClass = active ? 'active' : '';
+    const online = channel.state.watcher_count > 0 ? true : false;
     const unreadCount = unread && unread > 0 ? true : false;
 
     const members = Object.values(channel.state.members).filter(
@@ -40,6 +38,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
         ref={channelPreviewButton}
       >
         <div className='channel-preview-avatar'>
+          {online && <div className='channel-preview-avatar-online'></div>}
           <AvatarGroup members={members} />
         </div>
         <div className='channel-preview-contents'>
@@ -52,7 +51,12 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
           <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
             <span className='channel-preview-end-unread-text'>{unread}</span>
           </div>
-          <p className='channel-preview-end-timestamp'>{getTimeStamp(channel)}</p>
+          <div className='channel-preview-end-statuses'>
+            {/* <div className='channel-preview-end-statuses-arrows'>
+              {members.length === 2 && <DoubleCheckmark />}
+            </div> */}
+            <p className='channel-preview-end-statuses-timestamp'>{getTimeStamp(channel)}</p>
+          </div>
         </div>
       </button>
     )
