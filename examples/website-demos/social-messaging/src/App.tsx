@@ -8,7 +8,6 @@ import './styles/App.scss';
 
 import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
 import { SocialChannelList } from './components/SocialChannelList/SocialChannelList';
-import { SocialChannelListFooter } from './components/SocialChannelList/SocialChannelListFooter';
 import { SocialChannelListHeader } from './components/SocialChannelList/SocialChannelListHeader';
 import { SocialChannelPreview } from './components/ChannelPreview/SocialChannelPreview';
 
@@ -46,10 +45,10 @@ export type UserType = { image?: string };
 
 function App() {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
-  const [isListChats, setListChats] = useState(false);
-  const [isListMentions, setListMentions] = useState(false);
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [isNewChat, setNewChat] = useState(false);
+
+  const { setMode } = useTheme(); // eslint-disable-line
 
   useEffect(() => {
     const initChat = async () => {
@@ -73,9 +72,6 @@ function App() {
     };
   }, []); // eslint-disable-line
 
-  const { setMode } = useTheme(); // eslint-disable-line
-  // const mode = 'light';
-
   if (!chatClient) return null;
 
   return (
@@ -92,7 +88,6 @@ function App() {
             Preview={SocialChannelPreview}
             sort={sort}
           />
-          <SocialChannelListFooter { ...{ isListChats, isListMentions, setListChats, setListMentions}} />
         </div>
         {isSideDrawerOpen && <SideDrawer onClose={() => setSideDrawerOpen(false)} isSideDrawerOpen={isSideDrawerOpen} />}
         <Channel
