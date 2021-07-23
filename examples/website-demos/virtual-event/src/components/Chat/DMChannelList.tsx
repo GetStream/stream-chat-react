@@ -20,10 +20,16 @@ import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
 
-import type { Channel as StreamChannel, ChannelSort, UserResponse } from 'stream-chat';
+import type {
+  Channel as StreamChannel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  UserResponse,
+} from 'stream-chat';
 
-const filters = { type: 'messaging' };
-const options = { state: true, presence: true, limit: 10 };
+const filters: ChannelFilters = { type: 'messaging' };
+const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
 const ListWrapper: React.FC = ({ children }) => {
