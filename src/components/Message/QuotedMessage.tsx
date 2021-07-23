@@ -49,7 +49,12 @@ export const QuotedMessage = <
   return (
     <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
       {quoted_message.user && (
-        <Avatar image={quoted_message.user.image} size={20} user={quoted_message.user} />
+        <Avatar
+          image={quoted_message.user.image}
+          name={quoted_message.user.name || quoted_message.user.id}
+          size={20}
+          user={quoted_message.user}
+        />
       )}
       <div className='quoted-message-inner'>
         {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}

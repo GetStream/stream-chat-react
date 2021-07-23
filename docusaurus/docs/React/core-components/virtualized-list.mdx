@@ -78,6 +78,14 @@ If true, disables the injection of date separator UI components.
 | ------- | ------- |
 | boolean | true    |
 
+### hasMore
+
+Whether or not the list has more items to load.
+
+| Type    | Default                                                                              |
+| ------- | ------------------------------------------------------------------------------------ |
+| boolean | [ChannelStateContextValue['hasMore']](../contexts/channel-state-context.mdx#hasmore) |
+
 ### hideDeletedMessages
 
 If true, removes the `MessageDeleted` components from the list.
@@ -93,6 +101,14 @@ If true, hides the `DateSeparator` component that renders when new messages are 
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### loadingMore
+
+Whether or not the list is currently loading more items.
+
+| Type    | Default                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------- |
+| boolean | [ChannelStateContextValue['loadingMore']](../contexts/channel-state-context.mdx#loadingmore) |
 
 ### loadMore
 
@@ -174,3 +190,11 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | Type               | Default  |
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
+
+### threadList
+
+If true, indicates that the current `VirtualizedMessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
