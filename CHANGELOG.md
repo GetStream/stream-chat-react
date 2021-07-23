@@ -1,5 +1,36 @@
 # Changelog
 
+## [6.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.5) 2021-07-21
+
+### Feature
+
+- Provide option to use `VirtualizedMessageList` in `Thread` component via the `virtualized` boolean prop [#1065](https://github.com/GetStream/stream-chat-react/pull/1065)
+
+### Chore
+
+- Pass `message` object override prop to `MessageText` component [#1063](https://github.com/GetStream/stream-chat-react/pull/1063)
+- Add fallback `name` for specific rendered `Avatar` components [#1066](https://github.com/GetStream/stream-chat-react/pull/1066)
+
+## [6.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.4) 2021-07-20
+
+### Bug
+
+- Fix bundle issues with dependency CSS imports [#1061](https://github.com/GetStream/stream-chat-react/pull/1061)
+
+## [6.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.3) 2021-07-20
+
+### Feature
+
+- Reload `ChannelList` component when `sort` prop changes [#1054](https://github.com/GetStream/stream-chat-react/pull/1054)
+
+### Chore
+
+- Add repo info to NPM page [#1051](https://github.com/GetStream/stream-chat-react/pull/1051)
+- Export `MML` component [#1053](https://github.com/GetStream/stream-chat-react/pull/1053)
+- Upgrade `react-virtuoso` dependency [#1057](https://github.com/GetStream/stream-chat-react/pull/1057)
+- Revert removal of `EmptyStateIndicator` component for threads [#1058](https://github.com/GetStream/stream-chat-react/pull/1058)
+- Move `mml-react` (optional dependency) CSS import to `MML` component [#1059](https://github.com/GetStream/stream-chat-react/pull/1059)
+
 ## [6.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.2) 2021-07-14
 
 ### Feature

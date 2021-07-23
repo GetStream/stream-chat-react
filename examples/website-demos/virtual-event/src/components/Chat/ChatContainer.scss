@@ -51,6 +51,10 @@
   &-components {
     &.full-screen {
       visibility: hidden;
+
+      .str-chat {
+        height: 0;
+      }
     }
 
     &-header {

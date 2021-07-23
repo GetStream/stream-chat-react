@@ -1,8 +1,12 @@
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+
+import type { Attachment, UpdatedMessage } from 'stream-chat';
+
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { Attachment, logChatPromiseExecution, UpdatedMessage } from 'stream-chat';
+
 import type {
   CustomTrigger,
   DefaultAttachmentType,
@@ -14,9 +18,6 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-/**
- * Get attachment type from MIME type
- */
 const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('video/')) return 'video';
   if (mime.includes('audio/')) return 'audio';
@@ -51,7 +52,16 @@ export const useSubmitHandler = <
   } = state;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { editMessage, sendMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { addNotification, editMessage, sendMessage } = useChannelActionContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
+  const { t } = useTranslationContext();
 
   const getAttachmentsFromUploads = () => {
     const imageAttachments = imageOrder
@@ -92,8 +102,9 @@ export const useSubmitHandler = <
     ];
   };
 
-  const handleSubmit = (event: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (event: React.BaseSyntheticEvent) => {
     event.preventDefault();
+
     const trimmedMessage = text.trim();
     const isEmptyMessage =
       trimmedMessage === '' ||
@@ -104,16 +115,16 @@ export const useSubmitHandler = <
       trimmedMessage === '____' ||
       trimmedMessage === '__' ||
       trimmedMessage === '****';
-    if (isEmptyMessage && numberOfUploads === 0) {
-      return;
-    }
+
+    if (isEmptyMessage && numberOfUploads === 0) return;
+
     // the channel component handles the actual sending of the message
     const someAttachmentsUploading =
       Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
       Object.values(fileUploads).some((upload) => upload.state === 'uploading');
+
     if (someAttachmentsUploading) {
-      // TODO: show error to user that they should wait until image is uploaded
-      return;
+      return addNotification(t('Wait until all attachments have uploaded'), 'error');
     }
 
     const newAttachments = getAttachmentsFromUploads();
@@ -135,40 +146,39 @@ export const useSubmitHandler = <
       text,
     };
 
-    if (!!message && editMessage) {
-      // TODO: Remove this line and show an error when submit fails
-      if (clearEditingState) {
-        clearEditingState();
-      }
-
-      const updateMessagePromise = editMessage(({
-        ...updatedMessage,
-        id: message.id,
-      } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>).then(clearEditingState);
-
-      logChatPromiseExecution(updateMessagePromise, 'update message');
-      dispatch({ type: 'clear' });
-    } else if (overrideSubmitHandler) {
-      overrideSubmitHandler(
-        {
+    if (message) {
+      try {
+        await editMessage(({
           ...updatedMessage,
-          parent,
-        },
-        channel.cid,
-      );
-      dispatch({ type: 'clear' });
-    } else if (sendMessage) {
-      const sendMessagePromise = sendMessage({
-        ...updatedMessage,
-        parent,
-      });
-      logChatPromiseExecution(sendMessagePromise, 'send message');
-      dispatch({ type: 'clear' });
+          id: message.id,
+        } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
+
+        if (clearEditingState) clearEditingState();
+        dispatch({ type: 'clear' });
+      } catch (err) {
+        addNotification(t('Edit message request failed'), 'error');
+      }
+    } else {
+      try {
+        if (overrideSubmitHandler) {
+          overrideSubmitHandler(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            channel.cid,
+          );
+        } else {
+          await sendMessage({ ...updatedMessage, parent });
+        }
+
+        if (publishTypingEvent) await channel.stopTyping();
+        dispatch({ type: 'clear' });
+      } catch (err) {
+        addNotification(t('Send message request failed'), 'error');
+      }
     }
-    if (publishTypingEvent) logChatPromiseExecution(channel.stopTyping(), 'stop typing');
   };
 
-  return {
-    handleSubmit,
-  };
+  return { handleSubmit };
 };

@@ -204,7 +204,7 @@ const MessageListWithContext = <
         onScroll={onScroll}
         ref={listRef}
       >
-        {!elements.length && !threadList ? (
+        {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
@@ -289,7 +289,7 @@ export type MessageListProps<
   returnAllReadData?: boolean;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
-  /** Set to `true` to indicate that the list is a thread  */
+  /** If true, indicates the message list is a thread  */
   threadList?: boolean;
 };
 

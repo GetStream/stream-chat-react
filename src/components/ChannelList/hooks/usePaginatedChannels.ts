@@ -40,6 +40,7 @@ export const usePaginatedChannels = <
   const [refreshing, setRefreshing] = useState(true);
 
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
+  const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
   const queryChannels = async (queryType?: string) => {
     if (queryType === 'reload') {
@@ -87,7 +88,7 @@ export const usePaginatedChannels = <
 
   useEffect(() => {
     queryChannels('reload');
-  }, [filterString]);
+  }, [filterString, sortString]);
 
   return {
     channels,

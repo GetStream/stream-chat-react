@@ -2,7 +2,7 @@ import './styles/App.scss';
 
 import { ChatContainer } from './components/Chat/ChatContainer';
 import { Navigation } from './components/Navigation/Navigation';
-import { VideoContainer } from './components/Video/VideoContainer';
+import { CentralPanel } from './components/CentralPanel/CentralPanel';
 import { EventProvider } from './contexts/EventContext';
 
 export const App = () => {
@@ -10,7 +10,7 @@ export const App = () => {
     <div className='app-container'>
       <EventProvider>
         <Navigation />
-        <VideoContainer />
+        <CentralPanel />
         <ChatContainer />
       </EventProvider>
     </div>
