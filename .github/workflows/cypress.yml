@@ -13,6 +13,7 @@ jobs:
         with:
           browser: chrome
           headless: true
+          build: npm run build
           start: npm start
           run:
             cd ../stream-chat-react/examples/typescript-app/ && yarn;yarn start
