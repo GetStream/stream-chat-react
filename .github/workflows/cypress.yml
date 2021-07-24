@@ -11,7 +11,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: npm start
+          start: yarn;yarn start
           wait-on: "http://localhost:3000"
           browser: chrome
           headless: true
