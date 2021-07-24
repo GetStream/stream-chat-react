@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -13,5 +13,9 @@ jobs:
         with:
           start: yarn;yarn start
           wait-on: "http://localhost:3000"
+          run:
+            cd ../stream-chat-react/examples/typescript-app/ && yarn;yarn start
+            pwd
+            ls
           browser: chrome
           headless: true
