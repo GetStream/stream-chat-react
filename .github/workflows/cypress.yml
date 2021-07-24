@@ -12,14 +12,17 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
+        run: |
+          #yarn;yarn start &&
+          cd ../stream-chat-react/examples/typescript-app/
+          yarn;yarn start
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
       - name: Cypress tests
         uses: cypress-io/github-action@v2
-            - working_directory:cd ../stream-chat-react/examples/typescript-app/
         with:
-         # Install NPM dependencies, cache them correctly
-         # and run all Cypress tests
           build: npm run build
-          start:  npm start
+          start: npm start
           wait-on: "http://localhost:3000"
           wait-on-timeout: 300
           # config-file: ./cypress/cypress.json
