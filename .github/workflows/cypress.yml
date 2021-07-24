@@ -14,9 +14,10 @@ jobs:
           browser: chrome
           headless: true
           start: npm start
-          wait-on: "http://localhost:3000"
           run:
             cd ../stream-chat-react/examples/typescript-app/ && yarn;yarn start
             pwd
             ls
+          wait-on: "http://localhost:3000"
+          
           
