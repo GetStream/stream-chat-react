@@ -17,7 +17,7 @@ jobs:
           cd ../stream-chat-react/examples/typescript-app/
           pwd
           ls
-          yarn;yarn start
+          #yarn;yarn start
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Cypress tests
