@@ -15,9 +15,10 @@ jobs:
       - name: Cypress tests
         uses: cypress-io/github-action@v2
         with:
+        
          run: |
-          # yarn;yarn start &&
           cd ../stream-chat-react/examples/typescript-app/
+          # yarn;yarn start &&
           yarn;yarn start
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
