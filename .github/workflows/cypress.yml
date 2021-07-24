@@ -14,18 +14,14 @@ jobs:
           TYPESCRIPT: ${{ matrix.typescript }}
       - name: Cypress tests
         uses: cypress-io/github-action@v2
+            - working_directory:cd ../stream-chat-react/examples/typescript-app/
         with:
-        
-         run: |
-          cd ../stream-chat-react/examples/typescript-app/
-          # yarn;yarn start &&
-          yarn;yarn start
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
-         build: npm run build
-         start: npm start
-         wait-on: "http://localhost:3000"
-         wait-on-timeout: 300
-         config-file: ./cypress/cypress.json
-         browser: chrome
-         headless: true
+         # Install NPM dependencies, cache them correctly
+         # and run all Cypress tests
+          build: npm run build
+          start:  npm start
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 300
+          # config-file: ./cypress/cypress.json
+          browser: chrome
+          headless: true
