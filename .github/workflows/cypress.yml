@@ -11,11 +11,12 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          browser: chrome
+          headless: true
           start: yarn;yarn start
           wait-on: "http://localhost:3000"
           run:
             cd ../stream-chat-react/examples/typescript-app/ && yarn;yarn start
             pwd
             ls
-          browser: chrome
-          headless: true
+          
