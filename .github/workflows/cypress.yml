@@ -8,28 +8,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Start React app
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          TYPESCRIPT: ${{ matrix.typescript }}
-        run: |
-          #yarn;yarn start &&
-          # cd ../stream-chat-react/examples/typescript-app/
-          pwd
-          ls
-          #yarn;yarn start
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
-      - name: Cypress tests
+      - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          build: npm run build
           start: npm start
-          run: |
-            cd ../stream-chat-react/examples/typescript-app/
-            yarn;yarn start
           wait-on: "http://localhost:3000"
-          wait-on-timeout: 300
-          # config-file: ./cypress/cypress.json
           browser: chrome
           headless: true
