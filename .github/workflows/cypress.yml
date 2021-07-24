@@ -14,7 +14,7 @@ jobs:
           TYPESCRIPT: ${{ matrix.typescript }}
         run: |
           #yarn;yarn start &&
-          cd ../stream-chat-react/examples/typescript-app/
+          # cd ../stream-chat-react/examples/typescript-app/
           pwd
           ls
           #yarn;yarn start
@@ -25,6 +25,9 @@ jobs:
         with:
           build: npm run build
           start: npm start
+          run: |
+            cd ../stream-chat-react/examples/typescript-app/
+            yarn;yarn start
           wait-on: "http://localhost:3000"
           wait-on-timeout: 300
           # config-file: ./cypress/cypress.json
