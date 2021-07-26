@@ -56,6 +56,7 @@
         width: 50px;
         height: 50px;
         background: $card-background;
+        transition: background 1s;
         border-radius: 8px;
       }
 
@@ -129,6 +130,7 @@
       height: 200px;
       margin-top: 32px;
       width: 15%;
+      min-width: 150px;
 
       &-title {
         font-weight: bold;
@@ -145,8 +147,10 @@
         align-items: center;
         justify-content: center;
         width: 50px;
+        min-width: 50px;
         height: 30px;
         background: $card-background;
+        transition: background 1s;
         border-radius: 8px;
         font-weight: 600;
       }
