@@ -1,15 +1,11 @@
+import { useViewContext } from '../../contexts/ViewContext';
 import './SideDrawer.scss';
 
-type Props = {
-    isSideDrawerOpen: boolean;
-    onClose: () => void;
-}
-
-export const SideDrawer: React.FC<Props> = (props) => {
-    const { isSideDrawerOpen, onClose } = props;
+export const SideDrawer: React.FC = () => {
+    const { isSideDrawerOpen, setSideDrawerOpen } = useViewContext();
 
     return (
-        <div className={`side-drawer ${isSideDrawerOpen ? 'isSideDrawerOpen' : ''}`} onClick={onClose}>
+        <div className={`side-drawer ${isSideDrawerOpen ? 'isSideDrawerOpen' : ''}`} onClick={() => setSideDrawerOpen(!isSideDrawerOpen)}>
             <span>SideDrawer!!</span>
         </div>
     )

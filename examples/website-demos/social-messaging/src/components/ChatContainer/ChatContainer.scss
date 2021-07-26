@@ -1,0 +1,18 @@
+.channel-list-container {
+    min-width: 418px;
+    max-width: 418px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: $input-bg;
+    border-bottom: $border-top;
+  
+    align-self: stretch;
+    flex-grow: 0;
+    margin: 0px 0px;
+  
+    &.sideDrawerOpen {
+      display: none;
+      visibility: hidden;
+    }
+}

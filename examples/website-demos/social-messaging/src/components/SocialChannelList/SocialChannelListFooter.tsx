@@ -2,18 +2,12 @@ import React from 'react';
 
 import { Chats } from '../../assets/Chats';
 import { Mentions } from '../../assets//Mentions';
+import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelList.scss';
 
-type Props = {
-    isListChats: boolean,
-    isListMentions: boolean,
-    setListChats: React.Dispatch<React.SetStateAction<boolean>>,
-    setListMentions: React.Dispatch<React.SetStateAction<boolean>>,
-};
-
-export const SocialChannelListFooter: React.FC<Props> = (props) => {
-    const { isListChats, isListMentions, setListChats, setListMentions } = props;
+export const SocialChannelListFooter: React.FC = () => {
+    const { isListChats, isListMentions, setListChats, setListMentions } = useViewContext();
 
     return (
         <div className='channel-list-footer'>

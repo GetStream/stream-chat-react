@@ -5,6 +5,7 @@
     visibility: hidden;
     display: flex;
     flex-direction: column;
+    left: 0px;
 
     &.isSideDrawerOpen {
         visibility: unset;
