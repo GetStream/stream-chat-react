@@ -6,7 +6,7 @@ import { ViewProvider } from './contexts/ViewContext';
 
 function App() {
   return (
-    <div className='chat-container'>
+    <div className='app-container'>
       <ViewProvider>
         <ChatContainer />
       </ViewProvider>
