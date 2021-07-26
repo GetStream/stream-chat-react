@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { DMChannelHeader } from './DMChannelHeader';
+
 import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
-import { DMChannelHeader } from './DMChannelHeader';
 
 const ChatHeaderTabs: React.FC = () => {
   const {
