@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import type { Channel as TypeChannel } from 'stream-chat';
 import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
@@ -86,6 +87,7 @@ function App() {
             )}
             options={options}
             Preview={SocialChannelPreview}
+            sendChannelsToList
             sort={sort}
           />
         </div>
