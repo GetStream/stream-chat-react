@@ -1,4 +1,4 @@
-import React, { Reducer, useCallback, useReducer } from 'react';
+import React, { Reducer, useCallback, useReducer, useState } from 'react';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
@@ -324,6 +324,12 @@ const messageInputReducer = <
   }
 };
 
+export type CommandsListState = {
+  closeCommandsList: () => void;
+  openCommandsList: () => void;
+  showCommandsList: boolean;
+};
+
 /**
  * hook for MessageInput state
  */
@@ -338,7 +344,7 @@ export const useMessageInputState = <
   V extends CustomTrigger = CustomTrigger
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-): MessageInputState<At, Us> & MessageInputHookProps<Us> => {
+): MessageInputState<At, Us> & MessageInputHookProps<Us> & CommandsListState => {
   const { message } = props;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
@@ -359,6 +365,18 @@ export const useMessageInputState = <
     Us,
     V
   >(props, state, dispatch);
+
+  const [showCommandsList, setShowCommandsList] = useState(false);
+
+  const openCommandsList = () => {
+    dispatch({
+      getNewText: () => '/',
+      type: 'setText',
+    });
+    setShowCommandsList(true);
+  };
+
+  const closeCommandsList = () => setShowCommandsList(false);
 
   const {
     closeEmojiPicker,
@@ -395,6 +413,7 @@ export const useMessageInputState = <
 
   return {
     ...state,
+    closeCommandsList,
     /**
      * TODO: fix the below at some point because this type casting is wrong
      * and just forced to not have warnings currently with the unknown casting
@@ -412,9 +431,11 @@ export const useMessageInputState = <
     onPaste,
     onSelectEmoji,
     onSelectUser,
+    openCommandsList,
     openEmojiPicker,
     removeFile,
     removeImage,
+    showCommandsList,
     textareaRef,
     uploadFile,
     uploadImage,
