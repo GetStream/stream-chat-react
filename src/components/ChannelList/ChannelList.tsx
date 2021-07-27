@@ -207,7 +207,7 @@ const UnMemoizedChannelList = <
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
    */
-  const activeChannelHandler = (
+  const activeChannelHandler = async (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => {
@@ -220,12 +220,20 @@ const UnMemoizedChannelList = <
     }
 
     if (customActiveChannel) {
-      const customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
+      //@ts-expect-error
+      const customActiveChannelQuery = await client.queryChannels({ id: customActiveChannel });
+      const customActiveChannelObject =
+        channels.find((chan) => chan.cid === customActiveChannel) || customActiveChannelQuery[0];
+
       if (customActiveChannelObject) {
         if (setActiveChannel) {
           setActiveChannel(customActiveChannelObject, watchers);
         }
-        const newChannels = moveChannelUp(customActiveChannelObject.cid, channels);
+        const newChannels = moveChannelUp(
+          customActiveChannelObject.cid,
+          channels,
+          customActiveChannelObject,
+        );
         setChannels(newChannels);
       }
 

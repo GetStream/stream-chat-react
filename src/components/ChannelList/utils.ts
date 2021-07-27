@@ -41,14 +41,15 @@ export const moveChannelUp = <
 >(
   cid: string,
   channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
+  customActiveChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   // get channel index
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
 
-  if (channelIndex <= 0) return channels;
+  if (!customActiveChannel && channelIndex <= 0) return channels;
 
   // get channel from channels
-  const channel = channels[channelIndex];
+  const channel = customActiveChannel || channels[channelIndex];
 
   // remove channel from current position
   channels.splice(channelIndex, 1);
