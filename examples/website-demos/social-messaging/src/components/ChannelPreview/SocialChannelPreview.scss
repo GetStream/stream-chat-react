@@ -9,7 +9,8 @@
     flex-grow: 0;
     text-align: left;
     background-color: $app-bg;
-    border-bottom: $border-bottom;
+    border-bottom: 1px solid $borders;
+    border-top: none;
     border-right: none;
     border-left: none;
 
