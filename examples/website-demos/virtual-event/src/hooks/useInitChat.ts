@@ -18,7 +18,7 @@ export const useInitChat = () => {
   const switchChannel = async (type: ChatType, event?: string) => {
     if (!chatClient || type === 'direct') return;
 
-    const channelId = event ? `${type}-${event}` : type;
+    const channelId = event && type !== 'global' ? `${type}-${event}` : type;
     const newChannel = chatClient.channel('livestream', channelId);
 
     await newChannel.watch({ watchers: { limit: 100 } });

@@ -2,128 +2,128 @@ import React from 'react';
 
 export const Card1 = () => (
   <svg
+    xmlns='http://www.w3.org/2000/svg'
     width='250'
     height='157'
-    viewBox='0 0 250 157'
     fill='none'
-    xmlns='http://www.w3.org/2000/svg'
+    viewBox='0 0 250 157'
   >
-    <rect width='250' height='156' transform='translate(0 0.341309)' fill='#02007B' />
+    <path fill='#02007B' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
     <g filter='url(#filter0_d)'>
       <path
-        d='M65 110.075L125.371 75.3413L185.741 110.075L125.371 144.809L65 110.075Z'
         fill='#1D81FA'
-      />
+        d='M65 110.075l60.371-34.734 60.37 34.734-60.37 34.734L65 110.075z'
+      ></path>
     </g>
     <g filter='url(#filter1_d)'>
       <g filter='url(#filter2_b)'>
         <path
-          d='M65 78.075L125.371 43.3413L185.741 78.075L125.371 112.809L65 78.075Z'
           fill='#5BC9F9'
           fillOpacity='0.75'
-        />
+          d='M65 78.075l60.371-34.734 60.37 34.734-60.37 34.734L65 78.075z'
+        ></path>
       </g>
     </g>
     <g filter='url(#filter3_d)'>
       <g filter='url(#filter4_b)'>
         <path
-          d='M65 46.075L125.371 11.3413L185.741 46.075L125.371 80.8087L65 46.075Z'
           fill='#F2F2F2'
           fillOpacity='0.85'
-        />
+          d='M65 46.075l60.371-34.734 60.37 34.734-60.37 34.734L65 46.075z'
+        ></path>
       </g>
     </g>
     <defs>
       <filter
         id='filter0_d'
-        x='60'
-        y='72.3413'
         width='130.741'
-        height='79.4674'
-        filterUnits='userSpaceOnUse'
+        height='79.467'
+        x='60'
+        y='72.341'
         colorInterpolationFilters='sRGB'
+        filterUnits='userSpaceOnUse'
       >
-        <feFlood floodOpacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix'></feFlood>
         <feColorMatrix
           in='SourceAlpha'
-          type='matrix'
+          result='hardAlpha'
           values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-        />
-        <feOffset dy='2' />
-        <feGaussianBlur stdDeviation='2.5' />
-        <feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0' />
-        <feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow' />
-        <feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow' result='shape' />
+        ></feColorMatrix>
+        <feOffset dy='2'></feOffset>
+        <feGaussianBlur stdDeviation='2.5'></feGaussianBlur>
+        <feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0'></feColorMatrix>
+        <feBlend in2='BackgroundImageFix' result='effect1_dropShadow'></feBlend>
+        <feBlend in='SourceGraphic' in2='effect1_dropShadow' result='shape'></feBlend>
       </filter>
       <filter
         id='filter1_d'
-        x='60'
-        y='40.3413'
         width='130.741'
-        height='79.4674'
-        filterUnits='userSpaceOnUse'
+        height='79.467'
+        x='60'
+        y='40.341'
         colorInterpolationFilters='sRGB'
+        filterUnits='userSpaceOnUse'
       >
-        <feFlood floodOpacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix'></feFlood>
         <feColorMatrix
           in='SourceAlpha'
-          type='matrix'
+          result='hardAlpha'
           values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-        />
-        <feOffset dy='2' />
-        <feGaussianBlur stdDeviation='2.5' />
-        <feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0' />
-        <feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow' />
-        <feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow' result='shape' />
+        ></feColorMatrix>
+        <feOffset dy='2'></feOffset>
+        <feGaussianBlur stdDeviation='2.5'></feGaussianBlur>
+        <feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0'></feColorMatrix>
+        <feBlend in2='BackgroundImageFix' result='effect1_dropShadow'></feBlend>
+        <feBlend in='SourceGraphic' in2='effect1_dropShadow' result='shape'></feBlend>
       </filter>
       <filter
         id='filter2_b'
-        x='61'
-        y='39.3413'
         width='128.741'
-        height='77.4674'
-        filterUnits='userSpaceOnUse'
+        height='77.467'
+        x='61'
+        y='39.341'
         colorInterpolationFilters='sRGB'
+        filterUnits='userSpaceOnUse'
       >
-        <feFlood floodOpacity='0' result='BackgroundImageFix' />
-        <feGaussianBlur in='BackgroundImage' stdDeviation='2' />
-        <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur' />
-        <feBlend mode='normal' in='SourceGraphic' in2='effect1_backgroundBlur' result='shape' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix'></feFlood>
+        <feGaussianBlur in='BackgroundImage' stdDeviation='2'></feGaussianBlur>
+        <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur'></feComposite>
+        <feBlend in='SourceGraphic' in2='effect1_backgroundBlur' result='shape'></feBlend>
       </filter>
       <filter
         id='filter3_d'
-        x='60'
-        y='8.34131'
         width='130.741'
-        height='79.4674'
-        filterUnits='userSpaceOnUse'
+        height='79.467'
+        x='60'
+        y='8.341'
         colorInterpolationFilters='sRGB'
+        filterUnits='userSpaceOnUse'
       >
-        <feFlood floodOpacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix'></feFlood>
         <feColorMatrix
           in='SourceAlpha'
-          type='matrix'
+          result='hardAlpha'
           values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-        />
-        <feOffset dy='2' />
-        <feGaussianBlur stdDeviation='2.5' />
-        <feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0' />
-        <feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow' />
-        <feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow' result='shape' />
+        ></feColorMatrix>
+        <feOffset dy='2'></feOffset>
+        <feGaussianBlur stdDeviation='2.5'></feGaussianBlur>
+        <feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0'></feColorMatrix>
+        <feBlend in2='BackgroundImageFix' result='effect1_dropShadow'></feBlend>
+        <feBlend in='SourceGraphic' in2='effect1_dropShadow' result='shape'></feBlend>
       </filter>
       <filter
         id='filter4_b'
-        x='61'
-        y='7.34131'
         width='128.741'
-        height='77.4674'
-        filterUnits='userSpaceOnUse'
+        height='77.467'
+        x='61'
+        y='7.341'
         colorInterpolationFilters='sRGB'
+        filterUnits='userSpaceOnUse'
       >
-        <feFlood floodOpacity='0' result='BackgroundImageFix' />
-        <feGaussianBlur in='BackgroundImage' stdDeviation='2' />
-        <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur' />
-        <feBlend mode='normal' in='SourceGraphic' in2='effect1_backgroundBlur' result='shape' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix'></feFlood>
+        <feGaussianBlur in='BackgroundImage' stdDeviation='2'></feGaussianBlur>
+        <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur'></feComposite>
+        <feBlend in='SourceGraphic' in2='effect1_backgroundBlur' result='shape'></feBlend>
       </filter>
     </defs>
   </svg>
