@@ -216,7 +216,7 @@ const UnMemoizedChannelList = <
     }
 
     if (customActiveChannel) {
-      let customActiveChannelObject = channels.find((chan) => chan.cid === customActiveChannel);
+      let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
 
       if (!customActiveChannelObject) {
         //@ts-expect-error

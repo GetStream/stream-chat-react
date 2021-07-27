@@ -66,7 +66,7 @@ export const moveChannelUp = <
   const channel = activeChannel || channels[channelIndex];
 
   // remove channel from current position
-  channels.splice(channelIndex, 1);
+  if (channelIndex) channels.splice(channelIndex, 1);
   // add channel at the start
   channels.unshift(channel);
 
