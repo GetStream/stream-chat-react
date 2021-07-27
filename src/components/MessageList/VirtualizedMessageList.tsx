@@ -19,7 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { FixedHeightMessage, Message, MessageUIComponentProps } from '../Message';
+import { Message, MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelActionContextValue,
@@ -100,7 +100,7 @@ const VirtualizedMessageListWithContext = <
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
     TypingIndicator = null,
-    VirtualMessage: contextMessage = FixedHeightMessage,
+    VirtualMessage: contextMessage = MessageSimple,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const { t } = useTranslationContext();
