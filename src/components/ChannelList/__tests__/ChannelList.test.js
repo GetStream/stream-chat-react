@@ -338,8 +338,8 @@ describe('ChannelList', () => {
         testChannel2.channel.id,
       );
 
-      waitFor(async () => {
-        expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+      waitFor(() => {
+        expect(testSetActiveChannelCall(channelInstance)).toBe(true);
       });
     });
 

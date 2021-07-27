@@ -211,11 +211,7 @@ const UnMemoizedChannelList = <
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => {
-    if (
-      !channels ||
-      channels.length === 0 ||
-      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
-    ) {
+    if (channels.length === 0 || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
       return;
     }
 
@@ -242,7 +238,7 @@ const UnMemoizedChannelList = <
       return;
     }
 
-    if (setActiveChannelOnMount && setActiveChannel) {
+    if (setActiveChannelOnMount) {
       setActiveChannel(channels[0], watchers);
     }
   };
