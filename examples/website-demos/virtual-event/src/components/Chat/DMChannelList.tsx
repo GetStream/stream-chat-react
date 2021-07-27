@@ -15,15 +15,22 @@ import {
 
 import './DMChannelList.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { MessageInputUI } from './MessageInputUI';
 import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-import type { Channel as StreamChannel, ChannelSort, UserResponse } from 'stream-chat';
+import type {
+  Channel as StreamChannel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  UserResponse,
+} from 'stream-chat';
 
-const filters = { type: 'messaging' };
-const options = { state: true, presence: true, limit: 10 };
+const filters: ChannelFilters = { type: 'messaging' };
+const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
 const ListWrapper: React.FC = ({ children }) => {
@@ -108,7 +115,11 @@ export const DMChannelList = () => {
   return (
     <div className='dm'>
       {dmChannel && (
-        <Channel channel={dmChannel} EmptyStateIndicator={EmptyStateIndicators}>
+        <Channel
+          channel={dmChannel}
+          EmptyStateIndicator={EmptyStateIndicators}
+          Input={MessageInputUI}
+        >
           <Window hideOnThread>
             <VirtualizedMessageList hideDeletedMessages />
             <MessageInput focus />

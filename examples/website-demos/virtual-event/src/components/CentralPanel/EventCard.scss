@@ -8,6 +8,10 @@
     border-radius: 16px;
     margin: 32px;
     height: 156px;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 
   &-image {
