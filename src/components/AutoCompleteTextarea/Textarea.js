@@ -452,6 +452,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     const notSafe = [
       'additionalTextareaProps',
       'className',
+      'closeCommandsList',
       'closeOnClickOutside',
       'containerClassName',
       'containerStyle',
@@ -476,6 +477,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'showCommandsList',
       'SuggestionItem',
       'SuggestionList',
       'trigger',
