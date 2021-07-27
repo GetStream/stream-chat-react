@@ -1,4 +1,5 @@
 import type { Channel, StreamChat } from 'stream-chat';
+import uniqBy from 'lodash.uniqby';
 
 import type {
   DefaultAttachmentType,
@@ -57,18 +58,13 @@ export const moveChannelUp = <
   channels,
   cid,
 }: MoveChannelUpParams<At, Ch, Co, Ev, Me, Re, Us>) => {
-  // get channel index
+  // get index of channel to move up
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
 
   if (!activeChannel && channelIndex <= 0) return channels;
 
-  // get channel from channels
+  // get channel to move up
   const channel = activeChannel || channels[channelIndex];
 
-  // remove channel from current position
-  if (channelIndex) channels.splice(channelIndex, 1);
-  // add channel at the start
-  channels.unshift(channel);
-
-  return [...channels];
+  return uniqBy([channel, ...channels], 'cid');
 };
