@@ -50,6 +50,7 @@ export const MessageInputFlat = <
   const { t } = useTranslationContext();
 
   const {
+    closeCommandsList,
     closeEmojiPicker,
     cooldownInterval,
     cooldownRemaining,
@@ -58,8 +59,10 @@ export const MessageInputFlat = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    openCommandsList,
     openEmojiPicker,
     setCooldownRemaining,
+    showCommandsList,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -70,6 +73,14 @@ export const MessageInputFlat = <
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+
+  const handleCommandClick = () => {
+    if (showCommandsList) {
+      closeCommandsList();
+    } else {
+      openCommandsList();
+    }
+  };
 
   return (
     <div
@@ -112,6 +123,7 @@ export const MessageInputFlat = <
               </span>
             </div>
             <EmojiPicker />
+            <div onClick={handleCommandClick}>COMMANDS</div>
             <ChatAutoComplete />
             {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
