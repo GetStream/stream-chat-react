@@ -18,13 +18,13 @@ export const HackerSummitHero = () => (
       <path
         d='M60.3706 69.7256L100.618 46.5698V93.4299L60.3706 116.037V69.7256Z'
         fill='#73779C'
-        fill-opacity='0.75'
+        fillOpacity='0.75'
       />
     </g>
     <path
       d='M20.1235 46.5698L60.3705 69.728V116.037L20.1235 93.4367V46.5698Z'
       fill='#85D9FF'
-      fill-opacity='0.75'
+      fillOpacity='0.75'
     />
     <path
       opacity='0.75'
@@ -39,13 +39,13 @@ export const HackerSummitHero = () => (
     <path
       d='M0 34.855L60.3705 69.5922V139.056L0 105.155V34.855Z'
       fill='#85D9FF'
-      fill-opacity='0.5'
+      fillOpacity='0.5'
     />
     <g filter='url(#filter1_b)'>
       <path
         d='M0 34.8558L60.3705 0.12207L120.741 34.8558L60.3705 69.5895L0 34.8558Z'
         fill='#EE5D2D'
-        fill-opacity='0.4'
+        fillOpacity='0.4'
       />
     </g>
     <path
@@ -137,9 +137,9 @@ export const HackerSummitHero = () => (
         width='48.247'
         height='77.4674'
         filterUnits='userSpaceOnUse'
-        color-interpolation-filters='sRGB'
+        colorInterpolationFilters='sRGB'
       >
-        <feFlood flood-opacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix' />
         <feColorMatrix
           in='SourceAlpha'
           type='matrix'
@@ -158,9 +158,9 @@ export const HackerSummitHero = () => (
         width='128.741'
         height='77.4674'
         filterUnits='userSpaceOnUse'
-        color-interpolation-filters='sRGB'
+        colorInterpolationFilters='sRGB'
       >
-        <feFlood flood-opacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix' />
         <feGaussianBlur in='BackgroundImage' stdDeviation='2' />
         <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur' />
         <feBlend mode='normal' in='SourceGraphic' in2='effect1_backgroundBlur' result='shape' />

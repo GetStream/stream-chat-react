@@ -19,13 +19,13 @@ export const Card2 = () => (
       <path
         d='M125.371 78.0671L165.618 54.9113V101.771L125.371 124.379V78.0671Z'
         fill='#73779C'
-        fill-opacity='0.75'
+        fillOpacity='0.75'
       />
     </g>
     <path
       d='M85.1235 54.9114L125.371 78.0695V124.379L85.1235 101.778V54.9114Z'
       fill='#8DD6F7'
-      fill-opacity='0.75'
+      fillOpacity='0.75'
     />
     <path
       opacity='0.75'
@@ -40,13 +40,13 @@ export const Card2 = () => (
     <path
       d='M65 43.1963L125.371 77.9335V147.397L65 113.497V43.1963Z'
       fill='#8DD6F7'
-      fill-opacity='0.5'
+      fillOpacity='0.5'
     />
     <g filter='url(#filter1_b)'>
       <path
         d='M65 43.1971L125.371 8.46338L185.741 43.1971L125.371 77.9308L65 43.1971Z'
         fill='#EE5D2D'
-        fill-opacity='0.4'
+        fillOpacity='0.4'
       />
     </g>
     <defs>
@@ -57,9 +57,9 @@ export const Card2 = () => (
         width='48.247'
         height='77.4674'
         filterUnits='userSpaceOnUse'
-        color-interpolation-filters='sRGB'
+        colorInterpolationFilters='sRGB'
       >
-        <feFlood flood-opacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix' />
         <feColorMatrix
           in='SourceAlpha'
           type='matrix'
@@ -78,9 +78,9 @@ export const Card2 = () => (
         width='128.741'
         height='77.4674'
         filterUnits='userSpaceOnUse'
-        color-interpolation-filters='sRGB'
+        colorInterpolationFilters='sRGB'
       >
-        <feFlood flood-opacity='0' result='BackgroundImageFix' />
+        <feFlood floodOpacity='0' result='BackgroundImageFix' />
         <feGaussianBlur in='BackgroundImage' stdDeviation='2' />
         <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur' />
         <feBlend mode='normal' in='SourceGraphic' in2='effect1_backgroundBlur' result='shape' />
