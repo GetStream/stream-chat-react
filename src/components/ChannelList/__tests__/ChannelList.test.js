@@ -318,7 +318,7 @@ describe('ChannelList', () => {
       expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
     });
 
-    it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', async () => {
+    it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', () => {
       render(
         <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
           <ChannelList
@@ -338,7 +338,9 @@ describe('ChannelList', () => {
         testChannel2.channel.id,
       );
 
-      expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+      waitFor(async () => {
+        expect(await testSetActiveChannelCall(channelInstance)).toBe(true);
+      });
     });
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
@@ -367,7 +369,9 @@ describe('ChannelList', () => {
       // Get the closest listitem to the channel that received new message.
       const channelPreview = getByTestId(testChannel2.channel.id).closest(ROLE_LIST_ITEM_SELECTOR);
 
-      expect(channelPreview.isEqualNode(items[0])).toBe(true);
+      waitFor(() => {
+        expect(channelPreview.isEqualNode(items[0])).toBe(true);
+      });
     });
   });
 

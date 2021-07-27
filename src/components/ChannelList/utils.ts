@@ -30,6 +30,20 @@ export const getChannel = async <
 
 export const MAX_QUERY_CHANNELS_LIMIT = 30;
 
+type MoveChannelUpParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
+  cid: string;
+  activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+};
+
 export const moveChannelUp = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -38,18 +52,18 @@ export const moveChannelUp = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->(
-  cid: string,
-  channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-  customActiveChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
-) => {
+>({
+  activeChannel,
+  channels,
+  cid,
+}: MoveChannelUpParams<At, Ch, Co, Ev, Me, Re, Us>) => {
   // get channel index
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
 
-  if (!customActiveChannel && channelIndex <= 0) return channels;
+  if (!activeChannel && channelIndex <= 0) return channels;
 
   // get channel from channels
-  const channel = customActiveChannel || channels[channelIndex];
+  const channel = activeChannel || channels[channelIndex];
 
   // remove channel from current position
   channels.splice(channelIndex, 1);

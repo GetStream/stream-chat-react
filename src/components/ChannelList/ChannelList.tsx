@@ -220,20 +220,22 @@ const UnMemoizedChannelList = <
     }
 
     if (customActiveChannel) {
-      //@ts-expect-error
-      const customActiveChannelQuery = await client.queryChannels({ id: customActiveChannel });
-      const customActiveChannelObject =
-        channels.find((chan) => chan.cid === customActiveChannel) || customActiveChannelQuery[0];
+      let customActiveChannelObject = channels.find((chan) => chan.cid === customActiveChannel);
+
+      if (!customActiveChannelObject) {
+        //@ts-expect-error
+        [customActiveChannelObject] = await client.queryChannels({ id: customActiveChannel });
+      }
 
       if (customActiveChannelObject) {
-        if (setActiveChannel) {
-          setActiveChannel(customActiveChannelObject, watchers);
-        }
-        const newChannels = moveChannelUp(
-          customActiveChannelObject.cid,
+        setActiveChannel(customActiveChannelObject, watchers);
+
+        const newChannels = moveChannelUp({
+          activeChannel: customActiveChannelObject,
           channels,
-          customActiveChannelObject,
-        );
+          cid: customActiveChannelObject.cid,
+        });
+
         setChannels(newChannels);
       }
 
