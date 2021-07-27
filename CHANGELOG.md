@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.4.7](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.7) 2021-07-27
+
+### Feature
+
+- Add the ability to open/close list of available commands on click [#1072](https://github.com/GetStream/stream-chat-react/pull/1072)
+
+### Chore
+
+- Replace `replaceAll` method with `replace` and add global flag for older browser support [#10](https://github.com/GetStream/stream-chat-react/pull/10)
+
 ## [6.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.6) 2021-07-23
 
 ### Chore
