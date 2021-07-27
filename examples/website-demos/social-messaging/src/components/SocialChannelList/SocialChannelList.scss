@@ -4,7 +4,7 @@
     min-width: 416px;
     max-width: 416px;
     background-color: $input-bg;
-    border-bottom: $border-top;
+    border-bottom: 1px solid $borders;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -17,7 +17,8 @@
         justify-content: space-between;
         align-items: center;
         background-color: $bars-bg;
-        border-bottom: $border-top;
+        border-bottom: 1px solid $borders;
+        border-right: 1px solid $borders;
       
         left: 0px;
         right: 0px;
@@ -31,7 +32,8 @@
 
     &-footer {
         background-color: $bars-bg;
-        border-top: $border-top;
+        border-top: 1px solid $borders;
+        border-right: 1px solid $borders;
       
         display: flex;
         flex-direction: row;

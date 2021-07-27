@@ -1,16 +1,15 @@
 @import '../../styles/variables';
 
-.side-drawer {
+.channel-list-container {
     min-width: 418px;
     max-width: 418px;
     height: 100vh;
-    visibility: hidden;
     display: flex;
     flex-direction: column;
-    left: 0px;
-    border-right: 1px solid $borders;
-
-    &.isSideDrawerOpen {
-        visibility: unset;
+    background: $input-bg;
+    border-bottom: $border-top;
+  
+    &.sideDrawerOpen {
+      display: none;
     }
 }

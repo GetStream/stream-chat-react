@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 
 import type { Channel } from 'stream-chat';
-import { Avatar, ChannelListMessengerProps, ChannelPreview, useChatContext } from 'stream-chat-react';
+import { Avatar, ChannelListMessengerProps, useChatContext } from 'stream-chat-react';
 
 import { SocialChannelListFooter } from '../../components/SocialChannelList/SocialChannelListFooter';
 import { SocialChannelPreview } from '../../components/ChannelPreview/SocialChannelPreview';
+
 
 import './SocialChannelList.scss';
 
@@ -14,9 +15,6 @@ export const SocialChannelList: React.FC<Props> = (props) => {
   const { children, loadedChannels } = props;
 
   const { channel, setActiveChannel } = useChatContext();
-
-  const [isListMentions, setListMentions] = useState(false);
-  const [isListChats, setListChats] = useState(false);
 
   const ListHeaderWrapper: React.FC<Props> = (props) => {
     const { children, loadedChannels } = props;
@@ -43,9 +41,9 @@ export const SocialChannelList: React.FC<Props> = (props) => {
     return (
       <>
         <div className='channel-list'>
-          {!isListMentions ? children : thing}
+          {children}
         </div>
-        <SocialChannelListFooter { ...{ isListChats, isListMentions, setListChats, setListMentions}} />
+        <SocialChannelListFooter />
       </>
     );
   };

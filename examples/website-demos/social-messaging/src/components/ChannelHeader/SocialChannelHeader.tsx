@@ -1,21 +1,17 @@
 import React from 'react';
 
 import { ArrowLeft } from '../../assets/ArrowLeft';
+import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelHeader.scss';
 
-type Props = {
-  isNewChat: boolean;
-  setNewChat: React.Dispatch<React.SetStateAction<boolean>>,
-};
-
-export const SocialChannelHeader: React.FC<Props> = (props) => {
-  const { isNewChat, setNewChat } = props;
+export const SocialChannelHeader: React.FC = () => {
+  const { isNewChat } = useViewContext();
 
   if (isNewChat) {
     return (
       <div className='social-channelheader'>
-        <ArrowLeft {...{isNewChat, setNewChat }} />
+        <ArrowLeft />
         <span>New Chat</span>
       </div>
     )
